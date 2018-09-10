@@ -6,7 +6,8 @@ module DataCycleCore
     belongs_to :user
 
     def apply
-      query = DataCycleCore::Filter::Search.new(language || DataCycleCore.ui_language)
+      query_params = language.include?('all') ? [nil, DataCycleCore::Search.all] : [language]
+      query = DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])

@@ -16,7 +16,7 @@ module DataCycleCore
           if value == 'all'
             DataCycleCore::ClassificationTreeLabel.all.pluck(:name).map do |c|
               [
-                I18n.t("filter.#{c}", default: c, locale: DataCycleCore.ui_language),
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
                 'classification_alias_ids',
                 data: { name: c }
               ]
@@ -24,7 +24,7 @@ module DataCycleCore
           elsif value.is_a?(Array)
             value.map do |c|
               [
-                I18n.t("filter.#{c}", default: c, locale: DataCycleCore.ui_language),
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
                 'classification_alias_ids',
                 data: { name: c }
               ]
@@ -38,7 +38,7 @@ module DataCycleCore
           if value
             [
               [
-                I18n.t("filter.#{key}", default: key.capitalize, locale: DataCycleCore.ui_language),
+                I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: DataCycleCore.ui_language),
                 key,
                 data: { name: key.capitalize }
               ]

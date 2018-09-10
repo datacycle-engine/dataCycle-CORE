@@ -15,18 +15,19 @@ module DataCycleCore
         # @total = @paginate_object.total_count
         # @contents = @paginate_object.map(&:content_data)
       elsif params[:stored_filter].blank?
-        @paginate_object = get_filtered_results.content_includes.page(params[:page])
+        @paginate_object = get_filtered_results
+        @total = @paginate_object.count_distinct
+        @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
         @stored_filter = save_filter
       else
         query = apply_filter(filter_id: params[:stored_filter])
-        @paginate_object = get_filtered_results(query).content_includes.page(params[:page])
+        @paginate_object = get_filtered_results(query)
+        @total = @paginate_object.count_distinct
+        @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       end
 
-      @paginate_object = @paginate_object
-
-      @total = @paginate_object.total_count
+      @total_pages = (@total.to_f / 25).ceil
       @contents = @paginate_object.map(&:content_data)
-
       @content = CreativeWork.new
     end
 

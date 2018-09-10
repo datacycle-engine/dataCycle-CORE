@@ -6,7 +6,7 @@
 		<span class="sr-only">Loading...</span>
 	</li>
 
-  <% contents.presence&.each do |content| %>
+  <% contents&.each do |content| %>
       <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
         <% if no_cache ||= false %>
           <%= render(*(content_tile item: content)) %>
@@ -17,6 +17,10 @@
         <% end %>
 
         <div class="buttons">
+          <% if content.try(:translated_locales)&.size&.>(1) %>
+            <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"></i>
+          <% end %>
+
           <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
 
           <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>

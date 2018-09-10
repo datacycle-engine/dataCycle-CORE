@@ -1,11 +1,11 @@
-<div data-id="<%= sanitize_to_id(filter_name) %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
   <%= hidden_field_tag "f[#{index}][t]", :classification_alias_ids %>
-  <%= hidden_field_tag "f[#{index}][n]", filter_name %>
+  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
 
   <div class="advanced-filter-title">
-    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name.downcase %>
-    <span><%= t("filter.#{filter_name}", default: filter_name, locale: DataCycleCore.ui_language) %></span>
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
 
   <div class="advanced-filter-mode">
@@ -15,7 +15,7 @@
 
   <div class="advanced-filter-selector">
     <% classification_items = DataCycleCore::ClassificationTreeLabel
-      .find_by(name: filter_name)
+      .find_by(name: filter_title)
       &.classification_trees
       &.includes(
         :parent_classification_alias, sub_classification_alias: [
@@ -26,6 +26,7 @@
           ]
         ]
       ) %>
+
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
         <%= select_tag(
           "f[#{index}][v]",
@@ -47,7 +48,7 @@
             multiple: true,
             class: 'async-select',
             data: {
-              tree_label: filter_name,
+              tree_label: filter_title,
               max: 20,
               placeholder: '',
               alias_ids: true
@@ -75,7 +76,7 @@
             multiple: true,
             class: 'multi-select',
             data: {
-              tree_label: filter_name,
+              tree_label: filter_title,
               max: 20,
               placeholder: ''
             }
@@ -86,7 +87,7 @@
 
   <% if can?(:advanced_filter, :backend) %>
     <div class="buttons">
-      <a class="remove-advanced-filter button alert" data-target="<%= sanitize_to_id(filter_name) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter button alert" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

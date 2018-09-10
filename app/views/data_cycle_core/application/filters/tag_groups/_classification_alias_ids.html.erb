@@ -1,23 +1,28 @@
-<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+<span class="tag-group tags <%= key %>" data-id="<%= target %>">
   <i class="tag-group-label">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: key, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </i>
 
-  <% selected_classification_aliases = DataCycleCore::ClassificationAlias.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
+  <% @selected_classification_aliases ||= DataCycleCore::ClassificationAlias
+    .where(id: value)
+    .map { |c| [c.id, c] }.to_h %>
 
   <span class="tags-container">
-    <% value.each do |classification_alias_id| %>
-      <span class="tag"><%= selected_classification_aliases[classification_alias_id] %></span>
+    <% if buttons == 'd' %>
+        <% value.each do |ca_id| %>
+          <label for="<%= ca_id %>">
+            <a class="tag">
+              <%= @selected_classification_aliases[ca_id].try(:name) %><i class="fa fa-times" aria-hidden="true"></i>
+            </a>
+          </label>
+        <% end %>
+    <% else %>
+        <% value.each do |ca_id| %>
+          <span class="tag"><%= @selected_classification_aliases[ca_id].try(:name) %></span>
+        <% end %>
     <% end %>
   </span>
 
-  <% if buttons %>
-    <span class="tag-buttons">
-      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
-      <% if can?(:advanced_filter, :backend) %>
-        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
-      <% end %>
-    </span>
-  <% end %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

@@ -1,12 +1,15 @@
 ul.backend-treeview-list {
   list-style-type: none;
   margin: 2rem 0;
+
   >li {
     border-top: 1px solid $medium-gray;
+
     >span.inner-item {
       padding: 0.7rem 1rem;
       display: inline-block;
     }
+
     a.edit,
     a.destroy,
     a.download,
@@ -15,31 +18,38 @@ ul.backend-treeview-list {
       color: $dark-gray;
       cursor: pointer;
     }
+
     a.edit:hover,
     a.download:hover,
     a.contents-list:hover {
       color: $primary-color;
     }
+
     a.destroy:hover {
       color: map-get($foundation-palette, alert);
     }
+
     ul.children {
       list-style-type: none;
       margin: 0;
+
       form {
         padding: 0 1rem 1rem 1rem;
       }
+
       >li {
         list-style-type: none;
         border-left: 1px solid $medium-gray;
         margin-left: 2em;
         line-height: 1;
       }
+
       li:not(.active) {
         >span.inner-item {
           position: relative;
           padding: 0.5rem 0 0 1rem;
           display: inline-block;
+
           &::before {
             content: '';
             position: absolute;
@@ -53,47 +63,59 @@ ul.backend-treeview-list {
           }
         }
       }
+
       >li:nth-last-child(2),
       >li:last-child {
         border-left: 1px solid transparent;
       }
+
       >li.new-button {
         padding: 1rem 0.5rem 1.5rem 1rem;
         margin: 0;
       }
     }
+
     ul.classifications {
       font-style: italic;
       list-style: none;
       margin-left: 1rem;
+
       >li {
         display: inline-block;
         color: $dark-gray;
         font-size: 0.8rem;
         padding-top: 0;
       }
+
       >li:first-child:before {
         content: '(';
       }
+
       >li:not(:last-child):after {
         content: ', '
       }
+
       >li:last-child:after {
         content: ')';
       }
     }
   }
+
   li:not(.active)>form {
     display: none;
   }
+
   li.active> :not(form) {
     display: none;
   }
+
   form {
     label:first-of-type {
       display: none;
     }
+
     padding: 1rem;
+
     input[type='text'] {
       max-width: 400px;
       display: inline-block;
@@ -101,23 +123,28 @@ ul.backend-treeview-list {
       border: 1px solid $light-gray;
       background: $light-gray;
       box-shadow: none;
+
       &:hover {
         z-index: 1;
         box-shadow: 0 0 7px $primary-color;
       }
+
       &:focus {
         border-color: $primary-color;
         background: white;
       }
     }
+
     button {
       display: inline-block;
       margin: 0 0 0 0.5rem;
       top: 0.2rem;
     }
+
     input.success {
       display: none;
     }
+
     .v-select {
       label {
         display: block;
@@ -131,6 +158,7 @@ ul.backend-treeview-list {
         padding-top: 0.5rem;
         opacity: 1;
       }
+
       outline: none;
       height: auto;
       line-height: 1;
@@ -142,19 +170,23 @@ ul.backend-treeview-list {
       border-color 0.25s ease-in-out;
       min-width: 280px;
       padding: 0 0 0 0;
+
       .select2-container {
         border: 1px solid #e6e6e6;
         background: $light-gray;
         padding: 3rem 0.5rem 0.5rem 0.5rem;
+
         .select2-selection {
           border: 0;
           border-radius: 0;
           background: none;
         }
+
         &:hover {
           z-index: 1;
           box-shadow: 0 0 7px $primary-color;
         }
+
         &:focus,
         &.select2-container--focus,
         &.select2-container--open {
@@ -162,6 +194,7 @@ ul.backend-treeview-list {
           background: white;
         }
       }
+
       .select2-container--default .select2-selection--multiple .select2-selection__choice {
         border-radius: 5px;
         padding: 0 1rem 0 0.3rem;
@@ -169,6 +202,7 @@ ul.backend-treeview-list {
         border: 0;
         margin: 0 0.1rem;
         position: relative;
+
         span {
           color: white;
           position: absolute;
@@ -179,11 +213,13 @@ ul.backend-treeview-list {
           font-weight: normal;
           opacity: .7;
         }
+
         &:focus,
         &:hover {
           background-color: rgba(map-get($foundation-palette, alert), 0.5);
         }
       }
+
       .select2-search__field {
         height: auto;
         margin: 0 0.1rem;
@@ -195,20 +231,25 @@ ul.backend-treeview-list {
       }
     }
   }
+
   .new-classification-tree-label {
     margin: 0.5rem 0;
     border: 0;
   }
+
   >li {
     ul.children {
       li.load-more-link {
         font-style: italic;
+
         >span.inner-item {
           .fa {
             font-size: 0.75rem;
           }
+
           padding-top: 1.5rem;
         }
+
         .button {
           margin: 0;
         }
@@ -222,16 +263,20 @@ ul.backend-treeview-list {
   .backend-treeview-list {
     >li {
       border: none;
+
       ul.children {
         >li {
           .inner-item {
             padding: 1rem 0 1rem 1rem;
+
             &:before {
               bottom: 50%;
             }
+
             .children-count {
               color: $dark-gray;
             }
+
             .tree-link:after {
               content: "\f107";
               font-family: FontAwesome;
@@ -242,29 +287,35 @@ ul.backend-treeview-list {
               font-size: 0.8rem;
               margin-left: 0.5rem;
             }
+
             &.open {
               .tree-link:after {
                 content: "\f106";
               }
             }
           }
+
           &:nth-last-child(2) {
             border-left: 1px solid $medium-gray;
           }
+
           &:last-child {
             margin-left: 2em;
             padding: 0;
           }
         }
+
         &.has-contents {
           >li:last-child {
             border-left: 1px solid $medium-gray;
           }
         }
       }
+
       ul.contents {
         display: none;
         position: relative;
+
         >li.content-row {
           transition: background-color 0.1s;
           position: relative;
@@ -274,9 +325,11 @@ ul.backend-treeview-list {
           background-color: white;
           padding: 1rem;
           border-left: 1px solid white;
+
           &:not(:last-child) {
             border-left: 1px solid $medium-gray;
           }
+
           &:not(.button-row)::before {
             content: '';
             position: absolute;
@@ -288,31 +341,39 @@ ul.backend-treeview-list {
             border-top: 0 none transparent;
             border-right: 0 none transparent;
           }
+
           >div {
             position: relative;
             display: inline;
             flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
+
             &:not(:last-child) {
               padding-right: 0.5rem;
             }
+
             &.type {
               max-width: 15rem;
               white-space: nowrap;
+
               a {
                 color: inherit;
               }
             }
+
             &.title-text {
               color: $dark-gray;
               height: 1.6rem;
+
               a {
                 color: inherit;
               }
             }
+
             &.tags {
               max-height: 1.6rem;
+
               &:before {
                 content: "\f02c";
                 font-family: FontAwesome;
@@ -322,48 +383,63 @@ ul.backend-treeview-list {
                 position: relative;
                 color: $black;
               }
+
               .tag {
                 color: $black;
                 background-color: lighten($light-gray, 5%);
               }
+
+              ul {
+                display: inline;
+              }
             }
+
             &.thumbnails {
               margin: -0.5rem 0;
               line-height: 2.8rem;
               max-height: 2.6rem;
               max-width: 20%;
+
               img {
                 height: 2.6rem;
                 vertical-align: top;
+
                 &:before {
                   display: none;
                 }
               }
             }
+
             &.buttons {
               display: inline-block;
               max-width: 2rem;
+
               a {
                 padding: 0.5rem;
                 margin-right: -0.5rem;
               }
             }
           }
+
           &.show-all {
             .title-text {
               height: auto;
             }
+
             .tags,
             .thumbnails {
               max-height: none;
             }
+
             .type {
               white-space: normal;
             }
           }
+
           &.button-row {
             padding: 0;
             text-align: center;
+
             a {
               background-color: $primary-color;
               display: block;

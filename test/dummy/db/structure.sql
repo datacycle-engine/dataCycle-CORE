@@ -1067,7 +1067,7 @@ CREATE TABLE stored_filters (
     id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
-    language character varying,
+    language character varying[],
     parameters jsonb,
     system boolean DEFAULT false,
     api boolean DEFAULT false,
@@ -2683,6 +2683,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180529105933'),
 ('20180703135948'),
 ('20180705133931'),
+<<<<<<< HEAD
+('20180808123536'),
+('20180808133739'),
+('20180808141924'),
+('20180809084405');
+=======
 ('20180811125951'),
 ('20180812123536'),
 ('20180813133739'),

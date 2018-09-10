@@ -8,9 +8,9 @@ module DataCycleCore
       include DataCycleCore::Filter::Type::CreativeWork
       include DataCycleCore::Filter::Common::Configurable
 
-      def initialize(locale = 'de', query = nil)
+      def initialize(locale = ['de'], query = nil)
         @locale = locale
-        @query = query || DataCycleCore::Search.where(search[:locale].eq(quoted(@locale)))
+        @query = query || DataCycleCore::Search.where(locale: @locale)
       end
 
       def content_includes
@@ -112,10 +112,37 @@ module DataCycleCore
         )
       end
 
-      def unique_by_column(column = :id)
-        query = DataCycleCore::Search.select("DISTINCT ON (#{column}) id")
+      def distinct_by_content_id(order_string)
+        return self if @locale.presence&.size == 1
 
-        reflect(@query.where(id: query))
+        if order_string.is_a?(String)
+          order_expression = "#{@query.table_name}.content_data_id, #{order_string}"
+        elsif order_string.is_a?(Hash)
+          order_expression = { content_data_id: :asc }.merge(order_string)
+        else
+          order_expression = { content_data_id: :asc }
+        end
+
+        order_expression = ActiveRecord::Base.send(:sanitize_sql_for_order, order_expression)
+
+        query = @query.model
+          .select(:content_data_id, :content_data_type)
+          .order(order_string)
+
+        query2 = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
+          .reorder(order_expression)
+
+        reflect(query.where(id: query2))
+      end
+
+      def count_distinct
+        if @locale.presence&.size == 1
+          subquery = select(:id)
+        else
+          subquery = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
+        end
+
+        @query.model.from(subquery.except(:order, :limit, :offset), :count_query).count
       end
 
       def classification_alias_ids(ids = nil)
@@ -137,30 +164,40 @@ module DataCycleCore
       end
 
       def with_classification_aliases(tree_name, *aliases)
+        query2 = DataCycleCore::Search
+          .joins(:classification_aliases)
+          .merge(
+            DataCycleCore::ClassificationAlias
+              .for_tree(tree_name)
+              .with_name(aliases)
+              .with_descendants
+          )
+        query2 = query2.where(search[:locale].in(@locale)) if @locale.present?
+
         reflect(
-          @query.where(id: DataCycleCore::Search.joins(:classification_aliases).merge(
-            DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).with_descendants
-          ).where(search[:locale].eq(@locale)))
+          @query.where(id: query2)
         )
       end
 
-      def self.get_order_by_query_string(search)
+      def self.get_order_by_query_string(search, table_name = 'searches')
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, { boost: :desc, updated_at: :desc }) if search.blank?
+
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(:sanitize_sql_array,
                                 ["boost * (
-            8 * similarity(classification_string, :search_string) +
-            4 * similarity(headline, :search_string) +
-            2 * ts_rank_cd(words, plainto_tsquery('simple', :search),16) +
-            1 * similarity(full_text, :search_string))
+            8 * similarity(#{table_name}.classification_string, :search_string) +
+            4 * similarity(#{table_name}.headline, :search_string) +
+            2 * ts_rank_cd(#{table_name}.words, plainto_tsquery('simple', :search),16) +
+            1 * similarity(#{table_name}.full_text, :search_string))
             DESC NULLS LAST,
-            updated_at DESC", search_string: "%#{search_string}%", search: (search || '').squish])
+            #{table_name}.updated_at DESC", search_string: "%#{search_string}%", search: (search || '').squish])
       end
 
       private
 
       def join_classification_alias2
-        Arel::SelectManager.new
+        join_manager = Arel::SelectManager.new
           .project(search[:content_data_id])
           .from(search)
           .join(classification_content)
@@ -171,12 +208,21 @@ module DataCycleCore
           .on(classification[:id].eq(classification_group[:classification_id]))
           .join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
-          .where(
-            search[:locale].eq(@locale)
+
+        if @locale.present?
+          return join_manager.where(
+            search[:locale].in(@locale)
             .and(classification[:deleted_at].eq(nil))
             .and(classification_group[:deleted_at].eq(nil))
             .and(classification_alias[:deleted_at].eq(nil))
           )
+        else
+          return join_manager.where(
+            classification[:deleted_at].eq(nil)
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
+        end
       end
 
       def join_watch_list
