@@ -136,9 +136,13 @@ module DataCycleCore
       end
 
       def count_distinct
-        return count if @locale.presence&.size == 1
+        if @locale.presence&.size == 1
+          subquery = select(:id)
+        else
+          subquery = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
+        end
 
-        @query.model.from(@query.except(:order, :limit, :offset)).count
+        @query.model.from(subquery.except(:order, :limit, :offset), :count_query).count
       end
 
       def classification_alias_ids(ids = nil)
@@ -176,6 +180,8 @@ module DataCycleCore
       end
 
       def self.get_order_by_query_string(search, table_name = 'searches')
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, { boost: :desc, updated_at: :desc }) if search.blank?
+
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(:sanitize_sql_array,

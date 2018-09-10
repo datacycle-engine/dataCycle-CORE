@@ -8,11 +8,7 @@ module DataCycleCore
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @language ||= params.fetch(:language, [current_user.default_locale])
 
-      if @filters.any? { |f| f['t'] == 'fulltext_search' }
-        @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
-      else
-        @order_string ||= { boost: :desc, updated_at: :desc }
-      end
+      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
 
       if @filters.none? { |f| f['t'] == 'order' }
         @filters.push(
