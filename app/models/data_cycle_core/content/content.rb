@@ -16,14 +16,16 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
+      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
+        include module_name
+      end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::MasterData::DataConverter
       include ContentRelations
       extend  ContentFilters
       include DestroyContent
       include DataHashUtility
-
-      include GpxConverter
       include Extensions::Content
 
       def method_missing(name, *args, &block)
