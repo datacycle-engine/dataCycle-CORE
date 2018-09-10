@@ -61,7 +61,7 @@ module.exports.initialize = function () {
         }
 
         if (selected_label.length == 0) {
-          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
+          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a></label> ';
           $('.filters .filtertags .filter-groups .tag-group.tags:not(.advanced-tags).' + tree_label + ' .tags-container').append(renderedTag);
         } else {
           selected_label.show();
