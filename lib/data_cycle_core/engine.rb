@@ -29,6 +29,8 @@ require 'delayed_job_active_record'
 
 # REST-client
 require 'faraday'
+require 'faraday_middleware'
+
 # simple logger
 require 'logging'
 

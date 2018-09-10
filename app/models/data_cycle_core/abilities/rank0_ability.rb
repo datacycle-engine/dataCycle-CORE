@@ -35,6 +35,7 @@ module DataCycleCore
               !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
               DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
             ) ||
+            (attribute.content.try(:external_key).blank? && DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)) ||
             (
               attribute.definition.dig('tree_label').present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&

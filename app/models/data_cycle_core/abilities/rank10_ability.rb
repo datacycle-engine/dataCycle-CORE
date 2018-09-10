@@ -41,11 +41,6 @@ module DataCycleCore
         can :destroy, DataCycleCore::ClassificationAlias do |c|
           c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
         end
-
-        # special datacylce-admin privileges
-        return unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
-        can :manage, :dash_board
-        can :become, DataCycleCore::User
       end
     end
   end

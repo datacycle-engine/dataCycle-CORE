@@ -12,6 +12,9 @@
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
             <%= hidden_field_tag 'table', "#{item.class.table_name}" %>
 
+            <% unless DataCycleCore::Feature::Container.enabled? %>
+                <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
+            <% end %>
             <% item.new_content_fields.each_with_index do |attribute, index| %>
                 <div class="validation-container form-element">
                     <%= label_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{item.schema['properties'][attribute]['label']}" %>
