@@ -58,9 +58,9 @@ describe('CreativeWork - Artikel', function () {
   it('test contents search API', function () {
     cy.request('/api/v2/contents/search?q=' + updated_name).then((response) => {
       expect(response.body).to.have.property('data');
-      expect(response.body.contents).to.have.length(1);
-      expect(response.body.contents[0]).to.have.property('contentType', option);
-      expect(response.body.contents[0]).to.have.property('headline', updated_name);
+      expect(response.body.data).to.have.length(1);
+      expect(response.body.data[0]).to.have.property('contentType', option);
+      expect(response.body.data[0]).to.have.property('headline', updated_name);
     })
   })
 
