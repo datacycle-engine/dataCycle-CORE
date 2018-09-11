@@ -29,6 +29,8 @@ require 'delayed_job_active_record'
 
 # REST-client
 require 'faraday'
+require 'faraday_middleware'
+
 # simple logger
 require 'logging'
 
@@ -96,16 +98,9 @@ module DataCycleCore
     mattr_accessor :translatable_types
     self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place', 'DataCycleCore::Event']
 
-    mattr_accessor :release_codes
-    self.release_codes = {
-      partner: 1,
-      review: 3
-    }
-
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    # features
     # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
     self.features = {
@@ -113,10 +108,21 @@ module DataCycleCore
         enabled: false
       },
       overlay: {
-        enabled: false
+        enabled: false,
+        attribute_keys: ['overlay']
       },
       releasable: {
-        enabled: false
+        enabled: false,
+        attribute_keys: [
+          'release_status_id',
+          'release_status_comment'
+        ],
+        classification_names: {
+          valid: 'freigegeben',
+          partner: 'beim Partner',
+          review: 'in Review',
+          archive: 'archiviert'
+        }
       },
       life_cycle: {
         enabled: false
@@ -140,7 +146,11 @@ module DataCycleCore
         creator: true
       },
       geocode: {
-        enabled: false
+        enabled: false,
+        attribute_keys: ['address']
+      },
+      gpx_converter: {
+        enabled: true
       }
     }
 

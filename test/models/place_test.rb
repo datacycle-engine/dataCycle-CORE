@@ -9,13 +9,13 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::Place)
     end
 
-    test 'save proper Place data-set with hash method' do
+    test 'save proper Place data-set with hash method + test standard properties' do
       template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
       data_set = DataCycleCore::Place.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 })
+      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 }, update_search_all: false)
       data_set.save
       expected_hash = {
         'id' => data_set.id,
@@ -24,6 +24,17 @@ module DataCycleCore
         'latitude' => 13.13
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact)
+      assert_equal(data_set.title, data_set.coordinates)
+      assert_nil(data_set.desc)
+      assert_equal(['name'], data_set.new_content_fields)
+      assert_equal(['name', 'address', 'location'], data_set.object_browser_fields)
+      assert_equal(data_set.cache_key.to_s, "data_cycle_core/places/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/place/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
+      assert_nil(data_set.translations.first.title)
+      assert_nil(data_set.translations.first.desc)
+
+      assert_equal(1, DataCycleCore::Place.where(template: false, template_name: 'contentLocation').count)
+      data_set.destroy
+      assert_equal(0, DataCycleCore::Place.where(template: false, template_name: 'contentLocation').count)
     end
 
     test 'save proper Place data-set with hash method, incl. geo-data' do

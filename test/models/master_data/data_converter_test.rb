@@ -13,7 +13,7 @@ describe DataCycleCore::MasterData::DataConverter do
     a ? b : true
   end
 
-  describe 'convert data' do
+  describe 'convert booleans' do
     it 'converts properly booleans to strings' do
       test_cases = [true, false, 'true', 'false', '    true     ']
       test_cases.each do |test_case|
@@ -65,7 +65,9 @@ describe DataCycleCore::MasterData::DataConverter do
         assert_raises(ArgumentError) { subject.boolean_to_string(test_case) }
       end
     end
+  end
 
+  describe 'convert geo objects' do
     it 'converts wkt_strings to geographic objects' do
       factory = RGeo::Geographic.spherical_factory(srid: 4326)
       point = factory.point(12.3, 40.344)
@@ -143,7 +145,9 @@ describe DataCycleCore::MasterData::DataConverter do
         assert_equal(subject.geographic_to_string(test_case), subject.geographic_to_string(subject.geographic_to_string(test_case)))
       end
     end
+  end
 
+  describe 'convert datetime objects' do
     it 'converts string to datetime objects' do
       test_cases = [Time.now.getlocal, Time.zone.now, Time.now.getlocal.to_s, Time.zone.now.to_s, '01.01.2018', '01.01.2018 10:30']
       test_cases.each do |test_case|
@@ -195,6 +199,14 @@ describe DataCycleCore::MasterData::DataConverter do
       test_cases.each do |test_case|
         assert_equal(subject.datetime_to_string(test_case), subject.datetime_to_string(subject.datetime_to_string(test_case)))
       end
+    end
+  end
+
+  describe 'convert string to strings' do
+    it 'normalizes unicode' do
+      a = "Henry\u2163"
+      b = 'HenryIV'
+      assert_equal(subject.string_to_string(a), subject.string_to_string(b))
     end
   end
 end

@@ -1,19 +1,12 @@
-<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+<span class="tag-group tags <%= key %>" data-id="<%= target %>">
   <i class="tag-group-label">
     <i class="fa fa-tags" aria-hidden="true"></i>
-    <%= t("filter.#{key}", default: key, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </i>
 
   <% value.each do |tag| %>
     <span class="tag"><%= tag %></span>
   <% end %>
 
-  <% if buttons %>
-    <span class="tag-buttons">
-      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
-      <% if can?(:advanced_filter, :backend) %>
-        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
-      <% end %>
-    </span>
-  <% end %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

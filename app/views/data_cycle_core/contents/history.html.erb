@@ -3,84 +3,49 @@
 <% content_for :top_content do %>
 
     <div class="reveal-blur">
-
-        <div id="edit-form">
-            <section class="edit-header">
-                <div class="row expanded">
-                  <div class="column edit-header-functions">
-                    <div class="edit-headline">
-                        <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
-                    </div>
-                    <ul>
-                      <li class="has-dropdown">
-                        <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
-                        <%= render 'histories', content: @content, additional_classes: 'align-right' %>
-                      </li>
-                      <li class="buttons"></li>
-                    </ul>
-                  </div>
+        <section class="edit-header">
+            <div class="row expanded">
+              <div class="column edit-header-functions">
+                <div class="edit-headline">
+                    <i class="fa fa-history" aria-hidden="true"></i> <%= @content.template_name %> <%= t('common.compare', locale: DataCycleCore.ui_language) %>
                 </div>
-            </section>
+                <ul>
+                  <li class="has-dropdown">
+                    <a id="show-history-link" data-toggle="show-history"><i class="fa fa-clock-o" aria-hidden="true"></i> <%= t('common.version', locale: DataCycleCore.ui_language) %></a>
+                    <%= render 'histories', content: @content, additional_classes: 'align-right' %>
+                  </li>
+                  <li class="buttons"></li>
+                </ul>
+              </div>
+            </div>
+        </section>
 
-            <div class="flex-box detail-header-fixed">
+        <div class="column">
 
-                <% I18n.with_locale(@history_source.first_available_locale) do %>
+            <div class="detail-content detail-content-wrapper">
 
-                    <div class="detail-header-info no-transparency fixed metadata has-history-link">
-                        <span class="type <%= @history_source.template_name.downcase %>">
-                          <%= t('history.differences_to_version', locale: DataCycleCore.ui_language) %>:
-                        </span>
-                        <%= render 'history_meta_data', content: @history_source %>
-                        <span class="show-history-link">
-                          <%= link_to polymorphic_url([:history_detail, @content], history_id: @history_source.id, watch_list_id: @watch_list) do  %>
-                            <i class="fa fa-eye" aria-hidden="true"></i>
-                          <% end %>
-                        </span>
-                    </div>
+                <% I18n.with_locale(@diff_source.first_available_locale) do %>
 
-                    <div class="row split-content detail-content">
+                    <div class="detail-content row">
                         <div class="show-content">
-                            <div class="detail-header-info">
+                            <div class="detail-header-info diff">
+                                <% I18n.with_locale(@diff_source.first_available_locale) do %>
+                                  <%= render 'diff_meta_data', content: @diff_source %>
+                                <% end %>
+
+                                <span class="meta-data-splitter">
+                                  <i class="fa fa-arrow-right" aria-hidden="true"></i>
+                                </span>
+
+                                <% I18n.with_locale(@content.first_available_locale) do %>
+                                  <%= render 'diff_meta_data', content: @content %>
+                                <% end %>
                             </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @history_source.releasable_hash,
-                                       key: 'creative_work',
-                                       definition: {'type' => 'releasable'},
-                                       options:{compare: true, force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@history_source) %>
-
-                            <%= render_content_partial 'history', content: @history_source, options: {compare: true, force_render: true} %>
 
                         </div>
                     </div>
 
-                <% end %>
-
-                <% I18n.with_locale(@content.first_available_locale) do %>
-
-                    <div class="detail-header-info no-transparency fixed right">
-                      <span class="type <%= @content.template_name.downcase %>">
-                        <%= t('history.active_version', locale: DataCycleCore.ui_language) %>:
-                      </span>
-                      <%= render 'history_meta_data', content: @content %>
-                    </div>
-
-                    <div class="row split-content detail-content">
-                        <div class="show-content">
-                            <div class="detail-header-info">
-                            </div>
-
-                            <%= render 'data_cycle_core/contents/viewers/metadata/releasable',
-                                       value: @content.releasable_hash,
-                                       key: 'creative_work',
-                                       definition: {'type' => 'releasable'},
-                                       options:{force_render: true} if DataCycleCore::Feature::Releasable.allowed?(@content) %>
-
-                            <%= render_content_partial 'history', content: @content, options: {force_render: true} %>
-
-                        </div>
-
-                    </div>
+                    <%= render_content_partial 'history', content: @diff_source, options: { compare: true, force_render: true } %>
 
                 <% end %>
 

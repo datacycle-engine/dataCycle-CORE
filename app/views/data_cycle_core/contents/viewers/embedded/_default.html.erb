@@ -1,4 +1,7 @@
-<% value.presence&.includes(:translations)&.each_with_index do |object, index| %>
+<% objects = value.presence&.includes(:translations) %>
+<% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+<% objects.presence&.each_with_index do |object, index| %>
 
     <% I18n.with_locale(object.first_available_locale) do %>
 
@@ -6,7 +9,11 @@
                    key: key,
                    definition: definition,
                    value: value,
-                   options: options.merge({hide_label: true}),
+                   options: options.merge({
+                    hide_label: true,
+                    item_diff: changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id),
+                    mode: changes_class(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id)
+                   }),
                    data_attributes: {id: [object.id], editor: 'embedded_object'},
                    content: content do %>
 
@@ -14,25 +21,20 @@
                 <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
             </span>
 
-            <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns %>
+            <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-            <% if object.schema.present? %>
+            <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+            <% validation_properties.presence&.each do |key, prop| %>
 
-                <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+                <% object_value = object.try(key.to_sym) %>
+                <% object_value = object_value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && prop['type'] == 'object' %>
 
-                <% if !validation_properties.nil? %>
+                <% object_options = options.merge({ item_diff: nil }) %>
+                <% object_options[:item_diff] = attribute_changes(object.diff(object.try(definition.dig('linked_table').singularize)&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id), '~').present? %>
+                <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
+                <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
-                    <% validation_properties.each do |key, prop| %>
-
-                        <% object_value = object.try(key.to_sym) %>
-                        <% object_value = object_value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && prop['type'] == 'object' %>
-
-                        <% options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
-                        <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: {options: options}, content: object %>
-
-                    <% end %>
-
-                <% end %>
+                <%= render_attribute_viewer key: key, definition: prop, value: object_value, parameters: { options: object_options }, content: object %>
 
             <% end %>
 

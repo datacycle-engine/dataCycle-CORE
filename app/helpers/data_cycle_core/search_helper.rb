@@ -7,7 +7,7 @@ module DataCycleCore
         "DataCycleCore::#{content_name.classify}".safe_constantize.all.each do |content_object|
           content_object.translated_locales.each do |localization|
             I18n.with_locale(localization) do
-              content_object.set_search
+              content_object.update_search
             end
           end
         end

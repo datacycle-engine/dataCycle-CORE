@@ -5,7 +5,10 @@
     :content_type: entity
     :boost: 10.0
     :features:
-      :geocode: 'address'
+      :geocode:
+        :allowed: true
+      :overlay:
+        :allowed: true
     :api:
       :type: TouristAttraction
     :properties:
@@ -15,6 +18,13 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: PlaceOverlay
+        :validations:
+          :max: 1
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -39,6 +49,16 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -55,6 +75,12 @@
         :template_name: Bild
         :api:
           :name: photo
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
       :poi_category:
         :label: Kategorie
         :type: classification

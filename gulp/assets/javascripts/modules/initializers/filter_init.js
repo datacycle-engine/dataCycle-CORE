@@ -6,7 +6,6 @@ module.exports.initialize = function () {
       elem.parents('.tag-group').hide();
     }
     elem.hide();
-    if ($('.activefilter').find('.tag-group.tags:visible').length == 0) $('.activefilter').hide();
   }
 
   let split_setup = function () {
@@ -40,38 +39,40 @@ module.exports.initialize = function () {
     });
   }
 
+  function language_handler(item, checked) {
+    if ($(item).val() == 'all' && checked) {
+      $(item).parents('.filter').find(':checkbox').not(item).prop('checked', false).trigger('change');
+    } else if (checked && $(item).parents('.filter').find(':checkbox#all').is(':checked')) {
+      $(item).parents('.filter').find(':checkbox#all').prop('checked', false).trigger('change');
+    }
+  }
+
   let setup = function () {
-    // remove tag-group tags on click
-    $(document).on('click', '.filters .tag-group.tags:not(.advanced-tags) label', function (e) {
-      remove_filter($(this));
-    });
+    $(document).on('change', '.filters .filter ul :checkbox', event => {
+      var id = $(event.currentTarget).attr('id');
+      var title = $(event.currentTarget).siblings('[for="' + id + '"]').first().find('span.inner-title').first().html();
+      var tree_label = $(event.currentTarget).parents('.filter').data('tree-label');
+      var tree_label_title = $(event.currentTarget).parents('.filter').find('>.title').text();
+      var selected_label = $('.filters .filtertags .filter-groups .tag-group.tags.' + tree_label).find('[for=' + id + ']');
 
-    $(document).on('click', '.filters .sprache ul label', function (e) {
-      $('.filters .tag-group.tags.sprache .tag').text($(this).text());
-    });
-
-    $(document).on('click', '.filters .filter ul label', function (e) {
-      var id = $(this).attr('for');
-      var title = $(this).find('span.inner-title').first().html();
-      var tree_label = $(this).parents('.filter').data('tree-label');
-      var tree_label_title = $(this).parents('.filter').find('>.title').text();
-
-      if ($(this).siblings('input[type=checkbox]').first().is(':checked')) {
-        remove_filter($('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).find('label[for=' + id + ']'));
-      } else {
-        if (!$('.filters .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
+      if ($(event.currentTarget).is(':checked')) {
+        if (!$('.filters .filtertags .filter-groups .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
           $('.filters .filtertags .filter-groups').append('<span class="tag-group tags ' + tree_label + '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' + tree_label_title + ':</i> <span class="tags-container"></span></span>');
         }
 
-        var selected_label = $('.filters .tag-group.tags.' + tree_label).find('[for=' + id + ']');
         if (selected_label.length == 0) {
-          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a> </label>';
-          $('.filters .tag-group.tags:not(.advanced-tags).' + tree_label + ' .tags-container').append(renderedTag);
+          var renderedTag = '<label for="' + id + '"><a class="tag">' + title + '<i class="fa fa-times" aria-hidden="true"></i></a></label> ';
+          $('.filters .filtertags .filter-groups .tag-group.tags:not(.advanced-tags).' + tree_label + ' .tags-container').append(renderedTag);
         } else {
           selected_label.show();
         }
-        $('.activefilter').show();
-        $('.filters .tag-group.tags.' + tree_label).show();
+        $('.filters .filtertags .filter-groups .tag-group.tags.' + tree_label).show();
+      } else {
+        remove_filter(selected_label);
+      }
+
+      if (eval('typeof ' + tree_label + '_handler') !== 'undefined') {
+        eval(tree_label + '_handler')($(event.currentTarget), $(event.currentTarget).is(':checked'));
       }
     });
 

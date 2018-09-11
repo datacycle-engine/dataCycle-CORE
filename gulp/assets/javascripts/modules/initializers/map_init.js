@@ -26,8 +26,10 @@ var ol = {
   interaction: {
     Draw: require('ol/interaction/draw').default,
     Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default
+    Snap: require('ol/interaction/snap').default,
+    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
   },
+  interactions: require('ol/interaction').default,
   proj: require('ol/proj').default
 };
 
@@ -52,20 +54,8 @@ module.exports.initialize = function () {
 function init_map(idx, item) {
   var map_id = $(item).attr('id');
   var data = window[map_id];
-  var feature;
+  var feature, feature_old;
   var drawable = true;
-
-  // var iconStyle = new ol.style.Style({
-  //   text: new ol.style.Text({
-  //     text: '\uf041',
-  //     font: 'normal 18px FontAwesome',
-  //     textBaseline: 'bottom',
-  //     fill: new ol.style.Fill({
-  //       color: 'red',
-  //     })
-  //   })
-  // });
-  var iconStyle;
 
   if ($(item).data('icon-path') !== undefined) {
     iconStyle = new ol.style.Style({
@@ -76,9 +66,63 @@ function init_map(idx, item) {
         src: $(item).data('icon-path')
       })
     });
+  } else {
+    iconStyle = new ol.style.Style({
+      image: new ol.style.Circle({
+        radius: 7,
+        fill: new ol.style.Fill({
+          color: '#1779ba'
+        }),
+        stroke: new ol.style.Stroke({
+          color: [0, 0, 0, 0.75],
+          width: 1.5
+        })
+      }),
+      zIndex: 100000
+    });
   }
 
-  if (data.type == 'Point' && data.points[0].length > 0) {
+  redIconStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: '#cc4b37'
+      }),
+      stroke: new ol.style.Stroke({
+        color: [0, 0, 0, 0.75],
+        width: 1.5
+      })
+    }),
+    zIndex: 100000
+  });
+
+  greenIconStyle = new ol.style.Style({
+    image: new ol.style.Circle({
+      radius: 7,
+      fill: new ol.style.Fill({
+        color: '#90c062'
+      }),
+      stroke: new ol.style.Stroke({
+        color: [0, 0, 0, 0.75],
+        width: 1.5
+      })
+    }),
+    zIndex: 100000
+  });
+
+
+  if ($(item).hasClass('edit') && $(item).hasClass('point')) {
+    drawable = false;
+    feature = new ol.Feature({
+      geometry: new ol.geom.Point($(item).data('after-position'))
+    });
+    feature_old = new ol.Feature({
+      geometry: new ol.geom.Point($(item).data('before-position'))
+    });
+
+    feature.setStyle(greenIconStyle);
+    feature_old.setStyle(redIconStyle);
+  } else if (data.type == 'Point' && data.points[0].length > 0) {
     drawable = false;
     feature = new ol.Feature({
       geometry: new ol.geom.Point(data.points[0])
@@ -91,10 +135,16 @@ function init_map(idx, item) {
   }
 
   var options = {};
-  if (feature !== undefined) {
-    feature.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+  var features = [];
+  if (feature !== undefined) features.push(feature);
+  if (feature_old !== undefined) features.push(feature_old);
+
+  if (features.length > 0) {
+    features.forEach(item => {
+      item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+    });
     options = {
-      features: [feature]
+      features: features
     };
   }
 
@@ -122,7 +172,40 @@ function init_map(idx, item) {
     ]
   });
 
+  var mouse_wheel_zoom = new ol.interaction.MouseWheelZoom();
+
+  var timeout;
+
+  var oldFn = mouse_wheel_zoom.handleEvent;
+  mouse_wheel_zoom.handleEvent = function (e) {
+    var type = e.type;
+    if (type !== "wheel") {
+      return true;
+    }
+
+    if (!e.originalEvent.ctrlKey) {
+      if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
+        $(e.map.getTargetElement().firstElementChild).find('canvas').after('<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende Strg+Scrollen zum Zoomen der Karte</div></div>');
+      } else {
+        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
+      }
+
+      window.clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+      }, 1000);
+      return true
+    } else {
+      $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+    }
+
+    oldFn.call(this, e);
+  }
+
   var map = new ol.Map({
+    interactions: ol.interactions.defaults({
+      mouseWheelZoom: false
+    }).extend([mouse_wheel_zoom]),
     target: map_id,
     layers: [
       new ol.layer.Tile({
@@ -134,6 +217,11 @@ function init_map(idx, item) {
       center: [0, 0],
       zoom: 10
     })
+  });
+
+  map.on("pointermove", function (evt) {
+    var hit = evt.map.hasFeatureAtPixel(evt.pixel);
+    evt.map.getTargetElement().firstElementChild.style.cursor = (evt.dragging ? 'grabbing' : hit ? 'pointer' : '');
   });
 
   if ($(item).hasClass('editable')) {

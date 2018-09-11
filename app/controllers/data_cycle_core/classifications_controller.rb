@@ -62,6 +62,7 @@ module DataCycleCore
           classification_alias_id: a.id,
           name: a.name,
           title: a.full_path,
+          description: a.description,
           disabled: !a.assignable
         }
       }.to_json, content_type: 'application/json'

@@ -28,7 +28,7 @@ describe DataCycleCore::MasterData::Validators::Geographic do
     end
 
     it 'rejects arbitrary objects' do
-      test_cases = [10, :wednesday]
+      test_cases = [10, :wednesday, 'POINT (10.0 47.0 hallo)']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
         assert_equal(1, validator.error[:error].size)

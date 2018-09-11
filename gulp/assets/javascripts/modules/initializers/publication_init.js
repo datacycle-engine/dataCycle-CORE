@@ -8,9 +8,9 @@ module.exports.initialize = () => {
     let pages = $('.publications-list').data('pages');
     let load_more = function () {
       page += 1;
-      let form_data = $('#search-form').serializeArray();
-      let url = $('#search-form').prop('action');
-      let method = $('#search-form').prop('method');
+      var form_data = $('#search-form').serializeArray();
+      var url = $('#search-form').prop('action');
+      var method = $('#search-form').prop('method');
       form_data.push({
         name: 'infinite_scroll',
         value: true
@@ -28,7 +28,7 @@ module.exports.initialize = () => {
         value: $('.publication-day').last().data('day')
       });
       loading = true;
-      let spinner = new Spinner($('.publications-list'));
+      var spinner = new Spinner($('.publications-list'));
       spinner.show();
       $.ajax({
         url: url,

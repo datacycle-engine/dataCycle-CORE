@@ -19,13 +19,12 @@ module DataCycleCore
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
 
-          content_query = get_filtered_results
           @content_count = @classification_trees.map { |c|
             [
               c.id,
-              content_query
+              get_filtered_results
                 .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .count(:content_data_id)
+                .count_distinct
             ]
           }.to_h
         end
@@ -44,6 +43,7 @@ module DataCycleCore
             @order_string = { boost: :desc, data_type: :asc, headline: :asc }
             @contents = get_filtered_results
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+              .distinct_by_content_id(@order_string)
               .content_includes
               .page(params[:page])
 
@@ -63,13 +63,12 @@ module DataCycleCore
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
 
-          content_query = get_filtered_results
           @content_count = @classification_trees.map { |c|
             [
               c.id,
-              content_query
+              get_filtered_results
                 .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .count(:content_data_id)
+                .count_distinct
             ]
           }.to_h
         end

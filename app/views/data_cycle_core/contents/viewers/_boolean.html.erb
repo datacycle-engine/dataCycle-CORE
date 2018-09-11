@@ -1,5 +1,20 @@
-<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  key: key,
+  definition: definition,
+  value: value,
+  options: options,
+  content: content do %>
 
-    <span class="detail-content"><%= value.try(:html_safe) %></span>
+    <span class="detail-content">
+      <% case options.dig(:item_diff, 0) %>
+      <% when '~' %>
+        <del><%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: DataCycleCore.ui_language) %></del>
+        <ins><%= t("common.#{options.dig(:item_diff, 2).to_s}", locale: DataCycleCore.ui_language) %></ins>
+      <% when '+' %>
+        <%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: DataCycleCore.ui_language) %>
+      <% else %>
+        <%= t("common.#{value.to_s}", locale: DataCycleCore.ui_language) if value.present? %>
+      <% end %>
+    </span>
 
 <% end %>

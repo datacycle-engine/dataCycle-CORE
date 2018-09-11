@@ -1,11 +1,11 @@
-<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_trees.present? } %>" data-tree-label="<%= tree_label %>" data-index="<%= index %>">
+<li class="filter <%= 'subtree' if classification_tree&.any? { |d| d.sub_classification_trees.present? } %>" data-tree-label="<%= tree_label.presence&.parameterize(separator: '_') %>" data-index="<%= index %>">
     <% excluded_types ||= [] %>
     <%= hidden_field_tag "f[#{index}][c]", 'd' %>
     <%= hidden_field_tag "f[#{index}][t]", :classification_alias_ids %>
     <%= hidden_field_tag "f[#{index}][n]", tree_label %>
     <%= hidden_field_tag "f[#{index}][m]", 'i' %>
 
-    <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.downcase %>
+    <%= render 'data_cycle_core/shared/icon', icon_type: tree_label.presence&.parameterize(separator: '_') %>
     <span class="title"><%= display_label %></span>
     <div>
         <ul class="clearfix <%= 'split-list' unless classification_tree&.any? { |d| d.sub_classification_trees.present? } %>">

@@ -37,9 +37,9 @@ module DataCycleCore
             DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params[:deleted_since]
+          if permitted_params.dig(:filter, :deleted_since)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
+              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
             )
           end
 
@@ -49,7 +49,7 @@ module DataCycleCore
         def permitted_parameter_keys
           # json-api: fields, sort
           super + [
-            :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include, :deleted_since,
+            :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include,
             { filter: [:modified_since, :created_since, :deleted_since, { classifications: [] }] }
           ]
         end
@@ -72,10 +72,9 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language
+          filter.language = @language.split(',')
 
           query = filter.apply
-
           query = query.where(content_data_type: content_data_type.to_s) if content_data_type
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)

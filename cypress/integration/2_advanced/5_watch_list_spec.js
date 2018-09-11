@@ -55,7 +55,7 @@ describe('WatchList', function () {
   })
 
   it('test json API', function () {
-    cy.request('/api/v1/collections/' + id).then((response) => {
+    cy.request('/api/v2/collections/' + id).then((response) => {
       expect(response.body).to.have.property('collection')
       expect(response.body.collection).to.have.property('id', id)
       expect(response.body.collection).to.have.property('name', updated_name)

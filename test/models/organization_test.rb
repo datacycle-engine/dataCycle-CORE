@@ -39,5 +39,30 @@ module DataCycleCore
       assert_equal('http://firma.at', organization.url)
       assert_equal('Short test description for company object.', organization.description)
     end
+
+    test 'expect an exception when template includes wrong data-type' do
+      template = DataCycleCore::Organization.find_by(template: true, template_name: 'Organization')
+      data_set = DataCycleCore::Organization.new
+      data_set.schema = template.schema.merge('properties' => { 'test' => { 'label' => 'test', 'type' => 'test' } })
+      data_set.template_name = template.template_name
+      data_set.save
+      test_data = {
+        'name' => 'Name',
+        'legal_name' => 'Firmenname',
+        'telephone' => '+ 43 123 456',
+        'fax_number' => '+ 43 654 321',
+        'email' => 'test@test.com',
+        'address' => {
+          'address_locality' => 'Test - Ort',
+          'street_address' => 'Test - Strasse',
+          'postal_code' => '1234'
+        },
+        'url' => 'http://firma.at',
+        'description' => 'Short test description for company object.'
+      }
+      assert_raises StandardError do
+        data_set.set_data_hash(data_hash: test_data)
+      end
+    end
   end
 end

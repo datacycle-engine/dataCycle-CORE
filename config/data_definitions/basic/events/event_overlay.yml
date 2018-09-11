@@ -11,8 +11,6 @@
         :label: Titel
         :type: string
         :storage_location: translated_value
-        :validations:
-          :min: 1
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -83,6 +81,3 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Overlay"
-      :meta_data:
-        :type: mixin
-        :name: meta_data

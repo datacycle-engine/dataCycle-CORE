@@ -1,6 +1,6 @@
 $('#<%= sanitize_to_id(params[:key]) %> > .buttons > button > .fa').css('display', 'none');
 $('#<%= sanitize_to_id(params[:key]) %> > .buttons > button').prop('disabled', false);
-$('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j render_embedded_object_partial(partial: 'new', key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options], locale: params[:locale]}, content: @object) %>');
+$('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j render_embedded_object_partial(partial: 'new', key: params[:key], definition: params[:definition], parameters: {index: params[:index], options: params[:options], locale: params[:locale]}, content: @content) %>');
 
 $('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation();
 $('<%= j content_for :forms %>').appendTo('body').foundation();

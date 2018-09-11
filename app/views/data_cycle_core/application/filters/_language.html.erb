@@ -1,0 +1,20 @@
+<li class="sprache filter" data-tree-label="language">
+    <%= render 'data_cycle_core/shared/icon', icon_type: "sprache" %>
+    <span class="title"><%= t('common.language', locale: DataCycleCore.ui_language) %></span>
+    <div>
+        <ul class="split-list clearfix">
+            <% available_locales_with_names.except(I18n.available_locales&.many? ? nil : :all).each do |key,value| %>
+                <li>
+                    <input type="checkbox" name="language[]" value="<%= key.to_s %>" id="<%= key.to_s %>" <%= "checked" if @language.presence&.include?(key.to_s) %> />
+                    <label for="<%= key.to_s %>">
+                        <span class="title">
+                          <span class="inner-title">
+                            <%= value %>
+                          </span>
+                        </span>
+                    </label>
+                </li>
+            <% end %>
+        </ul>
+    </div>
+</li>

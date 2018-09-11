@@ -42,6 +42,7 @@ Gem::Specification.new do |s|
   # s.add_dependency 'arel-helpers'
   # REST Client
   s.add_dependency 'faraday'
+  s.add_dependency 'faraday_middleware'
   # JSON Parser
   s.add_dependency 'multi_json'
   # SOAP Client

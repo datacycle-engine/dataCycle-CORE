@@ -1,97 +1,119 @@
 /* Masonry */
-
 .grid {
   .grid-loading {
     margin: 50px auto;
     text-align: center;
     display: none;
+
     .fa {
       font-size: 3rem;
       color: $light-gray;
     }
+
     &.show {
       display: block;
     }
   }
+
   .grid-sizer {
     width: 98%
   }
+
   .gutter-sizer {
     width: 2%
   }
+
   .grid-item {
     width: 98%;
     padding: 1rem;
     margin-bottom: 1%;
     z-index: 1;
     opacity: 0;
+
     .buttons {
       position: absolute;
       right: 1rem;
       top: 1rem;
       z-index: 1;
       line-height: 1;
+
       >a {
         line-height: inherit;
       }
-      .external-source {
+
+      >i.fa {
         color: $dark-gray;
         line-height: inherit;
+
         &.has-tip {
           border: none;
         }
       }
+
       >a.button-prime.small,
       >button.button-prime.small {
         display: inline-block;
         height: 2rem;
         width: 2rem;
+
         &.has-tip {
+
           &:hover,
           &:focus {
             cursor: pointer;
           }
         }
+
         .fa {
           line-height: 2rem;
           font-size: 1rem;
         }
       }
     }
+
     .watch-lists-link>span {
       display: none;
     }
+
     .watch-lists {
       right: -22px !important;
+
       &:before {
         right: 11px;
       }
     }
+
     .status {
       &.expired {
         right: 2.5rem;
         position: absolute;
+
         i {
           color: $alert-color;
         }
       }
     }
+
     &.show {
       opacity: 1;
     }
+
     /* testing */
     &.layout-1,
     &.layout-3 {
       padding-bottom: 1rem;
     }
+
     &.layout-0,
     &.layout-5 {
       padding-bottom: 10rem;
     }
+
     &.layout-2,
     &.layout-4 {
       padding-bottom: 20rem;
     }
+
     /* testing */
   }
 }
@@ -102,14 +124,17 @@
       height: 500px;
       max-height: 500px;
       overflow: hidden;
+
       img {
         max-height: 350px;
       }
     }
+
     &:hover,
     &:focus {
       z-index: 2;
       padding-bottom: 1rem;
+
       .inner {
         max-height: none;
         min-height: 500px;
@@ -123,32 +148,40 @@
   .grid-sizer {
     width: 49%
   }
+
   .gutter-sizer {
     width: 2%
   }
+
   .grid-item {
     width: 49%;
+
     .inner {
       height: 250px;
       max-height: 250px;
       overflow: hidden;
+
       img {
         max-height: 150px;
       }
+
       >.title {
         font-size: 0.9rem;
         font-style: italic;
       }
     }
+
     &:hover,
     &:focus {
       z-index: 2;
+
       .inner {
         max-height: none;
         min-height: 250px;
         height: auto;
       }
     }
+
     /* reset testing */
     &.layout-1,
     &.layout-3,
@@ -158,6 +191,7 @@
     &.layout-4 {
       padding-bottom: 1rem;
     }
+
     /* testing */
   }
 }
@@ -166,14 +200,17 @@
 .grid.large .grid-item {
   position: relative;
   padding-bottom: 0;
+
   &:hover,
   &:focus {
     padding-bottom: 1rem;
+
     &:after {
       content: '';
       display: none;
     }
   }
+
   &:after {
     content: '\f107';
     font: normal normal normal 14px/1 FontAwesome;
@@ -193,7 +230,7 @@
     /* Chrome10-25,Safari5.1-6 */
     background: linear-gradient(to bottom, rgba(255, 255, 255, 0) 0%, rgba(255, 255, 255, 1) 100%);
     /* W3C, IE10+, FF16+, Chrome26+, Opera12+, Safari7+ */
-    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#00ffffff', endColorstr='#ffffff', GradientType=0);
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#00ffffff', endColorstr='#ffffff', GradientType=0);
     /* IE6-9 */
   }
 }
@@ -207,20 +244,25 @@
     .grid-sizer {
       width: 49%
     }
+
     .gutter-sizer {
       width: 2%
     }
+
     .grid-item {
       width: 49%;
     }
   }
+
   .grid.small {
     .grid-sizer {
       width: 23.3%
     }
+
     .gutter-sizer {
       width: 2%
     }
+
     .grid-item {
       width: 23.3%;
     }
@@ -232,9 +274,11 @@
     .grid-sizer {
       width: 32%
     }
+
     .gutter-sizer {
       width: 2%
     }
+
     .grid-item {
       width: 32%;
     }
@@ -246,20 +290,25 @@
     .grid-sizer {
       width: 23.7%
     }
+
     .gutter-sizer {
       width: 1.5%
     }
+
     .grid-item {
       width: 23.7%;
     }
   }
+
   .grid.small {
     .grid-sizer {
       width: 15.3%
     }
+
     .gutter-sizer {
       width: 1.5%
     }
+
     .grid-item {
       width: 15.3%;
     }
@@ -271,20 +320,25 @@
     .grid-sizer {
       width: 19.2%
     }
+
     .gutter-sizer {
       width: 1%
     }
+
     .grid-item {
       width: 19.2%;
     }
   }
+
   .grid.small {
     .grid-sizer {
       width: 10.2%
     }
+
     .gutter-sizer {
       width: 1%
     }
+
     .grid-item {
       width: 10.2%;
     }
