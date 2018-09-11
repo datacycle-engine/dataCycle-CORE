@@ -41,20 +41,20 @@ module DataCycleCore
     private
 
     def set_release_status
-      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content)
+      creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content::Content)
 
-      release_id = DataCycleCore::Release.find_by(release_code: DataCycleCore.release_codes[:partner])&.id if DataCycleCore.release_codes.present?
+      release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids
 
-      if item.is_a?(DataCycleCore::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_id.present? && item.release_id != release_id
+      if item.is_a?(DataCycleCore::Content::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id.include?(release_partner_stage_id)
         I18n.with_locale(item.first_available_locale) do
-          item.update(release_id: release_id)
+          item.set_data_hash_attribute('release_status_id', release_partner_stage_id, nil)
         end
-      elsif item.is_a?(DataCycleCore::WatchList) && release_id.present?
+      elsif item.is_a?(DataCycleCore::WatchList) && release_partner_stage_id.present?
         item.watch_list_data_hashes.includes(:hashable).map(&:hashable).each do |content|
-          next unless DataCycleCore::Feature::Releasable.allowed?(content) && content.release_id != release_id
+          next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id.include?(release_partner_stage_id)
 
           I18n.with_locale(content.first_available_locale) do
-            content.update(release_id: release_id)
+            content.set_data_hash_attribute('release_status_id', release_partner_stage_id, nil)
           end
         end
       end

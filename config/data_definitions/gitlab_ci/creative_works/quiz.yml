@@ -5,12 +5,15 @@
     :content_type: entity
     :boost: 100.0
     :features:
-      :publication_schedule: ['publication_schedule']
-      :releasable: true
+      :releasable:
+        :allowed: true
     :properties:
       :id:
         :label: id
         :type: key
+      :release_status:
+        :type: mixin
+        :name: releasable
       :title:
         :type: mixin
         :name: title
@@ -102,9 +105,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Frage"
-      :meta_data:
-        :type: mixin
-        :name: meta_data
 
 - :data:
     :name: Antwort
@@ -137,6 +137,3 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Antwort"
-      :meta_data:
-        :type: mixin
-        :name: meta_data

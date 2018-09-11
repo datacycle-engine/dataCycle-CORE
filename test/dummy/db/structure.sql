@@ -1066,7 +1066,7 @@ CREATE TABLE public.stored_filters (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     name character varying,
     user_id uuid,
-    language character varying,
+    language character varying[],
     parameters jsonb,
     system boolean DEFAULT false,
     api boolean DEFAULT false,
@@ -1620,6 +1620,20 @@ ALTER TABLE ONLY public.watch_lists
 --
 
 CREATE INDEX all_text_idx ON public.searches USING gin (all_text public.gin_trgm_ops);
+
+
+--
+-- Name: by_content_data_classification_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_data_classification_relation ON public.classification_contents USING btree (content_data_id, content_data_type, classification_id, relation);
+
+
+--
+-- Name: by_content_data_history_classification_relation; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_data_history_classification_relation ON public.classification_content_histories USING btree (content_data_history_id, content_data_history_type, classification_id, relation);
 
 
 --
@@ -2668,10 +2682,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180529105933'),
 ('20180703135948'),
 ('20180705133931'),
+('20180809084405'),
 ('20180811125951'),
 ('20180812123536'),
 ('20180813133739'),
 ('20180814141924'),
-('20180815132305');
+('20180815132305'),
+('20180820064823'),
+('20180907080412');
 
 

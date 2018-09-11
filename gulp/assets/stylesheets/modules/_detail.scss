@@ -10,16 +10,19 @@
     right: 0.5rem;
     top: 0.5rem;
     margin: 0;
+
     a {
       position: relative;
       padding: 0 0 1rem 0.3rem;
       display: inline-block;
     }
+
     .button-prime {
       &.small {
         width: 2rem;
         height: 2rem;
         padding: 0;
+
         .fa {
           line-height: 2rem;
           font-size: 1.2rem;
@@ -27,105 +30,210 @@
       }
     }
   }
+
+  .show-content {
+    .detail-header-info {
+      font-size: 0.9rem;
+      text-align: center;
+
+      .fa {
+        font-size: 1rem;
+      }
+    }
+  }
+
   &:not(.imageobject) {
     p {
       margin-bottom: 0.5rem;
+
       &:last-child {
         margin: 0;
       }
     }
+
     .type {
       &.properties {
-        .has-changes {
-          .changed {
-            position: absolute;
-            right: 0.5rem;
-            top: 0.5rem;
-            margin: 0;
-            i {
-              color: #d6d6d6;
-              font-size: 2rem;
-              position: relative;
+        .detail-type.object_browser {
+          li.content {
+            background-color: transparent;
+
+            &.has-changes {
+
+              &.new.bild .thumbnail,
+              &.new.video .thumbnail,
+              &.new:not(.bild, .video) {
+                background-color: rgba($success-color, 0.3) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              &.remove.bild .thumbnail,
+              &.remove.video .thumbnail,
+              &.remove:not(.bild, .video) {
+                background-color: rgba($alert-color, 0.2) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
             }
-          } //border: 2px solid map-get($foundation-palette, alert);
-          background: rgba($light-gray, 0.5);
-          cursor: pointer;
-          &.new {
-            background: rgba($success-color, 0.3);
-            box-shadow: 0 0 1px darken($success-color, 20%);
-          }
-          &.remove {
-            background: rgba($alert-color, 0.1);
-            box-shadow: 0 0 1px $alert-color;
-          }
-          >span {
-            display: inline-block;
-            margin-right: 2rem;
-          }
-          .detail-type {
-            margin-left: 3rem;
           }
         }
+
         .detail-type.has-changes .detail-label,
         .detail-type.selected .detail-label {
           background: none;
         }
+
+        .has-changes.tag {
+          &.new {
+            background-color: rgba($success-color, 0.9) !important;
+          }
+
+          &.remove {
+            background-color: rgba($alert-color, 0.9) !important;
+          }
+        }
+
         .detail-type {
           position: relative;
           box-shadow: 0 0 1px #9d9d9d;
           padding: 2.2rem 1rem 1rem 1rem;
+
+          &.has-changes:not(.geographic),
+          &.has-changes.geographic .geographic,
+          &.has-changes.geographic .map-info {
+            background-color: rgba($light-gray, 0.5);
+
+            &::after {
+              content: '\f040';
+              font-family: FontAwesome;
+              font-size: 1.2rem;
+              font-weight: normal;
+              font-style: normal;
+              margin: 0;
+              text-decoration: none;
+              position: absolute;
+              top: 0.2rem;
+              right: 0.2rem;
+              color: darken($light-gray, 10%);
+              line-height: 1;
+            }
+
+            &:not(.object_browser) {
+              &.new {
+                &::after {
+                  content: '\f067';
+                  color: rgba($success-color, 0.7);
+                }
+
+                background-color: rgba($success-color, 0.1) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+
+              &.remove {
+                &::after {
+                  content: '\f1f8';
+                  color: rgba($alert-color, 0.7);
+                }
+
+                background-color: rgba($alert-color, 0.1) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
+            }
+
+            >span {
+              display: inline-block;
+              margin-right: 2rem;
+            }
+          }
+
+          &.has-changes.geographic {
+            &.new {
+
+              .geographic,
+              .map-info {
+                &::after {
+                  content: '\f067';
+                  color: rgba($success-color, 0.7);
+                }
+
+                background-color: rgba($success-color, 0.1) !important;
+                box-shadow: 0 0 1px darken($success-color, 20%);
+              }
+            }
+
+            &.remove {
+
+              .geographic,
+              .map-info {
+                &::after {
+                  content: '\f1f8';
+                  color: rgba($alert-color, 0.7);
+                }
+
+                background-color: rgba($alert-color, 0.1) !important;
+                box-shadow: 0 0 1px $alert-color;
+              }
+            }
+          }
+
           &.selected {
             background: rgba($primary-color, 0.1);
             box-shadow: 0 0 1px $primary-color;
           }
+
           &:not(:last-child) {
             margin-bottom: 1rem;
           }
+
           >div:not(.detail-type, .map-info, .geographic) {
             margin-bottom: 1rem;
           }
+
           .detail-type {
             box-shadow: none;
             padding: 0;
-            &.object {
+
+            &.object,
+            &.embedded {
               box-shadow: 0 0 1px #9d9d9d;
               padding: 2.2rem 1rem 1rem 1rem;
+
               >.detail-label {
                 position: absolute;
                 float: none;
               }
             }
+
             .detail-label {
               position: relative;
               margin-right: 1rem;
             }
-            &.has-changes {
-              .detail-label {
-                margin-left: 3.5rem;
-                padding: 0.5rem 0;
-              }
-            }
           }
+
           &.asset {
             .inner {
               padding: 0.5rem;
+
               span {
                 display: block;
+
                 &.asset-type {
                   opacity: 0.8;
                 }
               }
+
               .thumb {
                 margin-top: 1rem;
               }
             }
           }
+
           &.media {
             .media-thumbs {
               display: flex;
             }
+
             position: relative;
             text-align: left;
+
             .thumbnail {
               position: relative;
               width: 194px;
@@ -137,15 +245,18 @@
               background-color: white;
               overflow: hidden;
               border: 0;
+
               &.has-restrictions {
                 box-shadow: 0 0 2px 1px red;
               }
+
               &:focus,
               &:hover {
                 .description {
                   opacity: 1;
                 }
               }
+
               .description {
                 position: absolute;
                 left: 0;
@@ -171,6 +282,7 @@
               }
             }
           }
+
           .detail-label {
             position: absolute;
             left: 0;
@@ -178,12 +290,14 @@
             background: inherit;
             color: $dark-gray; //box-shadow: 1px 1px 2px #9d9d9d;
             padding: 1px 8px;
+
             .icon {
               .fa {
                 font-size: inherit;
               }
             }
           }
+
           .detail-content {
             position: relative;
             display: inline-block;
@@ -192,6 +306,7 @@
       }
     }
   }
+
   .type {
     &.translations {
       .header {
@@ -199,10 +314,42 @@
       }
     }
   }
+
   .object.detail_object {
     padding-bottom: 1rem;
+
     >.detail-type {
       padding-left: 1rem;
     }
+  }
+}
+
+.detail-header-info.diff {
+  display: flex;
+  flex-wrap: wrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  .meta-data-splitter {
+    flex: 0;
+    padding: 0 1rem;
+  }
+
+  .metadata {
+    flex: 1;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+  }
+}
+
+.has-changes {
+  ins {
+    background-color: rgba($success-color, 0.5);
+    text-decoration: none;
+  }
+
+  del {
+    background-color: rgba($alert-color, 0.5);
   }
 }

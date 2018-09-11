@@ -21,7 +21,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: data_hash)
       data_set.save
-      data_set.set_search
+      data_set.update_search(I18n.locale)
       data_set.save
 
       assert(1, DataCycleCore::Search.count)
@@ -39,10 +39,6 @@ describe DataCycleCore::Search do
     result = content.set_data_hash(data_hash: data.stringify_keys)
     raise 'InvalidData' if result[:error].present?
     content.save!
-
-    content.set_search
-    content.save!
-
     content
   end
 

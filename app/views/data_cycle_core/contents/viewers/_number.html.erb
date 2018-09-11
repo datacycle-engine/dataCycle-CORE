@@ -1,8 +1,27 @@
-<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  key: key,
+  definition: definition,
+  value: value,
+  options: options,
+  content: content do %>
 
     <span class="detail-content">
-      <%= definition&.dig('validations', 'format') == 'float' ? value.to_f : value.to_i %>
-      <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+      <% number_method = definition&.dig('validations', 'format') == 'float' ? 'to_f' : 'to_i' %>
+
+      <% case options.dig(:item_diff, 0) %>
+      <% when '~' %>
+        <del><%= options.dig(:item_diff, 1).presence.try(number_method) %></del>
+        <ins><%= options.dig(:item_diff, 2).presence.try(number_method) %></ins>
+        <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+      <% when '+' %>
+        <%= options.dig(:item_diff, 1).presence.try(number_method) %>
+        <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+      <% else %>
+        <% if value.present? %>
+          <%= value.try(number_method) %>
+          <%= definition&.dig('ui', 'show', 'options', 'data-unit').presence&.html_safe %>
+        <% end %>
+      <% end %>
     </span>
 
 <% end %>

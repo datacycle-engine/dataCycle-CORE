@@ -27,7 +27,6 @@ var EmbeddedObject = function (selector) {
 };
 
 EmbeddedObject.prototype.setup = function () {
-  console.log(this.element[0]);
   this.sortable = new Sortable(this.element[0], {
     group: this.id,
     handle: '.draggable-handle',

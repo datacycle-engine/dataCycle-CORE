@@ -29,6 +29,7 @@ describe('User', function () {
     cy.get('#new_data_cycle_core_user input#user_family_name').type('Tester')
     cy.get('#new_data_cycle_core_user input#user_password').type(user.password)
     cy.get('#new_data_cycle_core_user input#user_password_confirmation').type(user.password)
+    cy.get('#new_data_cycle_core_user #user_role_id').select('Standard')
     cy.get('#new_data_cycle_core_user input[type="submit"]').click()
     cy.location('pathname').should('match', /\/users/)
 

@@ -61,11 +61,34 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       assert_equal(0, validator.error[:error].size)
     end
 
+    it 'produces a warning if no data are given' do
+      validator = subject.new(nil, template_hash.deep_dup)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
+
+    it 'produces an error if a wrong validations keyword is given' do
+      new_template_hash = template_hash.deep_dup
+      new_template_hash['validations'] = { 'maxi' => 2 }
+      item_case = [{ 'id' => SecureRandom.uuid }]
+      validator = subject.new(item_case, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+    end
+
+    it 'produces an error if a wrong template_name is given' do
+      new_template_hash = template_hash.deep_dup
+      new_template_hash['template_name'] = 'maxi'
+      item_case = [{ 'id' => SecureRandom.uuid }]
+      validator = subject.new(item_case, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+    end
+
     it 'successfully validates more than one embedded item' do
       new_template_hash = template_hash.deep_dup.except('validations')
       uuid = bild1.id
       uuid2 = bild2.id
       data_cases = [
+        { 'id' => uuid },
         [{ 'id' => uuid }],
         [{ 'id' => uuid }, { 'id' => uuid2 }]
       ]
@@ -73,6 +96,24 @@ describe DataCycleCore::MasterData::Validators::Embedded do
         validator = subject.new(item_case, new_template_hash)
         assert_equal(0, validator.error[:error].size)
       end
+    end
+
+    it 'produces an error if max is exceeded' do
+      new_template_hash = template_hash.deep_dup
+      uuid = bild1.id
+      uuid2 = bild2.id
+      item_case = [{ 'id' => uuid }, { 'id' => uuid2 }]
+      validator = subject.new(item_case, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
+    end
+
+    it 'produces an error if min is not reached' do
+      new_template_hash = template_hash.deep_dup
+      new_template_hash['validations'] = { 'min' => 2 }
+      uuid = bild1.id
+      item_case = [{ 'id' => uuid }]
+      validator = subject.new(item_case, new_template_hash)
+      assert_equal(1, validator.error[:error].size)
     end
 
     it 'rejects data in the following formats' do

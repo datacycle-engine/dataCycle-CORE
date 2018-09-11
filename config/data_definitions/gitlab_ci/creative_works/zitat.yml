@@ -37,6 +37,3 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zitat"
-      :meta_data:
-        :type: mixin
-        :name: meta_data

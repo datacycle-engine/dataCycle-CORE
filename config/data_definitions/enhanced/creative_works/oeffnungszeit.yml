@@ -83,6 +83,3 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Öffnungszeit"
-      :meta_data:
-        :type: mixin
-        :name: meta_data

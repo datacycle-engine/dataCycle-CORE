@@ -20,7 +20,7 @@ module DataCycleCore
         end
 
         # Contents
-        can [:update_release_status, :set_life_cycle, :move_content], CONTENT_MODELS
+        can [:set_life_cycle, :move_content], CONTENT_MODELS
 
         can [:read, :create, :import, :update], CONTENT_MODELS do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
@@ -41,11 +41,6 @@ module DataCycleCore
         can :destroy, DataCycleCore::ClassificationAlias do |c|
           c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
         end
-
-        # special datacylce-admin privileges
-        return unless user.email =~ /@pixelpoint\.at/ || user.email =~ /@datacycle\.at/
-        can :manage, :dash_board
-        can :become, DataCycleCore::User
       end
     end
   end

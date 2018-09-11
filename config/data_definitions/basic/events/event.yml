@@ -5,7 +5,8 @@
     :boost: 100.0
     :content_type: entity
     :features:
-      :overlay: ['overlay']
+      :overlay:
+        :allowed: true
     :properties:
       :id:
         :label: id

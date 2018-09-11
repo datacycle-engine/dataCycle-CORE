@@ -1,7 +1,7 @@
-<span class="tag-group tags" data-id="<%= "#{sanitize_to_id(key)}_#{index}" if buttons ||= false %>">
+<span class="tag-group tags <%= key %>" data-id="<%= target %>">
   <i class="tag-group-label">
     <i class="fa fa-user" aria-hidden="true"></i>
-    <%= t("filter.#{key.parameterize(separator: '_')}", default: key, locale: DataCycleCore.ui_language) %>:
+    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </i>
 
   <% creators = DataCycleCore::User.where(id: value).map { |c| [c.id, { title: c.email, text: "#{c.given_name} #{c.family_name}" }] }.to_h %>
@@ -12,12 +12,5 @@
     <% end %>
   </span>
 
-  <% if buttons %>
-    <span class="tag-buttons">
-      <a class="focus-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-cog"></i></a>
-      <% if can?(:advanced_filter, :backend) %>
-        <a class="remove-advanced-filter advanced-filter-link" data-target="<%= sanitize_to_id(key) %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
-      <% end %>
-    </span>
-  <% end %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

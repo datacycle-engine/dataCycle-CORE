@@ -2,139 +2,47 @@
 
 module DataCycleCore
   module HistoryHelper
-    require 'hashdiff'
+    INDICATOR_CLASSES = {
+      '+' => 'has-changes new',
+      '-' => 'has-changes remove',
+      '~' => 'has-changes edit'
+    }.freeze
 
-    REMOVED_INDICATOR = '-'
-    ADDED_INDICATOR = '+'
-    CHANGED_INDICATOR = '~'
-
-    # OK
-    def get_diff(version, orig)
-      diff_array = HashDiff.diff(version, orig, array_path: true, use_lcs: true).collect { |item| transform_history_item item }
-      transform_history_array_to_hash diff_array
-    end
-    # TODO: see old history implementations
-    # def get_object_changes(history, original)
-    #   history_objects = transform_object_array_to_hash(history.try(:get_data_hash))
-    #   original_objects = original.nil? ? {} : transform_object_array_to_hash(original.try(:get_data_hash))
-    #   get_diff(history_objects, original_objects)
-    # end
-
-    def find_original_object(original_object, id)
-      original_object.each do |object|
-        return object if object.id == id
-      end
-      nil
-    end
-
-    def find_history_object(original_object, id)
-      original_object.each do |object|
-        return object if object.try(:get_data_hash)['id'] == id
-      end
-      nil
-    end
-
-    # TODO: see old history implementations
-    # def get_new_objects(history, original)
-    #   return original if history.blank?
-    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-    #   original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
-    #   original_objects.delete_if { |k, _| history_objects.key?(k) }.collect { |k, _| find_original_object(original, k) }
-    # end
-    #
-    # TODO: see old history implementations
-    # def get_removed_objects(history, original)
-    #   return history if original.blank?
-    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-    #   original_objects = transform_object_array_to_hash(original.collect(&:get_data_hash))
-    #   history_objects.delete_if { |k, _| original_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
-    # end
-    #
-    # TODO: see old history implementations
-    # def get_edited_objects(history, removed)
-    #   return history if removed.blank?
-    #   history_objects = transform_object_array_to_hash(history.collect(&:get_data_hash))
-    #   removed_objects = transform_object_array_to_hash(removed.collect(&:get_data_hash))
-    #   history_objects.delete_if { |k, _| removed_objects.key?(k) }.collect { |k, _| find_history_object(history, k) }
-    # end
-
-    # def get_object_item_has_changed(key, definition, object_value, object_has_changed, parent_definition)
-    #   return false if parent_definition.dig('type') == 'object' && (parent_definition.try(:[], 'editor').try(:[], 'type') == 'objectBrowser')
-    #
-    #   get_item_has_changed(object_has_changed, key, object_value, definition)
-    # end
-
-    def get_item_has_changed(diff, key, _value, _definition)
+    def attribute_changes(diff, key)
+      return nil if diff.blank?
       item_path_array = key.split('[').collect { |v| v.delete(']') }
+      diff.dig(*item_path_array)
+    end
 
-      begin
-        valid_changes diff.dig(*item_path_array)
-      rescue StandardError
-        return false
+    def changes_class(diff, value)
+      diff.presence&.each do |mode|
+        return INDICATOR_CLASSES[mode[0]] if mode[1].presence&.include?(value)
+      end
+      ''
+    end
+
+    def changes_mode(diff)
+      return '' if diff.blank?
+      if diff.is_a?(Hash) || diff.dig(0).is_a?(Array)
+        INDICATOR_CLASSES['~']
+      else
+        INDICATOR_CLASSES[diff.dig(0)]
       end
     end
 
-    def valid_changes(item)
-      if item.is_a?(Array)
-        return false if item[0][0] == CHANGED_INDICATOR && item[0][1].blank? && item[0][2].blank?
+    def changes_by_value(diff, value)
+      diff.presence&.each do |mode|
+        return [[mode[0], value]] if mode[1].presence&.include?(value)
       end
-      item
+      nil
     end
 
-    # TODO: refactor
-    def get_relation_object_changes(diff)
-      added_objects = []
-      removed_objects = []
-
-      if diff.present?
-        diff.each_value do |v|
-          v.each do |val|
-            indicator = val[0]
-            value = val[1]
-            case indicator
-            when REMOVED_INDICATOR
-              removed_objects.push(value)
-            when ADDED_INDICATOR
-              added_objects.push(value)
-            end
-          end
-        end
-      end
-
-      return (added_objects - removed_objects), (removed_objects - added_objects)
+    def changes_by_mode(diff, mode)
+      diff.presence&.select { |v| v[0] == mode }&.dig(0, 1) || []
     end
 
-    private
-
-    def transform_history_item(item)
-      item[1].reverse.inject([item[0], item[2], item[3]]) { |hash, key| { key => hash } }
-    end
-
-    # TODO: see old history implementations
-    # refactor
-    # def transform_object_array_to_hash(array, _options: {})
-    #   if array.is_a?(Array)
-    #     hash = array.each_with_object({}) do |(k, _), h|
-    #       hash_key = 'id'
-    #       hash_value = k[hash_key]
-    #       (h[hash_value] ||= []) << k unless hash_value.nil?
-    #     end
-    #     return hash if hash.present?
-    #   end
-    #   array
-    # end
-
-    def transform_history_array_to_hash(array)
-      array.each_with_object({}) do |(k, _), h|
-        hash_key = k.try(:keys).try(:first)
-        hash_value = k[hash_key] unless hash_key.nil?
-        if hash_value.is_a?(Hash)
-          h[hash_key] ||= {}
-          (h[hash_key][hash_value.keys.first] ||= []) << hash_value[hash_value.keys.first]
-        else
-          (h[hash_key] ||= []) << hash_value
-        end
-      end
+    def new_relations(diff, table)
+      "data_cycle_core/#{table}".classify.constantize.where(id: changes_by_mode(diff, '+'))
     end
   end
 end

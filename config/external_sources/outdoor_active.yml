@@ -112,4 +112,4 @@ config:
           template: Bild
         place:
           content_type: DataCycleCore::Place
-          template: Örtlichkeit
+          template: POI

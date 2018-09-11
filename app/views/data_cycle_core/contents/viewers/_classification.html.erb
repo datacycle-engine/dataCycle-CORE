@@ -1,8 +1,11 @@
 <%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
     <span class="detail-content tags">
-        <% value.presence&.map(&:primary_classification_alias)&.each do |a| %>
-            <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification" aria-haspopup="true" class="tag"
-                  title="<%= ["<b>#{a.full_path}</b>", a.description].reject(&:blank?).join("<br /><br />") %>">
+        <% objects = value.presence&.map(&:primary_classification_alias) || [] %>
+
+        <% objects = objects.concat(new_relations(options.dig(:item_diff), 'classifications').includes(:classification_aliases).map(&:primary_classification_alias)) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+        <% objects.presence&.each do |a| %>
+            <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification" aria-haspopup="true" class="tag <%= changes_class(options.dig(:item_diff), a.primary_classification.id) %>" title="<%= ["<b>#{a.full_path}</b>", a.description].reject(&:blank?).join("<br /><br />") %>">
                 <%= a.name %>
             </span>
         <% end %>

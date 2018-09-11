@@ -5,7 +5,7 @@ module DataCycleCore
     class Geocode < Base
       class << self
         def address_source(content)
-          content&.schema&.dig('features', name.demodulize.underscore)
+          attribute_keys(content).first
         end
       end
     end
