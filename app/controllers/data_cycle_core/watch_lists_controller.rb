@@ -29,7 +29,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to api_v1_collection_path(@watch_list) }
+        format.json { redirect_to api_v2_collection_path(@watch_list) }
       end
     end
 

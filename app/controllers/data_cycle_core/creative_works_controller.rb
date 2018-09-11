@@ -44,7 +44,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to api_v1_content_path(type: controller_name, id: params[:id]) }
+          format.json { redirect_to polymorphic_path([:api, :v2, @content]) }
           format.html { render && return }
         end
       end
