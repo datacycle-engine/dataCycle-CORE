@@ -147,7 +147,7 @@ module DataCycleCore
       },
       geocode: {
         enabled: false,
-        attributes_keys: ['address']
+        attribute_keys: ['address']
       },
       gpx_converter: {
         enabled: true

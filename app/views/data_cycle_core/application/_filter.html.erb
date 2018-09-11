@@ -49,8 +49,7 @@
                         <% end %>
                       <% end %>
 
-                      <%= render 'data_cycle_core/application/filters/language',
-                        show_all: filter[:language_all] if filter[:language] %>
+                      <%= render 'data_cycle_core/application/filters/language' if filter[:language] %>
                     </ul>
                   </nav>
                 </div>
