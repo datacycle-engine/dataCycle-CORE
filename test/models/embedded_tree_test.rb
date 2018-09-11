@@ -46,7 +46,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -65,7 +64,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -125,7 +123,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -144,7 +141,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -219,7 +215,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -244,8 +239,7 @@ module DataCycleCore
             'job_title' => nil,
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
-          }],
-          'is_part_of' => parent_id
+          }]
         }, {
           'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
           'image' => nil,
@@ -254,8 +248,7 @@ module DataCycleCore
             'job_title' => nil,
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
-          }],
-          'is_part_of' => parent_id
+          }]
         }]
       }
 
@@ -319,7 +312,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
       quotation_id = returned_data_hash['quotation'][0]['id']
 
       expected_hash = {
@@ -344,7 +336,6 @@ module DataCycleCore
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
           }],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil

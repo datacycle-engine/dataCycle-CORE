@@ -94,7 +94,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -115,7 +114,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil

@@ -4,6 +4,12 @@ module DataCycleCore
   module Content
     module DestroyContent
       def destroy_content
+        if respond_to?(:children)
+          children.each do |item|
+            item.destroy_content
+            item.destroy
+          end
+        end
         to_history(save_time: Time.zone.now, delete: true) unless history?
         destroy_children
       end
