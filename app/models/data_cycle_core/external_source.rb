@@ -32,7 +32,7 @@ module DataCycleCore
     def download_single(name, options = {})
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
-      locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
+      locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
       full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.deep_symbolize_keys)
