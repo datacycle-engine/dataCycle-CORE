@@ -49,14 +49,14 @@ describe('CreativeWork - Artikel', function () {
   })
 
   it('test json API', function () {
-    cy.request('/api/v1/creative_works/' + id).then((response) => {
+    cy.request('/api/v2/creative_works/' + id).then((response) => {
       expect(response.body).to.have.property('contentType', option);
       expect(response.body).to.have.property('headline', updated_name);
     })
   })
 
   it('test contents search API', function () {
-    cy.request('/api/v1/contents/search?search=' + updated_name).then((response) => {
+    cy.request('/api/v2/contents/search?search=' + updated_name).then((response) => {
       expect(response.body).to.have.property('contents');
       expect(response.body.contents).to.have.length(1);
       expect(response.body.contents[0]).to.have.property('contentType', option);
