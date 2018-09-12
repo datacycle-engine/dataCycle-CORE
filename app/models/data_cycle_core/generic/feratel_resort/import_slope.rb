@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module FeratelResort
-      module Import
+      module ImportSlope
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,7 +19,7 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['type', 'status'].each do |tag_name|
+            ['type_slope', 'status_slope'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,
@@ -28,10 +28,10 @@ module DataCycleCore
               )
             end
 
-            DataCycleCore::Generic::FeratelResort::Processing.process_infrastructure(
+            DataCycleCore::Generic::FeratelResort::Processing.process_slope(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :lake)
+              options.dig(:import, :transformations, :slope)
             )
           end
         end
