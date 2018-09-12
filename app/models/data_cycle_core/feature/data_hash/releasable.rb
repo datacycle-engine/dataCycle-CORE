@@ -9,6 +9,7 @@ module DataCycleCore
         included do
           before_save_data_hash :update_release_status, if: proc {
             finalize &&
+              @current_user.present? &&
               (data_links.where(receiver_id: @current_user.id, permissions: 'write').present? ||
               watch_lists.includes(:data_links).where(data_links: { receiver_id: @current_user.id }).exists?)
           }

@@ -16,7 +16,7 @@ module DataCycleCore
       include UpdateSearch
 
       before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
-      after_saved_data_hash :notify_subscribers
+      after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false)
         return {} if data_hash.blank?
