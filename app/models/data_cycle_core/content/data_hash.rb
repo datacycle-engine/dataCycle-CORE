@@ -81,6 +81,7 @@ module DataCycleCore
       private
 
       def notify_subscribers
+        return if @current_user.blank?
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end

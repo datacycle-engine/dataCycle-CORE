@@ -13,9 +13,8 @@ module DataCycleCore
       end
 
       def set_deleted_by(current_user, save_time)
-        set_data_hash_attribute('deleted_by', [current_user.presence&.id].compact, current_user, save_time) if current_user.present?
-        set_data_hash_attribute('date_deleted', save_time, current_user, save_time)
-        save(touch: false)
+        to_update_data = { 'deleted_by' => [current_user.presence&.id].compact, 'date_deleted' => save_time }
+        set_data_hash(data_hash: to_update_data, current_user: current_user, save_time: save_time, prevent_history: true, update_search_all: false, partial_update: true)
       end
 
       def destroy_children
