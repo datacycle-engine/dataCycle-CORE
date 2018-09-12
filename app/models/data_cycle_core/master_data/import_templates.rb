@@ -214,7 +214,8 @@ module DataCycleCore
                   'embedded',
                   'linked',
                   'classification',
-                  'asset'
+                  'asset',
+                  'computed'
                 ]
               )
           end
@@ -274,6 +275,14 @@ module DataCycleCore
           rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
             type.eql?('asset') >
               asset_type.filled?
+          end
+
+          rule(computed_method: [:type, :module_name, :method_name]) do |type, module_name, method_name|
+            type.eql?('computed') > (
+              method_name.filled? &
+              module_name.filled? &
+                "DataCycleCore::Utility::#{module_name}".constantize.respond_to?(method_name.to_sym)
+            )
           end
         end
       end
