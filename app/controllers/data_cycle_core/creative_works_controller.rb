@@ -4,9 +4,6 @@ module DataCycleCore
   class CreativeWorksController < ContentsController
     include DataCycleCore::Filter
 
-    after_action :check_final, only: :update
-    after_action :set_publication_attributes, only: :update, if: -> { DataCycleCore::Feature::PublicationSchedule.enabled? }
-
     def show
       @content = DataCycleCore::CreativeWork.find(params[:id])
 
@@ -133,30 +130,10 @@ module DataCycleCore
 
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema, false)
-        #
-        # known bugs:
-        # saving without changed properites after initial create is identified as change. (nil => "")
-        # adding embedded objects, save, reopen, save is identified as change (is_part_of changes from nil to parent_id)
-        #
-        # data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-        #   datahash.merge({ 'id' => @content.id, 'release_id' => object_params[:release_id], 'release_comment' => object_params[:release_comment] }),
-        #   @content.get_data_hash.merge({ 'release_id' => @content.release_id, 'release_comment' => @content.release_comment })
-        # )
 
-        # unless data_hash_has_changes
-        #   flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
-        #   if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-        #     redirect_back(fallback_location: root_path)
-        #   else
-        #     redirect_to creative_work_path(@content, watch_list_id: @watch_list)
-        #   end
-        #   return
-        # end
+        @content.finalize = params[:finalize]
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
-
-        # @content.release_id = object_params[:release_id]
-        # @content.release_comment = object_params[:release_comment]
 
         redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
@@ -231,7 +208,7 @@ module DataCycleCore
       if params[:parent_id].blank? && params[:template] == DataCycleCore::Feature::IdeaCollection.template
         parent = DataCycleCore::DataHashService.create_internal_object('creative_works', params[:parent_template], object_params, current_user)
         life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
-        parent.set_data_hash_attribute(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first, [life_cycle_id], current_user)
+        parent.set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first => [life_cycle_id] }, current_user: current_user, partial_update: true, prevent_history: true)
         content.is_part_of = parent.id
       elsif params[:parent_id].present?
         content.is_part_of = params[:parent_id]
@@ -272,33 +249,6 @@ module DataCycleCore
 
     def execute_after_update_webhooks(data)
       Webhook::Update.execute_all(data)
-    end
-
-    def set_publication_attributes
-      return if DataCycleCore.features.dig(:publication_schedule, :classification_keys).blank? || !DataCycleCore::Feature::PublicationSchedule.available?(@content) || !@content.respond_to?('publication_schedule')
-      I18n.with_locale(@content.first_available_locale) do
-        datahash_params = content_params('creative_works', @content.template_name)
-        datahash = DataCycleCore::DataHashService.flatten_datahash_value(datahash_params[:datahash], @content.schema, false)
-
-        DataCycleCore.features.dig(:publication_schedule, :classification_keys).each do |tree_label|
-          @content.set_data_hash_attribute(tree_label, datahash.dig('publication_schedule')&.map { |p| p[tree_label] }&.flatten&.uniq, current_user)
-        end
-      end
-    end
-
-    def check_final
-      if params[:finalize] && (
-        @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present? ||
-        @content.watch_lists.includes(:data_links).where(data_links: { receiver_id: current_user.id }).exists?
-      )
-        @content.data_links.where(receiver_id: current_user.id, permissions: 'write').update(permissions: 'read') if @content.data_links.where(receiver_id: current_user.id, permissions: 'write').present?
-
-        if DataCycleCore::Feature::Releasable.allowed?(@content)
-          I18n.with_locale(@content.first_available_locale) do
-            @content.set_data_hash_attribute('release_status_id', DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('review'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids, current_user)
-          end
-        end
-      end
     end
   end
 end
