@@ -41,7 +41,7 @@ module DataCycleCore
         end
       end
 
-      def respond_to?(method_name)
+      def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 

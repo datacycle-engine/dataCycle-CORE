@@ -137,7 +137,7 @@ module DataCycleCore
 
     def destroy
       @content = data_cycle_object(controller_name).find(params[:id])
-      @content.destroy_content
+      @content.destroy_content(current_user: current_user)
       @content.destroy
 
       execute_after_destroy_webhooks @content

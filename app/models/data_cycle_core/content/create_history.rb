@@ -3,7 +3,8 @@
 module DataCycleCore
   module Content
     module CreateHistory
-      def to_history(save_time:, delete: false)
+      def to_history(save_time:, current_user: nil, delete: false)
+        current_user ||= @current_user
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
@@ -12,7 +13,6 @@ module DataCycleCore
         attributes.except('id', 'created_at', 'updated_at').each do |key, value|
           data_set_history.send("#{key}=", value)
         end
-        # data_set_history.is_part_of = parent_id if data_set_history.respond_to?('is_part_of')
         lower_bound = updated_at
         lower_bound = save_time if lower_bound > save_time
         data_set_history.history_valid = (lower_bound...save_time)
@@ -37,7 +37,7 @@ module DataCycleCore
         embedded_relations.each do |content_name|
           content_relation = send(content_name[:name])
           content_relation.each_with_index do |content_item, index|
-            new_content_history = content_item.to_history(save_time: save_time)
+            new_content_history = content_item.to_history(save_time: save_time, current_user: current_user)
             create_relation_history(new_content_history, data_set_history, content_name, origin_table, index, save_time)
           end
         end
