@@ -15,6 +15,7 @@ module DataCycleCore
 
       redirect_to root if @watch_list.nil?
 
+      @language ||= params.fetch(:language, ['all'])
       @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @filters.push(
         {

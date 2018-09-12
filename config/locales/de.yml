@@ -98,7 +98,7 @@ de:
     portrait: Hochformat
     height: Höhe
     width: Breite
-    children_present_html: '<br><br><b>Achtung:</b> Es gibt verknüpfte Inhalte, diese werden mitgelöscht!'
+    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
 
   history:
     latest_edits: Letzte Bearbeitungen
