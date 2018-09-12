@@ -7,7 +7,8 @@ module DataCycleCore
       include CanCan::Ability
 
       def initialize(user, _session = {})
-        can [:read, :create, :update, :destroy], [DataCycleCore::DataLink, DataCycleCore::UserGroup]
+        can [:read, :create, :update, :destroy], DataCycleCore::DataLink, creator_id: user.id
+        can [:read, :create, :update, :destroy], DataCycleCore::UserGroup
         can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
         can [:create, :update], DataCycleCore::TextFile, creator_id: user.id
 

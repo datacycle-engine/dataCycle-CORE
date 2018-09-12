@@ -693,14 +693,6 @@ select {
   }
 }
 
-.content-pool-buttons {
-  margin-top: 1rem;
-
-  .button {
-    margin: 0;
-  }
-}
-
 .reveal {
   .loading {
     text-align: center;
@@ -792,21 +784,63 @@ video {
 
 // content_pool buttons
 .content-pool-buttons {
-  .fa {
-    font-size: inherit;
-    padding: 0.5rem;
-    vertical-align: middle;
-    color: map-get($foundation-palette, primary);
-  }
+  font-size: 0;
+  margin-top: 1rem;
 
   .content-pool {
-    padding: 0.5rem 0.8rem;
+    position: relative;
+    padding: 0;
     vertical-align: middle;
     font-size: 0.8rem;
+    margin: 0 1rem;
+    cursor: initial;
+
+    &.button>a {
+      padding: 0.5rem 0.7rem;
+      margin: 0;
+      font-weight: normal;
+      color: inherit;
+    }
+
+    &.button.disabled {
+      padding: 0.5rem 0.7rem;
+      cursor: not-allowed;
+    }
+
+    &::after {
+      content: '\f060';
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      display: flex;
+      position: absolute;
+      right: -2.1rem;
+      top: 0;
+      height: 100%;
+      justify-content: center;
+      align-items: center;
+      color: $primary-color;
+      width: 2.1rem;
+    }
+
+    &::after:last-child {
+      display: none;
+    }
 
     &.active {
       font-size: 0.9rem;
       cursor: auto;
+
+      &::after {
+        display: none;
+      }
+
+      &~::after {
+        content: '\f061';
+        display: flex;
+        left: -2.1rem;
+        right: auto;
+      }
     }
   }
 }

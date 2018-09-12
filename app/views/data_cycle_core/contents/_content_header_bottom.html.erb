@@ -18,7 +18,7 @@
 
   <%= link_to polymorphic_path([:gpx, content]), class: 'button-prime small gpx-content-link', data: { tooltip: true, click_open: false }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
     <i class="fa fa-location-arrow" aria-hidden="true"></i>
-  <% end if DataCycleCore::Feature::Geocode.allowed?(content) && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
+  <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
   <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
     <i class="fa fa-pencil" aria-hidden="true"></i>

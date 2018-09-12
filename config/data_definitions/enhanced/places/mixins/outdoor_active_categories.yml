@@ -10,10 +10,17 @@
         :ui:
           :show:
             :content_area: header
-      :categories:
-        :label: Kategorien
+      :tour_categories:
+        :label: OutdoorActive - Kategorien
         :type: classification
-        :tree_label: OutdoorActive - Kategorien
+        :tree_label: OutdoorActive - Touren-Kategorien
+        :ui:
+          :show:
+            :content_area: header
+      :poi_categories:
+        :label: OutdoorActive - Kategorien
+        :type: classification
+        :tree_label: OutdoorActive - POI-Kategorien
         :ui:
           :show:
             :content_area: header

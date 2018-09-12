@@ -54,9 +54,7 @@ module DataCycleCore
       end
 
       def property_definitions
-        schema['properties']
-      rescue StandardError
-        {}
+        schema&.dig('properties') || {}
       end
 
       def property_names
@@ -219,8 +217,6 @@ module DataCycleCore
         features << DataCycleCore.features.select { |_, v| v[:enabled] }.keys.map(&:to_s)
         features.flatten.uniq.compact
       end
-
-      # private
 
       def get_property_value(property_name, property_definition)
         if plain_property_names.include?(property_name)
