@@ -40,7 +40,6 @@ module DataCycleCore
         def self.download_sequential(download_object:, data_id:, data_name:, options:)
           delta = 100
           options[:locales] ||= I18n.available_locales
-
           if options[:locales].size != 1
             options[:locales].each do |language|
               download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
@@ -54,7 +53,8 @@ module DataCycleCore
 
                 begin
                   download_object.source_object.with(download_object.source_type) do |mongo_item|
-                    items = download_object.endpoint.send(options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s)
+                    endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+                    items = download_object.endpoint.send(endpoint_method, lang: locale)
 
                     max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                     logging.phase_started("#{download_object.source_type.collection_name}_#{locale}", max_string)
@@ -110,7 +110,8 @@ module DataCycleCore
 
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
-                  items = download_object.endpoint.send(options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s)
+                  endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
+                  items = download_object.endpoint.send(endpoint_method, lang: locale)
 
                   max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                   logging.phase_started(download_object.source_type.collection_name.to_s, max_string)
