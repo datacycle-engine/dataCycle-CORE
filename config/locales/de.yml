@@ -161,6 +161,7 @@ de:
     download_asset: "Datei herunterladen"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
+    searching: suche
 
   validation:
     errors:
