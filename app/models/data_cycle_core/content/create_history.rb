@@ -16,7 +16,7 @@ module DataCycleCore
         lower_bound = updated_at
         lower_bound = save_time if lower_bound > save_time
         data_set_history.history_valid = (lower_bound...save_time)
-        data_set_history.deleted_at = Time.zone.now.to_s(:long_usec) if delete
+        data_set_history.deleted_at = save_time if delete
         data_set_history.created_at = save_time
         data_set_history.updated_at = save_time
         data_set_history.save(touch: false)
