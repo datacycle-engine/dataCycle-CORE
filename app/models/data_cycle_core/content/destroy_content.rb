@@ -4,13 +4,15 @@ module DataCycleCore
   module Content
     module DestroyContent
       def destroy_content(current_user: nil, save_time: Time.zone.now)
-        children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
-        unless history?
-          set_deleted_by(current_user, save_time)
-          to_history(save_time: save_time, delete: true)
+        ActiveRecord::Base.transaction do
+          children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
+          unless history?
+            set_deleted_by(current_user, save_time)
+            to_history(save_time: save_time, delete: true)
+          end
+          destroy_children
+          destroy
         end
-        destroy_children
-        destroy
       end
 
       def set_deleted_by(current_user, save_time)
