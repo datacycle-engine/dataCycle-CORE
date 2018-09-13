@@ -1048,5 +1048,52 @@ module DataCycleCore
       assert_equal(expected_hash.except('image'), data_set.get_data_hash.compact.except('id', 'data_pool', 'video', 'image'))
       assert_equal(expected_hash['image'].sort, data_set.get_data_hash['image'].pluck(:id).sort)
     end
+
+    test 'partially update datahash' do
+      content_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
+      content = DataCycleCore::CreativeWork.new
+      content.schema = content_template.schema
+      content.template_name = content_template.template_name
+      content.save
+
+      DataCycleCore::CreativeWork.create!(headline: 'Test3')
+      uuid = DataCycleCore::CreativeWork.where(headline: 'Test3').first.id
+
+      expected_hash = {
+        'headline' => 'Dies ist ein Test!',
+        'description' => 'wtf is going on???',
+        'image' => [uuid],
+        'state' => [],
+        'topics' => [],
+        'creator' => [],
+        'markets' => [],
+        'quotation' => [],
+        'output_channels' => [],
+        'content_location' => [],
+        'permitted_creator' => [],
+        'season' => [],
+        'tags' => [],
+        'kind' => []
+      }
+
+      content.set_data_hash(
+        data_hash: {
+          'headline' => 'Dies ist ein Test!',
+          'description' => 'wtf is going on???',
+          'image' => [uuid]
+        },
+        prevent_history: true
+      )
+
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image'))
+      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
+
+      expected_hash['description'] = 'only change description'
+
+      content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
+
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image'))
+      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
+    end
   end
 end
