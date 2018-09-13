@@ -2,8 +2,8 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
-      module ImportLift
+    module FeratelCps
+      module ImportInfrastructure
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,7 +19,7 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['type_lift', 'status_lift'].each do |tag_name|
+            ['type_infra', 'status_infra'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,
@@ -28,10 +28,10 @@ module DataCycleCore
               )
             end
 
-            DataCycleCore::Generic::FeratelResort::Processing.process_lift(
+            DataCycleCore::Generic::FeratelCps::Processing.process_infrastructure(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :lift)
+              options.dig(:import, :transformations, :infrastructure)
             )
           end
         end

@@ -80,9 +80,9 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Lift"
-      :feratel_resort:
+      :feratel_cps:
         :type: mixin
-        :name: feratel_resort
+        :name: feratel_cps
       :meta_data:
         :type: mixin
         :name: meta_data

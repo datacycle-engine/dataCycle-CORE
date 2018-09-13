@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
+    module FeratelCps
       class Endpoint
         def initialize(host: nil, end_point: nil, id: nil, **_options)
           @host = host
