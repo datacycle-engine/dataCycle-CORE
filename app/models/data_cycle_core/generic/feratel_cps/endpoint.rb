@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
+    module FeratelCps
       class Endpoint
         def initialize(host: nil, end_point: nil, id: nil, **_options)
           @host = host
@@ -11,7 +11,7 @@ module DataCycleCore
         end
 
         def infrastructure(lang: :de)
-          raise "Unsupported Language (#{lang})" unless lang == :de
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
             load_data('INFRASTRUKTUR')['INFRA'].each do |infrastructure|
@@ -21,7 +21,7 @@ module DataCycleCore
         end
 
         def slopes(lang: :de)
-          raise "Unsupported Language (#{lang})" unless lang == :de
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
             load_data('PISTEN')['PISTE'].each do |slope|
@@ -31,7 +31,7 @@ module DataCycleCore
         end
 
         def lifts(lang: :de)
-          raise "Unsupported Language (#{lang})" unless lang == :de
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
 
           Enumerator.new do |yielder|
             load_data('LIFTE')['LIFT'].each do |lift|
