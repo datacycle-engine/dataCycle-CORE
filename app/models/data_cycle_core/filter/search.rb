@@ -112,7 +112,7 @@ module DataCycleCore
         )
       end
 
-      def distinct_by_content_id(order_string)
+      def distinct_by_content_id(order_string = nil)
         return self if @locale.presence&.size == 1
 
         if order_string.is_a?(String)

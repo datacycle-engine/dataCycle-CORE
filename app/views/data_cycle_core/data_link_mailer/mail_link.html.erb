@@ -2,11 +2,11 @@
    <tr>
     <td style="padding:0 12pt 24pt 6pt;" >
         <p style="line-height:15pt"><span
-        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b>Sehr geehrter Partner,</b><br>ein Kollege benötigt Ihre Interaktion.</span></p>
+        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b>Guten Tag!</b><br>Ein Kollege benötigt Ihre Interaktion.</span></p>
     </td>
    </tr>
    <tr>
-    <td style="background:white;padding:24pt 12pt 12pt 24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
     <table border="0" cellspacing="0" cellpadding="0"
      width="100%" style="width:100%;">
      <tr style="height:24pt">
@@ -18,14 +18,20 @@
       <td width="100%" style="width:100%;padding:0;height:24pt">
       <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><strong><%= @user.full_name %></strong> hat den Inhalt
       “<a href="<%= @url %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline; font-weight: bold;font-style: italic"><%= @headline %></span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>
+      underline; font-weight: bold;font-style: italic"><%= @headline %></span></a>” mit Ihnen geteilt und bittet um
+      <% if @data_link.writable? %>
+      Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.
+      <% else %>
+      Ihr Feedback.
+      <% end %>
+      </span>
       </td>
      </tr>
 
 <% if @data_link.comment.present? %>
      <tr>
       <!--<td style="padding:12pt 0"></td>-->
-      <td style="padding:12pt 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Kommentar</span></td>
+      <td style="padding:12pt 0 3pt 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Kommentar</span></td>
      </tr>
       <tr>
       <!--<td style="padding:0"></td>-->
@@ -40,7 +46,7 @@
 <% if @data_link.text_file.present? %>
       <tr>
       <!--<td style="padding:12pt 0"></td>-->
-      <td style="padding:12pt 0">
+      <td style="padding:12pt 0 0 0">
       <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>:</span>&nbsp;&nbsp;&nbsp;<a href="<%= get_text_file_data_link_url(@data_link) %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
       underline"><%= @data_link.text_file.name %></span></a>
       </td>
@@ -48,18 +54,29 @@
 <% end %>
 
       <tr>
-      <td style="padding:0" colspan="2">&nbsp;</td>
       </tr>
+      <tr>
+        <td style="padding:12pt 0 0 0">
+          <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Berechtigung: </span> <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language) %>
+        </td>
+      </tr>
+      <tr>
+      </tr>
+      <tr><td style="padding:12pt 0 0 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Gültig</span>
+          <% if @data_link.valid_from.nil? && @data_link.valid_until.nil? %>
+            unbeschränkt
+          <% else %>
+            <% if @data_link.valid_from.present? %>
+              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">von</span> <%= l(@data_link.valid_from.to_datetime, locale: DataCycleCore.ui_language) %>
+            <% end %>
+            <% if @data_link.valid_until.present? %>
+              <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">bis</span> <%= l(@data_link.valid_until.to_datetime, locale: DataCycleCore.ui_language) %>
+            <% end %>
+          <% end %></td></tr>
+      <tr>
     </table>
     </td>
    </tr>
-   <tr><td style="padding:6.0pt 0 12pt 6pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;font-weight: 300;font-size:10pt">Gültig <% if @data_link.valid_from.nil? && @data_link.valid_until.nil? %>
-        unbeschränkt
-      <% else %>
-        <%= "von: #{l(@data_link.valid_from.to_datetime, locale: DataCycleCore.ui_language)} " unless @data_link.valid_from.nil? %>
-        <%= "bis: #{l(@data_link.valid_until.to_datetime, locale: DataCycleCore.ui_language)} " unless @data_link.valid_until.nil? %>
-      <% end %></td></tr>
-   <tr>
     <td style="padding:24pt 0 12pt 0;">
     <div align="center">
 
@@ -79,5 +96,3 @@
     </td>
    </tr>
   </table>
-
-<!--<b>Berechtigung: </b> <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language) %>-->
