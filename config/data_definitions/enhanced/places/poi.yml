@@ -96,9 +96,9 @@
       :feratel:
         :type: mixin
         :name: feratel_categories
-      :feratel_resort:
+      :feratel_cps:
         :type: mixin
-        :name: feratel_resort
+        :name: feratel_cps
       :content_classifications:
         :type: mixin
         :name: content_classifications

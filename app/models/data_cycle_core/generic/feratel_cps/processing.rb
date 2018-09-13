@@ -2,13 +2,13 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
+    module FeratelCps
       module Processing
         def self.process_infrastructure(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::FeratelResort::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
+            transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
             default: { content_type: DataCycleCore::Place, template: 'POI' },
             config: config
           )
@@ -18,7 +18,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::FeratelResort::Transformations.feratel_to_slope(utility_object.external_source.id),
+            transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_slope(utility_object.external_source.id),
             default: { content_type: DataCycleCore::Place, template: 'Piste' },
             config: config
           )
@@ -28,7 +28,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::FeratelResort::Transformations.feratel_to_lift(utility_object.external_source.id),
+            transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_lift(utility_object.external_source.id),
             default: { content_type: DataCycleCore::Place, template: 'Lift' },
             config: config
           )
