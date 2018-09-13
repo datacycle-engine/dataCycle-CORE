@@ -15,6 +15,10 @@ module DataCycleCore
         def life_cycle_classification?(classification_id)
           DataCycleCore::Feature::LifeCycle.ordered_classifications(self)&.values&.map { |value| value[:id] }&.include?(classification_id)
         end
+
+        def life_cycle_stage_index(classification_id = life_cycle_stage&.id)
+          DataCycleCore::Feature::LifeCycle.ordered_classifications(self)&.values&.map { |value| value[:id] }&.index(classification_id)
+        end
       end
     end
   end
