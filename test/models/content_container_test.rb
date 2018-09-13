@@ -46,6 +46,7 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::Search.count)
 
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
@@ -94,6 +95,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(2, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::Search.count)
 
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
@@ -107,6 +109,7 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(0, DataCycleCore::Search.count)
 
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
