@@ -1085,14 +1085,14 @@ module DataCycleCore
         prevent_history: true
       )
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image'))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
 
       expected_hash['description'] = 'only change description'
 
       content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image'))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
     end
   end
