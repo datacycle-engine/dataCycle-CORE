@@ -11,16 +11,16 @@
           :show:
             :content_area: header
       :tour_categories:
-        :label: OutdoorActive - Tour - Kategorien
+        :label: OutdoorActive - Kategorien
         :type: classification
-        :tree_label: OutdoorActive - Touren-Kategorien
+        :tree_label: OutdoorActive - Kategorien
         :ui:
           :show:
             :content_area: header
       :poi_categories:
-        :label: OutdoorActive - POI - Kategorien
+        :label: OutdoorActive - Kategorien
         :type: classification
-        :tree_label: OutdoorActive - POI-Kategorien
+        :tree_label: OutdoorActive - Kategorien
         :ui:
           :show:
             :content_area: header
