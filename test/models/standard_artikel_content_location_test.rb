@@ -180,12 +180,10 @@ module DataCycleCore
 
       # delete data_set
       data_set.destroy_content
-      data_set.destroy
 
       # delete history
       data_set.histories.each do |item|
         item.destroy_content
-        item.destroy
       end
 
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)

@@ -7,9 +7,10 @@ module DataCycleCore
         children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
         unless history?
           set_deleted_by(current_user, save_time)
-          to_history(save_time: save_time, current_user: current_user, delete: true)
+          to_history(save_time: save_time, delete: true)
         end
         destroy_children
+        destroy
       end
 
       def set_deleted_by(current_user, save_time)

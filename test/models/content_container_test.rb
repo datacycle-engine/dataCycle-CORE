@@ -102,7 +102,6 @@ module DataCycleCore
 
       assert_equal(1, data_set.children.count)
       data_set.destroy_content(current_user: current_user, save_time: Time.zone.now)
-      data_set.destroy
 
       assert_equal(0, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(0, DataCycleCore::CreativeWork::Translation.count - template_cwt)

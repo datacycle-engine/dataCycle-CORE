@@ -95,7 +95,6 @@ module DataCycleCore
 
       data_set.histories.each do |item|
         item.destroy_content
-        item.destroy
       end
 
       assert_equal(13, DataCycleCore::CreativeWork.count - cw_temp)

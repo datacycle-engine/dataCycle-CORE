@@ -3,8 +3,7 @@
 module DataCycleCore
   module Content
     module CreateHistory
-      def to_history(save_time:, current_user: nil, delete: false)
-        current_user ||= @current_user
+      def to_history(save_time:, delete: false)
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
@@ -37,7 +36,7 @@ module DataCycleCore
         embedded_relations.each do |content_name|
           content_relation = send(content_name[:name])
           content_relation.each_with_index do |content_item, index|
-            new_content_history = content_item.to_history(save_time: save_time, current_user: current_user)
+            new_content_history = content_item.to_history(save_time: save_time)
             create_relation_history(new_content_history, data_set_history, content_name, origin_table, index, save_time)
           end
         end
