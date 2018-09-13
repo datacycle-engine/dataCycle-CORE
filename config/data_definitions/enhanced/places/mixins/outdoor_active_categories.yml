@@ -4,7 +4,7 @@
     :type: mixin
     :properties:
       :frontend_type:
-        :label: Frontend-Typ
+        :label: OutdoorActive - Frontend-Typ
         :type: classification
         :tree_label: OutdoorActive - FrontendTypes
         :ui:
