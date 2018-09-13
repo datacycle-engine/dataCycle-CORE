@@ -178,11 +178,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
 
-      # delete data_set
       data_set.destroy_content
-
-      # delete history
-      data_set.histories(&:destroy_content)
+      data_set.histories.each(&:destroy_content)
 
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(0, DataCycleCore::ContentContent.count)
