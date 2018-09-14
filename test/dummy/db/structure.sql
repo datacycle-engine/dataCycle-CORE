@@ -2057,6 +2057,13 @@ CREATE INDEX index_creative_works_on_content_type ON public.creative_works USING
 
 
 --
+-- Name: index_creative_works_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_external_key ON public.creative_works USING btree (((metadata ->> 'external_key'::text)), external_source_id);
+
+
+--
 -- Name: index_creative_works_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2075,6 +2082,13 @@ CREATE UNIQUE INDEX index_creative_works_on_id ON public.creative_works USING bt
 --
 
 CREATE INDEX index_creative_works_on_is_part_of ON public.creative_works USING btree (is_part_of);
+
+
+--
+-- Name: index_creative_works_on_metadata_validation_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_metadata_validation_name ON public.creative_works USING btree (((metadata #>> '{validation,name}'::text[])));
 
 
 --
