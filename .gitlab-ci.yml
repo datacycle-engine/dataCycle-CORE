@@ -98,10 +98,10 @@ code_validation:
     - pre-release
     - develop
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # Running tests
 rails_review_test:
@@ -165,10 +165,10 @@ code_review_validation:
   tags:
     - data-cycle-review
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # deployment
 deploy_release:
