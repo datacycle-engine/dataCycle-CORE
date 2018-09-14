@@ -131,7 +131,9 @@
 
                 <div class=" filterbuttons clearfix">
                   <div class="filterbuttons-left">
-                    <%= button_tag class: "button success" do %>
+                    <%= button_tag type: :submit, class: "button success", data: {
+                      disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.searching', locale: DataCycleCore.ui_language)} ..."
+                    } do %>
                       <i class="fa fa-search" aria-hidden="true"></i>
                       <%= t('actions.filter', locale: DataCycleCore.ui_language) %>
                     <% end %>

@@ -52,17 +52,3 @@
         :ui:
           :show:
             :content_area: header
-      :feratel_resort_status:
-        :label: Feratel - Resort - Status
-        :type: classification
-        :tree_label: Feratel - Resort - Status
-        :ui:
-          :show:
-            :content_area: header
-      :feratel_resort_infrastructure:
-        :label: Feratel - Resort - Infrastructuretype
-        :type: classification
-        :tree_label: Feratel - Resort - Infrastructuretype
-        :ui:
-          :show:
-            :content_area: header

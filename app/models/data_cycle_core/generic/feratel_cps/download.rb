@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
+    module FeratelCps
       module Download
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(

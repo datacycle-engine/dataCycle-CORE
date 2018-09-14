@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module FeratelResort
+    module FeratelCps
       class Endpoint
         def initialize(host: nil, end_point: nil, id: nil, **_options)
           @host = host
@@ -10,17 +10,39 @@ module DataCycleCore
           @id = id
         end
 
-        def infrastructure(_lang: :de)
+        def infrastructure(lang: :de)
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
+
           Enumerator.new do |yielder|
-            load_data['INFRA'].each do |infrastructure|
+            load_data('INFRASTRUKTUR')['INFRA'].each do |infrastructure|
               yielder << infrastructure
+            end
+          end
+        end
+
+        def slopes(lang: :de)
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
+
+          Enumerator.new do |yielder|
+            load_data('PISTEN')['PISTE'].each do |slope|
+              yielder << slope
+            end
+          end
+        end
+
+        def lifts(lang: :de)
+          raise "Unsupported Language (#{lang})" unless lang.to_s == 'de'
+
+          Enumerator.new do |yielder|
+            load_data('LIFTE')['LIFT'].each do |lift|
+              yielder << lift
             end
           end
         end
 
         protected
 
-        def load_data
+        def load_data(type)
           connection = Faraday.new(@host + @end_point) do |con|
             con.use FaradayMiddleware::FollowRedirects, limit: 5
             con.adapter Faraday.default_adapter
@@ -30,7 +52,7 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / id:#{@id}", response) unless response.success?
-          Nokogiri::XML(response.body).xpath('//RESORT/INFRASTRUKTUR').first.to_hash
+          Nokogiri::XML(response.body).xpath("//RESORT/#{type}").first.to_hash
         end
       end
     end

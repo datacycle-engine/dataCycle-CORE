@@ -2,7 +2,7 @@
    <tr>
     <td style="padding:0 12pt 24pt 6pt;" >
         <p style="line-height:15pt"><span
-        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b>Sehr geehrter User,</b><br>
+        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b>Guten Tag!</b><br>
         <% if @contents.size > 1 %>
           Folgende abonnierte Inhalte haben sich geändert:
         <% else %>
@@ -12,7 +12,7 @@
     </td>
    </tr>
    <tr>
-    <td style="background:white;padding:24pt 12pt 12pt 24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
+    <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
     <table border="0" cellspacing="0" cellpadding="0"
      width="100%" style="width:100%;">
      <tr>
@@ -24,11 +24,11 @@
             <p>
               <% if content.histories.blank? %>
               <a href="<%= polymorphic_url(content) %>"><span style="color:#333333;text-decoration:underline;text-underline:underline">
-              <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+              <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
               </span></a>
               <% else %>
               <a href="<%= polymorphic_url([:history, content], history_id: content.histories&.first&.id) %>"><span style="color:#333333;text-decoration:underline;text-underline:underline">
-              <%= content.template_name %>: <%= content.title.blank? ? content.id : content.title %>
+              <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
               </span></a>
               <% end %>
             </p>
@@ -38,9 +38,6 @@
       </span>
       </td>
      </tr>
-     <tr>
-      <td style="padding:0">&nbsp;</td>
-      </tr>
     </table>
     </td>
    </tr>

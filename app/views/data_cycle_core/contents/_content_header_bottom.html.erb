@@ -30,7 +30,7 @@
     data: {
       tooltip: true,
       click_open: false,
-      confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{content.try(:children)&.any? ? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
+      confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{content.try(:children)&.any? ? t('common.children_present_html', languages: content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.join(', '), locale: DataCycleCore.ui_language) : '' }"
     },
     title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
