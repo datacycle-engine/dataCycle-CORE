@@ -119,7 +119,7 @@ rails_review_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test
+    - bundle exec rails test
 
 cypress_review:
   only:
