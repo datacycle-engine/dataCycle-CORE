@@ -203,6 +203,7 @@ button,
 
   >.detail-type {
     text-align: left;
+
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
       i:before {
@@ -230,6 +231,7 @@ button,
           content: "\f041";
         }
       }
+
       &.gultigkeitszeitraum {
         i:before {
           content: "\f017";
@@ -430,12 +432,14 @@ button,
       background: $light-gray;
     }
   }
+
   .form-element.release_status_comment {
     .ql-editor {
       background-color: white;
       min-height: 150px;
     }
   }
+
   .form-element.focus>.editor-block>.ql-toolbar.fixed-toolbar,
   .form-element.focus>.editor-block>.ql-toolbar.fixed-split-toolbar {
     background: white;
@@ -477,11 +481,13 @@ button,
     .form-element {
       position: relative;
       margin-bottom: 1rem;
+
       &.release_status_comment {
         margin-bottom: 2rem;
         padding-bottom: 2rem;
         border-bottom: 1px solid $light-gray;
       }
+
       label {
         padding-top: 0.5rem;
         opacity: 1;
@@ -783,6 +789,7 @@ body .v-select {
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     font-weight: normal;
+
     i {
       font-size: 0.8rem;
       margin-left: 0.2rem;
@@ -923,6 +930,7 @@ body .v-select {
     background: rgba(map-get($foundation-palette, alert), 0.9);
     color: $white;
     text-align: center;
+    margin-bottom: 1rem;
   }
 
   .validation-container {
