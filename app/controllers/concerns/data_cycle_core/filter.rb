@@ -85,7 +85,7 @@ module DataCycleCore
             't' => 'classification_alias_ids',
             'n' => DataCycleCore::Feature::LifeCycle.tree_label,
             'm' => 'i',
-            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias)&.id]
+            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]
           }
         )
       end

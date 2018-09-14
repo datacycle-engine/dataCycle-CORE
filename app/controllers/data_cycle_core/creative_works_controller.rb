@@ -25,7 +25,7 @@ module DataCycleCore
             }
           )
 
-          @language ||= params.fetch(:language, [current_user.default_locale])
+          @language ||= params.fetch(:language, ['all'])
           if @content.children.present?
             @paginate_object = get_filtered_results
             @total = @paginate_object.count_distinct

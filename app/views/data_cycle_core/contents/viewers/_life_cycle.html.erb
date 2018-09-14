@@ -1,21 +1,21 @@
 <% if DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].all?(&:nil?) %>
   <div class="content-pool-buttons">
-    <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).values.each do |stage| %>
+    <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).each do |stage_name, stage| %>
 
-      <span class="content-pool<%= content.life_cycle_stage?(stage[:id]) ? ' active' : ' hollow button' + (can?(:set_life_cycle, content, stage) ? '' : ' disabled') %>">
-        <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage),
-          stage[:alias]&.name,
+      <span class="content-pool<%= content.life_cycle_stage?(stage[:id]) ? ' active' : ' hollow button' + (can?(:set_life_cycle, content, stage.merge({ name: stage_name })) ? '' : ' disabled') %>">
+        <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage.merge({ name: stage_name })),
+          stage_name,
           polymorphic_path(content, life_cycle: {
             id: stage[:id],
-            name: stage[:alias]&.name
+            name: stage_name
           }, action: :update_life_cycle_stage),
           method: :patch,
-          title: t('actions.move_to', data: stage[:alias]&.name, locale: DataCycleCore.ui_language),
+          title: t('actions.move_to', data: stage_name, locale: DataCycleCore.ui_language),
           data: {
             tooltip: true,
             click_open: false
           }) do %>
-          <%= stage[:alias]&.name %>
+          <%= stage_name %>
         <% end %>
       </span>
 

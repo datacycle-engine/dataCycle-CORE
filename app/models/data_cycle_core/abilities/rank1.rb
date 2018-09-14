@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank1Ability
+    class Rank1
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
       include CanCan::Ability
 

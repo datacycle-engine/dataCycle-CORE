@@ -169,7 +169,8 @@ module DataCycleCore
 
     def update_life_cycle_stage
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-      authorize! :edit, @object
+
+      authorize! :set_life_cycle, @object, life_cycle_params
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
       if DataCycleCore::Feature::IdeaCollection.enabled? &&

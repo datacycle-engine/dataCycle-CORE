@@ -40,7 +40,6 @@ module DataCycleCore
         def self.download_sequential(download_object:, data_id:, data_name:, options:)
           delta = 100
           options[:locales] ||= I18n.available_locales
-
           if options[:locales].size != 1
             options[:locales].each do |language|
               download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))

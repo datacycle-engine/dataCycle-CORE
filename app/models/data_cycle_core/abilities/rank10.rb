@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank10Ability
+    class Rank10
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
       include CanCan::Ability
 
@@ -22,6 +22,7 @@ module DataCycleCore
 
         # Contents
         can [:set_life_cycle, :move_content], CONTENT_MODELS
+        cannot :set_life_cycle, CONTENT_MODELS
 
         can [:read, :create, :import, :update], CONTENT_MODELS do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
