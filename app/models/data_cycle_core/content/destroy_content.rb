@@ -16,7 +16,10 @@ module DataCycleCore
       end
 
       def set_deleted_by(current_user, save_time)
-        to_update_data = { 'deleted_by' => [current_user.presence&.id].compact, 'date_deleted' => save_time }
+        to_update_data = nil
+        to_update_data = { 'date_deleted' => save_time } if property_names.include?('date_deleted')
+        to_update_data = to_update_data.merge('deleted_by' => [current_user&.id].compact) if current_user.present? && property_names.include?('deleted_by')
+        return if to_update_data.blank?
         set_data_hash(data_hash: to_update_data, current_user: current_user, save_time: save_time, prevent_history: true, update_search_all: false, partial_update: true)
       end
 
