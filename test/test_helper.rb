@@ -97,7 +97,6 @@ module DataCycleCore
         given_name:   'Ad',
         family_name:  'Ministrator',
         email:        'admin@datacycle.at',
-        admin:        true,
         password:     '3amMQf74vp7Zpfdi',
         role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
       )

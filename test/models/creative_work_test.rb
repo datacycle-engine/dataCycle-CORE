@@ -1007,7 +1007,6 @@ module DataCycleCore
         given_name: 'Test',
         family_name: 'TEST',
         email: "#{SecureRandom.base64(12)}@pixelpoint.at",
-        admin: true,
         password: 'password'
       )
       uuid = DataCycleCore::User.first.id
