@@ -12,12 +12,12 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:reject_keys, ['region'])
           .>> t(:rename_keys, {
-                  'id' => 'external_key',
-                  'name' => 'name_old',
-                  'area' => 'area_old',
-                  'depth' => 'depth_old',
-                  'temperature' => 'temperature_old'
-                })
+            'id' => 'external_key',
+            'name' => 'name_old',
+            'area' => 'area_old',
+            'depth' => 'depth_old',
+            'temperature' => 'temperature_old'
+          })
           .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
