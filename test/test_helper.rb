@@ -59,48 +59,23 @@ module DataCycleCore
     end
 
     def self.load_user_roles
-      return unless DataCycleCore::Role.count.zero?
-
-      DataCycleCore::Role.create!(
-        rank: 0,
-        name: 'guest'
-      )
-      DataCycleCore::Role.create!(
-        rank: 1,
-        name: 'external_partner'
-      )
-      DataCycleCore::Role.create!(
-        rank: 2,
-        name: 'standard'
-      )
-      DataCycleCore::Role.create!(
-        rank: 3,
-        name: 'editor_market_office'
-      )
-      DataCycleCore::Role.create!(
-        rank: 4,
-        name: 'basic_editor'
-      )
-      DataCycleCore::Role.create!(
-        rank: 5,
-        name: 'super_editor'
-      )
-      DataCycleCore::Role.create!(
-        rank: 10,
-        name: 'admin'
-      )
+      DataCycleCore::Role.where(rank: 0).first_or_create({ name: 'guest' })
+      DataCycleCore::Role.where(rank: 1).first_or_create({ name: 'external_partner' })
+      DataCycleCore::Role.where(rank: 2).first_or_create({ name: 'standard' })
+      DataCycleCore::Role.where(rank: 3).first_or_create({ name: 'editor_market_office' })
+      DataCycleCore::Role.where(rank: 4).first_or_create({ name: 'basic_editor' })
+      DataCycleCore::Role.where(rank: 5).first_or_create({ name: 'super_editor' })
+      DataCycleCore::Role.where(rank: 10).first_or_create({ name: 'admin' })
+      DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
     end
 
     def self.create_user
-      return if DataCycleCore::User.find_by(given_name: 'Ad', family_name: 'Ministrator', email: 'admin@datacycle.at').present?
-      DataCycleCore::User.create!(
-        given_name:   'Ad',
-        family_name:  'Ministrator',
-        email:        'admin@datacycle.at',
-        admin:        true,
-        password:     '3amMQf74vp7Zpfdi',
-        role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
-      )
+      DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
+        given_name: 'Administrator',
+        external: false,
+        password: '3amMQf74vp7Zpfdi',
+        role_id: DataCycleCore::Role.order('rank DESC').first.id
+      })
     end
 
     def self.create_user_group
