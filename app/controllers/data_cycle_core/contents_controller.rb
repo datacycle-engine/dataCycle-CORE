@@ -99,7 +99,7 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 
-        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
         redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
@@ -282,10 +282,6 @@ module DataCycleCore
 
     def path_params
       params.permit(:path)
-    end
-
-    def release_params
-      params.require(controller_name.singularize.to_sym).permit(release: [:release_id, :release_comment])
     end
 
     def asset_params
