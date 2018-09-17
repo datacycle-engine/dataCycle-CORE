@@ -14,6 +14,7 @@ namespace :datacycle do
         end
       end
     end
+
     desc 'dump database'
     task :dump_db do
       on roles(:all) do
@@ -25,7 +26,18 @@ namespace :datacycle do
         end
       end
     end
-    # add tasks: dump:db, download:db
+
+    desc 'clean up database dumps'
+    task :clean_up_dumps do
+      on roles(:all) do
+        within release_path do
+          with rails_env: fetch(:rails_env) do
+            print_message 'Clean up database dumps'
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:clean_up_dumps"
+          end
+        end
+      end
+    end
 
     private
 
