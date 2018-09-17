@@ -111,6 +111,16 @@ module DataCycleCore
               load_day_of_week_id(day)
             end
             {
+              season: {
+                valid_from: item.dig('DateFrom'),
+                valid_through: item.dig('DateTo')
+              },
+              time: [
+                {
+                  opens: item.dig('TimeFrom'),
+                  closes: item.dig('TimeTo')
+                }
+              ],
               validity: {
                 valid_from: item.dig('DateFrom'),
                 valid_through: item.dig('DateTo')

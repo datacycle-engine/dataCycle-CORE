@@ -15,10 +15,6 @@ module DataCycleCore
         subject.find_by(email: 'admin@datacycle.at')
       end
 
-      it 'is admin' do
-        assert_equal(true, admin_user.admin?)
-      end
-
       it 'has a full_name' do
         assert_equal("#{admin_user.given_name} #{admin_user.family_name}", admin_user.full_name)
       end

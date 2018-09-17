@@ -6,7 +6,7 @@ module DataCycleCore
       class << self
         def ordered_classifications(content = nil)
           Rails.cache.fetch("life_cycle_#{ordered_items(content)&.join(' ')&.parameterize(separator: '_')}", expires_in: 10.minutes) do
-            DataCycleCore::Classification.where(name: ordered_items(content)).sort_by { |c| ordered_items(content)&.index c.name }.map { |c| [c.name, { id: c.id, alias: c.primary_classification_alias }] }.to_h
+            DataCycleCore::Classification.where(name: ordered_items(content)).sort_by { |c| ordered_items(content)&.index c.name }.map { |c| [c.name, { id: c.id, alias_id: c.primary_classification_alias&.id }] }.to_h
           end
         end
 
