@@ -3,10 +3,12 @@ SET lock_timeout = 0;
 SET idle_in_transaction_session_timeout = 0;
 SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
+SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
+<<<<<<< HEAD
 SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
@@ -2603,6 +2605,8 @@ CREATE INDEX validity_period_idx ON searches USING gist (validity_period);
 CREATE INDEX words_idx ON searches USING gin (full_text gin_trgm_ops);
 
 
+=======
+>>>>>>> develop
 --
 -- PostgreSQL database dump complete
 --
@@ -2704,4 +2708,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180814141924'),
 ('20180815132305'),
 ('20180820064823'),
-('20180907080412');
+('20180907080412'),
+('20180917085622');
+
+

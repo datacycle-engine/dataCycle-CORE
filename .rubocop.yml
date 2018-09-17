@@ -21,6 +21,9 @@ Layout/MultilineMethodCallIndentation:
 Lint/SplatKeywordArguments:
   Enabled: false
 
+Layout/IndentHash:
+  EnforcedStyle: consistent
+
 #######################################################
 ########## Style
 
