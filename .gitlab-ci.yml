@@ -216,7 +216,7 @@ deploy_review:
   script:
     - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   only:
     - branches
   except:
