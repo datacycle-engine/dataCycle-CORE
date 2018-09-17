@@ -124,5 +124,10 @@ namespace :deploy do
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
 
+  before 'deploy:migrate', 'datacycle:dev:dump_db'
+  after 'deploy:migrate', 'datacycle:dev:update_project'
+
   before 'deploy:reverted', 'deploy:npm'
+
+  after 'deploy:cleanup', 'datacycle:dev:clean_up_dumps'
 end
