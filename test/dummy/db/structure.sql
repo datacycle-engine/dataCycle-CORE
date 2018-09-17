@@ -331,7 +331,11 @@ CREATE TABLE creative_works (
     template boolean DEFAULT false NOT NULL,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -351,7 +355,11 @@ CREATE TABLE events (
     external_source_id uuid,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -369,7 +377,11 @@ CREATE TABLE organizations (
     external_source_id uuid,
     external_key character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -389,7 +401,11 @@ CREATE TABLE persons (
     external_source_id uuid,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -420,7 +436,11 @@ CREATE TABLE places (
     telephone character varying,
     email character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -493,7 +513,10 @@ CREATE TABLE creative_work_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -633,7 +656,10 @@ CREATE TABLE event_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -745,7 +771,10 @@ CREATE TABLE organization_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -806,7 +835,10 @@ CREATE TABLE person_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -916,7 +948,10 @@ CREATE TABLE place_histories (
     email character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -1238,14 +1273,6 @@ ALTER TABLE ONLY place_history_translations ALTER COLUMN id SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY place_translations ALTER COLUMN id SET DEFAULT nextval('place_translations_id_seq'::regclass);
-
-
---
--- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY ar_internal_metadata
-    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -2690,4 +2717,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180814141924'),
 ('20180815132305'),
 ('20180820064823'),
-('20180907080412');
+('20180907080412'),
+('20180914085848');
+
+

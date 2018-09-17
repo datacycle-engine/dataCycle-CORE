@@ -30,7 +30,6 @@ module DataCycleCore
 
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -72,7 +71,6 @@ module DataCycleCore
 
       update_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'change headline',
         'description' => 'change description',
         'content_location' => [{

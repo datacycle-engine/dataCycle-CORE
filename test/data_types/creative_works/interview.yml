@@ -218,12 +218,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Interview"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

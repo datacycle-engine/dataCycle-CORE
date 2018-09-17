@@ -106,14 +106,12 @@ module DataCycleCore
         'markets' => [],
         'image' => [],
         'video' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
           'author' => [person_id],
-          'creator' => [],
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil

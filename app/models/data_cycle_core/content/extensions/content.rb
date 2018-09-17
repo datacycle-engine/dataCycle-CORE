@@ -38,6 +38,33 @@ module DataCycleCore
           end
           true
         end
+
+        def created_by_user
+          relation_user(:created_by)
+        end
+
+        # alias creator created_by_user
+        def creator
+          DataCycleCore::User.where(id: created_by)
+        end
+
+        def updated_by_user
+          relation_user(:updated_by)
+        end
+
+        # alias last_updated_by updated_by_user
+        def last_updated_by
+          DataCycleCore::User.where(id: updated_by)
+        end
+
+        def deleted_by_user
+          relation_user(:deleted_by)
+        end
+
+        def relation_user(fk_user)
+          return if send(fk_user).blank?
+          DataCycleCore::User.find(send(fk_user))
+        end
       end
     end
   end

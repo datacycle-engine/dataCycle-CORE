@@ -866,8 +866,47 @@ namespace :data_cycle_core do
       puts 'MIGRATE RELATIONS'
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
+      # migrate content_tables
+      DataCycleCore.content_tables.each do |table_name|
+        table_object_name = "DataCycleCore::#{table_name.classify}"
+        puts "MIGRATING ==> #{table_name}"
+        { 'last_updated_by' => 'updated_by', 'creator' => 'created_by' }.each do |user_type, user_column|
+          sql = <<-EOS
+            UPDATE #{table_name} AS content_table
+            SET
+              #{user_column} = cc.content_b_id
+            FROM content_contents AS cc
+            WHERE cc.content_a_id = content_table.id
+              AND cc.content_a_type = '#{table_object_name}'
+              AND cc.content_b_type = 'DataCycleCore::User'
+              AND cc.relation_a = '#{user_type}'
+          EOS
+          ActiveRecord::Base.connection.execute(sql)
+        end
+      end
+
+      # migrate content_history_tables
+      DataCycleCore.content_tables.each do |table_name|
+        table_object_name = "DataCycleCore::#{table_name.classify}::History"
+        history_table = table_name.singularize + '_histories'
+        puts "MIGRATING ==> #{history_table}"
+        { 'last_updated_by' => 'updated_by', 'creator' => 'created_by' }.each do |user_type, user_column|
+          sql = <<-EOS
+            UPDATE #{history_table} AS content_table
+            SET
+              #{user_column} = cc.content_b_history_id
+            FROM content_content_histories AS cc
+            WHERE cc.content_a_history_id = content_table.id
+              AND cc.content_a_history_type = '#{table_object_name}'
+              AND cc.content_b_history_type = 'DataCycleCore::User'
+              AND cc.relation_a = '#{user_type}'
+          EOS
+          ActiveRecord::Base.connection.execute(sql)
+        end
+      end
+
       puts 'END'
-      puts "--> MIGRATION COMPLETE #{((Time.zone.now - temp) / 60).to_i} min"
+      puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
 
     # desc 'update Releasable to Classification'

@@ -38,7 +38,11 @@ module DataCycleCore
             set_template_data_hash(@data_hash, partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
             self.updated_at = @save_time
-            self.created_at = @save_time if id.nil?
+            self.updated_by = @current_user&.id
+            if id.nil?
+              self.created_at = @save_time
+              self.created_by = @current_user&.id
+            end
             save(touch: false)
 
             search_languages(update_search_all)
@@ -49,7 +53,8 @@ module DataCycleCore
       end
 
       def set_last_updated_by
-        @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+        # @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+        self.updated_by = @current_user&.id
       end
 
       def get_inherit_datahash(parent)
