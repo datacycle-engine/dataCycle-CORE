@@ -94,7 +94,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -115,7 +114,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -125,7 +123,7 @@ module DataCycleCore
       }
       expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
       assert_equal([place_id1], returned_data_hash['content_location'].ids)
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
@@ -147,7 +145,7 @@ module DataCycleCore
       updated_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
       assert_equal([place_id2], updated_data_hash['content_location'].ids)
       assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author'))
       assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)
@@ -180,15 +178,8 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
 
-      # delete data_set
       data_set.destroy_content
-      data_set.destroy
-
-      # delete history
-      data_set.histories.each do |item|
-        item.destroy_content
-        item.destroy
-      end
+      data_set.histories.each(&:destroy_content)
 
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(0, DataCycleCore::ContentContent.count)

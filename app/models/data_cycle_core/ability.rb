@@ -10,18 +10,12 @@ module DataCycleCore
       return unless user
       can :show, :all
 
-      [*0..10, 99].select { |r| r <= user.role&.rank.to_i }.each do |rank|
-        begin
-          merge DataCycleCore::Abilities.const_get("rank_#{rank}_ability".classify).new(user, session)
-        rescue NameError
-          nil
-        end
+      [*0..5, 10, 99].select { |r| r <= user.role&.rank.to_i }.each do |rank|
+        merge DataCycleCore::Abilities.const_get("rank_#{rank}".classify).new(user, session)
+      end
 
-        begin
-          merge ::Abilities.const_get("rank_#{rank}_ability".classify).new(user, session)
-        rescue NameError
-          nil
-        end
+      DataCycleCore.features.select { |_, v| v[:enabled] }.each_key do |key|
+        merge DataCycleCore::Feature::Abilities.const_get(key.to_s.classify).new(user, session)
       end
     end
   end

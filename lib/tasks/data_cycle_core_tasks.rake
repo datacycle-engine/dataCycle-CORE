@@ -340,12 +340,10 @@ namespace :data_cycle_core do
         index += 1
 
         data_item.destroy_content
-        data_item.destroy
 
         # delete_history
         # data_item.histories.each{ |item|
         #   item.destroy_content
-        #   item.destroy
         # }
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"

@@ -292,12 +292,6 @@
           :options:
             :data-validate: media
             :data-type: image
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
       :data_type:
         :label: Inhaltstype
         :type: classification

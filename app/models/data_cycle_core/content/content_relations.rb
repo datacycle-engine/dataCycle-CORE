@@ -10,11 +10,6 @@ module DataCycleCore
           table_given = options[:table_name]
           postfix = options[:postfix]
 
-          belongs_to :external_source
-
-          # table_full = table_given.to_s.singularize
-          # table_full += "_#{postfix}" unless postfix.nil?
-
           classification_content_table = 'classification_content'
           classification_content_table += "_#{postfix}" unless postfix.nil?
           class_name = 'DataCycleCore::ClassificationContent'
