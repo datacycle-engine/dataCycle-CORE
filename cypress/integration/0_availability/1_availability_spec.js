@@ -17,7 +17,7 @@ describe('Availability', function () {
       url: '/admin',
       followRedirect: false
     }).then((response) => {
-      expect(response.status).to.eq(200)
+      expect(response.status).to.eq(403)
     })
   })
 
