@@ -15,7 +15,8 @@ describe('Availability', function () {
   it('admin', function () {
     cy.request({
       url: '/admin',
-      followRedirect: false
+      followRedirect: false,
+      failOnStatusCode: false
     }).then((response) => {
       expect(response.status).to.eq(403)
     })
