@@ -108,7 +108,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'puma_worker_killer'
 
   # validation gems
-  s.add_development_dependency 'brakeman', '~> 4.3.0'
+  s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.56.0'

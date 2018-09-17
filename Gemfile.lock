@@ -106,7 +106,7 @@ GEM
     bindex (0.5.0)
     binding_of_caller (0.8.0)
       debug_inspector (>= 0.0.1)
-    brakeman (4.3.1)
+    brakeman (4.3.0)
     bson (4.3.0)
     builder (3.2.3)
     bundler-audit (0.6.0)
@@ -400,7 +400,7 @@ PLATFORMS
 DEPENDENCIES
   better_errors
   binding_of_caller
-  brakeman (~> 4.3.0)
+  brakeman (= 4.3.0)
   bundler-audit
   byebug
   capistrano-rails
