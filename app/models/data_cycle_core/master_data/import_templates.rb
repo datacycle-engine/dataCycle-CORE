@@ -176,6 +176,27 @@ module DataCycleCore
               true
             end
 
+            def valid_compute_config?(value)
+              return false unless value.is_a?(Hash)
+              module_name = valid_computed_module?(value.dig(:module))
+              return false if module_name.nil? || !module_name.respond_to?(value.dig(:method))
+              method_arguments = module_name.method(value.dig(:method)).arity
+              computed_arguments = value.dig(:parameters).count
+              case method_arguments
+              when 0
+                return false if computed_arguments.positive?
+              when positive?
+                return false if computed_arguments != method_arguments
+              when negative?
+                return false if computed_arguments < method_arguments.abs
+              end
+              true
+            end
+
+            def valid_computed_module?(value)
+              ('DataCycleCore::' + value.classify).safe_constantize
+            end
+
             def instantiable?(value)
               clazz = ('DataCycleCore::' + value.classify).safe_constantize
               !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
@@ -191,7 +212,8 @@ module DataCycleCore
                     asset_relation:  "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'file'",
                     classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.'
+                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
+                    valid_compute_config?: 'module and method combination not found.'
                   }
                 }
               )
@@ -219,6 +241,12 @@ module DataCycleCore
                 ]
               )
           end
+          optional(:compute).schema do
+            required(:module) { str? }
+            required(:method) { str? }
+            required(:parameters) { hash? }
+          end
+          optional(:compute) { valid_compute_config? }
           optional(:storage_location) do
             str? &
               included_in?(
@@ -277,12 +305,9 @@ module DataCycleCore
               asset_type.filled?
           end
 
-          rule(computed_method: [:type, :module_name, :method_name]) do |type, module_name, method_name|
-            type.eql?('computed') > (
-              method_name.filled? &
-              module_name.filled? &
-                "DataCycleCore::Utility::#{module_name}".constantize.respond_to?(method_name.to_sym)
-            )
+          rule(computed_method: [:type, :compute]) do |type, compute|
+            type.eql?('computed') >
+              compute.hash?
           end
         end
       end

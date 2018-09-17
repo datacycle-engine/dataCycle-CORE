@@ -46,13 +46,11 @@
         :storage_location: value
         :type: computed
         :compute:
-          :module: Common
+          :module: Utility::Common
           :method: sum
           :parameters:
             :0: comp_value_1
             :1: comp_value_2
-        :module_name: Common
-        :method_name: sum(comp_value_1 ,comp_value_2)
       :data_type:
         :label: Inhaltstype
         :type: classification
