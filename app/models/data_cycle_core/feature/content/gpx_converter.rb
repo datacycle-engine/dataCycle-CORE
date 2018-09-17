@@ -5,7 +5,7 @@ module DataCycleCore
     module Content
       module GpxConverter
         def create_gpx
-          builder = Nokogiri::XML::Builder.new do |xml|
+          builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
               xml.metadata do
                 xml.name title

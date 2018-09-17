@@ -1,24 +1,26 @@
-<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && @split_source.nil? && @diff_source.nil? %>
+<% if DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].all?(&:nil?) %>
   <div class="content-pool-buttons">
-    <% active_index = DataCycleCore::Feature::LifeCycle.ordered_items(content)&.index(content&.data_pool&.first&.name) || -1 %>
-    <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).values.each_with_index do |item, index| %>
-      <% if active_index == index %>
-        <span class="active content-pool"><%= item[:alias]&.name %></span>
-      <% elsif !can?(:set_life_cycle, content) %>
-        <%= content_tag(:i, nil, class: 'fa fa-arrow-right', aria_hidden: true) if active_index < index && index.positive? %>
-        <span class="hollow button content-pool disabled" title="<%= t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language) %>" data-tooltip data-click-open="false">
-          <%= item[:alias]&.name %>
-        </span>
-        <%= content_tag(:i, nil, class: 'fa fa-arrow-left', aria_hidden: true) if active_index > index %>
-      <% else %>
-        <%= content_tag(:i, nil, class: 'fa fa-arrow-right', aria_hidden: true) if active_index < index && index.positive? %>
-        <%= link_to polymorphic_path(content, life_cycle: { id: item[:id], name: item[:alias]&.name}, action: :update_life_cycle_stage), method: :patch, class: "hollow button content-pool", title: t('actions.move_to', data: item[:alias]&.name, locale: DataCycleCore.ui_language), data: { tooltip: true, click_open: false } do %>
-          <%= item[:alias]&.name %>
+    <% DataCycleCore::Feature::LifeCycle.ordered_classifications(content).each do |stage_name, stage| %>
+
+      <span class="content-pool<%= content.life_cycle_stage?(stage[:id]) ? ' active' : ' hollow button' + (can?(:set_life_cycle, content, stage.merge({ name: stage_name })) ? '' : ' disabled') %>">
+        <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage.merge({ name: stage_name })),
+          stage_name,
+          polymorphic_path(content, life_cycle: {
+            id: stage[:id],
+            name: stage_name
+          }, action: :update_life_cycle_stage),
+          method: :patch,
+          title: t('actions.move_to', data: stage_name, locale: DataCycleCore.ui_language),
+          data: {
+            tooltip: true,
+            click_open: false
+          }) do %>
+          <%= stage_name %>
         <% end %>
-        <%= content_tag(:i, nil, class: 'fa fa-arrow-left', aria_hidden: true) if active_index > index %>
-      <% end %>
+      </span>
+
     <% end %>
   </div>
-<% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && (@split_source.present? || @diff_source.present?) %>
+<% elsif DataCycleCore::Feature::LifeCycle.allowed?(content) && [@split_source, @diff_source].any?(&:present?) %>
   <%= render 'data_cycle_core/contents/viewers/classification', local_assigns %>
 <% end %>

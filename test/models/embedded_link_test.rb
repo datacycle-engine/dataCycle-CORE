@@ -123,17 +123,13 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set.destroy_content
-      data_set.destroy
 
       assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(5, DataCycleCore::ContentContent::History.count)
 
-      data_set.histories.each do |item|
-        item.destroy_content
-        item.destroy
-      end
+      data_set.histories.each(&:destroy_content)
 
       assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)

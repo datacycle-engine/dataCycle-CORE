@@ -94,7 +94,7 @@ describe DataCycleCore::Search do
   end
 
   after do
-    @contents.each(&:destroy_content).each(&:destroy!)
+    @contents.each(&:destroy_content)
 
     @contents = nil
   end

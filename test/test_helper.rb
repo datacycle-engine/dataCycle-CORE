@@ -58,35 +58,6 @@ module DataCycleCore
       ap errors
     end
 
-    def self.load_release_statuses
-      return unless DataCycleCore::Release.count.zero?
-
-      DataCycleCore::Release.create!(
-        release_code: 0,
-        release_text: 'freigegeben'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 1,
-        release_text: 'beim Partner'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 2,
-        release_text: 'in Bearbeitung'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 3,
-        release_text: 'in Review'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 4,
-        release_text: 'Draft'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 10,
-        release_text: 'gesperrt'
-      )
-    end
-
     def self.load_user_roles
       return unless DataCycleCore::Role.count.zero?
 
@@ -154,7 +125,6 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', 'data_types', 'custom')
   ]
 )
-DataCycleCore::TestPreparations.load_release_statuses
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group

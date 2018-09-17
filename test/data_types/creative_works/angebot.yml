@@ -271,12 +271,6 @@
       :id:
         :label: id
         :type: key
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
       :creator:
         :label: Ersteller
         :type: linked
