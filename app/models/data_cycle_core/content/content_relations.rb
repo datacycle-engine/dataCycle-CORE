@@ -53,9 +53,6 @@ module DataCycleCore
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
 
-          # belongs_to :creator, foreign_key: :created_by, class_name: 'DataCycleCore::User'
-          # belongs_to :last_updated_by, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
-
           has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes
 
