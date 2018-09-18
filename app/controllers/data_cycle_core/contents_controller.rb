@@ -155,7 +155,7 @@ module DataCycleCore
       objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
       authorize! :edit, objects_class
 
-      @objects = objects_class.where(id: params[:id]).includes(:translations)
+      @objects = objects_class.where(id: params[:object_ids]).includes(:translations)
       @content = data_cycle_object(controller_name).find(params[:id])
 
       respond_to(:js)

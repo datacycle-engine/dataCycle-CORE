@@ -43,12 +43,12 @@ module.exports.initialize = function () {
 
   function init(container) {
     $(container).children('div[data-editor=object_browser]').each((idx, elem) => {
-      add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id');
-      add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id', true);
+      add_buttons(elem, $(elem).data('label'), $(elem).data('id') || [], 'data-id');
+      add_buttons(elem, $(elem).data('label'), $(elem).data('id') || [], 'data-id', true);
     });
 
     $(container).children('div[data-editor=embedded_object]').each((idx, elem) => {
-      add_buttons(elem, $(elem).data('label'), $(elem).data('id'), 'data-id');
+      add_buttons(elem, $(elem).data('label'), $(elem).data('id') || [], 'data-id');
     });
 
     $(container).children('div[data-editor=string], div[data-editor=text_editor]').each((idx, elem) => {
