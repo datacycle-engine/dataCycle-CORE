@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Utility
-    module Calculate
+    module Compute
       module Base
         class << self
           def computed_values(properties, data_hash)

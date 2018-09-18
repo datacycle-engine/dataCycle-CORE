@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::Utility::Calculate::Math do
+describe DataCycleCore::Utility::Compute::Math do
   subject do
-    DataCycleCore::Utility::Calculate::Math
+    DataCycleCore::Utility::Compute::Math
   end
 
   describe 'testing math method: sum' do

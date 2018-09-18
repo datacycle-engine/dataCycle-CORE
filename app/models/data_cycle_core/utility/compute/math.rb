@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Utility
-    module Calculate
+    module Compute
       module Math
         class << self
           def sum(*a)

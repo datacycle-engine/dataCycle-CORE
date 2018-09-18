@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::Utility::Calculate::Common do
+describe DataCycleCore::Utility::Compute::Common do
   subject do
-    DataCycleCore::Utility::Calculate::Common
+    DataCycleCore::Utility::Compute::Common
   end
 
   describe 'testing Common method: copy' do

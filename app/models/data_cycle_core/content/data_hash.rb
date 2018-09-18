@@ -53,7 +53,7 @@ module DataCycleCore
 
       def set_computed_values
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Calculate::Base.computed_values(properties_for(computed_property), @data_hash)
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
         end
       end
 

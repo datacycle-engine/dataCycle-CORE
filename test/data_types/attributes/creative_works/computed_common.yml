@@ -36,7 +36,7 @@
         :type: computed
         :compute:
           :type: number
-          :module: Utility::Calculate::Common
+          :module: Utility::Compute::Common
           :method: copy
           :parameters:
             :0: value_1

@@ -17,7 +17,7 @@ describe DataCycleCore::MasterData::Differs::Computed do
         'storage_location' => 'value',
         'compute' => {
           'type' => 'string',
-          'module' => 'Utility::Calculate::Common',
+          'module' => 'Utility::Compute::Common',
           'method' => 'copy',
           'parameters' => {
             '0' => 'whatEver'

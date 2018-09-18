@@ -30,35 +30,35 @@
             :options:
               :data-size: basic
       :comp_value_1:
-        :label: Comp Value 1
+        :label: Value 1
         :type: number
         :storage_location: value
         :validations:
           :format: integer
       :comp_value_2:
-        :label: Comp Value 2
+        :label: Value 2
         :type: number
         :storage_location: value
         :validations:
           :format: integer
       :computed_value:
-        :label: Computed Result Value
+        :label: Sum (value 1, value 2)
         :storage_location: value
         :type: computed
         :compute:
           :type: number
-          :module: Utility::Calculate::Math
+          :module: Utility::Compute::Math
           :method: sum
           :parameters:
             :0: comp_value_1
             :1: comp_value_2
       :computed_value_2:
-        :label: Computed Result Value
+        :label: Copy (value 1)
         :storage_location: value
         :type: computed
         :compute:
           :type: number
-          :module: Utility::Calculate::Common
+          :module: Utility::Compute::Common
           :method: copy
           :parameters:
             :0: comp_value_1

@@ -313,7 +313,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
         type: 'computed',
         storage_location: 'value',
         compute: {
-          module: 'Utility::Calculate::Math',
+          module: 'Utility::Compute::Math',
           method: 'sum',
           type: 'number',
           parameters: {
