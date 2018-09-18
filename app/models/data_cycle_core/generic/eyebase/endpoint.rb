@@ -12,7 +12,7 @@ module DataCycleCore
 
         def media_assets(lang: :de)
           Enumerator.new do |yielder|
-            load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse.each do |folder_id|
+            load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse_each do |folder_id|
               doc = load_assets(folder_id)
               doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
                 next if raw_asset_data['mediaassettype']['text'] != '501'

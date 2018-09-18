@@ -9,10 +9,10 @@ module DataCycleCore
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
     def after_sign_in_path_for(_resource)
-      if current_user&.is_rank?(0)
-        session['user_return_to'] || info_path
-      else
+      if can?(:index, :backend)
         session['user_return_to'] || root_path
+      else
+        session['user_return_to'] || info_path
       end
     end
 

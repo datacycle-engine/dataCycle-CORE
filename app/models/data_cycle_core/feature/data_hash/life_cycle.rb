@@ -4,14 +4,15 @@ module DataCycleCore
   module Feature
     module DataHash
       module LifeCycle
-        def set_life_cycle_classification(classification_tree_label, classification_id, user)
-          set_data_hash(data_hash: { classification_tree_label => [classification_id] }, current_user: user, partial_update: true)
+        def set_life_cycle_classification(key, classification_id, user)
+          valid = set_data_hash(data_hash: { key => [classification_id] }, current_user: user, partial_update: true)
 
-          return unless respond_to?(:children)
+          return valid unless respond_to?(:children)
 
           children&.each do |child|
-            child.set_data_hash(data_hash: { classification_tree_label => [classification_id] }, current_user: user, partial_update: true) if child.life_cycle_classification?(classification_id)
+            child.set_data_hash(data_hash: { key => [classification_id] }, current_user: user, partial_update: true) if child.life_cycle_classification?(classification_id)
           end
+          valid
         end
       end
     end
