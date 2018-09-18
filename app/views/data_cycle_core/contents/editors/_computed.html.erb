@@ -1,0 +1,9 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag key do %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= definition['label'] %>
+  <% end %>
+  <%= text_field_tag key, value, options.merge({ class: 'form-control', data: definition&.slice('validations', 'warnings') }) %>
+
+<% end %>

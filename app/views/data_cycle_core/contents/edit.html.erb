@@ -6,7 +6,6 @@
 
     <div id="edit-form">
 
-        <% raise content.inspect %>
         <%= render 'form', keyPrefix: "#{@content.class.name.demodulize.underscore}[datahash]", content: @content %>
 
     </div>

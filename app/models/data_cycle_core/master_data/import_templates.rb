@@ -179,18 +179,7 @@ module DataCycleCore
             def valid_compute_config?(value)
               return false unless value.is_a?(Hash)
               module_name = valid_computed_module?(value.dig(:module))
-              return false if module_name.nil? || !module_name.respond_to?(value.dig(:method))
-              method_arguments = module_name.method(value.dig(:method)).arity
-              computed_arguments = value.dig(:parameters).count
-              case method_arguments
-              when 0
-                return false if computed_arguments.positive?
-              when positive?
-                return false if computed_arguments != method_arguments
-              when negative?
-                return false if computed_arguments < method_arguments.abs
-              end
-              true
+              !module_name.nil? && module_name.respond_to?(value.dig(:method))
             end
 
             def valid_computed_module?(value)
@@ -245,8 +234,23 @@ module DataCycleCore
             required(:module) { str? }
             required(:method) { str? }
             required(:parameters) { hash? }
+            required(:type) do
+              str? &
+                included_in?(
+                  [
+                    'string',
+                    'text',
+                    'number',
+                    'boolean',
+                    'datetime',
+                    'geographic',
+                    'object',
+                    'classification',
+                    'asset'
+                  ]
+                )
+            end
           end
-          optional(:compute) { valid_compute_config? }
           optional(:storage_location) do
             str? &
               included_in?(
@@ -307,7 +311,7 @@ module DataCycleCore
 
           rule(computed_method: [:type, :compute]) do |type, compute|
             type.eql?('computed') >
-              compute.hash?
+              (compute.hash? & compute.valid_compute_config?)
           end
         end
       end

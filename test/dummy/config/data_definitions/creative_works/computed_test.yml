@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Test-Computed
+    :name: Computed-Test
     :type: object
     :content_type: entity
     :boost: 100.0
@@ -46,11 +46,22 @@
         :storage_location: value
         :type: computed
         :compute:
-          :module: Utility::Common
+          :type: number
+          :module: Utility::Calculate::Math
           :method: sum
           :parameters:
             :0: comp_value_1
             :1: comp_value_2
+      :computed_value_2:
+        :label: Computed Result Value
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Calculate::Common
+          :method: copy
+          :parameters:
+            :0: comp_value_1
       :data_type:
         :label: Inhaltstype
         :type: classification

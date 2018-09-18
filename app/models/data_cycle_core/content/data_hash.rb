@@ -16,11 +16,11 @@ module DataCycleCore
       include UpdateSearch
 
       before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
+      before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false)
         return {} if data_hash.blank?
-
         @data_hash = data_hash
         @current_user = current_user
         @save_time = save_time
@@ -30,7 +30,6 @@ module DataCycleCore
         schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if partial_update
 
         valid_hash = validate(@data_hash, schema_hash)
-
         if validate?(valid_hash) && diff?(@data_hash)
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) unless id.nil? || prevent_history
@@ -50,6 +49,22 @@ module DataCycleCore
 
       def set_last_updated_by
         @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+      end
+
+      def set_computed_values
+        computed_property_names.each do | computed_property |
+          props = properties_for(computed_property)
+          @data_hash[computed_property] = set_computed(props)
+        end
+      end
+
+      def set_computed(properties)
+        module_name = ('DataCycleCore::' + properties.dig('compute','module').classify).safe_constantize
+        method_name = module_name.method(properties.dig('compute','method'))
+
+        method_arguments = properties.dig('compute','parameters').values.map {|value| @data_hash.dig(value)}
+        computed_value = method_name.call(*method_arguments)
+        computed_value
       end
 
       def get_inherit_datahash(parent)
@@ -105,6 +120,8 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
+        when 'computed'
+          save_values(key, value, properties)
         when 'key'
           true # do nothing
         end
