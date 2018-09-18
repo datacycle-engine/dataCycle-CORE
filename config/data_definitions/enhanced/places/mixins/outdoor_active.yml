@@ -7,21 +7,26 @@
         :label: Autor
         :type: string
         :storage_location: translated_value
+        :external: true
       :price:
         :label: Preis
         :type: string
         :storage_location: translated_value
+        :external: true
       :directions:
         :label: Anfahrtsbeschreibung
         :type: string
         :storage_location: translated_value
         :search: true
+        :external: true
       :parking:
         :label: Parkmöglichkeit
         :type: string
         :storage_location: translated_value
         :search: true
+        :external: true
       :hours_available:
         :label: Service-Zeiten
         :type: string
         :storage_location: translated_value
+        :external: true
