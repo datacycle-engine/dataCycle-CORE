@@ -35,7 +35,7 @@ module DataCycleCore
       }
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_pool', 'data_type', 'date_modified'))
-      assert_equal(current_user.id, data_set.last_updated_by.first.id)
+      assert_equal(current_user.id, data_set.updated_by_user.id)
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
@@ -82,7 +82,7 @@ module DataCycleCore
       }
 
       assert_equal(e_hash, r_dh.compact.except('id', 'data_pool', 'data_type', 'date_modified'))
-      assert_equal(current_user.id, ds_a.last_updated_by.first.id)
+      assert_equal(current_user.id, ds_a.updated_by_user.id)
       assert_equal(0, e_a[:error].count)
 
       # check consistency of data in DB
@@ -113,7 +113,7 @@ module DataCycleCore
 
       DataCycleCore::CreativeWork::History.all.each do |item|
         assert_equal(current_user.id, item.updated_by)
-        assert_equal([current_user.id], item.last_updated_by.pluck(:id))
+        assert_equal(current_user.id, item.updated_by_user.id)
         assert_equal(true, item.date_modified.present?)
         assert_equal(current_user.id, item.deleted_by)
         assert_equal(true, item.deleted_at.present?)

@@ -71,7 +71,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -146,7 +146,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -164,7 +164,7 @@ module DataCycleCore
       expected_hash['quotation'] = []
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'deleted_by'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -248,7 +248,7 @@ module DataCycleCore
       }
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'deleted_by'))
       assert_equal(expected_hash['quotation'].count, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB
@@ -263,7 +263,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'deleted_by'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -338,7 +338,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -359,7 +359,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'deleted_by'))
       assert_equal(2, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB

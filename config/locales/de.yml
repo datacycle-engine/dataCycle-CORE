@@ -99,6 +99,7 @@ de:
     height: Höhe
     width: Breite
     children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
+    creator: Ersteller
 
   history:
     latest_edits: Letzte Bearbeitungen

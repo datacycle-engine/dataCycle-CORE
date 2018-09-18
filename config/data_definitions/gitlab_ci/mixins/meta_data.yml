@@ -3,18 +3,18 @@
     :name: meta_data
     :type: mixin
     :properties:
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
-      :last_updated_by:
-        :label: "Zuletzt bearbeitet von"
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
+      # :creator:
+      #   :label: Ersteller
+      #   :type: linked
+      #   :linked_table: users
+      #   :validations:
+      #     :max: 1
+      # :last_updated_by:
+      #   :label: "Zuletzt bearbeitet von"
+      #   :type: linked
+      #   :linked_table: users
+      #   :validations:
+      #     :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

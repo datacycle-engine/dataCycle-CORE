@@ -15,7 +15,7 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
-      before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
+      # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false)
@@ -53,8 +53,7 @@ module DataCycleCore
       end
 
       def set_last_updated_by
-        # @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
-        self.updated_by = @current_user&.id
+        @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
       end
 
       def get_inherit_datahash(parent)

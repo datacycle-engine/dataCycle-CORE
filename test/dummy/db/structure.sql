@@ -454,7 +454,10 @@ CREATE VIEW content_meta_items AS
     creative_works.template_name,
     creative_works.schema,
     creative_works.external_source_id,
-    creative_works.external_key
+    creative_works.external_key,
+    creative_works.created_by,
+    creative_works.updated_by,
+    creative_works.deleted_by
    FROM creative_works
   WHERE (creative_works.template IS FALSE)
 UNION
@@ -463,7 +466,10 @@ UNION
     events.template_name,
     events.schema,
     events.external_source_id,
-    events.external_key
+    events.external_key,
+    events.created_by,
+    events.updated_by,
+    events.deleted_by
    FROM events
   WHERE (events.template IS FALSE)
 UNION
@@ -472,7 +478,10 @@ UNION
     persons.template_name,
     persons.schema,
     persons.external_source_id,
-    persons.external_key
+    persons.external_key,
+    persons.created_by,
+    persons.updated_by,
+    persons.deleted_by
    FROM persons
   WHERE (persons.template IS FALSE)
 UNION
@@ -481,7 +490,10 @@ UNION
     organizations.template_name,
     organizations.schema,
     organizations.external_source_id,
-    organizations.external_key
+    organizations.external_key,
+    organizations.created_by,
+    organizations.updated_by,
+    organizations.deleted_by
    FROM organizations
   WHERE (organizations.template IS FALSE)
 UNION
@@ -490,7 +502,10 @@ UNION
     places.template_name,
     places.schema,
     places.external_source_id,
-    places.external_key
+    places.external_key,
+    places.created_by,
+    places.updated_by,
+    places.deleted_by
    FROM places
   WHERE (places.template IS FALSE);
 
@@ -2085,6 +2100,13 @@ CREATE INDEX index_creative_works_on_content_type ON creative_works USING btree 
 
 
 --
+-- Name: index_creative_works_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_external_key ON creative_works USING btree (((metadata ->> 'external_key'::text)), external_source_id);
+
+
+--
 -- Name: index_creative_works_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2103,6 +2125,13 @@ CREATE UNIQUE INDEX index_creative_works_on_id ON creative_works USING btree (id
 --
 
 CREATE INDEX index_creative_works_on_is_part_of ON creative_works USING btree (is_part_of);
+
+
+--
+-- Name: index_creative_works_on_metadata_validation_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_creative_works_on_metadata_validation_name ON creative_works USING btree (((metadata #>> '{validation,name}'::text[])));
 
 
 --
@@ -2718,6 +2747,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180815132305'),
 ('20180820064823'),
 ('20180907080412'),
-('20180914085848');
+('20180914085848'),
+('20180918085636');
 
 
