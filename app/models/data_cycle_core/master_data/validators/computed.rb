@@ -18,7 +18,8 @@ module DataCycleCore
         end
 
         def validate(data, template)
-          computed_types[template.dig('compute', 'type')].new(data, template)
+          validator_object = computed_types[template.dig('compute', 'type')].new(data, template)
+          merge_errors(validator_object.error) unless validator_object.nil?
         end
       end
     end
