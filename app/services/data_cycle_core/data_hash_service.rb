@@ -4,7 +4,6 @@ module DataCycleCore
   class DataHashService
     # TODO: refactor: class => module
     extend NormalizeService
-    require 'hashdiff'
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
       datahash = flatten_recursive(datahash.to_h, template_hash)
@@ -12,10 +11,6 @@ module DataCycleCore
       raise datahash.inspect if debug == true
 
       datahash
-    end
-
-    def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
     # TODO: see old embedded-editor
