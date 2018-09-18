@@ -53,18 +53,8 @@ module DataCycleCore
 
       def set_computed_values
         computed_property_names.each do |computed_property|
-          props = properties_for(computed_property)
-          @data_hash[computed_property] = compute_value(props)
+          @data_hash[computed_property] = DataCycleCore::Utility::Calculate::Base.computed_values(properties_for(computed_property), @data_hash)
         end
-      end
-
-      def compute_value(properties)
-        module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
-        method_name = module_name.method(properties.dig('compute', 'method'))
-
-        method_arguments = properties.dig('compute', 'parameters').values.map { |value| @data_hash.dig(value) }
-        computed_value = method_name.call(*method_arguments)
-        computed_value
       end
 
       def get_inherit_datahash(parent)
