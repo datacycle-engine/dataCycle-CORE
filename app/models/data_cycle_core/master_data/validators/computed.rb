@@ -13,7 +13,7 @@ module DataCycleCore
             'boolean' => Validators::Boolean,
             'geographic' => Validators::Geographic,
             'asset' => Validators::Asset,
-            'classification' => Validators::Classification,
+            'classification' => Validators::Classification
           }
         end
 

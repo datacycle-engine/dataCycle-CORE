@@ -5,7 +5,6 @@ module DataCycleCore
     module Calculate
       module Base
         class << self
-
         end
       end
     end

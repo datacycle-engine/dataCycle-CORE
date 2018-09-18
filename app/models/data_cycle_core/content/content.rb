@@ -255,7 +255,7 @@ module DataCycleCore
 
       def load_computed_attribute(property_name, property_definition)
         convert_to_type(
-          property_definition.dig('compute','type'),
+          property_definition.dig('compute', 'type'),
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end

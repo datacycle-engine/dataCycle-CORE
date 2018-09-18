@@ -52,17 +52,17 @@ module DataCycleCore
       end
 
       def set_computed_values
-        computed_property_names.each do | computed_property |
+        computed_property_names.each do |computed_property|
           props = properties_for(computed_property)
-          @data_hash[computed_property] = set_computed(props)
+          @data_hash[computed_property] = compute_value(props)
         end
       end
 
-      def set_computed(properties)
-        module_name = ('DataCycleCore::' + properties.dig('compute','module').classify).safe_constantize
-        method_name = module_name.method(properties.dig('compute','method'))
+      def compute_value(properties)
+        module_name = ('DataCycleCore::' + properties.dig('compute', 'module').classify).safe_constantize
+        method_name = module_name.method(properties.dig('compute', 'method'))
 
-        method_arguments = properties.dig('compute','parameters').values.map {|value| @data_hash.dig(value)}
+        method_arguments = properties.dig('compute', 'parameters').values.map { |value| @data_hash.dig(value) }
         computed_value = method_name.call(*method_arguments)
         computed_value
       end

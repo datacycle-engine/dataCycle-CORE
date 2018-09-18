@@ -13,14 +13,13 @@ module DataCycleCore
             'boolean' => Differs::Boolean,
             'geographic' => Differs::Geographic,
             'asset' => Differs::Asset,
-            'classification' => Differs::Classification,
+            'classification' => Differs::Classification
           }
         end
 
         def diff(a, b, template)
-          @diff_hash = computed_types[template.dig('compute','type')].new(a, b, template).diff_hash
+          @diff_hash = computed_types[template.dig('compute', 'type')].new(a, b, template).diff_hash
         end
-
       end
     end
   end
