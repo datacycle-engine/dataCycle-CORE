@@ -169,7 +169,6 @@ module DataCycleCore
 
     def update_life_cycle_stage
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-
       authorize! :set_life_cycle, @object, life_cycle_params
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
@@ -183,7 +182,9 @@ module DataCycleCore
         idea_collection.save
       end
 
-      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+      valid = @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+
+      redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end

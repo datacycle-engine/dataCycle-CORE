@@ -5,9 +5,16 @@ module DataCycleCore
     class LifeCycle < Base
       class << self
         def ordered_classifications(content = nil)
-          Rails.cache.fetch("life_cycle_#{ordered_items(content)&.join(' ')&.parameterize(separator: '_')}", expires_in: 10.minutes) do
-            DataCycleCore::Classification.where(name: ordered_items(content)).sort_by { |c| ordered_items(content)&.index c.name }.map { |c| [c.name, { id: c.id, alias_id: c.primary_classification_alias&.id }] }.to_h
-          end
+          @ordered_classifications ||= DataCycleCore::Classification
+            .includes(classification_aliases: :classification_tree_label)
+            .where(name: ordered_items(content), classification_aliases: {
+              classification_tree_labels: {
+                name: 'Inhaltspools'
+              }
+            })
+            .sort_by { |c| ordered_items(content)&.index c.name }
+            .map { |c| [c.name, { id: c.id, alias_id: c.primary_classification_alias&.id }] }
+            .to_h
         end
 
         def ordered_items(content = nil)
