@@ -4,6 +4,9 @@ require 'test_helper'
 
 module DataCycleCore
   class EmbeddedTreeTest < ActiveSupport::TestCase
+    def excepted_attributes
+      ['id', 'data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'textblock']
+    end
     test 'CreativeWork exists' do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -48,33 +51,22 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       expected_hash = {
-        'kind' => [],
-        'tags' => [],
         'image' => [],
-        'video' => [],
         'text' => 'wtf is going on???',
-        'state' => [],
-        'season' => [],
-        'topics' => [],
         'creator' => [],
-        'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'author' => [person_id],
-          'creator' => [],
-          'data_type' => [data_type_zitat_id],
-          'date_created' => nil,
-          'date_modified' => nil
+          'author' => [person_id]
         }],
-        'output_channels' => [],
+        'output_channel' => [],
         'content_location' => [],
-        'permitted_creator' => []
+        'tags' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
-      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
@@ -125,33 +117,22 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       expected_hash = {
-        'kind' => [],
         'tags' => [],
         'image' => [],
-        'video' => [],
         'text' => 'wtf is going on???',
-        'state' => [],
-        'season' => [],
-        'topics' => [],
-        'markets' => [],
         'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'author' => [person_id],
-          'creator' => [],
-          'data_type' => [data_type_zitat_id],
-          'date_created' => nil,
-          'date_modified' => nil
+          'author' => [person_id]
         }],
-        'output_channels' => [],
+        'output_channel' => [],
         'content_location' => [],
-        'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
-      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
@@ -168,7 +149,7 @@ module DataCycleCore
       expected_hash['quotation'] = []
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash, returned_data_hash.compact.except(*excepted_attributes))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -217,20 +198,13 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       expected_hash = {
-        'kind' => [],
         'tags' => [],
         'image' => [],
-        'video' => [],
         'text' => 'wtf is going on???',
-        'state' => [],
-        'season' => [],
-        'topics' => [],
         'creator' => [],
-        'markets' => [],
         'headline' => 'Dies ist ein Test!',
-        'output_channels' => [],
+        'output_channel' => [],
         'content_location' => [],
-        'permitted_creator' => [],
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
@@ -253,7 +227,7 @@ module DataCycleCore
       }
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', *excepted_attributes))
       assert_equal(expected_hash['quotation'].count, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB
@@ -268,7 +242,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash, returned_data_hash.compact.except(*excepted_attributes))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -315,38 +289,27 @@ module DataCycleCore
       quotation_id = returned_data_hash['quotation'][0]['id']
 
       expected_hash = {
-        'kind' => [],
         'tags' => [],
         'image' => [],
-        'video' => [],
         'text' => 'wtf is going on???',
-        'state' => [],
-        'season' => [],
-        'topics' => [],
         'creator' => [],
-        'markets' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
-          'creator' => [],
           'author' => [{
             'id' => person_id,
             'job_title' => nil,
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
-          }],
-          'data_type' => [data_type_zitat_id],
-          'date_created' => nil,
-          'date_modified' => nil
+          }]
         }],
-        'output_channels' => [],
+        'output_channel' => [],
         'content_location' => [],
-        'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
-      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
@@ -366,7 +329,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))
       assert_equal(2, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB
