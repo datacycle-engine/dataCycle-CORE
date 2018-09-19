@@ -49,7 +49,6 @@ module DataCycleCore
 
     def self.load_templates(paths)
       import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(paths)
-
       errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
 
       return if errors.values.reduce(&:merge).blank?
@@ -97,6 +96,7 @@ DataCycleCore::TestPreparations.load_classifications(
 DataCycleCore::TestPreparations.load_templates(
   [
     Rails.root.join('..', 'data_types'),
+    Rails.root.join('..', 'data_types', 'attributes'),
     Rails.root.join('..', 'data_types', 'custom')
   ]
 )

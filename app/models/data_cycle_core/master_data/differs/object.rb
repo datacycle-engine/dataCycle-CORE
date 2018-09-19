@@ -16,7 +16,8 @@ module DataCycleCore
             'linked' => Differs::Linked,
             'embedded' => Differs::Embedded,
             'asset' => Differs::Asset,
-            'classification' => Differs::Classification
+            'classification' => Differs::Classification,
+            'computed' => Differs::Computed
           }
         end
 

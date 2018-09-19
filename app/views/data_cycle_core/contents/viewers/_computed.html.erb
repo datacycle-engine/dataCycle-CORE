@@ -1,0 +1,16 @@
+<%= render 'data_cycle_core/contents/viewers/attribute',
+  key: key,
+  definition: definition,
+  value: value,
+  options: options,
+  content: content,
+  data_attributes: {
+    editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'string',
+    'diff-before': html_escape_once(options.dig(:item_diff, 1)),
+    'diff-after': html_escape_once(options.dig(:item_diff, 2)),
+  } do %>
+  <span class="detail-content">
+    <%= options.dig(:item_diff, 0) == '+' ? options.dig(:item_diff, 1).presence&.try(:html_safe) : value.try(:html_safe) %>
+  </span>
+
+<% end %>

@@ -40,7 +40,8 @@ module DataCycleCore
               attribute.definition.dig('tree_label').present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id)
-            )
+            ) ||
+            (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?)
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
