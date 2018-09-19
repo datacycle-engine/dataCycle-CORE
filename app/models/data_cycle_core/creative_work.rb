@@ -13,14 +13,14 @@ module DataCycleCore
 
     class History < Content::Content
       include Content::ContentHistoryLoader
-      translates :headline, :description, :content, :release, :release_id, :release_comment, :history_valid
+      translates :headline, :description, :content, :history_valid
       content_relations table_name: 'creative_works', postfix: 'history'
       belongs_to :creative_work
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::CreativeWork::History', foreign_key: :creative_work_id
     acts_as_tree order: 'position', foreign_key: 'is_part_of'
 
-    translates :headline, :description, :content, :release, :release_id, :release_comment
+    translates :headline, :description, :content
     content_relations table_name: table_name
 
     # to cash also translated values (comming from gem Globalize)

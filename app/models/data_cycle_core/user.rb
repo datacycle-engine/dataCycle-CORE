@@ -40,10 +40,6 @@ module DataCycleCore
       name || "#{given_name} #{family_name}"
     end
 
-    def admin?
-      admin
-    end
-
     def has_rank?(rank)
       self&.role&.rank&.>= rank
     end

@@ -40,7 +40,8 @@ module DataCycleCore
               attribute.definition.dig('tree_label').present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id)
-            )
+            ) ||
+            (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?)
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
@@ -49,7 +50,7 @@ module DataCycleCore
               release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
               if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present?
-                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_status_id.include?(release_partner_stage_id)
+                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_status_id.presence&.ids&.include?(release_partner_stage_id)
               else
                 link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
               end

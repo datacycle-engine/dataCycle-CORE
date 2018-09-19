@@ -99,7 +99,7 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 
-        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
         redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
@@ -155,7 +155,7 @@ module DataCycleCore
       objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
       authorize! :edit, objects_class
 
-      @objects = objects_class.where(id: params[:id]).includes(:translations)
+      @objects = objects_class.where(id: params[:object_ids]).includes(:translations)
       @content = data_cycle_object(controller_name).find(params[:id])
 
       respond_to(:js)
@@ -169,7 +169,6 @@ module DataCycleCore
 
     def update_life_cycle_stage
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-
       authorize! :set_life_cycle, @object, life_cycle_params
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
@@ -183,7 +182,9 @@ module DataCycleCore
         idea_collection.save
       end
 
-      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+      valid = @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+
+      redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
@@ -282,10 +283,6 @@ module DataCycleCore
 
     def path_params
       params.permit(:path)
-    end
-
-    def release_params
-      params.require(controller_name.singularize.to_sym).permit(release: [:release_id, :release_comment])
     end
 
     def asset_params

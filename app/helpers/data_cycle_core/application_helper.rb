@@ -125,6 +125,7 @@ module DataCycleCore
           feature_templates(key, definition, content),
           "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
           "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+          definition.dig('compute', 'type')&.underscore&.to_s,
           definition['type'].underscore.to_s
         ]
       end

@@ -107,6 +107,12 @@ module DataCycleCore
         }.keys
       end
 
+      def computed_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'computed'
+        }.keys
+      end
+
       def classification_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'classification'
@@ -162,6 +168,8 @@ module DataCycleCore
               embedded_array.blank? ? [] : embedded_array.compact
             elsif asset_property_names.include?(property_name)
               send(property_name)
+            elsif computed_property_names.include?(property_name)
+              send(property_name)
             else
               raise StandardError, "cannot determine how to serialize #{property_name}"
             end
@@ -216,6 +224,8 @@ module DataCycleCore
           load_embedded_objects(property_name)
         elsif asset_property_names.include?(property_name)
           load_asset_relation(property_name)
+        elsif computed_property_names.include?(property_name)
+          load_computed_attribute(property_name, property_definition)
         else
           raise NotImplementedError
         end
@@ -224,6 +234,13 @@ module DataCycleCore
       def load_json_attribute(property_name, property_definition)
         convert_to_type(
           property_definition['type'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
+        )
+      end
+
+      def load_computed_attribute(property_name, property_definition)
+        convert_to_type(
+          property_definition.dig('compute', 'type'),
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end

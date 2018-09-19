@@ -66,6 +66,22 @@ namespace :data_cycle_core do
       end
     end
 
+    desc 'Clean up database backups'
+    task clean_up_dumps: :environment do
+      max_files = 5
+      backup_dir = backup_directory(Rails.env)
+      files = Dir.glob("#{backup_dir}/[0-9]*.sql").sort_by { |f| File.mtime(f) }.reverse
+      puts "checking directory: #{backup_dir}"
+
+      if files.size > max_files
+        puts 'deleting files'
+        files.drop(5).each { |file| File.delete(file) }
+      else
+        puts "nothing to delete - file count: #{files.size}"
+      end
+      system "/bin/ls -lt #{backup_dir}"
+    end
+
     desc 'Show the existing database backups'
     task dumps: :environment do
       backup_dir = backup_directory(Rails.env)

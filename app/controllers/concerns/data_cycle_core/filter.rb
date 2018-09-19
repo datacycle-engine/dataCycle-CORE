@@ -26,6 +26,10 @@ module DataCycleCore
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
+      # add default filters for user role if any exist
+      query = query.default_user_filter(current_user) if query.respond_to?(:default_user_filter)
+
+      # add existing stored filter params
       @filters.concat(@stored_filters) if @stored_filters.present?
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }

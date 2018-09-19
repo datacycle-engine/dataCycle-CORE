@@ -224,15 +224,6 @@ module.exports.initialize = function () {
     });
   }
 
-  // Status Kommentar setzen
-
-  $(document).on('click', '.release-comment-overlay .save', function (e) {
-    var $input_field = $(e.target).siblings('.release-comment').first();
-    var id = $(e.target).data('hidden-field-id');
-    var value = $input_field.val();
-    $('input[type=hidden]#' + id).val(value);
-  });
-
   // check if data changed and confirm leaving the page
 
   if ($('.edit-content-form').length > 0) {
