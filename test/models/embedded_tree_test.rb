@@ -128,7 +128,7 @@ module DataCycleCore
           'author' => [person_id]
         }],
         'output_channel' => [],
-        'content_location' => [],
+        'content_location' => []
       }
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))
@@ -305,7 +305,7 @@ module DataCycleCore
           }]
         }],
         'output_channel' => [],
-        'content_location' => [],
+        'content_location' => []
       }
       assert_equal(0, error[:error].count)
       assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', *excepted_attributes))

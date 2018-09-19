@@ -107,14 +107,14 @@ module DataCycleCore
         'quotation' => [{
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [person_id],
+          'author' => [person_id]
         }],
         'textblock' => [],
         'content_location' => [place_id1]
       }
       expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'quotation', 'content_location',*excepted_attributes))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'quotation', 'content_location', *excepted_attributes))
       assert_equal([place_id1], returned_data_hash['content_location'].ids)
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)

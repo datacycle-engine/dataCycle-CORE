@@ -16,7 +16,7 @@ module DataCycleCore
           'telephone' => '+ 43 123 456',
           'fax_number' => '+ 43 654 321',
           'email' => 'test@test.com',
-          'url' => 'http://firma.at',
+          'url' => 'http://firma.at'
         },
         'address' => {
           'address_locality' => 'Test - Ort',

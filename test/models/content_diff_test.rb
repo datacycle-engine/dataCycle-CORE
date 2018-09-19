@@ -49,7 +49,7 @@ module DataCycleCore
         'access' => [],
         'creator' => [],
         'headline' => 'change headline',
-        'description' => 'change description',
+        'description' => 'change description'
       }
 
       diff_hash = {

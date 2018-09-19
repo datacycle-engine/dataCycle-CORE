@@ -27,7 +27,7 @@ module DataCycleCore
         'id' => data_set.id,
         'name' => 'Dies ist ein Test!',
         'longitude' => 40.56,
-        'latitude' => 13.13,
+        'latitude' => 13.13
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
       assert_nil(data_set.desc)

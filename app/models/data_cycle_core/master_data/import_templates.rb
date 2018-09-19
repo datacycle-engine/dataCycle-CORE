@@ -44,10 +44,10 @@ module DataCycleCore
           end
         end
         return import_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
-      # rescue StandardError => e
-      #   puts "could not access a YML File in directory #{core_template_path}, file #{file_name}"
-      #   puts e.message
-      #   puts e.backtrace
+      rescue StandardError => e
+        puts "could not access a YML File in directory #{core_template_path}, file #{file_name}"
+        puts e.message
+        puts e.backtrace
       end
 
       def self.import_all_templates(template_hash:, validation: true)
