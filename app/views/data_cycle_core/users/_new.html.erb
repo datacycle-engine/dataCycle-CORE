@@ -3,8 +3,6 @@
 
     <%= form_for type.new, url: { controller: type.name.tableize, action: :create_user } do |f| %>
 
-      <%= f.hidden_field :external, value: false %>
-
       <div class="form-element validation-container">
           <%= f.label :email %>
           <%= f.email_field :email, required: true, autofocus: true %>

@@ -31,7 +31,7 @@ module.exports.initialize = function () {
           select2_helpers.removeTreeLabel(result, tree_label);
           select2_helpers.decorateResult(result);
 
-          if (data.description !== undefined && data.description !== '') {
+          if (data.description) {
             result.attr('title', data.title + '\n\n' + data.description);
             data.title = data.title + '\n\n' + data.description;
           }

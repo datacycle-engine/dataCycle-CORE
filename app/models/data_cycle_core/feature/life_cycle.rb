@@ -9,7 +9,7 @@ module DataCycleCore
             .includes(classification_aliases: :classification_tree_label)
             .where(name: ordered_items(content), classification_aliases: {
               classification_tree_labels: {
-                name: 'Inhaltspools'
+                name: tree_label(content)
               }
             })
             .sort_by { |c| ordered_items(content)&.index c.name }
