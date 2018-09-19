@@ -1110,7 +1110,7 @@ CREATE TABLE public.users (
     updated_at timestamp without time zone NOT NULL,
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
-    external boolean DEFAULT true NOT NULL,
+    external boolean DEFAULT false NOT NULL,
     role_id uuid,
     notification_frequency character varying DEFAULT 'always'::character varying,
     access_token character varying,
@@ -2648,6 +2648,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180820064823'),
 ('20180907080412'),
 ('20180917085622'),
-('20180917103214');
+('20180917103214'),
+('20180918135618');
 
 

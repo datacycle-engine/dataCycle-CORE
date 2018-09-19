@@ -48,13 +48,15 @@ module DataCycleCore
     end
 
     def self.load_templates(paths)
-      import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(paths)
-      errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
-
-      return if errors.values.reduce(&:merge).blank?
-
-      puts 'template import error summary:'
-      ap errors
+      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all(validation: true, template_paths: paths)
+      if duplicates.present?
+        puts 'INFO: the following templates had multiple definitions:'
+        ap duplicates
+      end
+      if errors.present?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
     end
 
     def self.load_user_roles
@@ -88,18 +90,22 @@ module DataCycleCore
   end
 end
 
-DataCycleCore::TestPreparations.load_classifications(
-  [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
-  ]
-)
-DataCycleCore::TestPreparations.load_templates(
-  [
-    Rails.root.join('..', 'data_types'),
-    Rails.root.join('..', 'data_types', 'attributes'),
-    Rails.root.join('..', 'data_types', 'custom')
-  ]
-)
+# DataCycleCore::TestPreparations.load_classifications(
+#   [
+#     Rails.root.join('..', 'data_types', 'classifications.yml')
+#   ]
+# )
+# DataCycleCore::TestPreparations.load_templates(
+#   [
+#     # Rails.root.join('..', 'data_types'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+#     Rails.root.join('..', 'data_types', 'attributes'),
+#     Rails.root.join('..', 'data_types', 'custom')
+#   ]
+# )
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group

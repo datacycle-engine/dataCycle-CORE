@@ -35,6 +35,10 @@
   - $$Angebotszeitraum
   - $$Publikations-Plan
   - $$Searchable Headline
+  # refactored
+  # container
+  - $$Container
+  - $$Örtlichkeit
 
 - Inhaltspools:
   - $$Vorschläge

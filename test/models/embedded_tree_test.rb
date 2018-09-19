@@ -11,7 +11,7 @@ module DataCycleCore
 
     test 'insert embeddedObject within same table' do
       # create an author
-      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Person')
       data_set = DataCycleCore::Person.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
@@ -88,7 +88,7 @@ module DataCycleCore
       # author within quotation is linked --> only link should be deleted
 
       # create an author
-      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Person')
       data_set = DataCycleCore::Person.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
@@ -182,7 +182,7 @@ module DataCycleCore
       # author within quotation is linked --> only link should be deleted
 
       # create an author
-      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Person')
       data_set = DataCycleCore::Person.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
@@ -278,7 +278,7 @@ module DataCycleCore
 
     test 'insert embeddedObject within same table then add another quotation' do
       # create an author
-      template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
+      template = DataCycleCore::Person.find_by(template: true, template_name: 'Person')
       data_set = DataCycleCore::Person.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name

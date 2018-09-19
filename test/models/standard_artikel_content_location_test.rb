@@ -3,16 +3,22 @@
 require 'test_helper'
 
 module DataCycleCore
-  class StandardArtikelContentLocationTest < ActiveSupport::TestCase
-    test 'create a contentLocation' do
-      # create a contentLocations
-      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
+  class StandardArtikelÖrtlichkeitTest < ActiveSupport::TestCase
+    def excepted_attributes
+      ['data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'overlay',
+       'tags', 'image', 'stars', 'output_channel', 'source', 'creator', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
+       'fontend_type', 'primary_image', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
+       'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'opening_hours_specification', 'frontend_type']
+    end
+    test 'create a Örtlichkeit' do
+      # create a Örtlichkeits
+      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
       data_set_place1 = DataCycleCore::Place.new
       data_set_place1.schema = place_template.schema
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
-        'headline' => 'Wien',
+        'name' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
@@ -20,7 +26,7 @@ module DataCycleCore
       data_set_place1.save
       place_id1 = data_set_place1.id
       expected_hash = data_set_place1.get_data_hash
-      assert_equal(place_hash1.merge({ 'id' => place_id1 }), expected_hash.compact)
+      assert_equal(place_hash1.merge({ 'id' => place_id1 }), expected_hash.compact.except(*excepted_attributes))
     end
 
     test 'insert embeddedObject within same table' do
@@ -29,7 +35,7 @@ module DataCycleCore
       count_cw = DataCycleCore::CreativeWork.count
 
       # create an author
-      person_template = DataCycleCore::Person.find_by(template: true, template_name: 'Autor')
+      person_template = DataCycleCore::Person.find_by(template: true, template_name: 'Person')
       data_set_person = DataCycleCore::Person.new
       data_set_person.schema = person_template.schema
       data_set_person.template_name = person_template.template_name
@@ -46,14 +52,14 @@ module DataCycleCore
         .where('classification_tree_labels.name = ?', 'Inhaltstypen')
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
-      # create a contentLocations
-      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
+      # create a Örtlichkeits
+      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
       data_set_place1 = DataCycleCore::Place.new
       data_set_place1.schema = place_template.schema
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
       place_hash1 = {
-        'headline' => 'Wien',
+        'name' => 'Wien',
         'latitude' => 1,
         'longitude' => 2
       }
@@ -66,7 +72,7 @@ module DataCycleCore
       data_set_place2.template_name = place_template.template_name
       data_set_place2.save
       place_hash2 = {
-        'headline' => 'Villach',
+        'name' => 'Villach',
         'latitude' => 10,
         'longitude' => 20
       }
@@ -96,36 +102,21 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       expected_hash = {
-        'kind' => [],
-        'tags' => [],
-        'permitted_creator' => [],
         'text' => 'wtf is going on???',
-        'state' => [],
-        'season' => [],
-        'topics' => [],
-        'markets' => [],
-        'image' => [],
-        'video' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'image' => [],
           'author' => [person_id],
-          'creator' => [],
-          'data_type' => [data_type_zitat_id],
-          'date_created' => nil,
-          'date_modified' => nil
         }],
-        'output_channels' => [],
+        'textblock' => [],
         'content_location' => [place_id1]
       }
       expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'quotation', 'content_location',*excepted_attributes))
       assert_equal([place_id1], returned_data_hash['content_location'].ids)
-      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author'))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
@@ -145,20 +136,20 @@ module DataCycleCore
       updated_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'quotation', 'content_location', *excepted_attributes))
       assert_equal([place_id2], updated_data_hash['content_location'].ids)
-      assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author'))
+      assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author', *excepted_attributes))
       assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(5, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
-      assert_equal(3, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
 
@@ -169,12 +160,12 @@ module DataCycleCore
 
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(5, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(5, DataCycleCore::CreativeWork::History.count)
       assert_equal(6, DataCycleCore::ContentContent::History.count)
-      assert_equal(6, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(4, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::Person::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
 
@@ -183,7 +174,7 @@ module DataCycleCore
 
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(0, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Person.count - count_person)
       assert_equal(2, DataCycleCore::Place.count - count_place)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)

@@ -4,12 +4,16 @@ require 'test_helper'
 
 module DataCycleCore
   class ContentContainerTest < ActiveSupport::TestCase
+    def excepted_attributes
+      ['id', 'data_pool', 'data_type', 'last_updated_by', 'date_modified', 'publication_schedule']
+    end
+
     test 'insert container and delete it' do
       template_cw = DataCycleCore::CreativeWork.count
       template_cwt = DataCycleCore::CreativeWork::Translation.count
       current_user = DataCycleCore::User.first
 
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Thema')
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Container')
       data_set = DataCycleCore::CreativeWork.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
@@ -25,19 +29,14 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
         'headline' => 'Test Thema!',
-        'kind' => [],
+        'output_channel' => [],
         'tags' => [],
-        'state' => [],
-        'season' => [],
-        'topics' => [],
         'creator' => [],
         'last_updated_by' => [],
-        'deleted_by' => [],
-        'markets' => [],
-        'permitted_creator' => []
+        'deleted_by' => []
       }
 
-      assert_equal(expected_hash.except('last_updated_by'), returned_data_hash.compact.except('id', 'data_pool', 'data_type', 'last_updated_by', 'date_modified'))
+      assert_equal(expected_hash.except('last_updated_by'), returned_data_hash.compact.except(*excepted_attributes))
       assert_equal(current_user.id, returned_data_hash.dig('last_updated_by').first.id)
       assert_equal(0, error[:error].count)
 
@@ -70,23 +69,17 @@ module DataCycleCore
       r_dh = ds_a.get_data_hash
       e_hash = {
         'headline' => 'Test Artikel!',
-        'kind' => [],
         'tags' => [],
         'image' => [],
-        'video' => [],
-        'state' => [],
-        'season' => [],
-        'topics' => [],
+        'textblock' => [],
         'creator' => [],
-        'markets' => [],
-        'output_channels' => [],
+        'output_channel' => [],
         'quotation' => [],
         'content_location' => [],
-        'permitted_creator' => [],
         'deleted_by' => []
       }
 
-      assert_equal(e_hash.except('last_updated_by'), r_dh.compact.except('id', 'data_pool', 'data_type', 'last_updated_by', 'date_modified'))
+      assert_equal(e_hash.except(*excepted_attributes), r_dh.compact.except(*excepted_attributes))
       assert_equal(current_user.id, r_dh.dig('last_updated_by').first.id)
       assert_equal(0, e_a[:error].count)
 
@@ -94,7 +87,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(2, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(2, DataCycleCore::Search.count)
 
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
@@ -114,7 +107,7 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(4, DataCycleCore::ContentContent::History.count)
-      assert_equal(3, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       DataCycleCore::CreativeWork::History.all.each do |item|
         assert_equal([current_user.id], item.last_updated_by.pluck(:id))
