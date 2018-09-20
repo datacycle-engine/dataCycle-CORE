@@ -15,7 +15,6 @@ module DataCycleCore
           data_set.save
 
           data = {
-            'headline' => 'Dies ist ein Test!',
             'value_1' => 5,
             'value_2' => 6
           }
@@ -24,13 +23,11 @@ module DataCycleCore
           data_set.save
           expected_hash = {
             'id' => data_set.id,
-            'headline' => 'Dies ist ein Test!',
             'value_1' => 5,
             'value_2' => 6,
             'math_sum' => 11
           }
           assert_equal(expected_hash, data_set.get_data_hash.compact)
-          assert_equal(expected_hash['headline'], data_set.title)
           assert_equal(5, data_set.value_1)
           assert_equal(6, data_set.value_2)
           assert_equal(11, data_set.math_sum)
@@ -49,7 +46,6 @@ module DataCycleCore
           data_set.save
 
           data = {
-            'headline' => 'Dies ist ein Test!',
             'value_1' => 5,
             'value_2' => 6
           }
@@ -58,13 +54,11 @@ module DataCycleCore
           data_set.save
           expected_hash = {
             'id' => data_set.id,
-            'headline' => 'Dies ist ein Test!',
             'value_1' => 5,
             'value_2' => 6,
             'common_copy' => 5
           }
           assert_equal(expected_hash, data_set.get_data_hash.compact)
-          assert_equal(expected_hash['headline'], data_set.title)
           assert_equal(5, data_set.value_1)
           assert_equal(6, data_set.value_2)
           assert_equal(5, data_set.common_copy)

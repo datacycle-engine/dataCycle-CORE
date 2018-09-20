@@ -3,8 +3,9 @@
 require 'test_helper'
 
 module DataCycleCore
-  class EmbeddedLinkTest < ActiveSupport::TestCase
+  class LinkedTest < ActiveSupport::TestCase
     test 'create article and add embeddedLinks' do
+
       cw_temp = DataCycleCore::CreativeWork.count
       template_bild = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
 

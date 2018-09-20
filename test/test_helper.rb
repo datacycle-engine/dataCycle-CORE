@@ -41,6 +41,15 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 module DataCycleCore
   module TestPreparations
+    EXCEPTED_ATTRIBUTES =
+      {
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule'],
+        creative_work: [],
+        event: [],
+        organization: [],
+        place: [],
+        person: []
+      }
     def self.load_classifications(paths)
       paths.map do |path|
         DataCycleCore::MasterData::ImportClassifications.import(path)
@@ -86,25 +95,31 @@ module DataCycleCore
         user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
     end
+
+    def self.excepted_attributes(model= nil)
+      return EXCEPTED_ATTRIBUTES[:common] + EXCEPTED_ATTRIBUTES[model.to_sym] if model.present?
+      EXCEPTED_ATTRIBUTES[:common]
+    end
+
   end
 end
 
-DataCycleCore::TestPreparations.load_classifications(
-  [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
-  ]
-)
-DataCycleCore::TestPreparations.load_templates(
-  [
-    # Rails.root.join('..', 'data_types'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-    Rails.root.join('..', 'data_types', 'attributes'),
-    Rails.root.join('..', 'data_types', 'custom')
-  ]
-)
+# DataCycleCore::TestPreparations.load_classifications(
+#   [
+#     Rails.root.join('..', 'data_types', 'classifications.yml')
+#   ]
+# )
+# DataCycleCore::TestPreparations.load_templates(
+#   [
+#     # Rails.root.join('..', 'data_types'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+#     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+#     Rails.root.join('..', 'data_types', 'attributes'),
+#     Rails.root.join('..', 'data_types', 'custom')
+#   ]
+# )
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group
