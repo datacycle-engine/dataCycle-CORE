@@ -53,7 +53,6 @@ module DataCycleCore
       expected_hash = {
         'image' => [],
         'text' => 'wtf is going on???',
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
@@ -120,7 +119,6 @@ module DataCycleCore
         'tags' => [],
         'image' => [],
         'text' => 'wtf is going on???',
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
@@ -201,7 +199,6 @@ module DataCycleCore
         'tags' => [],
         'image' => [],
         'text' => 'wtf is going on???',
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'output_channel' => [],
         'content_location' => [],
@@ -292,7 +289,6 @@ module DataCycleCore
         'tags' => [],
         'image' => [],
         'text' => 'wtf is going on???',
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',

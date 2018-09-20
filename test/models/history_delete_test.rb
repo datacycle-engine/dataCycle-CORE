@@ -56,7 +56,6 @@ module DataCycleCore
         'tags' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channel' => [],
-        'creator' => [],
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
       }
 
@@ -129,7 +128,6 @@ module DataCycleCore
       }
       expected_hash_quiz = {
         'tags' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channel' => [],
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',

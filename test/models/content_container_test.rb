@@ -30,14 +30,11 @@ module DataCycleCore
       expected_hash = {
         'headline' => 'Test Thema!',
         'output_channel' => [],
-        'tags' => [],
-        'creator' => [],
-        'last_updated_by' => [],
-        'deleted_by' => []
+        'tags' => []
       }
 
       assert_equal(expected_hash.except('last_updated_by'), returned_data_hash.compact.except(*excepted_attributes))
-      assert_equal(current_user.id, returned_data_hash.dig('last_updated_by').first.id)
+      assert_equal(current_user.id, data_set.updated_by)
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
@@ -72,21 +69,19 @@ module DataCycleCore
         'tags' => [],
         'image' => [],
         'textblock' => [],
-        'creator' => [],
         'output_channel' => [],
         'quotation' => [],
-        'content_location' => [],
-        'deleted_by' => []
+        'content_location' => []
       }
 
       assert_equal(e_hash.except(*excepted_attributes), r_dh.compact.except(*excepted_attributes))
-      assert_equal(current_user.id, r_dh.dig('last_updated_by').first.id)
+      assert_equal(current_user.id, ds_a.updated_by)
       assert_equal(0, e_a[:error].count)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(2, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(2, DataCycleCore::Search.count)
 
@@ -106,7 +101,7 @@ module DataCycleCore
 
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(4, DataCycleCore::ContentContent::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       DataCycleCore::CreativeWork::History.all.each do |item|

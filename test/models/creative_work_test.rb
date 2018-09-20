@@ -855,7 +855,6 @@ module DataCycleCore
         'description' => 'wtf is going on???',
         'tags' => [],
         'output_channel' => [],
-        'creator' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
     end
@@ -872,7 +871,6 @@ module DataCycleCore
         'headline' => 'Dies ist ein Test!',
         'tags' => [],
         'output_channel' => [],
-        'creator' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
@@ -894,7 +892,6 @@ module DataCycleCore
         },
         'tags' => [],
         'output_channel' => [],
-        'creator' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
     end
@@ -916,7 +913,6 @@ module DataCycleCore
         },
         'tags' => [],
         'output_channel' => [],
-        'creator' => []
       }
 
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
@@ -940,7 +936,6 @@ module DataCycleCore
         },
         'tags' => [],
         'output_channel' => [],
-        'creator' => []
       }
 
       test_data = {
@@ -1008,8 +1003,8 @@ module DataCycleCore
       }
 
       received_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash, received_hash.except('creator', *excepted_attributes))
-      assert_equal(1, received_hash['creator'].size)
+      assert_equal(expected_hash, received_hash.except(*excepted_attributes))
+      assert_equal(current_user.id, data_set.updated_by)
     end
     #TODO: move to specific test
     # test 'save Recherche and read back' do
@@ -1050,7 +1045,6 @@ module DataCycleCore
         'quotation' => [],
         'content_location' => [],
         'tags' => [],
-        'creator' => [],
         'textblock' => [],
         'output_channel' => []
       }
