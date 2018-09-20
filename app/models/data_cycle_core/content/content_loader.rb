@@ -3,6 +3,21 @@
 module DataCycleCore
   module Content
     module ContentLoader
+      def get_data_hash(timestamp = Time.zone.now)
+        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        as_of(timestamp).try(:to_h, timestamp)
+      end
+
+      def diff(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+      end
+
+      def diff?(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+      end
+
       def load_linked_objects(relation_name)
         target_name = properties_for(relation_name)&.dig('linked_table')
         target_class = "DataCycleCore::#{target_name.classify}"

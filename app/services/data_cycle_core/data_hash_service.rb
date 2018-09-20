@@ -4,7 +4,6 @@ module DataCycleCore
   class DataHashService
     # TODO: refactor: class => module
     extend NormalizeService
-    require 'hashdiff'
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
       datahash = flatten_recursive(datahash.to_h, template_hash)
@@ -12,10 +11,6 @@ module DataCycleCore
       raise datahash.inspect if debug == true
 
       datahash
-    end
-
-    def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
     # TODO: see old embedded-editor
@@ -53,12 +48,12 @@ module DataCycleCore
       template = get_internal_template(storage_location, template_name)
       object.schema = template.schema
       object.template_name = template.template_name
+      object.created_by = current_user.id
       object.save
 
       return nil if object_params[:datahash].nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-      datahash['creator'] = [current_user[:id]]
       datahash['headline_external'] = datahash['headline']
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]

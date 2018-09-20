@@ -998,8 +998,8 @@ module DataCycleCore
         email: "#{SecureRandom.base64(12)}@pixelpoint.at",
         password: 'password'
       )
-      uuid = DataCycleCore::User.first.id
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'creator' => [uuid] })
+      current_user = DataCycleCore::User.first
+      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!' }, current_user: current_user)
       data_set.save
       expected_hash = {
         'headline' => 'Dies ist ein Test!',

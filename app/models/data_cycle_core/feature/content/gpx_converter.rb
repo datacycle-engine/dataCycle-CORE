@@ -11,9 +11,9 @@ module DataCycleCore
                 xml.name title
                 xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
                 xml.time updated_at
-                if creator&.first&.name.present?
+                if created_by_user&.name.present?
                   xml.author do
-                    xml.name creator&.first&.name
+                    xml.name created_by_user&.name
                   end
                 end
               end

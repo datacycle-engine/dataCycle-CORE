@@ -43,7 +43,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(1, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Search.count)
 
@@ -110,11 +110,12 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       DataCycleCore::CreativeWork::History.all.each do |item|
-        assert_equal([current_user.id], item.last_updated_by.pluck(:id))
+        assert_equal(current_user.id, item.updated_by)
+        assert_equal(current_user.id, item.updated_by_user.id)
         assert_equal(true, item.date_modified.present?)
-        assert_equal([current_user.id], item.deleted_by.pluck(:id))
-        assert_equal(true, item.date_deleted.present?)
-        assert_equal(true, item.date_deleted >= item.date_modified)
+        assert_equal(current_user.id, item.deleted_by)
+        assert_equal(true, item.deleted_at.present?)
+        assert_equal(true, item.deleted_at >= item.date_modified)
       end
     end
   end
