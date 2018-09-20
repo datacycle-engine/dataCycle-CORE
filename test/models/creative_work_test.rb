@@ -12,7 +12,7 @@ module DataCycleCore
       assert_equal(data.class, DataCycleCore::CreativeWork)
     end
 
-    #TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
+    # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'embedded objects are deleted if parent is deleted' do
     #   template_cw = DataCycleCore::CreativeWork.count
     #   template_cwt = DataCycleCore::CreativeWork::Translation.count
@@ -94,7 +94,7 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::Place::History::Translation.count)
     # end
 
-    #TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
+    # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'save CreativeWork with embedded object contentLocation, then delete embedded object (last and only one)' do
     #   template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
     #   data_set = DataCycleCore::CreativeWork.new
@@ -203,7 +203,7 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::Place.where(template: false).count)
     # end
 
-    #TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
+    # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'save CreativeWork with embedded object contentLocation, create relation with only id given' do
     #   # insert a place
     #   template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
@@ -254,7 +254,7 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::Place.where(template: false).count)
     # end
 
-    #TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
+    # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'save CreativeWork without embedded object contentLocation, update CW and create relation with only id given' do
     #   # insert a place
     #   template = DataCycleCore::Place.find_by(template: true, template_name: 'contentLocation')
@@ -323,7 +323,7 @@ module DataCycleCore
     #   assert_equal(1, DataCycleCore::Place.where(template: false).count)
     # end
     #
-    #TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
+    # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'save CreativeWork with more than one embedded object contentLocation, delete multiple contentLocations at once' do
     #   template = DataCycleCore::CreativeWork.where(template: true, template_name: 'BildTest').first
     #   data_set = DataCycleCore::CreativeWork.new
@@ -854,7 +854,7 @@ module DataCycleCore
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'tags' => [],
-        'output_channel' => [],
+        'output_channel' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
     end
@@ -870,7 +870,7 @@ module DataCycleCore
       expected_hash = {
         'headline' => 'Dies ist ein Test!',
         'tags' => [],
-        'output_channel' => [],
+        'output_channel' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
@@ -891,7 +891,7 @@ module DataCycleCore
           'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
-        'output_channel' => [],
+        'output_channel' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
     end
@@ -912,7 +912,7 @@ module DataCycleCore
           'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
-        'output_channel' => [],
+        'output_channel' => []
       }
 
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
@@ -935,7 +935,7 @@ module DataCycleCore
           'valid_until' => '2017-06-01'.in_time_zone
         },
         'tags' => [],
-        'output_channel' => [],
+        'output_channel' => []
       }
 
       test_data = {
@@ -1006,7 +1006,7 @@ module DataCycleCore
       assert_equal(expected_hash, received_hash.except(*excepted_attributes))
       assert_equal(current_user.id, data_set.updated_by)
     end
-    #TODO: move to specific test
+    # TODO: move to specific test
     # test 'save Recherche and read back' do
     #   template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Recherche').first
     #   data_set = DataCycleCore::CreativeWork.new

@@ -56,7 +56,7 @@ module DataCycleCore
         'tags' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channel' => [],
-        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
+        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -130,7 +130,7 @@ module DataCycleCore
         'tags' => [],
         'headline' => 'Dies ist ein Test Quiz!',
         'output_channel' => [],
-        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
+        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
       error = data_set.set_data_hash(data_hash: data_hash)

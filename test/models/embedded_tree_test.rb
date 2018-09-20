@@ -262,7 +262,7 @@ module DataCycleCore
       data_set.save
       person_id = data_set.id
 
-      data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+      DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
         .where('classification_tree_labels.name = ?', 'Inhaltstypen')
         .where('classification_aliases.name = ?', 'Zitat').first.id
 

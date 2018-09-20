@@ -53,10 +53,9 @@ module DataCycleCore
         puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
       end
-      if errors.present?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
+      return if errors.blank?
+      puts 'the following errors were encountered during import:'
+      ap errors
     end
 
     def self.load_user_roles
