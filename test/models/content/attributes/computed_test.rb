@@ -8,7 +8,7 @@ module DataCycleCore
       class ComputedTest < ActiveSupport::TestCase
         test 'Testing Utility::Calculation::Math methods' do
           template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Calculation-Math').first
-
+          # test = DataCycleCore::TestPreparations.excepted_attributes
           data_set = DataCycleCore::CreativeWork.new
           data_set.schema = template.schema
           data_set.template_name = template.template_name

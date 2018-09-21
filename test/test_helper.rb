@@ -49,7 +49,7 @@ module DataCycleCore
         organization: [],
         place: [],
         person: []
-      }
+      }.freeze
     def self.load_classifications(paths)
       paths.map do |path|
         DataCycleCore::MasterData::ImportClassifications.import(path)
@@ -96,11 +96,10 @@ module DataCycleCore
       )
     end
 
-    def self.excepted_attributes(model= nil)
+    def self.excepted_attributes(model = nil)
       return EXCEPTED_ATTRIBUTES[:common] + EXCEPTED_ATTRIBUTES[model.to_sym] if model.present?
       EXCEPTED_ATTRIBUTES[:common]
     end
-
   end
 end
 
