@@ -38,14 +38,10 @@ DataCycleCore::Engine.routes.draw do
       get :gpx, on: :member
       post :validate, on: :member
       post :validate, on: :collection
-      patch :update_life_cycle_stage, on: :member
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
     end
   end
-
-  type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-  match '/:type/:id/*path', action: 'catch_all', constraints: { type: type_regexp }, via: :all
 
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do

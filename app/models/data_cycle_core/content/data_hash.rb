@@ -8,28 +8,33 @@ module DataCycleCore
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
 
-      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+      DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-        include module_name
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       include CreateHistory
       include UpdateSearch
 
       before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
+      before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
+      after_saved_data_hash :execute_webhooks, if: -> { self.class.name == 'DataCycleCore::CreativeWork' }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
         return {} if data_hash.blank?
         @data_hash = data_hash
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
+        @source = source
+        @new_content = new_content
         run_callbacks :save_data_hash
 
         schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if partial_update
 
         valid_hash = validate(@data_hash, schema_hash)
+
         if validate?(valid_hash) && diff?(@data_hash)
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) unless id.nil? || prevent_history
@@ -55,6 +60,17 @@ module DataCycleCore
         computed_property_names.each do |computed_property|
           @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
         end
+      end
+
+      def inherit_source_attributes
+        I18n.with_locale(@source.first_available_locale) do
+          source_data_hash = @source.get_data_hash
+          @data_hash = source_data_hash.slice(*DataCycleCore.inheritable_attributes).merge(@data_hash)
+        end
+      end
+
+      def execute_webhooks
+        Webhook::Update.execute_all(@content)
       end
 
       def get_inherit_datahash(parent)
