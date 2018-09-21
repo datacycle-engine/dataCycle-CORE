@@ -104,22 +104,22 @@ module DataCycleCore
   end
 end
 
-# DataCycleCore::TestPreparations.load_classifications(
-#   [
-#     Rails.root.join('..', 'data_types', 'classifications.yml')
-#   ]
-# )
-# DataCycleCore::TestPreparations.load_templates(
-#   [
-#     # Rails.root.join('..', 'data_types'),
-#     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-#     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-#     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-#     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-#     Rails.root.join('..', 'data_types', 'attributes'),
-#     Rails.root.join('..', 'data_types', 'custom')
-#   ]
-# )
+DataCycleCore::TestPreparations.load_classifications(
+  [
+    Rails.root.join('..', 'data_types', 'classifications.yml')
+  ]
+)
+DataCycleCore::TestPreparations.load_templates(
+  [
+    # Rails.root.join('..', 'data_types'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+    Rails.root.join('..', 'data_types', 'attributes'),
+    Rails.root.join('..', 'data_types', 'custom')
+  ]
+)
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group
