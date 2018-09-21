@@ -4,152 +4,297 @@ require 'test_helper'
 
 module DataCycleCore
   class LinkedTest < ActiveSupport::TestCase
-    test 'create article and add embeddedLinks' do
+    test 'create entity and add linked entity from same table' do
       cw_temp = DataCycleCore::CreativeWork.count
-      template_bild = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
 
-      image_objects = []
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-2').first
+
+      linked_objects = []
       (1..5).each do |number|
-        image = DataCycleCore::CreativeWork.new
-        image.schema = template_bild.schema
-        image.template_name = template_bild.template_name
-        image.save
-        image.set_data_hash(data_hash: { 'headline' => "Bild#{number}", 'description' => "Description Bild#{number}" }, prevent_history: true)
-        image.save
-        image_objects.push(image.id)
+        linked = DataCycleCore::CreativeWork.new
+        linked.schema = template_linked.schema
+        linked.template_name = template_linked.template_name
+        linked.save
+        linked.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
+        linked.save
+        linked_objects.push(linked.id)
       end
 
-      assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
-      assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Artikel').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Test article!',
-          'description' => 'Article test description!'
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
         },
         prevent_history: true
       )
       data_set.save
-      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Test article!',
-          'description' => 'Article test description!',
-          'image' => image_objects
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects
         }
       )
       data_set.save
-      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(5, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Test article!',
-          'description' => 'Article test description!',
-          'image' => [image_objects.first]
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => [linked_objects.first]
         }
       )
       data_set.save
-      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(5, DataCycleCore::ContentContent::History.count)
     end
 
-    test 'create article and add embeddedLinks, delete_all' do
+    test 'create entity and add linked entity from same table, delete main entity' do
       cw_temp = DataCycleCore::CreativeWork.count
 
-      template_bild = DataCycleCore::CreativeWork.where(template: true, template_name: 'Bild').first
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-2').first
 
-      image_objects = []
+      linked_objects = []
       (1..5).each do |number|
-        image = DataCycleCore::CreativeWork.new
-        image.schema = template_bild.schema
-        image.template_name = template_bild.template_name
-        image.save
-        image.set_data_hash(data_hash: { 'headline' => "Bild#{number}", 'description' => "Description Bild#{number}" }, prevent_history: true)
-        image.save
-        image_objects.push(image.id)
+        linked = DataCycleCore::CreativeWork.new
+        linked.schema = template_linked.schema
+        linked.template_name = template_linked.template_name
+        linked.save
+        linked.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
+        linked.save
+        linked_objects.push(linked.id)
       end
 
-      assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Artikel').first
       data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Test article!',
-          'description' => 'Article test description!'
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
         },
         prevent_history: true
       )
       data_set.save
-      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Test article!',
-          'description' => 'Article test description!',
-          'image' => image_objects
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects
         }
       )
       data_set.save
-      assert_equal(1 + image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(5, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set.destroy_content
 
-      assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(5, DataCycleCore::ContentContent::History.count)
 
       data_set.histories.each(&:destroy_content)
 
-      assert_equal(image_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
     end
 
-    test 'create creative_work and add 3 embeddedLinks, test change order' do
+    test 'create entity and add linked entity from same table, remove last 2 linked' do
       cw_temp = DataCycleCore::CreativeWork.count
 
-      main_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestEmbeddedArray')
-      linked_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestClassificationData')
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-2').first
+
+      linked_objects = []
+      (1..5).each do |number|
+        linked = DataCycleCore::CreativeWork.new
+        linked.schema = template_linked.schema
+        linked.template_name = template_linked.template_name
+        linked.save
+        linked.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
+        linked.save
+        linked_objects.push(linked.id)
+      end
+
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
+      data_set.save
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
+        },
+        prevent_history: true
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects
+        }
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(5, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects.first(3)
+        }
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(3, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History.count)
+      assert_equal(5, DataCycleCore::ContentContent::History.count)
+    end
+
+    test 'create entity and add linked entity from same table, save, add another 2 linked' do
+      cw_temp = DataCycleCore::CreativeWork.count
+
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-2').first
+
+      linked_objects = []
+      (1..5).each do |number|
+        linked = DataCycleCore::CreativeWork.new
+        linked.schema = template_linked.schema
+        linked.template_name = template_linked.template_name
+        linked.save
+        linked.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
+        linked.save
+        linked_objects.push(linked.id)
+      end
+
+      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
+      data_set.save
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
+        },
+        prevent_history: true
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(0, DataCycleCore::ContentContent.count)
+      assert_equal(0, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects
+        }
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(5, DataCycleCore::ContentContent.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::ContentContent::History.count)
+
+      linked_objects2 = []
+      (1..2).each do |number|
+        linked = DataCycleCore::CreativeWork.new
+        linked.schema = template_linked.schema
+        linked.template_name = template_linked.template_name
+        linked.save
+        linked.set_data_hash(data_hash: { 'headline' => "Linked#{number + 5}", 'description' => "Description Linked#{number + 5}" }, prevent_history: true)
+        linked.save
+        linked_objects2.push(linked.id)
+      end
+
+      data_set.set_data_hash(
+        data_hash: {
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects + linked_objects2
+        }
+      )
+      data_set.save
+      assert_equal(1 + linked_objects.size + linked_objects2.size, DataCycleCore::CreativeWork.count - cw_temp)
+      assert_equal(7, DataCycleCore::ContentContent.count)
+      assert_equal(2, DataCycleCore::CreativeWork::History.count)
+      assert_equal(5, DataCycleCore::ContentContent::History.count)
+    end
+
+    test 'create entity and add 3 linked entities, test change order' do
+      cw_temp = DataCycleCore::CreativeWork.count
+
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-2').first
 
       linked_objects = []
       (1..3).each do |number|
         linked_object = DataCycleCore::CreativeWork.new
-        linked_object.schema = linked_template.schema
-        linked_object.template_name = linked_template.template_name
+        linked_object.schema = template_linked.schema
+        linked_object.template_name = template_linked.template_name
         linked_object.save
-        linked_object.set_data_hash(data_hash: { 'headline' => "Eintrag: #{number}" }, prevent_history: true)
+        linked_object.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
         linked_object.save
         linked_objects.push(linked_object.id)
       end
@@ -160,12 +305,13 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = main_template.schema
-      data_set.template_name = main_template.template_name
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Main'
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
         },
         prevent_history: true
       )
@@ -177,17 +323,19 @@ module DataCycleCore
 
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Main',
-          'testArray' => linked_objects.dup
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => linked_objects.dup
         }
       )
       data_set.save
+
       assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      linked_data = data_set.testArray.map(&:id)
+      linked_data = data_set.linked_creative_work.map(&:id)
       linked_objects.each_index do |index|
         assert_equal(linked_objects[index], linked_data[index])
       end
@@ -195,8 +343,9 @@ module DataCycleCore
       # set data_links in reversed_order
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Main',
-          'testArray' => [
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_creative_work' => [
             linked_objects[2],
             linked_objects[1],
             linked_objects[0]
@@ -210,50 +359,51 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
 
-      linked_data = data_set.testArray.map(&:id)
+      linked_data = data_set.linked_creative_work.map(&:id)
       linked_objects.each_index do |index|
         assert_equal(linked_objects[-(index + 1)], linked_data[index])
       end
     end
 
-    test 'create place and add 3 embeddedLinks, test change order' do
+    test 'create entity and add linked entity from other table' do
       cw_temp = DataCycleCore::CreativeWork.count
       place_temp = DataCycleCore::Place.count
 
-      main_template = DataCycleCore::Place.find_by(template: true, template_name: 'testPlaceLink')
-      linked_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestClassificationData')
+      template_main = DataCycleCore::CreativeWork.where(template: true, template_name: 'Linked-Creative-Work-1').first
+      template_linked = DataCycleCore::Place.where(template: true, template_name: 'Linked-Place-1').first
 
       linked_objects = []
       (1..3).each do |number|
-        linked_object = DataCycleCore::CreativeWork.new
-        linked_object.schema = linked_template.schema
-        linked_object.template_name = linked_template.template_name
+        linked_object = DataCycleCore::Place.new
+        linked_object.schema = template_linked.schema
+        linked_object.template_name = template_linked.template_name
         linked_object.save
-        linked_object.set_data_hash(data_hash: { 'headline' => "Eintrag: #{number}" }, prevent_history: true)
+        linked_object.set_data_hash(data_hash: { 'headline' => "Linked#{number}", 'description' => "Description Linked#{number}" }, prevent_history: true)
         linked_object.save
         linked_objects.push(linked_object.id)
       end
 
-      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
-      assert_equal(0, DataCycleCore::Place.count - place_temp)
+      assert_equal(linked_objects.size, DataCycleCore::Place.count - place_temp)
+      assert_equal(0, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-      data_set = DataCycleCore::Place.new
-      data_set.schema = main_template.schema
-      data_set.template_name = main_template.template_name
+      data_set = DataCycleCore::CreativeWork.new
+      data_set.schema = template_main.schema
+      data_set.template_name = template_main.template_name
       data_set.save
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Main'
+          'headline' => 'Test headline!',
+          'description' => 'Test description!'
         },
         prevent_history: true
       )
       data_set.save
-      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
-      assert_equal(1, DataCycleCore::Place.count - place_temp)
+      assert_equal(linked_objects.size, DataCycleCore::Place.count - place_temp)
+      assert_equal(1, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::Place::History.count)
@@ -261,47 +411,18 @@ module DataCycleCore
 
       data_set.set_data_hash(
         data_hash: {
-          'headline' => 'Main',
-          'testArray' => linked_objects.dup
+          'headline' => 'Test headline!',
+          'description' => 'Test description!',
+          'linked_place' => linked_objects.dup
         }
       )
       data_set.save
-      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
-      assert_equal(1, DataCycleCore::Place.count - place_temp)
+      assert_equal(linked_objects.size, DataCycleCore::Place.count - place_temp)
+      assert_equal(1, DataCycleCore::CreativeWork.count - cw_temp)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(0, DataCycleCore::CreativeWork::History.count)
-      assert_equal(1, DataCycleCore::Place::History.count)
+      assert_equal(1, DataCycleCore::CreativeWork::History.count)
+      assert_equal(0, DataCycleCore::Place::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-
-      linked_data = data_set.testArray.map(&:id)
-      linked_objects.each_index do |index|
-        assert_equal(linked_objects[index], linked_data[index])
-      end
-
-      # set data_links in reversed_order
-      data_set.set_data_hash(
-        data_hash: {
-          'headline' => 'Main',
-          'testArray' => [
-            linked_objects[2],
-            linked_objects[1],
-            linked_objects[0]
-          ]
-        }
-      )
-      data_set.save
-
-      assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - cw_temp)
-      assert_equal(1, DataCycleCore::Place.count - place_temp)
-      assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(0, DataCycleCore::CreativeWork::History.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(3, DataCycleCore::ContentContent::History.count)
-
-      linked_data = data_set.testArray.map(&:id)
-      linked_objects.each_index do |index|
-        assert_equal(linked_objects[-(index + 1)], linked_data[index])
-      end
     end
   end
 end
