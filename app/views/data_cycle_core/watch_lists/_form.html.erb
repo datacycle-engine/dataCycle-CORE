@@ -44,6 +44,13 @@
                     <%= f.text_field :headline, data: { validate: 'text' } %>
 				</div>
 
+				<div class="form-element">
+					<div class="v-select">
+						<%= f.label :user_group_ids %>
+						<%= f.collection_select(:user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+					</div>
+				</div>
+
 			</div>
 		</div>
 	</div>
