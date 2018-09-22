@@ -261,6 +261,7 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        upsert_item.external_source_id = external_source_id
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         upsert_item
