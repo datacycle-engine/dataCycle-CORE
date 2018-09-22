@@ -316,6 +316,7 @@ de:
     attributes:
       data_cycle_core/watch_list:
         headline: Name
+        user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
       data_cycle_core/user_group:

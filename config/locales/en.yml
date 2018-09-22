@@ -102,6 +102,9 @@ en:
         address: Address
         longitude: Longitude
         latitude: Latitude
+      data_cycle_core/watch_list:
+        headline: Name
+        user_group_ids: Usergroups
 
   date:
     formats:
