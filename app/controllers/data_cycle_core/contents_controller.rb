@@ -85,7 +85,6 @@ module DataCycleCore
 
         respond_to do |format|
           if @content.present?
-            execute_after_create_webhooks @content
             format.html do
               redirect_to edit_polymorphic_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
             end
@@ -150,8 +149,6 @@ module DataCycleCore
 
         redirect_to(edit_polymorphic_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
 
-        execute_after_update_webhooks @content
-
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
         if Rails.env.development?
@@ -165,8 +162,6 @@ module DataCycleCore
     def destroy
       @content = data_cycle_object(controller_name).find(params[:id])
       @content.destroy_content(current_user: current_user)
-
-      execute_after_destroy_webhooks @content
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
@@ -339,15 +334,6 @@ module DataCycleCore
     end
 
     private
-
-    def execute_after_update_webhooks(data)
-    end
-
-    def execute_after_create_webhooks(data)
-    end
-
-    def execute_after_destroy_webhooks(data)
-    end
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
