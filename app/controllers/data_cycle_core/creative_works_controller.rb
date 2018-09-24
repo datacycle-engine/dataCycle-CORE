@@ -131,7 +131,7 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema, false)
 
-        @content.finalize = params[:finalize]
+        @content.finalize = params[:finalize] if @content.respond_to?(:finalize) && params[:finalize].present?
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
