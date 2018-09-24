@@ -81,8 +81,6 @@ module DataCycleCore
 
         redirect_back(fallback_location: root_path) && return if @content.nil?
 
-        # after_create(@content, current_user)
-
         respond_to do |format|
           if @content.present?
             format.html do
