@@ -2,6 +2,7 @@
 
 module DataCycleCore
   class ContentsController < ApplicationController
+    include DataCycleCore::Filter
     DataCycleCore.features.each_key do |key|
       module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
       include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?

@@ -5,8 +5,10 @@ module DataCycleCore
     module ControllerFunctions
       module LifeCycle
         DataCycleCore::Engine.routes.append do
-          type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-          patch '/:type/:id/update_life_cycle_stage', action: :update_life_cycle_stage, controller: :contents, constraints: { type: type_regexp }, as: 'update_life_cycle_stage'
+          unless has_named_route?(:update_life_cycle_stage)
+            type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
+            patch '/:type/:id/update_life_cycle_stage', action: :update_life_cycle_stage, controller: :contents, constraints: { type: type_regexp }, as: 'update_life_cycle_stage'
+          end
         end
 
         def update_life_cycle_stage

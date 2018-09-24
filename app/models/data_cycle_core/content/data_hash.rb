@@ -70,7 +70,7 @@ module DataCycleCore
       end
 
       def execute_webhooks
-        Webhook::Update.execute_all(@content)
+        Webhook::Update.execute_all(self)
       end
 
       def get_inherit_datahash(parent)
