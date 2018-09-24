@@ -6,8 +6,6 @@ module DataCycleCore
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
 
-    after_action :notify_subscribers, only: :update
-
     def index
       redirect_back(fallback_location: root_path)
     end
@@ -101,24 +99,7 @@ module DataCycleCore
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
 
-        # datahash = before_set_data_hash(datahash)
-
-        # data_hash_has_changes = DataCycleCore::DataHashService.data_hash_is_dirty?(
-        #   datahash.merge({ 'id' => @content.id }),
-        #   @content.get_data_hash
-        # )
-
-        # unless data_hash_has_changes
-        #   flash[:info] = I18n.t :not_modified, scope: [:controllers, :info], data: @content.template_name, locale: DataCycleCore.ui_language
-        #   if (Rails.env.development? || params[:splitview]) && !params[:finalize]
-        #     redirect_back(fallback_location: root_path)
-        #   else
-        #     redirect_to polymorphic_path(@content, watch_list_id: @watch_list)
-        #   end
-        #   return
-        # end
-
-        valid = @content.set_data_hash(data_hash: datahash.merge(release_params), current_user: current_user)
+        valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
         redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
 
@@ -136,8 +117,7 @@ module DataCycleCore
 
     def destroy
       @content = data_cycle_object(controller_name).find(params[:id])
-      @content.destroy_content
-      @content.destroy
+      @content.destroy_content(current_user: current_user)
 
       execute_after_destroy_webhooks @content
 
@@ -189,7 +169,7 @@ module DataCycleCore
 
     def update_life_cycle_stage
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
-      authorize! :edit, @object
+      authorize! :set_life_cycle, @object, life_cycle_params
 
       # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
       if DataCycleCore::Feature::IdeaCollection.enabled? &&
@@ -202,7 +182,9 @@ module DataCycleCore
         idea_collection.save
       end
 
-      @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+      valid = @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
+
+      redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
@@ -303,10 +285,6 @@ module DataCycleCore
       params.permit(:path)
     end
 
-    def release_params
-      params.require(controller_name.singularize.to_sym).permit(release: [:release_id, :release_comment])
-    end
-
     def asset_params
       params.permit(:file)
     end
@@ -329,12 +307,6 @@ module DataCycleCore
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_type)
       elsif params[:source_id] && params[:source_type]
         params.permit(:source_id, :source_type)
-      end
-    end
-
-    def notify_subscribers
-      @content.subscriptions.except_user(current_user).to_notify.presence&.each do |subscription|
-        DataCycleCore::SubscriptionMailer.notify(subscription.user, [@content]).deliver_later
       end
     end
   end

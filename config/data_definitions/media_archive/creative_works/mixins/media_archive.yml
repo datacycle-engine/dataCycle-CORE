@@ -7,24 +7,30 @@
         :label: Copyright Nennung verpflichtend
         :type: boolean
         :storage_location: value
+        :external: true
       :comment:
         :label: Kommentar
         :type: string
         :storage_location: translated_value
         :search: true
+        :external: true
       :source:
         :label: Erhalten von
         :type: string
         :storage_location: value
+        :external: true
       :image_id:
         :label: Bildnummer
         :type: string
         :storage_location: value
+        :external: true
       :visibility:
         :label: Sichtbarkeit
         :type: string
         :storage_location: value
+        :external: true
       :restrictions:
         :label: Einschränkungen
         :type: string
         :storage_location: value
+        :external: true

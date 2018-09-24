@@ -46,7 +46,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -65,7 +64,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -75,7 +73,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -125,7 +123,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -144,7 +141,6 @@ module DataCycleCore
           'image' => [],
           'author' => [person_id],
           'creator' => [],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -154,7 +150,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -172,7 +168,7 @@ module DataCycleCore
       expected_hash['quotation'] = []
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -219,7 +215,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
 
       expected_hash = {
         'kind' => [],
@@ -244,8 +239,7 @@ module DataCycleCore
             'job_title' => nil,
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
-          }],
-          'is_part_of' => parent_id
+          }]
         }, {
           'text' => 'Men occasionally stumble over the truth, but most of them pick themselves up and hurry off as if nothing ever happened.',
           'image' => nil,
@@ -254,13 +248,12 @@ module DataCycleCore
             'job_title' => nil,
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
-          }],
-          'is_part_of' => parent_id
+          }]
         }]
       }
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash.except('quotation', 'data_type'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['quotation'].count, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB
@@ -275,7 +268,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash['quotation'] = []
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
@@ -319,7 +312,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       data_set.save
       returned_data_hash = data_set.get_data_hash
-      parent_id = data_set.id
       quotation_id = returned_data_hash['quotation'][0]['id']
 
       expected_hash = {
@@ -344,7 +336,6 @@ module DataCycleCore
             'given_name' => 'Winston',
             'family_name' => 'Churchill'
           }],
-          'is_part_of' => parent_id,
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -354,7 +345,7 @@ module DataCycleCore
         'permitted_creator' => []
       }
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('id', 'data_type', 'data_pool', 'quotation', 'last_updated_by', 'deleted_by'))
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('id', 'author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
@@ -375,7 +366,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool'))
+      assert_equal(expected_hash.except('quotation'), returned_data_hash.compact.except('quotation', 'id', 'data_type', 'data_pool', 'last_updated_by', 'deleted_by'))
       assert_equal(2, returned_data_hash['quotation'].count)
 
       # check consistency of data in DB

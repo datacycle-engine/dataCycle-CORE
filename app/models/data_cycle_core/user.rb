@@ -28,8 +28,8 @@ module DataCycleCore
       name || "#{given_name} #{family_name}"
     end
 
-    def admin?
-      admin
+    def default_filter(filters = [])
+      filters
     end
 
     def has_rank?(rank)

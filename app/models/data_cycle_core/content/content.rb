@@ -41,7 +41,7 @@ module DataCycleCore
         end
       end
 
-      def respond_to?(method_name)
+      def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
@@ -54,9 +54,7 @@ module DataCycleCore
       end
 
       def property_definitions
-        schema['properties']
-      rescue StandardError
-        {}
+        schema&.dig('properties') || {}
       end
 
       def property_names
@@ -106,6 +104,12 @@ module DataCycleCore
       def included_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object'
+        }.keys
+      end
+
+      def computed_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'computed'
         }.keys
       end
 
@@ -169,6 +173,8 @@ module DataCycleCore
               embedded_array.blank? ? [] : embedded_array.compact
             elsif asset_property_names.include?(property_name)
               send(property_name)
+            elsif computed_property_names.include?(property_name)
+              send(property_name)
             else
               raise StandardError, "cannot determine how to serialize #{property_name}"
             end
@@ -220,8 +226,6 @@ module DataCycleCore
         features.flatten.uniq.compact
       end
 
-      # private
-
       def get_property_value(property_name, property_definition)
         if plain_property_names.include?(property_name)
           load_json_attribute(property_name, property_definition)
@@ -235,6 +239,8 @@ module DataCycleCore
           load_embedded_objects(property_name)
         elsif asset_property_names.include?(property_name)
           load_asset_relation(property_name)
+        elsif computed_property_names.include?(property_name)
+          load_computed_attribute(property_name, property_definition)
         else
           raise NotImplementedError
         end
@@ -243,6 +249,13 @@ module DataCycleCore
       def load_json_attribute(property_name, property_definition)
         convert_to_type(
           property_definition['type'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
+        )
+      end
+
+      def load_computed_attribute(property_name, property_definition)
+        convert_to_type(
+          property_definition.dig('compute', 'type'),
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end

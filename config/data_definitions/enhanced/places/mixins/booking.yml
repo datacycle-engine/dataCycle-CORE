@@ -7,6 +7,7 @@
         :label: Booking.com - HotelTypes
         :type: classification
         :tree_label: Booking.com - HotelTypes
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -14,6 +15,7 @@
         :label: Booking.com - HotelFacilityTypes
         :type: classification
         :tree_label: Booking.com - HotelFacilityTypes
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -21,5 +23,6 @@
         :label: Booking.com - Buchungs URL
         :storage_location: value
         :type: string
+        :external: true
         :validations:
           :format: url

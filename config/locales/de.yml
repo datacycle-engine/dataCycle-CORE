@@ -35,6 +35,7 @@ de:
     'nl-BE': "flämisch"
 
   roles:
+    super_admin: Administrator (DataCycle)
     admin: Administrator
     user: Benutzer
     guest: Gast
@@ -315,6 +316,7 @@ de:
     attributes:
       data_cycle_core/watch_list:
         headline: Name
+        user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
       data_cycle_core/user_group:

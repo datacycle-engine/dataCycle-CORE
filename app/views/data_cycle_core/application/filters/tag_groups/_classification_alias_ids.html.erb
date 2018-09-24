@@ -4,7 +4,7 @@
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </i>
 
-  <% @selected_classification_aliases ||= DataCycleCore::ClassificationAlias
+  <% classification_aliases ||= DataCycleCore::ClassificationAlias
     .where(id: value)
     .map { |c| [c.id, c] }.to_h %>
 
@@ -12,14 +12,14 @@
     <% if buttons == 'd' %>
         <% value.each do |ca_id| %>
           <label for="<%= ca_id %>">
-            <a class="tag">
-              <%= @selected_classification_aliases[ca_id].try(:name) %><i class="fa fa-times" aria-hidden="true"></i>
+            <a class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>">
+              <%= classification_aliases[ca_id].try(:name) %><i class="fa fa-times" aria-hidden="true"></i>
             </a>
           </label>
         <% end %>
     <% else %>
         <% value.each do |ca_id| %>
-          <span class="tag"><%= @selected_classification_aliases[ca_id].try(:name) %></span>
+          <span class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>"><%= classification_aliases[ca_id].try(:name) %></span>
         <% end %>
     <% end %>
   </span>

@@ -61,9 +61,7 @@ module DataCycleCore
 
     def update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-
-      update_params = { headline: watch_list_params[:headline] }
-      @watch_list.update_attributes(update_params)
+      @watch_list.update(watch_list_params)
 
       if @watch_list.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language
@@ -121,7 +119,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:headline)
+      params.require(:watch_list).permit(:headline, user_group_ids: [])
     end
 
     def hashable_params

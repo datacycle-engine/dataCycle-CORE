@@ -853,7 +853,7 @@ module DataCycleCore
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'last_updated_by', 'deleted_by'))
     end
 
     test 'save CreativeWork with only Titel' do
@@ -874,7 +874,7 @@ module DataCycleCore
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
@@ -900,7 +900,7 @@ module DataCycleCore
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
     end
 
     test 'save CreativeWork with sub-properties_tree' do
@@ -926,10 +926,10 @@ module DataCycleCore
         'kind' => []
       }
 
-      assert_equal(expected_hash, data_set.get_data_hash.except('id', 'data_pool', 'permitted_creator').compact)
+      assert_equal(expected_hash, data_set.get_data_hash.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by').compact)
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
     end
 
     test 'save CreativeWork, Data properly written to metadata' do
@@ -963,7 +963,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: test_data)
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
       expected_data_hash = {
         'validity_period' => {
           'valid_from' => '2017-05-01'.in_time_zone('UTC'),
@@ -1007,7 +1007,6 @@ module DataCycleCore
         given_name: 'Test',
         family_name: 'TEST',
         email: "#{SecureRandom.base64(12)}@pixelpoint.at",
-        admin: true,
         password: 'password'
       )
       uuid = DataCycleCore::User.first.id
@@ -1024,7 +1023,7 @@ module DataCycleCore
       }
 
       received_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash, received_hash.except('id', 'data_pool', 'permitted_creator', 'creator'))
+      assert_equal(expected_hash, received_hash.except('id', 'data_pool', 'permitted_creator', 'creator', 'deleted_by', 'last_updated_by'))
       assert_equal(1, received_hash['creator'].size)
     end
 
@@ -1047,6 +1046,53 @@ module DataCycleCore
       }
       assert_equal(expected_hash.except('image'), data_set.get_data_hash.compact.except('id', 'data_pool', 'video', 'image'))
       assert_equal(expected_hash['image'].sort, data_set.get_data_hash['image'].pluck(:id).sort)
+    end
+
+    test 'partially update datahash' do
+      content_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
+      content = DataCycleCore::CreativeWork.new
+      content.schema = content_template.schema
+      content.template_name = content_template.template_name
+      content.save
+
+      DataCycleCore::CreativeWork.create!(headline: 'Test3')
+      uuid = DataCycleCore::CreativeWork.where(headline: 'Test3').first.id
+
+      expected_hash = {
+        'headline' => 'Dies ist ein Test!',
+        'description' => 'wtf is going on???',
+        'image' => [uuid],
+        'state' => [],
+        'topics' => [],
+        'creator' => [],
+        'markets' => [],
+        'quotation' => [],
+        'output_channels' => [],
+        'content_location' => [],
+        'permitted_creator' => [],
+        'season' => [],
+        'tags' => [],
+        'kind' => []
+      }
+
+      content.set_data_hash(
+        data_hash: {
+          'headline' => 'Dies ist ein Test!',
+          'description' => 'wtf is going on???',
+          'image' => [uuid]
+        },
+        prevent_history: true
+      )
+
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
+
+      expected_hash['description'] = 'only change description'
+
+      content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
+
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
     end
   end
 end

@@ -2,16 +2,15 @@
 
 module DataCycleCore
   module Abilities
-    class Rank10Ability
+    class Rank10
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
       include CanCan::Ability
 
       def initialize(user, _session = {})
-        can [:read, :create, :update, :destroy], [DataCycleCore::DataLink, DataCycleCore::UserGroup]
+        can [:read, :create, :update, :destroy], DataCycleCore::UserGroup
         can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
         can [:create, :update], DataCycleCore::TextFile, creator_id: user.id
 
-        can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
         can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
 
         # User Administraion
@@ -22,9 +21,6 @@ module DataCycleCore
         # Contents
         can [:set_life_cycle, :move_content], CONTENT_MODELS
 
-        can [:read, :create, :import, :update], CONTENT_MODELS do |content|
-          content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content)
-        end
         can :destroy, CONTENT_MODELS do |content|
           content.try(:external_key).blank?
         end

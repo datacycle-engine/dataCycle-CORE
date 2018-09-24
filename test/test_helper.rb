@@ -49,7 +49,6 @@ module DataCycleCore
 
     def self.load_templates(paths)
       import_hash, _duplicates = DataCycleCore::MasterData::ImportTemplates.check_for_duplicates(paths)
-
       errors = DataCycleCore::MasterData::ImportTemplates.import_all_templates(template_hash: import_hash, validation: true)
 
       return if errors.values.reduce(&:merge).blank?
@@ -58,78 +57,24 @@ module DataCycleCore
       ap errors
     end
 
-    def self.load_release_statuses
-      return unless DataCycleCore::Release.count.zero?
-
-      DataCycleCore::Release.create!(
-        release_code: 0,
-        release_text: 'freigegeben'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 1,
-        release_text: 'beim Partner'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 2,
-        release_text: 'in Bearbeitung'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 3,
-        release_text: 'in Review'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 4,
-        release_text: 'Draft'
-      )
-      DataCycleCore::Release.create!(
-        release_code: 10,
-        release_text: 'gesperrt'
-      )
-    end
-
     def self.load_user_roles
-      return unless DataCycleCore::Role.count.zero?
-
-      DataCycleCore::Role.create!(
-        rank: 0,
-        name: 'guest'
-      )
-      DataCycleCore::Role.create!(
-        rank: 1,
-        name: 'external_partner'
-      )
-      DataCycleCore::Role.create!(
-        rank: 2,
-        name: 'standard'
-      )
-      DataCycleCore::Role.create!(
-        rank: 3,
-        name: 'editor_market_office'
-      )
-      DataCycleCore::Role.create!(
-        rank: 4,
-        name: 'basic_editor'
-      )
-      DataCycleCore::Role.create!(
-        rank: 5,
-        name: 'super_editor'
-      )
-      DataCycleCore::Role.create!(
-        rank: 10,
-        name: 'admin'
-      )
+      DataCycleCore::Role.where(rank: 0).first_or_create({ name: 'guest' })
+      DataCycleCore::Role.where(rank: 1).first_or_create({ name: 'external_partner' })
+      DataCycleCore::Role.where(rank: 2).first_or_create({ name: 'standard' })
+      DataCycleCore::Role.where(rank: 3).first_or_create({ name: 'editor_market_office' })
+      DataCycleCore::Role.where(rank: 4).first_or_create({ name: 'basic_editor' })
+      DataCycleCore::Role.where(rank: 5).first_or_create({ name: 'super_editor' })
+      DataCycleCore::Role.where(rank: 10).first_or_create({ name: 'admin' })
+      DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
     end
 
     def self.create_user
-      return if DataCycleCore::User.find_by(given_name: 'Ad', family_name: 'Ministrator', email: 'admin@datacycle.at').present?
-      DataCycleCore::User.create!(
-        given_name:   'Ad',
-        family_name:  'Ministrator',
-        email:        'admin@datacycle.at',
-        admin:        true,
-        password:     '3amMQf74vp7Zpfdi',
-        role_id:      DataCycleCore::Role.find_by(rank: 10)&.id
-      )
+      DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
+        given_name: 'Administrator',
+        external: false,
+        password: '3amMQf74vp7Zpfdi',
+        role_id: DataCycleCore::Role.order('rank DESC').first.id
+      })
     end
 
     def self.create_user_group
@@ -151,10 +96,10 @@ DataCycleCore::TestPreparations.load_classifications(
 DataCycleCore::TestPreparations.load_templates(
   [
     Rails.root.join('..', 'data_types'),
+    Rails.root.join('..', 'data_types', 'attributes'),
     Rails.root.join('..', 'data_types', 'custom')
   ]
 )
-DataCycleCore::TestPreparations.load_release_statuses
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group

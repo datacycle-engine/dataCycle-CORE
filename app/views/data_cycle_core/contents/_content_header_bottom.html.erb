@@ -38,5 +38,3 @@
 </div>
 
 <%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) %>
-
-<%#= render 'life_cycle_buttons', local_assigns if DataCycleCore::Feature::LifeCycle.allowed?(content) %>
