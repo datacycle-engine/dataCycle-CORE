@@ -103,6 +103,12 @@ module DataCycleCore
         }.keys
       end
 
+      def universal_property_names
+        property_definitions.select { |_, definition|
+          definition['universal'] == true
+        }.keys
+      end
+
       def included_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object'
