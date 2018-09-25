@@ -9,7 +9,7 @@ module DataCycleCore
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-        prepend module_name
+        prepend module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       include CreateHistory
       include UpdateSearch

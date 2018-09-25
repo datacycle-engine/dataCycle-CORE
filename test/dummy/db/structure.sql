@@ -1175,8 +1175,8 @@ CREATE TABLE users (
 -- Name: watch_list_user_groups; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.watch_list_user_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+CREATE TABLE watch_list_user_groups (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
     user_group_id uuid,
     watch_list_id uuid,
     seen_at timestamp without time zone,
@@ -1260,6 +1260,14 @@ ALTER TABLE ONLY place_history_translations ALTER COLUMN id SET DEFAULT nextval(
 --
 
 ALTER TABLE ONLY place_translations ALTER COLUMN id SET DEFAULT nextval('place_translations_id_seq'::regclass);
+
+
+--
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -1618,7 +1626,7 @@ ALTER TABLE ONLY watch_list_data_hashes
 -- Name: watch_list_user_groups watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.watch_list_user_groups
+ALTER TABLE ONLY watch_list_user_groups
     ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
 
 
@@ -2425,14 +2433,14 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON watch_list_data_ha
 -- Name: index_watch_list_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_watch_list_user_groups_on_user_group_id ON public.watch_list_user_groups USING btree (user_group_id);
+CREATE INDEX index_watch_list_user_groups_on_user_group_id ON watch_list_user_groups USING btree (user_group_id);
 
 
 --
 -- Name: index_watch_list_user_groups_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_watch_list_user_groups_on_watch_list_id ON public.watch_list_user_groups USING btree (watch_list_id);
+CREATE INDEX index_watch_list_user_groups_on_watch_list_id ON watch_list_user_groups USING btree (watch_list_id);
 
 
 --
@@ -2730,6 +2738,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180917085622'),
 ('20180917103214'),
 ('20180918085636'),
-('20180918135618');
+('20180918135618'),
+('20180921083454');
 
 
