@@ -5,14 +5,13 @@ require 'test_helper'
 module DataCycleCore
   class OrganizationTest < ActiveSupport::TestCase
     test 'create an organization and read all attributes' do
-      template = DataCycleCore::Organization.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Organization.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
       test_data = {
-        'name' => 'Name',
-        'legal_name' => 'Firmenname',
+        'name' => 'Firmenname',
         'telephone' => '+ 43 123 456',
         'fax_number' => '+ 43 654 321',
         'email' => 'test@test.com',
@@ -28,8 +27,7 @@ module DataCycleCore
       data_set.save
 
       organization = data_set
-      assert_equal('Name', organization.name)
-      assert_equal('Firmenname', organization.legal_name)
+      assert_equal('Firmenname', organization.name)
       assert_equal('+ 43 123 456', organization.telephone)
       assert_equal('+ 43 654 321', organization.fax_number)
       assert_equal('test@test.com', organization.email)
@@ -41,14 +39,13 @@ module DataCycleCore
     end
 
     test 'expect an exception when template includes wrong data-type' do
-      template = DataCycleCore::Organization.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Organization.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema.merge('properties' => { 'test' => { 'label' => 'test', 'type' => 'test' } })
       data_set.template_name = template.template_name
       data_set.save
       test_data = {
-        'name' => 'Name',
-        'legal_name' => 'Firmenname',
+        'name' => 'Firmenname',
         'telephone' => '+ 43 123 456',
         'fax_number' => '+ 43 654 321',
         'email' => 'test@test.com',
