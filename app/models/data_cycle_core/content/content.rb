@@ -16,9 +16,9 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+      DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-        include module_name
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::MasterData::DataConverter

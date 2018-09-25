@@ -2,7 +2,9 @@
 
 module DataCycleCore
   module Feature
-    class GpxConverter < Base
+    module ControllerFunctions
+      module AdvancedFilter
+      end
     end
   end
 end
