@@ -55,6 +55,8 @@ module DataCycleCore
 
       def property_definitions
         schema&.dig('properties') || {}
+      rescue StandardError
+        {}
       end
 
       def property_names
@@ -98,6 +100,12 @@ module DataCycleCore
       def embedded_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'embedded'
+        }.keys
+      end
+
+      def global_property_names
+        property_definitions.select { |_, definition|
+          definition['global'] == true
         }.keys
       end
 

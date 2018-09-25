@@ -4,13 +4,12 @@ module DataCycleCore
   module Content
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
-      attr_accessor :finalize
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+        prepend module_name
       end
       include CreateHistory
       include UpdateSearch
@@ -102,7 +101,6 @@ module DataCycleCore
       private
 
       def notify_subscribers
-        return if @current_user.blank?
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
         end
@@ -277,6 +275,7 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        upsert_item.external_source_id = external_source_id
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         upsert_item
