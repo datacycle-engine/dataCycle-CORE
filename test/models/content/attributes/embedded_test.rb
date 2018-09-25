@@ -10,9 +10,7 @@ module DataCycleCore
     end
 
     test 'insert embedded within same table (embedded includes linked from other table)' do
-
       template_embedded_entity = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Entity-Creative-Work-1')
-      template_embedded = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Creative-Work-2')
       template_linked_entity = DataCycleCore::Place.find_by(template: true, template_name: 'Linked-Place-1')
 
       # create linked entity
@@ -20,7 +18,7 @@ module DataCycleCore
       linked.schema = template_linked_entity.schema
       linked.template_name = template_linked_entity.template_name
       linked.save
-      linked.set_data_hash(data_hash: { 'headline' => "Linked Entity", 'description' => "Description Linked Entity" }, prevent_history: true)
+      linked.set_data_hash(data_hash: { 'headline' => 'Linked Entity', 'description' => 'Description Linked Entity' }, prevent_history: true)
       linked.save
       linked_id = linked.id
 
@@ -71,7 +69,6 @@ module DataCycleCore
       # author within quotation is linked --> only link should be deleted
 
       template_embedded_entity = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Entity-Creative-Work-1')
-      template_embedded = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Creative-Work-2')
       template_linked_entity = DataCycleCore::Place.find_by(template: true, template_name: 'Linked-Place-1')
 
       # create linked entity
@@ -79,7 +76,7 @@ module DataCycleCore
       linked.schema = template_linked_entity.schema
       linked.template_name = template_linked_entity.template_name
       linked.save
-      linked.set_data_hash(data_hash: { 'headline' => "Linked Entity", 'description' => "Description Linked Entity" }, prevent_history: true)
+      linked.set_data_hash(data_hash: { 'headline' => 'Linked Entity', 'description' => 'Description Linked Entity' }, prevent_history: true)
       linked.save
       linked_id = linked.id
 
@@ -145,7 +142,6 @@ module DataCycleCore
       # author within quotation is linked --> only link should be deleted
 
       template_embedded_entity = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Entity-Creative-Work-1')
-      template_embedded = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Creative-Work-2')
       template_linked_entity = DataCycleCore::Place.find_by(template: true, template_name: 'Linked-Place-1')
 
       # create linked entity
@@ -153,7 +149,7 @@ module DataCycleCore
       linked.schema = template_linked_entity.schema
       linked.template_name = template_linked_entity.template_name
       linked.save
-      linked.set_data_hash(data_hash: { 'headline' => "Linked Entity", 'description' => "Description Linked Entity" }, prevent_history: true)
+      linked.set_data_hash(data_hash: { 'headline' => 'Linked Entity', 'description' => 'Description Linked Entity' }, prevent_history: true)
       linked.save
       linked_id = linked.id
 
@@ -228,9 +224,7 @@ module DataCycleCore
     end
 
     test 'insert embeddedObject within same table then add another quotation' do
-
       template_embedded_entity = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Entity-Creative-Work-1')
-      template_embedded = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Embedded-Creative-Work-2')
       template_linked_entity = DataCycleCore::Place.find_by(template: true, template_name: 'Linked-Place-1')
 
       # create linked entity
@@ -238,7 +232,7 @@ module DataCycleCore
       linked.schema = template_linked_entity.schema
       linked.template_name = template_linked_entity.template_name
       linked.save
-      linked.set_data_hash(data_hash: { 'headline' => "Linked Entity", 'description' => "Description Linked Entity" }, prevent_history: true)
+      linked.set_data_hash(data_hash: { 'headline' => 'Linked Entity', 'description' => 'Description Linked Entity' }, prevent_history: true)
       linked.save
       linked_id = linked.id
 
