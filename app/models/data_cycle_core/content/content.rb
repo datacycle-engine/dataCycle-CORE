@@ -103,9 +103,9 @@ module DataCycleCore
         }.keys
       end
 
-      def universal_property_names
+      def global_property_names
         property_definitions.select { |_, definition|
-          definition['universal'] == true
+          definition['global'] == true
         }.keys
       end
 

@@ -25,7 +25,7 @@ module DataCycleCore
                 DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
                 DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
               ) ||
-              attribute.definition.dig('universal')
+              attribute.definition.dig('global')
             )
           end
         end

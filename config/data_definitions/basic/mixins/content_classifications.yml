@@ -7,7 +7,7 @@
         :label: Tags
         :type: classification
         :tree_label: Tags
-        :universal: true
+        :global: true
         :ui:
           :show:
             :content_area: header
@@ -15,7 +15,7 @@
         :label: Ausgabekanal
         :type: classification
         :tree_label: Ausgabekanäle
-        :universal: true
+        :global: true
         :ui:
           :show:
             :content_area: header
