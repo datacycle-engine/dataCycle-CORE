@@ -1,6 +1,6 @@
 de:
   title: dataCycle
-  hello: "Servas!"
+  hello: "Guten Tag!"
   order:
     header: "Sortierung"
     title: "Titel"
@@ -101,6 +101,20 @@ de:
     width: Breite
     children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
     creator: Ersteller
+    abo_changed_title:
+      one: Ein abonnierter Inhalt wurde geändert
+      other: Abonnierte Inhalte wurden geändert
+    abo_finalized_title:
+      one: Bearbeitung eines abonnierten Inhalts abgeschlossen
+      other: Bearbeitung von abonnierten Inhalten abgeschlossen
+    abo_changed:
+      one:
+        'Ein abonnierter Inhalt hat sich geändert.'
+      other:
+        'Folgende abonnierte Inhalte haben sich geändert:'
+    abo_finalized:
+      one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
+      other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
 
   history:
     latest_edits: Letzte Bearbeitungen
