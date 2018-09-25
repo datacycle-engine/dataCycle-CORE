@@ -55,6 +55,8 @@ module DataCycleCore
 
       def property_definitions
         schema&.dig('properties') || {}
+      rescue StandardError
+        {}
       end
 
       def property_names
