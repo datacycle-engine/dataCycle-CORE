@@ -30,6 +30,9 @@
         .watchlist-headline {
           width: 100%;
           display: block;
+          i.fa{
+            font-size: 1rem;
+          }
         }
         .check,
         .change-link {
@@ -125,5 +128,17 @@
         line-height: 1.2rem;
       }
     }
+  }
+}
+
+.watchlist-headline{
+  .fa{
+    font-size: 1rem;
+  }
+}
+
+.description.watchlist{
+  .fa{
+    margin-right: 0.5rem;
   }
 }

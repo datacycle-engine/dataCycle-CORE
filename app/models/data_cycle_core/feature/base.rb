@@ -43,10 +43,6 @@ module DataCycleCore
           (key.scan(/\[(.*?)\]/).flatten & template_keys).any?
         end
 
-        def controller_functions
-          []
-        end
-
         def configuration(content = nil)
           config = {}
           config = config.merge(DataCycleCore.features.dig(name.demodulize.underscore.to_sym) || {})

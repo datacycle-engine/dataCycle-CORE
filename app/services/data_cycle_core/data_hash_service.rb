@@ -42,13 +42,14 @@ module DataCycleCore
       datahash
     end
 
-    def self.create_internal_object(storage_location, template_name, object_params, current_user)
+    def self.create_internal_object(storage_location, template_name, object_params, current_user, is_part_of = nil, source = nil)
       object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
 
       template = get_internal_template(storage_location, template_name)
       object.schema = template.schema
       object.template_name = template.template_name
       object.created_by = current_user.id
+      object.is_part_of = is_part_of if is_part_of.present?
       object.save
 
       return nil if object_params[:datahash].nil?
@@ -58,7 +59,7 @@ module DataCycleCore
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
-      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
+      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
 
       return nil if valid[:error].present?
       object
