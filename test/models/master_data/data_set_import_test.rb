@@ -39,7 +39,8 @@ describe DataCycleCore::MasterData::ImportTemplates do
         events: [],
         persons: [],
         organizations: [],
-        places: []
+        places: [],
+        things: []
       }
     end
 

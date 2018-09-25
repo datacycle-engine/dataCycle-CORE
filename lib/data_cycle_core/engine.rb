@@ -78,7 +78,7 @@ module DataCycleCore
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
+    self.content_tables = ['creative_works', 'events', 'persons', 'places', 'things']
 
     mattr_accessor :linked_tables
     self.linked_tables = ['users']
@@ -198,7 +198,8 @@ module DataCycleCore
       places: 'Örtlichkeit',
       events: 'Event',
       persons: 'Person',
-      organizations: 'Organization'
+      organizations: 'Organization',
+      things: 'Organization'
     }
 
     mattr_accessor :image_validations

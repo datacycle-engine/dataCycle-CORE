@@ -159,6 +159,7 @@ module DataCycleCore
           required(:data).schema do
             required(:name) { str? }
             required(:type) { str? & eql?('object') }
+            optional(:schema_type) { str? }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity', 'container']) }
             optional(:boost) { float? }
             optional(:features)
@@ -264,7 +265,8 @@ module DataCycleCore
           optional(:search) { bool? }
           optional(:validations) { hash? }
           optional(:properties) { hash? }
-          optional(:UI) { hash? }
+          optional(:ui) { hash? }
+          optional(:api) { hash? }
           optional(:delete) { bool? }
           optional(:default_value) { str? & valid_classification? }
           optional(:asset_type) do
