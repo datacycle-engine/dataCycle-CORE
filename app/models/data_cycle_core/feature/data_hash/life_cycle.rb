@@ -4,22 +4,29 @@ module DataCycleCore
   module Feature
     module DataHash
       module LifeCycle
-        extend ActiveSupport::Concern
-
-        included do
-          before_save_data_hash :inherit_life_cycle_attributes, if: -> { @new_content && @source.present? }
+        def self.prepended(base)
+          base.before_save_data_hash :inherit_life_cycle_attributes, if: -> { @new_content && @source.present? }
         end
 
         def set_life_cycle_classification(classification_id, user)
-          valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, partial_update: true)
+          valid = {}
+          I18n.with_locale(self.first_available_locale) do
+            valid = set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, partial_update: true)
+          end
 
           return valid unless respond_to?(:children)
 
           children&.each do |child|
-            child.set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id] }, current_user: user, partial_update: true) if child.life_cycle_classification?(classification_id)
+            I18n.with_locale(child.first_available_locale) do
+              child.set_data_hash(data_hash: {
+                DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).presence&.first => [classification_id]
+              }, current_user: user, partial_update: true) if child.life_cycle_classification?(classification_id)
+            end
           end
           valid
         end
+
+        private
 
         def inherit_life_cycle_attributes
           I18n.with_locale(@source.first_available_locale) do
