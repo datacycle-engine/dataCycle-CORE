@@ -36,7 +36,6 @@ module DataCycleCore
       returned_data_hash_without = data_set_without.get_data_hash
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -120,8 +119,7 @@ module DataCycleCore
           'location' => nil,
           'longitude' => 13.1,
           'external_source_id' => nil
-        }],
-        'accountablePerson' => []
+        }]
       }
 
       assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_type'))
@@ -165,7 +163,6 @@ module DataCycleCore
 
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -233,7 +230,6 @@ module DataCycleCore
 
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [returned_place]
@@ -283,7 +279,6 @@ module DataCycleCore
 
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'data_type' => returned_data_hash['data_type'],
         'data_pool' => returned_data_hash['data_pool'],
@@ -367,8 +362,7 @@ module DataCycleCore
           'location' => nil,
           'longitude' => 33.1,
           'external_source_id' => nil
-        }],
-        'accountablePerson' => []
+        }]
       }
 
       returned_data_hash = data_set.get_data_hash.compact
@@ -417,7 +411,6 @@ module DataCycleCore
 
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -463,7 +456,6 @@ module DataCycleCore
       error = data_set.set_data_hash(data_hash: data_hash)
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -517,8 +509,7 @@ module DataCycleCore
           'location' => nil,
           'longitude' => 13.1,
           'external_source_id' => nil
-        }],
-        'accountablePerson' => []
+        }]
       }
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
@@ -554,7 +545,6 @@ module DataCycleCore
       data_set.set_data_hash(data_hash: data_hash)
       expected_hash = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
         'content_location' => [{
@@ -618,8 +608,7 @@ module DataCycleCore
         'access' => [],
         'headline' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
-        'content_location' => [],
-        'accountablePerson' => []
+        'content_location' => []
       }
       expected_hash['content_location'].push(returned_data_hash['content_location'][1])
       returned_data_hash = data_set.get_data_hash
@@ -644,13 +633,11 @@ module DataCycleCore
       # expected de/en hashes for main object
       de_expected = {
         'access' => [],
-        'creator' => [],
         'headline' => 'Das ist ein Test!',
         'description' => 'wooos laft??'
       }
       en_expected = {
         'access' => [],
-        'creator' => [],
         'headline' => 'this is a test!',
         'description' => 'wtf is going on???'
       }
@@ -763,14 +750,12 @@ module DataCycleCore
       de_expected = {
         'access' => [],
         'headline' => 'Das ist ein Test!',
-        'description' => 'wooos laft??',
-        'accountablePerson' => []
+        'description' => 'wooos laft??'
       }
       en_expected = {
         'access' => [],
         'headline' => 'this is a test!',
-        'description' => 'wtf is going on???',
-        'accountablePerson' => []
+        'description' => 'wtf is going on???'
       }
 
       # save two embedded objects in german translation
@@ -848,12 +833,11 @@ module DataCycleCore
         'tags' => [],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by'))
     end
 
     test 'save CreativeWork with only Titel' do
@@ -869,12 +853,11 @@ module DataCycleCore
         'tags' => [],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by'))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
@@ -895,12 +878,11 @@ module DataCycleCore
         'tags' => [],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'season' => [],
         'kind' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by'))
     end
 
     test 'save CreativeWork with sub-properties_tree' do
@@ -920,16 +902,15 @@ module DataCycleCore
         'tags' => [],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'season' => [],
         'kind' => []
       }
 
-      assert_equal(expected_hash, data_set.get_data_hash.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by').compact)
+      assert_equal(expected_hash, data_set.get_data_hash.except('id', 'data_pool', 'permitted_creator', 'deleted_by').compact)
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by'))
     end
 
     test 'save CreativeWork, Data properly written to metadata' do
@@ -948,7 +929,6 @@ module DataCycleCore
         'tags' => [],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'season' => [],
         'kind' => []
@@ -963,7 +943,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: test_data)
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by', 'last_updated_by'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except('id', 'data_pool', 'permitted_creator', 'deleted_by'))
       expected_data_hash = {
         'validity_period' => {
           'valid_from' => '2017-05-01'.in_time_zone('UTC'),
@@ -1009,8 +989,8 @@ module DataCycleCore
         email: "#{SecureRandom.base64(12)}@pixelpoint.at",
         password: 'password'
       )
-      uuid = DataCycleCore::User.first.id
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'creator' => [uuid] })
+      current_user = DataCycleCore::User.first
+      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!' }, current_user: current_user)
       data_set.save
       expected_hash = {
         'headline' => 'Dies ist ein Test!',
@@ -1023,8 +1003,8 @@ module DataCycleCore
       }
 
       received_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash, received_hash.except('id', 'data_pool', 'permitted_creator', 'creator', 'deleted_by', 'last_updated_by'))
-      assert_equal(1, received_hash['creator'].size)
+      assert_equal(expected_hash, received_hash.except('id', 'data_pool', 'permitted_creator', 'creator', 'deleted_by'))
+      assert_equal(current_user.id, data_set.updated_by)
     end
 
     test 'save Recherche and read back' do
@@ -1041,7 +1021,6 @@ module DataCycleCore
       data_set.save
       expected_hash = {
         'text' => 'Dies ist ein Test!',
-        'creator' => [],
         'image' => [uuid, uuid2]
       }
       assert_equal(expected_hash.except('image'), data_set.get_data_hash.compact.except('id', 'data_pool', 'video', 'image'))
@@ -1064,7 +1043,6 @@ module DataCycleCore
         'image' => [uuid],
         'state' => [],
         'topics' => [],
-        'creator' => [],
         'markets' => [],
         'quotation' => [],
         'output_channels' => [],
@@ -1084,14 +1062,14 @@ module DataCycleCore
         prevent_history: true
       )
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'deleted_by'))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
 
       expected_hash['description'] = 'only change description'
 
       content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('id', 'data_pool', 'data_type', 'video', 'image', 'deleted_by'))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
     end
   end

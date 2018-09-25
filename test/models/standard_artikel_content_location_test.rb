@@ -106,14 +106,12 @@ module DataCycleCore
         'markets' => [],
         'image' => [],
         'video' => [],
-        'creator' => [],
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
           'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
           'image' => [],
           'author' => [person_id],
-          'creator' => [],
           'data_type' => [data_type_zitat_id],
           'date_created' => nil,
           'date_modified' => nil
@@ -123,7 +121,7 @@ module DataCycleCore
       }
       expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'deleted_by'))
       assert_equal([place_id1], returned_data_hash['content_location'].ids)
       assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author'))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
@@ -145,7 +143,7 @@ module DataCycleCore
       updated_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'last_updated_by', 'deleted_by'))
+      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'data_type', 'validity_period', 'data_pool', 'quotation', 'content_location', 'deleted_by'))
       assert_equal([place_id2], updated_data_hash['content_location'].ids)
       assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author'))
       assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)

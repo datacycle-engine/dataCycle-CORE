@@ -27,6 +27,9 @@ en:
     updated: "Updated"
   submit: "Submit"
 
+  common:
+    creator: creator
+
   validation:
     errors:
       min: "%{data} not long enough, should be %{min} long, but is only %{length} long."

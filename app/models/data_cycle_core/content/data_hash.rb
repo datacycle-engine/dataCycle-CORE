@@ -14,7 +14,7 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
-      before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
+      # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_webhooks, if: -> { self.class.name == 'DataCycleCore::CreativeWork' }
@@ -41,7 +41,11 @@ module DataCycleCore
             set_template_data_hash(@data_hash, partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
             self.updated_at = @save_time
-            self.created_at = @save_time if id.nil?
+            self.updated_by = @current_user&.id
+            if id.nil?
+              self.created_at = @save_time
+              self.created_by = @current_user&.id
+            end
             save(touch: false)
 
             search_languages(update_search_all)

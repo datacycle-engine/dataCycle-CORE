@@ -4,10 +4,8 @@ module DataCycleCore
   module Feature
     module DataHash
       module IdeaCollection
-        extend ActiveSupport::Concern
-
-        included do
-          before_save_data_hash :change_life_cycle_stage, if: proc {
+        def self.prepended(base)
+          base.before_save_data_hash :change_life_cycle_stage, if: proc {
             @new_content &&
               try(:is_part_of).present? &&
               template_name == DataCycleCore::Feature::IdeaCollection.template &&

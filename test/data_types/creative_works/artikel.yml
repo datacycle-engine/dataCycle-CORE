@@ -248,24 +248,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Artikel"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
-      :last_updated_by:
-        :label: Zuletzt bearbeitet von
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
-      :deleted_by:
-        :label: Gelöscht von
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

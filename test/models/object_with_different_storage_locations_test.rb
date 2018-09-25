@@ -25,7 +25,6 @@ module DataCycleCore
       expected_hash = {
         'id' => data_set.id,
         'url' => 'estasdfkasdfasfd',
-        'creator' => [],
         'event_period' => {
           'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),
           'end_date' => '2017-10-29 12:00'.to_datetime.to_s(:db)

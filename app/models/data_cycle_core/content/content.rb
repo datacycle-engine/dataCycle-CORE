@@ -155,11 +155,6 @@ module DataCycleCore
         }.compact.uniq
       end
 
-      def get_data_hash(timestamp = Time.zone.now)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-        as_of(timestamp).try(:to_h, timestamp)
-      end
-
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
           property_value =
@@ -194,16 +189,6 @@ module DataCycleCore
         inconsistent_properties = translatable_property_names & untranslatable_property_names
         raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not" unless inconsistent_properties.empty?
         self
-      end
-
-      def diff(data, template = nil)
-        differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
-      end
-
-      def diff?(data, template = nil)
-        differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
       end
 
       def history?
