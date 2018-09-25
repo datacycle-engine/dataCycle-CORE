@@ -5,9 +5,10 @@ module DataCycleCore
     module ControllerFunctions
       module Geocode
         DataCycleCore::Engine.routes.append do
-          unless has_named_route?(:geocode_address)
-            type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-            patch '/:type/geocode_address', action: :geocode_address, controller: :contents, constraints: { type: type_regexp }, as: 'geocode_address'
+          unless has_named_route?(:geocode_address_creative_work)
+            DataCycleCore.content_tables.each do |table|
+              get "/#{table}/geocode_address", action: :geocode_address, controller: table, as: "geocode_address_#{table.singularize}"
+            end
           end
         end
 

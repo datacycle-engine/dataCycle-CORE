@@ -5,7 +5,7 @@
       <span class="content-pool<%= content.life_cycle_stage?(stage[:id]) ? ' active' : ' hollow button' + (can?(:set_life_cycle, content, stage.merge({ name: stage_name })) ? '' : ' disabled') %>">
         <%= link_to_if(!content.life_cycle_stage?(stage[:id]) && can?(:set_life_cycle, content, stage.merge({ name: stage_name })),
           stage_name,
-          update_life_cycle_stage_path(id: content.id, type: content.class.table_name, life_cycle: {
+          polymorphic_path([:update_life_cycle, content], life_cycle: {
             id: stage[:id],
             name: stage_name
           }),

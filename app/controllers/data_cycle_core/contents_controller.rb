@@ -23,6 +23,7 @@ module DataCycleCore
 
       if DataCycleCore::Feature::Container.enabled? &&
          @content.content_type?('entity') &&
+         @content.class.name == 'DataCycleCore::CreativeWork' &&
          !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
         I18n.with_locale(DataCycleCore.ui_language) do
           @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
@@ -216,23 +217,6 @@ module DataCycleCore
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
             render js: "document.location = '#{polymorphic_path(@content)}'"
           end
-        end
-      end
-    end
-
-    def set_parent
-      @content = data_cycle_object(controller_name).find(params[:id])
-      authorize! :edit, @content
-
-      redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if parent_params[:parent_id].blank?
-
-      @parent = data_cycle_object(controller_name).find(parent_params[:parent_id])
-
-      I18n.with_locale(@content.first_available_locale) do
-        if @content.update_column(:is_part_of, @parent.id)
-          redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
-        else
-          redirect_back(fallback_location: root_path, alert: @content.errors.full_messages)
         end
       end
     end

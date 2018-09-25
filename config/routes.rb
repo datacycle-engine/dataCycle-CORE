@@ -28,7 +28,6 @@ DataCycleCore::Engine.routes.draw do
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
     resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy]) do
       post :import, on: :collection
-      post :set_parent, on: :member
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection

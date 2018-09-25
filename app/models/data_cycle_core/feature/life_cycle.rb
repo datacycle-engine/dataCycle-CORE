@@ -28,10 +28,6 @@ module DataCycleCore
         def default_filter(content = nil)
           configuration(content).dig('default_filter')
         end
-
-        def controller_functions
-          ['update_life_cycle_stage']
-        end
       end
     end
   end
