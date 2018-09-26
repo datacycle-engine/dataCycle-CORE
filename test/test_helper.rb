@@ -43,7 +43,7 @@ module DataCycleCore
   module TestPreparations
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule'],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
         creative_work: [],
         event: [],
         organization: [],

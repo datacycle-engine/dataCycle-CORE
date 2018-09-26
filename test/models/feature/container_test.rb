@@ -3,10 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ContentContainerTest < ActiveSupport::TestCase
-    def excepted_attributes
-      ['id', 'data_pool', 'data_type', 'last_updated_by', 'date_modified', 'publication_schedule']
-    end
+  class ContainerTest < ActiveSupport::TestCase
 
     test 'insert container and delete it' do
       template_cw = DataCycleCore::CreativeWork.count
@@ -20,8 +17,7 @@ module DataCycleCore
       data_set.save
 
       data_hash = {
-        'headline' => 'Test Thema!',
-        'date_modified' => Time.zone.now
+        'headline' => 'Test Thema!'
       }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true, current_user: current_user)
       data_set.save
@@ -33,7 +29,7 @@ module DataCycleCore
         'tags' => []
       }
 
-      assert_equal(expected_hash.except('last_updated_by'), returned_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(current_user.id, data_set.updated_by)
       assert_equal(0, error[:error].count)
 
@@ -74,7 +70,7 @@ module DataCycleCore
         'content_location' => []
       }
 
-      assert_equal(e_hash.except(*excepted_attributes), r_dh.compact.except(*excepted_attributes))
+      assert_equal(e_hash.except(*DataCycleCore::TestPreparations.excepted_attributes), r_dh.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(current_user.id, ds_a.updated_by)
       assert_equal(0, e_a[:error].count)
 
@@ -107,10 +103,10 @@ module DataCycleCore
       DataCycleCore::CreativeWork::History.all.each do |item|
         assert_equal(current_user.id, item.updated_by)
         assert_equal(current_user.id, item.updated_by_user.id)
-        assert_equal(true, item.date_modified.present?)
+        assert_equal(true, item.updated_at.present?)
         assert_equal(current_user.id, item.deleted_by)
         assert_equal(true, item.deleted_at.present?)
-        assert_equal(true, item.deleted_at >= item.date_modified)
+        assert_equal(true, item.deleted_at >= item.updated_at)
       end
     end
   end
