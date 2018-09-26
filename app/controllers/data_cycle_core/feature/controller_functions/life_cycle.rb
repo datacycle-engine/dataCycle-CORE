@@ -4,12 +4,17 @@ module DataCycleCore
   module Feature
     module ControllerFunctions
       module LifeCycle
-        DataCycleCore::Engine.routes.append do
-          unless has_named_route?(:update_life_cycle_creative_work)
-            DataCycleCore.content_tables.each do |table|
-              patch "/#{table}/:id/update_life_cycle", action: :update_life_cycle, controller: table, as: "update_life_cycle_#{table.singularize}"
+        extend ActiveSupport::Concern
+
+        included do
+          DataCycleCore::Engine.routes.append do
+            unless has_named_route?(:update_life_cycle_creative_work)
+              DataCycleCore.content_tables.each do |table|
+                patch "/#{table}/:id/update_life_cycle", action: :update_life_cycle, controller: table, as: "update_life_cycle_#{table.singularize}"
+              end
             end
           end
+          Rails.application.reload_routes!
         end
 
         def update_life_cycle

@@ -4,12 +4,17 @@ module DataCycleCore
   module Feature
     module ControllerFunctions
       module Container
-        DataCycleCore::Engine.routes.append do
-          unless has_named_route?(:set_parent_creative_work)
-            DataCycleCore.content_tables.each do |table|
-              post "/#{table}/:id/set_parent", action: :set_parent, controller: table, as: "set_parent_#{table.singularize}"
+        extend ActiveSupport::Concern
+
+        included do
+          DataCycleCore::Engine.routes.append do
+            unless has_named_route?(:set_parent_creative_work)
+              DataCycleCore.content_tables.each do |table|
+                post "/#{table}/:id/set_parent", action: :set_parent, controller: table, as: "set_parent_#{table.singularize}"
+              end
             end
           end
+          Rails.application.reload_routes!
         end
 
         def set_parent
