@@ -24,6 +24,7 @@ namespace :data_cycle_core do
       DataCycleCore::Subscription.where(subscribable_type: 'DataCycleCore::Organization').update_all(subscribable_type: 'DataCycleCore::Thing')
 
       puts 'migrate data'
+      puts '--> things'
       sql = <<-SQL
         INSERT INTO things (
           id, metadata,
@@ -44,6 +45,7 @@ namespace :data_cycle_core do
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
 
+      puts '--> thing_translations'
       sql = <<-SQL
         INSERT INTO thing_translations (
           thing_id, locale,
@@ -61,6 +63,7 @@ namespace :data_cycle_core do
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
 
+      puts '--> thing_histories'
       sql = <<-SQL
         INSERT INTO thing_histories (
           id, thing_id, metadata,
@@ -77,11 +80,13 @@ namespace :data_cycle_core do
           external_source_id, external_key,
           created_by, updated_by, deleted_by,
           seen_at, created_at, updated_at, deleted_at
+        FROM organization_histories
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
 
+      puts '--> thing_history_translations'
       sql = <<-SQL
-        INSERT INTO thing_history_translation (
+        INSERT INTO thing_history_translations (
           thing_history_id, locale,
           content,
           name,
@@ -89,15 +94,22 @@ namespace :data_cycle_core do
           history_valid,
           created_at, updated_at
         )
-        FROM organization_history_translations
+        SELECT
           organization_history_id, locale,
           content,
           content ->> 'legal_name',
           description,
           history_valid,
           created_at, updated_at
+        FROM organization_history_translations
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
+
+      puts 'delete old organization data'
+      DataCycleCore::Organization.delete_all
+      DataCycleCore::Organization::Translation.delete_all
+      DataCycleCore::Organization::History.delete_all
+      DataCycleCore::Organization::History::Translation.delete_all
 
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
