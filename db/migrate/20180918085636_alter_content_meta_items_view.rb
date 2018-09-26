@@ -5,7 +5,7 @@ class AlterContentMetaItemsView < ActiveRecord::Migration[5.1]
     ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
 
     sql = 'CREATE VIEW content_meta_items AS ' +
-          (DataCycleCore.content_tables - ['things'] + ['organizations']).map { |table|
+          ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
             <<-SQL
               SELECT
                 id,
@@ -29,7 +29,7 @@ class AlterContentMetaItemsView < ActiveRecord::Migration[5.1]
     ActiveRecord::Base.connection.exec_query('DROP VIEW IF EXISTS content_meta_items')
 
     sql = 'CREATE VIEW content_meta_items AS ' +
-          (DataCycleCore.content_tables - ['things'] + ['organizations']).map { |table|
+          ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
             <<-SQL
               SELECT
                 id,

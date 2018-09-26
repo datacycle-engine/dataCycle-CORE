@@ -19,6 +19,10 @@ namespace :data_cycle_core do
       DataCycleCore::ClassificationContent.where(content_data_type: 'DataCycleCore::Organization').update_all(content_data_type: 'DataCycleCore::Thing')
       DataCycleCore::ClassificationContent::History.where(content_data_history_type: 'DataCycleCore::Organization::History').update_all(content_data_history_type: 'DataCycleCore::Thing::History')
 
+      DataCycleCore::Search.where(content_data_type: 'DataCycleCore::Organization').update_all(content_data_type: 'DataCycleCore::Thing')
+      DataCycleCore::WatchListDataHash.where(hashable_type: 'DataCycleCore::Organization').update_all(hashable_type: 'DataCycleCore::Thing')
+      DataCycleCore::Subscription.where(subscribable_type: 'DataCycleCore::Organization').update_all(subscribable_type: 'DataCycleCore::Thing')
+
       puts 'migrate data'
       sql = <<-SQL
         INSERT INTO things (
@@ -50,7 +54,8 @@ namespace :data_cycle_core do
         SELECT
           organization_id, locale,
           content,
-          headline, description,
+          content ->> 'legal_name',
+          description,
           created_at, updated_at
         FROM organization_translations
       SQL
@@ -78,13 +83,17 @@ namespace :data_cycle_core do
       sql = <<-SQL
         INSERT INTO thing_history_translation (
           thing_history_id, locale,
-          content, name, description,
+          content,
+          name,
+          description,
           history_valid,
           created_at, updated_at
         )
         FROM organization_history_translations
           organization_history_id, locale,
-          content, headline, description,
+          content,
+          content ->> 'legal_name',
+          description,
           history_valid,
           created_at, updated_at
       SQL

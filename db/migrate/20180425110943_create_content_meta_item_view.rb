@@ -3,7 +3,7 @@
 class CreateContentMetaItemView < ActiveRecord::Migration[5.0]
   def up
     query = 'CREATE VIEW content_meta_items AS ' +
-            (DataCycleCore.content_tables + ['organizations'] - ['things']).map { |table|
+            ['creative_works', 'events', 'persons', 'places', 'organizations'].map { |table|
               <<-SQL
                 SELECT
                   id,

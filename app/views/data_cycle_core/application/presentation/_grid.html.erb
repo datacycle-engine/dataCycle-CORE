@@ -6,7 +6,7 @@
 		<span class="sr-only">Loading...</span>
 	</li>
 
-  <% contents&.each do |content| %>
+  <% contents&.compact&.each do |content| %>
       <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
         <% if no_cache ||= false %>
           <%= render(*(content_tile item: content)) %>

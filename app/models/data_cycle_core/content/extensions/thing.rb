@@ -11,7 +11,7 @@ module DataCycleCore
         def title
           case schema_type
           when 'Organization'
-            content.presence&.dig('legal_name')
+            name
           end
         end
 
