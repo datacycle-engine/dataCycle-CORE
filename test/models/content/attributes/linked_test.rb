@@ -7,7 +7,7 @@ module DataCycleCore
     module Attributes
       class LinkedTest < ActiveSupport::TestCase
         def setup
-          # create entity and add 5linked entities from the same table
+          # create entity and add 5 linked entities from the same table
           @cw_temp = DataCycleCore::CreativeWork.count
 
           @linked_objects = []
@@ -52,7 +52,7 @@ module DataCycleCore
           assert_equal(0, DataCycleCore::ContentContent::History.count)
         end
 
-        test 'override linked with only one item' do
+        test 'replace linked with only one item' do
           linked_objects = @linked_objects
           data_set = @data_set
 
@@ -71,7 +71,7 @@ module DataCycleCore
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
-        test 'create entity and add linked entity from same table, delete main entity' do
+        test 'delete main entity' do
           linked_objects = @linked_objects
           data_set = @data_set
 
@@ -108,7 +108,7 @@ module DataCycleCore
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
-        test 'create entity and add linked entity from same table, save, add another 2 linked' do
+        test 'add another 2 linked' do
           linked_objects = @linked_objects
           data_set = @data_set
 
@@ -135,7 +135,7 @@ module DataCycleCore
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
-        test 'create entity and add 5 linked entities, test change order' do
+        test 'change order' do
           linked_objects = @linked_objects
           data_set = @data_set
 
@@ -171,7 +171,7 @@ module DataCycleCore
           end
         end
 
-        test 'create entity and add linked entity from other table' do
+        test 'remove linked entities and add linked entities from other table' do
           data_set = @data_set
 
           place_temp = DataCycleCore::Place.count
