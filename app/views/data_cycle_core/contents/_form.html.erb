@@ -50,7 +50,7 @@
 
                     <% validation_properties = ordered_validation_properties(validation: content.schema) %>
 
-                    <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
+                    <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 
                     <% if !validation_properties.nil? %>
 

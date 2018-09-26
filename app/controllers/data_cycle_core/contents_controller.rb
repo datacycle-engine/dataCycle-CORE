@@ -2,6 +2,12 @@
 
 module DataCycleCore
   class ContentsController < ApplicationController
+    include DataCycleCore::Filter
+    DataCycleCore.features.each_key do |key|
+      module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
+      include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+    end
+
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
     rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
@@ -14,10 +20,44 @@ module DataCycleCore
       @content = data_cycle_object(controller_name).find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
+
+      if DataCycleCore::Feature::Container.enabled? &&
+         @content.content_type?('entity') &&
+         @content.class.name == 'DataCycleCore::CreativeWork' &&
+         !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
+        I18n.with_locale(DataCycleCore.ui_language) do
+          @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
+        end
+      end
+
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
+        if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
+          @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+          @filters.push(
+            {
+              't' => 'part_of',
+              'v' => @content.id
+            }
+          )
+
+          @language ||= params.fetch(:language, ['all'])
+          if @content.children.present?
+            @paginate_object = get_filtered_results
+            @total = @paginate_object.count_distinct
+            @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+            @total_pages = (@total.to_f / 25).ceil
+            @contents = @paginate_object.map(&:content_data)
+          end
+
+          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
+          @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
+          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
+          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
+        end
+
         respond_to do |format|
           format.json { redirect_to polymorphic_path([:api, :v2, @content]) }
-          format.html { render }
+          format.html { render && return }
         end
       end
     end
@@ -29,25 +69,27 @@ module DataCycleCore
         authorize!(:create, data_cycle_object(controller_name))
       end
 
-      locale = I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params[:locale].try(:to_sym) : I18n.locale
-      I18n.with_locale(locale) do
-        source = Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }] if params[:source].present?
+      I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(controller_name, params[:template])
-        @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user)
+
+        if source_params.present?
+          source = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id])
+        else
+          source = data_cycle_object(controller_name).find_by(id: parent_params[:parent_id])
+        end
+
+        @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         redirect_back(fallback_location: root_path) && return if @content.nil?
 
         respond_to do |format|
-          # validate ?
-          if !@content.nil? && @content.save
-            execute_after_create_webhooks @content
+          if @content.present?
             format.html do
-              flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-              redirect_to(edit_polymorphic_path(@content, (source || {}).merge(watch_list_id: @watch_list))) && return
+              redirect_to edit_polymorphic_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
             end
             format.js
           else
-            redirect_back(fallback_location: root_path) && return
+            redirect_back(fallback_location: root_path)
           end
         end
       end
@@ -58,18 +100,20 @@ module DataCycleCore
 
       # get show data for split view
       if source_params.present?
-        @split_type = source_params[:source_type].constantize
-        @split_source = @split_type.find(source_params[:source_id])
+        @split_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
         @split_schema = []
 
-        unless @split_source.nil?
+        if @split_source.present?
           I18n.with_locale(@split_source.first_available_locale) do
             @split_schema = @split_source.get_data_hash
           end
         end
       end
 
-      if params[:locale] && !@content.translated_locales.include?(params[:locale]&.to_sym) && I18n.available_locales.include?(params[:locale]&.to_sym) && (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
+      if params[:locale] &&
+         !@content.translated_locales.include?(params[:locale]&.to_sym) &&
+         I18n.available_locales.include?(params[:locale]&.to_sym) &&
+         (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
         I18n.with_locale(params[:locale]) do
           @content.save
         end
@@ -78,7 +122,7 @@ module DataCycleCore
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         redirect_to(polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
-        render
+        render && return
       end
     end
 
@@ -98,19 +142,18 @@ module DataCycleCore
 
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
+        @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
-        redirect_to(edit_creative_work_path(@content, watch_list_id: @watch_list), alert: valid[:error]) && return if valid[:error].present?
-
-        execute_after_update_webhooks @content
+        redirect_to(edit_polymorphic_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
         if Rails.env.development?
-          redirect_back(fallback_location: root_path) && return
+          redirect_back(fallback_location: root_path)
         else
-          redirect_to(polymorphic_path(@content, watch_list_id: @watch_list)) && return
+          redirect_to(polymorphic_path(@content, watch_list_params))
         end
       end
     end
@@ -119,11 +162,30 @@ module DataCycleCore
       @content = data_cycle_object(controller_name).find(params[:id])
       @content.destroy_content(current_user: current_user)
 
-      execute_after_destroy_webhooks @content
-
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
+      redirect_to(polymorphic_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+
       redirect_to root_path
+    end
+
+    def compare
+      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+      authorize! :show, @content
+
+      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
+
+      @diff_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
+
+      redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
+
+      I18n.with_locale(@content.first_available_locale) do
+        @data_schema = @content.get_data_hash
+      end
+
+      I18n.with_locale(@diff_source.first_available_locale) do
+        @diff_schema = @diff_source.diff(@data_schema)
+      end
     end
 
     def history
@@ -138,6 +200,24 @@ module DataCycleCore
 
       I18n.with_locale(@diff_source.first_available_locale) do
         @diff_schema = @diff_source.diff(@data_schema)
+      end
+    end
+
+    def import
+      content = params[:data].as_json
+      external_source = DataCycleCore::ExternalSource.find(content['source_key'])
+      api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
+      api_strategy = api_strategy_class&.constantize&.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
+      @content = api_strategy.create(content.except('source_key'))
+      @content = @content.try(:first)
+
+      respond_to do |format|
+        format.js do
+          if params[:render_html]
+            flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
+            render js: "document.location = '#{polymorphic_path(@content)}'"
+          end
+        end
       end
     end
 
@@ -165,28 +245,6 @@ module DataCycleCore
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
       authorize! :show, @object
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
-    end
-
-    def update_life_cycle_stage
-      @object = data_cycle_object(controller_name).find_by(id: params[:id])
-      authorize! :set_life_cycle, @object, life_cycle_params
-
-      # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
-      if DataCycleCore::Feature::IdeaCollection.enabled? &&
-         @object.content_type?('container') &&
-         DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id) == life_cycle_params[:id] &&
-         !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template).exists?
-        idea_collection_params = ActionController::Parameters.new({ datahash: { headline: @object.headline } }).permit!
-        idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore::Feature::IdeaCollection.template, idea_collection_params, current_user)
-        idea_collection.is_part_of = @object.id unless @object.nil?
-        idea_collection.save
-      end
-
-      valid = @object.set_life_cycle_classification(DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(@object).presence&.first, life_cycle_params[:id], current_user)
-
-      redirect_back(fallback_location: root_path, alert: valid[:error]) && return if valid[:error].present?
-
-      redirect_back(fallback_location: root_path, notice: (I18n.t :moved_to, scope: [:controllers, :success], data: life_cycle_params[:name], locale: DataCycleCore.ui_language))
     end
 
     def validate
@@ -253,28 +311,11 @@ module DataCycleCore
       render json: @asset
     end
 
-    def catch_all
-      @object = data_cycle_object(controller_name).find(params[:id])
-
-      raise(ActionController::RoutingError, 'Not Found') unless @object.enabled_features.map { |f| "data_cycle_core/feature/#{f}".classify.constantize.controller_functions.map(&:to_s) }.flatten.include?(params['path']) && respond_to?(params['path'])
-
-      send(path_params['path'])
-    end
-
     def record_not_found
       raise DataCycleCore::Error::RecordNotFoundError, 'DataCycle Record Not Found'
     end
 
     private
-
-    def execute_after_update_webhooks(data)
-    end
-
-    def execute_after_create_webhooks(data)
-    end
-
-    def execute_after_destroy_webhooks(data)
-    end
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
@@ -283,6 +324,18 @@ module DataCycleCore
 
     def path_params
       params.permit(:path)
+    end
+
+    def watch_list_params
+      { watch_list_id: @watch_list&.id }
+    end
+
+    def locale_params
+      I18n.available_locales.include?(params[:locale].try(:to_sym)) ? params.permit(:locale) : { locale: I18n.locale.to_s }
+    end
+
+    def parent_params
+      params.permit(:parent_id)
     end
 
     def asset_params
@@ -304,9 +357,11 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_type)
-      elsif params[:source_id] && params[:source_type]
-        params.permit(:source_id, :source_type)
+        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
+      elsif params[:source_id] && params[:source_table]
+        params.permit(:source_id, :source_table)
+      else
+        {}
       end
     end
   end

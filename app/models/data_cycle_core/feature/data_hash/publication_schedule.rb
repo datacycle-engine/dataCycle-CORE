@@ -4,10 +4,8 @@ module DataCycleCore
   module Feature
     module DataHash
       module PublicationSchedule
-        extend ActiveSupport::Concern
-
-        included do
-          before_save_data_hash :inherit_publication_attributes, if: proc {
+        def self.prepended(base)
+          base.before_save_data_hash :inherit_publication_attributes, if: proc {
             DataCycleCore::Feature::PublicationSchedule.available?(self) &&
               DataCycleCore.features.dig(:publication_schedule, :classification_keys).present? &&
               respond_to?('publication_schedule')

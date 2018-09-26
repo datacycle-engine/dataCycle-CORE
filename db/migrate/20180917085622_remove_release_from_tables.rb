@@ -11,6 +11,7 @@ class RemoveReleaseFromTables < ActiveRecord::Migration[5.1]
   end
 
   def down
+    enable_extension 'pgcrypto' unless extension_enabled?('pgcrypto')
     create_table :releases, id: :uuid do |t|
       t.integer :release_code
       t.string :release_text

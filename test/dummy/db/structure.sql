@@ -1253,6 +1253,20 @@ CREATE TABLE users (
 
 
 --
+-- Name: watch_list_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE watch_list_user_groups (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    user_group_id uuid,
+    watch_list_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: watch_lists; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1719,6 +1733,14 @@ ALTER TABLE ONLY users
 
 ALTER TABLE ONLY watch_list_data_hashes
     ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: watch_list_user_groups watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY watch_list_user_groups
+    ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -2612,6 +2634,20 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON watch_list_data_ha
 
 
 --
+-- Name: index_watch_list_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_user_groups_on_user_group_id ON watch_list_user_groups USING btree (user_group_id);
+
+
+--
+-- Name: index_watch_list_user_groups_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_user_groups_on_watch_list_id ON watch_list_user_groups USING btree (watch_list_id);
+
+
+--
 -- Name: index_watch_lists_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2907,6 +2943,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180917103214'),
 ('20180918085636'),
 ('20180918135618'),
-('20180920111943');
+('20180920111943'),
+('20180921083454');
 
 
