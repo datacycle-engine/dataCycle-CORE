@@ -4,12 +4,17 @@ module DataCycleCore
   module Feature
     module ControllerFunctions
       module Geocode
-        DataCycleCore::Engine.routes.append do
-          unless has_named_route?(:geocode_address_creative_work)
-            DataCycleCore.content_tables.each do |table|
-              get "/#{table}/geocode_address", action: :geocode_address, controller: table, as: "geocode_address_#{table.singularize}"
+        extend ActiveSupport::Concern
+
+        included do
+          DataCycleCore::Engine.routes.append do
+            unless has_named_route?(:geocode_address_creative_work)
+              DataCycleCore.content_tables.each do |table|
+                get "/#{table}/geocode_address", action: :geocode_address, controller: table, as: "geocode_address_#{table.singularize}"
+              end
             end
           end
+          Rails.application.reload_routes!
         end
 
         def geocode_address
