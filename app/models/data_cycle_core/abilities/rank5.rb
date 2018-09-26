@@ -16,7 +16,7 @@ module DataCycleCore
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
         can :destroy, CONTENT_MODELS do |content|
-          content&.creator&.first&.id == user.id
+          content&.created_by == user.id
         end
       end
     end
