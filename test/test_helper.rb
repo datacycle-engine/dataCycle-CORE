@@ -75,14 +75,27 @@ module DataCycleCore
         password: '3amMQf74vp7Zpfdi',
         role_id: DataCycleCore::Role.order('rank DESC').first.id
       })
+      DataCycleCore::User.where(email: 'tester@datacycle.at').first_or_create({
+        given_name: 'Tester',
+        external: false,
+        password: 'dont care',
+        role_id: DataCycleCore::Role.find_by(rank: 5).id
+      })
     end
 
     def self.create_user_group
-      return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
-      user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
+      if DataCycleCore::UserGroup.find_by(name: 'Administrators').blank?
+        user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
+        DataCycleCore::UserGroupUser.create!(
+          user_group_id: user_group.id,
+          user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
+        )
+      end
+      return if DataCycleCore::UserGroup.find_by(name: 'Users').present?
+      user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Users')
       DataCycleCore::UserGroupUser.create!(
         user_group_id: user_group.id,
-        user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
+        user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id
       )
     end
   end
