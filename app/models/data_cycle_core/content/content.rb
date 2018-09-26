@@ -157,32 +157,35 @@ module DataCycleCore
 
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
-          property_value =
-            if property_name == 'id' && history?
-              send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-            elsif plain_property_names.include?(property_name)
-              send(property_name)
-            elsif classification_property_names.include?(property_name)
-              send(property_name).try(:pluck, :id)
-            elsif linked_property_names.include?(property_name)
-              linked_array = get_property_value(property_name, property_definitions[property_name])
-              linked_array.presence || []
-            elsif included_property_names.include?(property_name)
-              embedded_hash = send(property_name).to_h
-              embedded_hash.presence
-            elsif embedded_property_names.include?(property_name)
-              embedded_array = send(property_name)
-              embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
-              embedded_array.blank? ? [] : embedded_array.compact
-            elsif asset_property_names.include?(property_name)
-              send(property_name)
-            elsif computed_property_names.include?(property_name)
-              send(property_name)
-            else
-              raise StandardError, "cannot determine how to serialize #{property_name}"
-            end
+          property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
         }.inject(&:merge).deep_stringify_keys
+      end
+
+      def attribute_to_h(property_name, timestamp = Time.zone.now)
+        if property_name == 'id' && history?
+          send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
+        elsif plain_property_names.include?(property_name)
+          send(property_name)
+        elsif classification_property_names.include?(property_name)
+          send(property_name).try(:pluck, :id)
+        elsif linked_property_names.include?(property_name)
+          linked_array = get_property_value(property_name, property_definitions[property_name])
+          linked_array.presence || []
+        elsif included_property_names.include?(property_name)
+          embedded_hash = send(property_name).to_h
+          embedded_hash.presence
+        elsif embedded_property_names.include?(property_name)
+          embedded_array = send(property_name)
+          embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
+          embedded_array.blank? ? [] : embedded_array.compact
+        elsif asset_property_names.include?(property_name)
+          send(property_name)
+        elsif computed_property_names.include?(property_name)
+          send(property_name)
+        else
+          raise StandardError, "cannot determine how to serialize #{property_name}"
+        end
       end
 
       def verify

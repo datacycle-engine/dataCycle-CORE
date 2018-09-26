@@ -31,13 +31,13 @@ module DataCycleCore
           content.created_by = data['created_by']
           content.save!
 
-          overlays = {}
-          DataCycleCore::Feature::OverlayAttributeService.call(content).each do |attribute|
-            overlays[attribute] = [content.send(attribute).first&.get_data_hash].compact.presence if content.respond_to?(attribute)
+          global_attributes = {}
+          (content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)).each do |attribute|
+            global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
-          current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
 
-          error = content.set_data_hash(data_hash: overlays.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
+          current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
