@@ -4,7 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ContainerTest < ActiveSupport::TestCase
-
     test 'insert container and delete it' do
       template_cw = DataCycleCore::CreativeWork.count
       template_cwt = DataCycleCore::CreativeWork::Translation.count

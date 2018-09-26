@@ -7,10 +7,7 @@ module DataCycleCore
     module Attributes
       class ComputedTest < ActiveSupport::TestCase
         test 'Testing Utility::Calculation::Math methods' do
-          template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Calculation-Math').first
-          data_set = DataCycleCore::CreativeWork.new
-          data_set.schema = template.schema
-          data_set.template_name = template.template_name
+          data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Calculation-Math')
           data_set.save
 
           data = {
@@ -35,11 +32,7 @@ module DataCycleCore
         end
 
         test 'Testing Utility::Calculation::Common methods' do
-          template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Calculation-Common').first
-
-          data_set = DataCycleCore::CreativeWork.new
-          data_set.schema = template.schema
-          data_set.template_name = template.template_name
+          data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Calculation-Common')
           data_set.save
 
           data = {

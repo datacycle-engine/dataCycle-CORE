@@ -41,6 +41,7 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 module DataCycleCore
   module TestPreparations
+    extend DataCycleCore::Common
     EXCEPTED_ATTRIBUTES =
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
@@ -50,6 +51,16 @@ module DataCycleCore
         place: [],
         person: []
       }.freeze
+
+    @dummy_data_hash =
+      {
+        creative_works: {},
+        events: {},
+        organizations: {},
+        places: {},
+        persons: {}
+      }
+
     def self.load_classifications(paths)
       paths.map do |path|
         DataCycleCore::MasterData::ImportClassifications.import(path)
@@ -65,6 +76,21 @@ module DataCycleCore
       return if errors.blank?
       puts 'the following errors were encountered during import:'
       ap errors
+    end
+
+    def self.load_dummy_data(paths)
+      paths.each do |path|
+        DataCycleCore.content_tables.each do |content_table_name|
+          files = path + content_table_name + '*.json'
+
+          file_names = Dir[files]
+          file_names.each do |file_name|
+            file_base_name = File.basename(file_name, '.json')
+            json_data = JSON.parse(File.read(file_name))
+            @dummy_data_hash[content_table_name.to_sym][file_base_name.to_sym] = json_data
+          end
+        end
+      end
     end
 
     def self.load_user_roles
@@ -100,6 +126,19 @@ module DataCycleCore
       return EXCEPTED_ATTRIBUTES[:common] + EXCEPTED_ATTRIBUTES[model.to_sym] if model.present?
       EXCEPTED_ATTRIBUTES[:common]
     end
+
+    def self.load_dummy_data_hash(model, name)
+      @dummy_data_hash.dig(model.to_sym, name.to_sym)
+    end
+
+    def self.data_set_object(model, template_name)
+      object = data_cycle_object(model)
+      template = object.where(template: true, template_name: template_name).first
+      data_set = object.new
+      data_set.schema = template.schema
+      data_set.template_name = template.template_name
+      data_set
+    end
   end
 end
 
@@ -117,6 +156,11 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
     Rails.root.join('..', 'data_types', 'attributes'),
     Rails.root.join('..', 'data_types', 'custom')
+  ]
+)
+DataCycleCore::TestPreparations.load_dummy_data(
+  [
+    Rails.root.join('..', 'dummy_data')
   ]
 )
 DataCycleCore::TestPreparations.load_user_roles
