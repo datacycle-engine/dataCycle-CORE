@@ -17,7 +17,6 @@ module DataCycleCore
         get admin_path
         assert_response :success
       end
-
     end
   end
 end
