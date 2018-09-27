@@ -111,6 +111,14 @@ namespace :data_cycle_core do
       DataCycleCore::Organization::History.delete_all
       DataCycleCore::Organization::History::Translation.delete_all
 
+      puts 'load updated templates'
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:import_templates'].reenable
+
+      puts 'update all templates'
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].reenable
+
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
