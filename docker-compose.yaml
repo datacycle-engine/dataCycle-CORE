@@ -40,17 +40,13 @@ services:
     stdin_open: true
     tty: true
     depends_on:
-    - firefox
+      - chrome
   mailhog:
     image: yappabe/mailhog
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
       - '1035:8025'
-  firefox:
-    image: selenium/standalone-firefox-debug
-    volumes:
-      - /dev/shm:/dev/shm
   redis:
     image: 'redis:latest'
     command: redis-server
@@ -66,6 +62,14 @@ services:
     - REDIS_HOSTS=local:redis:6379
     ports:
     - 8081:8081
+  chrome:
+    image: selenium/standalone-chrome-debug
+    volumes:
+      - /dev/shm:/dev/shm
+#  firefox:
+#    image: selenium/standalone-firefox-debug
+#    volumes:
+#      - /dev/shm:/dev/shm
 volumes:
   gems:
   redis:

@@ -112,9 +112,9 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.56.0'
-  s.add_development_dependency 'capybara'
-  s.add_development_dependency 'selenium-webdriver'
-  s.add_development_dependency 'chromedriver-helper'
+  # s.add_development_dependency 'capybara'
+  # s.add_development_dependency 'selenium-webdriver'
+  # s.add_development_dependency 'chromedriver-helper'
 
   # only activate if required for local testing
   # s.add_development_dependency 'bullet'

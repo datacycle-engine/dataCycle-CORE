@@ -95,8 +95,6 @@ GEM
       public_suffix (>= 2.0.2, < 4.0)
     airbrussh (1.3.0)
       sshkit (>= 1.6.1, != 1.7.0)
-    archive-zip (0.11.0)
-      io-like (~> 0.3.0)
     arel (8.0.0)
     ast (2.4.0)
     awesome_print (1.8.0)
@@ -137,13 +135,6 @@ GEM
       capistrano (~> 3.7)
       capistrano-bundler
       puma (~> 3.4)
-    capybara (2.17.0)
-      addressable
-      mini_mime (>= 0.1.3)
-      nokogiri (>= 1.3.3)
-      rack (>= 1.0.0)
-      rack-test (>= 0.5.4)
-      xpath (>= 2.0, < 4.0)
     carrierwave (0.11.2)
       activemodel (>= 3.2.0)
       activesupport (>= 3.2.0)
@@ -152,11 +143,6 @@ GEM
       mimemagic (>= 0.3.0)
     carrierwave_backgrounder (0.4.2)
       carrierwave (~> 0.5)
-    childprocess (0.8.0)
-      ffi (~> 1.0, >= 1.0.11)
-    chromedriver-helper (1.2.0)
-      archive-zip (~> 0.10)
-      nokogiri (~> 1.8)
     chronic (0.10.2)
     coderay (1.1.2)
     concurrent-ruby (1.0.5)
@@ -230,7 +216,6 @@ GEM
     hashdiff (0.3.7)
     i18n (1.0.1)
       concurrent-ruby (~> 1.0)
-    io-like (0.3.0)
     jbuilder (2.7.0)
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
@@ -367,10 +352,6 @@ GEM
       unicode-display_width (~> 1.0, >= 1.0.1)
     ruby-progressbar (1.9.0)
     ruby_dep (1.5.0)
-    rubyzip (1.2.1)
-    selenium-webdriver (3.8.0)
-      childprocess (~> 0.5)
-      rubyzip (~> 1.0)
     simple_form (4.0.1)
       actionpack (>= 5.0)
       activemodel (>= 5.0)
@@ -412,8 +393,6 @@ GEM
     websocket-extensions (0.1.3)
     whenever (0.10.0)
       chronic (>= 0.6.3)
-    xpath (3.0.0)
-      nokogiri (~> 1.8)
 
 PLATFORMS
   ruby
@@ -428,8 +407,6 @@ DEPENDENCIES
   capistrano-rvm
   capistrano3-delayed-job
   capistrano3-puma
-  capybara
-  chromedriver-helper
   data_cycle_core!
   dotenv-rails
   gemsurance
@@ -437,7 +414,6 @@ DEPENDENCIES
   pry
   rubocop (~> 0.56.0)
   simplecov
-  selenium-webdriver
   spring
   spring-watcher-listen
   web-console
