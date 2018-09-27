@@ -34,7 +34,7 @@ before_script:
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
   - cd $CI_PROJECT_DIR
-
+# rerun
 cache:
   key: application-cache
   untracked: false
