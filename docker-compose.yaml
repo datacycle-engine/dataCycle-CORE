@@ -39,8 +39,8 @@ services:
     - mongodb
     stdin_open: true
     tty: true
-    depends_on:
-      - chrome
+#    depends_on:
+#      - chrome
   mailhog:
     image: yappabe/mailhog
     environment:
@@ -62,10 +62,10 @@ services:
     - REDIS_HOSTS=local:redis:6379
     ports:
     - 8081:8081
-  chrome:
-    image: selenium/standalone-chrome-debug
-    volumes:
-      - /dev/shm:/dev/shm
+#  chrome:
+#    image: selenium/standalone-chrome-debug
+#    volumes:
+#      - /dev/shm:/dev/shm
 #  firefox:
 #    image: selenium/standalone-firefox-debug
 #    volumes:
