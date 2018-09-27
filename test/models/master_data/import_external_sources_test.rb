@@ -11,72 +11,15 @@ describe DataCycleCore::MasterData::ImportExternalSources do
 
   describe 'loaded external_sources_config' do
     let(:import_path) do
-      Rails.root.join('congig', 'external_sources')
+      Rails.root.join('..', '..', 'config', 'external_sources')
+    end
+
+    let(:external_source) do
+      import_path.join('medienarchiv.yml')
     end
 
     let(:external_source_config) do
-      {
-        'name' => 'test_config',
-        'credentials' =>  {
-          'end_point' => '/api/v1/media.json',
-          'host' => 'https://views2.austria.info',
-          'token' => 'NySHyubtwJNYcXWa38wVNvWwG8KWzLbq'
-        },
-        'default_options' => {
-          'locales' => ['de']
-        },
-        'config' =>  {
-          'download_config' => {
-            'images' => {
-              'sorting' => 1,
-              'source_type' => 'images',
-              'endpoint' => 'DataCycleCore::Generic::MediaArchive::Endpoint',
-              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download'
-            },
-            'videos' => {
-              'sorting' => 2,
-              'source_type' => 'videos',
-              'endpoint' => 'DataCycleCore::Generic::MediaArchive::Endpoint',
-              'download_strategy' => 'DataCycleCore::Generic::MediaArchive::Download'
-            }
-          },
-          'import_config' => {
-            'images' => {
-              'sorting' => 2,
-              'source_type' => 'images',
-              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::ImportImages',
-              'transformations' => {
-                'place' => {
-                  'content_type' => 'DataCycleCore::Place',
-                  'template' => 'Örtlichkeit'
-                },
-                'image' => {
-                  'content_type' => 'DataCycleCore::CreativeWork',
-                  'template' => 'Bild',
-                  'place_template' => 'Örtlichkeit'
-                }
-              }
-            },
-            'videos' => {
-              'sorting' => 3,
-              'source_type' => 'videos',
-              'import_strategy' => 'DataCycleCore::Generic::MediaArchive::ImportVideos',
-              'transformations' => {
-                'place' => {
-                  'content_type' => 'DataCycleCore::Place',
-                  'template' => 'Örtlichkeit'
-                },
-                'image' => {
-                  'content_type' => 'DataCycleCore::CreativeWork',
-                  'template' => 'Video',
-                  'place_template' => 'Örtlichkeit'
-                }
-              }
-            }
-          },
-          'api_strategy' => 'DataCycleCore::Api::MediaArchiveExternalSource'
-        }
-      }
+      YAML.safe_load(File.open(external_source)).to_h
     end
 
     it 'has a config path defined' do

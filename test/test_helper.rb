@@ -83,6 +83,15 @@ module DataCycleCore
       ap errors
     end
 
+    def self.load_external_sources(paths)
+      paths.map do |path|
+        errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
+        next if errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
     def self.load_dummy_data(paths)
       paths.each do |path|
         DataCycleCore.content_tables.each do |content_table_name|
@@ -150,6 +159,12 @@ end
 DataCycleCore::TestPreparations.load_classifications(
   [
     Rails.root.join('..', 'data_types', 'classifications.yml')
+  ]
+)
+
+DataCycleCore::TestPreparations.load_external_sources(
+  [
+    Rails.root.join('..', '..', 'config', 'external_sources')
   ]
 )
 DataCycleCore::TestPreparations.load_templates(
