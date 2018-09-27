@@ -5,7 +5,10 @@ ENV['RAILS_ENV'] = 'test'
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'
-  SimpleCov.start 'rails'
+  SimpleCov.start 'rails' do
+    # exclude cache folder for gitlab-ci
+    add_filter '/cache/'
+  end
   SimpleCov.at_exit do
     puts "\n"
 
