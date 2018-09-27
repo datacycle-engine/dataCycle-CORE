@@ -83,7 +83,7 @@ module DataCycleCore
 
     def render_content_partial(partial, parameters)
       partials = [
-        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
+        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
         "content_#{partial}"
       ]
