@@ -56,7 +56,9 @@ module DataCycleCore
       end
 
       def set_last_updated_by
-        @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+        # TODO: check after #507: Benutzerinteraktionen mit Content soll von System und nicht mehr durch die Templates definiert werden.
+        last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
+        @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
       end
 
       def set_computed_values

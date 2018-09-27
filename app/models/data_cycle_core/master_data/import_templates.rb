@@ -3,8 +3,8 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      def self.import_all(validation: true)
-        template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+      def self.import_all(validation: true, template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
         @mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
@@ -82,7 +82,7 @@ module DataCycleCore
         end
         errors
       rescue StandardError => e
-        puts 'could not access a YML File'
+        puts "could not access a YML File: #{template_list}"
         puts e.message
         puts e.backtrace
       end

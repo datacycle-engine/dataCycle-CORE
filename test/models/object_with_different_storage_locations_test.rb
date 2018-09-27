@@ -12,7 +12,7 @@ module DataCycleCore
       data_set.save
 
       data_hash = {
-        'url' => 'estasdfkasdfasfd',
+        'url' => 'http://www.wtf.at',
         'event_period' => {
           'start_date' => '2017-07-18 12:00',
           'end_date' => '2017-10-29 12:00'
@@ -23,8 +23,13 @@ module DataCycleCore
       data_set.save
       returned_data_hash = data_set.get_data_hash.compact
       expected_hash = {
-        'id' => data_set.id,
-        'url' => 'estasdfkasdfasfd',
+        'url' => 'http://www.wtf.at',
+        'image' => [],
+        'location' => [],
+        'sub_event' => [],
+        'output_channel' => [],
+        'tags' => [],
+        'overlay' => [],
         'event_period' => {
           'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),
           'end_date' => '2017-10-29 12:00'.to_datetime.to_s(:db)
@@ -33,7 +38,7 @@ module DataCycleCore
       returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)
       end
-      assert_equal(expected_hash, returned_data_hash)
+      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(0, error[:error].count)
     end
 
