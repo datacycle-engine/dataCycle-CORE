@@ -1,7 +1,9 @@
-require "application_system_test_case"
+# frozen_string_literal: true
+
+require 'application_system_test_case'
 
 class UsersTest < ApplicationSystemTestCase
-  test "visiting the index" do
+  test 'visiting the index' do
     visit '/'
 
     fill_in('E-Mail', with: 'tester@datacycle.at')
