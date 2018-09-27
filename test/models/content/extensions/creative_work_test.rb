@@ -4,9 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
-    def excepted_attributes
-      ['id', 'data_pool', 'data_type', 'last_updated_by', 'date_modified', 'publication_schedule', 'deleted_by']
-    end
     test 'CreativeWork exists' do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -856,7 +853,7 @@ module DataCycleCore
         'tags' => [],
         'output_channel' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save CreativeWork with only Titel' do
@@ -872,7 +869,7 @@ module DataCycleCore
         'tags' => [],
         'output_channel' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
@@ -893,7 +890,7 @@ module DataCycleCore
         'tags' => [],
         'output_channel' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save CreativeWork with sub-properties_tree' do
@@ -915,10 +912,10 @@ module DataCycleCore
         'output_channel' => []
       }
 
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
       data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
     end
 
     test 'save CreativeWork, Data properly written to metadata' do
@@ -947,7 +944,7 @@ module DataCycleCore
       }
       data_set.set_data_hash(data_hash: test_data)
       data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
       expected_data_hash = {
         'validity_period' => {
           'valid_from' => '2017-05-01'.in_time_zone('UTC'),
@@ -1003,7 +1000,7 @@ module DataCycleCore
       }
 
       received_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash, received_hash.except(*excepted_attributes))
+      assert_equal(expected_hash, received_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(current_user.id, data_set.updated_by)
     end
     # TODO: move to specific test
@@ -1058,14 +1055,14 @@ module DataCycleCore
         prevent_history: true
       )
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *excepted_attributes))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
 
       expected_hash['description'] = 'only change description'
 
       content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
 
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *excepted_attributes))
+      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
     end
   end

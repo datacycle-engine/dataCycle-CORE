@@ -51,7 +51,9 @@ module DataCycleCore
         creative_work: [],
         event: [],
         organization: [],
-        place: [],
+        place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
+                'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type'],
         person: []
       }.freeze
 

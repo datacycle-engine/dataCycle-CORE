@@ -4,9 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class QuizTest < ActiveSupport::TestCase
-    def excepted_attributes
-      ['id', 'data_pool', 'data_type', 'deleted_by', 'last_updated_by', 'date_created', 'date_deleted', 'date_modified', 'publication_schedule']
-    end
     test 'CreativeWork exists' do
       data = DataCycleCore::CreativeWork.new
       assert_equal(data.class, DataCycleCore::CreativeWork)
@@ -61,7 +58,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *excepted_attributes))
+      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)
       assert_equal(4, returned_data_hash['question'][1]['suggested_answer'].count)
@@ -130,7 +127,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *excepted_attributes))
+      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)
       assert_equal(4, returned_data_hash['question'][1]['suggested_answer'].count)

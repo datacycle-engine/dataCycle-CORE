@@ -4,12 +4,12 @@ require 'test_helper'
 
 module DataCycleCore
   class PlaceTest < ActiveSupport::TestCase
-    def excepted_attributes
-      ['data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'overlay',
-       'tags', 'image', 'stars', 'output_channel', 'source', 'creator', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
-       'fontend_type', 'primary_image', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-       'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'opening_hours_specification', 'frontend_type']
-    end
+    # def DataCycleCore::TestPreparations.excepted_attributes
+    #   ['data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'overlay',
+    #    'tags', 'image', 'stars', 'output_channel', 'source', 'creator', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
+    #    'fontend_type', 'primary_image', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
+    #    'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'opening_hours_specification', 'frontend_type']
+    # end
     test 'Place exists' do
       data = DataCycleCore::Place.new
       assert_equal(data.class, DataCycleCore::Place)
@@ -24,12 +24,17 @@ module DataCycleCore
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13 }, update_search_all: false)
       data_set.save
       expected_hash = {
-        'id' => data_set.id,
         'name' => 'Dies ist ein Test!',
         'longitude' => 40.56,
-        'latitude' => 13.13
+        'latitude' => 13.13,
+        'tags' => [],
+        'output_channel' => [],
+        'image' => [],
+        'overlay' => [],
+        'primary_image' => [],
+        'opening_hours_specification' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*excepted_attributes))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')))
       assert_nil(data_set.desc)
       assert_equal(['name'], data_set.new_content_fields)
       assert_equal(['name', 'address', 'location'], data_set.object_browser_fields)
@@ -51,13 +56,18 @@ module DataCycleCore
       data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'longitude' => 40.56, 'latitude' => 13.13, 'location' => point })
       data_set.save
       expected_hash = {
-        'id' => data_set.id,
         'name' => 'Dies ist ein Test!',
         'longitude' => 40.56,
         'latitude' => 13.13,
-        'location' => point
+        'location' => point,
+        'tags' => [],
+        'output_channel' => [],
+        'image' => [],
+        'overlay' => [],
+        'primary_image' => [],
+        'opening_hours_specification' => []
       }
-      resulted_hash = data_set.get_data_hash.compact.except(*excepted_attributes)
+      resulted_hash = data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place'))
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
       assert_equal(expected_hash.except('location'), resulted_hash.except('location'))
       assert_equal(true, expected_hash['location'].x == resulted_hash['location'].x)

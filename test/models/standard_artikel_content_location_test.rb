@@ -4,12 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class StandardArtikelÖrtlichkeitTest < ActiveSupport::TestCase
-    def excepted_attributes
-      ['data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'overlay',
-       'tags', 'image', 'stars', 'output_channel', 'source', 'creator', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
-       'fontend_type', 'primary_image', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-       'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'opening_hours_specification', 'frontend_type']
-    end
     test 'create a Örtlichkeit' do
       # create a Örtlichkeits
       place_template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
@@ -20,13 +14,18 @@ module DataCycleCore
       place_hash1 = {
         'name' => 'Wien',
         'latitude' => 1,
-        'longitude' => 2
+        'longitude' => 2,
+        'tags' => [],
+        'image' => [],
+        'overlay' => [],
+        'primary_image' => [],
+        'output_channel' => [],
+        'opening_hours_specification' => []
       }
       data_set_place1.set_data_hash(data_hash: place_hash1)
       data_set_place1.save
-      place_id1 = data_set_place1.id
       expected_hash = data_set_place1.get_data_hash
-      assert_equal(place_hash1.merge({ 'id' => place_id1 }), expected_hash.compact.except(*excepted_attributes))
+      assert_equal(place_hash1, expected_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')))
     end
 
     test 'insert embeddedObject within same table' do
@@ -105,18 +104,20 @@ module DataCycleCore
         'text' => 'wtf is going on???',
         'headline' => 'Dies ist ein Test!',
         'quotation' => [{
-          'id' => '',
           'text' => 'However beautiful the strategy, you should occasionally look at the results.',
-          'author' => [person_id]
+          'author' => [person_id],
+          'image' => []
         }],
         'textblock' => [],
+        'tags' => [],
+        'image' => [],
+        'output_channel' => [],
         'content_location' => [place_id1]
       }
-      expected_hash['quotation'][0]['id'] = returned_data_hash['quotation'][0]['id']
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('id', 'quotation', 'content_location', *excepted_attributes))
+      assert_equal(expected_hash.except('quotation', 'content_location'), returned_data_hash.compact.except('quotation', 'content_location', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal([place_id1], returned_data_hash['content_location'].ids)
-      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *excepted_attributes))
+      assert_equal(expected_hash['quotation'].first.except('author'), returned_data_hash['quotation'].first.except('author', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal([person_id], returned_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
@@ -136,9 +137,9 @@ module DataCycleCore
       updated_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'quotation', 'content_location', *excepted_attributes))
+      assert_equal(expected_hash.except('quotation', 'content_location'), updated_data_hash.compact.except('id', 'quotation', 'content_location', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal([place_id2], updated_data_hash['content_location'].ids)
-      assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author', *excepted_attributes))
+      assert_equal(expected_hash['quotation'].first.except('author'), updated_data_hash['quotation'].first.except('author', *DataCycleCore::TestPreparations.excepted_attributes))
       assert_equal([person_id], updated_data_hash['quotation'].first['author'].ids)
 
       # check consistency of data in DB
