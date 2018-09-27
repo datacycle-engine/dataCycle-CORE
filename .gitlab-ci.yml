@@ -37,7 +37,7 @@ before_script:
 
 cache:
   key: application-cache
-  untracked: true
+  untracked: false
   paths:
     - cache/bundler
     - node_modules
