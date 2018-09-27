@@ -120,12 +120,6 @@ rails_review_test:
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
     - rails test
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_coverage"
-    paths:
-    - coverage/
-    expire_in: 1 week
-    when: on_success
 
 cypress_review:
   only:
