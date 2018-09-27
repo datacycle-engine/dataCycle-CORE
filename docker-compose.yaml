@@ -39,12 +39,18 @@ services:
     - mongodb
     stdin_open: true
     tty: true
+    depends_on:
+    - firefox
   mailhog:
     image: yappabe/mailhog
     environment:
       DNSDOCK_ALIAS: localhost
     ports:
       - '1035:8025'
+  firefox:
+    image: selenium/standalone-firefox-debug
+    volumes:
+      - /dev/shm:/dev/shm
   redis:
     image: 'redis:latest'
     command: redis-server
