@@ -28,8 +28,6 @@ before_script:
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
-  - bundle install --path=cache/bundler
-
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -37,16 +35,24 @@ before_script:
 
 cache:
   key: application-cache
-  untracked: true
+  untracked: false
   paths:
     - cache/bundler
     - node_modules
+    - lib/assets/
 
 services:
   - name: mdillon/postgis:9.6
     alias: postgres
   - name: mvertes/alpine-mongo:3.6.3-0
     alias: mongodb
+
+build_caches:
+  stage: build
+  script:
+    - bundle install --path=cache/bundler
+    - yarn
+    - npx gulp production
 
 # Running tests
 rails_test:
@@ -75,8 +81,6 @@ cypress:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - yarn
-    - npx gulp production
     - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
@@ -105,8 +109,12 @@ code_validation:
 
 # Running tests
 rails_review_test:
+#  variables:
+#    CI_DEBUG_TRACE: "true"
   only:
     - branches
+  cache:
+    policy: pull
   except:
     - master
     - release
@@ -122,8 +130,12 @@ rails_review_test:
     - rails test
 
 cypress_review:
+#  variables:
+#    CI_DEBUG_TRACE: "true"
   only:
     - branches
+  cache:
+    policy: pull
   except:
     - master
     - release
@@ -138,8 +150,6 @@ cypress_review:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - yarn
-    - npx gulp production
     - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
@@ -154,7 +164,11 @@ cypress_review:
 # brakeman
 # rubocop
 code_review_validation:
+#  variables:
+#    CI_DEBUG_TRACE: "true"
   stage: check
+  cache:
+    policy: pull
   only:
     - branches
   except:
