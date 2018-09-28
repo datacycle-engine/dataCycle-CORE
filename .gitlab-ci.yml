@@ -39,7 +39,7 @@ cache:
   paths:
     - cache/bundler
     - node_modules
-    - lib/assets/
+    - lib/assets
 
 services:
   - name: mdillon/postgis:9.6
@@ -114,6 +114,11 @@ rails_review_test:
   only:
     - branches
   cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
     policy: pull
   except:
     - master
@@ -135,6 +140,11 @@ cypress_review:
   only:
     - branches
   cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
     policy: pull
   except:
     - master
@@ -168,6 +178,11 @@ code_review_validation:
 #    CI_DEBUG_TRACE: "true"
   stage: check
   cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
     policy: pull
   only:
     - branches
