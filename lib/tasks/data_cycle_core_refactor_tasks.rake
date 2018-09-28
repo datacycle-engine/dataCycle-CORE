@@ -22,6 +22,7 @@ namespace :data_cycle_core do
       DataCycleCore::Search.where(content_data_type: 'DataCycleCore::Organization').update_all(content_data_type: 'DataCycleCore::Thing')
       DataCycleCore::WatchListDataHash.where(hashable_type: 'DataCycleCore::Organization').update_all(hashable_type: 'DataCycleCore::Thing')
       DataCycleCore::Subscription.where(subscribable_type: 'DataCycleCore::Organization').update_all(subscribable_type: 'DataCycleCore::Thing')
+      DataCycleCore::DataLink.where(item_type: 'DataCycleCore::Organization').update_all(item_type: 'DataCycleCore::Thing')
 
       puts 'migrate data'
       puts '--> things'
