@@ -58,6 +58,13 @@ build_caches:
 
 # Running tests
 rails_test:
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -71,6 +78,13 @@ rails_test:
     - rails test -b
 
 cypress:
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -98,6 +112,13 @@ cypress:
 # rubocop
 code_validation:
   stage: check
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -132,7 +153,7 @@ rails_review_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test
+    - rails test -b
 
 cypress_review:
   only:
@@ -198,6 +219,13 @@ code_review_validation:
 # deployment
 deploy_release:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap release deploy
@@ -212,6 +240,13 @@ deploy_release:
 # deployment
 deploy_pre_release:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap pre_release deploy
@@ -226,6 +261,13 @@ deploy_pre_release:
 # deployment
 deploy_development:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap development deploy
