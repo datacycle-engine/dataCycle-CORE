@@ -115,6 +115,10 @@ rails_review_test:
     - branches
   cache:
     key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
     policy: pull
   except:
     - master
