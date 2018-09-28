@@ -48,6 +48,13 @@ services:
     alias: mongodb
 
 build_caches:
+  cache:
+    key: application-cache
+    untracked: false
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
   stage: build
   script:
     - bundle install --path=cache/bundler
@@ -109,8 +116,8 @@ code_validation:
 
 # Running tests
 rails_review_test:
-#  variables:
-#    CI_DEBUG_TRACE: "true"
+  variables:
+    CI_DEBUG_TRACE: "true"
   only:
     - branches
   cache:
