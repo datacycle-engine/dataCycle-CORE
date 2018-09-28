@@ -50,13 +50,6 @@ services:
     alias: mongodb
 
 build_caches:
-  cache:
-    key: application-cache
-    untracked: false
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
   stage: build
   script:
     - bundle install --path=cache/bundler
@@ -118,16 +111,9 @@ code_validation:
 
 # Running tests
 rails_review_test:
-  variables:
-    CI_DEBUG_TRACE: "true"
   only:
     - branches
   cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
     policy: pull
   except:
     - master
@@ -182,31 +168,31 @@ rails_review_test:
 # bundle-audit
 # brakeman
 # rubocop
-code_review_validation:
-#  variables:
-#    CI_DEBUG_TRACE: "true"
-  stage: check
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  tags:
-    - data-cycle-review
-  script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+#code_review_validation:
+##  variables:
+##    CI_DEBUG_TRACE: "true"
+#  stage: check
+#  cache:
+#    key: application-cache
+#    paths:
+#      - cache/bundler
+#      - node_modules
+#      - lib/assets
+#    policy: pull
+#  only:
+#    - branches
+#  except:
+#    - master
+#    - release
+#    - pre-release
+#    - develop
+#  tags:
+#    - data-cycle-review
+#  script:
+#    - bundle-audit update
+#    - bundle audit check
+#    - brakeman
+#    - rubocop --format fuubar
 
 # deployment
 deploy_release:
@@ -249,27 +235,27 @@ deploy_development:
     url: http://core-development.datacycle.at/
   allow_failure: false
 
-deploy_review:
-  stage: deploy
-  script:
-    - bundle exec rake app:tmp:create
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-    - remote-develop
-  tags:
-    - data-cycle-review
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
-    on_stop: stop_review
-  allow_failure: false
+#deploy_review:
+#  stage: deploy
+#  script:
+#    - bundle exec rake app:tmp:create
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+#  only:
+#    - branches
+#  except:
+#    - master
+#    - release
+#    - pre-release
+#    - develop
+#    - remote-develop
+#  tags:
+#    - data-cycle-review
+#  environment:
+#    name: review/$CI_COMMIT_REF_NAME
+#    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
+#    on_stop: stop_review
+#  allow_failure: false
 
 stop_review:
   stage: deploy
