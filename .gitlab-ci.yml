@@ -134,70 +134,66 @@ rails_review_test:
     - bundle exec rake db:seed
     - rails test
 
-#cypress_review:
-##  variables:
-##    CI_DEBUG_TRACE: "true"
-#  only:
-#    - branches
-#  cache:
-#    key: application-cache
-#    paths:
-#      - cache/bundler
-#      - node_modules
-#      - lib/assets
-#    policy: pull
-#  except:
-#    - master
-#    - release
-#    - pre-release
-#    - develop
-#  tags:
-#    - data-cycle-review
-#  script:
-#    - bundle exec rake db:drop
-#    - bundle exec rake db:create
-#    - bundle exec rake db:migrate
-#    - bundle exec rake db:seed
-#    - bundle exec rake app:data_cycle_core:update:import_classifications
-#    - bundle exec rake app:data_cycle_core:update:import_templates
-#    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
-#    - cd $CI_PROJECT_DIR && npx cypress run
-#  artifacts:
-#    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
-#    paths:
-#    - cypress/screenshots/
-#    expire_in: 1 week
-#    when: on_failure
+cypress_review:
+  only:
+    - branches
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - bundle exec rake app:data_cycle_core:update:import_classifications
+    - bundle exec rake app:data_cycle_core:update:import_templates
+    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd $CI_PROJECT_DIR && npx cypress run
+  artifacts:
+    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+    paths:
+    - cypress/screenshots/
+    expire_in: 1 week
+    when: on_failure
 
 # code validation
 # bundle-audit
 # brakeman
 # rubocop
-#code_review_validation:
-##  variables:
-##    CI_DEBUG_TRACE: "true"
-#  stage: check
-#  cache:
-#    key: application-cache
-#    paths:
-#      - cache/bundler
-#      - node_modules
-#      - lib/assets
-#    policy: pull
-#  only:
-#    - branches
-#  except:
-#    - master
-#    - release
-#    - pre-release
-#    - develop
-#  tags:
-#    - data-cycle-review
-#  script:
-#    - bundle-audit update
-#    - bundle audit check
-#    - brakeman
-#    - rubocop --format fuubar
+code_review_validation:
+  stage: check
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+  script:
+    - bundle-audit update
+    - bundle audit check
+    - brakeman
+    - rubocop --format fuubar
 
 # deployment
 deploy_release:
@@ -240,27 +236,34 @@ deploy_development:
     url: http://core-development.datacycle.at/
   allow_failure: false
 
-#deploy_review:
-#  stage: deploy
-#  script:
-#    - bundle exec rake app:tmp:create
-#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-#    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
-#  only:
-#    - branches
-#  except:
-#    - master
-#    - release
-#    - pre-release
-#    - develop
-#    - remote-develop
-#  tags:
-#    - data-cycle-review
-#  environment:
-#    name: review/$CI_COMMIT_REF_NAME
-#    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
-#    on_stop: stop_review
-#  allow_failure: false
+deploy_review:
+  stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  script:
+    - bundle exec rake app:tmp:create
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+    - remote-develop
+  tags:
+    - data-cycle-review
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
+    on_stop: stop_review
+  allow_failure: false
 
 stop_review:
   stage: deploy
