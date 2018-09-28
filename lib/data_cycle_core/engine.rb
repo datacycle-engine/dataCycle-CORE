@@ -66,13 +66,13 @@ module DataCycleCore
     # :special_data_attributes: @deprecated: remove after APIv2 migrations
     # special data attributes are ignored by the standard json serializes and must be handled by the application itself
     mattr_accessor :special_data_attributes
-    self.special_data_attributes = ['id', 'validity_period', 'creator', 'last_updated_by']
+    self.special_data_attributes = ['id', 'validity_period']
 
     mattr_accessor :internal_classification_attributes
     self.internal_classification_attributes = ['data_type']
 
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['date_created', 'date_modified', 'creator', 'is_part_of', 'last_updated_by'] + internal_classification_attributes
+    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
@@ -271,7 +271,12 @@ module DataCycleCore
     end
 
     config.to_prepare do
-      Dir.glob(Rails.root + 'app/decorators/**/*_decorator*.rb').each do |c|
+      Dir.glob(
+        [
+          Rails.root + 'app/decorators/**/*_decorator*.rb',
+          Rails.root + 'app/extensions/**/*.rb'
+        ]
+      ).each do |c|
         require_dependency(c)
       end
     end

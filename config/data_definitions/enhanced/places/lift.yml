@@ -75,6 +75,9 @@
         :template_name: Bild
         :api:
           :name: photo
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :data_type:
         :label: Inhaltstype
         :type: classification

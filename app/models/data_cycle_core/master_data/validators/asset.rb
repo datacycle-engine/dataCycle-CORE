@@ -14,7 +14,7 @@ module DataCycleCore
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            (@error[:warning][key] ||= []) << I18n.t(:data_type, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
+            (@error[:warning][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
           end
           @error
         end
@@ -28,7 +28,7 @@ module DataCycleCore
               if asset_keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                (@error[:warning][key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
+                (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
               end
             end
           end
@@ -38,7 +38,7 @@ module DataCycleCore
             if key.is_a?(::String)
               check_reference(key)
             else
-              (@error[:warning][key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warning], data: key, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:warning][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warning], data: key, template: template['label'], locale: DataCycleCore.ui_language)
             end
           end
         end
@@ -46,7 +46,7 @@ module DataCycleCore
         def check_reference(key)
           return unless uuid?(key)
           find_asset = DataCycleCore::Asset.find(key)
-          (@error[:warning][key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
+          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
         end
 
         def uuid?(data)

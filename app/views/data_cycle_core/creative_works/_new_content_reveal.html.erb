@@ -11,7 +11,7 @@
             <% sources = [] %>
             <% @content.children.each do |child| %>
               <% I18n.with_locale(child.first_available_locale) do %>
-                <% sources.push(["#{child.title} (#{child.template_name}, #{I18n.locale})", "source_id=>#{child.id}, source_type=>#{child.class.name}"]) %>
+                <% sources.push(["#{child.title} (#{child.template_name}, #{I18n.locale})", "source_id=>#{child.id},source_table=>#{child.class.table_name}"]) %>
               <% end %>
             <% end %>
 
@@ -35,7 +35,7 @@
     </div>
 
     <% if DataCycleCore::Feature::IdeaCollection.enabled? &&
-          (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_keys.first)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage)) %>
+          (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_keys.first)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage_name(@content))) %>
       <div class="reveal new-item" id="new-idea-collection" data-reveal data-multiple-opened="true">
           <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template, locale: DataCycleCore.ui_language) %></h3>
 

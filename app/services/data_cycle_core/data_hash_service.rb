@@ -4,7 +4,6 @@ module DataCycleCore
   class DataHashService
     # TODO: refactor: class => module
     extend NormalizeService
-    require 'hashdiff'
 
     def self.flatten_datahash_value(datahash, template_hash, debug = false)
       datahash = flatten_recursive(datahash.to_h, template_hash)
@@ -12,10 +11,6 @@ module DataCycleCore
       raise datahash.inspect if debug == true
 
       datahash
-    end
-
-    def self.data_hash_is_dirty?(data_hash, orig_data_hash)
-      HashDiff.diff(normalize_data_hash(data_hash), normalize_data_hash(orig_data_hash), array_path: true).present?
     end
 
     # TODO: see old embedded-editor
@@ -47,23 +42,24 @@ module DataCycleCore
       datahash
     end
 
-    def self.create_internal_object(storage_location, template_name, object_params, current_user)
+    def self.create_internal_object(storage_location, template_name, object_params, current_user, is_part_of = nil, source = nil)
       object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
 
       template = get_internal_template(storage_location, template_name)
       object.schema = template.schema
       object.template_name = template.template_name
+      object.created_by = current_user.id
+      object.is_part_of = is_part_of if is_part_of.present?
       object.save
 
       return nil if object_params[:datahash].nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-      datahash['creator'] = [current_user[:id]]
       datahash['headline_external'] = datahash['headline']
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
-      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true)
+      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
 
       return nil if valid[:error].present?
       object

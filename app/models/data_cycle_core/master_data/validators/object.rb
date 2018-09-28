@@ -16,7 +16,8 @@ module DataCycleCore
             'linked' => Validators::Linked,
             'embedded' => Validators::Embedded,
             'classification' => Validators::Classification,
-            'asset' => Validators::Asset
+            'asset' => Validators::Asset,
+            'computed' => Validators::Computed
           }
         end
 

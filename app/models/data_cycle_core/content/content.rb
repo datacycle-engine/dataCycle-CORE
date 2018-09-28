@@ -16,9 +16,9 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+      DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-        include module_name
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::MasterData::DataConverter
@@ -41,7 +41,7 @@ module DataCycleCore
         end
       end
 
-      def respond_to?(method_name)
+      def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
@@ -54,7 +54,7 @@ module DataCycleCore
       end
 
       def property_definitions
-        schema['properties']
+        schema&.dig('properties') || {}
       rescue StandardError
         {}
       end
@@ -103,9 +103,21 @@ module DataCycleCore
         }.keys
       end
 
+      def global_property_names
+        property_definitions.select { |_, definition|
+          definition['global'] == true
+        }.keys
+      end
+
       def included_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'object'
+        }.keys
+      end
+
+      def computed_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'computed'
         }.keys
       end
 
@@ -143,53 +155,43 @@ module DataCycleCore
         }.compact.uniq
       end
 
-      def get_data_hash(timestamp = Time.zone.now)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
-        as_of(timestamp).try(:to_h, timestamp)
-      end
-
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
-          property_value =
-            if property_name == 'id' && history?
-              send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
-            elsif plain_property_names.include?(property_name)
-              send(property_name)
-            elsif classification_property_names.include?(property_name)
-              send(property_name).try(:pluck, :id)
-            elsif linked_property_names.include?(property_name)
-              linked_array = get_property_value(property_name, property_definitions[property_name])
-              linked_array.presence || []
-            elsif included_property_names.include?(property_name)
-              embedded_hash = send(property_name).to_h
-              embedded_hash.presence
-            elsif embedded_property_names.include?(property_name)
-              embedded_array = send(property_name)
-              embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
-              embedded_array.blank? ? [] : embedded_array.compact
-            elsif asset_property_names.include?(property_name)
-              send(property_name)
-            else
-              raise StandardError, "cannot determine how to serialize #{property_name}"
-            end
+          property_value = attribute_to_h(property_name, timestamp)
           { property_name.to_s => property_value }
         }.inject(&:merge).deep_stringify_keys
+      end
+
+      def attribute_to_h(property_name, timestamp = Time.zone.now)
+        if property_name == 'id' && history?
+          send(self.class.to_s.split('::')[1].foreign_key) # for history records original_key is saved in "content"_id
+        elsif plain_property_names.include?(property_name)
+          send(property_name)
+        elsif classification_property_names.include?(property_name)
+          send(property_name).try(:pluck, :id)
+        elsif linked_property_names.include?(property_name)
+          linked_array = get_property_value(property_name, property_definitions[property_name])
+          linked_array.presence || []
+        elsif included_property_names.include?(property_name)
+          embedded_hash = send(property_name).to_h
+          embedded_hash.presence
+        elsif embedded_property_names.include?(property_name)
+          embedded_array = send(property_name)
+          embedded_array = embedded_array.map { |item| item.get_data_hash(timestamp) } if embedded_array.present?
+          embedded_array.blank? ? [] : embedded_array.compact
+        elsif asset_property_names.include?(property_name)
+          send(property_name)
+        elsif computed_property_names.include?(property_name)
+          send(property_name)
+        else
+          raise StandardError, "cannot determine how to serialize #{property_name}"
+        end
       end
 
       def verify
         inconsistent_properties = translatable_property_names & untranslatable_property_names
         raise StandardError, "cannot determine whether some properties (#{inconsistent_properties.join(',')}) are translatable or not" unless inconsistent_properties.empty?
         self
-      end
-
-      def diff(data, template = nil)
-        differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
-      end
-
-      def diff?(data, template = nil)
-        differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
       end
 
       def history?
@@ -220,8 +222,6 @@ module DataCycleCore
         features.flatten.uniq.compact
       end
 
-      # private
-
       def get_property_value(property_name, property_definition)
         if plain_property_names.include?(property_name)
           load_json_attribute(property_name, property_definition)
@@ -235,6 +235,8 @@ module DataCycleCore
           load_embedded_objects(property_name)
         elsif asset_property_names.include?(property_name)
           load_asset_relation(property_name)
+        elsif computed_property_names.include?(property_name)
+          load_computed_attribute(property_name, property_definition)
         else
           raise NotImplementedError
         end
@@ -243,6 +245,13 @@ module DataCycleCore
       def load_json_attribute(property_name, property_definition)
         convert_to_type(
           property_definition['type'],
+          send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
+        )
+      end
+
+      def load_computed_attribute(property_name, property_definition)
+        convert_to_type(
+          property_definition.dig('compute', 'type'),
           send(NEW_STORAGE_LOCATION[property_definition['storage_location']])&.dig(property_name.to_s)
         )
       end

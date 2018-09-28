@@ -7,6 +7,7 @@
         :label: OutdoorActive - Frontend-Typ
         :type: classification
         :tree_label: OutdoorActive - FrontendTypes
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -14,6 +15,7 @@
         :label: OutdoorActive - Kategorie
         :type: classification
         :tree_label: OutdoorActive - Kategorien
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -21,6 +23,7 @@
         :label: OutdoorActive - Kategorie
         :type: classification
         :tree_label: OutdoorActive - Kategorien
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -28,6 +31,7 @@
         :label: OutdoorActive - Tags
         :type: classification
         :tree_label: OutdoorActive - Tags
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -35,6 +39,7 @@
         :label: Regionen
         :type: classification
         :tree_label: OutdoorActive - Regionen
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -42,6 +47,7 @@
         :label: Quelle
         :type: classification
         :tree_label: OutdoorActive - Quellen
+        :external: true
         :ui:
           :show:
             :content_area: header

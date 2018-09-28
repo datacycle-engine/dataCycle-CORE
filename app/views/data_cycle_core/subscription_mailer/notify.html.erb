@@ -1,13 +1,9 @@
   <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
    <tr>
     <td style="padding:0 12pt 24pt 6pt;" >
-        <p style="line-height:15pt"><span
-        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b>Guten Tag!</b><br>
-        <% if @contents.size > 1 %>
-          Folgende abonnierte Inhalte haben sich geändert:
-        <% else %>
-          Ein abonnierter Inhalt hat sich geändert:
-        <% end %>
+      <p style="line-height:15pt"><span
+        style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: DataCycleCore.ui_language) %></b><br>
+        <%= t('common.abo_changed', count: @contents.size, locale: DataCycleCore.ui_language) %>
       </span></p>
     </td>
    </tr>

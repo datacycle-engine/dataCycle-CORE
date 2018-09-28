@@ -83,7 +83,7 @@ module DataCycleCore
 
     def render_content_partial(partial, parameters)
       partials = [
-        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
+        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
         "#{parameters[:content].class.class_name.underscore}_#{partial}",
         "content_#{partial}"
       ]
@@ -125,6 +125,7 @@ module DataCycleCore
           feature_templates(key, definition, content),
           "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
           "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+          definition.dig('compute', 'type')&.underscore&.to_s,
           definition['type'].underscore.to_s
         ]
       end

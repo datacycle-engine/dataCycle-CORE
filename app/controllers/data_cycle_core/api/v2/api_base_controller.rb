@@ -46,7 +46,7 @@ module DataCycleCore
           user = User.find_by(access_token: params[:token]) if params[:token].present?
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
-          sign_in user
+          sign_in user, store: false
         end
 
         def access_denied(exception)

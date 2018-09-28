@@ -26,10 +26,6 @@
         :type: string
         :storage_location: value
         :search: true
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
       :license:
         :label: Copyright / Lizenz
         :type: string

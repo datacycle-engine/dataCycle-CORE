@@ -65,7 +65,7 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
       options: this.options,
       content_id: this.content_id,
       content_type: this.content_type,
-      id: ids
+      object_ids: ids
     },
     dataType: 'script',
     contentType: 'application/json'

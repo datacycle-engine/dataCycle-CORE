@@ -1,0 +1,78 @@
+---
+- :data:
+    :name: Computed-Test
+    :type: object
+    :content_type: entity
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :alternative_headline:
+        :label: Subüberschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :comp_value_1:
+        :label: Value 1
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :comp_value_2:
+        :label: Value 2
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :computed_value:
+        :label: Sum (value 1, value 2)
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Math
+          :method: sum
+          :parameters:
+            :0: comp_value_1
+            :1: comp_value_2
+      :computed_value_2:
+        :label: Copy (value 1)
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Common
+          :method: copy
+          :parameters:
+            :0: comp_value_1
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Test-Computed"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

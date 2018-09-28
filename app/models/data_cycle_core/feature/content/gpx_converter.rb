@@ -5,15 +5,15 @@ module DataCycleCore
     module Content
       module GpxConverter
         def create_gpx
-          builder = Nokogiri::XML::Builder.new do |xml|
+          builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
               xml.metadata do
                 xml.name title
                 xml.desc ActionView::Base.full_sanitizer.sanitize(send('description')) if respond_to?('description')
                 xml.time updated_at
-                if creator&.first&.name.present?
+                if created_by_user&.name.present?
                   xml.author do
-                    xml.name creator&.first&.name
+                    xml.name created_by_user&.name
                   end
                 end
               end

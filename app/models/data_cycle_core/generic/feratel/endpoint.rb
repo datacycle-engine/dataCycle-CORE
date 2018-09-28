@@ -17,6 +17,7 @@ module DataCycleCore
           range_ids = load_location_range_ids(
             @options.dig(:options, :location_range_codes)
           )
+
           if range_ids.include?(range_code)
             range_ids[range_code]
           elsif range_code == @primary_range_code
@@ -131,10 +132,16 @@ module DataCycleCore
             url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
           end
 
+          request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids)
+
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
           response = Faraday.new.post do |req|
             req.url url
             req.options.timeout = 120
-            req.body = { 'xmlString' => send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids) }
+            req.body = { 'xmlString' => request_parameters }
           end
 
           envelop = Nokogiri::XML(response.body)
@@ -147,7 +154,7 @@ module DataCycleCore
         end
 
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -178,7 +185,7 @@ module DataCycleCore
         end
 
         def create_holiday_themes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -192,7 +199,7 @@ module DataCycleCore
         end
 
         def create_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -206,7 +213,7 @@ module DataCycleCore
         end
 
         def create_infrastructure_topics_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -220,7 +227,7 @@ module DataCycleCore
         end
 
         def create_custom_attributes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -234,7 +241,7 @@ module DataCycleCore
         end
 
         def create_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -248,7 +255,7 @@ module DataCycleCore
         end
 
         def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -262,7 +269,7 @@ module DataCycleCore
         end
 
         def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -276,7 +283,7 @@ module DataCycleCore
         end
 
         def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -290,7 +297,7 @@ module DataCycleCore
         end
 
         def create_rating_questions_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
                 Array(lang).each do |l|
@@ -304,7 +311,7 @@ module DataCycleCore
         end
 
         def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
                 xml.Infrastructure
@@ -331,7 +338,7 @@ module DataCycleCore
         end
 
         def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
                 xml.ServiceProvider('Type' => 'AdditionalService')
@@ -367,7 +374,7 @@ module DataCycleCore
         end
 
         def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml do |xml|
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),

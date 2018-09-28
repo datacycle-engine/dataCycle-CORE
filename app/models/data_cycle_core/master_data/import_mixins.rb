@@ -3,8 +3,8 @@
 module DataCycleCore
   module MasterData
     module ImportMixins
-      def self.import_all(validation: true)
-        template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+      def self.import_all(validation: true, template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         mixin_list, duplicates = import_all_mixins(template_paths: template_paths, _validation: validation)
         return mixin_list, duplicates
       end

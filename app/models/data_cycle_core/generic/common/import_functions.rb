@@ -28,13 +28,16 @@ module DataCycleCore
           content.metadata ||= {}
           content.schema = template.schema
           content.template_name = template.template_name
+          content.created_by = data['created_by']
           content.save!
 
-          overlays = {}
-          DataCycleCore::Feature::OverlayAttributeService.call(content).each do |attribute|
-            overlays[attribute] = [content.send(attribute).first&.get_data_hash].compact.presence if content.respond_to?(attribute)
+          global_attributes = {}
+          (content.global_property_names + DataCycleCore::Feature::OverlayAttributeService.call(content)).each do |attribute|
+            global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
-          error = content.set_data_hash(data_hash: overlays.merge(data), prevent_history: true, update_search_all: false)
+
+          current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -214,12 +217,14 @@ module DataCycleCore
           end
 
           classification.name = classification_data[:name]
+          classification.description = classification_data[:description]
           classification.external_key = classification_data[:external_key]
 
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               external_source_id: utility_object.external_source.id,
-              name: classification_data[:name]
+              name: classification_data[:name],
+              description: classification_data[:description]
             )
 
             DataCycleCore::ClassificationGroup.create!(
@@ -243,6 +248,7 @@ module DataCycleCore
           else
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.name = classification_data[:name]
+            primary_classification_alias.description = classification_data[:description]
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree

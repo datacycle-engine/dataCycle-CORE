@@ -105,7 +105,7 @@ namespace :data_cycle_core do
     end
 
     desc 'Remove all soft-deleted classification data (paranoid)'
-    task contents: :environment do
+    task classifications: :environment do
       ActiveRecord::Base.connection.execute(delete_soft_deleted_classifications)
     end
   end
@@ -197,22 +197,6 @@ namespace :data_cycle_core do
       end
     end
 
-    desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
-    task update_all_templates: [:environment] do
-      puts 'updating templates:'
-      DataCycleCore.content_tables.each do |content_table|
-        data_object = "DataCycleCore::#{content_table.classify}".safe_constantize
-        data_object.where(template: true).each do |template_object|
-          template_name = template_object.template_name
-          data_count = data_object.where(template: false).where("metadata #>> '{validation, name}' = ? OR template_name = ?", template_name, template_name).count
-          puts "#{content_table.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"
-
-          strategy = DataCycleCore::Update::UpdateTemplate
-          DataCycleCore::Update::Update.new(type: data_object, template: template_object, strategy: strategy, transformation: nil)
-        end
-      end
-    end
-
     desc 'recreate the entries in the search table for all data-types in the Database'
     task rebuild_search: [:environment] do
       puts 'updating search:'
@@ -250,54 +234,6 @@ namespace :data_cycle_core do
           puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
         end
       end
-    end
-
-    desc 'replace a given data-definition with its recent template for a content_table'
-    task :update_template, [:content_table_name, :template_name] => [:environment] do |_, args|
-      unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts 'ERROR: only the following content_table_names are known to the system:'
-        puts DataCycleCore.content_tables.to_s
-        exit(-1)
-      end
-
-      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      template = data_object.find_by(template_name: args[:template_name], template: true)
-
-      if template.nil?
-        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
-        puts data_object.where(template: true).map(&:template_name)
-        exit(-1)
-      end
-
-      type = data_object
-      strategy = DataCycleCore::Update::UpdateTemplate
-      transformation = nil
-
-      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
-    end
-
-    desc 'DEBUG: hook to wire custom data update for a given content_table_name/template_name'
-    task :update_data, [:content_table_name, :template_name] => [:environment] do |_, args|
-      unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts 'ERROR: only the following content_table_names are known to the system:'
-        puts DataCycleCore.content_tables.to_s
-        exit(-1)
-      end
-
-      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      template = data_object.find_by(template_name: args[:template_name], template: true)
-
-      if template.nil?
-        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
-        puts data_object.where(template: true).map(&:template_name)
-        exit(-1)
-      end
-
-      type = data_object
-      strategy = DataCycleCore::Update::UpdateData
-      transformation = nil
-
-      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
     end
 
     desc 'delete history of a specific content_table_name/template_name'
@@ -340,18 +276,11 @@ namespace :data_cycle_core do
         index += 1
 
         data_item.destroy_content
-        data_item.destroy
-
-        # delete_history
-        # data_item.histories.each{ |item|
-        #   item.destroy_content
-        #   item.destroy
-        # }
       end
       puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
     end
 
-    desc '[NEW] replace the data-definitions of all data-types in the Database with the templates in the Database'
+    desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
     task :update_all_templates_sql, [:history, :prefix] => [:environment] do |_, args|
       args[:prefix] ||= ''
       temp = Time.zone.now
@@ -365,7 +294,7 @@ namespace :data_cycle_core do
       puts "total time: #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
     end
 
-    desc '[NEW] replace a given data-definition with its recent template for a content_table'
+    desc 'replace a given data-definition with its recent template for a content_table'
     task :update_template_sql, [:content_table_name, :template_name, :history] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])
         puts 'ERROR: only the following content_table_names are known to the system:'
@@ -414,52 +343,6 @@ namespace :data_cycle_core do
       affected_history_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_history_sql))
 
       puts "#{history_object.table_name.ljust(25)} | #{args[:template_name].ljust(25)} | #{((affected_history_items || 0).to_s + ' / ' + (total_history_items || 0).to_s).ljust(25)} | #{((Time.zone.now - temp).to_s + ' sec').rjust(20)} \r"
-    end
-  end
-
-  namespace :data_update do
-    desc 'update...move schema, template_name to separate field'
-    task schema_update: [:environment] do
-      temp = Time.zone.now
-      puts 'UPDATE'
-      puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-
-      # update content / content_history
-      DataCycleCore.content_tables.each do |content_table|
-        [content_table, content_table.singularize + '_histories'].each do |table_name|
-          content_class = "DataCycleCore::#{content_table.classify}"
-          content_class += '::History' if table_name.end_with?('_histories')
-          items_count = content_class.constantize.count
-          puts "UPDATING ==> #{content_class} (#{items_count})"
-          content = table_name
-          sql = <<-EOS
-            WITH t AS (
-              SELECT
-                id,
-                metadata #> '{validation}' AS schema_data,
-                metadata #>> '{validation, name}' AS template_name_data,
-                metadata - 'validation' AS only_metadata
-              FROM #{content}
-              WHERE metadata #> '{validation}' IS NOT NULL
-            )
-            UPDATE #{content}
-            SET
-              template_name = t.template_name_data,
-              schema = t.schema_data,
-              metadata = t.only_metadata
-            FROM t
-            WHERE #{content}.id = t.id;
-          EOS
-          # pp sql
-          ActiveRecord::Base.connection.execute(sql)
-        end
-      end
-
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
-      Rake::Task['data_cycle_core:update:update_all_templates'].invoke
-
-      puts 'END'
-      puts "--> UPDATE time: #{((Time.zone.now - temp) / 60).to_i} min"
     end
   end
 
@@ -773,55 +656,6 @@ namespace :data_cycle_core do
   end
 
   namespace :refactor do
-    desc 'executes last_updated_by migrations'
-    task last_updated_by: :environment do
-      temp = Time.zone.now
-      DataCycleCore.content_tables.each do |content_table|
-        [content_table, content_table.singularize + '_histories'].each do |table_name|
-          content_class = "DataCycleCore::#{content_table.classify}"
-          content_class += '::History' if table_name.end_with?('_histories')
-          data_object = content_class.safe_constantize
-
-          where_string = "metadata #> '{last_updated_by}' IS NOT NULL AND metadata #> '{last_updated_by}' <> 'null'"
-          ap data_object.to_s + ' | ' + data_object.where(where_string).count.to_s
-          data_object.where(where_string).each do |item|
-            user_id = item.metadata['last_updated_by']
-
-            if table_name.end_with?('_histories')
-              DataCycleCore::ContentContent::History.create!(
-                content_a_history_id: item.id,
-                content_a_history_type: data_object.to_s,
-                relation_a: 'last_updated_by',
-                content_b_history_id: user_id,
-                content_b_history_type: 'DataCycleCore::User',
-                relation_b: ''
-              )
-            else
-              DataCycleCore::ContentContent.create!(
-                content_a_id: item.id,
-                content_a_type: data_object.to_s,
-                relation_a: 'last_updated_by',
-                content_b_id: user_id,
-                content_b_type: 'DataCycleCore::User',
-                relation_b: ''
-              )
-            end
-
-            # remove last_updated_by from metadata
-            update_sql = <<-EOS
-              UPDATE #{table_name}
-              SET metadata = metadata - 'last_updated_by'
-              WHERE id = '#{item.id}'
-            EOS
-            ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
-          end
-        end
-      end
-
-      puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
-    end
-
     desc 'executes all migration tasks'
     task migrate_all_templates: :environment do
       temp = Time.zone.now
@@ -862,102 +696,72 @@ namespace :data_cycle_core do
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
 
-    desc 'update Releasable to Classification'
-    task migrate_release_to_classification: :environment do
+    desc 'update user handling from relation to content_table'
+    task user_from_table_to_column: :environment do
       temp = Time.zone.now
-      puts 'MIGRATE RELEASABLE'
+      puts 'MIGRATE RELATIONS'
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
+      # migrate content_tables
+      puts 'migrate DataCycleCore::ContentContent to content tables... '
       DataCycleCore.content_tables.each do |table_name|
+        table_object_name = "DataCycleCore::#{table_name.classify}"
         puts "MIGRATING ==> #{table_name}"
-        sql = <<-EOS
-          INSERT INTO classification_contents (content_data_id, content_data_type, classification_id, relation, created_at, updated_at)
-          SELECT DISTINCT ON (#{table_name}.id) #{table_name}.id AS content_data_id, 'DataCycleCore::#{table_name.singularize.classify}' AS content_data_type, (
-            SELECT classification_groups.classification_id
-            FROM classification_aliases
-            INNER JOIN classification_trees
-            ON classification_aliases.id = classification_trees.classification_alias_id
-            INNER JOIN classification_tree_labels
-            ON classification_trees.classification_tree_label_id = classification_tree_labels.id
-            INNER JOIN classification_groups
-            ON classification_aliases.id = classification_groups.classification_alias_id
-            WHERE classification_tree_labels.name = 'Release-Stati'
-            AND classification_aliases.name = releases.release_text
-            ORDER BY classification_groups.created_at DESC
-            LIMIT 1
-          ) AS classification_id, 'release_status_id' AS relation, current_timestamp AS created_at, current_timestamp AS updated_at
-          FROM #{table_name}
-          INNER JOIN #{table_name.singularize}_translations
-          ON #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
-          INNER JOIN releases
-          ON #{table_name.singularize}_translations.release_id = releases.id
-          WHERE (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
-          AND #{table_name.singularize}_translations.release_id IS NOT NULL
-          ORDER BY #{table_name}.id, #{table_name.singularize}_translations.updated_at DESC
-          ON CONFLICT (content_data_id, content_data_type, classification_id, relation)
-          DO NOTHING
-        EOS
-        ActiveRecord::Base.connection.execute(sql)
-
-        comment_sql = <<-EOS
-          UPDATE #{table_name}
-          SET metadata = jsonb_insert(#{table_name}.metadata,
-                  '{release_status_comment}',
-                  to_jsonb(#{table_name.singularize}_translations.release_comment))
-          FROM #{table_name.singularize}_translations
-          WHERE #{table_name}.id = #{table_name.singularize}_translations.#{table_name.singularize}_id
-          AND #{table_name.singularize}_translations.release_comment IS NOT NULL
-          AND (#{table_name}.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
-          AND (#{table_name}.metadata ->> 'release_status_comment' IS NULL)
-        EOS
-        ActiveRecord::Base.connection.execute(comment_sql)
-
-        puts "MIGRATING ==> #{table_name.singularize}_histories"
-        sql = <<-EOS
-          INSERT INTO classification_content_histories (content_data_history_id, content_data_history_type, classification_id, relation, created_at, updated_at)
-          SELECT DISTINCT ON (#{table_name.singularize}_histories.id) #{table_name.singularize}_histories.id AS content_data_history_id, 'DataCycleCore::#{table_name.singularize.classify}::History' AS content_data_history_type, (
-            SELECT classification_groups.classification_id
-            FROM classification_aliases
-            INNER JOIN classification_trees
-            ON classification_aliases.id = classification_trees.classification_alias_id
-            INNER JOIN classification_tree_labels
-            ON classification_trees.classification_tree_label_id = classification_tree_labels.id
-            INNER JOIN classification_groups
-            ON classification_aliases.id = classification_groups.classification_alias_id
-            WHERE classification_tree_labels.name = 'Release-Stati'
-            AND classification_aliases.name = releases.release_text
-            ORDER BY classification_groups.created_at DESC
-            LIMIT 1
-          ) AS classification_id, 'release_status_id' AS relation, current_timestamp AS created_at, current_timestamp AS updated_at
-          FROM #{table_name.singularize}_histories
-          INNER JOIN #{table_name.singularize}_history_translations
-          ON #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
-          INNER JOIN releases
-          ON #{table_name.singularize}_history_translations.release_id = releases.id
-          WHERE (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
-          AND #{table_name.singularize}_history_translations.release_id IS NOT NULL
-          ORDER BY #{table_name.singularize}_histories.id, #{table_name.singularize}_history_translations.updated_at DESC
-          ON CONFLICT (content_data_history_id, content_data_history_type, classification_id, relation)
-          DO NOTHING
-        EOS
-        ActiveRecord::Base.connection.execute(sql)
-
-        comment_sql = <<-EOS
-          UPDATE #{table_name.singularize}_histories
-          SET metadata = jsonb_insert(#{table_name.singularize}_histories.metadata,
-                  '{release_status_comment}',
-                  to_jsonb(#{table_name.singularize}_history_translations.release_comment))
-          FROM #{table_name.singularize}_history_translations
-          WHERE #{table_name.singularize}_histories.id = #{table_name.singularize}_history_translations.#{table_name.singularize}_history_id
-          AND #{table_name.singularize}_history_translations.release_comment IS NOT NULL
-          AND (#{table_name.singularize}_histories.schema -> 'features' -> 'releasable' ->> 'allowed' = 'true')
-          AND (#{table_name.singularize}_histories.metadata ->> 'release_status_comment' IS NULL)
-        EOS
-        ActiveRecord::Base.connection.execute(comment_sql)
+        { 'last_updated_by' => 'updated_by', 'creator' => 'created_by' }.each do |user_type, user_column|
+          sql = <<-EOS
+            UPDATE #{table_name} AS content_table
+            SET
+              #{user_column} = cc.content_b_id
+            FROM content_contents AS cc
+            WHERE cc.content_a_id = content_table.id
+              AND cc.content_a_type = '#{table_object_name}'
+              AND cc.content_b_type = 'DataCycleCore::User'
+              AND cc.relation_a = '#{user_type}'
+          EOS
+          ActiveRecord::Base.connection.execute(sql)
+        end
       end
 
+      # migrate content_history_tables
+      puts 'migrate DataCycleCore::ContentContent::History to content_history tables... '
+      DataCycleCore.content_tables.each do |table_name|
+        table_object_name = "DataCycleCore::#{table_name.classify}::History"
+        history_table = table_name.singularize + '_histories'
+        puts "MIGRATING ==> #{history_table}"
+        { 'last_updated_by' => 'updated_by', 'creator' => 'created_by' }.each do |user_type, user_column|
+          sql = <<-EOS
+            UPDATE #{history_table} AS content_table
+            SET
+              #{user_column} = cc.content_b_history_id
+            FROM content_content_histories AS cc
+            WHERE cc.content_a_history_id = content_table.id
+              AND cc.content_a_history_type = '#{table_object_name}'
+              AND cc.content_b_history_type = 'DataCycleCore::User'
+              AND cc.relation_a = '#{user_type}'
+          EOS
+          ActiveRecord::Base.connection.execute(sql)
+        end
+      end
+
+      puts 'remove DataCycleCore::User references from DataCycleCore::ContentContent[::History]'
+      deleted = DataCycleCore::ContentContent
+        .where(content_a_type: 'DataCycleCore::User')
+        .or(
+          DataCycleCore::ContentContent
+            .where(content_b_type: 'DataCycleCore::User')
+        ).delete_all
+      puts "DataCycleCore::ContentContent ............ [#{deleted.to_s.rjust(6)}] removed"
+
+      deleted = DataCycleCore::ContentContent::History
+        .where(content_a_history_type: 'DataCycleCore::User')
+        .or(
+          DataCycleCore::ContentContent::History
+            .where(content_b_history_type: 'DataCycleCore::User')
+        ).delete_all
+      puts "DataCycleCore::ContentContent::History ... [#{deleted.to_s.rjust(6)}] removed"
+
       puts 'END'
-      puts "--> MIGRATION COMPLETE time: #{((Time.zone.now - temp) / 60).to_i} min"
+      puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
   end
 end

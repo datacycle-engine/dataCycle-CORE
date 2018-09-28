@@ -4,55 +4,78 @@ module DataCycleCore
   module Content
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
+      define_model_callbacks :save_data_hash, only: :before
+      define_model_callbacks :saved_data_hash, only: :after
 
-      DataCycleCore.features.select { |_, v| v[:enabled] }.each do |key, _value|
+      DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
-        include module_name
+        prepend module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       include CreateHistory
       include UpdateSearch
 
-      define_model_callbacks :save_data_hash, only: :before
-      define_model_callbacks :saved_data_hash, only: :after
-      before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
+      # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
+      before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
+      before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
+      after_saved_data_hash :execute_webhooks, if: -> { self.class.name == 'DataCycleCore::CreativeWork' }
+      after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, callbacks: true)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
+        return {} if data_hash.blank?
         @data_hash = data_hash
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
-        run_callbacks :save_data_hash if callbacks
+        @source = source
+        @new_content = new_content
+        run_callbacks :save_data_hash
 
-        valid_hash = validate(@data_hash)
+        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if partial_update
+
+        valid_hash = validate(@data_hash, schema_hash)
+
         if validate?(valid_hash) && diff?(@data_hash)
           ActiveRecord::Base.transaction do
-            to_history(save_time: @save_time) if id.nil? == false && prevent_history == false
+            to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-            set_template_data_hash(@data_hash, property_definitions)
+            set_template_data_hash(@data_hash, partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
             self.updated_at = @save_time
-            self.created_at = @save_time if id.nil?
+            self.updated_by = @current_user&.id
+            if id.nil?
+              self.created_at = @save_time
+              self.created_by = @current_user&.id
+            end
             save(touch: false)
 
             search_languages(update_search_all)
           end
-          run_callbacks :saved_data_hash if callbacks
+          run_callbacks :saved_data_hash unless prevent_history
         end
         valid_hash
       end
 
       def set_last_updated_by
-        @data_hash = @data_hash.merge({ 'last_updated_by' => [@current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)] })
+        # TODO: check after #507: Benutzerinteraktionen mit Content soll von System und nicht mehr durch die Templates definiert werden.
+        last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
+        @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
       end
 
-      def set_data_hash_attribute(key, value, current_user, save_time = Time.zone.now)
-        @save_time = save_time
-        @current_user = current_user
-        key_hash = schema.dig('properties', key)
-        return if key_hash.nil?
-        ActiveRecord::Base.transaction do
-          storage_cases_set(key, value, key_hash)
+      def set_computed_values
+        computed_property_names.each do |computed_property|
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
         end
+      end
+
+      def inherit_source_attributes
+        I18n.with_locale(@source.first_available_locale) do
+          source_data_hash = @source.get_data_hash
+          @data_hash = source_data_hash.slice(*DataCycleCore.inheritable_attributes).merge(@data_hash)
+        end
+      end
+
+      def execute_webhooks
+        Webhook::Update.execute_all(self)
       end
 
       def get_inherit_datahash(parent)
@@ -72,9 +95,9 @@ module DataCycleCore
         data_hash.compact!
       end
 
-      def validate(data)
+      def validate(data, schema_hash = nil)
         validator = DataCycleCore::MasterData::ValidateData.new
-        validator.validate(data, schema)
+        validator.validate(data, schema_hash || schema)
       end
 
       def validate?(validation_hash)
@@ -82,6 +105,12 @@ module DataCycleCore
       end
 
       private
+
+      def notify_subscribers
+        subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
+          DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
+        end
+      end
 
       def set_template_data_hash(data_hash, properties)
         properties.each do |key, value|
@@ -101,6 +130,8 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
+        when 'computed'
+          save_values(key, value, properties)
         when 'key'
           true # do nothing
         end
@@ -250,8 +281,9 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        upsert_item.external_source_id = external_source_id
         upsert_item.save
-        upsert_item.set_data_hash(data_hash: item.merge({ 'is_part_of' => id }), current_user: @current_user, save_time: @save_time, prevent_history: true, callbacks: false)
+        upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         upsert_item
       end
 

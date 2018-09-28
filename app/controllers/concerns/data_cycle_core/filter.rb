@@ -22,10 +22,14 @@ module DataCycleCore
       query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
+      # add default filters for user role if any exist
+      @filters = current_user.default_filter(@filters)
+
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
+      # add existing stored filter params
       @filters.concat(@stored_filters) if @stored_filters.present?
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
@@ -85,7 +89,7 @@ module DataCycleCore
             't' => 'classification_alias_ids',
             'n' => DataCycleCore::Feature::LifeCycle.tree_label,
             'm' => 'i',
-            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias)&.id]
+            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]
           }
         )
       end

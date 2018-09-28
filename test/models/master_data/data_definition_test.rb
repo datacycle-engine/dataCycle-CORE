@@ -307,6 +307,23 @@ describe DataCycleCore::MasterData::ImportTemplates do
       }
     end
 
+    let(:computed_value_hash) do
+      {
+        label: 'whatever',
+        type: 'computed',
+        storage_location: 'value',
+        compute: {
+          module: 'Utility::Compute::Math',
+          method: 'sum',
+          type: 'number',
+          parameters: {
+            '0': 'label Property B',
+            '1': 'string'
+          }
+        }
+      }
+    end
+
     it 'check a complex data_template' do
       errors = subject.validate(data_template)
       assert errors == {}
@@ -432,6 +449,35 @@ describe DataCycleCore::MasterData::ImportTemplates do
         test_hash[:storage_location] = location
         assert !subject.validate_property.call(test_hash).success?
       end
+    end
+
+    it 'checks computed value definition' do
+      test_hash = computed_value_hash
+      assert subject.validate_property.call(test_hash).success?
+    end
+
+    it 'checks computed value definition for non existing module' do
+      test_hash = computed_value_hash
+      test_hash[:compute][:module] = 'WhatEver'
+      assert !subject.validate_property.call(test_hash).success?
+    end
+
+    it 'checks computed value definition for non existing method' do
+      test_hash = computed_value_hash
+      test_hash[:compute][:method] = 'WhatEver'
+      assert !subject.validate_property.call(test_hash).success?
+    end
+
+    it 'checks computed value definition for non existing compute property hash' do
+      test_hash = computed_value_hash
+      test_hash.delete(:compute)
+      assert !subject.validate_property.call(test_hash).success?
+    end
+
+    it 'checks computed value definition for non existing target type' do
+      test_hash = computed_value_hash
+      test_hash[:compute][:type] = 'WhatEver'
+      assert !subject.validate_property.call(test_hash).success?
     end
   end
 end
