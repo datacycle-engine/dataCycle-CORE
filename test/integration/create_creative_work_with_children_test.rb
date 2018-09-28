@@ -21,7 +21,7 @@ module DataCycleCore
           }
         },
         table: 'creative_works',
-        template: 'Thema'
+        template: 'Container'
       }
 
       parent = DataCycleCore::CreativeWork.find_by(headline: 'Test Thema 1')

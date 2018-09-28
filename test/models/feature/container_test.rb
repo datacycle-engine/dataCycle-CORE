@@ -3,21 +3,20 @@
 require 'test_helper'
 
 module DataCycleCore
-  class ContentContainerTest < ActiveSupport::TestCase
+  class ContainerTest < ActiveSupport::TestCase
     test 'insert container and delete it' do
       template_cw = DataCycleCore::CreativeWork.count
       template_cwt = DataCycleCore::CreativeWork::Translation.count
       current_user = DataCycleCore::User.first
 
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Thema')
+      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Container')
       data_set = DataCycleCore::CreativeWork.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
 
       data_hash = {
-        'headline' => 'Test Thema!',
-        'date_modified' => Time.zone.now
+        'headline' => 'Test Thema!'
       }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true, current_user: current_user)
       data_set.save
@@ -25,17 +24,12 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
       expected_hash = {
         'headline' => 'Test Thema!',
-        'kind' => [],
-        'tags' => [],
-        'state' => [],
-        'season' => [],
-        'topics' => [],
-        'markets' => [],
-        'permitted_creator' => []
+        'output_channel' => [],
+        'tags' => []
       }
 
-      assert_equal(expected_hash, returned_data_hash.compact.except('id', 'data_pool', 'data_type', 'date_modified'))
-      assert_equal(current_user.id, data_set.updated_by_user.id)
+      assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(current_user.id, data_set.updated_by)
       assert_equal(0, error[:error].count)
 
       # check consistency of data in DB
@@ -67,29 +61,23 @@ module DataCycleCore
       r_dh = ds_a.get_data_hash
       e_hash = {
         'headline' => 'Test Artikel!',
-        'kind' => [],
         'tags' => [],
         'image' => [],
-        'video' => [],
-        'state' => [],
-        'season' => [],
-        'topics' => [],
-        'markets' => [],
-        'output_channels' => [],
+        'textblock' => [],
+        'output_channel' => [],
         'quotation' => [],
-        'content_location' => [],
-        'permitted_creator' => []
+        'content_location' => []
       }
 
-      assert_equal(e_hash, r_dh.compact.except('id', 'data_pool', 'data_type', 'date_modified'))
-      assert_equal(current_user.id, ds_a.updated_by_user.id)
+      assert_equal(e_hash.except(*DataCycleCore::TestPreparations.excepted_attributes), r_dh.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(current_user.id, ds_a.updated_by)
       assert_equal(0, e_a[:error].count)
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(2, DataCycleCore::CreativeWork::Translation.count - template_cwt)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(2, DataCycleCore::Search.count)
 
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
@@ -109,15 +97,15 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
-      assert_equal(3, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       DataCycleCore::CreativeWork::History.all.each do |item|
         assert_equal(current_user.id, item.updated_by)
         assert_equal(current_user.id, item.updated_by_user.id)
-        assert_equal(true, item.date_modified.present?)
+        assert_equal(true, item.updated_at.present?)
         assert_equal(current_user.id, item.deleted_by)
         assert_equal(true, item.deleted_at.present?)
-        assert_equal(true, item.deleted_at >= item.date_modified)
+        assert_equal(true, item.deleted_at >= item.updated_at)
       end
     end
   end

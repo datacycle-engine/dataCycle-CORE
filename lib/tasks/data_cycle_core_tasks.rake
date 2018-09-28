@@ -236,30 +236,6 @@ namespace :data_cycle_core do
       end
     end
 
-    desc 'DEBUG: hook to wire custom data update for a given content_table_name/template_name'
-    task :update_data, [:content_table_name, :template_name] => [:environment] do |_, args|
-      unless DataCycleCore.content_tables.include?(args[:content_table_name])
-        puts 'ERROR: only the following content_table_names are known to the system:'
-        puts DataCycleCore.content_tables.to_s
-        exit(-1)
-      end
-
-      data_object = "DataCycleCore::#{args[:content_table_name].classify}".safe_constantize
-      template = data_object.find_by(template_name: args[:template_name], template: true)
-
-      if template.nil?
-        puts "ERROR: template not found. For the given #{args[:content_table_name]} table only the following templates are available:"
-        puts data_object.where(template: true).map(&:template_name)
-        exit(-1)
-      end
-
-      type = data_object
-      strategy = DataCycleCore::Update::UpdateData
-      transformation = nil
-
-      DataCycleCore::Update::Update.new(type: type, template: template, strategy: strategy, transformation: transformation)
-    end
-
     desc 'delete history of a specific content_table_name/template_name'
     task :delete_history, [:content_table_name, :template_name] => [:environment] do |_, args|
       unless DataCycleCore.content_tables.include?(args[:content_table_name])

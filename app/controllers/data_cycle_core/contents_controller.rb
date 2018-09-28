@@ -244,7 +244,7 @@ module DataCycleCore
     def gpx
       @object = data_cycle_object(controller_name).find_by(id: params[:id])
       authorize! :show, @object
-      send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.underscore.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
+      send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
     def validate

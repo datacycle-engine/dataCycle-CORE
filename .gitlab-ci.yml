@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base
+image: patrickrainer/data_cycle_base:latest
 
 variables:
   POSTGRES_USER: postgres
@@ -37,10 +37,11 @@ before_script:
 
 cache:
   key: application-cache
-  untracked: true
+  untracked: false
   paths:
     - cache/bundler
     - node_modules
+    - lib/assets
 
 services:
   - name: mdillon/postgis:9.6
@@ -48,8 +49,22 @@ services:
   - name: mvertes/alpine-mongo:3.6.3-0
     alias: mongodb
 
+build_caches:
+  stage: build
+  script:
+    - bundle install --path=cache/bundler
+    - yarn
+    - npx gulp production
+
 # Running tests
 rails_test:
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -63,6 +78,13 @@ rails_test:
     - rails test -b
 
 cypress:
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -75,8 +97,6 @@ cypress:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - yarn
-    - npx gulp production
     - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
@@ -92,6 +112,13 @@ cypress:
 # rubocop
 code_validation:
   stage: check
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - master
     - release
@@ -107,6 +134,13 @@ code_validation:
 rails_review_test:
   only:
     - branches
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   except:
     - master
     - release
@@ -119,11 +153,18 @@ rails_review_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test
+    - rails test -b
 
 cypress_review:
   only:
     - branches
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   except:
     - master
     - release
@@ -138,8 +179,6 @@ cypress_review:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - yarn
-    - npx gulp production
     - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
@@ -155,6 +194,13 @@ cypress_review:
 # rubocop
 code_review_validation:
   stage: check
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   only:
     - branches
   except:
@@ -173,6 +219,13 @@ code_review_validation:
 # deployment
 deploy_release:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap release deploy
@@ -187,6 +240,13 @@ deploy_release:
 # deployment
 deploy_pre_release:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap pre_release deploy
@@ -201,6 +261,13 @@ deploy_pre_release:
 # deployment
 deploy_development:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - cap development deploy
@@ -213,6 +280,13 @@ deploy_development:
 
 deploy_review:
   stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
   script:
     - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
