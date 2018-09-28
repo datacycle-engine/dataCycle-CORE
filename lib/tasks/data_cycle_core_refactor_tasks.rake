@@ -22,6 +22,7 @@ namespace :data_cycle_core do
       DataCycleCore::Search.where(content_data_type: 'DataCycleCore::Organization').update_all(content_data_type: 'DataCycleCore::Thing')
       DataCycleCore::WatchListDataHash.where(hashable_type: 'DataCycleCore::Organization').update_all(hashable_type: 'DataCycleCore::Thing')
       DataCycleCore::Subscription.where(subscribable_type: 'DataCycleCore::Organization').update_all(subscribable_type: 'DataCycleCore::Thing')
+      DataCycleCore::DataLink.where(item_type: 'DataCycleCore::Organization').update_all(item_type: 'DataCycleCore::Thing')
 
       puts 'migrate data'
       puts '--> things'
@@ -110,6 +111,14 @@ namespace :data_cycle_core do
       DataCycleCore::Organization::Translation.delete_all
       DataCycleCore::Organization::History.delete_all
       DataCycleCore::Organization::History::Translation.delete_all
+
+      puts 'load updated templates'
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      Rake::Task['data_cycle_core:update:import_templates'].reenable
+
+      puts 'update all templates'
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].reenable
 
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
