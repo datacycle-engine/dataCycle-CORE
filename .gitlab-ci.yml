@@ -114,6 +114,7 @@ rails_review_test:
   only:
     - branches
   cache:
+    key: application-cache
     policy: pull
   except:
     - master
