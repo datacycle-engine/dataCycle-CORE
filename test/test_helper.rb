@@ -61,9 +61,9 @@ module DataCycleCore
       {
         creative_works: {},
         events: {},
-        organizations: {},
         places: {},
-        persons: {}
+        persons: {},
+        things: {}
       }
 
     def self.load_classifications(paths)

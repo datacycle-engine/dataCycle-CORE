@@ -10,23 +10,11 @@ module DataCycleCore
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
-      test_data = {
-        'name' => 'Firmenname',
-        'contact_info' => {
-          'telephone' => '+ 43 123 456',
-          'fax_number' => '+ 43 654 321',
-          'email' => 'test@test.com',
-          'url' => 'http://firma.at'
-        },
-        'address' => {
-          'address_locality' => 'Test - Ort',
-          'street_address' => 'Test - Strasse',
-          'postal_code' => '1234',
-          'address_country' => 'Austria'
-        },
-        'description' => 'Short test description for company object.'
-      }
-      data_set.set_data_hash(data_hash: test_data)
+      data_set.set_data_hash(
+        data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization').merge(
+          { 'contact_info' => DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'contact_info') }
+        )
+      )
       data_set.save
 
       organization = data_set
@@ -48,21 +36,8 @@ module DataCycleCore
       data_set.schema = template.schema.merge('properties' => { 'test' => { 'label' => 'test', 'type' => 'test' } })
       data_set.template_name = template.template_name
       data_set.save
-      test_data = {
-        'name' => 'Firmenname',
-        'telephone' => '+ 43 123 456',
-        'fax_number' => '+ 43 654 321',
-        'email' => 'test@test.com',
-        'address' => {
-          'address_locality' => 'Test - Ort',
-          'street_address' => 'Test - Strasse',
-          'postal_code' => '1234'
-        },
-        'url' => 'http://firma.at',
-        'description' => 'Short test description for company object.'
-      }
       assert_raises StandardError do
-        data_set.set_data_hash(data_hash: test_data)
+        data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'))
       end
     end
   end
