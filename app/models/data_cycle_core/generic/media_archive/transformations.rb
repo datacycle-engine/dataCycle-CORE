@@ -23,11 +23,10 @@ module DataCycleCore
           .>> t(:rename_keys,
                 'date_published' => 'valid_from',
                 'expires' => 'valid_until',
-                'keywords' => 'keywords_medienarchive',
-                'accountable_person' => 'creator')
+                'keywords' => 'keywords_medienarchive')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
-          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s&.dig('creator', 'email') })
+          .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
           .>> t(:reject_keys, ['orig_content_location'])
           .>> t(:strip_all)
         end
@@ -46,13 +45,12 @@ module DataCycleCore
           .>> t(:rename_keys,
                 'date_published' => 'valid_from',
                 'expires' => 'valid_until',
-                'keywords' => 'keywords_medienarchive',
-                'accountable_person' => 'creator')
+                'keywords' => 'keywords_medienarchive')
           .>> t(:add_link, 'director', DataCycleCore::Person, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Person, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
-          .>> t(:add_user_link, 'creator', DataCycleCore::User, ->(s) { s&.dig('creator', 'email') })
+          .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
           .>> t(:reject_keys, ['orig_content_location'])
           .>> t(:strip_all)
         end

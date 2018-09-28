@@ -3,7 +3,7 @@
 <%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'validation-form edit-content-form'} do |f| %>
     <%= hidden_field_tag 'uuid', content.id %>
     <%= hidden_field_tag :table, content.class.table_name %>
-    <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.try(:creator).try(:first).try(:id) %>
+    <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
     <%= hidden_field_tag 'locale', I18n.locale %>
 
     <% unless @split_source.nil? %>
@@ -50,7 +50,7 @@
 
                     <% validation_properties = ordered_validation_properties(validation: content.schema) %>
 
-                    <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
+                    <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
 
                     <% if !validation_properties.nil? %>
 

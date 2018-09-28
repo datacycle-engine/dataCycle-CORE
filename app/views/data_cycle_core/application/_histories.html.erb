@@ -3,11 +3,11 @@
   <ul class="list-items">
     <% content.histories.each do |item|%>
         <li class="<%= item == @diff_source ? 'active' : '' %>">
-            <% if item.try(:last_updated_by).is_a?(ActiveRecord::Relation) && item.try(:last_updated_by).present? %>
-                <% person = item.last_updated_by.first %>
+            <% if item.try(:updated_by_user).present? %>
+                <% person = item.updated_by_user %>
                 <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
-            <% elsif item == content.histories.last && item.try(:creator).is_a?(ActiveRecord::Relation) && item.try(:creator).present? %>
-                <% person = item.creator.first %>
+            <% elsif item == content.histories.last && item.try(:created_by_user).present? %>
+                <% person = item.created_by_user %>
                 <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
             <% else %>
                 System

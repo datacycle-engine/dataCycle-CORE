@@ -330,7 +330,11 @@ CREATE TABLE public.creative_works (
     template boolean DEFAULT false NOT NULL,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -350,7 +354,11 @@ CREATE TABLE public.events (
     external_source_id uuid,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -368,7 +376,11 @@ CREATE TABLE public.organizations (
     external_source_id uuid,
     external_key character varying,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -388,7 +400,11 @@ CREATE TABLE public.persons (
     external_source_id uuid,
     external_key character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -419,7 +435,11 @@ CREATE TABLE public.places (
     telephone character varying,
     email character varying,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -433,7 +453,10 @@ CREATE VIEW public.content_meta_items AS
     creative_works.template_name,
     creative_works.schema,
     creative_works.external_source_id,
-    creative_works.external_key
+    creative_works.external_key,
+    creative_works.created_by,
+    creative_works.updated_by,
+    creative_works.deleted_by
    FROM public.creative_works
   WHERE (creative_works.template IS FALSE)
 UNION
@@ -442,7 +465,10 @@ UNION
     events.template_name,
     events.schema,
     events.external_source_id,
-    events.external_key
+    events.external_key,
+    events.created_by,
+    events.updated_by,
+    events.deleted_by
    FROM public.events
   WHERE (events.template IS FALSE)
 UNION
@@ -451,7 +477,10 @@ UNION
     persons.template_name,
     persons.schema,
     persons.external_source_id,
-    persons.external_key
+    persons.external_key,
+    persons.created_by,
+    persons.updated_by,
+    persons.deleted_by
    FROM public.persons
   WHERE (persons.template IS FALSE)
 UNION
@@ -460,7 +489,10 @@ UNION
     organizations.template_name,
     organizations.schema,
     organizations.external_source_id,
-    organizations.external_key
+    organizations.external_key,
+    organizations.created_by,
+    organizations.updated_by,
+    organizations.deleted_by
    FROM public.organizations
   WHERE (organizations.template IS FALSE)
 UNION
@@ -469,7 +501,10 @@ UNION
     places.template_name,
     places.schema,
     places.external_source_id,
-    places.external_key
+    places.external_key,
+    places.created_by,
+    places.updated_by,
+    places.deleted_by
    FROM public.places
   WHERE (places.template IS FALSE);
 
@@ -492,7 +527,10 @@ CREATE TABLE public.creative_work_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -626,7 +664,10 @@ CREATE TABLE public.event_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -732,7 +773,10 @@ CREATE TABLE public.organization_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -787,7 +831,10 @@ CREATE TABLE public.person_histories (
     external_key character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -891,7 +938,10 @@ CREATE TABLE public.place_histories (
     email character varying,
     deleted_at timestamp without time zone,
     template_name character varying,
-    schema jsonb
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid
 );
 
 
@@ -1110,13 +1160,27 @@ CREATE TABLE public.users (
     updated_at timestamp without time zone NOT NULL,
     family_name character varying DEFAULT ''::character varying NOT NULL,
     locked_at timestamp without time zone,
-    external boolean DEFAULT true NOT NULL,
+    external boolean DEFAULT false NOT NULL,
     role_id uuid,
     notification_frequency character varying DEFAULT 'always'::character varying,
     access_token character varying,
     type character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying
+);
+
+
+--
+-- Name: watch_list_user_groups; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.watch_list_user_groups (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    user_group_id uuid,
+    watch_list_id uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
 );
 
 
@@ -1555,6 +1619,14 @@ ALTER TABLE ONLY public.users
 
 ALTER TABLE ONLY public.watch_list_data_hashes
     ADD CONSTRAINT watch_list_data_hashes_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: watch_list_user_groups watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.watch_list_user_groups
+    ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
 
 
 --
@@ -2357,6 +2429,20 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON public.watch_list_
 
 
 --
+-- Name: index_watch_list_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_user_groups_on_user_group_id ON public.watch_list_user_groups USING btree (user_group_id);
+
+
+--
+-- Name: index_watch_list_user_groups_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_watch_list_user_groups_on_watch_list_id ON public.watch_list_user_groups USING btree (watch_list_id);
+
+
+--
 -- Name: index_watch_lists_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2647,7 +2733,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180815132305'),
 ('20180820064823'),
 ('20180907080412'),
+('20180914085848'),
 ('20180917085622'),
-('20180917103214');
+('20180917103214'),
+('20180918085636'),
+('20180918135618'),
+('20180921083454'),
+('20180927090624');
 
 

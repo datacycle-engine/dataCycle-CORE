@@ -13,8 +13,8 @@
         <strong><%= l(Time.zone.at(content.updated_at), locale: DataCycleCore.ui_language) %></strong>
     <% end %>
 
-    <% if content.try(:last_updated_by).is_a?(ActiveRecord::Relation) && content.try(:last_updated_by).present? %>
-        <% person = content.last_updated_by.first %>
+    <% if content.updated_by_user.present? %>
+        <% person = content.updated_by_user %>
         <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= person.email %>"><%= person.full_name %></a></strong>
     <% else %>
       <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong>System</strong>

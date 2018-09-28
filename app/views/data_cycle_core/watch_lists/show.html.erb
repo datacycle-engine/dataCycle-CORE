@@ -47,6 +47,13 @@
 
             </div>
 
+            <% if @watch_list.watch_list_user_groups.size.positive? %>
+                <div class="description watchlist">
+                    <i class="fa fa-users"></i>
+                    <%= @watch_list.watch_list_user_groups.map(&:user_group).map(&:name).join(', ') %>
+                </div>
+            <% end %>
+
             <div class="edit">
                 <% if can? :edit, @watch_list %>
                     <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize do %>

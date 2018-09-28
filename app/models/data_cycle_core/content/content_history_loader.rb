@@ -3,6 +3,24 @@
 module DataCycleCore
   module Content
     module ContentHistoryLoader
+      def get_data_hash(timestamp = nil)
+        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
+        as_of(timestamp).try(:to_h, timestamp)
+      end
+
+      def diff(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
+        differ.diff(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template).diff_hash
+      end
+
+      def diff?(data, template = nil)
+        differ = DataCycleCore::MasterData::DiffData.new
+        timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
+        differ.diff?(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template)
+      end
+
       def load_embedded_objects(relation_name)
         target_name = properties_for(relation_name)&.dig('linked_table')
         target_class = "DataCycleCore::#{target_name.classify}::History"
@@ -66,6 +84,22 @@ module DataCycleCore
               relation: relation_name
             }
           )
+      end
+
+      def as_of(timestamp)
+        content_table_id = self.class.table_name.split('_')[0..-2].join('_').foreign_key
+        history_table_translation = "#{self.class}::Translation".safe_constantize.arel_table
+
+        return_data = self.class.joins(:translations)
+          .where(content_table_id => send(content_table_id))
+          .where(
+            Arel::Nodes::InfixOperation.new(
+              '@>',
+              history_table_translation[:history_valid],
+              Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+            )
+          ).order(history_table_translation[:history_valid])
+        return_data.last
       end
     end
   end

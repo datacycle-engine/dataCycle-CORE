@@ -8,16 +8,6 @@
       :id:
         :label: id
         :type: key
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
       :value_1:
         :label: Value 1
         :type: number

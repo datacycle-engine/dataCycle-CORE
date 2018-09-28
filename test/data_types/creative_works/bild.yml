@@ -36,12 +36,6 @@
         :search: true
         :editor:
           :type: input
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :license:
         :label: Copyright / Lizenz
         :type: string
