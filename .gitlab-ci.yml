@@ -28,6 +28,8 @@ before_script:
   - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
   - chmod 644 ~/.ssh/known_hosts
 
+  - bundle install --path=cache/bundler
+
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
@@ -141,40 +143,40 @@ rails_review_test:
     - bundle exec rake db:seed
     - rails test
 
-cypress_review:
-#  variables:
-#    CI_DEBUG_TRACE: "true"
-  only:
-    - branches
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  tags:
-    - data-cycle-review
-  script:
-    - bundle exec rake db:drop
-    - bundle exec rake db:create
-    - bundle exec rake db:migrate
-    - bundle exec rake db:seed
-    - bundle exec rake app:data_cycle_core:update:import_classifications
-    - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
-    - cd $CI_PROJECT_DIR && npx cypress run
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
-    paths:
-    - cypress/screenshots/
-    expire_in: 1 week
-    when: on_failure
+#cypress_review:
+##  variables:
+##    CI_DEBUG_TRACE: "true"
+#  only:
+#    - branches
+#  cache:
+#    key: application-cache
+#    paths:
+#      - cache/bundler
+#      - node_modules
+#      - lib/assets
+#    policy: pull
+#  except:
+#    - master
+#    - release
+#    - pre-release
+#    - develop
+#  tags:
+#    - data-cycle-review
+#  script:
+#    - bundle exec rake db:drop
+#    - bundle exec rake db:create
+#    - bundle exec rake db:migrate
+#    - bundle exec rake db:seed
+#    - bundle exec rake app:data_cycle_core:update:import_classifications
+#    - bundle exec rake app:data_cycle_core:update:import_templates
+#    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+#    - cd $CI_PROJECT_DIR && npx cypress run
+#  artifacts:
+#    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+#    paths:
+#    - cypress/screenshots/
+#    expire_in: 1 week
+#    when: on_failure
 
 # code validation
 # bundle-audit
