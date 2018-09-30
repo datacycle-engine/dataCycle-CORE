@@ -65,6 +65,7 @@
         :label: Inhalt URL
         :type: string
         :storage_location: translated_value
+        :external: true
         :validations:
           :format: url
         :api:
