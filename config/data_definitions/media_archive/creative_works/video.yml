@@ -105,12 +105,12 @@
       :director:
         :label: Regie
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
       :contributor:
         :label: Kamera
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
       :tags:
         :type: mixin

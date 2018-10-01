@@ -364,30 +364,6 @@ CREATE TABLE events (
 
 
 --
--- Name: persons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE persons (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    given_name character varying,
-    family_name character varying,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
 -- Name: places; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -475,18 +451,6 @@ UNION
     events.deleted_by
    FROM events
   WHERE (events.template IS FALSE)
-UNION
- SELECT persons.id,
-    'DataCycleCore::Person'::text AS content_type,
-    persons.template_name,
-    persons.schema,
-    persons.external_source_id,
-    persons.external_key,
-    persons.created_by,
-    persons.updated_by,
-    persons.deleted_by
-   FROM persons
-  WHERE (persons.template IS FALSE)
 UNION
  SELECT places.id,
     'DataCycleCore::Place'::text AS content_type,
@@ -855,6 +819,30 @@ CREATE SEQUENCE person_translations_id_seq
 --
 
 ALTER SEQUENCE person_translations_id_seq OWNED BY person_translations.id;
+
+
+--
+-- Name: persons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE persons (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    given_name character varying,
+    family_name character varying,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
 
 
 --

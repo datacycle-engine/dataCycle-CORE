@@ -12,6 +12,8 @@ module DataCycleCore
           case schema_type
           when 'Organization'
             name
+          when 'Person'
+            internal_name
           end
         end
 
@@ -19,6 +21,8 @@ module DataCycleCore
           case schema_type
           when 'Organization'
             description
+          when 'Person'
+            content['job_title']
           end
         end
 
@@ -26,6 +30,8 @@ module DataCycleCore
           case schema_type
           when 'Organization'
             ['name']
+          when 'Person'
+            ['given_name', 'family_name']
           end
         end
 
@@ -33,6 +39,8 @@ module DataCycleCore
           case schema_type
           when 'Organization'
             ['name']
+          when 'Person'
+            ['given_name', 'family_name', 'honorific_prefix', 'job_title', 'contact_info']
           end
         end
       end

@@ -28,7 +28,7 @@
       :author:
         :label: "Zitat von"
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
         :validations:
           :max: 1

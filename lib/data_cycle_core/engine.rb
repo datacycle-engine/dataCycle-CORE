@@ -78,10 +78,7 @@ module DataCycleCore
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'places', 'things']
-
-    mattr_accessor :linked_tables
-    self.linked_tables = ['users']
+    self.content_tables = ['creative_works', 'events', 'places', 'things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
@@ -96,7 +93,7 @@ module DataCycleCore
     self.ui_language = :de
 
     mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place', 'DataCycleCore::Event']
+    self.translatable_types = ['DataCycleCore::Place', 'DataCycleCore::Event', 'DataCycleCore::Thing']
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
@@ -191,16 +188,6 @@ module DataCycleCore
 
     mattr_accessor :default_place_type
     self.default_place_type = 'Örtlichkeit'
-
-    mattr_accessor :default_templates
-    self.default_templates = {
-      images: 'Bild',
-      places: 'Örtlichkeit',
-      events: 'Event',
-      persons: 'Person',
-      organizations: 'Organization',
-      things: 'Organization'
-    }
 
     mattr_accessor :image_validations
     self.image_validations = {}
