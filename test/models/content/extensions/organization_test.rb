@@ -15,7 +15,6 @@ module DataCycleCore
           { 'contact_info' => DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'contact_info') }
         )
       )
-      data_set.save
 
       organization = data_set
       assert_equal('Firmenname', organization.name)
