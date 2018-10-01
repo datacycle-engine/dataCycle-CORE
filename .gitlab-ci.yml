@@ -228,7 +228,7 @@ deploy_release:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap release deploy
+    - bundle exec cap release deploy
   only:
     - release
   environment:
@@ -249,7 +249,7 @@ deploy_pre_release:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap pre_release deploy
+    - bundle exec cap pre_release deploy
   only:
     - pre-release
   environment:
@@ -270,7 +270,7 @@ deploy_development:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap development deploy
+    - bundle exec cap development deploy
   only:
     - develop
   environment:
