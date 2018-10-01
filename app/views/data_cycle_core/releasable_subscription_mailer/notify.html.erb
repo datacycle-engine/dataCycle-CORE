@@ -18,15 +18,9 @@
         <% @contents.each do |content| %>
           <% I18n.with_locale(content.first_available_locale) do %>
             <p>
-              <% if content.histories.blank? %>
               <a href="<%= polymorphic_url(content) %>"><span style="color:#333333;text-decoration:underline;text-underline:underline">
               <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
               </span></a>
-              <% else %>
-              <a href="<%= polymorphic_url([:history, content], history_id: content.histories&.first&.id) %>"><span style="color:#333333;text-decoration:underline;text-underline:underline">
-              <%= content.template_name %> (<%= content.translated_locales&.join(', ') %>): <%= content.title.blank? ? content.id : content.title %>
-              </span></a>
-              <% end %>
             </p>
           <% end %>
         <% end %>
