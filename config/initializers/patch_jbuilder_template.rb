@@ -27,11 +27,9 @@ JbuilderTemplate.class_eval do
 
   def render_first_existing_partial(partials, parameters)
     partials.each_with_index do |partial, idx|
-      begin
-        return partial!(partial, parameters)
-      rescue ActionView::MissingTemplate => e
-        raise e if idx == partials.size - 1
-      end
+      return partial!(partial, parameters)
+    rescue ActionView::MissingTemplate => e
+      raise e if idx == partials.size - 1
     end
   end
 end

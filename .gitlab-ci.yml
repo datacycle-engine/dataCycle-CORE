@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:latest
+image: patrickrainer/data_cycle_base:2.5.1
 
 variables:
   POSTGRES_USER: postgres
@@ -75,7 +75,7 @@ rails_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test -b
+    - bundle exec rails test -b
 
 cypress:
   cache:
@@ -125,10 +125,10 @@ code_validation:
     - pre-release
     - develop
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # Running tests
 rails_review_test:
@@ -153,7 +153,7 @@ rails_review_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test -b
+    - bundle exec rails test
 
 cypress_review:
   only:
@@ -211,10 +211,10 @@ code_review_validation:
   tags:
     - data-cycle-review
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # deployment
 deploy_release:
@@ -290,7 +290,7 @@ deploy_review:
   script:
     - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   only:
     - branches
   except:

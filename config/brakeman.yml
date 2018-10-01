@@ -1,0 +1,5 @@
+---
+:skip_files:
+- config/initializers/patch_jbuilder_template.rb
+- app/models/data_cycle_core/generic/eyebase/transformations.rb
+- app/helpers/data_cycle_core/application_helper.rb
