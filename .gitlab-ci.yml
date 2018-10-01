@@ -97,7 +97,7 @@ cypress:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
@@ -179,7 +179,7 @@ cypress_review:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
