@@ -5,13 +5,11 @@ namespace :review do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          begin
-            execute :rake, 'db:version'
-            execute :rake, 'db:create'
-          rescue StandardError
-            execute :rake, 'db:create'
-            invoke 'review:init_dev_db'
-          end
+          execute :rake, 'db:version'
+          execute :rake, 'db:create'
+        rescue StandardError
+          execute :rake, 'db:create'
+          invoke 'review:init_dev_db'
         end
       end
     end
@@ -25,12 +23,10 @@ namespace :review do
       # delete database
       within release_path do
         with rails_env: fetch(:rails_env) do
-          begin
-            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:clear_connections"
-            execute :rake, 'db:drop'
-          rescue StandardError
-            print_message 'ERROR: Unable to DELETE database'
-          end
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:db:clear_connections"
+          execute :rake, 'db:drop'
+        rescue StandardError
+          print_message 'ERROR: Unable to DELETE database'
         end
       end
       execute "rm -rf #{fetch(:deploy_to)}"

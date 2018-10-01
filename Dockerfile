@@ -1,4 +1,4 @@
-FROM patrickrainer/data_cycle_base:latest
+FROM patrickrainer/data_cycle_base:2.5.1
 
 RUN mkdir -p /var/www/app
 
