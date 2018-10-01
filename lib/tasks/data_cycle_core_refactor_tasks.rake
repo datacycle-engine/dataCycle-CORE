@@ -151,6 +151,7 @@ namespace :data_cycle_core do
       sql = <<-SQL
         INSERT INTO things (
           id, metadata,
+          given_name, family_name,
           template_name, schema, template,
           internal_name,
           external_source_id, external_key,
@@ -159,8 +160,9 @@ namespace :data_cycle_core do
         )
         SELECT
           id, metadata,
+          given_name, family_name,
           template_name, schema, template,
-          NULL,
+          concat(given_name, ' ', family_name),
           external_source_id, external_key,
           created_by, updated_by, deleted_by,
           seen_at, created_at, updated_at, deleted_at
@@ -179,7 +181,7 @@ namespace :data_cycle_core do
         SELECT
           organization_id, locale,
           content,
-          content ->> 'legal_name',
+          headline',
           description,
           created_at, updated_at
         FROM person_translations
@@ -190,6 +192,7 @@ namespace :data_cycle_core do
       sql = <<-SQL
         INSERT INTO thing_histories (
           id, thing_id, metadata,
+          given_name, family_name,
           template_name, schema, template,
           internal_name,
           external_source_id, external_key,
@@ -198,8 +201,9 @@ namespace :data_cycle_core do
         )
         SELECT
           id, organization_id, metadata,
+          given_name, family_name,
           template_name, schema, template,
-          NULL,
+          concat(given_name, ' ', family_name),
           external_source_id, external_key,
           created_by, updated_by, deleted_by,
           seen_at, created_at, updated_at, deleted_at
@@ -220,7 +224,7 @@ namespace :data_cycle_core do
         SELECT
           organization_history_id, locale,
           content,
-          content ->> 'legal_name',
+          headline,
           description,
           history_valid,
           created_at, updated_at

@@ -5,7 +5,7 @@ module Abilities
     def initialize(_user, _session = {})
       super
 
-      can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::Organization, DataCycleCore::Place]
+      can :create_in_objectbrowser, [DataCycleCore::Person, DataCycleCore::Place]
 
       can :show_history, DataCycleCore::StoredFilter
     end
