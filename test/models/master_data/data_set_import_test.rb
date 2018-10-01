@@ -37,7 +37,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
           }
         ],
         events: [],
-        persons: [],
         places: [],
         things: []
       }
@@ -58,7 +57,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
           }
         ],
         events: [],
-        persons: [],
         places: [],
         things: []
       }
