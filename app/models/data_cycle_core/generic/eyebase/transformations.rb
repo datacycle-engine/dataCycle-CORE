@@ -25,21 +25,17 @@ module DataCycleCore
           .>> t(
             :add_field, 'content_url',
             lambda do |s|
-              begin
-                File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_1', 'filename', 'text'))
-              rescue StandardError
-                nil
-              end
+              File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_1', 'filename', 'text'))
+            rescue StandardError
+              nil
             end
           )
           .>> t(
             :add_field, 'thumbnail_url',
             lambda do |s|
-              begin
-                File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_512', 'filename', 'text'))
-              rescue StandardError
-                nil
-              end
+              File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_512', 'filename', 'text'))
+            rescue StandardError
+              nil
             end
           )
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })

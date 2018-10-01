@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:latest
+image: patrickrainer/data_cycle_base:2.5.1
 
 variables:
   POSTGRES_USER: postgres
@@ -75,7 +75,7 @@ rails_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test -b
+    - bundle exec rails test -b
 
 cypress:
   cache:
@@ -97,7 +97,7 @@ cypress:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
@@ -125,10 +125,10 @@ code_validation:
     - pre-release
     - develop
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # Running tests
 rails_review_test:
@@ -153,7 +153,7 @@ rails_review_test:
     - bundle exec rake db:create
     - bundle exec rake db:migrate
     - bundle exec rake db:seed
-    - rails test -b
+    - bundle exec rails test
 
 cypress_review:
   only:
@@ -179,7 +179,7 @@ cypress_review:
     - bundle exec rake db:seed
     - bundle exec rake app:data_cycle_core:update:import_classifications
     - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && rails server -b 0.0.0.0 -p 3000 -d
+    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
     - cd $CI_PROJECT_DIR && npx cypress run
   artifacts:
     name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
@@ -211,10 +211,10 @@ code_review_validation:
   tags:
     - data-cycle-review
   script:
-    - bundle-audit update
-    - bundle audit check
-    - brakeman
-    - rubocop --format fuubar
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
 
 # deployment
 deploy_release:
@@ -228,7 +228,7 @@ deploy_release:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap release deploy
+    - bundle exec cap release deploy
   only:
     - release
   environment:
@@ -249,7 +249,7 @@ deploy_pre_release:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap pre_release deploy
+    - bundle exec cap pre_release deploy
   only:
     - pre-release
   environment:
@@ -270,7 +270,7 @@ deploy_development:
     policy: pull
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap development deploy
+    - bundle exec cap development deploy
   only:
     - develop
   environment:
@@ -290,7 +290,7 @@ deploy_review:
   script:
     - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   only:
     - branches
   except:

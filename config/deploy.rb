@@ -6,7 +6,7 @@
 set :application, 'data-cycle-core'
 set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
-set :rvm_ruby_version, '2.4.3'
+set :rvm_ruby_version, '2.5.1'
 
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 set :puma_workers, 1
@@ -124,5 +124,10 @@ namespace :deploy do
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
 
+  before 'deploy:migrate', 'datacycle:dev:dump_db'
+  after 'deploy:migrate', 'datacycle:dev:update_project'
+
   before 'deploy:reverted', 'deploy:npm'
+
+  after 'deploy:cleanup', 'datacycle:dev:clean_up_dumps'
 end
