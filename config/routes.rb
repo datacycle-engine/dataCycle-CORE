@@ -130,7 +130,7 @@ DataCycleCore::Engine.routes.draw do
         end
 
         # TODO: check if additional parameter is necessary, to achieve old results especially for index!!
-        resources(*['organizations', 'persons'].map(&:to_sym), only: [:index, :show], controller: :things) do
+        resources(*['organizations', 'persons'].map(&:to_sym), only: [:index, :show]) do
         end
         resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
         end

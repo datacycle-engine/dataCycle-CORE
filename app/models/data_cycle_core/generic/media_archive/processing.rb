@@ -52,7 +52,7 @@ module DataCycleCore
 
         def self.process_person(utility_object, raw_data, external_key, config)
           return nil if raw_data.blank?
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Person
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(

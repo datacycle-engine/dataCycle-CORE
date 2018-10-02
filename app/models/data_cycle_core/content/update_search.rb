@@ -50,11 +50,12 @@ module DataCycleCore
         validity_hash = metadata.nil? ? nil : metadata['validity_period']
         validity_string = get_validity(validity_hash)
         boost = schema['boost'] || 1.0
+        schema_type = schema.dig('schema_type')
 
         connection = ActiveRecord::Base.connection
         sql_query = <<-EOS
           INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
-            created_at, updated_at, headline, classification_string, data_type, all_text, validity_period,boost)
+            created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type)
           VALUES
           ( DEFAULT,
             '#{id}',
@@ -69,7 +70,8 @@ module DataCycleCore
             '#{template_name}',
             '#{all_text}',
             '#{validity_string}',
-            #{boost}
+            #{boost},
+            '#{schema_type}'
           )
           ON CONFLICT (content_data_id, content_data_type, locale)
           WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{language}'
@@ -83,7 +85,8 @@ module DataCycleCore
             data_type = EXCLUDED.data_type,
             all_text = EXCLUDED.all_text,
             validity_period = EXCLUDED.validity_period,
-            boost = EXCLUDED.boost;
+            boost = EXCLUDED.boost,
+            schema_type = EXCLUDED.schema_type;
         EOS
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
       end

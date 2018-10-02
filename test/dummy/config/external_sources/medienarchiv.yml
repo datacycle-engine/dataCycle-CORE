@@ -72,10 +72,10 @@ config:
           content_type: DataCycleCore::Place
           template: Örtlichkeit
         director:
-          content_type: DataCycleCore::Person
+          content_type: DataCycleCore::Thing
           template: Person
         contributor:
-          content_type: DataCycleCore::Person
+          content_type: DataCycleCore::Thing
           template: Person
         video:
           content_type: DataCycleCore::CreativeWork

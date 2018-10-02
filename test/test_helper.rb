@@ -62,7 +62,6 @@ module DataCycleCore
         creative_works: {},
         events: {},
         places: {},
-        persons: {},
         things: {}
       }
 
