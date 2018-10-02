@@ -6,6 +6,12 @@ module DataCycleCore
       def self.import_all(validation: true, external_source_path: nil)
         errors = {}
         external_source_path ||= DataCycleCore.external_sources_path
+
+        if external_source_path.blank?
+          puts '###### external sources not found'
+          return
+        end
+
         file_names = Dir[external_source_path + '*.yml']
         file_names.each do |file_name|
           data = YAML.safe_load(File.open(file_name))
