@@ -51,8 +51,8 @@ describe('Embedded Object', function () {
 
     cy.get('.embedded-object[data-key="creative_work[datahash][quotation]"]').should('be.visible').find('.content-object-item').should('be.visible').find('.object-browser[data-type="Person"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
     cy.get('.object-browser-overlay:visible').should('be.visible').find('.new-item-button').should('be.visible').click()
-    cy.get('.new-item:visible').should('be.visible').find('#person_datahash_given_name').should('be.visible').type(person.given_name)
-    cy.get('.new-item:visible').should('be.visible').find('#person_datahash_family_name').should('be.visible').type(person.family_name + '{enter}')
+    // cy.get('.new-item:visible').should('be.visible').find('#person_datahash_given_name').should('be.visible').type(person.given_name)
+    // cy.get('.new-item:visible').should('be.visible').find('#person_datahash_family_name').should('be.visible').type(person.family_name + '{enter}')
     cy.get('.chosen-items:visible').should('be.visible').contains(person.given_name + ' ' + person.family_name).should('have.length', 1)
     cy.get('.object-browser-search:visible').should('be.visible').type(person.given_name + ' ' + person.family_name + '{enter}')
     cy.get('.items:not(.chosen-items):visible').contains(person.given_name + ' ' + person.family_name).should('have.length', 1)
