@@ -34,7 +34,7 @@ module DataCycleCore
         end
 
         def apply_paging(query)
-          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.symbolize_keys)
+          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.reject { |_, v| v.blank? }.symbolize_keys)
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 
