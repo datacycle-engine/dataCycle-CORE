@@ -38,7 +38,7 @@ module DataCycleCore
         def object_browser_fields
           case schema_type
           when 'Organization'
-            ['name']
+            []
           when 'Person'
             ['given_name', 'family_name', 'honorific_prefix', 'job_title', 'contact_info']
           end
