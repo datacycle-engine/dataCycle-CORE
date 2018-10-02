@@ -13,7 +13,7 @@ module DataCycleCore
           when 'Organization'
             name
           when 'Person'
-            internal_name
+            "#{given_name} #{family_name}"
           end
         end
 

@@ -179,9 +179,9 @@ namespace :data_cycle_core do
           created_at, updated_at
         )
         SELECT
-          organization_id, locale,
+          person_id, locale,
           content,
-          headline',
+          headline,
           description,
           created_at, updated_at
         FROM person_translations
@@ -200,7 +200,7 @@ namespace :data_cycle_core do
           seen_at, created_at, updated_at, deleted_at
         )
         SELECT
-          id, organization_id, metadata,
+          id, person_id, metadata,
           given_name, family_name,
           template_name, schema, template,
           concat(given_name, ' ', family_name),
@@ -222,7 +222,7 @@ namespace :data_cycle_core do
           created_at, updated_at
         )
         SELECT
-          organization_history_id, locale,
+          person_history_id, locale,
           content,
           headline,
           description,
@@ -232,19 +232,19 @@ namespace :data_cycle_core do
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
 
-      puts 'delete old organization data'
+      puts 'delete old person data'
       DataCycleCore::Person.delete_all
       DataCycleCore::Person::Translation.delete_all
       DataCycleCore::Person::History.delete_all
       DataCycleCore::Person::History::Translation.delete_all
 
       puts 'load updated templates'
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
-      Rake::Task['data_cycle_core:update:import_templates'].reenable
+      # Rake::Task['data_cycle_core:update:import_templates'].invoke
+      # Rake::Task['data_cycle_core:update:import_templates'].reenable
 
       puts 'update all templates'
-      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
-      Rake::Task['data_cycle_core:update:update_all_templates_sql'].reenable
+      # Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+      # Rake::Task['data_cycle_core:update:update_all_templates_sql'].reenable
 
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
