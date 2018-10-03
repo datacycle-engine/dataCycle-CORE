@@ -4,10 +4,6 @@ module DataCycleCore
   module Content
     module Extensions
       module Thing
-        def schema_type
-          schema&.dig('schema_type')
-        end
-
         def title
           case schema_type
           when 'Organization'

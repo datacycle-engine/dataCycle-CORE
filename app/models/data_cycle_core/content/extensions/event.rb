@@ -28,13 +28,13 @@ module DataCycleCore
           # TODO: remove from_time (implemented in DataCycleCore::Filter::Search)
           def from_time(time)
             time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-            where(Event.arel_table[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
+            where(arel_table[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601)))
           end
 
           # TODO: remove to_time (implemented in DataCycleCore::Filter::Search)
           def to_time(time)
             time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
-            where(Event.arel_table[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
+            where(arel_table[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601)))
           end
 
           # TODO: remove sort_by_proximity (implemented in DataCycleCore::Filter::Search)

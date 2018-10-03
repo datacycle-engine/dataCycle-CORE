@@ -3,6 +3,7 @@
     :name: EventOverlay
     :type: object
     :content_type: embedded
+    :translatable: true    
     :properties:
       :id:
         :label: id

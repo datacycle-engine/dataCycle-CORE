@@ -160,6 +160,7 @@ module DataCycleCore
             required(:name) { str? }
             required(:type) { str? & eql?('object') }
             optional(:schema_type) { str? }
+            optional(:translatable) { bool? }
             optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity', 'container']) }
             optional(:boost) { float? }
             optional(:features)

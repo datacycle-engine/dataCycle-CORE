@@ -3,6 +3,7 @@
     :name: Bild
     :type: object
     :content_type: entity
+    :translatable: true    
     :boost: 10.0
     :api:
       :type: ImageObject
@@ -100,7 +101,7 @@
         :storage_location: value
       :tags:
         :type: mixin
-        :name: tags          
+        :name: tags
       :media_archive:
         :type: mixin
         :name: media_archive

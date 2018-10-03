@@ -3,6 +3,7 @@
     :name: Tour
     :type: object
     :content_type: entity
+    :translatable: true    
     :boost: 100.0
     :properties:
       :id:

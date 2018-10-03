@@ -3,6 +3,7 @@
     :name: Video
     :type: object
     :content_type: entity
+    :translatable: true    
     :boost: 10.0
     :api:
       :type: VideoObject

@@ -4,6 +4,7 @@
     :type: object
     :boost: 100.0
     :content_type: entity
+    :translatable: true
     :features:
       :overlay:
         :allowed: true

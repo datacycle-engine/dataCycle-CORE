@@ -4,6 +4,7 @@
     :type: object
     :schema_type: Organization
     :content_type: entity
+    :translatable: true    
     :boost: 1.0
     :properties:
       :id:

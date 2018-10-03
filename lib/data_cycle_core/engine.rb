@@ -92,9 +92,6 @@ module DataCycleCore
     mattr_accessor :ui_language
     self.ui_language = :de
 
-    mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Place', 'DataCycleCore::Event', 'DataCycleCore::Thing']
-
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 

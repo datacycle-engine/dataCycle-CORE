@@ -3,6 +3,7 @@
     :name: Piste
     :type: object
     :content_type: entity
+    :translatable: true    
     :boost: 10.0
     :features:
       :geocode:
