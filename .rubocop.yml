@@ -2,7 +2,7 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.4.3
+  TargetRubyVersion: 2.5.1
   TargetRailsVersion: 5.1
   DisplayCopNames: true
   Exclude:
@@ -20,6 +20,9 @@ Layout/MultilineMethodCallIndentation:
 
 Lint/SplatKeywordArguments:
   Enabled: false
+
+Layout/IndentHash:
+  EnforcedStyle: consistent
 
 #######################################################
 ########## Style

@@ -18,18 +18,19 @@ var EmbeddedObject = function (selector) {
   this.index = this.total;
   this.ids = this.element.data('ids') || [];
   this.per = this.element.data('per') || 5;
-  this.url = '/contents';
+  this.url = this.element.data('url');
   this.sortable;
-  this.parent_id = this.element.data('parent-id');
-  this.parent_content_type = this.element.data('parent-content-type');
+  this.content_id = this.element.data('content-id');
+  this.content_type = this.element.data('content-type');
 
   this.setup();
 };
 
 EmbeddedObject.prototype.setup = function () {
   this.sortable = new Sortable(this.element[0], {
+    group: this.id,
     handle: '.draggable-handle',
-    draggable: '.content-object-item'
+    draggable: '.content-object-item.draggable_' + this.id
   });
 
   if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).find('> .buttons > #add_' + this.id).show();
@@ -55,17 +56,17 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
   this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
   $.ajax({
     url: this.url + '/' + type + '_embedded_object',
-    method: 'POST',
-    data: JSON.stringify({
+    method: 'GET',
+    data: {
       index: this.index,
       locale: this.locale,
       key: this.key,
       definition: this.definition,
       options: this.options,
-      parent_id: this.parent_id,
-      parent_content_type: this.parent_content_type,
-      id: ids
-    }),
+      content_id: this.content_id,
+      content_type: this.content_type,
+      object_ids: ids
+    },
     dataType: 'script',
     contentType: 'application/json'
   }).done(data => {

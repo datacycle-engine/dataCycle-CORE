@@ -72,10 +72,9 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language
+          filter.language = @language.split(',')
 
           query = filter.apply
-
           query = query.where(content_data_type: content_data_type.to_s) if content_data_type
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)

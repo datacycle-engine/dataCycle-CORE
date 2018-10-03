@@ -101,10 +101,10 @@ module DataCycleCore
                 classification_alias: @classification_alias
               )
               @object = DataCycleCore::ClassificationTree.create!({
-                                                                    classification_tree_label: @classification_tree_label,
-                                                                    parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
-                                                                    sub_classification_alias: @classification_alias
-                                                                  })
+                classification_tree_label: @classification_tree_label,
+                parent_classification_alias: @parent_classification_tree.try(:sub_classification_alias),
+                sub_classification_alias: @classification_alias
+              })
             end
           end
         end

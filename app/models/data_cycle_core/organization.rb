@@ -2,37 +2,24 @@
 
 module DataCycleCore
   class Organization < Content::DataHash
+    include Content::ContentLoader
+    include Content::Extensions::Organization
+
     class Translation < Globalize::ActiveRecord::Translation
       include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content
-      translates :headline, :description, :content, :release,
-                 :release_id, :release_comment, :history_valid
-
       include Content::ContentHistoryLoader
+
+      translates :headline, :description, :content, :history_valid
       content_relations table_name: 'organizations', postfix: 'history'
       belongs_to :organization
-
-      before_destroy :destroy_relations, prepend: true
-      def destroy_relations
-        translations.delete_all
-      end
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Organization::History', foreign_key: :organization_id
 
-    translates :headline, :description, :content, :release,
-               :release_id, :release_comment
-
+    translates :headline, :description, :content
     content_relations table_name: table_name
-    include Content::ContentLoader
-    include Content::Extensions::Organization
-
-    before_destroy :destroy_relations, prepend: true
-    def destroy_relations
-      translations.delete_all
-      content_search_all.delete_all
-    end
 
     # to cash also translated values (comming from gem Globalize)
     def cache_key

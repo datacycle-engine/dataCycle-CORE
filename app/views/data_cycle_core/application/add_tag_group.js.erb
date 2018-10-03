@@ -1,7 +1,14 @@
-var new_html = '<%= j render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{params['t']}", "data_cycle_core/application/filters/tag_groups/default"], { key: params['n'], value: params['v'] || [], index: params['index'], buttons: true }) %>';
+<% target = (params['n'].presence&.parameterize(separator: '_') || '') + (params['index'].present? ? "_#{params['index']}" : '') %>
 
-if($('.filters .tag-group[data-id="<%= sanitize_to_id(params['n']) %>_<%= params['index'] %>"]').length){
-  $('.filters .tag-group[data-id="<%= sanitize_to_id(params['n']) %>_<%= params['index'] %>"]').replaceWith(new_html);
+var new_html = '<%= j render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{params['t']}", "data_cycle_core/application/filters/tag_groups/default"], {
+  title: params['n'],
+  key: params['n'].presence&.parameterize(separator: '_'),
+  target: target,
+  value: params['v'] || [],
+  buttons: 'a' }) %>';
+
+if($('.filters .tag-group[data-id="<%= target %>"]').length){
+  $('.filters .tag-group[data-id="<%= target %>"]').replaceWith(new_html);
 } else {
   $('.filters .filtertags .filter-groups').append(new_html);
 }

@@ -9,7 +9,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 unless options[:header_type] == :overlay
   json.content_partial! 'context', content: content
 
-  json.set! '@id', send("api_v2_#{content.class.class_name.tableize.singularize}_url", content)
+  json.set! '@id', send("api_v2_#{content.class.class_name.tableize.singularize}_url", content, { language: @language })
   json.set! 'identifier', content.id
   json.set! 'url', send("#{content.class.class_name.tableize.singularize}_url", content)
 

@@ -16,7 +16,6 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
       end
     else
       ordered_validation_properties(validation: definition).each do |o_key, o_definition|
-        # json.render_attribute! key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
         json.partial!(*(render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content))
       end
     end
@@ -38,7 +37,6 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         end
       else
         ordered_validation_properties(validation: definition).each do |o_key, o_definition|
-          # json.render_attribute! key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
           json.partial!(*(render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content))
         end
       end

@@ -246,12 +246,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Angebot"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
@@ -271,18 +265,6 @@
       :id:
         :label: id
         :type: key
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

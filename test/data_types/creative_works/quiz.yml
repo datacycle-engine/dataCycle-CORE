@@ -168,12 +168,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Quiz"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
@@ -244,12 +238,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Frage"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
@@ -292,23 +280,11 @@
           :options:
             :data-validate: media
             :data-type: image
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zitat"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

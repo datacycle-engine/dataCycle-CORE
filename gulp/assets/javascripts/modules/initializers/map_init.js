@@ -26,8 +26,10 @@ var ol = {
   interaction: {
     Draw: require('ol/interaction/draw').default,
     Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default
+    Snap: require('ol/interaction/snap').default,
+    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
   },
+  interactions: require('ol/interaction').default,
   proj: require('ol/proj').default
 };
 
@@ -170,7 +172,40 @@ function init_map(idx, item) {
     ]
   });
 
+  var mouse_wheel_zoom = new ol.interaction.MouseWheelZoom();
+
+  var timeout;
+
+  var oldFn = mouse_wheel_zoom.handleEvent;
+  mouse_wheel_zoom.handleEvent = function (e) {
+    var type = e.type;
+    if (type !== "wheel") {
+      return true;
+    }
+
+    if (!e.originalEvent.ctrlKey) {
+      if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
+        $(e.map.getTargetElement().firstElementChild).find('canvas').after('<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende Strg+Scrollen zum Zoomen der Karte</div></div>');
+      } else {
+        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
+      }
+
+      window.clearTimeout(timeout);
+      timeout = window.setTimeout(() => {
+        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+      }, 1000);
+      return true
+    } else {
+      $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+    }
+
+    oldFn.call(this, e);
+  }
+
   var map = new ol.Map({
+    interactions: ol.interactions.defaults({
+      mouseWheelZoom: false
+    }).extend([mouse_wheel_zoom]),
     target: map_id,
     layers: [
       new ol.layer.Tile({
@@ -182,6 +217,11 @@ function init_map(idx, item) {
       center: [0, 0],
       zoom: 10
     })
+  });
+
+  map.on("pointermove", function (evt) {
+    var hit = evt.map.hasFeatureAtPixel(evt.pixel);
+    evt.map.getTargetElement().firstElementChild.style.cursor = (evt.dragging ? 'grabbing' : hit ? 'pointer' : '');
   });
 
   if ($(item).hasClass('editable')) {

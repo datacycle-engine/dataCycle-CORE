@@ -3,8 +3,8 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      def self.import_all(validation: true)
-        template_paths = [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+      def self.import_all(validation: true, template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths)
         @mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
@@ -82,7 +82,7 @@ module DataCycleCore
         end
         errors
       rescue StandardError => e
-        puts 'could not access a YML File'
+        puts "could not access a YML File: #{template_list}"
         puts e.message
         puts e.backtrace
       end
@@ -176,6 +176,16 @@ module DataCycleCore
               true
             end
 
+            def valid_compute_config?(value)
+              return false unless value.is_a?(Hash)
+              module_name = valid_computed_module?(value.dig(:module))
+              !module_name.nil? && module_name.respond_to?(value.dig(:method))
+            end
+
+            def valid_computed_module?(value)
+              ('DataCycleCore::' + value.classify).safe_constantize
+            end
+
             def instantiable?(value)
               clazz = ('DataCycleCore::' + value.classify).safe_constantize
               !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
@@ -191,7 +201,8 @@ module DataCycleCore
                     asset_relation:  "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'file'",
                     classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.'
+                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
+                    valid_compute_config?: 'module and method combination not found.'
                   }
                 }
               )
@@ -214,9 +225,31 @@ module DataCycleCore
                   'embedded',
                   'linked',
                   'classification',
-                  'asset'
+                  'asset',
+                  'computed'
                 ]
               )
+          end
+          optional(:compute).schema do
+            required(:module) { str? }
+            required(:method) { str? }
+            required(:parameters) { hash? }
+            required(:type) do
+              str? &
+                included_in?(
+                  [
+                    'string',
+                    'text',
+                    'number',
+                    'boolean',
+                    'datetime',
+                    'geographic',
+                    'object',
+                    'classification',
+                    'asset'
+                  ]
+                )
+            end
           end
           optional(:storage_location) do
             str? &
@@ -274,6 +307,11 @@ module DataCycleCore
           rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
             type.eql?('asset') >
               asset_type.filled?
+          end
+
+          rule(computed_method: [:type, :compute]) do |type, compute|
+            type.eql?('computed') >
+              (compute.hash? & compute.valid_compute_config?)
           end
         end
       end

@@ -15,10 +15,6 @@ module DataCycleCore
         subject.find_by(email: 'admin@datacycle.at')
       end
 
-      it 'is admin' do
-        assert_equal(true, admin_user.admin?)
-      end
-
       it 'has a full_name' do
         assert_equal("#{admin_user.given_name} #{admin_user.family_name}", admin_user.full_name)
       end
@@ -31,7 +27,7 @@ module DataCycleCore
       end
 
       it 'has rank admin' do
-        assert_equal(true, admin_user.is_rank?(DataCycleCore::Role.find_by(name: 'admin').rank))
+        assert_equal(true, admin_user.is_rank?(DataCycleCore::Role.order('rank DESC').first.rank))
       end
 
       it 'has user group Administrators' do

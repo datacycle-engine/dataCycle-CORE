@@ -13,8 +13,6 @@
         :storage_type: string
         :storage_location: translated_value
         :search: true
-        :validations:
-          :min: 1
       :description:
         :label: Beschreibung
         :type: string

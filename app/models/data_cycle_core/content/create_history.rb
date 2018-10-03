@@ -3,7 +3,7 @@
 module DataCycleCore
   module Content
     module CreateHistory
-      def to_history(save_time:, parent_id: nil, delete: false)
+      def to_history(save_time:, delete: false)
         origin_table = self.class.to_s.split('::')[1].tableize
         data_set_history = (self.class.to_s + '::History').safe_constantize.new
 
@@ -12,11 +12,10 @@ module DataCycleCore
         attributes.except('id', 'created_at', 'updated_at').each do |key, value|
           data_set_history.send("#{key}=", value)
         end
-        data_set_history.is_part_of = parent_id if data_set_history.respond_to?('is_part_of')
         lower_bound = updated_at
         lower_bound = save_time if lower_bound > save_time
         data_set_history.history_valid = (lower_bound...save_time)
-        data_set_history.deleted_at = Time.zone.now.to_s(:long_usec) if delete
+        data_set_history.deleted_at = save_time if delete
         data_set_history.created_at = save_time
         data_set_history.updated_at = save_time
         data_set_history.save(touch: false)

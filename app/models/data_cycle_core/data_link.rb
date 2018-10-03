@@ -34,6 +34,10 @@ module DataCycleCore
       where(permissions: 'write')
     end
 
+    def writable?
+      permissions == 'write'
+    end
+
     def is_valid?
       !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
     end
@@ -43,18 +47,18 @@ module DataCycleCore
     def set_release_status
       creator.subscriptions.find_or_create_by(subscribable_id: item.id, subscribable_type: item.class.name) if item.is_a?(DataCycleCore::Content::Content)
 
-      release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).where(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.ids
+      release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
-      if item.is_a?(DataCycleCore::Content::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id.include?(release_partner_stage_id)
+      if item.is_a?(DataCycleCore::Content::Content) && DataCycleCore::Feature::Releasable.allowed?(item) && release_partner_stage_id.present? && !item.release_status_id&.ids&.include?(release_partner_stage_id)
         I18n.with_locale(item.first_available_locale) do
-          item.set_data_hash_attribute('release_status_id', release_partner_stage_id, nil)
+          item.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(item).first => [release_partner_stage_id] }, current_user: creator, partial_update: true, prevent_history: true)
         end
       elsif item.is_a?(DataCycleCore::WatchList) && release_partner_stage_id.present?
         item.watch_list_data_hashes.includes(:hashable).map(&:hashable).each do |content|
-          next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id.include?(release_partner_stage_id)
+          next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id&.ids&.include?(release_partner_stage_id)
 
           I18n.with_locale(content.first_available_locale) do
-            content.set_data_hash_attribute('release_status_id', release_partner_stage_id, nil)
+            content.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(content).first => [release_partner_stage_id] }, current_user: creator, partial_update: true, prevent_history: true)
           end
         end
       end

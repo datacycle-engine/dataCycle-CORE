@@ -6,6 +6,8 @@
   - $$Person
   - $$Tour
   - $$POI
+  - $$Lift
+  - $$Piste
   - $$Unterkunft
   - $$Veranstaltung
   - $$Text:

@@ -6,13 +6,9 @@ module DataCycleCore
 
     def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
-      @language ||= params.fetch(:language, current_user.default_locale)
+      @language ||= params.fetch(:language, [current_user.default_locale])
 
-      if @filters.any? { |f| f['t'] == 'fulltext_search' }
-        @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
-      else
-        @order_string ||= { boost: :desc, updated_at: :desc }
-      end
+      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
 
       if @filters.none? { |f| f['t'] == 'order' }
         @filters.push(
@@ -23,21 +19,23 @@ module DataCycleCore
         )
       end
 
-      query_params = params[:language] == 'all' ? [nil, DataCycleCore::Search.all] : [@language]
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
-      query = query.unique_by_column(:content_data_id) if params[:language] == 'all'
+
+      # add default filters for user role if any exist
+      @filters = current_user.default_filter(@filters)
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
 
+      # add existing stored filter params
       @filters.concat(@stored_filters) if @stored_filters.present?
 
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
-        .select(:id, :name)
         .where(
           id: @filters
             .select { |f| f['t'] == 'classification_alias_ids' }
@@ -46,7 +44,7 @@ module DataCycleCore
             .compact
             .uniq
         )
-        .map { |c| [c.id, c.name] }.to_h
+        .map { |c| [c.id, c] }.to_h
 
       query
     end
@@ -66,7 +64,7 @@ module DataCycleCore
     def save_filter(new_filter: nil)
       new_filter ||= DataCycleCore::StoredFilter.new
       new_filter.user_id = current_user.id
-      new_filter.language = @language
+      new_filter.language = [@language].flatten
       new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && new_filter.id.nil?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
       new_filter.parameters = @filters if @filters.present?
@@ -91,7 +89,7 @@ module DataCycleCore
             't' => 'classification_alias_ids',
             'n' => DataCycleCore::Feature::LifeCycle.tree_label,
             'm' => 'i',
-            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias)&.id]
+            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]
           }
         )
       end

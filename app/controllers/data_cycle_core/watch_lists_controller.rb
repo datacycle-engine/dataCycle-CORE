@@ -15,6 +15,7 @@ module DataCycleCore
 
       redirect_to root if @watch_list.nil?
 
+      @language ||= params.fetch(:language, ['all'])
       @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @filters.push(
         {
@@ -23,13 +24,13 @@ module DataCycleCore
         }
       )
 
-      @paginate_object = get_filtered_results.content_includes.page(params[:page])
+      @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @total = @paginate_object.total_count
       @contents = @paginate_object.map(&:content_data)
 
       respond_to do |format|
         format.html
-        format.json { redirect_to api_v1_collection_path(@watch_list) }
+        format.json { redirect_to api_v2_collection_path(@watch_list) }
       end
     end
 
@@ -60,9 +61,7 @@ module DataCycleCore
 
     def update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-
-      update_params = { headline: watch_list_params[:headline] }
-      @watch_list.update_attributes(update_params)
+      @watch_list.update(watch_list_params)
 
       if @watch_list.save
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language
@@ -120,7 +119,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:headline)
+      params.require(:watch_list).permit(:headline, user_group_ids: [])
     end
 
     def hashable_params

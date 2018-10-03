@@ -13,7 +13,7 @@ module DataCycleCore
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(locale = 'de', query = nil)
+      def initialize(locale = ['de'], query = nil)
         @locale = locale
         @query = query
       end

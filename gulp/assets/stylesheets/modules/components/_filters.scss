@@ -115,6 +115,7 @@
             input {
               height: auto;
               margin-bottom: 0;
+              line-height: 1.5;
             }
           }
         }
@@ -481,6 +482,7 @@
         color: $dark-gray;
         white-space: nowrap;
         padding: 1px 5px 1px 3px;
+        font-style: normal;
 
         .fa {
           font-size: 0.9rem;

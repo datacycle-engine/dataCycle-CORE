@@ -34,7 +34,7 @@ module.exports.initialize = function () {
         }
       } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-      if (isValid && submit && $('.form-element .warning').length) {
+      if (isValid && submit && $('.form-element .warning.counter').length) {
         var warnings = $('.form-element .warning.counter').closest('.form-element').map((index, elem) => {
           return $(elem).data('label');
         }).get().join(', ');
@@ -223,15 +223,6 @@ module.exports.initialize = function () {
       $(element).off('submit');
     });
   }
-
-  // Status Kommentar setzen
-
-  $(document).on('click', '.release-comment-overlay .save', function (e) {
-    var $input_field = $(e.target).siblings('.release-comment').first();
-    var id = $(e.target).data('hidden-field-id');
-    var value = $input_field.val();
-    $('input[type=hidden]#' + id).val(value);
-  });
 
   // check if data changed and confirm leaving the page
 

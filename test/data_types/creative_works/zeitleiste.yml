@@ -163,12 +163,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zeitleiste"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime
@@ -275,23 +269,11 @@
           :options:
             :data-validate: object
             :data-type: place
-      :is_part_of:
-        :label: parent
-        :type: string
-        :storage_location: column
-        :validations:
-          :format: uuid
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zeitleiste-Eintrag"
-      :creator:
-        :label: Ersteller
-        :type: linked
-        :linked_table: users
-        :validations:
-          :max: 1
       :date_created:
         :label: Erstellungsdatum
         :type: datetime

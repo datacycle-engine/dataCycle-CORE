@@ -34,7 +34,7 @@ module DataCycleCore
         end
 
         def apply_paging(query)
-          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.symbolize_keys)
+          page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.reject { |_, v| v.blank? }.symbolize_keys)
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
         end
 
@@ -46,7 +46,7 @@ module DataCycleCore
           user = User.find_by(access_token: params[:token]) if params[:token].present?
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
-          sign_in user
+          sign_in user, store: false
         end
 
         def access_denied(exception)

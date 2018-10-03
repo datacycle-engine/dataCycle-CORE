@@ -9,7 +9,7 @@ module DataCycleCore
     def show
       authorize! :show, :object_browser
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        @language = permitted_params.fetch(:locale, current_user.default_locale)
+        @language = [permitted_params.fetch(:locale, current_user.default_locale)]
 
         @definition = permitted_params.fetch(:definition, nil)
 
@@ -41,7 +41,7 @@ module DataCycleCore
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
-        query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias)&.id]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'creative_works'
+        query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'creative_works'
 
         query = query.order(order_string)
 

@@ -10,11 +10,6 @@ module DataCycleCore
           table_given = options[:table_name]
           postfix = options[:postfix]
 
-          belongs_to :external_source
-
-          # table_full = table_given.to_s.singularize
-          # table_full += "_#{postfix}" unless postfix.nil?
-
           classification_content_table = 'classification_content'
           classification_content_table += "_#{postfix}" unless postfix.nil?
           class_name = 'DataCycleCore::ClassificationContent'
@@ -53,6 +48,10 @@ module DataCycleCore
           end
 
           belongs_to :external_source
+
+          belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
+          belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
+          belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
 
           has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes

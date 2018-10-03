@@ -39,12 +39,8 @@ module DataCycleCore
         end
 
         def includes_attribute_key(content, key)
-          template_keys = attribute_keys(content) || []
-          (key.scan(/\[(.*?)\]/).flatten & template_keys).size.positive?
-        end
-
-        def controller_functions
-          []
+          template_keys = attribute_keys(content)
+          (key.scan(/\[(.*?)\]/).flatten & template_keys).any?
         end
 
         def configuration(content = nil)

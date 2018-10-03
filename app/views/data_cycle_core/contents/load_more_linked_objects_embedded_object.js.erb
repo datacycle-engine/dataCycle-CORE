@@ -1,16 +1,34 @@
-var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@params[:complete_key]) %>');
+var load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@params[:complete_key]) %>');
 
 <% active_index_multiplier = @params.fetch(:page, 1).to_i - 1 %>
 <% content_for :rendered_items, flush: true do %>
   <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
-    <% @linked_objects.each_with_index do |content, index| %>
-      <%= render_embedded_object_partial(key: @params[:complete_key], definition: @params[:definition], parameters: { object: content, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: @params[:options], new_content: false}, content: content ) %>
+    <% @linked_objects.each_with_index do |object, index| %>
+      <%= render_embedded_object_partial(key: @params[:complete_key], definition: @params[:definition], parameters: { object: object, index: active_index_multiplier * DataCycleCore.linked_objects_page_size + index, options: @params[:options], new_content: false}, content: @content ) %>
     <% end %>
   <% end %>
 <% end %>
 
 <% content_for :buttons, flush: true do %>
-  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, @object], key: @params[:key], complete_key: @params[:complete_key], definition: @params[:definition], options: @params[:options], page: @params.fetch(:page, 1).to_i + 1, load_more_action: :embedded_object, editable: @params[:editable], locale: @params[:locale] || I18n.locale), remote: true, id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:complete_key])}", class: 'load-more-linked-contents button', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..." } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
+  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
+    [:load_more_linked_objects, @object],
+    key: @params[:key],
+    complete_key: @params[:complete_key],
+    definition: @params[:definition],
+    options: @params[:options],
+    page: @params.fetch(:page, 1).to_i + 1,
+    load_more_action: :embedded_object,
+    editable: @params[:editable],
+    locale: (@params[:locale] || I18n.locale),
+    content_id: @content.id,
+    content_type: @content.class.table_name
+  ),
+  remote: true,
+  id: "load_more_#{@content&.id}_#{sanitize_to_id(@params[:complete_key])}",
+  class: 'load-more-linked-contents button',
+  data: {
+    disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.load_more', locale: DataCycleCore.ui_language)}..."
+  } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
 <% end %>
 
 var html_content = '<%= j yield(:rendered_items) %>';
