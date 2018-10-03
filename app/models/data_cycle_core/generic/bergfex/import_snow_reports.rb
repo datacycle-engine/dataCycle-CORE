@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Bergfex
-      module Import
+      module ImportSnowReports
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,10 +19,10 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Bergfex::Processing.process_lake(
+            DataCycleCore::Generic::Bergfex::Processing.process_ski_resort(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :lake)
+              options.dig(:import, :transformations, :ski_resort)
             )
           end
         end

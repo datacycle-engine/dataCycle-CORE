@@ -12,7 +12,15 @@ module DataCycleCore
 
         def lakes(lang: :de)
           Enumerator.new do |yielder|
-            load_data.each do |lake|
+            load_lake_data.each do |lake|
+              yielder << lake
+            end
+          end
+        end
+
+        def snow_reports(lang: :de)
+          Enumerator.new do |yielder|
+            load_snow_report_data.each do |lake|
               yielder << lake
             end
           end
@@ -20,14 +28,24 @@ module DataCycleCore
 
         protected
 
-        def load_data
+        def load_lake_data
           response = Faraday.new.get do |req|
-            req.url(@host + @end_point)
+            req.url(@host + @end_point + 'seen/xml/')
             req.params['partner'] = @partner
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
           Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']
+        end
+
+        def load_snow_report_data
+          response = Faraday.new.get do |req|
+            req.url(@host + @end_point + 'snow/xml/')
+            req.params['partner'] = @partner
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
+          Nokogiri::XML(response.body).xpath('//snowreports').first.to_hash['snowreport']
         end
       end
     end
