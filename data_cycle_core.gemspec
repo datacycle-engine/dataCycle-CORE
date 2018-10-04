@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.4.3'
+  s.required_ruby_version = '~> 2.5.1'
 
   # rails
   # s.add_dependency 'jquery-rails'
@@ -98,8 +98,8 @@ Gem::Specification.new do |s|
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
-  s.add_development_dependency 'listen'
-  s.add_development_dependency 'spring'
+  # s.add_development_dependency 'listen'
+  # s.add_development_dependency 'spring'
   s.add_development_dependency 'spring-watcher-listen'
   s.add_development_dependency 'web-console'
 
@@ -108,7 +108,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'puma_worker_killer'
 
   # validation gems
-  s.add_development_dependency 'brakeman', '~> 4.3.0'
+  s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.56.0'

@@ -79,7 +79,7 @@ de:
     version: Version
     comment: Kommentar
     status: Status
-    content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden
+    content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
     publications: Geplante Publikationen
