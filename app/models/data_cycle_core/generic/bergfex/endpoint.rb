@@ -18,10 +18,26 @@ module DataCycleCore
           end
         end
 
+        def snow_resorts(lang: :de)
+          Enumerator.new do |yielder|
+            load_snow_resort_data(lang: lang).each do |resort|
+              yielder << resort
+            end
+          end
+        end
+
         def snow_reports(lang: :de)
           Enumerator.new do |yielder|
-            load_snow_report_data.each do |lake|
-              yielder << lake
+            load_snow_report_data(lang: lang).each do |report|
+              yielder << report
+            end
+          end
+        end
+
+        def snow_conditions(lang: :de)
+          Enumerator.new do |yielder|
+            load_snow_condition_data(lang: lang).each do |condition|
+              yielder << condition
             end
           end
         end
@@ -38,14 +54,37 @@ module DataCycleCore
           Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']
         end
 
-        def load_snow_report_data
+        def load_snow_resort_data(lang: :de)
           response = Faraday.new.get do |req|
             req.url(@host + @end_point + 'snow/xml/')
             req.params['partner'] = @partner
+            req.params['listResorts'] = 1
+            req.params['lang'] = lang
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
+          Nokogiri::XML(response.body).xpath('//resorts').first.to_hash['resort']
+        end
+
+        def load_snow_report_data(lang: :de)
+          response = Faraday.new.get do |req|
+            req.url(@host + @end_point + 'snow/xml/')
+            req.params['partner'] = @partner
+            req.params['lang'] = lang
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
           Nokogiri::XML(response.body).xpath('//snowreports').first.to_hash['snowreport']
+        end
+
+        def load_snow_condition_data(lang: :de)
+          response = Faraday.new.get do |req|
+            req.url(@host + @end_point + 'snow/conditions/')
+            req.params['lang'] = lang
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
+          Nokogiri::XML(response.body).xpath('//conditions').first.to_hash['condition']
         end
       end
     end

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Bergfex
-      module ImportSnowReports
+      module ImportSnowResorts
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -17,8 +17,22 @@ module DataCycleCore
           mongo_item.where(source_filter.merge("dump.#{locale}": { '$exists' => true }))
         end
 
+        def self.find_snow_report(locale:, id:)
+          snow_report_object = DataCycleCore::Generic::Collection2
+          snow_report_type = Mongoid::PersistenceContext.new(snow_report_object, collection: 'snow_reports')
+          snow_report_object.with(snow_report_type) do |mongo_item|
+            item = mongo_item.where("dump.#{locale}.resort.id": id.to_s)&.first
+            item[:dump][locale] if item.present?
+          end
+        end
+
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
+            report_data = find_snow_report(locale: locale, id: raw_data['id'])
+            if report_data.present?
+              report_data.delete('id')
+              raw_data = raw_data.merge(report_data)
+            end
             DataCycleCore::Generic::Bergfex::Processing.process_ski_resort(
               utility_object,
               raw_data,

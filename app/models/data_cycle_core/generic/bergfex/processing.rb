@@ -15,13 +15,11 @@ module DataCycleCore
         end
 
         def self.process_ski_resort(utility_object, raw_data, config)
-          # test = DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_ski_resort.call(raw_data)
-          # byebug
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_ski_resort,
-            default: { content_type: DataCycleCore::Place, template: 'Ski-Gebiet' },
+            default: { content_type: DataCycleCore::Place, template: 'Skigebiet' },
             config: config
           )
         end

@@ -46,12 +46,29 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:rename_keys, {
             'id' => 'external_key',
+            'name' => 'name_old',
             'snow' => 'snow_old'
+          })
+          .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') })
+          .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
+          .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
+          .>> t(:add_field, 'location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude'] })
+          .>> t(:add_field, 'date_time_updated_at', ->(s) { s.dig('datetime', 'text') })
+          .>> t(:add_field, 'date_last_snowfall', ->(s) { s.dig('dateLastSnowfall', 'text') })
+          .>> t(:add_field, 'open_lifts', ->(s) { s.dig('openLifts', 'text')&.to_i })
+          .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_i })
+          .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
+          .>> t(:reject_keys, ['name_old', 'lat', 'lng', 'dateLastSnowfall', 'datetime', 'openLifts', 'openSlopes', ''])
+          .>> t(:strip_all)
+        end
+
+        def self.bergfex_to_ski_report
+          t(:stringify_keys)
+          .>> t(:rename_keys, {
+            'id' => 'external_key'
           })
           .>> t(:add_field, 'name', ->(s) { s.dig('resort', 'text') })
           .>> t(:add_field, 'status_icon', ->(s) { s.dig('bergfexStatusIcon', 'text') })
-          .>> t(:add_field, 'open_lifts', ->(s) { s.dig('openLifts', 'text')&.to_i })
-          .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_i })
           .>> t(:add_field, 'elevation', ->(s) { s.dig('snow_old', 'itemSnow')&.first&.dig('elevation')&.to_f })
           .>> t(:add_field, 'depth', ->(s) { s.dig('snow_old', 'itemSnow')&.first&.dig('depth', 'text')&.to_f })
           .>> t(:nest, 'village', ['elevation', 'depth'])
@@ -63,11 +80,15 @@ module DataCycleCore
           .>> t(:nest, 'top', ['elevation', 'depth'])
           .>> t(:nest, 'snow_report', ['village', 'base', 'top'])
           .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
+          .>> t(:add_field, 'condition_snow', ->(s) { s.dig('conditionSnow', 'text') })
+          .>> t(:add_field, 'condition_run_to_valley', ->(s) { s.dig('conditionRunToValley', 'text') })
+          .>> t(:add_field, 'condition_slopes', ->(s) { s.dig('conditionSlopes', 'text') })
+          .>> t(:add_field, 'avalanche_warning_level', ->(s) { s.dig('avalancheWarningLevel', 'text') })
           .>> t(:add_field, 'opens', ->(s) { s.dig('operationStart', 'text') || '' })
           .>> t(:add_field, 'closes', ->(s) { s.dig('operationEnd', 'text') || '' })
           .>> t(:nest, 'opening_data', ['opens', 'closes'])
           .>> t(:add_field, 'opening_hours_specification_range', ->(s) { [s.dig('opening_data')] })
-          .>> t(:reject_keys, ['bergfexStatusIcon', 'linkDetailedReport', 'snow_old', 'operationStart', 'operationEnd', 'OpenLifts', 'OpenSlopes', 'opening_data'])
+          .>> t(:reject_keys, ['bergfexStatusIcon', 'linkDetailedReport', 'snow_old', 'operationStart', 'operationEnd', 'OpenLifts', 'OpenSlopes', 'opening_data', 'datetime', 'dateLastSnowfall'])
           .>> t(:strip_all)
         end
       end
