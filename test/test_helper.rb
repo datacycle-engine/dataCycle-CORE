@@ -195,6 +195,7 @@ DataCycleCore::TestPreparations.load_dummy_data(
     Rails.root.join('..', 'dummy_data')
   ]
 )
+
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group

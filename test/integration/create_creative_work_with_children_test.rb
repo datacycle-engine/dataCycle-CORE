@@ -24,7 +24,7 @@ module DataCycleCore
         template: 'Container'
       }
 
-      parent = DataCycleCore::CreativeWork.find_by(headline: 'Test Thema 1')
+      parent = DataCycleCore::CreativeWork.includes(:translations).find_by(creative_work_translations: { headline: 'Test Thema 1' })
 
       post creative_works_path, params: {
         creative_work: {
