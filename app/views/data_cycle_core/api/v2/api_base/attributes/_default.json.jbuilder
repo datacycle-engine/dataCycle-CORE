@@ -2,6 +2,7 @@
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
   key_new = definition.dig('api', 'name') || key
+
   if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'method').present?
     json.set! definition.dig('api', 'transformation', 'name') do
       json.set! '@type', definition.dig('api', 'transformation', 'type')
