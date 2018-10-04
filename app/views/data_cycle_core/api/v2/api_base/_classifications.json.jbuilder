@@ -5,6 +5,7 @@ json.set! key do
     json.cache!(classification_alias, expires_in: 10.minutes) do
       json.id classification_alias.id
       json.name classification_alias.name
+      json.description classification_alias.description if classification_alias.description.present?
       json.createdAt classification_alias.created_at
       json.updatedAt classification_alias.updated_at
       json.deletedAt classification_alias.deleted_at if classification_alias.deleted_at

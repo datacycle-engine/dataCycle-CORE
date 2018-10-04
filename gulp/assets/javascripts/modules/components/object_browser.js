@@ -33,6 +33,8 @@ var ObjectBrowser = function (selector) {
   this.selected = '';
   this.excluded = [];
   this.sortable;
+  this.content_id = this.element.data('content-id');
+  this.content_type = this.element.data('content-type');
 
   this.setup();
 };
@@ -254,7 +256,7 @@ ObjectBrowser.prototype.updateChosenCounter = function () {
 
 ObjectBrowser.prototype.loadMore = function (loaded_ids) {
   $.ajax({
-    url: '/' + this.table + '/' + this.object_id + '/load_more_linked_objects',
+    url: '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
     method: 'GET',
     dataType: 'script',
     data: {
@@ -265,6 +267,8 @@ ObjectBrowser.prototype.loadMore = function (loaded_ids) {
       options: this.options,
       class: this.class,
       editable: this.editable,
+      content_id: this.content_id,
+      content_type: this.content_type,
       load_more_action: 'object_browser',
       load_more_type: 'all',
       load_more_except: loaded_ids
