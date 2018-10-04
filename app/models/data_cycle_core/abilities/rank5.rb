@@ -4,7 +4,7 @@ module DataCycleCore
   module Abilities
     class Rank5
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
-      TEMPLATES = [DataCycleCore::CreativeWork, DataCycleCore::Place, DataCycleCore::Event, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' = 'entity'").pluck(:template_name) }.flatten
+      TEMPLATES = [DataCycleCore::CreativeWork, DataCycleCore::Place, DataCycleCore::Event, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' IN ('entity', 'container')").pluck(:template_name) }.flatten
       include CanCan::Ability
 
       def initialize(user, _session = {})
