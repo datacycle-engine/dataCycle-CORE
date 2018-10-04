@@ -44,6 +44,13 @@ Die Gesamtanzahl wird innerhalb des ```meta```-Attributs mit dem Namen ```total`
 * **last**: Link zur letzten Seite
 
 
+## Verknüpfte Inhalte
+
+Die Datenstruktur innerhalb von dataCycle ist grundsätzlich so aufgebaut, dass ein Inhalt mit beliebig vielen anderen Inhalten verknüpft werden kann. Ein POI beispielsweise hat in der Regel mehrere Bilder, die mit ihm verknüpft sind. Damit diese Verknüpfungen direkt beim Abruf der Daten aufgelöst werden und nicht im Nachhinein manuell aufgelöst werden müssen, steht der Query-Parameter ```include=linked``` zur Verfügung. Dieser Parameter kann sowohl beim Abruf eines einzelnen Datensatzes als auch beim Abruf von mehreren Datensätzen über einen API-Endpunkt genutzt werden.
+
+**ACHTUNG: Der Parameter _include=linked_ kann sich spürbar auf die Performance der Datenschnittstelle auswirken, da unter Umständen eine sehr große Menge an zusätzlichen Daten ausgeliefert werden muss.**
+
+
 ## Aktualisierungen
 
 Für einige Anwendungsfälle kann es notwendig sein, herauszufinden, welche Datensätze innerhalb einer vorgegeben Zeitspanne geändert worden sind. Zu diesem Zweck können bei API-Endpunkten, über die mehrere Inhalte auf der gleichen Ebene ausgeliefert werden, also grundsätzliche alle Endpunkte, die auch Paging unterstützen, zusätzliche Filter-Parameter genutzt werden. Dadurch kann die Anzahl der Datensätze, die geladen werden müssen, erheblich reduziert werden. Außerdem muss die Prüfung, ob es seit dem letzten Update neue Änderungen gegeben hat, nicht client-seitig durchgeführt werden, wodurch die Client-Anwendung noch einmal deutlich entlastet werden kann. Die Filter die für diesen Mechanismus genutzt werden können sehen folgendermaßen aus:
