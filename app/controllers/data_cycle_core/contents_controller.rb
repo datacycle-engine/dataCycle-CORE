@@ -64,9 +64,9 @@ module DataCycleCore
 
     def create
       if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+        authorize!(:create_in_objectbrowser, params[:template])
       else
-        authorize!(:create, data_cycle_object(controller_name))
+        authorize!(:create, params[:template])
       end
 
       I18n.with_locale(locale_params[:locale]) do

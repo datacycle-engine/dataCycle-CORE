@@ -4,6 +4,7 @@ module DataCycleCore
   module Abilities
     class Rank5
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
+      TEMPLATES = [DataCycleCore::CreativeWork, DataCycleCore::Place, DataCycleCore::Event, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' = 'entity'").pluck(:template_name) }.flatten
       include CanCan::Ability
 
       def initialize(user, _session = {})
@@ -12,9 +13,14 @@ module DataCycleCore
         # Contents
         can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
 
-        can [:read, :create, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS do |content|
+        can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
+
+        # TODO: change when migration is finished
+        can :create, TEMPLATES
+        can :create_item, '' if TEMPLATES&.size&.positive?
+
         can :destroy, CONTENT_MODELS do |content|
           content&.created_by_user == user
         end
