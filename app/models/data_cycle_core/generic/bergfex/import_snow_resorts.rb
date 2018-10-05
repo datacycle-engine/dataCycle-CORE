@@ -36,7 +36,8 @@ module DataCycleCore
             DataCycleCore::Generic::Bergfex::Processing.process_ski_resort(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :ski_resort)
+              options.dig(:import, :transformations, :ski_resort),
+              locale
             )
           end
         end

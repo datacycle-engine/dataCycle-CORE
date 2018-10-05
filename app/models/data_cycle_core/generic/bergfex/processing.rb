@@ -14,7 +14,14 @@ module DataCycleCore
           )
         end
 
-        def self.process_ski_resort(utility_object, raw_data, config)
+        def self.process_ski_resort(utility_object, raw_data, config, locale)
+          if raw_data.dig('snow', 'itemSnow').present?
+            raw_data['snow_report'] = []
+            raw_data.dig('snow', 'itemSnow').each do |snow_item|
+              raw_data['snow_report'] << transform_snow_report(utility_object, snow_item, config, locale)
+            end
+          end
+
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
@@ -22,6 +29,15 @@ module DataCycleCore
             default: { content_type: DataCycleCore::Place, template: 'Skigebiet' },
             config: config
           )
+        end
+
+        def self.transform_snow_report(_utility_object, raw_data, config, locale)
+          DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
+            config,
+            DataCycleCore::Generic::Bergfex::Transformations
+              .bergfex_to_ski_report(locale)
+              .call(raw_data)
+          ).with_indifferent_access
         end
       end
     end

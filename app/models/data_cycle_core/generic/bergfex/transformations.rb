@@ -5,7 +5,7 @@ module DataCycleCore
     module Bergfex
       module Transformations
         def self.t(*args)
-          DataCycleCore::Generic::Common::Functions[*args]
+          DataCycleCore::Generic::Bergfex::TransformationFunctions[*args]
         end
 
         def self.bergfex_to_see
@@ -57,38 +57,23 @@ module DataCycleCore
           .>> t(:add_field, 'date_last_snowfall', ->(s) { s.dig('dateLastSnowfall', 'text') })
           .>> t(:add_field, 'open_lifts', ->(s) { s.dig('openLifts', 'text')&.to_i })
           .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_i })
+          .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
+          .>> t(:operations_to_opening_hours, 'opening_hours', 'operations')
+          .>> t(:reject_keys, ['operations'])
           .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
-          .>> t(:reject_keys, ['name_old', 'lat', 'lng', 'dateLastSnowfall', 'datetime', 'openLifts', 'openSlopes', ''])
+          .>> t(:reject_keys, ['name_old', 'lat', 'lng', 'dateLastSnowfall', 'datetime', 'openLifts', 'openSlopes', 'linkDetailedReport'])
           .>> t(:strip_all)
         end
 
-        def self.bergfex_to_ski_report
+        def self.bergfex_to_ski_report(locale)
           t(:stringify_keys)
           .>> t(:rename_keys, {
-            'id' => 'external_key'
+            'elevation' => 'elevation_old',
+            'depth' => 'depth_old'
           })
-          .>> t(:add_field, 'name', ->(s) { s.dig('resort', 'text') })
-          .>> t(:add_field, 'status_icon', ->(s) { s.dig('bergfexStatusIcon', 'text') })
-          .>> t(:add_field, 'elevation', ->(s) { s.dig('snow_old', 'itemSnow')&.first&.dig('elevation')&.to_f })
-          .>> t(:add_field, 'depth', ->(s) { s.dig('snow_old', 'itemSnow')&.first&.dig('depth', 'text')&.to_f })
-          .>> t(:nest, 'village', ['elevation', 'depth'])
-          .>> t(:add_field, 'elevation', ->(s) { s.dig('snow_old', 'itemSnow')&.fetch(1, nil)&.dig('elevation')&.to_f })
-          .>> t(:add_field, 'depth', ->(s) { s.dig('snow_old', 'itemSnow')&.fetch(1, nil)&.dig('depth', 'text')&.to_f })
-          .>> t(:nest, 'base', ['elevation', 'depth'])
-          .>> t(:add_field, 'elevation', ->(s) { s.dig('snow_old', 'itemSnow')&.fetch(2, nil)&.dig('elevation')&.to_f })
-          .>> t(:add_field, 'depth', ->(s) { s.dig('snow_old', 'itemSnow')&.fetch(2, nil)&.dig('depth', 'text')&.to_f })
-          .>> t(:nest, 'top', ['elevation', 'depth'])
-          .>> t(:nest, 'snow_report', ['village', 'base', 'top'])
-          .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
-          .>> t(:add_field, 'condition_snow', ->(s) { s.dig('conditionSnow', 'text') })
-          .>> t(:add_field, 'condition_run_to_valley', ->(s) { s.dig('conditionRunToValley', 'text') })
-          .>> t(:add_field, 'condition_slopes', ->(s) { s.dig('conditionSlopes', 'text') })
-          .>> t(:add_field, 'avalanche_warning_level', ->(s) { s.dig('avalancheWarningLevel', 'text') })
-          .>> t(:add_field, 'opens', ->(s) { s.dig('operationStart', 'text') || '' })
-          .>> t(:add_field, 'closes', ->(s) { s.dig('operationEnd', 'text') || '' })
-          .>> t(:nest, 'opening_data', ['opens', 'closes'])
-          .>> t(:add_field, 'opening_hours_specification_range', ->(s) { [s.dig('opening_data')] })
-          .>> t(:reject_keys, ['bergfexStatusIcon', 'linkDetailedReport', 'snow_old', 'operationStart', 'operationEnd', 'OpenLifts', 'OpenSlopes', 'opening_data', 'datetime', 'dateLastSnowfall'])
+          .>> t(:add_field, 'elevation', ->(s) { s.dig('elevation_old')&.to_f })
+          .>> t(:add_field, 'depth', ->(s) { s.dig('depth_old', 'text')&.to_f })
+          .>> t(:get_title_from_locale, 'headline', ->(s) { s.dig('type') }, locale)
           .>> t(:strip_all)
         end
       end
