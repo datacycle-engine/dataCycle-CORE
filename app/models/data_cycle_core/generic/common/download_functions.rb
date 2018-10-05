@@ -111,7 +111,7 @@ module DataCycleCore
               begin
                 download_object.source_object.with(download_object.source_type) do |mongo_item|
                   endpoint_method = options.dig(:download, :endpoint_method) || download_object.source_type.collection_name.to_s
-                  items = download_object.endpoint.send(endpoint_method, lang: locale)
+                  items = download_object.endpoint.send(endpoint_method)
 
                   max_string = options.dig(:max_count).present? ? (options[:max_count]).to_s : ''
                   logging.phase_started(download_object.source_type.collection_name.to_s, max_string)

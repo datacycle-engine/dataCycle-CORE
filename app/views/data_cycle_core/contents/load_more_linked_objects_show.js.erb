@@ -16,6 +16,8 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
                                                     "data_cycle_core/contents/viewers/tiles/#{content.class.name.demodulize.underscore}",
                                                     'data_cycle_core/contents/viewers/tiles/default'
                                               ], {
+                                                  key: @params[:key],
+                                                  definition: @params[:definition],
                                                   content: content,
                                               } %>
         </li>
@@ -29,9 +31,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
         options: @params[:options],
         page: @params.fetch(:page, 1).to_i + 1,
         load_more_action: :show,
-        locale: (@params[:locale] || I18n.locale),
-        content_id: @content.id,
-        content_type: @content.class.table_name
+        locale: (@params[:locale] || I18n.locale)
       ),
       remote: true,
       id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:key])}",
