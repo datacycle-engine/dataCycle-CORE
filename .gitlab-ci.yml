@@ -54,6 +54,11 @@ build_caches:
   stage: build
   tags:
     - data-cycle-core
+  only:
+    - master
+    - release
+    - pre-release
+    - develop
   script:
     - bundle install --path=cache/bundler
     - yarn
