@@ -49,8 +49,11 @@ services:
   - name: mvertes/alpine-mongo:3.6.3-0
     alias: mongodb
 
+# build caches
 build_caches:
   stage: build
+  tags:
+    - data-cycle-core
   script:
     - bundle install --path=cache/bundler
     - yarn
@@ -58,6 +61,8 @@ build_caches:
 
 # Running tests
 rails_test:
+  tags:
+    - data-cycle-core
   cache:
     key: application-cache
     paths:
@@ -78,6 +83,8 @@ rails_test:
     - bundle exec rails test -b
 
 cypress:
+  tags:
+    - data-cycle-core
   cache:
     key: application-cache
     paths:
@@ -111,6 +118,8 @@ cypress:
 # brakeman
 # rubocop
 code_validation:
+  tags:
+    - data-cycle-core
   stage: check
   cache:
     key: application-cache
@@ -129,6 +138,93 @@ code_validation:
     - bundle exec bundle audit check
     - bundle exec brakeman
     - bundle exec rubocop --format fuubar
+
+# deployment
+deploy_release:
+  tags:
+    - data-cycle-core
+  stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap release deploy
+  only:
+    - release
+  environment:
+    name: release
+    url: http://core-production.datacycle.at/
+  when: manual
+  allow_failure: false
+
+# deployment
+deploy_pre_release:
+  tags:
+    - data-cycle-core
+  stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap pre_release deploy
+  only:
+    - pre-release
+  environment:
+    name: pre-release
+    url: http://core-pre-release.datacycle.at/
+  when: manual
+  allow_failure: false
+
+# deployment
+deploy_development:
+  tags:
+    - data-cycle-core
+  stage: deploy
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+    policy: pull
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap development deploy
+  only:
+    - develop
+  environment:
+    name: development
+    url: http://core-development.datacycle.at/
+  when: manual
+  allow_failure: false
+
+############### Review Apps
+# Build caches
+build_review_caches:
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  stage: build
+  tags:
+    - data-cycle-review
+  script:
+    - bundle install --path=cache/bundler
+    - yarn
+    - npx gulp production
 
 # Running tests
 rails_review_test:
@@ -216,68 +312,6 @@ code_review_validation:
     - bundle exec brakeman
     - bundle exec rubocop --format fuubar
 
-# deployment
-deploy_release:
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap release deploy
-  only:
-    - release
-  environment:
-    name: release
-    url: http://core-production.datacycle.at/
-  when: manual
-  allow_failure: false
-
-# deployment
-deploy_pre_release:
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap pre_release deploy
-  only:
-    - pre-release
-  environment:
-    name: pre-release
-    url: http://core-pre-release.datacycle.at/
-  when: manual
-  allow_failure: false
-
-# deployment
-deploy_development:
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap development deploy
-  only:
-    - develop
-  environment:
-    name: development
-    url: http://core-development.datacycle.at/
-  allow_failure: false
-
 deploy_review:
   stage: deploy
   cache:
@@ -305,6 +339,7 @@ deploy_review:
     name: review/$CI_COMMIT_REF_NAME
     url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
     on_stop: stop_review
+  when: manual
   allow_failure: false
 
 stop_review:
