@@ -67,10 +67,10 @@ class RemoveOrganizations < ActiveRecord::Migration[5.1]
       t.text :description
       t.tstzrange :history_valid
       t.timestamps
-      t.index :id, unique: true
+      t.index :id, unique: true, name: 'index_organization_history_translation_on_id'
       t.index [:organization_history_id, :locale], name: 'index_organization_history_id_locale', using: :btree
-      t.index :organization_history_id
-      t.index :locale
+      t.index :organization_history_id, name: 'index_on_organization_history_translation_id'
+      t.index :locale, name: 'index_organization_history_translation_on_locale'
     end
   end
 end

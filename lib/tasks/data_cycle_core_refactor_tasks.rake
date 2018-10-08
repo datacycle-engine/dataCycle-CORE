@@ -2,10 +2,25 @@
 
 namespace :data_cycle_core do
   namespace :refactor do
+    desc 'migrate all content_tables to things'
+    task migrate_content_to_things: :environment do
+      puts 'migrating all content_tables to things'
+      puts '==> STAGE 1 - ORGANIZATIONS <=='
+      Rake::Task['data_cycle_core:refactor:migrate_organizations_to_things'].invoke
+      puts '==> STAGE 2 - PERSONS <=='
+      Rake::Task['data_cycle_core:refactor:migrate_persons_to_things'].invoke
+
+      puts '==> BONUS STAGE <=='
+      puts 'load updated templates'
+      Rake::Task['data_cycle_core:update:import_templates'].invoke
+      puts 'update all templates'
+      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
+    end
+
     desc 'migrate organizations - executes all migration tasks'
     task migrate_organizations_to_things: :environment do
       temp = Time.zone.now
-      puts 'MIGRATE DATA'
+      puts 'MIGRATE DATA FOR'
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       puts 'update references'
@@ -106,12 +121,6 @@ namespace :data_cycle_core do
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
 
-      puts 'delete old organization data'
-      DataCycleCore::Organization.delete_all
-      DataCycleCore::Organization::Translation.delete_all
-      DataCycleCore::Organization::History.delete_all
-      DataCycleCore::Organization::History::Translation.delete_all
-
       puts 'load updated templates'
       Rake::Task['data_cycle_core:update:import_templates'].invoke
       Rake::Task['data_cycle_core:update:import_templates'].reenable
@@ -127,7 +136,7 @@ namespace :data_cycle_core do
     desc 'migrate persons - executes all migration tasks'
     task migrate_persons_to_things: :environment do
       temp = Time.zone.now
-      puts 'MIGRATE DATA'
+      puts 'MIGRATE DATA FOR'
       puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
       puts 'update references'
@@ -231,20 +240,6 @@ namespace :data_cycle_core do
         FROM person_history_translations
       SQL
       ActiveRecord::Base.connection.exec_query(sql)
-
-      puts 'delete old person data'
-      DataCycleCore::Person.delete_all
-      DataCycleCore::Person::Translation.delete_all
-      DataCycleCore::Person::History.delete_all
-      DataCycleCore::Person::History::Translation.delete_all
-
-      puts 'load updated templates'
-      # Rake::Task['data_cycle_core:update:import_templates'].invoke
-      # Rake::Task['data_cycle_core:update:import_templates'].reenable
-
-      puts 'update all templates'
-      # Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
-      # Rake::Task['data_cycle_core:update:update_all_templates_sql'].reenable
 
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
