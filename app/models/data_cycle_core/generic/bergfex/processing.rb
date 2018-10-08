@@ -21,21 +21,20 @@ module DataCycleCore
               raw_data['snow_report'] << transform_snow_report(utility_object, snow_item, config, locale)
             end
           end
-
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_ski_resort,
+            transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_ski_resort(utility_object.external_source.id),
             default: { content_type: DataCycleCore::Place, template: 'Skigebiet' },
             config: config
           )
         end
 
-        def self.transform_snow_report(_utility_object, raw_data, config, locale)
+        def self.transform_snow_report(utility_object, raw_data, config, locale)
           DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
             config,
             DataCycleCore::Generic::Bergfex::Transformations
-              .bergfex_to_ski_report(locale)
+              .bergfex_to_ski_report(utility_object.external_source.id, locale)
               .call(raw_data)
           ).with_indifferent_access
         end

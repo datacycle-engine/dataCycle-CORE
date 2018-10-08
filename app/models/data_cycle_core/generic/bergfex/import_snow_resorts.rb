@@ -21,7 +21,7 @@ module DataCycleCore
           snow_report_object = DataCycleCore::Generic::Collection2
           snow_report_type = Mongoid::PersistenceContext.new(snow_report_object, collection: 'snow_reports')
           snow_report_object.with(snow_report_type) do |mongo_item|
-            item = mongo_item.where("dump.#{locale}.resort.id": id.to_s)&.first
+            item = mongo_item.where("dump.#{locale}.resort.id": id.to_s).sort("updated_at": -1)&.first
             item[:dump][locale] if item.present?
           end
         end
