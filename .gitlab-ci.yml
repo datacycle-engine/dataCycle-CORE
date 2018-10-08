@@ -210,6 +210,13 @@ deploy_development:
 ############### Review Apps
 # Build caches
 build_review_caches:
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
   stage: build
   tags:
     - data-cycle-review
