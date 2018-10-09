@@ -157,7 +157,7 @@ ObjectBrowser.prototype.setup = function () {
   $('#new_' + this.id).addClass('in-object-browser');
 
   $('#new_' + this.id).on('open.zf.reveal', function (event) {
-    $(this).find('form').on('submit_without_redirect', function (ev, data) {
+    $(this).find('form').off('submit_without_redirect').on('submit_without_redirect', function (ev, data) {
       ev.preventDefault();
       ev.stopImmediatePropagation();
       var form_data = $(this).serializeJSON();
