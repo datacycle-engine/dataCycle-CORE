@@ -10,11 +10,13 @@ module DataCycleCore
 
         def apply_excluded_contents(content, entities)
           return entities if excluded_contents(content).blank?
+
           entities.where.not(template_name: excluded_contents(content))
         end
 
         def apply_allowed_contents(content, entities)
           return entities if allowed_contents(content).blank?
+
           entities.where(template_name: allowed_contents(content))
         end
 

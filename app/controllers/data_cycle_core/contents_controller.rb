@@ -294,6 +294,7 @@ module DataCycleCore
 
     def upload
       return if asset_params[:file].blank?
+
       object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
 
       render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?

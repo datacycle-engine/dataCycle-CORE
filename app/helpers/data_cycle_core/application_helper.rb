@@ -275,6 +275,7 @@ module DataCycleCore
     def first_existing_partial(partials)
       partials.each_with_index do |partial, _idx|
         next unless lookup_context.exists?(partial, [], true)
+
         return partial
       end
     end
