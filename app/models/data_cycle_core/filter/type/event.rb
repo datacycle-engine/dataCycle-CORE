@@ -20,7 +20,7 @@ module DataCycleCore
 
         def sort_by_proximity(date = Time.zone.now)
           search_query = @query
-          DataCycleCore::Filter::Search.new(@locale, DataCycleCore::Event)
+          DataCycleCore::Filter::Search.new(@locale, DataCycleCore::Thing)
             .where(event[:id].in(search_query.map(&:content_data_id)))
             .order(absolute_date_diff(event[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
                    absolute_date_diff(event[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
@@ -34,11 +34,11 @@ module DataCycleCore
             .project(search[:content_data_id])
             .from(search)
             .join(event)
-            .on(search[:content_data_id].eq(event[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Event'))))
+            .on(search[:content_data_id].eq(event[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Thing'))))
         end
 
         def event
-          DataCycleCore::Event.arel_table
+          DataCycleCore::Thing.arel_table
         end
       end
     end

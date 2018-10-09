@@ -78,7 +78,7 @@ module DataCycleCore
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'places', 'things']
+    self.content_tables = ['creative_works', 'places', 'things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
