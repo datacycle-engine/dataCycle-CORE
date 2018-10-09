@@ -46,28 +46,12 @@ cache:
 services:
   - name: mdillon/postgis:9.6
     alias: postgres
-  - name: mvertes/alpine-mongo:3.6.3-0
+  - name: mvertes/alpine-mongo:3.4.10-0
     alias: mongodb
 
-# build caches
-build_caches:
-  stage: build
-  tags:
-    - data-cycle-core
-  only:
-    - master
-    - release
-    - pre-release
-    - develop
-  script:
-    - bundle install --path=cache/bundler
-    - yarn
-    - npx gulp production
-
-# Running tests
-rails_test:
-  tags:
-    - data-cycle-core
+########################################################################
+######################### Job Configuration HiddenFields
+.job_cache_config:
   cache:
     key: application-cache
     paths:
@@ -75,11 +59,16 @@ rails_test:
       - node_modules
       - lib/assets
     policy: pull
-  only:
-    - master
-    - release
-    - pre-release
-    - develop
+
+.build_caches_config:
+  stage: build
+  script:
+    - bundle install --path=cache/bundler
+    - yarn
+    - npx gulp production
+
+.rails_test_config:
+  extends: .job_cache_config
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
@@ -87,21 +76,8 @@ rails_test:
     - bundle exec rake db:seed
     - bundle exec rails test -b
 
-cypress:
-  tags:
-    - data-cycle-core
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  only:
-    - master
-    - release
-    - pre-release
-    - develop
+.cypress_config:
+  extends: .job_cache_config
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
@@ -118,228 +94,81 @@ cypress:
     expire_in: 1 week
     when: on_failure
 
-# code validation
-# bundle-audit
-# brakeman
-# rubocop
-code_validation:
-  tags:
-    - data-cycle-core
+.code_validation_config:
+  extends: .job_cache_config
   stage: check
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  only:
-    - master
-    - release
-    - pre-release
-    - develop
   script:
     - bundle exec bundle-audit update
     - bundle exec bundle audit check
     - bundle exec brakeman
     - bundle exec rubocop --format fuubar
 
-# deployment
-deploy_release:
-  tags:
-    - data-cycle-core
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap release deploy
+########################################################################
+######################### Branch Configuration HidenFields
+.master_ci_config: &master_ci
   only:
-    - release
-  environment:
-    name: release
-    url: http://core-production.datacycle.at/
-  when: manual
-  allow_failure: false
-
-# deployment
-deploy_pre_release:
-  tags:
-    - data-cycle-core
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap pre_release deploy
-  only:
-    - pre-release
-  environment:
-    name: pre-release
-    url: http://core-pre-release.datacycle.at/
-  when: manual
-  allow_failure: false
-
-# deployment
-deploy_development:
-  tags:
-    - data-cycle-core
-  stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap development deploy
-  only:
+    - master
     - develop
-  environment:
-    name: development
-    url: http://core-development.datacycle.at/
-  when: manual
-  allow_failure: false
+    - release
+    - pre-release
+  tags:
+    - data-cycle-core
 
-############### Review Apps
-# Build caches
+.review_ci_config: &review_ci
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+
+########################################################################
+######################### Release / Pre-Release / Development
+build_caches:
+  <<: *master_ci
+  extends: .build_caches_config
+
+rails_test:
+  <<: *master_ci
+  extends: .rails_test_config
+
+cypress:
+  <<: *master_ci
+  extends: .cypress_config
+
+code_validation:
+  <<: *master_ci
+  extends: .code_validation_config
+
+########################################################################
+######################### Review Apps
 build_review_caches:
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  stage: build
-  tags:
-    - data-cycle-review
-  script:
-    - bundle install --path=cache/bundler
-    - yarn
-    - npx gulp production
+  <<: *review_ci
+  extends: .build_caches_config
 
-# Running tests
 rails_review_test:
-  only:
-    - branches
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  tags:
-    - data-cycle-review
-  script:
-    - bundle exec rake db:drop
-    - bundle exec rake db:create
-    - bundle exec rake db:migrate
-    - bundle exec rake db:seed
-    - bundle exec rails test
+  <<: *review_ci
+  extends: .rails_test_config
 
 cypress_review:
-  only:
-    - branches
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  tags:
-    - data-cycle-review
-  script:
-    - bundle exec rake db:drop
-    - bundle exec rake db:create
-    - bundle exec rake db:migrate
-    - bundle exec rake db:seed
-    - bundle exec rake app:data_cycle_core:update:import_classifications
-    - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
-    - cd $CI_PROJECT_DIR && npx cypress run
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
-    paths:
-    - cypress/screenshots/
-    expire_in: 1 week
-    when: on_failure
+  <<: *review_ci
+  extends: .cypress_config
 
-# code validation
-# bundle-audit
-# brakeman
-# rubocop
 code_review_validation:
-  stage: check
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-  tags:
-    - data-cycle-review
-  script:
-    - bundle exec bundle-audit update
-    - bundle exec bundle audit check
-    - bundle exec brakeman
-    - bundle exec rubocop --format fuubar
+  <<: *review_ci
+  extends: .code_validation_config
 
 deploy_review:
+  <<: *review_ci
+  extends: .job_cache_config
   stage: deploy
-  cache:
-    key: application-cache
-    paths:
-      - cache/bundler
-      - node_modules
-      - lib/assets
-    policy: pull
   script:
     - bundle exec rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-    - remote-develop
-  tags:
-    - data-cycle-review
   environment:
     name: review/$CI_COMMIT_REF_NAME
     url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
@@ -348,6 +177,7 @@ deploy_review:
   allow_failure: false
 
 stop_review:
+  <<: *review_ci
   stage: deploy
   variables:
     GIT_STRATEGY: none
@@ -375,16 +205,6 @@ stop_review:
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
-  only:
-    - branches
-  except:
-    - master
-    - release
-    - pre-release
-    - develop
-    - remote-develop
-  tags:
-    - data-cycle-review
   environment:
     name: review/$CI_COMMIT_REF_NAME
     action: stop
