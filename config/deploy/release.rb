@@ -12,3 +12,8 @@ set :rails_env, 'production'
 set :deploy_to, '/var/www/data-cycle-core/production'
 set :cmd_prefix, 'app:'
 set :application_root_path, 'test/dummy/'
+
+namespace :deploy do
+  before 'deploy:migrate', 'datacycle:dev:dump_db'
+  after 'deploy:cleanup', 'datacycle:dev:clean_up_dumps'
+end
