@@ -88,11 +88,11 @@ module DataCycleCore
     end
 
     def split_params
-      params.permit(:source_type, :source_id)
+      params.permit(:source_table, :source_id)
     end
 
     def url_split_params
-      params.require(:data_link).permit(:source_type, :source_id)
+      params.require(:data_link).permit(:source_table, :source_id)
     end
   end
 end
