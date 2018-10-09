@@ -166,7 +166,7 @@ deploy_review:
   extends: .job_cache_config
   stage: deploy
   script:
-    - bundle exec rake app:tmp:create
+    - rake app:tmp:create
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
   environment:
