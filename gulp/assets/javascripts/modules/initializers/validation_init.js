@@ -276,19 +276,18 @@ module.exports.initialize = function () {
     // validate on value change
     init_event_handlers('body');
 
-    if ($('.reveal.new-item').length) {
-      $(document).on('open.zf.reveal', '.new-item[data-reset-on-close]', event => {
-        init_event_handlers(event.currentTarget);
-      });
-      $(document).on('closed.zf.reveal', '.new-item[data-reset-on-close]', event => {
-        remove_event_handlers(event.currentTarget);
-      });
+    $(document).on('open.zf.reveal', '.new-item[data-reset-on-close]', event => {
+      init_event_handlers(event.currentTarget);
+    });
 
-      $(document).on('closed.zf.reveal', '.new-item', event => {
-        $(event.currentTarget).find('.has-error').removeClass('has-error');
-        $(event.currentTarget).find('.single_error').remove();
-      });
-    }
+    $(document).on('closed.zf.reveal', '.new-item[data-reset-on-close]', event => {
+      remove_event_handlers(event.currentTarget);
+    });
+
+    $(document).on('closed.zf.reveal', '.new-item', event => {
+      $(event.currentTarget).find('.has-error').removeClass('has-error');
+      $(event.currentTarget).find('.single_error').remove();
+    });
   }
 
 };
