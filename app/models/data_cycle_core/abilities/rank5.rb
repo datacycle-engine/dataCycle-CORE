@@ -3,7 +3,6 @@
 module DataCycleCore
   module Abilities
     class Rank5 < DataCycleCore::Ability
-      CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
       TEMPLATES = (['Angebot', 'Artikel', 'Bild', 'Biografie', 'Container',
                     'Interview', 'Linktipps', 'Quiz', 'Rezept', 'SocialMediaPosting',
                     'Video', 'Zeitleiste', 'Lift', 'Örtlichkeit', 'Piste', 'POI',
