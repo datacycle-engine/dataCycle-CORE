@@ -56,7 +56,7 @@ namespace :review do
   desc 'init dev db'
   task :init_dev_db do
     run_locally do
-      `cap development review:download_dev_db`
+      `cap develop review:download_dev_db`
     end
     invoke 'review:upload_dev_db'
   end
