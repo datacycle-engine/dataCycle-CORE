@@ -168,24 +168,24 @@ build_review_caches:
   <<: *review_ci
   extends: .build_caches_config
 
-rails_review_test:
-  <<: *review_ci
-  extends: .rails_test_config
-
-cypress_review:
-  <<: *review_ci
-  extends: .cypress_config
-
-code_review_validation:
-  <<: *review_ci
-  extends: .code_validation_config
+#rails_review_test:
+#  <<: *review_ci
+#  extends: .rails_test_config
+#
+#cypress_review:
+#  <<: *review_ci
+#  extends: .cypress_config
+#
+#code_review_validation:
+#  <<: *review_ci
+#  extends: .code_validation_config
 
 deploy_review:
   <<: *review_ci
   extends: .job_cache_config
   stage: deploy
   script:
-    - bundle exec rake tmp:create
+    - bundle exec rake app:tmp:create
     - cd $CI_PROJECT_DIR
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
