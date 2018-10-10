@@ -105,6 +105,7 @@ services:
 
 .deploy_config:
   extends: .job_cache_config
+  stage: deploy
   script:
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap $CI_COMMIT_REF_NAME deploy
