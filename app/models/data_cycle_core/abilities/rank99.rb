@@ -2,10 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank99
-      CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
-      include CanCan::Ability
-
+    class Rank99 < DataCycleCore::Ability
       def initialize(_user, _session = {})
         can :manage, :dash_board
         can :become, DataCycleCore::User
