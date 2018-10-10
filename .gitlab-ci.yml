@@ -164,9 +164,9 @@ deploy_develop:
 
 ########################################################################
 ######################### Review Apps
-build_review_caches:
-  <<: *review_ci
-  extends: .build_caches_config
+#build_review_caches:
+#  <<: *review_ci
+#  extends: .build_caches_config
 
 #rails_review_test:
 #  <<: *review_ci
@@ -185,7 +185,7 @@ deploy_review:
   extends: .job_cache_config
   stage: deploy
   script:
-    - bundle exec rake app:tmp:create
+    - cd test/dummy && bundle exec rake tmp:create
     - cd $CI_PROJECT_DIR
     - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
     - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
