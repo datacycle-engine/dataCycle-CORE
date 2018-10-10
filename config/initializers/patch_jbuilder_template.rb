@@ -1,10 +1,16 @@
 # frozen_string_literal: true
 
 JbuilderTemplate.class_eval do
+  # TODO: fix when only things are around
   def content_partial!(partial, parameters)
+    if parameters[:content].class.class_name.underscore == 'thing'
+      content_parameter = parameters[:content].schema['schema_type'].underscore
+    else
+      content_parameter = parameters[:content].class.class_name.underscore
+    end
     partials = [
-      "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.underscore}_#{partial}",
-      "#{parameters[:content].class.class_name.underscore}_#{partial}",
+      "#{content_parameter}_#{parameters[:content].template_name.underscore}_#{partial}",
+      "#{content_parameter}_#{partial}",
       "content_#{partial}"
     ]
 

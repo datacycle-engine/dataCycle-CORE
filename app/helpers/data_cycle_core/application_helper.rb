@@ -81,10 +81,16 @@ module DataCycleCore
       feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
     end
 
+    # TODO: fix when everything is a thing
     def render_content_partial(partial, parameters)
+      if parameters[:content].class.class_name.underscore == 'thing'
+        content_parameter = parameters[:content].schema['schema_type'].underscore
+      else
+        content_parameter = parameters[:content].class.class_name.underscore
+      end
       partials = [
-        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
-        "#{parameters[:content].class.class_name.underscore}_#{partial}",
+        "#{content_parameter}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
+        "#{content_parameter}_#{partial}",
         "content_#{partial}"
       ]
 
