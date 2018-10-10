@@ -22,7 +22,7 @@ function init_git_repo {
     fi
     cd $dir_name
     git clone $2 .
-    git checkout $BRANCH_NAME
+    git checkout develop
     git submodule sync --recursive
     git submodule update --init --recursive --force
 }
@@ -44,7 +44,7 @@ if [[ $# -eq 0 ]] ; then
     exit 1
 fi
 
-print_header_message "Init data-cycle git script for branch: $BRANCH_NAME"
+print_header_message "Init data-cycle git script for core branch: $BRANCH_NAME"
 
 IFS=$'\n' read -d '' -r -a PROJECTS < "./$BRANCH_NAME.txt"
 
@@ -71,7 +71,7 @@ for project in "${PROJECTS[@]}"
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
-    git push origin $BRANCH_NAME
+    git push origin develop
     cd "$dir"
     rm -Rf "$dir/$project_dir"
 done

@@ -9,7 +9,6 @@ default_options:
 config:
   download_config:
     lakes:
-      sorting: 1
       source_type: lakes
       endpoint: DataCycleCore::Generic::Bergfex::Endpoint
       download_strategy: DataCycleCore::Generic::Bergfex::Download
