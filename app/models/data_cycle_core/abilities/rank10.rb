@@ -2,10 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank10
-      CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
-      include CanCan::Ability
-
+    class Rank10 < DataCycleCore::Ability
       def initialize(user, _session = {})
         can [:read, :create, :update, :destroy], DataCycleCore::UserGroup
         can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
@@ -19,9 +16,9 @@ module DataCycleCore
         end
 
         # Contents
-        can [:set_life_cycle, :move_content], CONTENT_MODELS
+        can [:set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize)
 
-        can :destroy, CONTENT_MODELS do |content|
+        can :destroy, CONTENT_MODELS.map(&:constantize) do |content|
           content.try(:external_key).blank?
         end
 
