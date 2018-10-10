@@ -23,6 +23,8 @@
       data-table="<%= object_class_name %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value.presence&.ids %>"
+      data-content-id="<%= (local_assigns[:parent] || content).id %>"
+      data-content-type="<%= (local_assigns[:parent] || content).class.table_name %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>">
         <div class="media-thumbs">

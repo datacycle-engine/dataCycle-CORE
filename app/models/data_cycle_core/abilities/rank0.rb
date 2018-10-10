@@ -2,10 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank0
-      CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
-      include CanCan::Ability
-
+    class Rank0 < DataCycleCore::Ability
       def initialize(_user, session = {})
         can [:show, :find], :object_browser
 
@@ -47,7 +44,7 @@ module DataCycleCore
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
-            can [:update, :import], CONTENT_MODELS do |content|
+            can [:update, :import], CONTENT_MODELS.map(&:constantize) do |content|
               release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
               if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present?
@@ -63,7 +60,7 @@ module DataCycleCore
           end
         end
 
-        can :print, CONTENT_MODELS do |content|
+        can :print, CONTENT_MODELS.map(&:constantize) do |content|
           ['entity'].include?(content.schema['content_type'])
         end
       end

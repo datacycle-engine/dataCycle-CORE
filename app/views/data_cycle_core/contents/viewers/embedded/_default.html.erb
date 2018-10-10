@@ -27,7 +27,7 @@
             <% validation_properties.presence&.each do |key, prop| %>
 
                 <% object_value = object.try(key.to_sym) %>
-                <% object_value = object_value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && prop['type'] == 'object' %>
+                <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
 
                 <% object_options = options.merge({ item_diff: nil }) %>
                 <% object_options[:item_diff] = attribute_changes(object.diff(object.try(definition.dig('linked_table').singularize)&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id), '~').present? %>

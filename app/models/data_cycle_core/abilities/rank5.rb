@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Abilities
-    class Rank5
+    class Rank5 < DataCycleCore::Ability
       CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
       TEMPLATES = (['Angebot', 'Artikel', 'Bild', 'Biografie', 'Container',
                     'Interview', 'Linktipps', 'Quiz', 'Rezept', 'SocialMediaPosting',
@@ -17,7 +17,7 @@ module DataCycleCore
         # Contents
         can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
 
-        can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS do |content|
+        can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize) do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
 
