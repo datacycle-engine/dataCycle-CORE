@@ -31,7 +31,7 @@ set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
-append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
+append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/tmp', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
@@ -124,10 +124,7 @@ namespace :deploy do
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
 
-  before 'deploy:migrate', 'datacycle:dev:dump_db'
   after 'deploy:migrate', 'datacycle:dev:update_project'
 
   before 'deploy:reverted', 'deploy:npm'
-
-  after 'deploy:cleanup', 'datacycle:dev:clean_up_dumps'
 end
