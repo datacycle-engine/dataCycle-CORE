@@ -164,9 +164,9 @@ deploy_develop:
 
 ########################################################################
 ######################### Review Apps
-build_review_caches:
-  <<: *review_ci
-  extends: .build_caches_config
+#build_review_caches:
+#  <<: *review_ci
+#  extends: .build_caches_config
 
 #rails_review_test:
 #  <<: *review_ci
