@@ -3,7 +3,7 @@
 class AddStartEndDateToThings < ActiveRecord::Migration[5.1]
   def change
     add_column :things, :start_date, :datetime
-    add_column :things, :end_data, :datetime
+    add_column :things, :end_date, :datetime
     add_column :thing_histories, :start_date, :datetime
     add_column :thing_histories, :end_date, :datetime
 

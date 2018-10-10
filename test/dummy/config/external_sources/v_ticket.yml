@@ -51,7 +51,7 @@ config:
               tree_label: Inhaltstypen
               value: Örtlichkeit
         event:
-          content_type: DataCycleCore::Event
+          content_type: DataCycleCore::Thing
           template: Event
           default_values:
             data_type:
@@ -59,7 +59,7 @@ config:
               value: Veranstaltung
           embedded:
             sub_event:
-              content_type: DataCycleCore::Event
+              content_type: DataCycleCore::Thing
               template: SubEvent
               default_values:
                 data_type:

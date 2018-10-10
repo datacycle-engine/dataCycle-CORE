@@ -52,11 +52,11 @@ config:
               tree_label: Inhaltstypen
               value: Örtlichkeit
         event:
-          content_type: DataCycleCore::Event
+          content_type: DataCycleCore::Thing
           template: Event
           embedded:
             sub_event:
-              content_type: DataCycleCore::Event
+              content_type: DataCycleCore::Thing
               template: SubEvent
               default_values:
                 data_type:

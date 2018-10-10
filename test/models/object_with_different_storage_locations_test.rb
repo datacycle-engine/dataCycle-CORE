@@ -5,8 +5,8 @@ require 'test_helper'
 module DataCycleCore
   class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
     test 'events template with daterange' do
-      template = DataCycleCore::Event.find_by(template: true, template_name: 'Event')
-      data_set = DataCycleCore::Event.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Event')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save

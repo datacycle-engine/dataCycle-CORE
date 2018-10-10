@@ -27,7 +27,7 @@ module DataCycleCore
         end
 
         def self.process_event(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Event
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Event'
 
           sub_event_ids = loop_collect(raw_data, 'subEvents') do |item_data|

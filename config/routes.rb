@@ -26,7 +26,7 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*['organizations', 'persons'].map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*['organizations', 'persons', 'events'].map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
@@ -130,7 +130,7 @@ DataCycleCore::Engine.routes.draw do
         end
 
         # TODO: check if additional parameter is necessary, to achieve old results especially for index!!
-        resources(*['organizations', 'persons'].map(&:to_sym), only: [:index, :show]) do
+        resources(*['organizations', 'persons', 'events'].map(&:to_sym), only: [:index, :show]) do
         end
         resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show]) do
         end
