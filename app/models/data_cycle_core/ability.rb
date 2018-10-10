@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class Ability
-    CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.freeze
+    CONTENT_MODELS = DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}" }.freeze
 
     include CanCan::Ability
 

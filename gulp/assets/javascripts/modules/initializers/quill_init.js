@@ -46,7 +46,7 @@ module.exports.initialize = function () {
       "none": [],
       "basic": [
         [{
-          header: [1, 2, 3, false]
+          header: [1, 2, 3, 4, false]
         }],
         ['bold', 'italic', 'underline']
       ],
@@ -60,7 +60,7 @@ module.exports.initialize = function () {
           'list': 'bullet'
         }],
         [{
-          header: [1, 2, 3, false]
+          header: [1, 2, 3, 4, false]
         }],
         ['bold', 'italic', 'underline'],
         ['link']
