@@ -1,30 +1,18 @@
 ---
 - :data:
-    :name: Event
+    :name: EventOverlay
     :type: object
-    :boost: 100.0
-    :content_type: entity
-    :translatable: true    
-    :features:
-      :overlay:
-        :allowed: true
+    :schema_type: Event
+    :content_type: embedded
+    :translatable: true
     :properties:
       :id:
         :label: id
         :type: key
-      :overlay:
-        :label: Overlay
-        :type: embedded
-        :linked_table: events
-        :template_name: EventOverlay
-        :validations:
-          :max: 1
-      :title:
-        :type: mixin
-        :name: title
-      :validity_period:
-        :type: mixin
-        :name: validity_period
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: translated_value
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -36,8 +24,6 @@
         :ui:
           :edit:
             :type: daterange
-          :show:
-            :content_area: header
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -64,7 +50,7 @@
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
       :description:
-        :label: Beschreibung
+        :label: Teasertext
         :type: string
         :storage_location: column
         :search: true
@@ -79,7 +65,7 @@
         :linked_table: creative_works
         :template_name: Bild
       :url:
-        :label: Inhalt URL
+        :label: URL
         :type: string
         :storage_location: translated_value
         :validations:
@@ -91,25 +77,8 @@
         :template_name: Örtlichkeit
         :validations:
           :max: 1
-      :sub_event:
-        :label: Veranstaltungsdaten
-        :type: embedded
-        :linked_table: events
-        :template_name: SubEvent
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltung"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
-      :meta_data:
-        :type: mixin
-        :name: meta_data
-      :event_db:
-        :type: mixin
-        :name: event_db
-      :additional_properties:
-        :type: mixin
-        :name: additional_properties
+        :default_value: "Overlay"

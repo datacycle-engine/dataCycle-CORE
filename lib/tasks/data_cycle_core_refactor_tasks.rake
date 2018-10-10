@@ -60,7 +60,7 @@ namespace :data_cycle_core do
         )
         SELECT
           organization_id, locale,
-          content,
+          content - 'legal_name,
           content ->> 'legal_name',
           description,
           created_at, updated_at
@@ -101,7 +101,7 @@ namespace :data_cycle_core do
         )
         SELECT
           organization_history_id, locale,
-          content,
+          content - 'legal_name',
           content ->> 'legal_name',
           description,
           history_valid,

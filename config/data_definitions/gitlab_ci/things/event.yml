@@ -1,18 +1,38 @@
-
+---
 - :data:
-    :name: SubEvent
+    :name: Event
     :type: object
-    :content_type: embedded
-    :translatable: true    
+    :schema_type: Event
+    :content_type: entity
+    :translatable: true
+    :boost: 100.0
+    :features:
+      :overlay:
+        :allowed: true
     :properties:
       :id:
         :label: id
         :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :linked_table: things
+        :template_name: EventOverlay
+        :validations:
+          :max: 1
       :name:
         :label: Titel
         :type: string
         :storage_location: translated_value
         :search: true
+        :validations:
+          :min: 1
+        :ui:
+          :show:
+            :disabled: true
+      :validity_period:
+        :type: mixin
+        :name: validity_period
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -24,6 +44,8 @@
         :ui:
           :edit:
             :type: daterange
+          :show:
+            :content_area: header
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -77,8 +99,25 @@
         :template_name: Örtlichkeit
         :validations:
           :max: 1
+      :sub_event:
+        :label: Veranstaltungsdaten
+        :type: embedded
+        :linked_table: things
+        :template_name: SubEvent
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltungstermin"
+        :default_value: "Veranstaltung"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :event_db:
+        :type: mixin
+        :name: event_db
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

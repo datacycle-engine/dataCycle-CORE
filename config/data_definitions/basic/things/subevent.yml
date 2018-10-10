@@ -1,9 +1,10 @@
 ---
 - :data:
-    :name: EventOverlay
+    :name: SubEvent
     :type: object
+    :schema_type: Event
     :content_type: embedded
-    :translatable: true    
+    :translatable: true
     :properties:
       :id:
         :label: id
@@ -49,10 +50,9 @@
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
       :description:
-        :label: Teasertext
+        :label: Beschreibung
         :type: string
         :storage_location: column
-        :search: true
         :ui:
           :edit:
             :type: text_editor
@@ -64,11 +64,14 @@
         :linked_table: creative_works
         :template_name: Bild
       :url:
-        :label: URL
+        :label: Inhalt URL
         :type: string
         :storage_location: translated_value
+        :external: true
         :validations:
           :format: url
+        :api:
+          :name: sameAs
       :location:
         :label: Veranstaltungsort
         :type: linked
@@ -80,4 +83,4 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Overlay"
+        :default_value: "Veranstaltungstermin"
