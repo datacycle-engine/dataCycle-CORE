@@ -35,24 +35,25 @@ module DataCycleCore
 
       def update_search(language)
         return if search_property_names.blank?
+        I18n.with_locale(language) do
+          full_text = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
+          full_text = '' if full_text.nil?
+          full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
+          full_text_most = '' if full_text_most.nil?
+          headline = try('send', 'headline')
+          headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
+          headline = '' if headline.nil?
+          classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
+          classification_string = '' if classification_string.nil?
+          all_text = [headline, classification_string, full_text].join(' ')
 
-        full_text = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
-        full_text = '' if full_text.nil?
-        full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
-        full_text_most = '' if full_text_most.nil?
-        headline = try('send', 'headline')
-        headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
-        headline = '' if headline.nil?
-        classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
-        classification_string = '' if classification_string.nil?
-        all_text = [headline, classification_string, full_text].join(' ')
-        # TODO: remove hardcoded metadata
-        validity_hash = metadata.nil? ? nil : metadata['validity_period']
-        validity_string = get_validity(validity_hash)
-        boost = schema['boost'] || 1.0
+          # TODO: remove hardcoded metadata
+          validity_hash = metadata.nil? ? nil : metadata['validity_period']
+          validity_string = get_validity(validity_hash)
+          boost = schema['boost'] || 1.0
 
-        connection = ActiveRecord::Base.connection
-        sql_query = <<-EOS
+          connection = ActiveRecord::Base.connection
+          sql_query = <<-EOS
           INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
             created_at, updated_at, headline, classification_string, data_type, all_text, validity_period,boost)
           VALUES
@@ -84,8 +85,9 @@ module DataCycleCore
             all_text = EXCLUDED.all_text,
             validity_period = EXCLUDED.validity_period,
             boost = EXCLUDED.boost;
-        EOS
-        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+          EOS
+          connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        end
       end
     end
   end
