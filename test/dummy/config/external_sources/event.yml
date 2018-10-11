@@ -1,0 +1,114 @@
+---
+- :data:
+    :name: Event
+    :type: object
+    :boost: 100.0
+    :content_type: entity
+    :features:
+      :overlay:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :linked_table: events
+        :template_name: EventOverlay
+        :validations:
+          :max: 1
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :event_period:
+        :label: Veranstaltungszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: start_date
+            :to: end_date
+        :ui:
+          :edit:
+            :type: daterange
+          :show:
+            :content_area: header
+        :properties:
+          :start_date:
+            :label: Startzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
+          :end_date:
+            :label: Endzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+      :location:
+        :label: Veranstaltungsort
+        :type: linked
+        :linked_table: places
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
+      :sub_event:
+        :label: Veranstaltungsdaten
+        :type: embedded
+        :linked_table: events
+        :template_name: SubEvent
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Veranstaltung"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :event_db:
+        :type: mixin
+        :name: event_db
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
