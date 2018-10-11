@@ -36,7 +36,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
             position: 1
           }
         ],
-        places: [],
         things: []
       }
     end
@@ -55,7 +54,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
             position: 0
           }
         ],
-        places: [],
         things: []
       }
     end

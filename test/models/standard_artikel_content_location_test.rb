@@ -5,9 +5,8 @@ require 'test_helper'
 module DataCycleCore
   class StandardArtikelÖrtlichkeitTest < ActiveSupport::TestCase
     test 'create a Örtlichkeit' do
-      # create a Örtlichkeits
-      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set_place1 = DataCycleCore::Place.new
+      place_template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
+      data_set_place1 = DataCycleCore::Thing.new
       data_set_place1.schema = place_template.schema
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
@@ -29,7 +28,6 @@ module DataCycleCore
     end
 
     test 'insert embeddedObject within same table' do
-      count_place = DataCycleCore::Place.count
       count_cw = DataCycleCore::CreativeWork.count
       count_thing = DataCycleCore::Thing.count
 
@@ -48,8 +46,8 @@ module DataCycleCore
         .where('classification_aliases.name = ?', 'Zitat').first.id
 
       # create a Örtlichkeit
-      place_template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set_place1 = DataCycleCore::Place.new
+      place_template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
+      data_set_place1 = DataCycleCore::Thing.new
       data_set_place1.schema = place_template.schema
       data_set_place1.template_name = place_template.template_name
       data_set_place1.save
@@ -57,7 +55,7 @@ module DataCycleCore
       data_set_place1.set_data_hash(data_hash: place_hash1, prevent_history: true)
       place_id1 = data_set_place1.id
 
-      data_set_place2 = DataCycleCore::Place.new
+      data_set_place2 = DataCycleCore::Thing.new
       data_set_place2.schema = place_template.schema
       data_set_place2.template_name = place_template.template_name
       data_set_place2.save
@@ -107,11 +105,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(1, DataCycleCore::Thing.count - count_thing)
-      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(3, DataCycleCore::Thing.count - count_thing)
 
       assert_equal(['DataCycleCore::CreativeWork'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
-      assert_equal(['DataCycleCore::CreativeWork', 'DataCycleCore::Place', 'DataCycleCore::Thing'].sort, DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
+      assert_equal(['DataCycleCore::CreativeWork', 'DataCycleCore::Thing'].sort, DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq.sort)
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
       assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
@@ -130,13 +127,11 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(5, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Thing.count - count_thing)
-      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(3, DataCycleCore::Thing.count - count_thing)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
       assert_equal(2, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
 
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
@@ -146,13 +141,11 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
       assert_equal(5, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Thing.count - count_thing)
-      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(3, DataCycleCore::Thing.count - count_thing)
       assert_equal(5, DataCycleCore::CreativeWork::History.count)
       assert_equal(6, DataCycleCore::ContentContent::History.count)
       assert_equal(4, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
 
       data_set.destroy_content
       data_set.histories.each(&:destroy_content)
@@ -160,13 +153,11 @@ module DataCycleCore
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::ClassificationContent.count)
-      assert_equal(1, DataCycleCore::Thing.count - count_thing)
-      assert_equal(2, DataCycleCore::Place.count - count_place)
+      assert_equal(3, DataCycleCore::Thing.count - count_thing)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
-      assert_equal(0, DataCycleCore::Place::History.count)
     end
   end
 end

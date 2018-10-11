@@ -174,20 +174,20 @@ module DataCycleCore
         test 'remove linked entities and add linked entities from other table' do
           data_set = @data_set
 
-          place_temp = DataCycleCore::Place.count
+          place_temp = DataCycleCore::Thing.count
 
           linked_places = []
           3.times do
-            place = DataCycleCore::TestPreparations.data_set_object('places', 'Linked-Place-1')
+            place = DataCycleCore::TestPreparations.data_set_object('things', 'Linked-Place-1')
             place.save
             place.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
             place.save
             linked_places.push(place.id)
           end
 
-          assert_equal(linked_places.size, DataCycleCore::Place.count - place_temp)
+          assert_equal(linked_places.size, DataCycleCore::Thing.count - place_temp)
           assert_equal(5, DataCycleCore::ContentContent.count)
-          assert_equal(0, DataCycleCore::Place::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count)
 
           data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
@@ -197,11 +197,11 @@ module DataCycleCore
             )
           )
           data_set.save
-          assert_equal(linked_places.size, DataCycleCore::Place.count - place_temp)
+          assert_equal(linked_places.size, DataCycleCore::Thing.count - place_temp)
           assert_equal(6, DataCycleCore::CreativeWork.count - @cw_temp)
           assert_equal(3, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::CreativeWork::History.count)
-          assert_equal(0, DataCycleCore::Place::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
       end
