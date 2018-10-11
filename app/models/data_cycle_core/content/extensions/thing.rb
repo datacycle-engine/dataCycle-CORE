@@ -14,6 +14,8 @@ module DataCycleCore
             "#{given_name} #{family_name}"
           when 'Event'
             name
+          when 'Place'
+            name.presence || address_line || coordinates || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
           end
         end
 
@@ -36,6 +38,8 @@ module DataCycleCore
             ['given_name', 'family_name']
           when 'Event'
             ['name']
+          when 'Place'
+            ['name']
           end
         end
 
@@ -47,7 +51,17 @@ module DataCycleCore
             ['given_name', 'family_name', 'honorific_prefix', 'job_title', 'contact_info']
           when 'Event'
             []
+          when 'Place'
+            ['address', 'location']
           end
+        end
+
+        def address_line
+          "#{address.postal_code} #{address.address_locality}, #{address.street_address}" if try(:address)&.to_h&.values&.presence&.any?(&:present?)
+        end
+
+        def coordinates
+          "#{latitude}, #{longitude}" if latitude.present? && longitude.present?
         end
 
         module ClassMethods

@@ -131,7 +131,7 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
       :data_type:
         :label: Inhaltstype

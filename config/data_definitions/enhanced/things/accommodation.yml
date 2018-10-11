@@ -2,8 +2,9 @@
 - :data:
     :name: Unterkunft
     :type: object
+    :schema_type: Place
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 10.0
     :features:
       :overlay:

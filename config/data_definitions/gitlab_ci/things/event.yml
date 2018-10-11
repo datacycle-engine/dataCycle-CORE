@@ -20,16 +20,9 @@
         :template_name: EventOverlay
         :validations:
           :max: 1
-      :name:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period

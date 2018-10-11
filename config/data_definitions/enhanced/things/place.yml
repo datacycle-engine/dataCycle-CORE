@@ -2,9 +2,15 @@
 - :data:
     :name: Örtlichkeit
     :type: object
+    :schema_type: Place
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 10.0
+    :features:
+      :overlay:
+        :allowed: true
+      :geocode:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -12,6 +18,18 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: PlaceOverlay
+        :validations:
+          :max: 1
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: embedded
+        :linked_table: creative_works
+        :template_name: Öffnungszeit
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -53,6 +71,21 @@
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :feratel_categories:
+        :type: mixin
+        :name: feratel_categories
+      :xamoom:
+        :type: mixin
+        :name: xamoom
+      :google:
+        :type: mixin
+        :name: google
       :data_type:
         :label: Inhaltstype
         :type: classification

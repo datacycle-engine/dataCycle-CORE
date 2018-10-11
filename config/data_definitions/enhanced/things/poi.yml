@@ -1,9 +1,10 @@
 ---
 - :data:
-    :name: Piste
+    :name: POI
     :type: object
+    :schema_type: Place
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 10.0
     :features:
       :geocode:
@@ -76,17 +77,33 @@
         :template_name: Bild
         :api:
           :name: photo
-      :content_classifications:
+      :outdoor_active:
         :type: mixin
-        :name: content_classifications
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :poi_category:
+        :label: Kategorie
+        :type: classification
+        :tree_label: "POI - Kategorien"
+        :ui:
+          :show:
+            :content_area: header
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Piste"
+        :default_value: "POI"
+      :feratel:
+        :type: mixin
+        :name: feratel_categories
       :feratel_cps:
         :type: mixin
         :name: feratel_cps
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -6,16 +6,22 @@ namespace :data_cycle_core do
     task migrate_content_to_things: :environment do
       puts 'migrating all content_tables to things'
 
-      puts '==> STAGE 1 - ORGANIZATIONS <=='
+      print_box('Stage 1 - Organizations')
       Rake::Task['data_cycle_core:refactor:migrate_organizations_to_things'].invoke
 
-      puts '==> STAGE 2 - PERSONS <=='
+      print_box('Stage 2 - Persons')
       Rake::Task['data_cycle_core:refactor:migrate_persons_to_things'].invoke
 
-      puts '==> STAGE 3 - EVENTS <=='
+      print_box('Stage 3 - Events')
       Rake::Task['data_cycle_core:refactor:migrate_events_to_things'].invoke
 
-      puts '==> BONUS STAGE - TEMPLATES <=='
+      print_box('Stage 4 - Places')
+      Rake::Task['data_cycle_core:refactor:migrate_places_to_things'].invoke
+
+      # print_box('Stage 5 - Creative Works')
+      # Rake::Task['data_cycle_core:refactor:migrate_creative_works_to_things'].invoke
+
+      print_box('bonus stage - templates')
       Rake::Task['data_cycle_core:refactor:migrate_all_templates'].invoke
     end
 
@@ -23,7 +29,6 @@ namespace :data_cycle_core do
     task migrate_organizations_to_things: :environment do
       ActiveRecord::Base.transaction do
         temp = Time.zone.now
-        puts 'MIGRATE DATA FOR'
         puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         puts 'update references'
@@ -120,7 +125,6 @@ namespace :data_cycle_core do
     task migrate_persons_to_things: :environment do
       ActiveRecord::Base.transaction do
         temp = Time.zone.now
-        puts 'MIGRATE DATA FOR'
         puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         puts 'update references'
@@ -221,7 +225,6 @@ namespace :data_cycle_core do
     task migrate_events_to_things: :environment do
       ActiveRecord::Base.transaction do
         temp = Time.zone.now
-        puts 'MIGRATE DATA FOR'
         puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         puts 'update references'
@@ -319,6 +322,115 @@ namespace :data_cycle_core do
       end
     end
 
+    desc 'migrate events - executes all migration tasks'
+    task migrate_places_to_things: :environment do
+      ActiveRecord::Base.transaction do
+        temp = Time.zone.now
+        puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+        puts 'update references'
+        update_references('Place')
+
+        puts 'migrate data'
+        puts '--> things'
+        sql = <<-SQL
+          INSERT INTO things (
+            id, metadata,
+            longitude, latitude, elevation, location, line,
+            address_locality, street_address, postal_code, address_country,
+            fax_number, telephone, email,
+            template_name, schema, template,
+            internal_name,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          )
+          SELECT
+            id, metadata,
+            longitude, latitude, elevation, location, line,
+            address_locality, street_address, postal_code, address_country,
+            fax_number, telephone, email,
+            template_name, schema, template,
+            NULL,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          FROM places
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_translations'
+        sql = <<-SQL
+          INSERT INTO thing_translations (
+            thing_id, locale,
+            content,
+            name,
+            description,
+            created_at, updated_at
+          )
+          SELECT
+            place_id, locale,
+            content,
+            name,
+            description,
+            created_at, updated_at
+          FROM place_translations
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_histories'
+        sql = <<-SQL
+          INSERT INTO thing_histories (
+            id, thing_id, metadata,
+            longitude, latitude, elevation, location, line,
+            address_locality, street_address, postal_code, address_country,
+            fax_number, telephone, email,
+            template_name, schema, template,
+            internal_name,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          )
+          SELECT
+            id, place_id, metadata,
+            longitude, latitude, elevation, location, line,
+            address_locality, street_address, postal_code, address_country,
+            fax_number, telephone, email,
+            template_name, schema, template,
+            NULL,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          FROM place_histories
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_history_translations'
+        sql = <<-SQL
+          INSERT INTO thing_history_translations (
+            thing_history_id, locale,
+            content,
+            name,
+            description,
+            history_valid,
+            created_at, updated_at
+          )
+          SELECT
+            place_history_id, locale,
+            content,
+            name,
+            description,
+            history_valid,
+            created_at, updated_at
+          FROM event_history_translations
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts 'END'
+        puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
+      end
+    end
+
     private
 
     def update_references(name)
@@ -338,6 +450,13 @@ namespace :data_cycle_core do
       DataCycleCore::WatchListDataHash.where(hashable_type: "DataCycleCore::#{name}").update_all(hashable_type: 'DataCycleCore::Thing')
       DataCycleCore::Subscription.where(subscribable_type: "DataCycleCore::#{name}").update_all(subscribable_type: 'DataCycleCore::Thing')
       DataCycleCore::DataLink.where(item_type: "DataCycleCore::#{name}").update_all(item_type: 'DataCycleCore::Thing')
+    end
+
+    def print_box(name)
+      width = name.size + 8
+      puts '=' * width
+      puts '==> ' + name.upcase + ' <=='
+      puts '=' * width
     end
   end
 end

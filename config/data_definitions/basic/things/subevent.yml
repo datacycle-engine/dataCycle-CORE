@@ -75,7 +75,7 @@
       :location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1

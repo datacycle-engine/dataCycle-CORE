@@ -1,15 +1,18 @@
 ---
 - :data:
-    :name: Örtlichkeit
+    :name: Piste
     :type: object
+    :schema_type: Place
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 10.0
     :features:
-      :overlay:
-        :allowed: true
       :geocode:
         :allowed: true
+      :overlay:
+        :allowed: true
+    :api:
+      :type: TouristAttraction
     :properties:
       :id:
         :label: id
@@ -65,34 +68,26 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :name: image
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
-      :outdoor_active:
+        :api:
+          :name: photo
+      :content_classifications:
         :type: mixin
-        :name: outdoor_active
-      :outdoor_active_categories:
-        :type: mixin
-        :name: outdoor_active_categories
-      :feratel_categories:
-        :type: mixin
-        :name: feratel_categories
-      :xamoom:
-        :type: mixin
-        :name: xamoom
-      :google:
-        :type: mixin
-        :name: google
+        :name: content_classifications
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Örtlichkeit"
-      :content_classifications:
+        :default_value: "Piste"
+      :feratel_cps:
         :type: mixin
-        :name: content_classifications
+        :name: feratel_cps
       :meta_data:
         :type: mixin
         :name: meta_data

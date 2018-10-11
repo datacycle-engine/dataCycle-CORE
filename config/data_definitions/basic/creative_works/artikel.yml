@@ -1,4 +1,4 @@
----
+:linked_table: things---
 - :data:
     :name: Artikel
     :type: object
@@ -63,7 +63,7 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: POI
       :quotation:
         :label: Zitat

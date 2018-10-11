@@ -1,17 +1,14 @@
 ---
 - :data:
-    :name: Lift
+    :name: Örtlichkeit
     :type: object
+    :schema_type: Place
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 10.0
     :features:
       :geocode:
         :allowed: true
-      :overlay:
-        :allowed: true
-    :api:
-      :type: TouristAttraction
     :properties:
       :id:
         :label: id
@@ -19,18 +16,6 @@
       :title:
         :type: mixin
         :name: title
-      :overlay:
-        :label: Overlay
-        :type: embedded
-        :linked_table: creative_works
-        :template_name: PlaceOverlay
-        :validations:
-          :max: 1
-      :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :linked_table: creative_works
-        :template_name: Öffnungszeit
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -67,26 +52,19 @@
         :template_name: Bild
         :validations:
           :max: 1
-        :api:
-          :name: image
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
-        :api:
-          :name: photo
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Lift"
-      :feratel_cps:
+        :default_value: "Örtlichkeit"
+      :content_classifications:
         :type: mixin
-        :name: feratel_cps
+        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

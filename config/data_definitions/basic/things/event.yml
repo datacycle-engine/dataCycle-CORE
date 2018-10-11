@@ -21,16 +21,9 @@
         :external: true
         :validations:
           :max: 1
-      :name:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -106,7 +99,7 @@
       :location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1
