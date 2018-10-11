@@ -58,5 +58,5 @@
       :linked_place:
         :label: Linked Place Entity
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Linked-Place-1

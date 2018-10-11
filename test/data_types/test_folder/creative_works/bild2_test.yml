@@ -37,7 +37,7 @@
       :content_location:
         :label: Ort
         :type: embedded
-        :linked_table: places
+        :linked_table: things
         :template_name: contentLocation
       :width:
         :label: Breite

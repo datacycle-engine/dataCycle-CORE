@@ -83,7 +83,7 @@
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: contentLocation
         :validations:
           :max: 1

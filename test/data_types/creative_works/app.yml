@@ -105,7 +105,7 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: contentLocation
         :editor:
           :type: objectBrowser
