@@ -17,7 +17,6 @@ return unless ['test', 'review'].include?(Rails.env)
 DataCycleCore::User.where(email: 'tester@datacycle.at').first_or_create({
   given_name: 'Test',
   family_name: 'User',
-  external: false,
   password: 'w9NGXs2ZLUydJF8r',
   role_id: DataCycleCore::Role.find_by(name: 'admin')&.id
 })
