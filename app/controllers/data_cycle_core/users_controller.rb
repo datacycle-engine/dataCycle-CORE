@@ -63,13 +63,15 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
+      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
+      redirect_to users_path
     end
 
     def unlock
       @user.unlock_access!
 
-      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
+      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
+      redirect_to users_path
     end
 
     def search
@@ -81,7 +83,7 @@ module DataCycleCore
 
     def become
       @user = User.find(params[:user_id])
-      bypass_sign_in(@user)
+      sign_in(:user, @user, { bypass: true })
 
       flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
       if @user.is_rank?(0)

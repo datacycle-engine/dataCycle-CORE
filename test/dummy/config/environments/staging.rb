@@ -89,7 +89,6 @@ Rails.application.configure do
   # ActionMailer setup
 
   config.action_mailer.default_url_options = { host: 'core-staging.datacycle.at', protocol: 'http' }
-  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
 
   #
   # config.action_mailer.delivery_method = :smtp

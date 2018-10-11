@@ -15,15 +15,14 @@ module DataCycleCore
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
-        test '/api/v2/contents/search default results' do
+        test '/api/v2/contents/search w/o any results' do
           get api_v2_contents_search_path
-          count = DataCycleCore::Search.select(:content_data_id).distinct.limit(25).size
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal count, json_data['data'].length
-          assert_equal count, json_data['meta']['total'].to_i
+          assert_equal 0, json_data['data'].length
+          assert_equal 0, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
         end
 
@@ -38,15 +37,14 @@ module DataCycleCore
           assert_equal true, json_data['links'].present?
         end
 
-        test '/api/v2/creative_works default results' do
+        test '/api/v2/creative_works w/o any results' do
           get api_v2_creative_works_path
-          count = DataCycleCore::CreativeWork.where(template: false).limit(25).size
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal count, json_data['data'].length
-          assert_equal count, json_data['meta']['total'].to_i
+          assert_equal 0, json_data['data'].length
+          assert_equal 0, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
         end
 

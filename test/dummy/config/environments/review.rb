@@ -72,8 +72,6 @@ Rails.application.configure do
   config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
   config.action_mailer.smtp_settings = { address: ENV.fetch('DOCKER_HOST', 'localhost'), port: 1025 }
 
-  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
-
   # Bullet configuration
   # config.after_initialize do
   #   Bullet.enable = false
