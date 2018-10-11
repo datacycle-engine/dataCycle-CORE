@@ -112,11 +112,3 @@ en:
   date:
     formats:
       default: "%Y-%m-%d"
-
-  external_sources:
-    bergfex:
-      snow_report:
-        type:
-          village: Village
-          base: Base
-          top: Top

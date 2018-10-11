@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Bergfex
-      module ImportLakes
+      module Import
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
