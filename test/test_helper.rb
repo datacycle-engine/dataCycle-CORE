@@ -63,7 +63,8 @@ module DataCycleCore
         events: {},
         organizations: {},
         places: {},
-        persons: {}
+        persons: {},
+        users: {}
       }
 
     def self.load_classifications(paths)
@@ -94,7 +95,7 @@ module DataCycleCore
 
     def self.load_dummy_data(paths)
       paths.each do |path|
-        DataCycleCore.content_tables.each do |content_table_name|
+        (DataCycleCore.content_tables + ['users']).each do |content_table_name|
           files = path + content_table_name + '*.json'
 
           file_names = Dir[files]
@@ -119,21 +120,52 @@ module DataCycleCore
     end
 
     def self.create_user
-      DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
+      @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
         given_name: 'Administrator',
-        external: false,
         password: '3amMQf74vp7Zpfdi',
         role_id: DataCycleCore::Role.order('rank DESC').first.id
+      })
+      @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
+        given_name: 'Guest',
+        family_name: 'User',
+        password: 'PdebUfWF9aab2KG6',
+        role_id: DataCycleCore::Role.find_by(name: 'guest')&.id
       })
     end
 
     def self.create_user_group
+      @test_group = DataCycleCore::UserGroup.where(name: 'TestUserGroup').first_or_create
+
       return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
       user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
       DataCycleCore::UserGroupUser.create!(
         user_group_id: user_group.id,
         user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
+    end
+
+    def self.create_content
+      @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
+      @article.template = false
+      @article.save!
+      I18n.with_locale(:de) do
+        @article.set_data_hash(data_hash: {
+          'headline' => 'TestArtikel'
+        }, new_content: true)
+      end
+
+      @container = DataCycleCore::CreativeWork.find_by(template_name: 'Container', template: true).dup
+      @container.template = false
+      @container.save!
+      I18n.with_locale(:de) do
+        @container.set_data_hash(data_hash: {
+          'headline' => 'TestContainer'
+        }, new_content: true)
+      end
+    end
+
+    def self.create_subscription
+      @subscription = DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
     end
 
     def self.excepted_attributes(model = nil)
@@ -186,3 +218,5 @@ DataCycleCore::TestPreparations.load_dummy_data(
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_user
 DataCycleCore::TestPreparations.create_user_group
+DataCycleCore::TestPreparations.create_content
+DataCycleCore::TestPreparations.create_subscription
