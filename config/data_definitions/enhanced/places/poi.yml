@@ -75,6 +75,7 @@
         :template_name: Bild
         :api:
           :name: photo
+          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

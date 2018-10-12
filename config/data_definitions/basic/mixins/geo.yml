@@ -14,6 +14,7 @@
             :method: nest
             :name: geo
             :type: GeoCoordinates
+          :minimal: true
         :ui:
           :edit:
             :disabled: true
@@ -30,6 +31,7 @@
             :method: nest
             :name: geo
             :type: GeoCoordinates
+          :minimal: true
         :ui:
           :edit:
             :disabled: true
@@ -46,6 +48,7 @@
             :method: nest
             :name: geo
             :type: GeoCoordinates
+          :minimal: true
         :ui:
           :edit:
             :disabled: true
