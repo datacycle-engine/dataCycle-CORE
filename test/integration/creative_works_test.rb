@@ -9,6 +9,7 @@ module DataCycleCore
 
     setup do
       @routes = Engine.routes
+      DataCycleCore::TestPreparations.create_contents
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 

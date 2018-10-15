@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class UserActionsTest < ActionDispatch::IntegrationTest
+  class InfoTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
 

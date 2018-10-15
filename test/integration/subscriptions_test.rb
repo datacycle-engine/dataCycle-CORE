@@ -3,12 +3,14 @@
 require 'test_helper'
 
 module DataCycleCore
-  class CreativeWorksTest < ActionDispatch::IntegrationTest
+  class SubscriptionsTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
 
     setup do
       @routes = Engine.routes
+      DataCycleCore::TestPreparations.create_contents
+      DataCycleCore::TestPreparations.create_subscription
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 

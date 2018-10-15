@@ -119,7 +119,7 @@ module DataCycleCore
       DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
     end
 
-    def self.create_user
+    def self.create_users
       @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
         given_name: 'Administrator',
         password: '3amMQf74vp7Zpfdi',
@@ -144,15 +144,19 @@ module DataCycleCore
       )
     end
 
-    def self.create_content
-      @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
-      @article.template = false
-      @article.save!
-      I18n.with_locale(:de) do
-        @article.set_data_hash(data_hash: {
-          'headline' => 'TestArtikel'
-        }, new_content: true)
+    def self.create_contents
+      if DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel', template_name: 'Artikel').blank?
+        @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
+        @article.template = false
+        @article.save!
+        I18n.with_locale(:de) do
+          @article.set_data_hash(data_hash: {
+            'headline' => 'TestArtikel'
+          }, new_content: true)
+        end
       end
+
+      return if DataCycleCore::CreativeWork.find_by(headline: 'TestContainer', template_name: 'Container').present?
 
       @container = DataCycleCore::CreativeWork.find_by(template_name: 'Container', template: true).dup
       @container.template = false
@@ -164,8 +168,12 @@ module DataCycleCore
       end
     end
 
+    def self.create_watch_lists
+      @test_watch_list = DataCycleCore::WatchList.where(headline: 'TestWatchList', user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id).first_or_create
+    end
+
     def self.create_subscription
-      @subscription = DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
+      DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
     end
 
     def self.excepted_attributes(model = nil)
@@ -216,7 +224,5 @@ DataCycleCore::TestPreparations.load_dummy_data(
   ]
 )
 DataCycleCore::TestPreparations.load_user_roles
-DataCycleCore::TestPreparations.create_user
+DataCycleCore::TestPreparations.create_users
 DataCycleCore::TestPreparations.create_user_group
-DataCycleCore::TestPreparations.create_content
-DataCycleCore::TestPreparations.create_subscription

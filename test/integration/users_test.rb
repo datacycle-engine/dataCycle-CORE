@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class UserActionsTest < ActionDispatch::IntegrationTest
+  class UsersTest < ActionDispatch::IntegrationTest
     include Devise::Test::IntegrationHelpers
     include Engine.routes.url_helpers
 
@@ -16,7 +16,12 @@ module DataCycleCore
       logout
 
       post user_session_path, params: {
-        user: User.find_by(email: 'guest@datacycle.at')&.to_json
+        user: {
+          email: 'nonexistant@mail.com',
+          password: 'nonexistant'
+        }
+      }, headers: {
+        referer: user_session_path
       }
 
       assert_response :success
@@ -52,8 +57,7 @@ module DataCycleCore
     end
 
     test 'update existing user' do
-      user = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
-
+      user = User.find_by(email: 'guest@datacycle.at')
       patch user_path(user), params: {
         user: {
           given_name: 'Guest1',
@@ -76,7 +80,7 @@ module DataCycleCore
     end
 
     test 'lock and unlock existing user' do
-      user = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
+      user = User.find_by(email: 'guest@datacycle.at')
 
       delete user_path(user), params: {}, headers: {
         referer: users_path
@@ -106,9 +110,7 @@ module DataCycleCore
     test 'become specific user' do
       sign_in(User.find_by(email: 'admin@datacycle.at'))
 
-      user = User.find_by(email: 'guest@datacycle.at')
-
-      get user_become_path(user), params: {}, headers: {
+      get user_become_path(User.find_by(email: 'guest@datacycle.at')), params: {}, headers: {
         referer: users_path
       }
 
