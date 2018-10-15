@@ -580,7 +580,7 @@ namespace :data_cycle_core do
   namespace :external_contents do
     desc 'Merge duplicates of external contents'
     task merge_duplicates: :environment do
-      DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
+      DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.each do |model_class|
         duplicated_contents = model_class
           .select(:external_source_id, :external_key)
           .where.not(external_source_id: nil, external_key: nil)
