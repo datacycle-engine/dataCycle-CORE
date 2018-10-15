@@ -126,8 +126,8 @@ module DataCycleCore
     test 'save data to History with embeddedObject from another content_table' do
       template_cw_count = DataCycleCore::CreativeWork.count
       template_cwt_count = DataCycleCore::CreativeWork::Translation.count
-      template_place_count = DataCycleCore::Place.count
-      template_place_t_count = DataCycleCore::Place::Translation.count
+      template_place_count = DataCycleCore::Thing.count
+      template_place_t_count = DataCycleCore::Thing::Translation.count
 
       save_time = Time.zone.now - 10.seconds
 
@@ -139,8 +139,8 @@ module DataCycleCore
       data_set.updated_at = save_time
       data_set.save
 
-      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
-      data_set_place = DataCycleCore::Place.new
+      template_place = DataCycleCore::Thing.find_by(template: true, template_name: 'testPlace')
+      data_set_place = DataCycleCore::Thing.new
       data_set_place.schema = template_place.schema
       data_set_place.template_name = template_place.template_name
       data_set_place.created_at = save_time
@@ -164,14 +164,14 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw_count)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt_count)
-      assert_equal(1, DataCycleCore::Place.count - template_place_count)
-      assert_equal(1, DataCycleCore::Place::Translation.count - template_place_t_count)
+      assert_equal(1, DataCycleCore::Thing.count - template_place_count)
+      assert_equal(1, DataCycleCore::Thing::Translation.count - template_place_t_count)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(1, DataCycleCore::Place::History.count)
-      assert_equal(1, DataCycleCore::Place::History::Translation.count)
+      assert_equal(1, DataCycleCore::Thing::History.count)
+      assert_equal(1, DataCycleCore::Thing::History::Translation.count)
 
       expected_hash = { 'headline' => nil, 'testPlace' => [] }
       assert_equal(expected_hash, returned_data_hash)
@@ -302,8 +302,8 @@ module DataCycleCore
     test 'save creative work with embeddedLink to history' do
       template_cw = DataCycleCore::CreativeWork.count
       template_cwt = DataCycleCore::CreativeWork::Translation.count
-      template_p = DataCycleCore::Place.count
-      template_pt = DataCycleCore::Place::Translation.count
+      template_p = DataCycleCore::Thing.count
+      template_pt = DataCycleCore::Thing::Translation.count
 
       template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'CreativeWorkEmbeddedLink')
       data_set = DataCycleCore::CreativeWork.new
@@ -311,8 +311,8 @@ module DataCycleCore
       data_set.template_name = template_data.template_name
       data_set.save
 
-      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
-      data_place = DataCycleCore::Place.new
+      template_place = DataCycleCore::Thing.find_by(template: true, template_name: 'testPlace')
+      data_place = DataCycleCore::Thing.new
       data_place.schema = template_place.schema
       data_place.template_name = template_place.template_name
       data_place.save
@@ -320,8 +320,8 @@ module DataCycleCore
       data_place.save
       data_place_id1 = data_place.id
 
-      template_place = DataCycleCore::Place.find_by(template: true, template_name: 'testPlace')
-      data_place = DataCycleCore::Place.new
+      template_place = DataCycleCore::Thing.find_by(template: true, template_name: 'testPlace')
+      data_place = DataCycleCore::Thing.new
       data_place.schema = template_place.schema
       data_place.template_name = template_place.template_name
       data_place.save
@@ -331,13 +331,13 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(2, DataCycleCore::Place.count - template_p)
-      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(2, DataCycleCore::Thing.count - template_p)
+      assert_equal(2, DataCycleCore::Thing::Translation.count - template_pt)
       assert_equal(0, DataCycleCore::ContentContent.count)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Thing::History.count)
+      assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link', 'linked' => [data_place_id1] })
@@ -346,13 +346,13 @@ module DataCycleCore
       assert_equal(0, error[:error].size)
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(2, DataCycleCore::Place.count - template_p)
-      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(2, DataCycleCore::Thing.count - template_p)
+      assert_equal(2, DataCycleCore::Thing::Translation.count - template_pt)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(1, DataCycleCore::CreativeWork::History.count)
       assert_equal(1, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Thing::History.count)
+      assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)
 
       error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link2', 'linked' => [data_place_id2] })
@@ -361,13 +361,13 @@ module DataCycleCore
       assert_equal(0, error[:error].size)
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(2, DataCycleCore::Place.count - template_p)
-      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(2, DataCycleCore::Thing.count - template_p)
+      assert_equal(2, DataCycleCore::Thing::Translation.count - template_pt)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(2, DataCycleCore::CreativeWork::History.count)
       assert_equal(2, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Thing::History.count)
+      assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(1, DataCycleCore::ContentContent::History.count)
 
       error = data_set.set_data_hash(data_hash: { 'headline' => 'Test Link1', 'linked' => [data_place_id1] })
@@ -376,13 +376,13 @@ module DataCycleCore
       assert_equal(0, error[:error].size)
       assert_equal(1, DataCycleCore::CreativeWork.count - template_cw)
       assert_equal(1, DataCycleCore::CreativeWork::Translation.count - template_cwt)
-      assert_equal(2, DataCycleCore::Place.count - template_p)
-      assert_equal(2, DataCycleCore::Place::Translation.count - template_pt)
+      assert_equal(2, DataCycleCore::Thing.count - template_p)
+      assert_equal(2, DataCycleCore::Thing::Translation.count - template_pt)
       assert_equal(1, DataCycleCore::ContentContent.count)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::CreativeWork::History::Translation.count)
-      assert_equal(2, DataCycleCore::Place::History.count)
-      assert_equal(2, DataCycleCore::Place::History::Translation.count)
+      assert_equal(2, DataCycleCore::Thing::History.count)
+      assert_equal(2, DataCycleCore::Thing::History::Translation.count)
       assert_equal(2, DataCycleCore::ContentContent::History.count)
 
       assert_equal([data_place_id2, data_place_id1].sort, data_set.histories.map { |item| item.linked.ids }.flatten.sort)

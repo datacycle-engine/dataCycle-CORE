@@ -1340,6 +1340,14 @@ ALTER TABLE ONLY place_translations ALTER COLUMN id SET DEFAULT nextval('place_t
 
 
 --
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
 -- Name: asset_contents asset_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 

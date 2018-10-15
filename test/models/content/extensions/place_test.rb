@@ -4,20 +4,9 @@ require 'test_helper'
 
 module DataCycleCore
   class PlaceTest < ActiveSupport::TestCase
-    # def DataCycleCore::TestPreparations.excepted_attributes
-    #   ['data_pool', 'data_type', 'last_updated_by', 'deleted_by', 'date_modified', 'publication_schedule', 'overlay',
-    #    'tags', 'image', 'stars', 'output_channel', 'source', 'creator', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
-    #    'fontend_type', 'primary_image', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-    #    'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'opening_hours_specification', 'frontend_type']
-    # end
-    test 'Place exists' do
-      data = DataCycleCore::Place.new
-      assert_equal(data.class, DataCycleCore::Place)
-    end
-
     test 'save proper Place data-set with hash method + test standard properties' do
-      template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set = DataCycleCore::Place.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
@@ -37,18 +26,18 @@ module DataCycleCore
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')))
       assert_nil(data_set.desc)
       assert_equal(['name'], data_set.new_content_fields)
-      assert_equal(['name', 'address', 'location'], data_set.object_browser_fields)
-      assert_equal(data_set.cache_key.to_s, "data_cycle_core/places/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/place/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
+      assert_equal(['address', 'location'], data_set.object_browser_fields)
+      assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
       assert_nil(data_set.translations.first.desc)
 
-      assert_equal(1, DataCycleCore::Place.where(template: false, template_name: 'Örtlichkeit').count)
+      assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)
       data_set.destroy
-      assert_equal(0, DataCycleCore::Place.where(template: false, template_name: 'Örtlichkeit').count)
+      assert_equal(0, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)
     end
 
     test 'save proper Place data-set with hash method, incl. geo-data' do
-      template = DataCycleCore::Place.find_by(template: true, template_name: 'Örtlichkeit')
-      data_set = DataCycleCore::Place.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
