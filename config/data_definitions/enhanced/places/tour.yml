@@ -56,6 +56,8 @@
         :ui:
           :edit:
             :disabled: true
+        :api:
+          :minimal: true
       :tour:
         :label: Route
         :type: geographic
@@ -63,6 +65,8 @@
         :ui:
           :edit:
             :disabled: true
+        :api:
+          :minimal: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
