@@ -126,8 +126,8 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(5, DataCycleCore::ClassificationContent.count)
       assert_equal(3, DataCycleCore::Thing.count - count_thing)
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
       assert_equal(3, DataCycleCore::CreativeWork::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
       assert_equal(2, DataCycleCore::ClassificationContent::History.count)
@@ -140,7 +140,7 @@ module DataCycleCore
 
       assert_equal(2, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(5, DataCycleCore::ClassificationContent.count)
+      assert_equal(3, DataCycleCore::ClassificationContent.count)
       assert_equal(3, DataCycleCore::Thing.count - count_thing)
       assert_equal(5, DataCycleCore::CreativeWork::History.count)
       assert_equal(6, DataCycleCore::ContentContent::History.count)
@@ -152,7 +152,7 @@ module DataCycleCore
 
       assert_equal(0, DataCycleCore::CreativeWork.count - count_cw)
       assert_equal(0, DataCycleCore::ContentContent.count)
-      assert_equal(3, DataCycleCore::ClassificationContent.count)
+      assert_equal(1, DataCycleCore::ClassificationContent.count)
       assert_equal(3, DataCycleCore::Thing.count - count_thing)
       assert_equal(0, DataCycleCore::CreativeWork::History.count)
       assert_equal(0, DataCycleCore::ContentContent::History.count)

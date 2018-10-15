@@ -25,7 +25,7 @@ module DataCycleCore
       expected_hash = {
         'url' => 'http://www.wtf.at',
         'image' => [],
-        'location' => [],
+        'content_location' => [],
         'sub_event' => [],
         'output_channel' => [],
         'tags' => [],

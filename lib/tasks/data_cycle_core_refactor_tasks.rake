@@ -426,6 +426,19 @@ namespace :data_cycle_core do
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
 
+        sql_query = <<-EOS
+          UPDATE content_contents SET
+          	relation_a = 'content_location'
+          where relation_a = 'location';
+        EOS
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        sql_query = <<-EOS
+          UPDATE content_content_histories SET
+          	relation_a = 'content_location'
+          where relation_a = 'location';
+        EOS
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+
         puts 'END'
         puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
       end
@@ -443,6 +456,8 @@ namespace :data_cycle_core do
       DataCycleCore::ContentContent::History.where(content_a_history_type: "DataCycleCore::#{name}::History").update_all(content_a_history_type: 'DataCycleCore::Thing::History')
       DataCycleCore::ContentContent::History.where(content_b_history_type: "DataCycleCore::#{name}::History").update_all(content_b_history_type: 'DataCycleCore::Thing::History')
 
+      update_content_relations
+
       DataCycleCore::ClassificationContent.where(content_data_type: "DataCycleCore::#{name}").update_all(content_data_type: 'DataCycleCore::Thing')
       DataCycleCore::ClassificationContent::History.where(content_data_history_type: "DataCycleCore::#{name}::History").update_all(content_data_history_type: 'DataCycleCore::Thing::History')
 
@@ -450,6 +465,46 @@ namespace :data_cycle_core do
       DataCycleCore::WatchListDataHash.where(hashable_type: "DataCycleCore::#{name}").update_all(hashable_type: 'DataCycleCore::Thing')
       DataCycleCore::Subscription.where(subscribable_type: "DataCycleCore::#{name}").update_all(subscribable_type: 'DataCycleCore::Thing')
       DataCycleCore::DataLink.where(item_type: "DataCycleCore::#{name}").update_all(item_type: 'DataCycleCore::Thing')
+    end
+
+    def update_content_relations
+      ActiveRecord::Base.transaction do
+        connection = ActiveRecord::Base.connection
+        sql_query = <<-EOS
+          UPDATE content_contents as new_cc SET
+            content_a_id = content_contents.content_b_id,
+            content_b_id = content_contents.content_a_id,
+            content_a_type = content_contents.content_b_type,
+            content_b_type = content_contents.content_a_type,
+            relation_a = content_contents.relation_b,
+            relation_b = content_contents.relation_a,
+            order_a = content_contents.order_b,
+            order_b = content_contents.order_a
+          FROM content_contents
+          Where new_cc.id = content_contents.id
+          AND relation_b <> NULL
+          AND relation_b <> ''
+          AND content_a_type >= content_b_type;
+        EOS
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        sql_query = <<-EOS
+          UPDATE content_content_histories as new_cc SET
+            content_a_history_id = content_content_histories.content_b_id,
+            content_b_history_id = content_content_histories.content_a_id,
+            content_a_history_type = content_content_histories.content_b_type,
+            content_b_history_type = content_content_histories.content_a_type,
+            relation_a = content_content_histories.relation_b,
+            relation_b = content_content_histories.relation_a,
+            order_a = content_content_histories.order_b,
+            order_b = content_content_histories.order_a
+          FROM content_content_histories
+          Where new_cc.id = content_content_histories.id
+          AND relation_b <> NULL
+          AND relation_b <> ''
+          AND content_a_history_type >= content_b_history_type;
+        EOS
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+      end
     end
 
     def print_box(name)

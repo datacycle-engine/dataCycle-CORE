@@ -70,7 +70,7 @@
         :storage_location: translated_value
         :validations:
           :format: url
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
         :linked_table: places

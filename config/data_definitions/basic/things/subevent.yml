@@ -72,7 +72,7 @@
           :format: url
         :api:
           :name: sameAs
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
         :linked_table: things
