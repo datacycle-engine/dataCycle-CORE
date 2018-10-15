@@ -1,0 +1,35 @@
+---
+- :data:
+    :name: meta_data
+    :type: mixin
+    :properties:
+      # :creator:
+      #   :label: Ersteller
+      #   :type: linked
+      #   :linked_table: users
+      #   :validations:
+      #     :max: 1
+      # :last_updated_by:
+      #   :label: "Zuletzt bearbeitet von"
+      #   :type: linked
+      #   :linked_table: users
+      #   :validations:
+      #     :max: 1
+      # :deleted_by:
+      #   :label: "Gelöscht von"
+      #   :type: linked
+      #   :linked_table: users
+      #   :validations:
+      #     :max: 1
+      :date_created:
+        :label: Erstellungsdatum
+        :type: datetime
+        :storage_location: value
+      :date_modified:
+        :label: Änderungsdatum
+        :type: datetime
+        :storage_location: value
+      :date_deleted:
+        :label: Gelöschtdatum
+        :type: datetime
+        :storage_location: value

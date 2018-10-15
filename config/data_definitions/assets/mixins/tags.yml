@@ -1,0 +1,9 @@
+---
+- :data:
+    :name: tags
+    :type: mixin
+    :properties:
+      :keywords:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
