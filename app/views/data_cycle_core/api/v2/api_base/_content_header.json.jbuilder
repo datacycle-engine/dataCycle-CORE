@@ -31,5 +31,4 @@ if options[:header_type] == :full
   end
 
   json.partial! 'classifications', classification_aliases: classifications, key: 'classifications'
-
 end
