@@ -2,7 +2,7 @@
 
 json.set! key do
   json.array!(classification_aliases) do |classification_alias|
-    json.cache!(classification_alias, expires_in: 10.minutes) do
+    json.cache!("#{classification_alias}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
       json.id classification_alias.id
       json.name classification_alias.name
       json.description classification_alias.description if classification_alias.description.present?

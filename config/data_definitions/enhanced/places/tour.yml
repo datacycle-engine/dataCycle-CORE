@@ -38,11 +38,15 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+        :api:
+          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
