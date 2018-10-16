@@ -1,0 +1,4 @@
+$('.new-content-reveal:visible .new-content-form').fadeOut('fast', function(){
+  $(this).html('<%= j render_new_form(item: @template) %>').fadeIn('fast').trigger('form-rendered');
+});
+

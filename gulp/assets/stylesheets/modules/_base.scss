@@ -923,7 +923,8 @@ body .v-select {
 }
 
 /* Korrektur für Fehler im Neuen Eintrag erstellen reveal  */
-.new-item {
+.new-item,
+.new-content-reveal {
   .notice {
     padding: 1rem;
     display: block;
@@ -939,6 +940,18 @@ body .v-select {
     span.single_error {
       top: -2rem;
     }
+  }
+
+  h3 {
+    margin-bottom: 1rem;
+  }
+
+  .buttons {
+    .fa {
+      font-size: 1rem;
+    }
+
+    text-align: right;
   }
 }
 

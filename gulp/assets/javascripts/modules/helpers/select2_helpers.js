@@ -41,5 +41,9 @@ module.exports = {
         return value.replace(treelabel + ' &gt; ', '');
       }
     });
-  }
+  },
+  removeTreeLabelFromSelection: function (text, treelabel) {
+    return text.replace(treelabel + ' > ', '');
+  },
+
 };

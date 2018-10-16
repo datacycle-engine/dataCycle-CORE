@@ -147,6 +147,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
+  post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 

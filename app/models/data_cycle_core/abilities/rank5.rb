@@ -9,7 +9,11 @@ module DataCycleCore
         # Contents
         can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
 
-        can [:read, :create, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize) do |content|
+        can :create, CONTENT_MODELS.map(&:constantize) do |template|
+          template.schema.dig('content_type') != 'embedded'
+        end
+
+        can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize) do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
         can :destroy, CONTENT_MODELS.map(&:constantize) do |content|

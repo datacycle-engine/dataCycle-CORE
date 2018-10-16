@@ -1,0 +1,38 @@
+<h3><%= t('actions.new_content', locale: DataCycleCore.ui_language) %></h3>
+
+<%= form_with url: contents_new_path do |f| %>
+  <% available_items = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').sort { |x, y| x.full_path <=> y.full_path }.map { |c|
+      can?(:create, c.content_template) ?
+      [
+        c.full_path,
+        "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
+        {
+          title: [
+            c.full_path,
+            c.description
+          ].reject(&:blank?).join("\n\n"),
+          disabled: c&.content_template&.id.blank?
+        }
+      ] : nil
+  }.compact %>
+
+  <div class="form-element">
+    <div class="v-select white">
+      <%= select_tag(
+        :source,
+        options_for_select(available_items),
+        {
+          class: 'single-select',
+          data: {
+            tree_label: 'Inhaltstypen',
+            allow_clear: false
+          }
+        }
+      ) %>
+    </div>
+  </div>
+
+  <div class="buttons">
+    <%= f.button t('actions.next', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.next', locale: DataCycleCore.ui_language) } %>
+  </div>
+<% end %>

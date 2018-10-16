@@ -148,6 +148,7 @@ de:
     lock: sperren
     unlock: freischalten
     delete: löschen
+    new_content: "Inhalt erstellen"
     new: "%{data} erstellen"
     generate: "%{data} generieren"
     send: versenden
@@ -178,6 +179,8 @@ de:
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
+    next: Weiter
+    back: Zurück
 
   validation:
     errors:

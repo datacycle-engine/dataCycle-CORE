@@ -98,10 +98,17 @@ module.exports.initialize = function () {
 
             return '';
           }
+        },
+        templateSelection: function (data) {
+          return select2_helpers.removeTreeLabelFromSelection(data.text, tree_label);
         }
       });
     });
   };
+
+  $(document).on('form-rendered', '.new-content-form', event => {
+    init(event.target);
+  });
 
   $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
     init(this);

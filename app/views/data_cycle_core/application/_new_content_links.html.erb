@@ -1,1 +1,13 @@
-<%= render 'data_cycle_core/application/new_contents/default_content_links' %>
+<div id="new-object-circle">
+    <a data-toggle="new-content-reveal" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
+</div>
+
+<div class="reveal new-content-reveal" id="new-content-reveal" data-reveal>
+  <div class="new-content-form">
+    <%= render_new_form %>
+  </div>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

@@ -230,6 +230,17 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
+    def render_new_form(item: nil)
+      partials = [
+        item.present? ? "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}" : nil,
+        item&.class&.name&.demodulize&.underscore,
+        item.present? ? 'default_content' : nil,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
+
+      render_first_existing_partial(partials, { item: item })
+    end
+
     private
 
     def render_first_existing_partial(partials, parameters)

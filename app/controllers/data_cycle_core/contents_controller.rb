@@ -62,6 +62,12 @@ module DataCycleCore
       end
     end
 
+    def new
+      @template = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id]) if source_params.present?
+
+      respond_to :js
+    end
+
     def create
       if params[:source] == 'object_browser'
         authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))

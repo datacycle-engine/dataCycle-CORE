@@ -290,4 +290,8 @@ module.exports.initialize = function () {
     });
   }
 
+  $(document).on('form-rendered', '.new-content-form', event => {
+    init_event_handlers(event.currentTarget);
+  });
+
 };

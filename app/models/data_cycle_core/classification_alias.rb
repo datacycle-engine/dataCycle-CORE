@@ -94,6 +94,24 @@ module DataCycleCore
       classification_alias_path.full_path_names.reverse.join(' > ')
     end
 
+    def content_template
+      Rails.cache.fetch("#{cache_key}/content_template", expires_in: 10.minutes) do
+        templates = DataCycleCore.content_tables.map { |table|
+          "DataCycleCore::#{table.classify}".constantize
+        }.map { |c|
+          c.where("template = ? AND schema->'properties'->'data_type'->>'default_value' = ?", true, name)
+        }.flatten.compact.uniq
+
+        if templates.blank? && ancestors&.first.is_a?(DataCycleCore::ClassificationAlias)
+          ancestors.first.content_template
+        elsif templates.blank?
+          return nil
+        else
+          templates.first
+        end
+      end
+    end
+
     private
 
     def update_primary_classification

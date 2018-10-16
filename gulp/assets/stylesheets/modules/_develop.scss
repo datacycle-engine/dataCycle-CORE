@@ -755,7 +755,8 @@ a.has-tip {
   text-align: center;
 }
 
-.new-item {
+.new-item,
+.new-content-reveal {
   iframe {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
