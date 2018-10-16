@@ -1,6 +1,9 @@
 - Inhaltstypen:
   - $$Asset:
     - $$DataCycle - Bild
+    - $$DataCycle - Video
+    - $$DataCycle - Datei
+    - $$DataCycle - PDF
     - $$Asset Demo
     - $$Bild
     - $$Datei
