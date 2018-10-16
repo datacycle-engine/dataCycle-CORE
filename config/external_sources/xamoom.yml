@@ -33,7 +33,7 @@ config:
               tree_label: Inhaltstypen
               value: Bild
         spot:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
           default_values:
             data_type:

@@ -205,12 +205,6 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
       locales: ['de']
-    # additional_service_providers:
-    #   source_type: DataCycleCore::Generic::SourceType::AdditionalServiceProvider
-    #   target_type: DataCycleCore::Place
-    #   image_template: Bild
-    #   data_template: POI
-    #   import_strategy: DataCycleCore::Generic::Feratel::ImportPlaces
     infrastructures:
       sorting: 20
       source_type: infrastructure_items
@@ -220,7 +214,7 @@ config:
           content_type: DataCycleCore::CreativeWork
           template: Bild
         infrastructure:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: POI
     accommodations:
       sorting: 21
@@ -231,5 +225,5 @@ config:
           content_type: DataCycleCore::CreativeWork
           template: Bild
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Unterkunft

@@ -15,7 +15,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_place_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_content_location(template),
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end

@@ -31,7 +31,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_accommodation(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Unterkunft' },
+            default: { content_type: DataCycleCore::Thing, template: 'Unterkunft' },
             config: config
           )
         end
@@ -41,7 +41,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'POI' },
+            default: { content_type: DataCycleCore::Thing, template: 'POI' },
             config: config
           )
         end

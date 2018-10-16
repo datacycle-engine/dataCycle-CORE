@@ -29,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::VTicket::Transformations.vticket_location_to_content_location,
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end

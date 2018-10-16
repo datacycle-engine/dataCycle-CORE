@@ -322,7 +322,7 @@ namespace :data_cycle_core do
       end
     end
 
-    desc 'migrate events - executes all migration tasks'
+    desc 'migrate places - executes all migration tasks'
     task migrate_places_to_things: :environment do
       ActiveRecord::Base.transaction do
         temp = Time.zone.now
@@ -422,7 +422,7 @@ namespace :data_cycle_core do
             description,
             history_valid,
             created_at, updated_at
-          FROM event_history_translations
+          FROM place_history_translations
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
 
@@ -431,13 +431,13 @@ namespace :data_cycle_core do
           	relation_a = 'content_location'
           where relation_a = 'location';
         EOS
-        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         sql_query = <<-EOS
           UPDATE content_content_histories SET
           	relation_a = 'content_location'
           where relation_a = 'location';
         EOS
-        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
 
         puts 'END'
         puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
@@ -482,26 +482,26 @@ namespace :data_cycle_core do
             order_b = content_contents.order_a
           FROM content_contents
           Where new_cc.id = content_contents.id
-          AND relation_b <> NULL
-          AND relation_b <> ''
-          AND content_a_type >= content_b_type;
+          AND content_contents.relation_b <> NULL
+          AND content_contents.relation_b <> ''
+          AND content_contents.content_a_type >= content_contents.content_b_type;
         EOS
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         sql_query = <<-EOS
           UPDATE content_content_histories as new_cc SET
-            content_a_history_id = content_content_histories.content_b_id,
-            content_b_history_id = content_content_histories.content_a_id,
-            content_a_history_type = content_content_histories.content_b_type,
-            content_b_history_type = content_content_histories.content_a_type,
+            content_a_history_id = content_content_histories.content_b_history_id,
+            content_b_history_id = content_content_histories.content_a_history_id,
+            content_a_history_type = content_content_histories.content_b_history_type,
+            content_b_history_type = content_content_histories.content_a_history_type,
             relation_a = content_content_histories.relation_b,
             relation_b = content_content_histories.relation_a,
             order_a = content_content_histories.order_b,
             order_b = content_content_histories.order_a
           FROM content_content_histories
           Where new_cc.id = content_content_histories.id
-          AND relation_b <> NULL
-          AND relation_b <> ''
-          AND content_a_history_type >= content_b_history_type;
+          AND content_content_histories.relation_b <> NULL
+          AND content_content_histories.relation_b <> ''
+          AND content_content_histories.content_a_history_type >= content_content_histories.content_b_history_type;
         EOS
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
       end

@@ -21,7 +21,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::EventDatabase::Transformations.event_database_location_to_content_location,
-            default: { content_type: DataCycleCore::Place, template: 'Veranstaltungsort' },
+            default: { content_type: DataCycleCore::Thing, template: 'Veranstaltungsort' },
             config: config
           )
         end

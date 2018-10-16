@@ -220,7 +220,7 @@ config:
           content_type: DataCycleCore::CreativeWork
           template: Bild
         infrastructure:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: POI
     accommodations:
       sorting: 21
@@ -231,5 +231,5 @@ config:
           content_type: DataCycleCore::CreativeWork
           template: Bild
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Unterkunft

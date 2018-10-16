@@ -28,7 +28,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Booking::Transformations.booking_to_unterkunft(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Unterkunft' },
+            default: { content_type: DataCycleCore::Thing, template: 'Unterkunft' },
             config: config
           )
         end

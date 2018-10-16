@@ -25,7 +25,7 @@ module DataCycleCore
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
-          .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
           .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
           .>> t(:reject_keys, ['orig_content_location'])
           .>> t(:strip_all)
@@ -49,7 +49,7 @@ module DataCycleCore
           .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
-          .>> t(:add_link, 'content_location', DataCycleCore::Place, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
           .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
           .>> t(:reject_keys, ['orig_content_location'])
           .>> t(:strip_all)
