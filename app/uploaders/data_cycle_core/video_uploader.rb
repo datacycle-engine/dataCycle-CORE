@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'streamio-ffmpeg'
+
 module DataCycleCore
   class VideoUploader < CommonUploader
     include CarrierWave::MiniMagick
@@ -18,10 +20,15 @@ module DataCycleCore
       dirname = File.dirname(current_path)
       thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.png"
       movie.screenshot(thumb_path, seek_time: 5)
-      sc = ::Magick::Image.read(thumb_path).first
-      sc.crop_resized!(width, height)
+      sc = ::MiniMagick::Image.open(thumb_path)
+      sc.resize "#{width}x#{height}"
       sc.write(thumb_path)
       File.rename thumb_path, current_path
+    end
+
+    def exif_data
+      movie = FFMPEG::Movie.new(current_path)
+      movie.metadata
     end
   end
 end

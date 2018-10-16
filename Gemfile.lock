@@ -40,6 +40,7 @@ PATH
       rgeo
       rgeo-geojson
       simple_form
+      streamio-ffmpeg
       transproc (~> 1.0)
       whenever
 
@@ -220,7 +221,7 @@ GEM
       activesupport (>= 4.2.0)
       multi_json (>= 1.2)
     json (2.1.0)
-    json-schema (2.8.0)
+    json-schema (2.8.1)
       addressable (>= 2.4)
     kaminari (1.1.1)
       activesupport (>= 4.1.0)
@@ -245,7 +246,7 @@ GEM
     loofah (2.2.2)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
-    mail (2.7.0)
+    mail (2.7.1)
       mini_mime (>= 0.1.1)
     method_source (0.9.0)
     mime-types (3.2.2)
@@ -330,14 +331,14 @@ GEM
       redis-actionpack (>= 5.0, < 6)
       redis-activesupport (>= 5.0, < 6)
       redis-store (>= 1.2, < 2)
-    redis-store (1.5.0)
+    redis-store (1.6.0)
       redis (>= 2.2, < 5)
     request_store (1.4.1)
       rack (>= 1.4)
     responders (2.4.0)
       actionpack (>= 4.2.0, < 5.3)
       railties (>= 4.2.0, < 5.3)
-    rgeo (1.1.1)
+    rgeo (1.1.2)
     rgeo-activerecord (6.0.0)
       activerecord (~> 5.0)
       rgeo (~> 1.0)
@@ -375,6 +376,8 @@ GEM
     sshkit (1.17.0)
       net-scp (>= 1.1.2)
       net-ssh (>= 2.8.0)
+    streamio-ffmpeg (3.0.2)
+      multi_json (~> 1.8)
     thor (0.20.0)
     thread_safe (0.3.6)
     transproc (1.0.2)
