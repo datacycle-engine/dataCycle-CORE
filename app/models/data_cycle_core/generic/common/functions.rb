@@ -132,7 +132,7 @@ module DataCycleCore
           return data_hash if data_hash[attribute].blank?
 
           begin
-            asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute]).set_content_type.set_file_size
+            asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute])
             asset.save!
             data_hash[attribute] = asset.try(:id)
           rescue StandardError => error
