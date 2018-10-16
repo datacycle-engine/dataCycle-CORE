@@ -55,7 +55,8 @@ CREATE TABLE public.assets (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     seen_at timestamp without time zone,
-    name character varying
+    name character varying,
+    exif_data jsonb
 );
 
 
@@ -2739,6 +2740,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180918085636'),
 ('20180918135618'),
 ('20180921083454'),
-('20180927090624');
+('20180927090624'),
+('20181016084042');
 
 

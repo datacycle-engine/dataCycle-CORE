@@ -6,8 +6,6 @@ module DataCycleCore
     # include CarrierWave::RMagick
     include ::CarrierWave::Backgrounder::Delay
 
-    after :store, :meta_data
-
     # Choose what kind of storage to use for this uploader:
     storage :file
     # storage :fog
@@ -25,12 +23,6 @@ module DataCycleCore
       else
         "#{secure_token}.#{file.extension}"
       end
-    end
-
-    def meta_data(_file)
-      model.content_type = file.content_type
-      model.file_size = file.size
-      model.save!
     end
 
     def secure_token

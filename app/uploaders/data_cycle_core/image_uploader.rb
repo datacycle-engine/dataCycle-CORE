@@ -2,8 +2,6 @@
 
 module DataCycleCore
   class ImageUploader < CommonUploader
-    # Include RMagick or MiniMagick support:
-    # include CarrierWave::RMagick
     include CarrierWave::MiniMagick
 
     version :thumb_preview do
@@ -15,6 +13,11 @@ module DataCycleCore
         basename = File.basename(for_file, File.extname(for_file))
         "#{version_name}_#{basename}.jpg"
       end
+    end
+
+    def exif_data
+      image = ::MiniMagick::Image.open(current_path)
+      image.data
     end
   end
 end
