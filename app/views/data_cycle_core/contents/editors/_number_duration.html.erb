@@ -1,7 +1,7 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
   <%= label_tag key do %>
-    <span class="icon <%= key.split('[').last[0...-1] %>">
+    <span class="icon <%= key.attribute_name_from_key %>">
         <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
         <i aria-hidden="true" class="fa fa-clock-o"></i>
     </span>
