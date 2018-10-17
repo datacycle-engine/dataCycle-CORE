@@ -67,6 +67,10 @@
           :method: width
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
       :height:
         :label: Höhe
         :storage_location: value
@@ -77,6 +81,10 @@
           :method: height
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
       :content_size:
         :label: Dateigröße
         :storage_location: value
@@ -102,11 +110,15 @@
         :storage_location: value
         :type: computed
         :compute:
-          :type: string
+          :type: number
           :module: Utility::Compute::Video
           :method: duration
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
       :video_frame_size:
         :label: Auslösung
         :storage_location: value

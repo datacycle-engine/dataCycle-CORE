@@ -72,6 +72,10 @@
           :method: duration
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
       :data_type:
         :label: Inhaltstype
         :type: classification

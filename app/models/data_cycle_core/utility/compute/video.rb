@@ -22,7 +22,7 @@ module DataCycleCore
           end
 
           def duration(video)
-            meta_value(video, ['format', 'duration'])
+            meta_value(video, ['format', 'duration'])&.to_f
           end
 
           def thumbnail_url(video)

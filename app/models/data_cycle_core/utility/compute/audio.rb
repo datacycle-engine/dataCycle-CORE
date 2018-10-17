@@ -6,7 +6,7 @@ module DataCycleCore
       module Audio
         class << self
           def duration(audio)
-            meta_value(audio, ['audio_properties', 'length'])
+            meta_value(audio, ['audio_properties', 'length'])&.to_f
           end
 
           def meta_value(audio_id, path)
