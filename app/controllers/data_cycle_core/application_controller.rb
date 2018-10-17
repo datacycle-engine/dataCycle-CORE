@@ -38,7 +38,13 @@ module DataCycleCore
     end
 
     def remote_render
-      raise params.inspect
+      @target = remote_render_params[:target]
+      @partial = remote_render_params[:partial]
+      @options = remote_render_params[:options]
+
+      render(json: { error: 'Parameter missing!' }, status: :bad_request) && return if @target.blank? || @partial.blank?
+
+      respond_to(:js)
     end
 
     rescue_from CanCan::AccessDenied do |exception|
@@ -57,6 +63,10 @@ module DataCycleCore
 
     def better_errors_hack
       request.env['puma.config'].options.user_options.delete(:app) if request.env.key?('puma.config')
+    end
+
+    def remote_render_params
+      params.permit(:target, :partial, options: {})
     end
   end
 end

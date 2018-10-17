@@ -8,7 +8,8 @@ module.exports.initialize = function () {
       url: '/remote_render',
       data: {
         target: target,
-        partial: $(event.target).data('remotePath')
+        partial: $(event.target).data('remotePath'),
+        options: $(event.target).data('remoteOptions')
       },
       dataType: 'script',
       contentType: 'application/json'

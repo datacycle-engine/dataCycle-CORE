@@ -1,1 +1,4 @@
-console.log('tets');
+$('<%= @target %>:visible').children().fadeOut('fast', function(){
+  $('<%= @target %>:visible').html('<%= j render @partial, @options %>').trigger('remote-partial-rendered');
+  $('<%= @target %>:visible').closest('.reveal[data-remote-path]:not(.loaded)').addClass('loaded');
+});

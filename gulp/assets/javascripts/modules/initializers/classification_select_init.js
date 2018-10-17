@@ -110,6 +110,10 @@ module.exports.initialize = function () {
     init(event.target);
   });
 
+  $(document).on('remote-partial-rendered', event => {
+    init(event.target);
+  });
+
   $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
     init(this);
   });
