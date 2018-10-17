@@ -274,7 +274,8 @@ module DataCycleCore
                   'asset',
                   'image',
                   'video',
-                  'file'
+                  'file',
+                  'pdf'
                 ]
               )
           end
