@@ -1,7 +1,7 @@
 <div data-label="<%= definition['label'] %>" class="<%= [
     'clearfix',
     'form-element',
-    key.split('[').last[0...-1].underscore,
+    key.attribute_name_from_key,
     definition.dig('validations').present? ? 'validation-container' : '',
     definition.dig('type').try(:underscore),
     definition.dig('ui', 'edit', 'type').try(:underscore),
@@ -9,7 +9,7 @@
     options.try(:[], 'class'),
 ].reject(&:blank?).join(' ') %>" data-key="<%= key %>" data-id="<%= sanitize_to_id(key) %>">
 
-    <% if content.try(:translatable_property_names)&.include?(key.split('[').last[0...-1].underscore) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.many? %>
+    <% if content.try(:translatable_property_names)&.include?(key.attribute_name_from_key) && (DataCycleCore.translatable_types & [content.class.name, content.template_name]).present? && I18n.available_locales&.many? %>
       <span class="translated"><i class="fa fa-language" aria-hidden="true"></i></span>
     <% end %>
 
