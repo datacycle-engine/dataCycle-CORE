@@ -1,7 +1,7 @@
 <div data-label="<%= definition['label'] %>" class="<%= [
     'clearfix',
     'form-element',
-    key.parameterize(separator: '_'),
+    key.attribute_name_from_key,
     definition.dig('validations').present? ? 'validation-container' : '',
     definition.dig('type').try(:underscore),
     definition.dig('ui', 'edit', 'type').try(:underscore),
