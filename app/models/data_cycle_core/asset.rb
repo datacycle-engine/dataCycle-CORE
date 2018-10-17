@@ -15,6 +15,7 @@ module DataCycleCore
     end
 
     def update_asset_attributes
+      return if file.blank?
       self.content_type = file.file.content_type
       self.file_size = file.size
       self.name = file.file.filename
