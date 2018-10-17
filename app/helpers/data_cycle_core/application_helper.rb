@@ -52,12 +52,8 @@ module DataCycleCore
       breadcrumbs[0..-2].reverse.find(&:authorized)
     end
 
-    def attribute_name_from_key(key)
-      key.scan(/\[(.*?)\]/).flatten.last
-    end
-
     def schema_path_from_key(key)
-      key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+      key.gsub(/datahash/, 'properties').split(/[\[\]]+/) || []
     end
 
     def add_attribute_options(options, definition, scope)
@@ -92,13 +88,13 @@ module DataCycleCore
     end
 
     def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(attribute_name_from_key(key), content)
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
       else
         partials = [
-          attribute_name_from_key(key).underscore.to_s,
+          key.attribute_name_from_key,
           feature_templates(key, definition, content),
           "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore)}",
           definition['type'].underscore.to_s
@@ -115,7 +111,7 @@ module DataCycleCore
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(attribute_name_from_key(key), content)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
@@ -214,7 +210,7 @@ module DataCycleCore
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        attribute_name_from_key(key).underscore.to_s,
+        key.attribute_name_from_key,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 
