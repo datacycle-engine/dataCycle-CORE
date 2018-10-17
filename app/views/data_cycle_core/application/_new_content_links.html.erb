@@ -2,9 +2,9 @@
     <a data-toggle="new-content-reveal" class="button-prime"><i class="fa fa-plus" aria-hidden="true"></i></a>
 </div>
 
-<div class="reveal new-content-reveal" id="new-content-reveal" data-reveal>
+<div class="reveal new-content-reveal" id="new-content-reveal" data-reveal data-remote-path="data_cycle_core/contents/new/new_stage" data-remote-target=".new-content-form">
   <div class="new-content-form">
-    <%= render_new_form %>
+    <div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>
   </div>
 
   <button class="close-button" data-close aria-label="Close modal" type="button">

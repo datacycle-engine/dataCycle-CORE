@@ -1,4 +1,9 @@
-$('.new-content-reveal:visible .new-content-form').fadeOut('fast', function(){
-  $(this).html('<%= j render_new_form(item: @template) %>').fadeIn('fast').trigger('form-rendered');
-});
-
+<% if @template.present? %>
+  $('.new-content-reveal:visible .new-content-form').fadeOut('fast', function(){
+    $(this).html('<%= j render_new_form(item: @template) %>').fadeIn('fast').trigger('form-rendered');
+  });
+<% else %>
+  $('.new-content-reveal:visible .new-content-form').fadeOut('fast', function(){
+    $(this).html('<%= j render 'data_cycle_core/contents/new/new_stage' %>').fadeIn('fast').trigger('form-rendered');
+  });
+<% end %>

@@ -37,6 +37,10 @@ module DataCycleCore
       respond_to(:js)
     end
 
+    def remote_render
+      raise params.inspect
+    end
+
     rescue_from CanCan::AccessDenied do |exception|
       respond_to do |format|
         format.json { head :forbidden, content_type: 'text/html' }
