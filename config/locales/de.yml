@@ -301,21 +301,21 @@ de:
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
-      data_cycle_core/creative_work:
-        one: Creative Work
-        other: Creative Works
-      data_cycle_core/place:
-        one: Ort
-        other: Orte
-      data_cycle_core/person:
-        one: Person
-        other: Personen
-      data_cycle_core/event:
-        one: Event
-        other: Events
-      data_cycle_core/organization:
-        one: Organisation
-        other: Organisationen
+      # data_cycle_core/creative_work:
+      #   one: Creative Work
+      #   other: Creative Works
+      # data_cycle_core/place:
+      #   one: Ort
+      #   other: Orte
+      # data_cycle_core/person:
+      #   one: Person
+      #   other: Personen
+      # data_cycle_core/event:
+      #   one: Event
+      #   other: Events
+      # data_cycle_core/organization:
+      #   one: Organisation
+      #   other: Organisationen
       data_cycle_core/stored_filter:
         one: Gespeicherte Suche
         other: Gespeicherte Suchen
@@ -352,6 +352,20 @@ de:
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+      data_cycle_core/thing:
+        name: Name
+        legal_name: Firmenname
+        given_name: Vorname
+        family_name: Familienname
+        job_title: Berufsbezeichnung
+        name: Name
+        street: Straße
+        country: Land
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
+        elevation: Meereshöhe (m)
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname

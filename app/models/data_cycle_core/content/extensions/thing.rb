@@ -48,11 +48,11 @@ module DataCycleCore
           when 'Organization'
             []
           when 'Person'
-            ['given_name', 'family_name', 'honorific_prefix', 'job_title', 'contact_info']
+            ['honorific_prefix', 'job_title', 'contact_info']
           when 'Event'
             []
           when 'Place'
-            ['name', 'address', 'location']
+            ['address', 'location']
           end
         end
 

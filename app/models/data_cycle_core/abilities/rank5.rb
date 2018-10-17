@@ -7,7 +7,7 @@ module DataCycleCore
                     'Interview', 'Linktipps', 'Quiz', 'Rezept', 'SocialMediaPosting',
                     'Video', 'Zeitleiste', 'Lift', 'Örtlichkeit', 'Piste', 'POI',
                     'Tour', 'Unterkunft', 'Event', 'Organization', 'Person'] - DataCycleCore.excluded_new_item_objects).freeze
-      # [DataCycleCore::CreativeWork, DataCycleCore::Place, DataCycleCore::Event, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' IN ('entity', 'container')").pluck(:template_name) }.flatten
+      # [DataCycleCore::CreativeWork, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' IN ('entity', 'container')").pluck(:template_name) }.flatten
       include CanCan::Ability
 
       def initialize(user, _session = {})

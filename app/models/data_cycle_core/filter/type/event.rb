@@ -34,7 +34,7 @@ module DataCycleCore
             .project(search[:content_data_id])
             .from(search)
             .join(event)
-            .on(search[:content_data_id].eq(event[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Thing'))))
+            .on(search[:content_data_id].eq(event[:id]).and(search[:schema_type].eq(quoted('Event'))))
         end
 
         def event
