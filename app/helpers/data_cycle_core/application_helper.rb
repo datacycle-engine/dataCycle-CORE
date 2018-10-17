@@ -53,7 +53,7 @@ module DataCycleCore
     end
 
     def schema_path_from_key(key)
-      key.gsub(/datahash/, 'properties').split(/[\[\]]+/) || []
+      key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
     def add_attribute_options(options, definition, scope)
