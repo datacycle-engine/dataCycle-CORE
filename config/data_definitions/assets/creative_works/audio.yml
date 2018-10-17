@@ -1,0 +1,88 @@
+---
+- :data:
+    :name: DataCycle - Audio
+    :type: object
+    :content_type: entity
+    :boost: 10.0
+    :api:
+      :type: VideoObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :caption:
+        :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :content_url:
+        :label: Video URL
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :disabled: true
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: audio
+        :api:
+          :disabled: true
+      :content_size:
+        :label: Dateigröße
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
+      :file_format:
+        :label: Dateiformat
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
+      :duration:
+        :label: Dauer
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Audio
+          :method: duration
+          :parameters:
+            :0: asset
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "DataCycle - Audio"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

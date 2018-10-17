@@ -42,6 +42,7 @@ PATH
       rgeo-geojson
       simple_form
       streamio-ffmpeg
+      taglib-ruby
       transproc (~> 1.0)
       whenever
 
@@ -389,6 +390,7 @@ GEM
       net-ssh (>= 2.8.0)
     streamio-ffmpeg (3.0.2)
       multi_json (~> 1.8)
+    taglib-ruby (0.7.1)
     thor (0.20.0)
     thread_safe (0.3.6)
     transproc (1.0.2)

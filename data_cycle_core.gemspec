@@ -85,6 +85,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
+  s.add_dependency 'taglib-ruby'
 
   s.add_dependency 'globalize', '~> 5.1.0'
   s.add_dependency 'loofah', '~> 2.2.2'
