@@ -5,7 +5,6 @@
     - $$DataCycle - Video
     - $$DataCycle - Datei
     - $$DataCycle - PDF
-    - $$Asset Demo
     - $$Bild
     - $$Datei
     - $$Video
@@ -40,7 +39,6 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$Textblock
-  - $$Test-Computed
 
 - Geschlecht:
   - Männlich
