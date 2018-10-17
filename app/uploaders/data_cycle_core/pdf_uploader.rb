@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'pdf-reader'
+
 module DataCycleCore
   class PdfUploader < CommonUploader
     include CarrierWave::MiniMagick
@@ -22,5 +24,15 @@ module DataCycleCore
       ['pdf']
     end
 
+    def exif_data
+      reader = PDF::Reader.new(current_path)
+      return nil if reader.blank?
+      {
+        info: reader.info,
+        pdf_version: reader.pdf_version,
+        metadata: reader.metadata,
+        page_count: reader.page_count
+      }
+    end
   end
 end

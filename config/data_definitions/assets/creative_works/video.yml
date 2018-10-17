@@ -127,9 +127,6 @@
           :method: quality
           :parameters:
             :0: asset
-      :tags:
-        :type: mixin
-        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification

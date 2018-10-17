@@ -83,6 +83,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'carrierwave', '~> 0.5'
   s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
+  s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
 
   s.add_dependency 'globalize', '~> 5.1.0'

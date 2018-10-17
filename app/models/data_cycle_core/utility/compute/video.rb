@@ -26,11 +26,11 @@ module DataCycleCore
           end
 
           def thumbnail_url(video)
-            DataCycleCore::Video.find(video)&.try(:thumbnail_url)
+            DataCycleCore::Video.find_by(id: video)&.try(:thumbnail_url)
           end
 
           def meta_value(video_id, path)
-            video = DataCycleCore::Video.find(video_id)
+            video = DataCycleCore::Video.find_by(id: video_id)
             return nil if video.blank? || path.blank?
             video.exif_data.dig(*path)
           end

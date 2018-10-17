@@ -35,11 +35,11 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :name:
-        :label: Linktitel
-        :type: string
-        :storage_location: translated_value
-        :search: true
+      :image_test:
+        :label: Images
+        :type: linked
+        :linked_table: creative_works
+        :template_name: DataCycle - Bild
       :text:
         :label: Fließtext
         :type: string
@@ -58,9 +58,6 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :publication_schedule:
-        :type: mixin
-        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data

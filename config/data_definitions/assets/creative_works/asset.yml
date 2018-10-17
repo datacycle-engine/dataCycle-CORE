@@ -64,9 +64,6 @@
         :label: Dateiformat
         :type: string
         :storage_location: value
-      :tags:
-        :type: mixin
-        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -14,11 +14,12 @@ module DataCycleCore
           end
 
           def thumbnail_url(image)
-            DataCycleCore::Image.find(image)&.try(:thumbnail_url)
+            return nil if image.blank?
+            DataCycleCore::Image.find_by(id: image)&.try(:thumbnail_url)
           end
 
           def exif_value(image_id, path)
-            image = DataCycleCore::Image.find(image_id)
+            image = DataCycleCore::Image.find_by(id: image_id)
             return nil if image.blank? || path.blank?
             image.exif_data.dig(*path)
           end

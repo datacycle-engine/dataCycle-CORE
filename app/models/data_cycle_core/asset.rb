@@ -17,6 +17,7 @@ module DataCycleCore
     def update_asset_attributes
       self.content_type = file.file.content_type
       self.file_size = file.size
+      self.name = file.file.filename
       self.exif_data = file.exif_data if file.respond_to?(:exif_data)
     end
   end
