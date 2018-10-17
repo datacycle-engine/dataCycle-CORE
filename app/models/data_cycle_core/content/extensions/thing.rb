@@ -52,7 +52,7 @@ module DataCycleCore
           when 'Event'
             []
           when 'Place'
-            ['address', 'location']
+            ['name', 'address', 'location']
           end
         end
 
