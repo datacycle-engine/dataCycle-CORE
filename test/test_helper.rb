@@ -135,11 +135,14 @@ module DataCycleCore
     def self.create_user_group
       @test_group = DataCycleCore::UserGroup.where(name: 'TestUserGroup').first_or_create
 
-      return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
-      user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
-      DataCycleCore::UserGroupUser.create!(
+      user_group = DataCycleCore::UserGroup.find_or_create_by!(name: 'Administrators')
+      # DataCycleCore::UserGroupUser.find_or_create_by!(
+      #   user_group_id: user_group.id,
+      #   user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id
+      # )
+      DataCycleCore::UserGroupUser.find_or_create_by!(
         user_group_id: user_group.id,
-        user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id
+        user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
     end
 
