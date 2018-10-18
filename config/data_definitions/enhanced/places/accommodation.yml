@@ -66,6 +66,7 @@
           :max: 1
         :api:
           :name: image
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked
@@ -73,6 +74,7 @@
         :template_name: Bild
         :api:
           :name: photo
+          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

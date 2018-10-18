@@ -17,7 +17,7 @@
             <% end %>
             <% item.new_content_fields.each_with_index do |attribute, index| %>
                 <div class="validation-container form-element">
-                    <%= label_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{item.schema['properties'][attribute]['label']}" %>
+                    <%= label_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{item.schema.dig('properties', attribute, 'label')}" %>
                     <%= text_field_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", '', class: 'form-control', value: (index==0 ? params.dig(:f, :s, :v) : ''), disabled: params.dig(:f, :s, :v).blank? %>
                 </div>
             <% end %>

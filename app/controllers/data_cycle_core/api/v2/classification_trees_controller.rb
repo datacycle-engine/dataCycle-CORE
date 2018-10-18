@@ -4,6 +4,11 @@ module DataCycleCore
   module Api
     module V2
       class ClassificationTreesController < Api::V2::ApiBaseController
+        before_action :prepare_url_parameters
+
+        ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
+
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false)
 
@@ -58,8 +63,15 @@ module DataCycleCore
           @classification_aliases = apply_paging(@classification_aliases)
         end
 
+        def prepare_url_parameters
+          @url_parameters = permitted_params.reject { |k, _| k == 'format' }
+          @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
+          @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
+          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+        end
+
         def permitted_parameter_keys
-          super + [:id, { filter: [:modified_since, :created_since, :deleted_since] }]
+          super + [:id, :include, :mode, { filter: [:modified_since, :created_since, :deleted_since] }]
         end
       end
     end

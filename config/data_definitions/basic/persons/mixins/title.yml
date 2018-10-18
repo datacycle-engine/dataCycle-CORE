@@ -23,3 +23,5 @@
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true
