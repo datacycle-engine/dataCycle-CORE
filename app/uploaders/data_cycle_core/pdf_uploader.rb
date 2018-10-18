@@ -24,7 +24,7 @@ module DataCycleCore
       ['pdf']
     end
 
-    def exif_data
+    def metadata
       reader = PDF::Reader.new(current_path)
       return nil if reader.blank?
       {

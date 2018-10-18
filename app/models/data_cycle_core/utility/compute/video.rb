@@ -32,7 +32,7 @@ module DataCycleCore
           def meta_value(video_id, path)
             video = DataCycleCore::Video.find_by(id: video_id)
             return nil if video.blank? || path.blank?
-            video.exif_data.dig(*path)
+            video.metadata.dig(*path)
           end
 
           def meta_stream_value(video_id, path)

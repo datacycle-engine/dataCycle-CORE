@@ -98,6 +98,9 @@ Gem::Specification.new do |s|
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
 
+  # phash
+  s.add_dependency 'pHash'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'

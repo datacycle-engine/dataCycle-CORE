@@ -21,7 +21,7 @@ module DataCycleCore
           def exif_value(image_id, path)
             image = DataCycleCore::Image.find_by(id: image_id)
             return nil if image.blank? || path.blank?
-            image.exif_data.dig(*path)
+            image.metadata.dig(*path)
           end
         end
       end

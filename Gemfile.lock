@@ -29,6 +29,7 @@ PATH
       mongoid
       multi_json
       nokogiri (~> 1.8.5)
+      pHash
       pdf-reader
       pg (~> 0.21)
       puma (~> 3.11.0)
@@ -276,6 +277,8 @@ GEM
     nokogiri (1.8.5)
       mini_portile2 (~> 2.3.0)
     orm_adapter (0.5.0)
+    pHash (1.2.1)
+      ffi (~> 1.0)
     parallel (1.12.1)
     parser (2.5.1.2)
       ast (~> 2.4.0)

@@ -20,7 +20,7 @@ module DataCycleCore
           def exif_value(pdf_id, path)
             pdf = DataCycleCore::Pdf.find_by(id: pdf_id)
             return nil if pdf.blank? || path.blank?
-            pdf.exif_data.dig(*path)
+            pdf.metadata.dig(*path)
           end
         end
       end

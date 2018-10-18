@@ -4,7 +4,7 @@ require 'taglib'
 
 module DataCycleCore
   class AudioUploader < CommonUploader
-    def exif_data
+    def metadata
       TagLib::FileRef.open(current_path) do |fileref|
         unless fileref.null?
           tag = fileref.tag

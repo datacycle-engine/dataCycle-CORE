@@ -26,7 +26,7 @@ module DataCycleCore
       File.rename thumb_path, current_path
     end
 
-    def exif_data
+    def metadata
       movie = FFMPEG::Movie.new(current_path)
       movie.metadata
     end
