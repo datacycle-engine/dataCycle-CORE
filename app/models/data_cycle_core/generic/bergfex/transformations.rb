@@ -77,7 +77,8 @@ module DataCycleCore
             'depth' => 'depth_old'
           })
           .>> t(:add_field, 'elevation', ->(s) { s.dig('elevation_old')&.to_f })
-          .>> t(:add_field, 'depth', ->(s) { s.dig('depth_old', 'text')&.to_f })
+          .>> t(:add_field, 'depth_of_snow', ->(s) { s.dig('depth_old', 'text')&.to_f })
+          .>> t(:add_field, 'depth_of_fresh_snow', ->(s) { s.dig('depthFresh24', 'text')&.to_f })
           .>> t(:get_title_from_locale, 'headline', ->(s) { s.dig('type') }, locale)
           .>> t(:add_links, 'condition_weather', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionWeather', 'id').present? ? ["CATEGORY:#{s&.dig('conditionWeather', 'id')}"] : [] })
           .>> t(:strip_all)
