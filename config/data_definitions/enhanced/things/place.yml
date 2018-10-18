@@ -66,6 +66,8 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked

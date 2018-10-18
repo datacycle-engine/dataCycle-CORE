@@ -4,7 +4,7 @@
     :type: object
     :schema_type: Organization
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 1.0
     :properties:
       :id:
@@ -22,6 +22,7 @@
             :disabled: true
         :api:
           :name: legal_name
+          :minimal: true          
       :contact_info:
         :type: mixin
         :name: contact_info

@@ -70,6 +70,7 @@
           :max: 1
         :api:
           :name: image
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked
@@ -77,6 +78,7 @@
         :template_name: Bild
         :api:
           :name: photo
+          :minimal: true
       :content_classifications:
         :type: mixin
         :name: content_classifications

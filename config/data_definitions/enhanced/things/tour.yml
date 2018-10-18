@@ -40,11 +40,15 @@
         :template_name: Bild
         :validations:
           :max: 1
+        :api:
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked
         :linked_table: creative_works
         :template_name: Bild
+        :api:
+          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -58,6 +62,8 @@
         :ui:
           :edit:
             :disabled: true
+        :api:
+          :minimal: true
       :tour:
         :label: Route
         :type: geographic
@@ -65,6 +71,8 @@
         :ui:
           :edit:
             :disabled: true
+        :api:
+          :minimal: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string

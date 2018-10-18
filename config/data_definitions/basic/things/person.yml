@@ -4,7 +4,7 @@
     :type: object
     :schema_type: Person
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 1.0
     :properties:
       :id:
@@ -30,6 +30,8 @@
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true            
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
