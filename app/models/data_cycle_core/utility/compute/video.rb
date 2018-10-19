@@ -6,11 +6,11 @@ module DataCycleCore
       module Video
         class << self
           def width(video)
-            meta_stream_value(video, ['width'])
+            meta_stream_value(video, ['width'])&.to_i
           end
 
           def height(video)
-            meta_stream_value(video, ['height'])
+            meta_stream_value(video, ['height'])&.to_i
           end
 
           def frame_size(_video)

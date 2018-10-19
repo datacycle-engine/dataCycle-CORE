@@ -5,7 +5,7 @@ module DataCycleCore
     module Compute
       module Asset
         def self.file_size(asset)
-          DataCycleCore::Asset.find_by(id: asset)&.try(:file_size)
+          DataCycleCore::Asset.find_by(id: asset)&.try(:file_size)&.to_i
         end
 
         def self.file_format(asset)

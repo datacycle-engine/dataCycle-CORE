@@ -6,11 +6,11 @@ module DataCycleCore
       module Image
         class << self
           def width(image)
-            exif_value(image, ['geometry', 'width'])
+            exif_value(image, ['geometry', 'width'])&.to_i
           end
 
           def height(image)
-            exif_value(image, ['geometry', 'height'])
+            exif_value(image, ['geometry', 'height'])&.to_i
           end
 
           def thumbnail_url(image)
