@@ -88,7 +88,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -97,7 +97,7 @@
       :video:
         :label: Videos
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:

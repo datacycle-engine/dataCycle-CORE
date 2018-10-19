@@ -94,7 +94,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Veranstaltungsort

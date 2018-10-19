@@ -26,4 +26,4 @@
       :testArray:
         :label: Verlinkt
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things

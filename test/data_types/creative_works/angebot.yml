@@ -115,14 +115,14 @@
       :offer_periods:
         :label: Angebotszeitraum
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Angebotszeitraum
         :editor:
           :type: embeddedObject
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -131,7 +131,7 @@
       :logo:
         :label: Logo
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :validations:
           :max: 1
         :editor:
@@ -142,7 +142,7 @@
       :video:
         :label: Videos
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -161,7 +161,7 @@
       :website:
         :label: Link
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Website
         :editor:
           :type: embeddedObject

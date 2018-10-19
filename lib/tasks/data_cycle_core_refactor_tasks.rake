@@ -18,8 +18,8 @@ namespace :data_cycle_core do
       print_box('Stage 4 - Places')
       Rake::Task['data_cycle_core:refactor:migrate_places_to_things'].invoke
 
-      # print_box('Stage 5 - Creative Works')
-      # Rake::Task['data_cycle_core:refactor:migrate_creative_works_to_things'].invoke
+      print_box('Stage 5 - Creative Works')
+      Rake::Task['data_cycle_core:refactor:migrate_creative_works_to_things'].invoke
 
       print_box('bonus stage - templates')
       Rake::Task['data_cycle_core:refactor:migrate_all_templates'].invoke
@@ -438,6 +438,103 @@ namespace :data_cycle_core do
           where relation_a = 'location';
         EOS
         ActiveRecord::Base.connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+
+        puts 'END'
+        puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
+      end
+    end
+
+    desc 'migrate creative_works - executes all migration tasks'
+    task migrate_creative_works_to_things: :environment do
+      ActiveRecord::Base.transaction do
+        temp = Time.zone.now
+        puts "BEGIN: (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+        puts 'update references'
+        update_references('CreativeWork')
+
+        puts 'migrate data'
+        puts '--> things'
+        sql = <<-SQL
+          INSERT INTO things (
+            id, is_part_of, metadata,
+            template_name, schema, template,
+            internal_name,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          )
+          SELECT
+            id, is_part_of, metadata,
+            template_name, schema, template,
+            NULL,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          FROM creative_works
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_translations'
+        sql = <<-SQL
+          INSERT INTO thing_translations (
+            thing_id, locale,
+            content,
+            name,
+            description,
+            created_at, updated_at
+          )
+          SELECT
+            creative_work_id, locale,
+            content,
+            headline,
+            description,
+            created_at, updated_at
+          FROM creative_work_translations
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_histories'
+        sql = <<-SQL
+          INSERT INTO thing_histories (
+            id, thing_id, is_part_of, metadata,
+            template_name, schema, template,
+            internal_name,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          )
+          SELECT
+            id, creative_work_id, is_part_of, metadata,
+            template_name, schema, template,
+            NULL,
+            external_source_id, external_key,
+            created_by, updated_by, deleted_by,
+            seen_at, created_at, updated_at, deleted_at
+          FROM creative_work_histories
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '--> thing_history_translations'
+        sql = <<-SQL
+          INSERT INTO thing_history_translations (
+            thing_history_id, locale,
+            content,
+            name,
+            description,
+            history_valid,
+            created_at, updated_at
+          )
+          SELECT
+            creative_work_history_id, locale,
+            content,
+            headline,
+            description,
+            history_valid,
+            created_at, updated_at
+          FROM creative_work_history_translations
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
 
         puts 'END'
         puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"

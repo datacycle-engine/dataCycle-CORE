@@ -134,7 +134,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -143,7 +143,7 @@
       :video:
         :label: Videos
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -162,7 +162,7 @@
       :quotation:
         :label: Zitat
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Zitat
         :editor:
           :type: embeddedObject

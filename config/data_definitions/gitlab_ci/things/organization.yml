@@ -4,7 +4,7 @@
     :type: object
     :schema_type: Organization
     :content_type: entity
-    :translatable: true    
+    :translatable: true
     :boost: 1.0
     :properties:
       :id:
@@ -41,7 +41,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :data_type:
         :label: Inhaltstype

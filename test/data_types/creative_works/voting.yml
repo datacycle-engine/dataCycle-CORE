@@ -67,7 +67,7 @@
       :suggested_answer:
         :label: Antwort
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Antwort
         :editor:
           :type: embeddedObject

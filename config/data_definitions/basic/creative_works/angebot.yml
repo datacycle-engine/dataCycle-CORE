@@ -53,7 +53,7 @@
       :textblock:
         :label: Textblock
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Textblock
       :price:
         :label: Preis
@@ -72,19 +72,19 @@
       :offer_period:
         :label: Angebotszeitraum
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Angebotszeitraum
         :api:
           :name: offers
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :website:
         :label: Link
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Website
       :data_type:
         :label: Inhaltstype

@@ -78,7 +78,7 @@ module DataCycleCore
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'things']
+    self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
@@ -178,13 +178,6 @@ module DataCycleCore
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
-
-    # replace default_image_type + default_place_type with default_templates
-    mattr_accessor :default_image_type
-    self.default_image_type = 'Bild'
-
-    mattr_accessor :default_place_type
-    self.default_place_type = 'Örtlichkeit'
 
     mattr_accessor :image_validations
     self.image_validations = {}

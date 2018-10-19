@@ -27,7 +27,7 @@
       :linked_creative_work:
         :label: Linked Entity
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Linked-Creative-Work-2
       :linked_place:
         :label: Linked Place Entity

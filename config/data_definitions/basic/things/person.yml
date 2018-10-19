@@ -31,7 +31,7 @@
           :show:
             :disabled: true
         :api:
-          :minimal: true            
+          :minimal: true
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
@@ -60,7 +60,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :gender:
         :label: Geschlecht

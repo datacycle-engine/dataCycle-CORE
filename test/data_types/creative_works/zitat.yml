@@ -24,7 +24,7 @@
       :image:
         :label: Bild
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1

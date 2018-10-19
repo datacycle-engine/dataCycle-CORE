@@ -22,7 +22,7 @@
             :disabled: true
         :api:
           :name: legal_name
-          :minimal: true          
+          :minimal: true
       :contact_info:
         :type: mixin
         :name: contact_info
@@ -42,7 +42,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :data_type:
         :label: Inhaltstype

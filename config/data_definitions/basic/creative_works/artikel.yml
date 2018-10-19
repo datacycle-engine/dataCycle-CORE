@@ -53,12 +53,12 @@
       :textblock:
         :label: Textblock
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Textblock
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Ort
@@ -68,7 +68,7 @@
       :quotation:
         :label: Zitat
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Zitat
       :data_type:
         :label: Inhaltstype

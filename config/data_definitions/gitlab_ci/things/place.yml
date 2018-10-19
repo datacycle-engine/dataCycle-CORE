@@ -48,14 +48,14 @@
       :primary_image:
         :label: Hauptbild
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :data_type:
         :label: Inhaltstype

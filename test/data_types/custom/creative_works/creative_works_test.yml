@@ -75,7 +75,7 @@
       :testCW:
         :label: Kreativdaten
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: EmbeddedCreativeWork
 
 - :data:
@@ -89,7 +89,7 @@
       :testArray:
         :label: Verlinkt
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
 
 - :data:
     :name: EmbeddedCreativeWork
@@ -458,12 +458,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :storage_location: value
       :video:
         :label: Videos
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :storage_location: value
       :text:
         :label: Recherchedaten
@@ -686,11 +686,11 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
       :video:
         :label: Videos
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
       :topics:
         :label: Themenbereiche
         :type: classification

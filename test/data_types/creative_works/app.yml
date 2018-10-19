@@ -85,7 +85,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :editor:
           :type: objectBrowser
           :options:
@@ -94,7 +94,7 @@
       :video:
         :label: Video
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :validations:
           :max: 1
         :editor:
@@ -115,7 +115,7 @@
       :mobile_application:
         :label: Link
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: MobileApplication
         :editor:
           :type: embeddedObject
