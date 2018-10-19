@@ -1,0 +1,20 @@
+---
+name: DataCycle - Media
+credentials:
+  host: local
+config:
+  download_config:
+    images:
+      sorting: 1
+      source_type: images
+      endpoint:  DataCycleCore::Generic::DataCycleMedia::Endpoint
+      download_strategy:  DataCycleCore::Generic::DataCycleMedia::Download
+  import_config:
+    images:
+      sorting: 1
+      source_type: images
+      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportImages
+      transformations:
+        image:
+          content_type: DataCycleCore::CreativeWork
+          template: DataCycle - Bild
