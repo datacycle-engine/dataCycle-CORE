@@ -40,9 +40,17 @@ module DataCycleCore
     def remote_render
       @target = remote_render_params[:target]
       @partial = remote_render_params[:partial]
-      @options = remote_render_params[:options]
+      @content_for = remote_render_params[:content_for]
 
-      render(json: { error: 'Parameter missing!' }, status: :bad_request) && return if @target.blank? || @partial.blank?
+      params[:options].presence&.to_unsafe_hash&.each do |key, value|
+        if key == 'record'
+          (@options ||= {})[value['key']] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
+        else
+          (@options ||= {})[key] = value
+        end
+      end
+
+      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return if @target.blank? || @partial.blank?
 
       respond_to(:js)
     end
@@ -66,7 +74,7 @@ module DataCycleCore
     end
 
     def remote_render_params
-      params.permit(:target, :partial, options: {})
+      params.permit(:target, :partial, content_for: [])
     end
   end
 end

@@ -4,6 +4,11 @@
     :type: object
     :content_type: container
     :boost: 10000.0
+    :creatable: true
+    :features:
+      :container:
+        :classification_alias:
+          - Text
     :properties:
       :id:
         :label: id

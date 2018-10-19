@@ -2,23 +2,21 @@
 module.exports.initialize = function () {
 
   $(document).on('open.zf.reveal', '.reveal[data-remote-path]:not(.loaded)', event => {
-    var target = $(event.target).data('remoteTarget');
+    var target = $(event.target).data('remoteTarget') || '#' + $(event.target).prop('id');
     $.ajax({
-      type: 'GET',
+      type: 'POST',
       url: '/remote_render',
-      data: {
+      data: JSON.stringify({
         target: target,
         partial: $(event.target).data('remotePath'),
+        content_for: $(event.target).data('remoteContentFor'),
         options: $(event.target).data('remoteOptions')
-      },
+      }),
       dataType: 'script',
       contentType: 'application/json'
-    }).fail(() => {
-      if (target !== undefined) {
-        $(target).html('Fehler beim Laden des Inhalts.');
-      } else {
-        $(event.target).html('Fehler beim Laden des Inhalts.');
-      }
+    }).fail(data => {
+      if (data.responseText !== undefined) $(target + ':visible').html(data.responseText);
+      else $(target + ':visible').html('Fehler beim Laden des Inhalts.');
     });
   });
 

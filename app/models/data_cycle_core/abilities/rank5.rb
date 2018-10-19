@@ -9,8 +9,9 @@ module DataCycleCore
         # Contents
         can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
 
-        can :create, CONTENT_MODELS.map(&:constantize) do |template|
-          template.schema.dig('content_type') != 'embedded'
+        can :create, CONTENT_MODELS.map(&:constantize) do |new_object|
+          !new_object[:template]&.content_type?('embedded') &&
+            new_object[:template]&.schema&.dig('creatable')
         end
 
         can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize) do |content|

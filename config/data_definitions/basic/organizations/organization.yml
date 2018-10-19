@@ -4,6 +4,7 @@
     :type: object
     :content_type: entity
     :boost: 1.0
+    :creatable: true
     :properties:
       :id:
         :label: id

@@ -56,6 +56,52 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
+    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [])
+      query = query.includes(:classification_alias_path)
+
+      query_methods.presence&.each do |query_method|
+        if query.respond_to?(query_method['method_name']) && query_method['value'].present?
+          query = query.try(query_method['method_name'], query_method['value'])
+        elsif query.respond_to?(query_method['method_name'])
+          query = query.try(query_method['method_name'])
+        end
+      end
+
+      query.with_content_templates.sort_by(&:full_path).map { |c|
+        next unless can?(:create, {
+          template: c.content_template,
+          classification_alias: c,
+          content: @content
+        })
+
+        [
+          c.full_path,
+          "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
+          {
+            title: [
+              c.full_path,
+              c.description
+            ].reject(&:blank?).join("\n\n"),
+            disabled: c&.content_template&.id.blank?
+          }
+        ]
+      }.compact
+    end
+
+    def to_query_params(options_hash)
+      params_hash = {}
+      options_hash.each do |key, value|
+        if value.is_a?(ActiveRecord::Base)
+          params_hash[:record] = { key: key, id: value&.id, class: value&.class&.name }
+        elsif value.is_a?(ActiveRecord::Relation)
+          params_hash[:relation] = { key: key, id: value&.ids, class: value&.class&.name }
+        else
+          params_hash[key] = value
+        end
+      end
+      params_hash
+    end
+
     def add_attribute_options(options, definition, scope)
       attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
       attribute_options.nil? ? options : options.merge(attribute_options)
@@ -226,14 +272,15 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
-    def render_new_form(item: nil)
+    def render_new_form(item: nil, parameters: {})
       partials = [
         item.present? ? "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}" : nil,
         item&.class&.name&.demodulize&.underscore,
+        item&.schema&.dig('content_type')&.underscore,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
 
-      render_first_existing_partial(partials, { item: item })
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     private

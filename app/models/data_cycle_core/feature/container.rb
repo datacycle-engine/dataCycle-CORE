@@ -25,6 +25,36 @@ module DataCycleCore
         def excluded_contents(content)
           content&.schema&.dig('features', name.demodulize.underscore, 'excluded') || DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :excluded) || []
         end
+
+        def allowed_classification_aliases(content)
+          configuration(content).dig('classification_alias')
+        end
+
+        def index_query_methods
+          ca_names = available_containers.map { |a| allowed_classification_aliases(a) }.flatten.uniq
+          cad_names = DataCycleCore::ClassificationAlias.with_name(ca_names).with_descendants.map(&:name)
+
+          return nil unless enabled?
+
+          [
+            {
+              method_name: 'without_name',
+              value: cad_names
+            }
+          ]
+        end
+
+        def query_methods(content)
+          [
+            {
+              method_name: 'with_name',
+              value: allowed_classification_aliases(content)
+            },
+            {
+              method_name: 'with_descendants'
+            }
+          ]
+        end
       end
     end
   end

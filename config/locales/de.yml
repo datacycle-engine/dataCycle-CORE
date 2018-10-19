@@ -148,7 +148,7 @@ de:
     lock: sperren
     unlock: freischalten
     delete: löschen
-    new_content: "Inhalt erstellen"
+    choose_type: "Inhaltstyp wählen"
     new: "%{data} erstellen"
     generate: "%{data} generieren"
     send: versenden
@@ -241,6 +241,7 @@ de:
       email_exists: "Für diese E-Mail existiert bereits ein Link"
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
+      missing_parameter: Parameter fehlt!
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."

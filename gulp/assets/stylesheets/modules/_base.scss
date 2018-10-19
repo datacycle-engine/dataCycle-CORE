@@ -946,6 +946,22 @@ body .v-select {
     margin-bottom: 1rem;
   }
 
+  .form_crumbs {
+    margin: 1rem 0;
+    font-size: 0.9rem;
+    font-style: italic;
+
+    .form-crumb-link {
+      &:not(:last-child)::after {
+        content: '\f105';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        margin: 0 0.3rem;
+      }
+    }
+  }
+
   .buttons {
     .fa {
       font-size: 1rem;

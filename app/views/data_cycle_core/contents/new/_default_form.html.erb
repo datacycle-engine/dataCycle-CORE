@@ -1,8 +1,16 @@
-<h3><%= t('actions.new', data: item.template_name, locale: DataCycleCore.ui_language) %></h3>
+<% content_for :new_content_form_title, t('actions.new', data: item.template_name, locale: DataCycleCore.ui_language) %>
+<% content_for :form_crumbs, render('data_cycle_core/contents/new/crumbs', crumbs: @form_crumbs, title: yield(:new_content_form_title)) %>
 
 <%= form_with url: polymorphic_path(item.class), local: true, html: { class: 'validation-form' } do %>
+  <%= render 'data_cycle_core/contents/new/crumb_form_tags', crumbs: @form_crumbs, url: @active_url, title: yield(:new_content_form_title) %>
+
   <%= hidden_field_tag :table, item.class.table_name %>
   <%= hidden_field_tag :template, item.template_name %>
+  <%= hidden_field_tag :parent_id, @content&.id if @content&.content_type?('container') %>
+
+  <% unless item.content_type?('container') || I18n.available_locales.size == 1 %>
+    <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
+  <% end %>
 
   <% item.new_content_fields.each do |attribute| %>
       <div class="form-element<%= ' validation-container' if item.schema.dig('properties', attribute, 'validations').present? %>">
@@ -12,7 +20,6 @@
   <% end %>
 
   <div class="buttons">
-    <%= link_to t('actions.back', locale: DataCycleCore.ui_language), contents_new_path, class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.back', locale: DataCycleCore.ui_language) }, remote: true, method: :post %>
     <%= submit_tag t('submit', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('submit', locale: DataCycleCore.ui_language) } %>
   </div>
 <% end %>

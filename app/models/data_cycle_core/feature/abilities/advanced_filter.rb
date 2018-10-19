@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class AdvancedFilter
-        include CanCan::Ability
-
+      class AdvancedFilter < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

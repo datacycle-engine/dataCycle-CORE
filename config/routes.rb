@@ -153,5 +153,5 @@ DataCycleCore::Engine.routes.draw do
 
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application
-  get :remote_render, controller: :application
+  post :remote_render, controller: :application
 end

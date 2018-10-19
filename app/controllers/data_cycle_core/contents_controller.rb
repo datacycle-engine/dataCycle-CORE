@@ -64,6 +64,11 @@ module DataCycleCore
 
     def new
       @template = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id]) if source_params.present?
+      @content = data_cycle_object(new_params[:content_table]).find_by(id: new_params[:content_id]) if new_params[:content_table].present? && new_params[:content_id].present?
+
+      @query_methods = new_params[:query_methods]
+      @active_url = url_for(new_params.merge(source_params))
+      @form_crumbs = new_params[:form_crumbs]
 
       respond_to :js
     end
@@ -359,6 +364,10 @@ module DataCycleCore
     def content_params(storage_location, template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
       params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
+    end
+
+    def new_params
+      params.permit(:content_id, :content_table, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []])
     end
 
     def source_params
