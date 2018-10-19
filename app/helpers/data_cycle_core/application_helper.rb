@@ -195,16 +195,14 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
       return first_existing_partial(partials), parameters.merge({ item: item })
-      # render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
-        "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)}",
+        "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)&.gsub(/\s+/, '')}",
         definition.dig('linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
-
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 

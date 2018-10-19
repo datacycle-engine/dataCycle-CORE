@@ -1,34 +1,33 @@
 <ul class="grid no-bullet no-format <%= @mode %>">
-	<li class="grid-sizer"></li>
-	<li class="gutter-sizer"></li>
-	<li class="grid-loading show">
-		<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
-		<span class="sr-only">Loading...</span>
-	</li>
+    <li class="grid-sizer"></li>
+    <li class="gutter-sizer"></li>
+    <li class="grid-loading show">
+        <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
+        <span class="sr-only">Loading...</span>
+    </li>
 
-  <% contents&.each do |content| %>
-      <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
-        <% if no_cache ||= false %>
-          <%= render(*(content_tile item: content)) %>
-        <% else %>
-          <% cache(["#{content.class}_#{content.id}_#{content.updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 1.year + Random.rand(7.days)) do %>
-            <%= render(*(content_tile item: content)) %>
-          <% end %>
-        <% end %>
+    <% contents&.each do |content| %>
+        <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
+            <% if no_cache ||= false %>
+                <%= render(*(content_tile item: content)) %>
+            <% else %>
+                <% cache(["#{content.class}_#{content.id}_#{content.updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 1.year + Random.rand(7.days)) do %>
+                    <%= render(*(content_tile item: content)) %>
+                <% end %>
+            <% end %>
+            <div class="buttons">
+                <% if content.try(:translated_locales)&.many? && @language&.many? %>
+                    <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"></i>
+                <% end %>
 
-        <div class="buttons">
-          <% if content.try(:translated_locales)&.many? && @language&.many? %>
-            <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"></i>
-          <% end %>
+                <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
 
-          <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
+                <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
+                    <%= render 'watch_lists', content: content %>
+                <% end %>
 
-          <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
-            <%= render 'watch_lists', content: content %>
-          <% end %>
-
-          <%= yield_content!(:media_buttons) %>
-        </div>
-      </li>
-  <% end %>
+                <%= yield_content!(:media_buttons) %>
+            </div>
+        </li>
+    <% end %>
 </ul>
