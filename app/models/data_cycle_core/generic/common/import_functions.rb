@@ -143,7 +143,7 @@ module DataCycleCore
           [
             DataCycleCore::Classification
               .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
-              .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })
+              .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })&.first&.id
           ].reject(&:nil?)
         end
 
