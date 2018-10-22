@@ -8,7 +8,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
-        ALLOWED_MODE_PARAMETERS = ['compact'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
 
         def index
           query = build_search_query

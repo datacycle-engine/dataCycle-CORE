@@ -622,3 +622,11 @@ de:
       short: "%d. %B, %H:%M Uhr"
       edit: "%d.%m.%Y - %H:%M"
     pm: nachmittags
+
+  external_sources:
+    bergfex:
+      snow_report:
+        type:
+          village: Ort
+          base: Tal
+          top: Berg

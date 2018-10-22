@@ -14,8 +14,8 @@ module DataCycleCore
         where(asset_id: ids, asset_type: type)
       end
 
-      def with_rleation(relation_name)
-        where(relation_name: relation_name)
+      def with_relation(relation_name)
+        where(relation: relation_name)
       end
     end
   end

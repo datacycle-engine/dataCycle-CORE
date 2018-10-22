@@ -10,7 +10,7 @@ module DataCycleCore
 
     def attribute_changes(diff, key)
       return nil if diff.blank?
-      item_path_array = key.split('[').collect { |v| v.delete(']') }
+      item_path_array = key.split(/[\[\]]+/)
       diff.dig(*item_path_array)
     end
 

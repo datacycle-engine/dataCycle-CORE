@@ -13,7 +13,7 @@ module DataCycleCore
 
         def categories(lang: :de)
           Enumerator.new do |yielder|
-            next unless lang == :de
+            next unless lang.to_s == 'de'
             load_data(action: '/categories/tree')['categories'].each do |category|
               children = category['children'].collect { |c| c.merge({ 'parentId' => category['id'] }) }
               primary_category = category.without('children').merge({ 'parentId' => nil })
@@ -31,7 +31,7 @@ module DataCycleCore
           max_pages = total_items.fdiv(@per).ceil
 
           Enumerator.new do |yielder|
-            next unless lang == :de
+            next unless lang.to_s == 'de'
             (1..max_pages).each do |page|
               load_data(page: page, per: @per, lang: lang)['events'].each do |event_record|
                 yielder << event_record

@@ -146,16 +146,14 @@ module DataCycleCore
 
         def self.add_links(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
+          key_function_values = key_function.call(data_hash)
           data_hash.merge(
             {
               attribute =>
-                DataCycleCore::Cache::QueryCache.load_external_data(
-                  content_type,
-                  external_source_id,
-                  key_function.call(data_hash),
-                  'add_links'
-                )&.ids&.compact&.presence || []
-              # content_type.where(external_source_id: external_source_id, external_key: key_function.call(data_hash))&.ids&.compact&.presence || []
+                content_type.where(
+                  external_source_id: external_source_id,
+                  external_key: key_function_values
+                )&.sort_by { |u| key_function_values.index(u.external_key) }&.map(&:id)&.compact&.presence || []
             }
           )
         end

@@ -305,6 +305,27 @@ function init_map(idx, item) {
         $(event.currentTarget).find('i.fa').remove();
       });
     });
+
+    $(item).parent('.geographic').siblings('.map-info').first().find('.longitude input, .latitude  input').on('change', event => {
+      var valid = true;
+      var coords = getCoordinates(item);
+      coords.forEach(element => {
+        valid = valid && !isNaN(element);
+      });
+
+      if (valid && feature !== undefined) {
+        feature.setGeometry(new ol.geom.Point(getCoordinates(item)).transform('EPSG:4326', 'EPSG:3857'));
+        setNewCoordinates(item, map, feature);
+      } else if (valid && feature === undefined) {
+        feature = new ol.Feature({
+          geometry: new ol.geom.Point(getCoordinates(item)).transform('EPSG:4326', 'EPSG:3857')
+        });
+        if (iconStyle !== undefined) feature.setStyle(iconStyle);
+        source.addFeature(feature);
+        map.removeInteraction(draw);
+        setNewCoordinates(item, map, feature);
+      }
+    });
   }
 
   if (data.type == 'Point' && feature !== undefined) {
@@ -335,6 +356,13 @@ function setCoordinates(container, coords) {
   var latlon = getLatLon(coords);
   $(container).parent('.geographic').siblings('.map-info').first().find('.longitude input').val(latlon[0]);
   $(container).parent('.geographic').siblings('.map-info').first().find('.latitude input').val(latlon[1]);
+}
+
+function getCoordinates(container) {
+  return [
+    parseFloat($(container).parent('.geographic').siblings('.map-info').first().find('.longitude input').val()),
+    parseFloat($(container).parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
+  ];
 }
 
 function setHiddenFieldValue(container, coords) {
