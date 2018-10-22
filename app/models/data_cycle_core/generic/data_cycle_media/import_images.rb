@@ -32,7 +32,6 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, options:)
-
           config = options.dig(:import, :transformations, :image)
           type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
           template = config&.dig(:template) || 'DataCycle - Bild'
