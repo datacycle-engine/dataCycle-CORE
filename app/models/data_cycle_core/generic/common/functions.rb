@@ -40,17 +40,11 @@ module DataCycleCore
             data_hash[attribute] = []
           else
             data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Cache::QueryCache.load_classification(
-                keyword,
-                external_source_id,
-                external_prefix + keyword,
-                'tags_to_ids'
+              DataCycleCore::Classification.where(
+                name: keyword,
+                external_source_id: external_source_id,
+                external_key: external_prefix + keyword
               )&.first&.id
-              # DataCycleCore::Classification.where(
-              #   name: keyword,
-              #   external_source_id: external_source_id,
-              #   external_key: external_prefix + keyword
-              # )&.first&.id
             }.reject(&:nil?) || []
           end
           data_hash
@@ -62,17 +56,11 @@ module DataCycleCore
             {
               attribute =>
                 data_list.call(data_hash)&.map do |item_data|
-                  DataCycleCore::Cache::QueryCache.load_classification(
-                    item_data.dig(name),
-                    external_source_id,
-                    external_prefix + item_data.dig(key),
-                    'category_key_to_ids'
-                  )&.first&.id
-                  # DataCycleCore::Classification.find_by(
-                  #   name: item_data.dig(name),
-                  #   external_source_id: external_source_id,
-                  #   external_key: external_prefix + item_data.dig(key)
-                  # )&.id
+                  DataCycleCore::Classification.find_by(
+                    name: item_data.dig(name),
+                    external_source_id: external_source_id,
+                    external_key: external_prefix + item_data.dig(key)
+                  )&.id
                 end&.reject(&:nil?) || []
             }
           )
@@ -83,17 +71,11 @@ module DataCycleCore
           data_hash.merge(
             {
               attribute => [
-                DataCycleCore::Cache::QueryCache.load_classification(
-                  name.call(data_hash),
-                  external_source_id,
-                  external_key.call(data_hash),
-                  'load_category'
-                )&.first&.id
-                # DataCycleCore::Classification.find_by(
-                #   name: name.call(data_hash),
-                #   external_source_id: external_source_id,
-                #   external_key: external_key.call(data_hash)
-                # )&.id
+                DataCycleCore::Classification.find_by(
+                  name: name.call(data_hash),
+                  external_source_id: external_source_id,
+                  external_key: external_key.call(data_hash)
+                )&.id
               ].compact.presence
             }
           )
@@ -103,16 +85,10 @@ module DataCycleCore
           data_hash.merge(
             {
               attribute => [
-                DataCycleCore::Cache::QueryCache.load_external_data(
-                  DataCycleCore::Classification,
-                  external_source_id,
-                  external_key.call(data_hash),
-                  'load_category_key'
-                )&.first&.id
-                # DataCycleCore::Classification.find_by(
-                #   external_source_id: external_source_id,
-                #   external_key: external_key.call(data_hash)
-                # )&.id
+                DataCycleCore::Classification.find_by(
+                  external_source_id: external_source_id,
+                  external_key: external_key.call(data_hash)
+                )&.id
               ].compact.presence
             }
           )
@@ -124,16 +100,10 @@ module DataCycleCore
           data_hash.merge(
             {
               attribute => [
-                DataCycleCore::Cache::QueryCache.load_external_data(
-                  content_type,
-                  external_source_id,
-                  key_function.call(data_hash),
-                  'add_link'
-                )&.first&.id
-                # content_type.find_by(
-                #   external_source_id: external_source_id,
-                #   external_key: key_function.call(data_hash)
-                # )&.id
+                content_type.find_by(
+                  external_source_id: external_source_id,
+                  external_key: key_function.call(data_hash)
+                )&.id
               ].compact.presence
             }
           )

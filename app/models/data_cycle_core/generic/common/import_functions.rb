@@ -132,20 +132,18 @@ module DataCycleCore
         end
 
         def self.load_template(target_type, template_name)
-          DataCycleCore::Cache::QueryCache.load_template(target_type, template_name)
-          # I18n.with_locale(:de) do
-          #   target_type.find_by!(template: true, template_name: template_name)
-          # end
+          I18n.with_locale(:de) do
+            target_type.find_by!(template: true, template_name: template_name)
+          end
         rescue ActiveRecord::RecordNotFound
           raise "Missing template #{template_name} for #{target_type}"
         end
 
         def self.default_classification(value:, tree_label:)
           [
-            # DataCycleCore::Classification
-            #   .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
-            #   .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })
-            DataCycleCore::Cache::QueryCache.load_classifications_from_tree(tree_label, value)&.first&.id
+            DataCycleCore::Classification
+              .joins(classification_groups: [classification_alias: [classification_tree: [:classification_tree_label]]])
+              .where(classification_tree_labels: { name: tree_label }, classifications: { name: value })
           ].reject(&:nil?)
         end
 
