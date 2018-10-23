@@ -304,7 +304,7 @@ module DataCycleCore
             classification_id = load_default_classification(tree_label, default_value).id
             ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
-              DataCycleCore::ClassificationContent.create!(
+              DataCycleCore::ClassificationContent.find_or_create_by!(
                 'content_data_id' => id,
                 'content_data_type' => self.class.to_s,
                 classification_id: classification_id,
@@ -315,7 +315,7 @@ module DataCycleCore
         else
           ids.each do |classification_id_value|
             next if present_relation_ids.include?(classification_id_value)
-            DataCycleCore::ClassificationContent.create!(
+            DataCycleCore::ClassificationContent.find_or_create_by!(
               'content_data_id' => id,
               'content_data_type' => self.class.to_s,
               classification_id: classification_id_value,
