@@ -275,23 +275,23 @@ module.exports.initialize = function () {
 
     // validate on value change
     init_event_handlers('body');
-
-    $(document).on('open.zf.reveal', '.new-item[data-reset-on-close]', event => {
-      init_event_handlers(event.currentTarget);
-    });
-
-    $(document).on('closed.zf.reveal', '.new-item[data-reset-on-close]', event => {
-      remove_event_handlers(event.currentTarget);
-    });
-
-    $(document).on('closed.zf.reveal', '.new-item', event => {
-      $(event.currentTarget).find('.has-error').removeClass('has-error');
-      $(event.currentTarget).find('.single_error').remove();
-    });
   }
 
-  $(document).on('form-rendered', '.new-content-form', event => {
-    init_event_handlers(event.currentTarget);
+  $(document).on('open.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+    init_event_handlers(event.target);
+  });
+
+  $(document).on('closed.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+    remove_event_handlers(event.target);
+  });
+
+  $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
+    $(event.target).find('.has-error').removeClass('has-error');
+    $(event.target).find('.single_error').remove();
+  });
+
+  $(document).on('form-rendered remote-partial-rendered', event => {
+    init_event_handlers(event.target);
   });
 
 };

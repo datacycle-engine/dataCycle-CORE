@@ -56,7 +56,7 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [])
+    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil)
       query = query.includes(:classification_alias_path)
 
       query_methods.presence&.each do |query_method|
@@ -71,7 +71,7 @@ module DataCycleCore
         next unless can?(:create, {
           template: c.content_template,
           classification_alias: c,
-          content: @content
+          content: content
         })
 
         [
@@ -92,9 +92,9 @@ module DataCycleCore
       params_hash = {}
       options_hash.each do |key, value|
         if value.is_a?(ActiveRecord::Base)
-          params_hash[:record] = { key: key, id: value&.id, class: value&.class&.name }
+          params_hash[key] = { id: value&.id, class: value&.class&.name }
         elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[:relation] = { key: key, id: value&.ids, class: value&.class&.name }
+          params_hash[key] = { ids: value&.ids, class: value&.class&.name }
         else
           params_hash[key] = value
         end
@@ -272,15 +272,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
-    def render_new_form(item: nil, parameters: {})
+    def render_new_form(template: nil, parameters: {})
       partials = [
-        item.present? ? "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}" : nil,
-        item&.class&.name&.demodulize&.underscore,
-        item&.schema&.dig('content_type')&.underscore,
+        template.present? ? "#{template.class.name.demodulize.underscore}_#{template.template_name.parameterize(separator: '_')}" : nil,
+        template&.class&.name&.demodulize&.underscore,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
 
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
+      render_first_existing_partial(partials, parameters.merge({ template: template }))
     end
 
     private

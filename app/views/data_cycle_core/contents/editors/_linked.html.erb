@@ -105,10 +105,19 @@
           <a class="button-prime success small save-object-browser">
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
-          <% if can?(:create_in_objectbrowser, object_class) %>
-            <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
-              <i class="fa fa-plus"></i>
-            </button>
+
+          <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
+
+          <% if can?(:create_in_objectbrowser, object_class) && creatable.present? %>
+            <%= render 'new_content_links', content: content, button_class: 'small', locale: I18n.locale, query_methods: [{
+              method_name: 'for_tree',
+              value: 'Inhaltstypen'
+            }, {
+              method_name: 'with_name',
+              value: creatable
+            }] %>
+          <% elsif can?(:create_in_objectbrowser, object_class) %>
+            <%= render 'new_content_links', content: content, button_class: 'small', render_function: 'render_new_form', render_params: to_query_params({ template: "data_cycle_core/#{definition&.dig('linked_table')}".classify.constantize.find_by(template: true, template_name: definition&.dig('template_name')) }).to_json, locale: I18n.locale %>
           <% end %>
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

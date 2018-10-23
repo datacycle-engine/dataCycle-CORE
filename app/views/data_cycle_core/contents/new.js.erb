@@ -1,5 +1,5 @@
 <% if @template.present? %>
-  $('.new-content-reveal:visible .new-content-form').html('<%= j render_new_form(item: @template, parameters: { content: @content }) %>').trigger('form-rendered');
+  $('.new-content-reveal:visible .new-content-form').html('<%= j render_new_form(template: @template, parameters: { content: @content }) %>').trigger('form-rendered');
 <% else %>
   $('.new-content-reveal:visible .new-content-form').html('<%= j render 'data_cycle_core/contents/new/new_stage', query_methods: @query_methods, content: @content %>').trigger('form-rendered');
 <% end %>

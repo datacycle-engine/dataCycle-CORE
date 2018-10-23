@@ -2,6 +2,10 @@
 /* Fixes for Firefox */
 .detail-header.editor {
   .form-element {
+    label+select {
+      margin-top: 3rem;
+    }
+
     .finalize-button-container {
       input[type=checkbox] {
         border: 0;
@@ -385,10 +389,6 @@
     text-align: center;
     overflow: hidden;
   }
-}
-
-label+select {
-  margin-top: 3rem;
 }
 
 select {
@@ -1640,4 +1640,9 @@ select {
     background-color: transparent;
     box-shadow: 0 0 1px $dark-gray;
   }
+}
+
+[data-disable-with]>.fa {
+  font-size: inherit;
+  line-height: inherit;
 }

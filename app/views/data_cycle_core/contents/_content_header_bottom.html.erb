@@ -3,10 +3,7 @@
 <div class="edit">
   <%= yield :buttons %>
   <% if can?(:create, content.class) && content.content_type?('entity') && !DataCycleCore.excluded_new_item_objects.include?(content.template_name) %>
-      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'newContent', click_open: false }, title: t('actions.create_from_existing', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-          <i class="fa fa-plus" aria-hidden="true"></i>
-      <% end %>
-      <%= render 'new_content_from_template', content: content %>
+      <%= render 'new_content_links', content: content, source: content, parent: content.try(:parent), parents: @parents, button_class: 'small', render_function: 'render_new_form', render_params: to_query_params({ template: content }).to_json if can?(:create, DataCycleCore::CreativeWork) %>
   <% end %>
 
   <% if can?(:move_content, content) && @parents.present? %>

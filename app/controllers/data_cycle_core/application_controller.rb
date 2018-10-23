@@ -41,16 +41,29 @@ module DataCycleCore
       @target = remote_render_params[:target]
       @partial = remote_render_params[:partial]
       @content_for = remote_render_params[:content_for]
+      @render_function = remote_render_params[:render_function]
 
-      params[:options].presence&.to_unsafe_hash&.each do |key, value|
-        if key == 'record'
-          (@options ||= {})[value['key']] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
+      params[:render_params].presence&.to_unsafe_hash&.each do |key, value|
+        if value.is_a?(Hash) && value.key?('id') && value.key?('class')
+          (@render_params ||= {})[key.to_sym] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
+        elsif value.is_a?(Hash) && value.key?('ids') && value.key?('class')
+          (@render_params ||= {})[key.to_sym] = value['class'].constantize.where(id: value['ids']) if defined?(value['class'])
         else
-          (@options ||= {})[key] = value
+          (@render_params ||= {})[key.to_sym] = value
         end
       end
 
-      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return if @target.blank? || @partial.blank?
+      params[:options].presence&.to_unsafe_hash&.each do |key, value|
+        if value.is_a?(Hash) && value.key?('id') && value.key?('class')
+          (@options ||= {})[key.to_sym] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
+        elsif value.is_a?(Hash) && value.key?('ids') && value.key?('class')
+          (@options ||= {})[key.to_sym] = value['class'].constantize.where(id: value['ids']) if defined?(value['class'])
+        else
+          (@options ||= {})[key.to_sym] = value
+        end
+      end
+
+      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return if (@target.blank? && @render_function.blank?) || @partial.blank?
 
       respond_to(:js)
     end
@@ -74,7 +87,7 @@ module DataCycleCore
     end
 
     def remote_render_params
-      params.permit(:target, :partial, content_for: [])
+      params.permit(:target, :partial, :render_function, content_for: [])
     end
   end
 end

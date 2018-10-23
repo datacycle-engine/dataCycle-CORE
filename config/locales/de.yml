@@ -115,6 +115,9 @@ de:
     abo_finalized:
       one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
       other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
+    parent: Container
+    subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+    unsubscribe_text: Bereits abonniert.
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -155,6 +158,7 @@ de:
     send_with_data: "%{data} versenden"
     delete_with_data: "%{data} löschen"
     subscribe: "abonnieren"
+    unsubscribe: "Abonnement löschen"
     subscribed: "abonniert"
     reset:
       one: "Zurücksetzen"

@@ -48,11 +48,6 @@ module DataCycleCore
             @total_pages = (@total.to_f / 25).ceil
             @contents = @paginate_object.map(&:content_data)
           end
-
-          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
-          @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
-          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
-          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
         respond_to do |format|

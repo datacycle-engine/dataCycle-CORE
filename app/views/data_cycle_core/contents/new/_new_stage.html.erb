@@ -1,8 +1,8 @@
 <% content_for :new_content_form_title, t('actions.choose_type', locale: DataCycleCore.ui_language) %>
-<% content_for :form_crumbs, render('data_cycle_core/contents/new/crumbs', crumbs: @form_crumbs, title: yield(:new_content_form_title)) %>
+<% content_for :form_crumbs, render('data_cycle_core/contents/new/shared/crumbs', crumbs: @form_crumbs, title: yield(:new_content_form_title)) %>
 
 <%= form_with url: contents_new_path do |f| %>
-  <%= render 'data_cycle_core/contents/new/crumb_form_tags', crumbs: @form_crumbs, url: (@active_url|| contents_new_path(query_methods: local_assigns[:query_methods], content_id: local_assigns[:content]&.id, content_table: local_assigns[:content]&.class&.table_name)), title: yield(:new_content_form_title) %>
+  <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags', crumbs: @form_crumbs, url: (@active_url|| contents_new_path(query_methods: local_assigns[:query_methods], content_id: local_assigns[:content]&.id, content_table: local_assigns[:content]&.class&.table_name)), title: yield(:new_content_form_title) %>
   <%= hidden_field_tag :content_id, local_assigns[:content]&.id %>
   <%= hidden_field_tag :content_table, local_assigns[:content]&.class&.table_name %>
 
@@ -10,7 +10,7 @@
     <div class="v-select white">
       <%= select_tag(
         :source,
-        options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods])),
+        options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods], content: local_assigns[:content])),
         {
           class: 'single-select',
           data: {

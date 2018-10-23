@@ -1,8 +1,11 @@
-$('<%= @target %>:visible').children().fadeOut('fast', function(){
-  $('<%= @target %>:visible').html('<%= j render @partial, @options&.symbolize_keys %>').trigger('remote-partial-rendered');
-  <% @content_for.presence&.each do |content| %>
-    $('<%= @target %>:visible').closest('.reveal[data-remote-path]:not(.loaded)').find('.<%= content %>').html('<%= j yield(content.to_sym) %>')
+$('#<%= @target %>').children().fadeOut('fast', function(){
+  <% if @render_function.present? && respond_to?(@render_function) %>
+    $('#<%= @target %>').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').trigger('remote-partial-rendered');
+  <% else %>
+    $('#<%= @target %>').html('<%= j render(@partial, @options) %>').trigger('remote-partial-rendered');
   <% end %>
 
-  $('<%= @target %>:visible').closest('.reveal[data-remote-path]:not(.loaded)').addClass('loaded');
+  <% @content_for.presence&.each do |yield_class| %>
+    $('#<%= @target %>').siblings('.<%= yield_class %>').add($('#<%= @target %>').closest('.<%= yield_class %>')).first().html('<%= j yield(yield_class.to_sym) %>')
+  <% end %>
 });

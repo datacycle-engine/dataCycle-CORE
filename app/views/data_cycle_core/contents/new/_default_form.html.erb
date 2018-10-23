@@ -1,21 +1,37 @@
-<% content_for :new_content_form_title, t('actions.new', data: item.template_name, locale: DataCycleCore.ui_language) %>
-<% content_for :form_crumbs, render('data_cycle_core/contents/new/crumbs', crumbs: @form_crumbs, title: yield(:new_content_form_title)) %>
+<% content_for :new_content_form_title, t('actions.new', data: template.template_name, locale: DataCycleCore.ui_language) %>
+<% content_for :form_crumbs, render('data_cycle_core/contents/new/shared/crumbs', crumbs: @form_crumbs, title: yield(:new_content_form_title)) %>
 
-<%= form_with url: polymorphic_path(item.class), local: true, html: { class: 'validation-form' } do %>
-  <%= render 'data_cycle_core/contents/new/crumb_form_tags', crumbs: @form_crumbs, url: @active_url, title: yield(:new_content_form_title) %>
+<%= form_with url: polymorphic_path(template.class), local: true, html: { class: 'validation-form' } do %>
+  <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags', crumbs: @form_crumbs, url: @active_url, title: yield(:new_content_form_title) %>
 
-  <%= hidden_field_tag :table, item.class.table_name %>
-  <%= hidden_field_tag :template, item.template_name %>
-  <%= hidden_field_tag :parent_id, @content&.id if @content&.content_type?('container') %>
+  <%= hidden_field_tag :table, template.class.table_name %>
+  <%= hidden_field_tag :template, template.template_name %>
 
-  <% unless item.content_type?('container') || I18n.available_locales.size == 1 %>
+  <% unless template.content_type?('container') || I18n.available_locales.size == 1 || local_assigns[:locale].present? %>
+    <div class="form-element">
+    <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
     <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
+    </div>
+  <% else %>
+    <%= hidden_field_tag :locale, local_assigns[:locale] %>
   <% end %>
 
-  <% item.new_content_fields.each do |attribute| %>
-      <div class="form-element<%= ' validation-container' if item.schema.dig('properties', attribute, 'validations').present? %>">
-        <%= label_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{item.schema.dig('properties', attribute, 'label')}" %>
-        <%= text_field_tag "#{item.class.name.demodulize.underscore}[datahash][#{attribute}]", nil, class: 'form-control' %>
+  <% if local_assigns[:content]&.content_type?('container') && content.try(:children).present? %>
+    <%= render 'data_cycle_core/contents/new/shared/sources', content: content %>
+  <% elsif local_assigns[:source].present? %>
+    <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}" %>
+  <% end %>
+
+  <% if local_assigns[:parents].present? %>
+    <%= render 'data_cycle_core/contents/new/shared/container', parents: parents, content: content %>
+  <% elsif local_assigns[:parent]&.content_type?('container') %>
+    <%= hidden_field_tag :parent_id, parent&.id %>
+  <% end %>
+
+  <% template.new_content_fields.each do |attribute| %>
+      <div class="form-element<%= ' validation-container' if template.schema.dig('properties', attribute, 'validations').present? %>">
+        <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{template.schema.dig('properties', attribute, 'label')}" %>
+        <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][#{attribute}]", nil, class: 'form-control' %>
       </div>
   <% end %>
 
