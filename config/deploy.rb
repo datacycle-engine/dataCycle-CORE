@@ -25,6 +25,11 @@ set :puma_restart_command, 'bundle exec puma'
 # Default value for :pty is false
 # set :pty, true
 
+set :delayed_job_pools, {
+  :mailers => 1,
+  :* => 1
+}
+
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
 # Default value for :linked_files is []
