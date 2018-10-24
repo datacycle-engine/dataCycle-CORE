@@ -1,6 +1,6 @@
 <% content_for :additional_tile_attributes do %>
   <div class="tile-property address-line">
-    <%= object.address_block %>
+    <%= sanitize(object.address_block, tags: ['br']) %>
   </div>
   <div class="tile-property coordinates">
     <%= object.coordinates %>

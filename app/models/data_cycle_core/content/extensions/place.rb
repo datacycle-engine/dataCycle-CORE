@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         def address_block
-          ((try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}<br>" : '') + (try(:address)&.street_address.present? ? address.street_address&.gsub(', ', '<br>') : '')).html_safe
+          (try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}<br>" : '') + (try(:address)&.street_address.present? ? address.street_address&.gsub(', ', '<br>') : '')
         end
 
         def coordinates
