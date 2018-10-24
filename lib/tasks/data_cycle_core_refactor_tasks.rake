@@ -452,6 +452,7 @@ namespace :data_cycle_core do
 
         puts 'update references'
         update_references('CreativeWork')
+        final_content_relations_cleanup
 
         puts 'migrate data'
         puts '--> things'
@@ -640,8 +641,8 @@ namespace :data_cycle_core do
             order_a = content_contents.order_b,
             order_b = content_contents.order_a
           FROM content_contents
-          Where new_cc.id = content_contents.id
-          AND content_contents.relation_b <> NULL
+          WHERE new_cc.id = content_contents.id
+          AND content_contents.relation_a = ''
           AND content_contents.relation_b <> ''
           AND content_contents.content_a_type >= content_contents.content_b_type;
         SQL
@@ -657,10 +658,48 @@ namespace :data_cycle_core do
             order_a = content_content_histories.order_b,
             order_b = content_content_histories.order_a
           FROM content_content_histories
-          Where new_cc.id = content_content_histories.id
-          AND content_content_histories.relation_b <> NULL
+          WHERE new_cc.id = content_content_histories.id
+          AND content_content_histories.relation_a = ''
           AND content_content_histories.relation_b <> ''
           AND content_content_histories.content_a_history_type >= content_content_histories.content_b_history_type;
+        SQL
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+      end
+    end
+
+    def final_content_relations_cleanup
+      ActiveRecord::Base.transaction do
+        connection = ActiveRecord::Base.connection
+        sql_query = <<-SQL
+          UPDATE content_contents as new_cc SET
+            content_a_id = content_contents.content_b_id,
+            content_b_id = content_contents.content_a_id,
+            content_a_type = content_contents.content_b_type,
+            content_b_type = content_contents.content_a_type,
+            relation_a = content_contents.relation_b,
+            relation_b = content_contents.relation_a,
+            order_a = content_contents.order_b,
+            order_b = content_contents.order_a
+          FROM content_contents
+          WHERE new_cc.id = content_contents.id
+          AND content_contents.relation_a = ''
+          AND content_contents.relation_b <> '';
+        SQL
+        connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+        sql_query = <<-SQL
+          UPDATE content_content_histories as new_cc SET
+            content_a_history_id = content_content_histories.content_b_history_id,
+            content_b_history_id = content_content_histories.content_a_history_id,
+            content_a_history_type = content_content_histories.content_b_history_type,
+            content_b_history_type = content_content_histories.content_a_history_type,
+            relation_a = content_content_histories.relation_b,
+            relation_b = content_content_histories.relation_a,
+            order_a = content_content_histories.order_b,
+            order_b = content_content_histories.order_a
+          FROM content_content_histories
+          WHERE new_cc.id = content_content_histories.id
+          AND content_content_histories.relation_a = ''
+          AND content_content_histories.relation_b <> '';
         SQL
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
       end
