@@ -97,7 +97,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             image: {
               label: 'Bild',
               type: 'linked',
-              linked_table: 'creative_works',
+              linked_table: 'things',
               template_name: 'Bild',
               validations: { max: 1 },
               ui: {
@@ -113,7 +113,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             video: {
               label: 'Video',
               type: 'linked',
-              linked_table: 'creative_works',
+              linked_table: 'things',
               template_name: 'Video',
               validations: { max: 1 },
               ui: {
@@ -129,7 +129,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             mobile_application: {
               label: 'Link',
               type: 'embedded',
-              linked_table: 'creative_works',
+              linked_table: 'things',
               template_name: 'MobileApplication',
               ui: {
                 edit: {
@@ -282,7 +282,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         label: 'whatever',
         type: 'embedded',
-        linked_table: 'creative_works',
+        linked_table: 'things',
         template_name: 'MobileApplication'
       }
     end

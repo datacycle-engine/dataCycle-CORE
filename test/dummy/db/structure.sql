@@ -316,30 +316,6 @@ UNION
 
 
 --
--- Name: creative_works; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE creative_works (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
-    "position" integer DEFAULT 0,
-    is_part_of uuid,
-    metadata jsonb,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    template boolean DEFAULT false NOT NULL,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
 -- Name: things; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -374,7 +350,8 @@ CREATE TABLE things (
     address_country character varying,
     fax_number character varying,
     telephone character varying,
-    email character varying
+    email character varying,
+    is_part_of uuid
 );
 
 
@@ -383,20 +360,8 @@ CREATE TABLE things (
 --
 
 CREATE VIEW content_meta_items AS
- SELECT creative_works.id,
-    'DataCycleCore::CreativeWork'::text AS content_type,
-    creative_works.template_name,
-    creative_works.schema,
-    creative_works.external_source_id,
-    creative_works.external_key,
-    creative_works.created_by,
-    creative_works.updated_by,
-    creative_works.deleted_by
-   FROM creative_works
-  WHERE (creative_works.template IS FALSE)
-UNION
  SELECT things.id,
-    'DataCycleCore::Thing'::text AS content_type,
+    'DataCycleCore::Thing' AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -502,6 +467,30 @@ CREATE SEQUENCE creative_work_translations_id_seq
 --
 
 ALTER SEQUENCE creative_work_translations_id_seq OWNED BY creative_work_translations.id;
+
+
+--
+-- Name: creative_works; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE creative_works (
+    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    "position" integer DEFAULT 0,
+    is_part_of uuid,
+    metadata jsonb,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    template boolean DEFAULT false NOT NULL,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
 
 
 --
@@ -1140,7 +1129,8 @@ CREATE TABLE thing_histories (
     address_country character varying,
     fax_number character varying,
     telephone character varying,
-    email character varying
+    email character varying,
+    is_part_of uuid
 );
 
 
@@ -2958,6 +2948,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181001000001'),
 ('20181001085516'),
 ('20181009131613'),
-('20181011125030');
+('20181011125030'),
+('20181019075437');
 
 

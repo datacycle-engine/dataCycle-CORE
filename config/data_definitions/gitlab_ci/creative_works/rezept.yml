@@ -30,7 +30,7 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :name:
+      :link_name:
         :label: Linktitel
         :type: string
         :storage_location: translated_value

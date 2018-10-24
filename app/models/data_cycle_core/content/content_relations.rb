@@ -53,6 +53,9 @@ module DataCycleCore
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
 
+          belongs_to :parent, class_name: 'DataCycleCore::Thing', foreign_key: 'is_part_of', inverse_of: :children, touch: false
+          has_many :children, class_name: 'DataCycleCore::Thing', foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
+
           has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes
 

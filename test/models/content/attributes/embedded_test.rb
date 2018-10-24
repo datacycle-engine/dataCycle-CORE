@@ -10,15 +10,13 @@ module DataCycleCore
           # insert embedded within same table (embedded includes linked from other table)
           @cw_temp = DataCycleCore::CreativeWork.count
 
-          @linked_objects = []
-          linked = DataCycleCore::TestPreparations.data_set_object('things', 'Linked-Place-1')
+          linked = DataCycleCore::TestPreparations.data_set_object('Linked-Place-1')
           linked.save
           linked.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
-          linked.save
           linked_id = linked.id
-          @linked_objects.push(linked_id)
+          @linked_objects = [linked_id]
 
-          @data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Embedded-Entity-Creative-Work-1')
+          @data_set = DataCycleCore::TestPreparations.data_set_object('Embedded-Entity-Creative-Work-1')
           @data_set.save
           error = @data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -34,7 +32,6 @@ module DataCycleCore
             ),
             prevent_history: true
           )
-          @data_set.save
           returned_data_hash = @data_set.get_data_hash
 
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge(
@@ -54,9 +51,10 @@ module DataCycleCore
           assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'].ids)
 
           # check consistency of data in DB
-          assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count)
           assert_equal(2, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false).count)
         end
 
         test 'insert embedded within same table (embedded includes linked from other table) then delete embedded' do
@@ -78,9 +76,8 @@ module DataCycleCore
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+          assert_equal(2, DataCycleCore::Thing.where(template: false).count)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false).count)
         end
 
         test 'insert multiple embedded within same table (embedded includes linked from other table) then delete embedded' do
@@ -132,9 +129,8 @@ module DataCycleCore
           assert_equal([linked_id], returned_data_hash['embedded_creative_work'].first['linked_place'].ids)
 
           # check consistency of data in DB
-          assert_equal(3, DataCycleCore::CreativeWork.where(template: false).count)
+          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
           assert_equal(4, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false).count)
 
           assert_equal(0, error[:error].count)
           assert_equal(expected_hash.except('embedded_creative_work'), returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes))
@@ -151,9 +147,8 @@ module DataCycleCore
           assert_equal(expected_hash, returned_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
 
           # check consistency of data in DB
-          assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+          assert_equal(2, DataCycleCore::Thing.where(template: false).count)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false).count)
         end
 
         test 'insert embeddedObject within same table then add another quotation' do
@@ -196,9 +191,8 @@ module DataCycleCore
           assert_equal(2, returned_data_hash['embedded_creative_work'].count)
 
           # check consistency of data in DB
-          assert_equal(3, DataCycleCore::CreativeWork.where(template: false).count)
+          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
           assert_equal(4, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::Thing.where(template: false).count)
         end
       end
     end

@@ -2,6 +2,7 @@
 - :data:
     :name: Bild
     :type: object
+    :schema_type: CreativeWork
     :content_type: entity
     :translatable: true
     :boost: 10.0

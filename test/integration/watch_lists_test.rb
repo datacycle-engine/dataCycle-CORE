@@ -74,7 +74,7 @@ module DataCycleCore
 
     test 'add content to watch_list' do
       watch_list = DataCycleCore::WatchList.find_by(headline: 'TestWatchList')
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
+      content = DataCycleCore::Thing.find_by(name: 'TestArtikel')
 
       get add_item_watch_list_path(watch_list), xhr: true, params: {
         hashable_id: content.id,
@@ -98,7 +98,8 @@ module DataCycleCore
 
     test 'remove content from watch_list' do
       watch_list = DataCycleCore::WatchList.find_by(headline: 'TestWatchList')
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
+      content = DataCycleCore::Thing.find_by(name: 'TestArtikel')
+
       DataCycleCore::WatchListDataHash.where(watch_list_id: watch_list.id, hashable_id: content.id, hashable_type: content.class.name).first_or_create
 
       delete remove_item_watch_list_path(watch_list), xhr: true, params: {

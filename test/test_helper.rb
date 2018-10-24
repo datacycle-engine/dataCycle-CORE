@@ -45,10 +45,11 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 module DataCycleCore
   module TestPreparations
     extend DataCycleCore::Common
+    CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
     EXCEPTED_ATTRIBUTES =
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
-        creative_work: [],
+        creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
         event: [],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
@@ -62,6 +63,8 @@ module DataCycleCore
         creative_works: {},
         events: {},
         places: {},
+        persons: {},
+        organizations: {},
         things: {},
         users: {}
       }
@@ -94,8 +97,8 @@ module DataCycleCore
 
     def self.load_dummy_data(paths)
       paths.each do |path|
-        (DataCycleCore.content_tables + ['users']).each do |content_table_name|
-          files = path + content_table_name + '*.json'
+        CONTENT_TABLES.each do |content_table_name|
+          files = path + content_table_name.to_s + '*.json'
 
           file_names = Dir[files]
           file_names.each do |file_name|
@@ -147,25 +150,25 @@ module DataCycleCore
     end
 
     def self.create_contents
-      if DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel', template_name: 'Artikel').blank?
-        @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
+      if DataCycleCore::Thing.find_by(name: 'TestArtikel', template_name: 'Artikel').blank?
+        @article = DataCycleCore::Thing.find_by(template_name: 'Artikel', template: true).dup
         @article.template = false
         @article.save!
         I18n.with_locale(:de) do
           @article.set_data_hash(data_hash: {
-            'headline' => 'TestArtikel'
+            'name' => 'TestArtikel'
           }, new_content: true)
         end
       end
 
-      return if DataCycleCore::CreativeWork.find_by(headline: 'TestContainer', template_name: 'Container').present?
+      return if DataCycleCore::Thing.find_by(name: 'TestContainer', template_name: 'Container').present?
 
-      @container = DataCycleCore::CreativeWork.find_by(template_name: 'Container', template: true).dup
+      @container = DataCycleCore::Thing.find_by(template_name: 'Container', template: true).dup
       @container.template = false
       @container.save!
       I18n.with_locale(:de) do
         @container.set_data_hash(data_hash: {
-          'headline' => 'TestContainer'
+          'name' => 'TestContainer'
         }, new_content: true)
       end
     end
@@ -187,8 +190,8 @@ module DataCycleCore
       @dummy_data_hash.dig(model.to_sym, name.to_sym)
     end
 
-    def self.data_set_object(model, template_name)
-      object = data_cycle_object(model)
+    def self.data_set_object(template_name)
+      object = DataCycleCore::Thing
       template = object.where(template: true, template_name: template_name).first
       data_set = object.new
       data_set.schema = template.schema

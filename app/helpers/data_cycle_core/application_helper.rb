@@ -206,8 +206,7 @@ module DataCycleCore
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
-        "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)}",
-        definition.dig('linked_table').try(:singularize).try(:underscore).to_s,
+        definition.dig('template_name').try(:downcase).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
 

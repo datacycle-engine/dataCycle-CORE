@@ -3,25 +3,27 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
+      CONTENT_TABLES = ['creative_works', 'events', 'organizations', 'persons', 'places', 'things'].freeze
+
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        import_hash, duplicates = check_for_duplicates(template_paths)
-        @mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths)
+        import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
+        @mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
         errors = import_all_templates(template_hash: import_hash, validation: validation)
         # TODO: add notice + warning
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
-      def self.check_for_duplicates(template_paths)
+      def self.check_for_duplicates(template_paths, content_tables)
         import_list = {}
         collisions = {}
-        DataCycleCore.content_tables.each do |content_table_name|
+        content_tables.each do |content_table_name|
           import_list[content_table_name.to_sym] = []
           collisions[content_table_name.to_sym] = {}
         end
 
         template_paths.each do |core_template_path|
-          DataCycleCore.content_tables.each do |content_table_name|
+          content_tables.each do |content_table_name|
             files = core_template_path + content_table_name + '*.yml'
             file_names = Dir[files]
             file_names.each do |file_name|
@@ -49,22 +51,21 @@ module DataCycleCore
       def self.import_all_templates(template_hash:, validation: true)
         errors = {}
         template_hash.each do |content_table, template_list|
-          content_object = "DataCycleCore::#{content_table.to_s.classify}".constantize
-          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_object: content_object, validation: validation) })
+          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_table: content_table, validation: validation) })
         end
         errors
       end
 
-      def self.import_content_templates(template_list:, content_object:, validation: true)
+      def self.import_content_templates(template_list:, content_table:, validation: true)
         errors = {}
         template_list.each do |template_location|
           template = YAML.load(File.open(template_location[:file]))[template_location[:position]]
-          template[:data] = transform_schema(schema: template[:data].dup, content_object: content_object)
+          template[:data] = transform_schema(schema: template[:data].dup, content_table: content_table)
           error = {}
           error = validate(template) if validation
           if error.blank?
-            # puts "write data_set (#{content_object.class_name}): #{template[:data][:name]}"
-            data_set = content_object
+            # puts "write data_set (#{content_table}): #{template[:data][:name]}"
+            data_set = DataCycleCore::Thing
               .find_or_initialize_by(
                 template_name: template[:data][:name],
                 template: true
@@ -83,19 +84,19 @@ module DataCycleCore
         puts e.backtrace
       end
 
-      def self.transform_schema(schema: {}, content_object: nil)
-        schema[:properties] = transform_properties(property_hash: schema[:properties], content_object: content_object)
+      def self.transform_schema(content_table: nil, schema: {})
+        schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table)
         schema
       end
 
-      def self.transform_properties(property_hash: {}, content_object: nil)
+      def self.transform_properties(property_hash: {}, content_table: nil)
         new_properties = {}
         sorting = 1
         property_hash.each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
-            if !content_object.nil? && @mixin_list.dig(content_object.name.demodulize.pluralize.underscore.to_sym, property_value[:name].to_sym).present?
-              active_mixin = @mixin_list[content_object.name.demodulize.pluralize.underscore.to_sym]
+            if !content_table.nil? && @mixin_list.dig(content_table.to_sym, property_value[:name].to_sym).present?
+              active_mixin = @mixin_list[content_table.to_sym]
             elsif @mixin_list.dig(:default, property_value[:name].to_sym).present?
               active_mixin = @mixin_list[:default]
             else

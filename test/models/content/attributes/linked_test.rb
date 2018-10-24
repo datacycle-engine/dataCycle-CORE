@@ -8,24 +8,23 @@ module DataCycleCore
       class LinkedTest < ActiveSupport::TestCase
         def setup
           # create entity and add 5 linked entities from the same table
-          @cw_temp = DataCycleCore::CreativeWork.count
+          @cw_temp = DataCycleCore::Thing.count
 
           @linked_objects = []
           5.times do
-            linked = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Linked-Creative-Work-2')
+            linked = DataCycleCore::TestPreparations.data_set_object('Linked-Creative-Work-2')
             linked.save
             linked.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'), prevent_history: true)
             linked.save
             @linked_objects.push(linked.id)
           end
 
-          assert_equal(@linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
-          assert_equal(@linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(@linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(0, DataCycleCore::CreativeWork::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
 
-          @data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Linked-Creative-Work-1')
+          @data_set = DataCycleCore::TestPreparations.data_set_object('Linked-Creative-Work-1')
           @data_set.save
           @data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'),
@@ -33,9 +32,9 @@ module DataCycleCore
           )
           @data_set.save
 
-          assert_equal(1 + @linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(0, DataCycleCore::CreativeWork::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
 
           @data_set.set_data_hash(
@@ -46,9 +45,9 @@ module DataCycleCore
             )
           )
           @data_set.save
-          assert_equal(1 + @linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(5, DataCycleCore::ContentContent.count)
-          assert_equal(1, DataCycleCore::CreativeWork::History.count)
+          assert_equal(1, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
         end
 
@@ -63,11 +62,9 @@ module DataCycleCore
               }
             )
           )
-          data_set.save
-
-          assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(1, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
+          assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
@@ -77,16 +74,16 @@ module DataCycleCore
 
           data_set.destroy_content
 
-          assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
+          assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
 
           data_set.histories.each(&:destroy_content)
 
-          assert_equal(linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(0, DataCycleCore::ContentContent.count)
-          assert_equal(0, DataCycleCore::CreativeWork::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
         end
 
@@ -101,10 +98,9 @@ module DataCycleCore
               }
             )
           )
-          data_set.save
-          assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(3, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
+          assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
@@ -114,10 +110,9 @@ module DataCycleCore
 
           linked_objects2 = []
           2.times do
-            linked = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Linked-Creative-Work-2')
+            linked = DataCycleCore::TestPreparations.data_set_object('Linked-Creative-Work-2')
             linked.save
             linked.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked'), prevent_history: true)
-            linked.save
             linked_objects2.push(linked.id)
           end
 
@@ -128,10 +123,9 @@ module DataCycleCore
               }
             )
           )
-          data_set.save
-          assert_equal(1 + linked_objects.size + linked_objects2.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + linked_objects.size + linked_objects2.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(7, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
+          assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
 
@@ -158,11 +152,9 @@ module DataCycleCore
               }
             )
           )
-          data_set.save
-
-          assert_equal(1 + linked_objects.size, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(5, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
+          assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
 
           linked_data = data_set.linked_creative_work.map(&:id)
@@ -171,23 +163,24 @@ module DataCycleCore
           end
         end
 
-        test 'remove linked entities and add linked entities from other table' do
+        test 'remove linked entities and add other linked entities' do
           data_set = @data_set
-
-          place_temp = DataCycleCore::Thing.count
+          setup_history = 1
+          place_count = 3
 
           linked_places = []
-          3.times do
-            place = DataCycleCore::TestPreparations.data_set_object('things', 'Linked-Place-1')
+          place_count.times do
+            place = DataCycleCore::TestPreparations.data_set_object('Linked-Place-1')
             place.save
             place.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'linked'), prevent_history: true)
-            place.save
             linked_places.push(place.id)
           end
 
-          assert_equal(linked_places.size, DataCycleCore::Thing.count - place_temp)
+          assert_equal(linked_places.size, place_count)
+          assert_equal(linked_places.size, DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count)
           assert_equal(5, DataCycleCore::ContentContent.count)
-          assert_equal(0, DataCycleCore::Thing::History.count)
+          assert_equal(0, DataCycleCore::Thing::History.count - setup_history)
+          assert_equal(0, DataCycleCore::ContentContent::History.count)
 
           data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
@@ -196,12 +189,11 @@ module DataCycleCore
               }
             )
           )
-          data_set.save
-          assert_equal(linked_places.size, DataCycleCore::Thing.count - place_temp)
-          assert_equal(6, DataCycleCore::CreativeWork.count - @cw_temp)
+          assert_equal(linked_places.size, place_count)
+          assert_equal(linked_places.size, DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count)
+          assert_equal(@linked_objects.count + place_count + 1, DataCycleCore::Thing.count - @cw_temp)
           assert_equal(3, DataCycleCore::ContentContent.count)
-          assert_equal(2, DataCycleCore::CreativeWork::History.count)
-          assert_equal(0, DataCycleCore::Thing::History.count)
+          assert_equal(1, DataCycleCore::Thing::History.count - setup_history)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
       end

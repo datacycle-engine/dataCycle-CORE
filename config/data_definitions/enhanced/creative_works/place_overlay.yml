@@ -2,6 +2,7 @@
 - :data:
     :name: PlaceOverlay
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :properties:
       :id:

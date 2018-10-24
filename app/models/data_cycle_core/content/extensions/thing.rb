@@ -16,6 +16,8 @@ module DataCycleCore
             name
           when 'Place'
             name.presence || address_line || coordinates || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
+          when 'CreativeWork'
+            name
           end
         end
 
@@ -26,6 +28,8 @@ module DataCycleCore
           when 'Person'
             content['job_title']
           when 'Event'
+            description
+          when 'CreativeWork'
             description
           end
         end
@@ -40,10 +44,13 @@ module DataCycleCore
             ['name']
           when 'Place'
             ['name']
+          when 'CreativeWork'
+            ['name']
           end
         end
 
         def object_browser_fields
+          # title is shown by default
           case schema_type
           when 'Organization'
             []
@@ -53,6 +60,8 @@ module DataCycleCore
             []
           when 'Place'
             ['address', 'location']
+          when 'CreativeWork'
+            []
           end
         end
 

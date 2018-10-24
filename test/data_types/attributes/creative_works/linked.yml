@@ -8,7 +8,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -44,7 +44,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column

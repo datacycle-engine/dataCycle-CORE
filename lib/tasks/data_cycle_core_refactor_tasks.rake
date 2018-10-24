@@ -536,6 +536,53 @@ namespace :data_cycle_core do
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
 
+        puts '--> cleanup attributes'
+        sql = <<-SQL
+          UPDATE thing_translations AS tt SET
+          	name = tt.content ->> 'name',
+            content = tt.content - 'name'
+          WHERE tt.thing_id IN (
+            SELECT id from things
+            WHERE template = false
+            AND template_name = 'Textblock'
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        sql = <<-SQL
+          UPDATE thing_translations AS tt SET
+          	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
+          WHERE tt.thing_id IN (
+            SELECT id from things
+            WHERE template = false
+            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website')
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        sql = <<-SQL
+          UPDATE thing_history_translations AS tt SET
+          	name = tt.content ->> 'name',
+            content = tt.content - 'name'
+          WHERE tt.thing_history_id IN (
+            SELECT id from thing_histories
+            WHERE template = false
+            AND template_name = 'Textblock'
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        sql = <<-SQL
+          UPDATE thing_history_translations AS tt SET
+          	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
+          WHERE tt.thing_history_id IN (
+            SELECT id from thing_histories
+            WHERE template = false
+            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website')
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
         puts 'END'
         puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
       end
@@ -567,7 +614,7 @@ namespace :data_cycle_core do
     def update_content_relations
       ActiveRecord::Base.transaction do
         connection = ActiveRecord::Base.connection
-        sql_query = <<-EOS
+        sql_query = <<-SQL
           UPDATE content_contents as new_cc SET
             content_a_id = content_contents.content_b_id,
             content_b_id = content_contents.content_a_id,
@@ -582,9 +629,9 @@ namespace :data_cycle_core do
           AND content_contents.relation_b <> NULL
           AND content_contents.relation_b <> ''
           AND content_contents.content_a_type >= content_contents.content_b_type;
-        EOS
+        SQL
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
-        sql_query = <<-EOS
+        sql_query = <<-SQL
           UPDATE content_content_histories as new_cc SET
             content_a_history_id = content_content_histories.content_b_history_id,
             content_b_history_id = content_content_histories.content_a_history_id,
@@ -599,7 +646,7 @@ namespace :data_cycle_core do
           AND content_content_histories.relation_b <> NULL
           AND content_content_histories.relation_b <> ''
           AND content_content_histories.content_a_history_type >= content_content_histories.content_b_history_type;
-        EOS
+        SQL
         connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
       end
     end

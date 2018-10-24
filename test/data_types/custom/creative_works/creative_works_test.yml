@@ -4,7 +4,7 @@
     :name: TestSimple
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -13,7 +13,7 @@
     :name: TestIncludedData
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -35,7 +35,7 @@
     :name: TestClassificationData
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -54,7 +54,7 @@
     :name: TestEmbeddedPlaceData
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -68,7 +68,7 @@
     :name: TestEmbeddedCreativeWork
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -79,26 +79,13 @@
         :template_name: EmbeddedCreativeWork
 
 - :data:
-    :name: TestEmbeddedArray
-    :type: object
-    :properties:
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-      :testArray:
-        :label: Verlinkt
-        :type: linked
-        :linked_table: things
-
-- :data:
     :name: EmbeddedCreativeWork
     :type: object
     :properties:
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -120,7 +107,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -128,18 +115,6 @@
         :label: Verlinkt
         :type: linked
         :linked_table: things
-
-- :data:
-    :name: CreativeWorkEmbeddedLinkUser
-    :type: object
-    :properties:
-      :id:
-        :label: id
-        :type: key
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
 
 - :data:
     :name: TestObject
@@ -226,7 +201,7 @@
     :name: SimpleJsonTest
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -264,10 +239,10 @@
         :storage_location: translated_value
 
 - :data:
-    :type: object
     :name: BoolJsonTest
+    :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -293,7 +268,7 @@
     :name: ComplexJsonTest
     :type: object
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -339,426 +314,3 @@
             :label: Text
             :type: string
             :storage_location: translated_value
-
-- :data:
-    :name: ThemaTest
-    :type: object
-    :properties:
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :validations:
-          :min: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
-      :description:
-        :label: Beschreibung
-        :type: string
-        :storage_location: column
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: basic
-      :topics:
-        :label: Themenbereiche
-        :type: classification
-        :tree_label: Themenbereiche
-        :editor:
-          :type: classificationSelector
-      :markets:
-        :label: Zielmarkt
-        :type: classification
-        :tree_label: Märkte
-        :editor:
-          :type: classificationSelector
-      :tags:
-        :label: Tags
-        :type: classification
-        :tree_label: Tags
-        :editor:
-          :type: classificationSelector
-      :state:
-        :label: Bundesland
-        :type: classification
-        :tree_label: Bundesländer
-        :validations:
-          :max: 1
-        :editor:
-          :type: classificationSelector
-          :options:
-            :data-validate: classification
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :options:
-            :class: daterange validation-container
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: datetime
-            :storage_location: value
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-          :valid_until:
-            :label: bis
-            :type: datetime
-            :storage_location: value
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-      :data_pool:
-        :label: Inhaltspool
-        :type: classification
-        :tree_label: Inhaltspools
-        :default_value: "Aktuelle Inhalte"
-        :ui:
-          :show:
-            :content_area: header
-          :edit:
-            :disabled: true
-      :date_created:
-        :label: Erstellungsdatum
-        :type: datetime
-        :storage_location: value
-      :date_modified:
-        :label: Änderungsdatum
-        :type: datetime
-        :storage_location: value
-
-- :data:
-    :name: RechercheTest
-    :type: object
-    :permissions:
-      :read_write: true
-    :properties:
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :validations:
-          :min: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
-      :image:
-        :label: Bilder
-        :type: linked
-        :linked_table: things
-        :storage_location: value
-      :video:
-        :label: Videos
-        :type: linked
-        :linked_table: things
-        :storage_location: value
-      :text:
-        :label: Recherchedaten
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
-      :data_pool:
-        :label: Inhaltspool
-        :type: classification
-        :tree_label: Inhaltspools
-        :default_value: "Recherche"
-        :ui:
-          :show:
-            :content_area: header
-          :edit:
-            :disabled: true
-      :date_created:
-        :label: Erstellungsdatum
-        :type: datetime
-        :storage_location: value
-      :date_modified:
-        :label: Änderungsdatum
-        :type: datetime
-        :storage_location: value
-
-- :data:
-    :name: BildTest
-    :type: object
-    :permissions:
-      :read_write: false
-    :properties:
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-      :caption:
-        :label: Alt-Label
-        :type: string
-        :storage_location: translated_value
-      :description:
-        :label: Beschreibung
-        :type: string
-        :storage_location: column
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-      :mandatory_license:
-        :label: Copyright Nennung verpflichtend
-        :type: boolean
-        :storage_location: value
-      :content_location:
-        :label: Ort
-        :type: embedded
-        :linked_table: things
-        :template_name: contentLocation
-      :width:
-        :label: Breite
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :height:
-        :label: Höhe
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :content_size:
-        :label: Dateigröße
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :file_format:
-        :label: Dateiformat
-        :type: string
-        :storage_location: value
-      :comment:
-        :label: Kommentar
-        :type: string
-        :storage_location: value
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: value
-        :properties:
-          :date_published:
-            :label: Gültig von
-            :type: datetime
-            :storage_location: value
-          :expires:
-            :label: Gültig bis
-            :type: datetime
-            :storage_location: value
-      :date_created:
-        :label: Erstellungsdatum
-        :type: datetime
-        :storage_location: value
-      :date_modified:
-        :label: Änderungsdatum
-        :type: datetime
-        :storage_location: value
-      :source:
-        :label: Erhalten von
-        :type: string
-        :storage_location: value
-      :image_id:
-        :label: Bildnummer
-        :type: string
-        :storage_location: value
-      :visibility:
-        :label: Sichtbarkeit
-        :type: string
-        :storage_location: value
-      :access:
-        :label: Rechte/Einsatzgebiet
-        :type: classification
-        :tree_label: Rechte
-      :content_url:
-        :label: Bild URL
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-      :thumbnail_url:
-        :label: Thumbnail URL
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-      :url:
-        :label: URL
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-      :data_type:
-        :label: Inhaltstype
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Bild"
-
-- :data:
-    :name: ArtikelTest
-    :type: object
-    :permissions:
-      :read_write: true
-    :properties:
-      :headline:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :validations:
-          :min: 1
-        :editor:
-          :type: input
-          :options:
-            :data-validate: text
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: input
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :editor:
-          :type: quillEditor
-          :sorting: 3
-          :options:
-            :data-size: basic
-      :name:
-        :label: Linktext
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: input
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
-      :meta_title:
-        :label: Meta-Titel
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: input
-      :meta_description:
-        :label: Meta-Description
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: full
-      :keywords:
-        :label: SEO Keywords
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: quillEditor
-          :options:
-            :data-size: none
-      :same_as:
-        :label: Canonical Tag
-        :type: string
-        :storage_location: translated_value
-        :editor:
-          :type: input
-      :image:
-        :label: Bilder
-        :type: linked
-        :linked_table: things
-      :video:
-        :label: Videos
-        :type: linked
-        :linked_table: things
-      :topics:
-        :label: Themenbereiche
-        :type: classification
-        :tree_label: Themenbereiche
-        :editor:
-          :type: classificationSelector
-      :markets:
-        :label: Zielmarkt
-        :type: classification
-        :tree_label: Märkte
-        :editor:
-          :type: classificationSelector
-      :tags:
-        :label: Tags
-        :type: classification
-        :tree_label: Tags
-        :editor:
-          :type: classificationSelector
-      :state:
-        :label: Bundesland
-        :type: classification
-        :tree_label: Bundesländer
-        :validations:
-          :max: 1
-        :editor:
-          :type: classificationSelector
-          :options:
-            :data-validate: classification
-      :validity_period:
-        :label: Gültigkeitszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: valid_from
-            :to: valid_until
-        :editor:
-          :options:
-            :class: daterange validation-container
-        :properties:
-          :valid_from:
-            :label: Gültigkeit
-            :type: datetime
-            :storage_location: value
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-          :valid_until:
-            :label: bis
-            :type: datetime
-            :storage_location: value
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-      :data_type:
-        :label: Inhaltstype
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Artikel"
-      :date_created:
-        :label: Erstellungsdatum
-        :type: datetime
-        :storage_location: value
-      :date_modified:
-        :label: Änderungsdatum
-        :type: datetime
-        :storage_location: value

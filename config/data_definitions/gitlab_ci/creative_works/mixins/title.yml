@@ -3,7 +3,7 @@
     :name: title
     :type: mixin
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
