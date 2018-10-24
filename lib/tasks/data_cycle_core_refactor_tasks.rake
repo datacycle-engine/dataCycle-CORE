@@ -455,6 +455,19 @@ namespace :data_cycle_core do
 
         puts 'migrate data'
         puts '--> things'
+        puts '    prepare creative_works'
+        # prepare creative_works, as external_keys are not unique
+        sql = <<-SQL
+          UPDATE creative_works AS cw SET
+            external_key = cw.external_key || ' - image'
+          WHERE cw.id IN (
+            SELECT id FROM creative_works
+            where external_key ILIKE 'Xamoom -%'
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '    copy data'
         sql = <<-SQL
           INSERT INTO things (
             id, is_part_of, metadata,
@@ -552,7 +565,8 @@ namespace :data_cycle_core do
         sql = <<-SQL
           UPDATE thing_translations AS tt SET
           	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
-          WHERE tt.thing_id IN (
+          WHERE (tt.content ->> 'name') NOT IN (NULL, '', ' ')
+          AND tt.thing_id IN (
             SELECT id from things
             WHERE template = false
             AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website')
@@ -575,7 +589,8 @@ namespace :data_cycle_core do
         sql = <<-SQL
           UPDATE thing_history_translations AS tt SET
           	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
-          WHERE tt.thing_history_id IN (
+          WHERE (tt.content ->> 'name') NOT IN (NULL, '', ' ')
+          AND tt.thing_history_id IN (
             SELECT id from thing_histories
             WHERE template = false
             AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website')
