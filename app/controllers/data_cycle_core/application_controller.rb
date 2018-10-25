@@ -3,6 +3,7 @@
 module DataCycleCore
   class ApplicationController < ActionController::Base
     include DataCycleCore::Common
+    include DataCycleCore::ParamsResolver
     protect_from_forgery with: :exception
     before_action :load_watch_lists
     before_action :load_stored_filters
@@ -43,25 +44,8 @@ module DataCycleCore
       @content_for = remote_render_params[:content_for]
       @render_function = remote_render_params[:render_function]
 
-      params[:render_params].presence&.to_unsafe_hash&.each do |key, value|
-        if value.is_a?(Hash) && value.key?('id') && value.key?('class')
-          (@render_params ||= {})[key.to_sym] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
-        elsif value.is_a?(Hash) && value.key?('ids') && value.key?('class')
-          (@render_params ||= {})[key.to_sym] = value['class'].constantize.where(id: value['ids']) if defined?(value['class'])
-        else
-          (@render_params ||= {})[key.to_sym] = value
-        end
-      end
-
-      params[:options].presence&.to_unsafe_hash&.each do |key, value|
-        if value.is_a?(Hash) && value.key?('id') && value.key?('class')
-          (@options ||= {})[key.to_sym] = value['class'].constantize.find_by(id: value['id']) if defined?(value['class'])
-        elsif value.is_a?(Hash) && value.key?('ids') && value.key?('class')
-          (@options ||= {})[key.to_sym] = value['class'].constantize.where(id: value['ids']) if defined?(value['class'])
-        else
-          (@options ||= {})[key.to_sym] = value
-        end
-      end
+      @render_params = resolve_params(params[:render_params])
+      @options = resolve_params(params[:options])
 
       render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return if (@target.blank? && @render_function.blank?) || @partial.blank?
 

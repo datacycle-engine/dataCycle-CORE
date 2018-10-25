@@ -39,7 +39,7 @@ module.exports.initialize = function () {
           return $(elem).data('label');
         }).get().join(', ');
         var confirmationModal = new ConfirmationModal('Es sind Warnungen vorhanden (' + warnings + ').<br>Soll der Inhalt trotzdem gespeichert werden?', 'warning', true, () => {
-          if ($(form).parent('.reveal.in-object-browser').length) {
+          if ($(form).closest('.reveal').hasClass('in-object-browser')) {
             $(form).trigger('submit_without_redirect');
           } else {
             $(window).off("beforeunload");
@@ -49,7 +49,7 @@ module.exports.initialize = function () {
           $('.submit-edit-form').html('<i class="fa fa-check" aria-hidden="true"></i>').prop('disabled', false);
         });
       } else if (isValid && submit) {
-        if ($(form).parent('.reveal.in-object-browser').length) {
+        if ($(form).closest('.reveal').hasClass('in-object-browser')) {
           $(form).trigger('submit_without_redirect');
         } else {
           $(window).off("beforeunload");
@@ -168,7 +168,8 @@ module.exports.initialize = function () {
     promises.push($.ajax({
       type: "POST",
       url: url,
-      data: $.param(form_data)
+      data: $.param(form_data),
+      dataType: 'json'
     }).done(data => {
       if (data != undefined && Object.keys(data.error).length > 0) {
         if (items.first().prop('id').search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1) {

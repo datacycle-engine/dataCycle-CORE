@@ -3,6 +3,8 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::ParamsResolver
+
     DataCycleCore.features.each_key do |key|
       module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
       include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
@@ -59,11 +61,11 @@ module DataCycleCore
 
     def new
       @template = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id]) if source_params.present?
-      @content = data_cycle_object(new_params[:content_table]).find_by(id: new_params[:content_id]) if new_params[:content_table].present? && new_params[:content_id].present?
 
-      @query_methods = new_params[:query_methods]
-      @active_url = url_for(new_params.merge(source_params))
-      @form_crumbs = new_params[:form_crumbs]
+      @additional_params = new_params.merge(resolve_params(additional_new_params[:additional_params]))
+      @active_url = url_for(new_params.merge(source_params).merge({
+        additional_params: resolve_params(additional_new_params[:additional_params], false)
+      }))
 
       respond_to :js
     end
@@ -362,7 +364,11 @@ module DataCycleCore
     end
 
     def new_params
-      params.permit(:content_id, :content_table, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []])
+      params.permit(:test, :content_id, :content_table, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []])
+    end
+
+    def additional_new_params
+      params.permit(:additional_params, additional_params: {})
     end
 
     def source_params

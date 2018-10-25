@@ -108,27 +108,36 @@
 
           <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
 
-          <% if can?(:create_in_objectbrowser, object_class) && creatable.present? %>
-            <%= render 'new_content_links', content: content, button_class: 'small', locale: I18n.locale, query_methods: [{
+          <% form_parameters = {
+            content: content,
+            button_class: 'small',
+            locale: I18n.locale,
+            object_browser: true,
+            key: sanitize_to_id(key)
+          } %>
+
+          <% form_parameters = form_parameters.merge(creatable.present? ? {
+            query_methods: [{
               method_name: 'for_tree',
               value: 'Inhaltstypen'
             }, {
               method_name: 'with_name',
               value: creatable
-            }] %>
-          <% elsif can?(:create_in_objectbrowser, object_class) %>
-            <%= render 'new_content_links', content: content, button_class: 'small', render_function: 'render_new_form', render_params: to_query_params({ template: "data_cycle_core/#{definition&.dig('linked_table')}".classify.constantize.find_by(template: true, template_name: definition&.dig('template_name')) }).to_json, locale: I18n.locale %>
-          <% end %>
+            }]
+          } : {
+            render_function: 'render_new_form',
+            render_params: to_query_params({
+              template: "data_cycle_core/#{definition&.dig('linked_table')}".classify
+                .constantize
+                .find_by(template: true, template_name: definition&.dig('template_name'))
+            }).to_json
+          }) %>
+
+          <%= render 'new_content_links', form_parameters %>
+
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>
           </button>
-
-          <% if can?(:create_in_objectbrowser, object_class) %>
-            <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}, content: content) %>
-            <% rescue %>
-            <% end %>
-          <% end %>
         </div>
       </div>
     </div>

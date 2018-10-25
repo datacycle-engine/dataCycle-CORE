@@ -154,34 +154,35 @@ ObjectBrowser.prototype.setup = function () {
     this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(true), event);
   }.bind(this));
 
-  $('#new_' + this.id).addClass('in-object-browser');
+  $(document).on('form-rendered remote-partial-rendered', '#new_' + this.id + '.in-object-browser .new-content-form', this.initNewFormHandlers.bind(this));
+};
 
-  $('#new_' + this.id).on('open.zf.reveal', function (event) {
-    $(this).find('form').off('submit_without_redirect').on('submit_without_redirect', function (ev, data) {
-      ev.preventDefault();
-      ev.stopImmediatePropagation();
-      var form_data = $(this).serializeJSON();
-      $.extend(form_data, {
-        type: self.type,
-        locale: self.locale,
-        overlay_id: '#object_browser_' + self.id,
-        key: self.key,
-        definition: self.definition,
-        editable: self.editable,
-        options: self.options,
-        class: self.class,
-        objects: self.chosen,
-        new_overlay_id: '#new_' + self.id,
-        source: 'object_browser'
-      });
+ObjectBrowser.prototype.initNewFormHandlers = function () {
+  var self = this;
+  $('#new_' + this.id + '.in-object-browser form').off('submit_without_redirect').on('submit_without_redirect', function (ev, data) {
+    ev.preventDefault();
+    ev.stopImmediatePropagation();
+    var form_data = $(this).serializeJSON();
+    $.extend(form_data, {
+      type: self.type,
+      locale: self.locale,
+      overlay_id: '#object_browser_' + self.id,
+      key: self.key,
+      definition: self.definition,
+      editable: self.editable,
+      options: self.options,
+      class: self.class,
+      objects: self.chosen,
+      new_overlay_id: '#new_' + self.id,
+      source: 'object_browser'
+    });
 
-      $.ajax({
-        url: $(this).prop('action'),
-        method: 'POST',
-        data: JSON.stringify(form_data),
-        dataType: 'script',
-        contentType: 'application/json'
-      });
+    $.ajax({
+      url: $(this).prop('action'),
+      method: 'POST',
+      data: JSON.stringify(form_data),
+      dataType: 'script',
+      contentType: 'application/json'
     });
   });
 };

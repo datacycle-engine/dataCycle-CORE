@@ -1,7 +1,7 @@
-<a data-toggle="new-content-reveal" class="button-prime <%= local_assigns[:button_class] %>"><i class="fa fa-plus" aria-hidden="true"></i></a>
+<a data-toggle="new_<%= local_assigns.fetch(:key, 'default') %>" class="button-prime <%= local_assigns[:button_class] %>"><i class="fa fa-plus" aria-hidden="true"></i></a>
 
-<div class="reveal new-content-reveal"
-    id="new-content-reveal"
+<div class="reveal new-content-reveal<%= local_assigns[:object_browser] ? ' in-object-browser' : '' %>"
+    id="new_<%= local_assigns.fetch(:key, 'default') %>"
     data-reveal
     data-multiple-opened="true"
     data-overlay="false"
@@ -10,7 +10,8 @@
   <div class="form_crumbs">
   </div>
 
-  <div id="<%= local_assigns.fetch(:key, 'default') %>_new_form" class="new-content-form remote-render"
+  <div class="new-content-form remote-render"
+      id="<%= local_assigns.fetch(:key, 'default') %>_new_form"
       data-remote-path="data_cycle_core/contents/new/new_stage"
       data-remote-render-function="<%= local_assigns[:render_function] %>"
       data-remote-render-params="<%= local_assigns[:render_params] %>"

@@ -1,7 +1,3 @@
-<% crumbs.presence&.each do |crumb| %>
-  <%= hidden_field_tag 'form_crumbs[][url]', crumb[:url] %>
-  <%= hidden_field_tag 'form_crumbs[][title]', crumb[:title] %>
-<% end %>
-
+<%= hidden_field_tag :additional_params, additional_params %>
 <%= hidden_field_tag 'form_crumbs[][url]', url %>
 <%= hidden_field_tag 'form_crumbs[][title]', title %>
