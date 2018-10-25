@@ -56,7 +56,7 @@ config:
           content_type: DataCycleCore::Thing
           template: Örtlichkeit
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           place_template: Örtlichkeit
           default_values:
@@ -78,7 +78,7 @@ config:
           content_type: DataCycleCore::Thing
           template: Person
         video:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Video
           place_template: Örtlichkeit
           default_values:
@@ -92,5 +92,5 @@ config:
     #   transformations:
     #     document
     #       template: Document
-    #       content_type: DataCycleCore::CreativeWork
+    #       content_type: DataCycleCore::Thing
   api_strategy: DataCycleCore::Api::MediaArchiveExternalSource

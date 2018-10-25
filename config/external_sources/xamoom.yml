@@ -26,7 +26,7 @@ config:
       import_strategy: DataCycleCore::Generic::Xamoom::ImportSpots
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:

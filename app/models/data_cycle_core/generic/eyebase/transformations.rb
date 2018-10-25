@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:unwrap, 'quality_1', ['resolution_x', 'resolution_y', 'size_mb'])
           .>> t(:add_field, 'external_key', ->(s) { s.dig('item_id', 'text') })
           .>> t(:add_field, 'description', ->(s) { s.dig('beschreibung', '#cdata-section') })
-          .>> t(:add_field, 'headline', ->(s) { s.dig('titel', '#cdata-section') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('titel', '#cdata-section') })
           .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
           .>> t(:add_field, 'license', ->(s) { s.dig('copyright', '#cdata-section') })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })

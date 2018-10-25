@@ -37,7 +37,7 @@ config:
       import_strategy: DataCycleCore::Generic::VTicket::ImportEvents
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:

@@ -10,7 +10,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('image'),
             transformation: DataCycleCore::Generic::EventDatabase::Transformations.event_database_to_image(raw_data.dig('name')),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end

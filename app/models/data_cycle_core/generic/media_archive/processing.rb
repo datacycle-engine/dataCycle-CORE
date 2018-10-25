@@ -26,7 +26,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_bild(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end
@@ -37,7 +37,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_video(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Video' },
+            default: { content_type: DataCycleCore::Thing, template: 'Video' },
             config: config
           )
         end

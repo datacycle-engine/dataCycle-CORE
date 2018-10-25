@@ -5,7 +5,7 @@ module DataCycleCore
     module VTicket
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('images') || []).each do |image_hash|

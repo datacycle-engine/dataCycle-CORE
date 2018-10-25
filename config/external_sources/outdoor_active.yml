@@ -97,7 +97,7 @@ config:
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::DEFAULT_KEY_MATCHING
           template: Bild
         tour:
           content_type: DataCycleCore::Thing
@@ -108,7 +108,7 @@ config:
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPlaces
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
         place:
           content_type: DataCycleCore::Thing

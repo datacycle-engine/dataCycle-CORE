@@ -38,7 +38,7 @@ config:
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:

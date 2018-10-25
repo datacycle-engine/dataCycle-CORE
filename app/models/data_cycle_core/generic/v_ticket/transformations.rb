@@ -26,7 +26,7 @@ module DataCycleCore
 
         def self.vticket_to_image
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'name' => 'headline', 'original' => 'content_url', 'thumbnail' => 'thumbnail_url' })
+          .>> t(:rename_keys, { 'original' => 'content_url', 'thumbnail' => 'thumbnail_url' })
           .>> t(:reject_keys, ['large', 'middle', 'small'])
           .>> t(:add_field, 'external_key', ->(s) { s.dig('content_url')&.split('/')&.fetch(-3) if s.dig('content_url')&.split('/')&.count == 7 })
           .>> t(:strip_all)
@@ -40,7 +40,7 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('title') + (s.dig('subtitle').present? ? " - #{s.dig('subtitle')}" : '') })
           .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
           .>> t(:add_field, 'same_as', ->(s) { s&.try(:[], 'links')&.first&.try(:[], 'url') })
-          .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('images')&.map { |item| item.dig('original')&.split('/')&.fetch(-3) if item.dig('original')&.split('/')&.count == 7 } || [] })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images')&.map { |item| item.dig('original')&.split('/')&.fetch(-3) if item.dig('original')&.split('/')&.count == 7 } || [] })
           .>> t(:add_link, 'location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('event_location', 'id') })
           .>> t(:tags_to_ids, 'v_ticket_categories', external_source_id, 'VTicket - Categories - ')
           .>> t(:tags_to_ids, 'v_ticket_tags', external_source_id, 'VTicket - Tags - ')
