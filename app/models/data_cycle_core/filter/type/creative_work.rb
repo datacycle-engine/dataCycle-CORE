@@ -8,19 +8,19 @@ module DataCycleCore
 
         def find_children(id)
           query = join_creative_work
-          query.where(creative_work[:is_part_of].eq(id))
+          query.where(thing[:is_part_of].eq(id))
         end
 
         def join_creative_work
           Arel::SelectManager.new
             .project(search[:content_data_id])
             .from(search)
-            .join(creative_work)
-            .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
+            .join(thing)
+            .on(search[:content_data_id].eq(thing[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Thing'))))
         end
 
         def creative_work
-          DataCycleCore::CreativeWork.arel_table
+          DataCycleCore::Thing.arel_table
         end
       end
     end

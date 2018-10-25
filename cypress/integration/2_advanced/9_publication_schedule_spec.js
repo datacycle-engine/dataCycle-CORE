@@ -20,7 +20,7 @@ describe('Publication Schedule', function () {
   let id = undefined;
 
   it('add publication schedule', function () {
-    cy.createCreativeWork(cname, option).then(resp => {
+    cy.createThing(cname, option).then(resp => {
       let url = resp.headers.location;
       id = url.substr(url.indexOf('things/') + 15, 36);
       cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden');

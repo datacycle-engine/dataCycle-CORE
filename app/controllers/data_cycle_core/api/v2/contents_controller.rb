@@ -33,13 +33,13 @@ module DataCycleCore
 
         # TODO: refactor
         def deleted
-          deleted_contents = DataCycleCore::CreativeWork::History.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+          deleted_contents = DataCycleCore::Thing::History.where(
+            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
           if permitted_params.dig(:filter, :deleted_since)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
             )
           end
 

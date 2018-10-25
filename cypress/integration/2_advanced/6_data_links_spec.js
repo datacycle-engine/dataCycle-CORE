@@ -10,7 +10,7 @@ describe('DataLink', function () {
   var id = undefined
 
   it('create', function () {
-    cy.createCreativeWork(cname, option).then(resp => {
+    cy.createThing(cname, option).then(resp => {
       var url = resp.headers.location.replace('/edit', '')
       cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
       cy.location('pathname').should('match', /\/things/).should('not.contain', '/edit').then((path) => {
@@ -40,27 +40,6 @@ describe('DataLink', function () {
       })
     })
   })
-
-  //  TODO: active only for core tests
-  // it('test link finalization', function () {
-  //   cy.get('#search').type(cname + '{enter}', {
-  //     force: true
-  //   }).get('.search-results .grid-item:contains(' + cname + ')').should('have.length', 1).click()
-  //   cy.get('.detail-header-functions [data-toggle="send-link"]').click()
-  //   cy.get('#send-link').should('be.visible').find('li:contains("' + email + '")').should('have.length', 1).then(function ($elem) {
-  //     const url = '/data_links/' + $elem.prop('id').replace('data-link-', '')
-  //
-  //     cy.logout()
-  //     cy.visit(url)
-  //     cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name).clear().type(cname)
-  //     cy.get('input#finalize').should('be.visible').check()
-  //     cy.get('.submit-edit-form').click()
-  //     cy.get('.confirmation-modal').should('be.visible').find('.confirmation-confirm').click()
-  //     cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click()
-  //
-  //     cy.get('.edit-content-link').should('have.length', 0)
-  //   })
-  // })
 
   it('lock link', function () {
     cy.visit('/things/' + id).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')

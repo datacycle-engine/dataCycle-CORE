@@ -1,7 +1,7 @@
 <div class="reveal new-item" id="newContent" data-reveal>
     <h3>Neuen Inhalt auf Basis dieser Vorlage erstellen</h3>
 
-    <%= form_for :creative_work, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
+    <%= form_for :thing, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
         <%= hidden_field_tag :table, content.class.table_name %>
         <%= hidden_field_tag 'template', content.template_name %>
         <%= hidden_field_tag 'source', "source_id=>"+content.id+",source_table=>"+content.class.table_name %>
@@ -21,8 +21,8 @@
         <% end %>
 
         <div class="validation-container form-element">
-            <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-            <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
+            <%= label_tag 'thing[datahash][name]', 'Titel' %>
+            <%= text_field_tag 'thing[datahash][name]', '', class: 'form-control', value:'' %>
         </div>
         <%= submit_tag t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
     <% end %>

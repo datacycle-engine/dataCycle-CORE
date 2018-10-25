@@ -14,7 +14,7 @@
                            ].join(' ') %>" data-id="<%= [item.id] %>">
 
                 <%= render_first_existing_partial [
-                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}",
+                                                      "data_cycle_core/contents/viewers/tiles/#{item.template_name.underscore}",
                                                       "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}",
                                                       'data_cycle_core/contents/viewers/tiles/default'
                                                   ], local_assigns.merge({content: item})

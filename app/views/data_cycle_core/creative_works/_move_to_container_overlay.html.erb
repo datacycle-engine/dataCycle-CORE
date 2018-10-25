@@ -1,7 +1,7 @@
 <div class="reveal new-item" id="move-to-container-overlay" data-reveal>
     <h3><%= t('actions.move_to_container', locale: DataCycleCore.ui_language) %></h3>
 
-    <%= form_for :creative_work, :url => set_parent_creative_work_path(content), html: { class: 'validation-form' } do |f| %>
+    <%= form_for :thing, :url => set_parent_thing_path(content), html: { class: 'validation-form' } do |f| %>
         <div class="form-element">
           <%= label_tag 'parent_id', 'Thema' %>
 

@@ -1,8 +1,8 @@
 <% if @content&.id.present? %>
     <div class="reveal new-item" id="newContent" data-reveal data-multiple-opened="true">
         <h3><%= t('actions.new', data: DataCycleCore::Content::Content.model_name.human(locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></h3>
-        <%= form_for :creative_work, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
-            <%= hidden_field_tag :table, :creative_works %>
+        <%= form_for :thing, :url => {:action => "create"}, html: { class: 'validation-form' } do |f| %>
+            <%= hidden_field_tag :table, :things %>
 
             <%= select_tag 'template', options_for_select(@entities.map{ |c| [c&.template_name&.underscore&.titleize, c&.template_name] }.to_h) %>
 
@@ -22,9 +22,9 @@
             </div>
 
             <%= hidden_field_tag 'parent_id', @content.id %>
-            <div class="validation-container form-element" data-key="creative_work[datahash][headline]">
-                <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'' %>
+            <div class="validation-container form-element" data-key="thing[datahash][name]">
+                <%= label_tag 'thing[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'thing[datahash][name]', '', class: 'form-control', value:'' %>
             </div>
             <%= submit_tag t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
         <% end %>
@@ -39,13 +39,13 @@
       <div class="reveal new-item" id="new-idea-collection" data-reveal data-multiple-opened="true">
           <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template, locale: DataCycleCore.ui_language) %></h3>
 
-          <%= form_for :creative_work, :url => {:action => "create"} do |f| %>
-              <%= hidden_field_tag :type, :creative_works %>
+          <%= form_for :thing, :url => {:action => "create"} do |f| %>
+              <%= hidden_field_tag :type, :things %>
               <%= hidden_field_tag 'template', DataCycleCore::Feature::IdeaCollection.template %>
               <%= hidden_field_tag 'parent_id', @content.id %>
               <div class="validation-container form-element">
-                  <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-                  <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value:'', required: true %>
+                  <%= label_tag 'thing[datahash][name]', 'Titel' %>
+                  <%= text_field_tag 'thing[datahash][name]', '', class: 'form-control', value:'', required: true %>
               </div>
               <%= submit_tag t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
           <% end %>

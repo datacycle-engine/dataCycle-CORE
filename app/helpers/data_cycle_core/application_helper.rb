@@ -79,11 +79,8 @@ module DataCycleCore
 
     # TODO: fix when everything is a thing
     def render_content_partial(partial, parameters)
-      if parameters[:content].class.class_name.underscore == 'thing'
-        content_parameter = parameters[:content].schema['schema_type'].underscore
-      else
-        content_parameter = parameters[:content].class.class_name.underscore
-      end
+      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" if parameters[:content].class.class_name.underscore != 'thing'
+      content_parameter = parameters[:content].schema['schema_type'].underscore
       partials = [
         "#{content_parameter}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
         "#{content_parameter}_#{partial}",
@@ -119,14 +116,15 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
+      puts "--> render_attribute_viewer"
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
       else
         partials = [
           key.underscore.to_s,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
-          "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+          definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore),
+          definition.try(:[], 'validations').try(:[], 'format').try(:underscore),
           definition.dig('compute', 'type')&.underscore&.to_s,
           definition['type'].underscore.to_s
         ]
@@ -153,10 +151,11 @@ module DataCycleCore
     end
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
+      puts "--> render_linked_viewer"
       partials = [
         key.underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
+        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
+        content&.schema_type&.underscore,
         definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
@@ -194,7 +193,6 @@ module DataCycleCore
 
     def content_tile(item:, parameters: {})
       partials = [
-        "#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}_#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}",
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),
         item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
         'default'
