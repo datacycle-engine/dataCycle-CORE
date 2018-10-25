@@ -33,7 +33,7 @@ describe('DataLink', function () {
 
         cy.logout()
         cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
-        cy.get('.headline input[type=text]').should('be.visible').should('have.value', cname).clear().type(updated_name)
+        cy.get('.name input[type=text]').should('be.visible').should('have.value', cname).clear().type(updated_name)
         cy.get('.submit-edit-form').click()
         cy.location('pathname').should('match', /\/things/).should('not.contain', '/edit')
         cy.get('.flash.callout').should('be.visible').should('have.class', 'success').find('.close-button').click().should('be.hidden')
@@ -80,7 +80,7 @@ describe('DataLink', function () {
 
       cy.logout()
       cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
-      cy.get('.headline input[type=text]').should('be.visible').should('have.value', updated_name)
+      cy.get('.name input[type=text]').should('be.visible').should('have.value', updated_name)
     })
   })
 })
