@@ -116,7 +116,6 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
-      puts "--> render_attribute_viewer"
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
       else
@@ -151,7 +150,6 @@ module DataCycleCore
     end
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
-      puts "--> render_linked_viewer"
       partials = [
         key.underscore.to_s,
         definition.try(:[], 'template_name').try(:parameterize).try(:underscore),

@@ -67,7 +67,7 @@ Cypress.Commands.add('createThing', function (name, template) {
       template: template,
       thing: {
         datahash: {
-          headline: name
+          name: name
         }
       }
     },
