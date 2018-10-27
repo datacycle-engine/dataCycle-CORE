@@ -22,7 +22,7 @@ Array.class_eval do
   # This method is intendend to be used only for configuration files provided by developers. It is not intended to be
   # used for values provided by end users.
   def with_evaluated_values
-    map { |value|
+    map do |value|
       if value.is_a?(Hash) || value.is_a?(Array)
         value.with_evaluated_values
       elsif value.is_a?(String) && /{{.*}}/.match?(value)
@@ -30,6 +30,6 @@ Array.class_eval do
       else
         value
       end
-    }
+    end
   end
 end
