@@ -1,9 +1,12 @@
 ---
 name: DataCycle - Media
 credentials:
-  host: local
+  storage_type: local
+  #directory: /var/www/app/test/dummy/tmp/upload_test
+  directory: /home/pixelpoint/data_cycle_core/media
 config:
   download_config:
+    # could be used to download assets to local storage
     images:
       sorting: 1
       source_type: images
@@ -13,8 +16,36 @@ config:
     images:
       sorting: 1
       source_type: images
-      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportImages
+      asset_type: DataCycleCore::Image
+      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
       transformations:
-        image:
+        asset:
           content_type: DataCycleCore::CreativeWork
           template: DataCycle - Bild
+    videos:
+      sorting: 2
+      source_type: videos
+      asset_type: DataCycleCore::Video
+      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      transformations:
+        asset:
+          content_type: DataCycleCore::CreativeWork
+          template: DataCycle - Video
+    audio:
+      sorting: 3
+      source_type: audio
+      asset_type: DataCycleCore::Audio
+      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      transformations:
+        asset:
+          content_type: DataCycleCore::CreativeWork
+          template: DataCycle - Audio
+    pdf:
+      sorting: 4
+      source_type: pdf
+      asset_type: DataCycleCore::Pdf
+      import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      transformations:
+        asset:
+          content_type: DataCycleCore::CreativeWork
+          template: DataCycle - PDF
