@@ -1,25 +1,27 @@
 // Add Lazyloading + fixes
 module.exports.initialize = function () {
 
-  document.addEventListener('lazyloaded', function (e) {
-    var $reveal = $(e.target).closest('.reveal');
-    var new_top = ($(window).height() - $reveal.height()) / 3;
-    $reveal.animate({
-      top: new_top
-    }, 100);
+  // reposition reveal after it is loaded
+  $(document).on('lazyloaded form-rendered remote-partial-rendered', event => {
+    if (!$(event.target).closest('.reveal').hasClass('object-browser-overlay')) rePosition($(event.target).closest('.reveal'));
   });
 
-  $(document).on('open.zf.reveal', '.new-item[data-reset-on-close="true"]', function (event) {
-    if ($(this).find('iframe').length) {
-      $(this).append('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-      $(this).find('iframe').on('lazyloaded', function () {
-        $(this).find('.loading-iframe').remove();
-      }.bind(this));
-    }
+  $(document).on('lazybeforeunveil', 'iframe', event => {
+    $(event.target).after('<div class="loading-iframe"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   });
 
-  $(document).on('closed.zf.reveal', '[data-reset-on-close="true"]', function (event) {
-    $(this).children('iframe').removeClass('lazyloaded lazyloading').addClass('lazyload');
+  $(document).on('lazyloaded', 'iframe', event => {
+    $(event.target).siblings('.loading-iframe').remove();
   });
+
+  $(document).on('closed.zf.reveal', '[data-reset-on-close="true"]', event => {
+    $(event.target).find('iframe').removeClass('lazyloaded lazyloading').addClass('lazyload');
+  });
+
+  function rePosition(reveal) {
+    reveal.css({
+      top: ($(window).height() - reveal.outerHeight()) / 3
+    });
+  }
 
 };

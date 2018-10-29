@@ -274,7 +274,7 @@ module DataCycleCore
 
     def render_new_form(template: nil, parameters: {})
       partials = [
-        template.present? ? "#{template.class.name.demodulize.underscore}_#{template.template_name.parameterize(separator: '_')}" : nil,
+        template&.template_name&.parameterize(separator: '_'),
         template&.class&.name&.demodulize&.underscore,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }

@@ -358,6 +358,7 @@ ObjectBrowser.prototype.closeOverlay = function (ev) {
   $('#content-upload-reveal').off('closed.zf.reveal');
 };
 
+// import media from media_archive reveal
 ObjectBrowser.prototype.import = function (event) {
   if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');

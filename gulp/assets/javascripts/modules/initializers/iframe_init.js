@@ -2,7 +2,7 @@
 module.exports.initialize = function () {
 
   $(window).on('message onmessage', event => {
-    if ($('#new_image_iframe:visible iframe, #new_video_iframe:visible iframe').length && event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
+    if ($('.new-content-reveal:not(.in-object-browser):visible iframe').length && event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
       var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
       $.ajax({
         type: 'POST',
@@ -17,8 +17,10 @@ module.exports.initialize = function () {
         $('iframe:visible').closest('.reveal').foundation('close');
       });
     } else if ($('#content-upload-reveal').length && event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'open-upload-form') {
+      // open upload form triggered by media_archive
       $('#content-upload-reveal').foundation('open');
     } else if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'close_iframe') {
+      // close reveal
       $('iframe:visible').closest('.reveal').foundation('close');
     }
   });

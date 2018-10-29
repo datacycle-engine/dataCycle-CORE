@@ -761,7 +761,7 @@ a.has-tip {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
     width: 90vw;
-    height: 90vh;
+    height: 84vh;
     max-width: 1200px;
   }
 
@@ -857,15 +857,20 @@ video {
 }
 
 .reveal {
-  &.width-content {
-    width: min-content;
+  min-width: min-content;
+  max-width: 98vw;
+  max-height: 98vh;
+  overflow-y: visible;
 
-    img,
-    video {
-      max-width: 90vw;
-      max-height: 90vh;
-    }
-  }
+  // &.width-content {
+  //   width: min-content;
+
+  //   img,
+  //   video {
+  //     max-width: 90vw;
+  //     max-height: 90vh;
+  //   }
+  // }
 }
 
 .copied-to-clipboard {
