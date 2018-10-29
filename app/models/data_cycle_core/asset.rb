@@ -2,6 +2,7 @@
 
 module DataCycleCore
   class Asset < ApplicationRecord
+    attribute :type, :string, default: name
     belongs_to :creator, class_name: 'DataCycleCore::User'
     mount_uploader :file, FileUploader
     before_create :update_asset_attributes
