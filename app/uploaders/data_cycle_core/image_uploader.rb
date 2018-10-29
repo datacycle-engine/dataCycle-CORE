@@ -9,6 +9,7 @@ module DataCycleCore
     version :thumb_preview do
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
+      process colorspace: 'RGB'
       process :set_phash
 
       def full_filename(for_file)
@@ -38,6 +39,16 @@ module DataCycleCore
         phash: Phash::Image.new(file.file).try(:compute_phash).try(:data)
       }
       model.save!
+    end
+
+    def colorspace(cs)
+      manipulate! do |img|
+        img.format(img.type.to_s.downcase) do |c|
+          c.colorspace cs.to_s
+        end
+        img = yield(img) if block_given?
+        img
+      end
     end
   end
 end
