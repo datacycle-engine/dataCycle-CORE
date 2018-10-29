@@ -77,7 +77,6 @@ module DataCycleCore
       feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
     end
 
-    # TODO: fix when everything is a thing
     def render_content_partial(partial, parameters)
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" if parameters[:content].class.class_name.underscore != 'thing'
       content_parameter = parameters[:content].schema['schema_type'].underscore
@@ -122,8 +121,8 @@ module DataCycleCore
         partials = [
           key.underscore.to_s,
           feature_templates(key, definition, content),
-          definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore),
-          definition.try(:[], 'validations').try(:[], 'format').try(:underscore),
+          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
+          "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
           definition.dig('compute', 'type')&.underscore&.to_s,
           definition['type'].underscore.to_s
         ]
