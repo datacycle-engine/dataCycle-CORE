@@ -15,8 +15,8 @@ describe('Object Browser', function () {
       cy.visit(url).get('.flash.callout .close-button').should('be.visible').click().should('be.hidden')
 
       cy.get('.object-browser[data-type="Örtlichkeit"]').should('be.visible').find('.button.show-objectbrowser').should('be.visible').click()
-      cy.get('.object-browser-overlay:visible').should('be.visible').find('.new-item-button').should('be.visible').click()
-      cy.get('.new-item:visible').should('be.visible').find('#place_datahash_name').should('be.visible').type(place + '{enter}')
+      cy.get('.object-browser-overlay:visible').should('be.visible').find('.new-content-button').should('be.visible').click()
+      cy.get('.new-content-reveal:visible').should('be.visible').find('#place_datahash_name').should('be.visible').type(place + '{enter}')
       cy.get('.chosen-items:visible').should('be.visible').contains(place).should('have.length', 1)
       cy.get('.object-browser-search:visible').should('be.visible').type(place + '{enter}')
       cy.get('.items:not(.chosen-items):visible').contains(place).should('have.length', 1)
