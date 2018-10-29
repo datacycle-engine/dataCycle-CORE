@@ -44,7 +44,7 @@ module DataCycleCore
                 name: keyword,
                 external_source_id: external_source_id,
                 external_key: external_prefix + keyword
-              ).try(:first).try(:id)
+              )&.first&.id
             }.reject(&:nil?) || []
           end
           data_hash
