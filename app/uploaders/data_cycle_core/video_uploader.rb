@@ -15,6 +15,10 @@ module DataCycleCore
       end
     end
 
+    def extension_white_list
+      ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
+    end
+
     def create_thumb(width, height)
       movie = FFMPEG::Movie.new(current_path)
       dirname = File.dirname(current_path)

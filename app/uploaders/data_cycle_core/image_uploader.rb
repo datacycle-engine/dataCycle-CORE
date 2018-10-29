@@ -17,6 +17,10 @@ module DataCycleCore
       end
     end
 
+    def extension_white_list
+      ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
+    end
+
     def metadata
       image = ::MiniMagick::Image.open(current_path)
       image.data

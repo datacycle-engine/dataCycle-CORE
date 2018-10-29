@@ -4,6 +4,10 @@ require 'taglib'
 
 module DataCycleCore
   class AudioUploader < CommonUploader
+    def extension_white_list
+      ['mp3', 'ogg', 'wav', 'wma']
+    end
+
     def metadata
       TagLib::FileRef.open(current_path) do |fileref|
         unless fileref.null?
