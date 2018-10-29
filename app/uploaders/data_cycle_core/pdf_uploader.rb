@@ -8,7 +8,7 @@ module DataCycleCore
 
     # Create different versions of your uploaded files:
     version :thumb_preview do
-      process convert: 'jpg'
+      process convert: 'png'
       # process :colorspace => 'rgb'
       # process resize_to_fit: [800, 300]
 
