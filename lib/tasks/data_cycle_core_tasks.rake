@@ -769,4 +769,15 @@ namespace :data_cycle_core do
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
   end
+
+  desc 'reset database and import classifications, external sources and templates'
+  task reset_all: :environment do
+    Rake::Task['db:drop'].invoke
+    Rake::Task['db:create'].invoke
+    Rake::Task['db:migrate'].invoke
+    Rake::Task['db:seed'].invoke
+    Rake::Task['data_cycle_core:update:import_classifications'].invoke
+    Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+    Rake::Task['data_cycle_core:refactor:import_update_all_templates'].invoke
+  end
 end
