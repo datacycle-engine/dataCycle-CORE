@@ -53,7 +53,7 @@ module DataCycleCore
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type'],
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
         person: []
       }.freeze
 
