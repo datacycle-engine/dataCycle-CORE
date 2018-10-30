@@ -106,12 +106,22 @@ module.exports.initialize = function () {
     });
   };
 
-  $(document).on('form-rendered', '.new-content-form', event => {
+  function removeHandlers(element) {
+    $(element).find('.single-select, .multi-select, .async-select').each((_, element) => {
+      $(element).select2('destroy');
+    });
+  };
+
+  $(document).on('form-rendered remote-partial-rendered', event => {
     init(event.target);
   });
 
-  $(document).on('remote-partial-rendered', event => {
+  $(document).on('open.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
     init(event.target);
+  });
+
+  $(document).on('closed.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+    removeHandlers(event.target);
   });
 
   $(document).on('clone-added', '.content-object-item, .advanced-filter', function () {
