@@ -29,6 +29,15 @@ module DataCycleCore
             item.destroy
           end
         end
+        asset_property_names.each do |name|
+          definition = property_definitions[name]
+
+          delete = false
+          delete = true if history? || definition['type'] == 'asset'
+          next unless delete
+
+          load_asset_relation(name).each(&:destroy)
+        end
       end
     end
   end
