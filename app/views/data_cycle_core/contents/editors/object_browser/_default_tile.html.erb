@@ -12,4 +12,8 @@
     <% else %>
         <span class="name">Keine Übersetzung vorhanden</span>
     <% end %>
+
+    <div class="tile-properties">
+      <%= yield_content!(:additional_tile_attributes) %>
+    </div>
 </div>

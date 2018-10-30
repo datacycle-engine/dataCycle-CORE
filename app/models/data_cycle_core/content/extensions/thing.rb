@@ -15,7 +15,7 @@ module DataCycleCore
           when 'Event'
             name
           when 'Place'
-            name.presence || address_line || coordinates || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
+            name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
           when 'CreativeWork'
             name
           end
@@ -66,11 +66,17 @@ module DataCycleCore
         end
 
         def address_line
-          "#{address.postal_code} #{address.address_locality}, #{address.street_address}" if try(:address)&.to_h&.values&.presence&.any?(&:present?)
+          return if schema_type != 'Place'
+          (try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}, " : '') + (try(:address)&.street_address.present? ? address.street_address : '')
+        end
+
+        def address_block
+          return if schema_type != 'Place'
+          ((try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}<br>" : '') + (try(:address)&.street_address.present? ? address.street_address&.gsub(', ', '<br>') : '')).html_safe
         end
 
         def coordinates
-          "#{latitude}, #{longitude}" if latitude.present? && longitude.present?
+          "GPS: #{latitude.round(2)}, #{longitude.round(2)}" if latitude.present? && longitude.present?
         end
 
         module ClassMethods

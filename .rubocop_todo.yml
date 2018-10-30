@@ -68,6 +68,7 @@ Rails/OutputSafety:
   Exclude:
     - 'app/helpers/data_cycle_core/application_helper.rb'
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+    - 'app/models/data_cycle_core/content/extentions/thing.rb'
 
 Rails/HasManyOrHasOneDependent:
   Exclude:
