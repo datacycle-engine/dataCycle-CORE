@@ -47,6 +47,13 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
+        :api:
+          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

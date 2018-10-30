@@ -77,6 +77,13 @@
         :api:
           :name: photo
           :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :linked_table: creative_works
+        :template_name: Bild
+        :api:
+          :minimal: true
       :content_classifications:
         :type: mixin
         :name: content_classifications
