@@ -10,19 +10,9 @@
       :id:
         :label: id
         :type: key
-      :name:
-        :label: Firmenname
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
-        :api:
-          :name: legal_name
-          :minimal: true
+      :title:
+        :type: mixin
+        :name: title
       :contact_info:
         :type: mixin
         :name: contact_info

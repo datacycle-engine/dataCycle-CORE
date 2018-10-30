@@ -4,7 +4,7 @@
     :type: mixin
     :properties:
       :name:
-        :label: Titel
+        :label: Firmenname
         :type: string
         :storage_location: column
         :search: true
@@ -13,5 +13,3 @@
         :ui:
           :show:
             :disabled: true
-        :api:
-          :minimal: true

@@ -1,8 +1,8 @@
 ---
 - :data:
-    :name: Organization
+    :name: Person
     :type: object
-    :schema_type: Organization
+    :schema_type: Person
     :content_type: entity
     :translatable: true
     :boost: 1.0
@@ -10,24 +10,24 @@
       :id:
         :label: id
         :type: key
-      :name:
-        :label: Firmenname
+      :title:
+        :type: mixin
+        :name: title
+      :honorific_prefix:
+        :label: "Anrede / Titel"
         :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :min: 1
-        :ui:
-          :show:
-            :disabled: true
-        :api:
-          :name: legal_name
+        :storage_location: translated_value
       :contact_info:
         :type: mixin
         :name: contact_info
       :postal_address:
         :type: mixin
         :name: postal_address
+      :job_title:
+        :label: Position
+        :type: string
+        :storage_location: translated_value
+        :search: true
       :description:
         :label: Text
         :type: string
@@ -43,11 +43,18 @@
         :type: linked
         :linked_table: things
         :template_name: Bild
+      :gender:
+        :label: Geschlecht
+        :type: classification
+        :tree_label: Geschlecht
+        :ui:
+          :show:
+            :content_area: header
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Organisation"
+        :default_value: "Person"
       :content_classifications:
         :type: mixin
         :name: content_classifications
