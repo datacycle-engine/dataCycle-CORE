@@ -45,6 +45,7 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 module DataCycleCore
   module TestPreparations
     extend DataCycleCore::Common
+    ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
