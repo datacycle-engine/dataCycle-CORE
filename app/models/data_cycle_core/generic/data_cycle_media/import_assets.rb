@@ -6,7 +6,6 @@ module DataCycleCore
       module ImportAssets
         def self.import_data(utility_object:, options:)
           credentials = utility_object.external_source.credentials
-
           # other remote storage types
           # ftp, sftp, etc.
           raise 'Not implemented' unless credentials.dig('storage_type') == 'local'
@@ -18,6 +17,7 @@ module DataCycleCore
           local_dir = credentials.dig('directory')
           asset_type = options.dig(:import, :asset_type).constantize
 
+          raise "Directory: #{local_dir} does not exist" unless File.directory?(local_dir)
           raise 'Unkown asset type or local dir' unless local_dir.present? && asset_type.present?
 
           init_logging(utility_object) do |logging|
@@ -43,7 +43,7 @@ module DataCycleCore
                   }
                   new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
                   next unless new_object
-                  File.delete(p)
+                  File.delete(p) if credentials.dig('delete')
                   item_count += 1
                 end
                 break if options[:max_count].present? && item_count >= options[:max_count]

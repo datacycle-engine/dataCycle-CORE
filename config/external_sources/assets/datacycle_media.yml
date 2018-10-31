@@ -2,8 +2,9 @@
 name: DataCycle - Media
 credentials:
   storage_type: local
-  #directory: /var/www/app/test/dummy/tmp/upload_test
-  directory: /home/pixelpoint/data_cycle_core/media
+  directory: /var/www/app/test/dummy/tmp/upload_test
+#  directory: /home/pixelpoint/data_cycle_core/media
+  delete: false
 config:
   download_config:
     # could be used to download assets to local storage
