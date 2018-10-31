@@ -1,6 +1,6 @@
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-    <%= t("history.#{dataCycleObject.histories.size.positive? ? 'updated_at' : 'created_at'}", locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) if dataCycleObject.updated_at.present? %>
-    <% person = dataCycleObject.try(:updated_by_user).presence || dataCycleObject.try(:created_by_user) %>
+    <%= t("history.#{dataCycleObject.histories.exists? ? 'updated_at' : 'created_at'}", locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) if dataCycleObject.updated_at.present? %>
+    <% person = dataCycleObject.histories.present? ? dataCycleObject.try(:updated_by_user) : dataCycleObject.try(:created_by_user) %>
 
     <% if person.is_a?(Object) && !person.nil? %>
         <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
@@ -12,6 +12,6 @@
 
 </div>
 
-<% if dataCycleObject.histories.size > 0 %>
+<% if dataCycleObject.histories.exists? %>
     <%= render 'histories', content: dataCycleObject %>
 <% end %>
