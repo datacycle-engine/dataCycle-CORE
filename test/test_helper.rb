@@ -215,6 +215,7 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
     Rails.root.join('..', 'data_types', 'attributes'),
     Rails.root.join('..', 'data_types', 'custom')
   ]

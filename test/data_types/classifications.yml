@@ -2,6 +2,12 @@
 # classifications for oew top-classification is label for classificationstree
 # $$ for internal classifications
 - Inhaltstypen:
+  - $$Asset:
+    - $$DataCycle - Audio
+    - $$DataCycle - Bild
+    - $$DataCycle - Video
+    - $$DataCycle - Datei
+    - $$DataCycle - PDF
   - $$Text:
     - $$Artikel
     - $$Zeitleiste
