@@ -3,6 +3,7 @@
   <%= label_tag key do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
+    <%= render 'helper_text', local_assigns %>
   <% end %>
 
   <div class="v-select">
@@ -37,6 +38,7 @@
             ),
             {
               multiple: true,
+              include_blank: true,
               disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
               class: 'async-select',
               data: {
@@ -65,6 +67,7 @@
             options_for_select(available_items, value&.map(&:id)),
             {
               multiple: true,
+              include_blank: true,
               disabled: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
               class: 'multi-select',
               data: {

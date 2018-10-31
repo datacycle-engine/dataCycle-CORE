@@ -24,7 +24,6 @@ PATH
       json-schema
       kaminari
       logging
-      loofah (~> 2.2.2)
       mini_magick
       mongoid
       multi_json
@@ -209,7 +208,7 @@ GEM
       bundler (~> 1.2)
       gems (~> 0.8)
       git (~> 1.2)
-    get_process_mem (0.2.2)
+    get_process_mem (0.2.3)
     git (1.5.0)
     globalid (0.4.1)
       activesupport (>= 4.2.0)
@@ -249,7 +248,7 @@ GEM
     logging (2.2.2)
       little-plugger (~> 1.1)
       multi_json (~> 1.10)
-    loofah (2.2.2)
+    loofah (2.2.3)
       crass (~> 1.0.2)
       nokogiri (>= 1.5.9)
     mail (2.7.1)

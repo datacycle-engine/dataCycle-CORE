@@ -1640,3 +1640,13 @@ select {
     box-shadow: 0 0 1px $dark-gray;
   }
 }
+
+.fa {
+  &.has-tip {
+    border: none;
+  }
+}
+
+.tooltip {
+  max-width: 30rem;
+}

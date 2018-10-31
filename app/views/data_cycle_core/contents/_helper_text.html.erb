@@ -1,0 +1,3 @@
+<% helper_text = t("helper_text.attributes.#{content&.template_name&.parameterize(separator: '_')}.#{key.attribute_name_from_key}.tooltip", default: '', locale: DataCycleCore.ui_language) %>
+
+<%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: helper_text, data: { tooltip: true } if helper_text.present? %>
