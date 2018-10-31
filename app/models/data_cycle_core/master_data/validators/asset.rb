@@ -5,7 +5,7 @@ module DataCycleCore
     module Validators
       class Asset < BasicValidator
         def asset_keywords
-          ['min', 'max']
+          []
         end
 
         def validate(data, template)
@@ -59,10 +59,6 @@ module DataCycleCore
 
         def min(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size < value
-        end
-
-        def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
         end
       end
     end

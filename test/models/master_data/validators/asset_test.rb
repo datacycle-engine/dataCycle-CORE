@@ -9,6 +9,11 @@ describe DataCycleCore::MasterData::Validators::Asset do
     DataCycleCore::MasterData::Validators::Asset
   end
 
+  def upload_file
+    file_name = 'test_rgb.jpg'
+    File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
+  end
+
   describe 'validate data' do
     let(:template_hash) do
       {
@@ -18,26 +23,13 @@ describe DataCycleCore::MasterData::Validators::Asset do
       }
     end
 
-    let(:template_hash_length) do
-      {
-        'label' => 'Local-Asset',
-        'type' => 'asset',
-        'asset_type' => 'asset',
-        'validations' => {
-          'min' => 1,
-          'max' => 2
-        }
-      }
-    end
-
     let(:template_hash_length_w_error) do
       {
         'label' => 'Local-Asset',
         'type' => 'asset',
         'asset_type' => 'asset',
         'validations' => {
-          'unknown' => 1,
-          'max' => 2
+          'unknown' => 1
         }
       }
     end
@@ -47,21 +39,26 @@ describe DataCycleCore::MasterData::Validators::Asset do
     end
 
     let(:asset1) do
-      DataCycleCore::Asset.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000')
+      asset = DataCycleCore::Asset.new(
+        id: '00000000-0000-0000-0000-000000000000',
+        file: File.open(upload_file)
+      )
+      asset.save
+      asset
     end
 
     let(:image1) do
-      DataCycleCore::Image.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001')
-    end
-
-    let(:video1) do
-      DataCycleCore::Video.find_or_create_by!(id: '00000000-0000-0000-0000-000000000002')
+      image = DataCycleCore::Image.new(
+        id: '00000000-0000-0000-0000-000000000001',
+        file: File.open(upload_file)
+      )
+      image.save
+      image
     end
 
     after do
       DataCycleCore::Asset.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
       DataCycleCore::Image.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
-      DataCycleCore::Video.find_by(id: '00000000-0000-0000-0000-000000000002')&.destroy
     end
 
     it 'properly validates a AssetObject' do
@@ -72,12 +69,8 @@ describe DataCycleCore::MasterData::Validators::Asset do
       assert_equal(no_error_hash, subject.new([image1.id], template_hash).error)
     end
 
-    it 'properly validates a VideoObject' do
-      assert_equal(no_error_hash, subject.new([video1.id], template_hash).error)
-    end
-
     it 'produces a warning if no uuid given' do
-      data_cases = [nil, '', ['']]
+      data_cases = [nil, '', [''], 1]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
         assert_equal(0, validator.error[:error].size)
@@ -87,40 +80,12 @@ describe DataCycleCore::MasterData::Validators::Asset do
 
     it 'successfully validates in these cases' do
       data_cases = [
-        asset1.id,
-        image1.id,
-        video1.id,
-        [asset1.id, image1.id, video1.id]
+        asset1.id
       ]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)
         assert_equal(no_error_hash, validator.error)
       end
-    end
-
-    it 'successfully validates with min, max given' do
-      uuids = [asset1.id, image1.id]
-      validator = subject.new(uuids, template_hash_length)
-      assert_equal(no_error_hash, validator.error)
-    end
-
-    it 'properly errors out when length restrictions are not met' do
-      data_cases = [
-        [],
-        [asset1.id, image1.id, video1.id]
-      ]
-      data_cases.each do |case_item|
-        validator = subject.new(case_item, template_hash_length)
-        assert_equal(1, validator.error[:error].size)
-        assert_equal(0, validator.error[:warning].size)
-      end
-    end
-
-    it 'add warnings for invalid value' do
-      uuids = [1, asset1.id]
-      validator = subject.new(uuids, template_hash_length)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
     end
 
     it 'add warnings for invalid validation key' do
