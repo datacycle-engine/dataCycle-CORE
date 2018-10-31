@@ -22,6 +22,13 @@ describe DataCycleCore::MasterData::Validators::Asset do
         'asset_type' => 'asset'
       }
     end
+    let(:template_image_hash) do
+      {
+        'label' => 'Local-Asset',
+        'type' => 'asset',
+        'asset_type' => 'image'
+      }
+    end
 
     let(:template_hash_length_w_error) do
       {
@@ -66,13 +73,13 @@ describe DataCycleCore::MasterData::Validators::Asset do
     end
 
     it 'properly validates a ImageObject' do
-      assert_equal(no_error_hash, subject.new([image1.id], template_hash).error)
+      assert_equal(no_error_hash, subject.new([image1.id], template_image_hash).error)
     end
 
-    it 'produces a warning if no uuid given' do
+    it 'produces a error if no uuid given' do
       data_cases = [nil, '', [''], 1]
       data_cases.each do |case_item|
-        validator = subject.new(case_item, template_hash)
+        validator = subject.new(case_item, template_hash) # byebug
         assert_equal(0, validator.error[:error].size)
         assert_equal(1, validator.error[:warning].size)
       end
@@ -91,6 +98,13 @@ describe DataCycleCore::MasterData::Validators::Asset do
     it 'add warnings for invalid validation key' do
       uuids = asset1.id
       validator = subject.new(uuids, template_hash_length_w_error)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+    end
+
+    it 'add warnings for invalid asset_type' do
+      uuids = image1.id
+      validator = subject.new(uuids, template_hash)
       assert_equal(0, validator.error[:error].size)
       assert_equal(1, validator.error[:warning].size)
     end
