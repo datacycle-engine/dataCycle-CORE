@@ -7,6 +7,8 @@ module DataCycleCore
     mount_uploader :file, FileUploader
     before_create :update_asset_attributes
     process_in_background :file
+    validates_presence_of :file
+    validates_integrity_of :file
 
     include AssetHelpers
 
