@@ -44,7 +44,7 @@ module DataCycleCore
       object_type = DataCycleCore.asset_objects.find { |object| object == "DataCycleCore::#{additional_params[:definition]['asset_type'].to_s.try(:camelcase)}" }
       @asset = object_type.constantize.new(asset_params)
       @asset.creator_id = current_user.try(:id)
-      return unless @asset.save
+      @asset.save
       @object = [@asset]
       respond_to(:js)
     end
