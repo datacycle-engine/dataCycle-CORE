@@ -6,12 +6,25 @@ module DataCycleCore
     load_and_authorize_resource except: :search # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
+    BLOCKED_COLUMNS ||= ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'provider', 'default_locale', 'type'].freeze
+
     def index
-      if current_user.has_rank?(10)
-        @paginate_object = DataCycleCore::User.includes(:role, :user_groups).order(:email).page(params[:page])
-      else
-        @paginate_object = DataCycleCore::User.where(locked_at: nil).includes(:role).order(:email).page(params[:page])
+      @search_param = search_params[:q]
+
+      search_columns = DataCycleCore::User.columns
+        .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
+        .map(&:name)
+
+      query = DataCycleCore::User
+      query = query.where(locked_at: nil) unless current_user.has_rank?(10)
+
+      if @search_param.present?
+        search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
+        query = query.where(search_term)
       end
+
+      @paginate_object = query.includes(:role, :user_groups).order(:email).page(params[:page])
+      @total = @paginate_object.total_count
     end
 
     def create_user
@@ -92,6 +105,10 @@ module DataCycleCore
     end
 
     private
+
+    def search_params
+      params.permit(:q)
+    end
 
     def permitted_params
       allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :type, :external, user_group_ids: []]

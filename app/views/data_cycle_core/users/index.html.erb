@@ -1,5 +1,9 @@
 <% breadcrumb :index, 'users' %>
 
+<% content_for :top_content do %>
+  <%= render 'filter' if user_signed_in? %>
+<% end %>
+
 <%= render 'results', contents: @paginate_object, no_cache: true %>
 
 <% if can? :create_user, DataCycleCore::User %>
