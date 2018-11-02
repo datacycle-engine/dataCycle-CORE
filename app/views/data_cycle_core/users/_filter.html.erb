@@ -19,7 +19,7 @@
             <i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
             <% if @total&.positive? %>
               <span class="result-count">
-                (<strong><%= @total %></strong> <%= DataCycleCore::User.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
+                (<strong><%= @total %></strong> <%= filter_model.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
               </span>
             <% end %>
           </span>
