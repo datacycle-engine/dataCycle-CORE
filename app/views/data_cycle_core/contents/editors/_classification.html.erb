@@ -57,7 +57,8 @@
                 title: [
                   c.sub_classification_alias.full_path,
                   c.sub_classification_alias.description
-                ].reject(&:blank?).join("\n\n")
+                ].reject(&:blank?).join("\n\n"),
+                disabled: !c.sub_classification_alias.assignable
               }
             ]
           } %>
