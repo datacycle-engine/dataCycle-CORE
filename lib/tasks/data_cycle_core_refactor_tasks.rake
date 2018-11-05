@@ -568,9 +568,9 @@ namespace :data_cycle_core do
         ActiveRecord::Base.connection.exec_query(sql)
 
         sql = <<-SQL
-          UPDATE thing_translations AS tt SET
-          	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
-          WHERE (tt.content ->> 'name') NOT IN (NULL, '', ' ')
+          UPDATE thing_translations AS tt
+          SET content = content #- '{name}' || jsonb_build_object('link_name', content->>'name')
+          WHERE (tt.content ->> 'name') IS NOT NULL
           AND tt.thing_id IN (
             SELECT id from things
             WHERE template = false
@@ -592,9 +592,9 @@ namespace :data_cycle_core do
         ActiveRecord::Base.connection.exec_query(sql)
 
         sql = <<-SQL
-          UPDATE thing_history_translations AS tt SET
-          	content = jsonb_insert((tt.content - 'name'), '{link_name}', (tt.content ->> 'name')::jsonb)
-          WHERE (tt.content ->> 'name') NOT IN (NULL, '', ' ')
+          UPDATE thing_history_translations AS tt
+          SET content = content #- '{name}' || jsonb_build_object('link_name', content->>'name')
+          WHERE (tt.content ->> 'name') IS NOT NULL
           AND tt.thing_history_id IN (
             SELECT id from thing_histories
             WHERE template = false
