@@ -4,11 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
-    test 'CreativeWork exists' do
-      data = DataCycleCore::CreativeWork.new
-      assert_equal(data.class, DataCycleCore::CreativeWork)
-    end
-
     # TODO: move to embedded test (creative work with embedded from other table does not exists anymore)
     # test 'embedded objects are deleted if parent is deleted' do
     #   template_cw = DataCycleCore::CreativeWork.count
@@ -840,128 +835,69 @@ module DataCycleCore
     # end
 
     test 'save proper CreativeWork data-set with hash method' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' })
-      data_set.save
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
-        'description' => 'wtf is going on???',
-        'tags' => [],
-        'output_channel' => []
-      }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      test_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
+      data_set.set_data_hash(data_hash: test_hash)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
     end
 
     test 'save CreativeWork with only Titel' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!' })
-      data_set.save
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
-        'tags' => [],
-        'output_channel' => []
-      }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
-      assert_equal(data_set.cache_key.to_s, "data_cycle_core/creative_works/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/creative_work/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      test_hash = { 'name' => 'Dies ist ein Test!' }
+      data_set.set_data_hash(data_hash: test_hash)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
     end
 
     test 'save CreativeWork with sub-properties' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' } })
-      data_set.save
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      test_hash = {
+        'name' => 'Dies ist ein Test!',
         'validity_period' => {
           'valid_from' => '2017-05-01'.in_time_zone,
           'valid_until' => '2017-06-01'.in_time_zone
-        },
-        'tags' => [],
-        'output_channel' => []
-      }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
-    end
-
-    test 'save CreativeWork with sub-properties_tree' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01', 'test' => { 'test1' => 1, 'test2' => 2 } } })
-      data_set.save
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
-
-        'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
-        },
-        'tags' => [],
-        'output_channel' => []
-      }
-
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
-      data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
-    end
-
-    test 'save CreativeWork, Data properly written to metadata' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
-        'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
-        },
-        'tags' => [],
-        'output_channel' => []
-      }
-
-      test_data = {
-        'headline' => 'Dies ist ein Test!',
-        'validity_period' => {
-          'valid_from' => '2017-05-01',
-          'valid_until' => '2017-06-01'
         }
       }
-      data_set.set_data_hash(data_hash: test_data)
-      data_set.save
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
-      expected_data_hash = {
+      data_set.set_data_hash(data_hash: test_hash)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+    end
+
+    test 'save CreativeWork with irrelevant sub-properties_tree' do
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      test_hash = {
+        'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone('UTC'),
-          'valid_until' => '2017-06-01'.in_time_zone('UTC')
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
         }
       }
-      # TODO: remove hardcoded metadata
-      assert_equal(expected_data_hash, data_set.metadata.except('validation').compact)
+      data_set.set_data_hash(data_hash: test_hash)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-06-01' }, 'test' => { 'test1' => 1, 'test2' => 2, 'test3' => { 'hallo' => 'World' } } })
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+    end
+
+    test 'save CreativeWork, Data properly written to jsonb' do
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      test_hash = {
+        'name' => 'Dies ist ein Test!',
+        'validity_period' => {
+          'valid_from' => '2017-05-01'.in_time_zone,
+          'valid_until' => '2017-06-01'.in_time_zone
+        }
+      }
+      data_set.set_data_hash(data_hash: test_hash)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      # TODO: get ridd of metadata...
+      assert_equal(test_hash.dig('validity_period', 'valid_from').to_s, data_set.metadata.dig('validity_period', 'valid_from'))
+      assert_equal(test_hash.dig('validity_period', 'valid_until').to_s, data_set.metadata.dig('validity_period', 'valid_until'))
+      assert_equal(test_hash.dig('validity_period', 'valid_from'), data_set.validity_period.valid_from)
+      assert_equal(test_hash.dig('validity_period', 'valid_until'), data_set.validity_period.valid_until)
     end
 
     test 'save CreativeWork with sub-properties and invalid data' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
-      error = data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-16-01' } })
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      error = data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-16-01' } })
       data_set.save
       assert_equal(2, error[:error].count)
     end
@@ -979,11 +915,7 @@ module DataCycleCore
     # # end
 
     test 'save CreativeWork link to user_id' do
-      template = DataCycleCore::CreativeWork.where(template: true, template_name: 'Container').first
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
       DataCycleCore::User.create!(
         given_name: 'Test',
         family_name: 'TEST',
@@ -991,16 +923,9 @@ module DataCycleCore
         password: 'password'
       )
       current_user = DataCycleCore::User.first
-      data_set.set_data_hash(data_hash: { 'headline' => 'Dies ist ein Test!' }, current_user: current_user)
-      data_set.save
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
-        'tags' => [],
-        'output_channel' => []
-      }
-
-      received_hash = data_set.get_data_hash.compact
-      assert_equal(expected_hash, received_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+      test_hash = { 'name' => 'Dies ist ein Test!' }
+      data_set.set_data_hash(data_hash: test_hash, current_user: current_user)
+      assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(current_user.id, data_set.updated_by)
     end
     # TODO: move to specific test
@@ -1026,44 +951,24 @@ module DataCycleCore
     # end
     #
     test 'partially update datahash' do
-      content_template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Artikel')
-      content = DataCycleCore::CreativeWork.new
-      content.schema = content_template.schema
-      content.template_name = content_template.template_name
-      content.save
+      image_content = DataCycleCore::TestPreparations.data_set_object('Bild')
+      image_content.set_data_hash(data_hash: { 'name' => 'Test3' })
 
-      DataCycleCore::CreativeWork.create!(headline: 'Test3')
-      uuid = DataCycleCore::CreativeWork.where(headline: 'Test3').first.id
-
-      expected_hash = {
-        'headline' => 'Dies ist ein Test!',
+      test_hash = {
+        'name' => 'Dies ist ein Test!',
         'description' => 'wtf is going on???',
-        'image' => [uuid],
-        'quotation' => [],
-        'content_location' => [],
-        'tags' => [],
-        'textblock' => [],
-        'output_channel' => []
+        'image' => [image_content.id]
       }
+      content = DataCycleCore::TestPreparations.data_set_object('Artikel')
+      content.save!
+      content.set_data_hash(data_hash: test_hash, prevent_history: true)
+      assert_equal(test_hash.except('image'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash['image'], content.image.pluck(:id))
 
-      content.set_data_hash(
-        data_hash: {
-          'headline' => 'Dies ist ein Test!',
-          'description' => 'wtf is going on???',
-          'image' => [uuid]
-        },
-        prevent_history: true
-      )
-
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *DataCycleCore::TestPreparations.excepted_attributes))
-      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
-
-      expected_hash['description'] = 'only change description'
-
-      content.set_data_hash(data_hash: { 'description' => 'only change description' }, partial_update: true, prevent_history: true)
-
-      assert_equal(expected_hash.except('image'), content.get_data_hash.compact.except('image', *DataCycleCore::TestPreparations.excepted_attributes))
-      assert_equal(expected_hash['image'].sort, content.get_data_hash['image'].pluck(:id).sort)
+      test_hash['description'] = 'only change description'
+      content.set_data_hash(data_hash: { 'description' => test_hash['description'] }, partial_update: true, prevent_history: true)
+      assert_equal(test_hash.except('image'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash['image'], content.image.pluck(:id))
     end
   end
 end

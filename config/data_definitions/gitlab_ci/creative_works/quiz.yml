@@ -38,7 +38,7 @@
       :question:
         :label: Frage
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Frage
       :data_type:
         :label: Inhaltstype
@@ -84,21 +84,21 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :accepted_answer:
         :label: Richtige Antwort
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Antwort
         :validations:
           :max: 1
       :suggested_answer:
         :label: Falsche Antwort
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Antwort
       :data_type:
         :label: Inhaltstype
@@ -128,7 +128,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1

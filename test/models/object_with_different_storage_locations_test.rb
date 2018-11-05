@@ -5,11 +5,8 @@ require 'test_helper'
 module DataCycleCore
   class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
     test 'events template with daterange' do
-      template = DataCycleCore::Event.find_by(template: true, template_name: 'Event')
-      data_set = DataCycleCore::Event.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('Event')
+      data_set.save!
 
       data_hash = {
         'url' => 'http://www.wtf.at',
@@ -25,7 +22,7 @@ module DataCycleCore
       expected_hash = {
         'url' => 'http://www.wtf.at',
         'image' => [],
-        'location' => [],
+        'content_location' => [],
         'sub_event' => [],
         'output_channel' => [],
         'tags' => [],
@@ -43,11 +40,8 @@ module DataCycleCore
     end
 
     test 'save Object in metadata and data within object to column' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestObject')
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('TestObject')
+      data_set.save!
       data_hash = {
         'headline1' => 'Dies ist ein Test!',
         'description1' => 'wtf is going on???',
@@ -76,11 +70,8 @@ module DataCycleCore
     end
 
     test 'save Object in metadata and data within object to column and next level object' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'TestObject2')
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('TestObject2')
+      data_set.save!
       data_hash = {
         'headline1' => 'Dies ist ein Test!',
         'period' => {

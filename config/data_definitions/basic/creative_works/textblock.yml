@@ -2,6 +2,7 @@
 - :data:
     :name: Textblock
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :properties:
       :id:
@@ -10,7 +11,7 @@
       :name:
         :label: Label
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
         :validations:
           :min: 1
       :text:

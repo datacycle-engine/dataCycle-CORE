@@ -2,8 +2,10 @@
 - :data:
     :name: Event
     :type: object
+    :schema_type: Event
     :boost: 100.0
     :content_type: entity
+    :translatable: true
     :features:
       :overlay:
         :allowed: true
@@ -14,7 +16,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: events
+        :linked_table: things
         :template_name: EventOverlay
         :external: true
         :validations:
@@ -92,19 +94,19 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
-        :linked_table: events
+        :linked_table: things
         :template_name: SubEvent
       :data_type:
         :label: Inhaltstype

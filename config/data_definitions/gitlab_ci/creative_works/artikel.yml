@@ -35,7 +35,7 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :name:
+      :link_name:
         :label: Linktitel
         :type: string
         :storage_location: translated_value
@@ -53,7 +53,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Ort
@@ -63,7 +63,7 @@
       :quotation:
         :label: Zitat
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Zitat
       :data_type:
         :label: Inhaltstype

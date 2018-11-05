@@ -21,14 +21,14 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :author:
         :label: "Zitat von"
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
         :validations:
           :max: 1

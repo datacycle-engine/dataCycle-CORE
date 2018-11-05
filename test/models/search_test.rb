@@ -7,12 +7,8 @@ require 'minitest/autorun'
 module DataCycleCore
   class SearchTest < ActiveSupport::TestCase
     test 'test search utility functions' do
-      template_data = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Bild2')
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template_data.schema
-      data_set.template_name = template_data.template_name
-      data_set.save
-
+      data_set = DataCycleCore::TestPreparations.data_set_object('Bild2')
+      data_set.save!
       data_hash = {
         'caption' => 'Caption Test',
         'comment' => 'Comment Test',
@@ -30,10 +26,8 @@ module DataCycleCore
 end
 
 describe DataCycleCore::Search do
-  def create_content(template_class, template_name, data = {})
-    content = template_class.new
-    content.schema = template_class.find_by(template: true, template_name: template_name).schema
-    content.template_name = template_name
+  def create_content(template_name, data = {})
+    content = DataCycleCore::TestPreparations.data_set_object(template_name)
     content.save!
 
     result = content.set_data_hash(data_hash: data.stringify_keys)
@@ -64,28 +58,25 @@ describe DataCycleCore::Search do
   before do
     @contents = [
       create_content(
-        DataCycleCore::CreativeWork,
         'Searchable Headline',
         {
-          headline: 'HEADLINE 1',
+          name: 'HEADLINE 1',
           tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       ),
       create_content(
-        DataCycleCore::CreativeWork,
         'Searchable Headline',
         {
-          headline: 'HEADLINE 2',
+          name: 'HEADLINE 2',
           tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2', 'Nested Tag 1')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       ),
       create_content(
-        DataCycleCore::CreativeWork,
         'Searchable Headline',
         {
-          headline: 'HEADLINE 2',
+          name: 'HEADLINE 2',
           tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1', 'Tag 2')
                                                  .map(&:classifications).flatten.map(&:id)
         }

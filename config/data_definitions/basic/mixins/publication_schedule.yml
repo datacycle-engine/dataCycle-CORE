@@ -6,7 +6,7 @@
       :publication_schedule:
         :label: Geplante Publikation
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Publikations-Plan
         :validations:
           :classifications: no_conflicts

@@ -56,18 +56,18 @@
           <% y_html = value.presence&.y&.to_s %>
         <% end %>
 
-        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>">
+        <div class="detail-type longitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>">
           <span class="detail-label">
-            <%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>
           </span>
           <span class="detail-content">
             <%= x_html&.html_safe %>
           </span>
         </div>
 
-        <div class="detail-type latitude number" data-label="<%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>">
+        <div class="detail-type latitude number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>">
           <span class="detail-label">
-            <%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
           </span>
           <span class="detail-content">
             <%= y_html&.html_safe %>
@@ -76,9 +76,9 @@
       <% end %>
 
       <% if content.elevation.present? && content.elevation.nonzero? %>
-        <div class="detail-type elevation number" data-label="<%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>">
+        <div class="detail-type elevation number" data-label="<%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>">
           <span class="detail-label">
-            <%= DataCycleCore::Place.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:elevation, locale: DataCycleCore.ui_language) %>
           </span>
           <span class="detail-content">
             <%= content.elevation %>

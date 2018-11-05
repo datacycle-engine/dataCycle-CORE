@@ -14,7 +14,7 @@
         :validations:
           :min: 1
           :format: url
-      :name:
+      :link_name:
         :label: Linktitel
         :type: string
         :storage_location: translated_value

@@ -14,7 +14,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Bilder',
         'type' => 'embedded',
-        'linked_table' => 'creative_works',
+        'linked_table' => 'things',
         'template_name' => 'Bild',
         'validations' => {
           'max' => 1
@@ -26,7 +26,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Geplante Publikation',
         'type' => 'embedded',
-        'linked_table' => 'creative_works',
+        'linked_table' => 'things',
         'template_name' => 'Publikations-Plan',
         'validations' => {
           'classifications' => 'no_conflicts'
@@ -39,20 +39,20 @@ describe DataCycleCore::MasterData::Validators::Embedded do
     end
 
     let(:bild1) do
-      DataCycleCore::CreativeWork.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000') do |item|
-        item.headline = 'Bild1'
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000') do |item|
+        item.name = 'Bild1'
       end
     end
 
     let(:bild2) do
-      DataCycleCore::CreativeWork.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
-        item.headline = 'Bild2'
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
+        item.name = 'Bild2'
       end
     end
 
     after do
-      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
-      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
+      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
+      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
     end
 
     it 'successfully validates embedded Bild' do

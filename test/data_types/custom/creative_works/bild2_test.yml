@@ -6,7 +6,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -135,7 +135,7 @@
     :permissions:
       :read_write: false
     :properties:
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column

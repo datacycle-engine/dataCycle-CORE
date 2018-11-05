@@ -3,11 +3,8 @@
 module DataCycleCore
   class Event < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Event
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
-      include Content::Extensions::Event
     end
 
     class History < Content::Content
@@ -17,7 +14,6 @@ module DataCycleCore
       attribute :description
       attribute :content
       attribute :history_valid
-
       content_relations table_name: 'events', postfix: 'history'
       belongs_to :event
     end

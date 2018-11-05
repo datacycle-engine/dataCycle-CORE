@@ -65,6 +65,7 @@ Rake::Task['db:create'].enhance do
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
   else
     ActiveRecord::Base.establish_connection(:development)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -72,6 +73,8 @@ Rake::Task['db:create'].enhance do
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:development)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.establish_connection(:development)
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
 
     ActiveRecord::Base.establish_connection(:test)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -79,6 +82,8 @@ Rake::Task['db:create'].enhance do
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:test)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.establish_connection(:test)
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
   end
 end
 

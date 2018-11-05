@@ -10,13 +10,13 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('primaryImage'),
             transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_image,
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end
 
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('images', 'image') || []).each do |image_hash|
@@ -39,7 +39,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_tour(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Tour' },
+            default: { content_type: DataCycleCore::Thing, template: 'Tour' },
             config: config
           )
         end
@@ -49,7 +49,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::OutdoorActive::Transformations.outdoor_active_to_place(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end

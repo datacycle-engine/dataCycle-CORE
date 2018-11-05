@@ -22,7 +22,7 @@ config:
       endpoint: DataCycleCore::Generic::GooglePlaces::Endpoint
       download_strategy: DataCycleCore::Generic::GooglePlaces::Download
   import_config:
-    keywords:
+    tags:
       sorting: 1
       source_type: places
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -36,7 +36,7 @@ config:
       import_strategy: DataCycleCore::Generic::GooglePlaces::Import
       transformations:
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
           default_values:
             data_type:

@@ -5,14 +5,14 @@ require 'test_helper'
 module DataCycleCore
   class I18nFallback < ActiveSupport::TestCase
     test 'make sure config.i18n.fallback is set to false' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'BildMinimal')
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'BildMinimal')
       validation = template.schema
-      data_set = DataCycleCore::CreativeWork.new
+      data_set = DataCycleCore::Thing.new
       data_set.schema = validation
       data_set.save
 
-      data_hash_de = { 'headline' => 'Dies ist ein Test!', 'test_content' => 'Deutsch' }
-      data_hash_en = { 'headline' => 'This is a Test!', 'test_content' => 'English' }
+      data_hash_de = { 'name' => 'Dies ist ein Test!', 'test_content' => 'Deutsch' }
+      data_hash_en = { 'name' => 'This is a Test!', 'test_content' => 'English' }
 
       data_set.set_data_hash(data_hash: data_hash_de)
       data_set.save

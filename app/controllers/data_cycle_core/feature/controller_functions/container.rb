@@ -8,7 +8,7 @@ module DataCycleCore
 
         included do
           DataCycleCore::Engine.routes.append do
-            unless has_named_route?(:set_parent_creative_work)
+            unless has_named_route?(:set_parent_thing)
               DataCycleCore.content_tables.each do |table|
                 post "/#{table}/:id/set_parent", action: :set_parent, controller: table, as: "set_parent_#{table.singularize}"
               end

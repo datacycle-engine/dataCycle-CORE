@@ -2,6 +2,7 @@
 - :data:
     :name: Datei
     :type: object
+    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
     :properties:

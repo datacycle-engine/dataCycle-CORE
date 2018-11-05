@@ -7,7 +7,7 @@ module DataCycleCore
     module Attributes
       class ComputedTest < ActiveSupport::TestCase
         test 'Testing Utility::Calculation::Math methods' do
-          data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Calculation-Math')
+          data_set = DataCycleCore::TestPreparations.data_set_object('Calculation-Math')
           data_set.save
 
           data = {
@@ -28,11 +28,11 @@ module DataCycleCore
           assert_equal(6, data_set.value_2)
           assert_equal(11, data_set.math_sum)
 
-          assert_equal(1, DataCycleCore::CreativeWork.where(template: false, template_name: 'Calculation-Math').count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Calculation-Math').count)
         end
 
         test 'Testing Utility::Calculation::Common methods' do
-          data_set = DataCycleCore::TestPreparations.data_set_object('creative_works', 'Calculation-Common')
+          data_set = DataCycleCore::TestPreparations.data_set_object('Calculation-Common')
           data_set.save
 
           data = {
@@ -52,7 +52,7 @@ module DataCycleCore
           assert_equal(6, data_set.value_2)
           assert_equal(5, data_set.common_copy)
 
-          assert_equal(1, DataCycleCore::CreativeWork.where(template: false, template_name: 'Calculation-Common').count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Calculation-Common').count)
         end
       end
     end

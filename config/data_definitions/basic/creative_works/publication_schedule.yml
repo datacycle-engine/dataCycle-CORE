@@ -2,6 +2,7 @@
 - :data:
     :name: Publikations-Plan
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :boost: 1.0
     :properties:

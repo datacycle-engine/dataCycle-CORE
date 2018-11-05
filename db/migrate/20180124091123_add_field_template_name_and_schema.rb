@@ -2,7 +2,7 @@
 
 class AddFieldTemplateNameAndSchema < ActiveRecord::Migration[5.0]
   def up
-    DataCycleCore.content_tables.each do |table_name|
+    ['creative_works', 'events', 'persons', 'places'].each do |table_name|
       next unless @connection.table_exists?(table_name)
 
       add_column table_name.to_sym, :template_name, :string
@@ -13,7 +13,7 @@ class AddFieldTemplateNameAndSchema < ActiveRecord::Migration[5.0]
   end
 
   def down
-    DataCycleCore.content_tables.each do |table_name|
+    ['creative_works', 'events', 'persons', 'places'].each do |table_name|
       next unless @connection.table_exists?(table_name)
 
       remove_column table_name.to_sym, :template_name, :string

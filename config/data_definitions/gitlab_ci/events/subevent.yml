@@ -2,7 +2,9 @@
 - :data:
     :name: SubEvent
     :type: object
+    :schema_type: Event
     :content_type: embedded
+    :translatable: true
     :properties:
       :id:
         :label: id
@@ -10,7 +12,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
         :search: true
       :event_period:
         :label: Veranstaltungszeitraum
@@ -61,7 +63,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :url:
         :label: Inhalt URL
@@ -69,7 +71,7 @@
         :storage_location: translated_value
         :validations:
           :format: url
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
         :linked_table: places

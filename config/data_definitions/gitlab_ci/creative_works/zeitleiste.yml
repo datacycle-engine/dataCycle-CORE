@@ -33,7 +33,7 @@
       :timeline_item:
         :label: Eintrag
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Zeitleiste-Eintrag
       :data_type:
         :label: Inhaltstype
@@ -61,7 +61,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -117,7 +117,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1

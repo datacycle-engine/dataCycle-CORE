@@ -38,25 +38,25 @@ config:
       import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:
               tree_label: Inhaltstypen
               value: Bild
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
           default_values:
             data_type:
               tree_label: Inhaltstypen
               value: Örtlichkeit
         event:
-          content_type: DataCycleCore::Event
+          content_type: DataCycleCore::Thing
           template: Event
           embedded:
             sub_event:
-              content_type: DataCycleCore::Event
+              content_type: DataCycleCore::Thing
               template: SubEvent
               default_values:
                 data_type:

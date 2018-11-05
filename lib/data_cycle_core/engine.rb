@@ -78,10 +78,7 @@ module DataCycleCore
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile']
 
     mattr_accessor :content_tables
-    self.content_tables = ['creative_works', 'events', 'persons', 'organizations', 'places']
-
-    mattr_accessor :linked_tables
-    self.linked_tables = ['users']
+    self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
@@ -94,9 +91,6 @@ module DataCycleCore
 
     mattr_accessor :ui_language
     self.ui_language = :de
-
-    mattr_accessor :translatable_types
-    self.translatable_types = ['DataCycleCore::Person', 'DataCycleCore::Organization', 'DataCycleCore::Place', 'DataCycleCore::Event']
 
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
@@ -184,22 +178,6 @@ module DataCycleCore
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
-
-    # replace default_image_type + default_place_type with default_templates
-    mattr_accessor :default_image_type
-    self.default_image_type = 'Bild'
-
-    mattr_accessor :default_place_type
-    self.default_place_type = 'Örtlichkeit'
-
-    mattr_accessor :default_templates
-    self.default_templates = {
-      images: 'Bild',
-      places: 'Örtlichkeit',
-      events: 'Event',
-      persons: 'Person',
-      organizations: 'Organization'
-    }
 
     mattr_accessor :image_validations
     self.image_validations = {}

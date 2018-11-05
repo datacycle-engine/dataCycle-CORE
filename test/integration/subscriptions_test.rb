@@ -15,13 +15,13 @@ module DataCycleCore
     end
 
     test 'subscribe article' do
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
+      content = DataCycleCore::Thing.find_by(name: 'TestArtikel')
 
       post subscriptions_path, xhr: true, params: {
         subscribable_id: content.id,
         subscribable_type: content.class.name
       }, headers: {
-        referer: creative_work_path(content)
+        referer: thing_path(content)
       }
 
       assert_response :success
@@ -34,7 +34,7 @@ module DataCycleCore
     test 'unsubscribe article' do
       user = User.find_by(email: 'admin@datacycle.at')
       sign_in(user)
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
+      content = DataCycleCore::Thing.find_by(name: 'TestArtikel')
 
       get subscriptions_path
       assert_response :success
@@ -43,7 +43,7 @@ module DataCycleCore
       subscription = content.subscriptions.find_by(user_id: user.id)
 
       delete subscription_path(subscription), xhr: true, params: {}, headers: {
-        referer: creative_work_path(content)
+        referer: thing_path(content)
       }
 
       assert_response :success

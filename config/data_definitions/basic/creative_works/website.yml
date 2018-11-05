@@ -2,6 +2,7 @@
 - :data:
     :name: Website
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :api:
       :type: Website
@@ -16,7 +17,7 @@
         :validations:
           :min: 1
           :format: url
-      :name:
+      :link_name:
         :label: Linktitel
         :type: string
         :storage_location: translated_value
@@ -27,6 +28,8 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :api:
+          :name: name
       :description:
         :label: Teasertext
         :type: string

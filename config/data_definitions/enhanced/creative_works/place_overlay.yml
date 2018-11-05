@@ -2,6 +2,7 @@
 - :data:
     :name: PlaceOverlay
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :properties:
       :id:
@@ -26,12 +27,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Öffnungszeit
       :data_type:
         :label: Inhaltstype
