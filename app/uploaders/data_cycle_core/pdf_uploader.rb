@@ -14,7 +14,7 @@ module DataCycleCore
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        "#{version_name}_#{basename}.jpg"
+        "#{version_name}_#{basename}.png"
       end
     end
 
