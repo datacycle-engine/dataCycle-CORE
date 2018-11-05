@@ -2,7 +2,7 @@
 name: DataCycle - Media
 credentials:
   storage_type: local
-  directory: /var/www/app/test/fixtures/files
+  directory: ./test/fixtures/files
 #  directory: /home/pixelpoint/data_cycle_core/media
   delete: false
 config:
