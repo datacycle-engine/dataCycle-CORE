@@ -53,7 +53,7 @@ module DataCycleCore
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type'],
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
         person: []
       }.freeze
 
@@ -63,7 +63,8 @@ module DataCycleCore
         events: {},
         organizations: {},
         places: {},
-        persons: {}
+        persons: {},
+        users: {}
       }
 
     def self.load_classifications(paths)
@@ -94,7 +95,7 @@ module DataCycleCore
 
     def self.load_dummy_data(paths)
       paths.each do |path|
-        DataCycleCore.content_tables.each do |content_table_name|
+        (DataCycleCore.content_tables + ['users']).each do |content_table_name|
           files = path + content_table_name + '*.json'
 
           file_names = Dir[files]
@@ -118,22 +119,61 @@ module DataCycleCore
       DataCycleCore::Role.where(rank: 99).first_or_create({ name: 'super_admin' })
     end
 
-    def self.create_user
-      DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
+    def self.create_users
+      @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
         given_name: 'Administrator',
-        external: false,
         password: '3amMQf74vp7Zpfdi',
         role_id: DataCycleCore::Role.order('rank DESC').first.id
+      })
+      @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
+        given_name: 'Guest',
+        family_name: 'User',
+        password: 'PdebUfWF9aab2KG6',
+        role_id: DataCycleCore::Role.find_by(name: 'guest')&.id
       })
     end
 
     def self.create_user_group
+      @test_group = DataCycleCore::UserGroup.where(name: 'TestUserGroup').first_or_create
+
       return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
       user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
       DataCycleCore::UserGroupUser.create!(
         user_group_id: user_group.id,
         user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
+    end
+
+    def self.create_contents
+      if DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel', template_name: 'Artikel').blank?
+        @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
+        @article.template = false
+        @article.save!
+        I18n.with_locale(:de) do
+          @article.set_data_hash(data_hash: {
+            'headline' => 'TestArtikel'
+          }, new_content: true)
+        end
+      end
+
+      return if DataCycleCore::CreativeWork.find_by(headline: 'TestContainer', template_name: 'Container').present?
+
+      @container = DataCycleCore::CreativeWork.find_by(template_name: 'Container', template: true).dup
+      @container.template = false
+      @container.save!
+      I18n.with_locale(:de) do
+        @container.set_data_hash(data_hash: {
+          'headline' => 'TestContainer'
+        }, new_content: true)
+      end
+    end
+
+    def self.create_watch_lists
+      @test_watch_list = DataCycleCore::WatchList.where(headline: 'TestWatchList', user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id).first_or_create
+    end
+
+    def self.create_subscription
+      DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
     end
 
     def self.excepted_attributes(model = nil)
@@ -184,5 +224,5 @@ DataCycleCore::TestPreparations.load_dummy_data(
   ]
 )
 DataCycleCore::TestPreparations.load_user_roles
-DataCycleCore::TestPreparations.create_user
+DataCycleCore::TestPreparations.create_users
 DataCycleCore::TestPreparations.create_user_group

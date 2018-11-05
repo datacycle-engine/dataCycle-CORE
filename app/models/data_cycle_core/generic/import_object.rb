@@ -4,6 +4,7 @@ module DataCycleCore
   module Generic
     class ImportObject < GenericObject
       attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode
+      attr_writer :mode
 
       def initialize(**options)
         raise "Missing external_source for #{self.class}, options given: #{options}" if options[:external_source].blank?

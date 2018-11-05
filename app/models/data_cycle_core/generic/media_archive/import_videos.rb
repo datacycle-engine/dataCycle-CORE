@@ -14,12 +14,12 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(source_filter.merge("dump.#{locale}": { '$exists' => true }, "dump.#{locale}.contentType": 'Video'))
+          mongo_item.where(source_filter.with_evaluated_values.merge("dump.#{locale}": { '$exists' => true }, "dump.#{locale}.contentType": 'Video'))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            ['tags_videos', 'types_of_use_videos', 'audiences_videos'].each do |tag_name|
+            ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'file_format_videos'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,

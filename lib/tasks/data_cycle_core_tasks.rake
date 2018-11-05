@@ -580,7 +580,7 @@ namespace :data_cycle_core do
   namespace :external_contents do
     desc 'Merge duplicates of external contents'
     task merge_duplicates: :environment do
-      DataCycleCore::Ability::CONTENT_MODELS.each do |model_class|
+      DataCycleCore.content_tables.map { |table| "DataCycleCore::#{table.classify}".constantize }.each do |model_class|
         duplicated_contents = model_class
           .select(:external_source_id, :external_key)
           .where.not(external_source_id: nil, external_key: nil)
@@ -763,5 +763,16 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
+  end
+
+  desc 'reset database and import classifications, external sources and templates'
+  task reset_all: :environment do
+    Rake::Task['db:drop'].invoke
+    Rake::Task['db:create'].invoke
+    Rake::Task['db:migrate'].invoke
+    Rake::Task['db:seed'].invoke
+    Rake::Task['data_cycle_core:update:import_classifications'].invoke
+    Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+    Rake::Task['data_cycle_core:refactor:import_update_all_templates'].invoke
   end
 end

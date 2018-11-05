@@ -67,9 +67,9 @@ module DataCycleCore
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language
 
         if Rails.env.development?
-          redirect_to edit_watch_list_path(@watch_list) if Rails.env.development?
+          redirect_to edit_watch_list_path(@watch_list)
         else
-          redirect_to watch_list_path(@watch_list, watch_list_id: @watch_list)
+          redirect_to watch_list_path(@watch_list)
         end
 
       else
