@@ -152,7 +152,7 @@ module DataCycleCore
       partials = [
         key.underscore.to_s,
         definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
-        content&.schema_type&.underscore,
+        content.try(:schema_type)&.underscore,
         definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
@@ -202,7 +202,7 @@ module DataCycleCore
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
         definition.dig('template_name').try(:downcase).try(:underscore).to_s,
-        parameters&.dig(:object)&.schema_type&.underscore&.parameterize(separator: '_'),
+        parameters&.dig(:object)&.try(:schema_type)&.underscore&.parameterize(separator: '_'),
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
