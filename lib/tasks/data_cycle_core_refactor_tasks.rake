@@ -61,12 +61,13 @@ namespace :data_cycle_core do
           INSERT INTO thing_translations (
             thing_id, locale,
             content,
-            name, description,
+            name,
+            description,
             created_at, updated_at
           )
           SELECT
             organization_id, locale,
-            content - 'legal_name,
+            content - 'legal_name',
             content ->> 'legal_name',
             description,
             created_at, updated_at
