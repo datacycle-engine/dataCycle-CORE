@@ -76,23 +76,23 @@ services:
     - bundle exec rake db:seed
     - bundle exec rails test -b
 
-.cypress_config:
-  extends: .job_cache_config
-  script:
-    - bundle exec rake db:drop
-    - bundle exec rake db:create
-    - bundle exec rake db:migrate
-    - bundle exec rake db:seed
-    - bundle exec rake app:data_cycle_core:update:import_classifications
-    - bundle exec rake app:data_cycle_core:update:import_templates
-    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
-    - cd $CI_PROJECT_DIR && npx cypress run
-  artifacts:
-    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
-    paths:
-    - cypress/screenshots/
-    expire_in: 1 week
-    when: on_failure
+#.cypress_config:
+#  extends: .job_cache_config
+#  script:
+#    - bundle exec rake db:drop
+#    - bundle exec rake db:create
+#    - bundle exec rake db:migrate
+#    - bundle exec rake db:seed
+#    - bundle exec rake app:data_cycle_core:update:import_classifications
+#    - bundle exec rake app:data_cycle_core:update:import_templates
+#    - cd test/dummy && bundle exec rails server -b 0.0.0.0 -p 3000 -d
+#    - cd $CI_PROJECT_DIR && npx cypress run
+#  artifacts:
+#    name: "${CI_JOB_STAGE}_${CI_COMMIT_REF_NAME}_cypress"
+#    paths:
+#    - cypress/screenshots/
+#    expire_in: 1 week
+#    when: on_failure
 
 .code_validation_config:
   extends: .job_cache_config
@@ -143,9 +143,9 @@ rails_test:
   <<: *master_ci
   extends: .rails_test_config
 
-cypress:
-  <<: *master_ci
-  extends: .cypress_config
+#cypress:
+#  <<: *master_ci
+#  extends: .cypress_config
 
 code_validation:
   <<: *master_ci
@@ -172,9 +172,9 @@ rails_review_test:
   <<: *review_ci
   extends: .rails_test_config
 
-cypress_review:
-  <<: *review_ci
-  extends: .cypress_config
+#cypress_review:
+#  <<: *review_ci
+#  extends: .cypress_config
 
 code_review_validation:
   <<: *review_ci
