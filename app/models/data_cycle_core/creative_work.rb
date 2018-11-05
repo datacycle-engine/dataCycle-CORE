@@ -8,7 +8,6 @@ module DataCycleCore
     include Content::Extensions::CreativeWork
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content

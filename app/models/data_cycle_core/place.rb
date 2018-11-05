@@ -6,7 +6,6 @@ module DataCycleCore
     include Content::Extensions::Place
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
       include Content::Extensions::PlaceTranslation
     end
 

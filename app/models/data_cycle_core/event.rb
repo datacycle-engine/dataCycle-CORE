@@ -6,7 +6,6 @@ module DataCycleCore
     include Content::Extensions::Event
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
       include Content::Extensions::Event
     end
 

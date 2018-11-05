@@ -10,7 +10,6 @@ module DataCycleCore
     include Content::Extensions::Thing
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content
