@@ -3,10 +3,8 @@
 module DataCycleCore
   class Place < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Place
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::PlaceTranslation
     end
 
     class History < Content::Content

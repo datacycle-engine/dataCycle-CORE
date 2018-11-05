@@ -2,10 +2,6 @@
 
 module DataCycleCore
   class Thing < Content::DataHash
-    # TODO: get rid of ActsAsTree
-    # extend ActsAsTree::TreeView
-    # acts_as_tree foreign_key: 'is_part_of'
-
     include Content::ContentLoader
     include Content::Extensions::Thing
 

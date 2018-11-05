@@ -3,7 +3,6 @@
 module DataCycleCore
   class Person < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Person
 
     class Translation < Globalize::ActiveRecord::Translation
     end

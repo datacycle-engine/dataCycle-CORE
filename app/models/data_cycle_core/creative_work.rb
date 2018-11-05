@@ -5,7 +5,6 @@ module DataCycleCore
     extend ActsAsTree::TreeView
     extend ActsAsTree::TreeWalker
     include Content::ContentLoader
-    include Content::Extensions::CreativeWork
 
     class Translation < Globalize::ActiveRecord::Translation
     end

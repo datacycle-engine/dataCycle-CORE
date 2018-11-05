@@ -3,10 +3,8 @@
 module DataCycleCore
   class Event < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Event
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::Event
     end
 
     class History < Content::Content
