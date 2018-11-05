@@ -33,9 +33,12 @@ module DataCycleCore
       assert_response :success
     end
 
-    test 'show users index page' do
-      get users_path
+    test 'show and filter users index page' do
+      get users_path, params: {
+        q: 'guest datacycle'
+      }
       assert_response :success
+      assert_select 'li.grid-item .inner .description', { count: 1, text: 'guest@datacycle.at' }
     end
 
     test 'create new user' do

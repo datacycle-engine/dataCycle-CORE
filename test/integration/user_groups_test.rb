@@ -13,8 +13,11 @@ module DataCycleCore
     end
 
     test 'show user_groups index page' do
-      get user_groups_path
+      get user_groups_path, params: {
+        q: 'test group'
+      }
       assert_response :success
+      assert_select 'li.grid-item > .inner > .title', { count: 1, text: 'TestUserGroup' }
     end
 
     test 'create new user_group' do
