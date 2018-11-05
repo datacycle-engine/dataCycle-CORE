@@ -191,12 +191,12 @@ module DataCycleCore
     def content_tile(item:, parameters: {})
       partials = [
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),
-        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
+        item.schema_type&.underscore&.parameterize(separator: '_'),
+        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'), # always Things
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
       return first_existing_partial(partials), parameters.merge({ item: item })
-      # render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
