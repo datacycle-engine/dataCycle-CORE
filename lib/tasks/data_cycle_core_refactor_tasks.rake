@@ -3,26 +3,29 @@
 namespace :data_cycle_core do
   namespace :refactor do
     desc 'migrate all content_tables to things'
-    task migrate_content_to_things: :environment do
+    task :migrate_content_to_things, [:cmd_prefix] => [:environment] do |_, args|
       puts 'migrating all content_tables to things'
 
       print_box('Stage 1 - Organizations')
-      Rake::Task['data_cycle_core:refactor:migrate_organizations_to_things'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_organizations_to_things"].invoke
 
       print_box('Stage 2 - Persons')
-      Rake::Task['data_cycle_core:refactor:migrate_persons_to_things'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_persons_to_things"].invoke
 
       print_box('Stage 3 - Events')
-      Rake::Task['data_cycle_core:refactor:migrate_events_to_things'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_events_to_things"].invoke
 
       print_box('Stage 4 - Places')
-      Rake::Task['data_cycle_core:refactor:migrate_places_to_things'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_places_to_things"].invoke
 
       print_box('Stage 5 - Creative Works')
-      Rake::Task['data_cycle_core:refactor:migrate_creative_works_to_things'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_creative_works_to_things"].invoke
 
       print_box('bonus stage - templates')
-      Rake::Task['data_cycle_core:refactor:migrate_all_templates'].invoke
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:import_update_all_templates"].invoke(args.fetch(:cmd_prefix, ''))
+
+      print_box('bonus stage - external_sources')
+      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_source_configs"].invoke
     end
 
     desc 'migrate organizations - executes all migration tasks'

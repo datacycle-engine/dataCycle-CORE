@@ -661,20 +661,6 @@ namespace :data_cycle_core do
   end
 
   namespace :refactor do
-    desc 'executes all migration tasks'
-    task migrate_all_templates: :environment do
-      temp = Time.zone.now
-
-      Rake::Task['db:migrate'].invoke
-      Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
-      Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
-      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
-
-      puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
-    end
-
     desc 'dev mode'
     task restore_dev_mode: :environment do
       temp = Time.zone.now
