@@ -171,7 +171,7 @@ describe DataCycleCore::Generic::Feratel::TransformationFunctions do
           'Description' => [
             {
               'Id' => '9988f158-a2de-4b44-9744-3246a1d63173',
-              'Type' => 'UnkownDescription',
+              'Type' => 'ServiceProviderDescriptionOne',
               'Language' => 'de',
               'Systems' => 'L T I C',
               'ShowFrom' => '304',
@@ -181,7 +181,7 @@ describe DataCycleCore::Generic::Feratel::TransformationFunctions do
             },
             {
               'Id' => '9988f158-a2de-4b44-9744-3246a1d63173',
-              'Type' => 'ServiceProviderDescription',
+              'Type' => 'ServiceProviderDescriptionTwo',
               'Language' => 'de',
               'Systems' => 'L T I C',
               'ShowFrom' => '304',
@@ -216,13 +216,21 @@ describe DataCycleCore::Generic::Feratel::TransformationFunctions do
     end
 
     it 'can handle different description types' do
-      subject.unwrap_description(multiple_description_types, 'ServiceProviderDescription')['ServiceProviderDescription']
-        .must_equal '...Beschreibungstext 2 ...'
+      subject.unwrap_description(multiple_description_types, 'ServiceProviderDescriptionTwo')
+        .dig('ServiceProviderDescriptionTwo').must_equal '...Beschreibungstext 2 ...'
+    end
+
+    it 'can extract multipe description types at once' do
+      unwrapped_description = subject.unwrap_description(multiple_description_types,
+                                                         ['ServiceProviderDescriptionOne', 'ServiceProviderDescriptionTwo'])
+
+      unwrapped_description['ServiceProviderDescriptionOne'].must_equal '...Beschreibungstext 1 ...'
+      unwrapped_description['ServiceProviderDescriptionTwo'].must_equal '...Beschreibungstext 2 ...'
     end
 
     it 'extracts texts from nested hashes' do
-      subject.unwrap_description(multiple_description_types, 'ServiceProviderDescription')['ServiceProviderDescription']
-        .must_equal '...Beschreibungstext 2 ...'
+      subject.unwrap_description(multiple_description_types, 'ServiceProviderDescriptionTwo')
+        .dig('ServiceProviderDescriptionTwo').must_equal '...Beschreibungstext 2 ...'
     end
   end
 
