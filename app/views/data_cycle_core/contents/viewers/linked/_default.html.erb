@@ -9,6 +9,7 @@
                                'copy-single',
                                'content',
                                item.class.name.demodulize.underscore.dasherize,
+                               item.schema_type&.underscore&.dasherize,
                                item.template_name.underscore.dasherize,
                                changes_class(options.dig(:item_diff), item.id)
                            ].join(' ') %>" data-id="<%= [item.id] %>">
