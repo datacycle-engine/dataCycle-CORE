@@ -10,7 +10,6 @@ module DataCycleCore
     setup do
       @routes = Engine.routes
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
-      DataCycleCore::TestPreparations.create_subscription(content: @content)
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 
@@ -32,6 +31,8 @@ module DataCycleCore
     test 'unsubscribe article' do
       user = User.find_by(email: 'admin@datacycle.at')
       sign_in(user)
+
+      DataCycleCore::Subscription.find_or_create_by(subscribable_id: @content.id, subscribable_type: @content.class.name, user_id: user.id)
 
       get subscriptions_path
       assert_response :success

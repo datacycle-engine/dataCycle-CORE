@@ -171,10 +171,6 @@ module DataCycleCore
       DataCycleCore::WatchList.find_or_create_by(name: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
     end
 
-    def self.create_subscription(content: nil)
-      DataCycleCore::Subscription.find_or_create_by(subscribable_id: content.id, subscribable_type: content.class.name, user_id: @admin.id)
-    end
-
     def self.excepted_attributes(model = nil)
       return EXCEPTED_ATTRIBUTES[:common] + EXCEPTED_ATTRIBUTES[model.to_sym] if model.present?
       EXCEPTED_ATTRIBUTES[:common]
