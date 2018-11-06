@@ -17,12 +17,12 @@
       <div class="thumbnails">
         <% if content.try(:image).is_a?(ActiveRecord::Relation) && content.try(:image).present? %>
           <% content.image.each do |image| %>
-              <img data-src="<%= image.thumbnail_url %>" alt="<%= image.headline %>" class="lazyload" />
+              <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" />
           <% end %>
         <% elsif content.try(:thumbnail_url).present? %>
-          <img data-src="<%= content.thumbnail_url %>" alt="<%= content.headline %>" class="lazyload" />
+          <img data-src="<%= content.thumbnail_url %>" alt="<%= content.title %>" class="lazyload" />
         <% elsif content.try(:image).is_a?(String) && content.try(:image).present? %>
-          <img data-src="<%= content.image %>" alt="<%= content.headline %>" class="lazyload" />
+          <img data-src="<%= content.image %>" alt="<%= content.title %>" class="lazyload" />
         <% end %>
       </div>
       <div class="buttons"></div>

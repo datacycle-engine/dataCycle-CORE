@@ -40,11 +40,7 @@
             </div>
 
             <div class="title">
-
-                <% if !@watch_list.nil? && !@watch_list.headline.nil? %>
-                    <%= @watch_list.headline %>
-                <% end %>
-
+                <%= @watch_list&.headline %>
             </div>
 
             <% if @watch_list.watch_list_user_groups.size.positive? %>

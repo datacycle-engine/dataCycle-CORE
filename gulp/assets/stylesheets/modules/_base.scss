@@ -198,6 +198,7 @@ button,
   }
 
   .headline_external,
+  .name,
   .headline {
     position: relative;
   }
@@ -518,7 +519,7 @@ button,
     }
 
     .input input,
-    .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
+    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
     .single_date input,
     .number input {
@@ -527,6 +528,7 @@ button,
     }
 
     .headline_external input,
+    .name input,
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
     }
