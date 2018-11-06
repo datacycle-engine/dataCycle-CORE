@@ -149,36 +149,30 @@ module DataCycleCore
       )
     end
 
-    def self.create_contents
-      if DataCycleCore::Thing.find_by(name: 'TestArtikel', template_name: 'Artikel').blank?
-        @article = DataCycleCore::Thing.find_by(template_name: 'Artikel', template: true).dup
-        @article.template = false
-        @article.save!
-        I18n.with_locale(:de) do
-          @article.set_data_hash(data_hash: {
-            'name' => 'TestArtikel'
-          }, new_content: true)
-        end
-      end
+    def self.create_content(template_name: nil, data_hash: nil)
+      return if template_name.blank? || data_hash.blank?
 
-      return if DataCycleCore::Thing.find_by(name: 'TestContainer', template_name: 'Container').present?
+      @content = DataCycleCore::Thing.find_by(data_hash.merge(template_name: template_name))
 
-      @container = DataCycleCore::Thing.find_by(template_name: 'Container', template: true).dup
-      @container.template = false
-      @container.save!
+      return @content if @content.present?
+
+      @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
+      @content.template = false
+      @content.save!
       I18n.with_locale(:de) do
-        @container.set_data_hash(data_hash: {
-          'name' => 'TestContainer'
-        }, new_content: true)
+        @content.set_data_hash(data_hash: data_hash.deep_stringify_keys, new_content: true)
       end
+      @content.reload
     end
 
-    def self.create_watch_lists
-      @test_watch_list = DataCycleCore::WatchList.where(headline: 'TestWatchList', user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id).first_or_create
+    def self.create_watch_list(name: nil)
+      return if name.blank?
+
+      DataCycleCore::WatchList.find_or_create_by(headline: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
     end
 
-    def self.create_subscription
-      DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
+    def self.create_subscription(content: nil)
+      DataCycleCore::Subscription.find_or_create_by(subscribable_id: content.id, subscribable_type: content.class.name, user_id: @admin.id)
     end
 
     def self.excepted_attributes(model = nil)
