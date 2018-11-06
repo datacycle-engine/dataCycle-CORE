@@ -19,14 +19,14 @@ module DataCycleCore
 
       post watch_lists_path, xhr: true, params: {
         watch_list: {
-          headline: name
+          name: name
         }
       }, headers: {
         referer: root_path
       }
 
       assert_response :success
-      assert_equal DataCycleCore::WatchList.where(headline: name).size, 1
+      assert_equal DataCycleCore::WatchList.where(name: name).size, 1
 
       get api_v2_collections_path
       assert_response :success
@@ -41,7 +41,7 @@ module DataCycleCore
 
       patch watch_list_path(@watch_list), params: {
         watch_list: {
-          headline: name,
+          name: name,
           user_group_ids: [user_group.id]
         }
       }, headers: {

@@ -168,7 +168,7 @@ module DataCycleCore
     def self.create_watch_list(name: nil)
       return if name.blank?
 
-      DataCycleCore::WatchList.find_or_create_by(headline: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
+      DataCycleCore::WatchList.find_or_create_by(name: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
     end
 
     def self.create_subscription(content: nil)
