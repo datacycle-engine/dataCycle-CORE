@@ -1257,7 +1257,7 @@ CREATE TABLE public.watch_list_user_groups (
 
 CREATE TABLE public.watch_lists (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    headline character varying,
+    name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -2948,6 +2948,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181001085516'),
 ('20181009131613'),
 ('20181011125030'),
-('20181019075437');
+('20181019075437'),
+('20181106113333');
 
 

@@ -265,7 +265,7 @@ de:
       models:
         data_cycle_core/watch_list:
           attributes:
-            headline:
+            name:
               blank: "Name: Darf nicht leer sein."
         data_cycle_core/user:
           attributes:
@@ -315,7 +315,7 @@ de:
         other: Assets
     attributes:
       data_cycle_core/watch_list:
-        headline: Name
+        name: Name
         user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar

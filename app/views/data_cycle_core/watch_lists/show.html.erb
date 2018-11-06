@@ -1,4 +1,4 @@
-<% breadcrumb :show, @watch_list, :headline %>
+<% breadcrumb :show, @watch_list, :name %>
 
 <% content_for :top_content do %>
 
@@ -40,7 +40,7 @@
             </div>
 
             <div class="title">
-                <%= @watch_list&.headline %>
+                <%= @watch_list&.name %>
             </div>
 
             <% if @watch_list.watch_list_user_groups.size.positive? %>

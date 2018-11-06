@@ -5,7 +5,7 @@
 	<section class="edit-header">
 		<div class="row expanded">
 			<div class="column edit-header-functions">
-				<div class="edit-headline">
+				<div class="edit-name">
 					<i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> bearbeiten
 				</div>
 				<ul>
@@ -39,9 +39,9 @@
 					<i class="fa fa-bookmark-o" aria-hidden="true"></i>
 				</a>
 
-				<div class="form-element input headline">
-                    <%= f.label :headline %>
-                    <%= f.text_field :headline, data: { validate: 'text' } %>
+				<div class="form-element input name">
+                    <%= f.label :name %>
+                    <%= f.text_field :name, data: { validate: 'text' } %>
 				</div>
 
 				<div class="form-element">
