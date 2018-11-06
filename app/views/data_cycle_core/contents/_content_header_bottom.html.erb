@@ -37,4 +37,4 @@
     <% end if can? :destroy, content %>
 </div>
 
-<%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) %>
+<%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && content.try(:release_status_id).present? %>

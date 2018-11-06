@@ -247,20 +247,6 @@ button,
     padding: 0 5rem 1rem 5rem;
   }
 
-  >.status-container {
-    position: relative;
-    display: inline-block;
-
-    .status {
-      position: relative;
-    }
-
-    .release-comment-button {
-      position: relative; //left: -48%;
-      cursor: pointer;
-    }
-  }
-
   .detail-header-info {
     position: absolute;
     left: 1rem;

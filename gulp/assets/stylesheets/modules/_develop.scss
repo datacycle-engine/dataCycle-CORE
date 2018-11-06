@@ -1641,3 +1641,7 @@ select {
     box-shadow: 0 0 1px $dark-gray;
   }
 }
+
+.tooltip p:last-child {
+  margin-bottom: 0;
+}
