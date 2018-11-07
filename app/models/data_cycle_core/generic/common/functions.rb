@@ -116,7 +116,9 @@ module DataCycleCore
 
         def self.add_links(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
-          key_function_values = key_function.call(data_hash)
+
+          key_function_values = key_function.call(data_hash) || []
+
           data_hash.merge(
             {
               attribute =>
