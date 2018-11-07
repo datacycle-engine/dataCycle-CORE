@@ -139,8 +139,8 @@ DataCycleCore::Engine.routes.draw do
         # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index], controller: :things, constraints: {type: type_regexp})
         # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:show], controller: :things, constraints: {type: type_regexp})
 
-        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }
-        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }
+        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
         resources :classification_trees, only: [:index, :show] do
           get :classifications, on: :member
