@@ -108,10 +108,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(5, DataCycleCore::Thing.count - count_thing)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(5, DataCycleCore::ClassificationContent.count)
+      assert_equal(7, DataCycleCore::ClassificationContent.count)
       assert_equal(3, DataCycleCore::Thing::History.count)
       assert_equal(3, DataCycleCore::ContentContent::History.count)
-      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(4, DataCycleCore::ClassificationContent::History.count)
 
       # update the whole data_set to see if it is properly moved to history
       new_hash = data_set.get_data_hash
@@ -120,10 +120,10 @@ module DataCycleCore
 
       assert_equal(5, DataCycleCore::Thing.count - count_thing)
       assert_equal(3, DataCycleCore::ContentContent.count)
-      assert_equal(5, DataCycleCore::ClassificationContent.count)
+      assert_equal(7, DataCycleCore::ClassificationContent.count)
       assert_equal(5, DataCycleCore::Thing::History.count)
       assert_equal(6, DataCycleCore::ContentContent::History.count)
-      assert_equal(4, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(8, DataCycleCore::ClassificationContent::History.count)
 
       data_set.destroy_content
       data_set.histories.each(&:destroy_content)

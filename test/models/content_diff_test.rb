@@ -30,7 +30,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
@@ -57,10 +57,10 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Thing::History.count)
       assert_equal(1, DataCycleCore::Thing::History::Translation.count)
-      assert_equal(1, DataCycleCore::ClassificationContent::History.count)
+      assert_equal(2, DataCycleCore::ClassificationContent::History.count)
 
       history_data = content_data.histories.first
       temp = history_data.history_valid.last + (history_data.history_valid.first - history_data.history_valid.last) / 2
@@ -200,7 +200,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
@@ -212,7 +212,7 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)
@@ -224,7 +224,7 @@ module DataCycleCore
 
       assert_equal(1, DataCycleCore::Thing.count - template)
       assert_equal(1, DataCycleCore::Thing::Translation.count - template_trans)
-      assert_equal(1, DataCycleCore::ClassificationContent.count)
+      assert_equal(2, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
       assert_equal(0, DataCycleCore::ClassificationContent::History.count)

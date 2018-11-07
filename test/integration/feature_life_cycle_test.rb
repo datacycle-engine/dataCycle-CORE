@@ -1,0 +1,34 @@
+# frozen_string_literal: true
+
+require 'test_helper'
+
+module DataCycleCore
+  class FeatureLifeCycleTest < ActionDispatch::IntegrationTest
+    include Devise::Test::IntegrationHelpers
+    include Engine.routes.url_helpers
+
+    setup do
+      @routes = Engine.routes
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
+      @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
+      @stages = DataCycleCore::Feature::LifeCycle.ordered_classifications(@content)
+      sign_in(User.find_by(email: 'tester@datacycle.at'))
+    end
+
+    test 'change life_cycle_stage to archive' do
+      patch polymorphic_path([:update_life_cycle, @content]), params: {
+        life_cycle: {
+          id: @stages.values.last[:id],
+          name: @stages.keys.last
+        }
+      }, headers: {
+        referer: polymorphic_path(@content)
+      }
+
+      assert_redirected_to polymorphic_path(@content)
+      follow_redirect!
+
+      assert @content.reload.life_cycle_stage?(@stages.values.last[:id])
+    end
+  end
+end

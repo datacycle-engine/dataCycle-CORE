@@ -52,6 +52,12 @@
   - $$Aktuelle Inhalte
   - $$Archiv
 
+- Release-Stati:
+  - $$freigegeben
+  - $$beim Partner
+  - $$in Review
+  - $$archiviert
+
 - Ausgabekanäle:
   - Web:
     - austria.info
