@@ -117,6 +117,7 @@ module DataCycleCore
 
       logout
       assert_response :success
+      @data_link.reload
 
       get data_link_path(@data_link)
       assert_redirected_to root_path
