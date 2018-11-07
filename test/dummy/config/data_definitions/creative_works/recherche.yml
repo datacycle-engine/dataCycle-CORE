@@ -1,0 +1,44 @@
+---
+- :data:
+    :name: Recherche
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 9999.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :release_status:
+        :type: mixin
+        :name: releasable
+      :name:
+        :label: Arbeitstitel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :min: 1
+        :ui:
+          :show:
+            :disabled: true
+      :text:
+        :label: Recherchedaten
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :data_pool:
+        :label: Inhaltspool
+        :type: classification
+        :tree_label: Inhaltspools
+        :default_value: "Recherche"
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true

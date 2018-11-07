@@ -41,9 +41,24 @@ DataCycleCore.setup do |config|
       overlay: {
         enabled: true
       },
+      releasable: {
+        enabled: true
+      },
       container: {
         enabled: false,
         excluded: ['Bild', 'Video']
+      },
+      life_cycle: {
+        enabled: true,
+        attribute_keys: ['data_pool'],
+        tree_label: 'Inhaltspools',
+        ordered: ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
+      },
+      idea_collection: {
+        enabled: true,
+        dependencies: ['life_cycle', 'container'],
+        template: 'Recherche',
+        life_cycle_stage: 'Recherche'
       }
     }
   )

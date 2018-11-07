@@ -1,0 +1,18 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :data_pool:
+        :label: Inhaltspool
+        :type: classification
+        :tree_label: Inhaltspools
+        :default_value: "Aktuelle Inhalte"
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+        :features:
+          :life_cycle:
+            :allowed: true

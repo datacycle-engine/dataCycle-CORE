@@ -65,3 +65,14 @@
 
 - POI - Kategorien:
 
+- Inhaltspools:
+  - $$Vorschläge
+  - $$Recherche
+  - $$Aktuelle Inhalte
+  - $$Archiv
+
+- Release-Stati:
+  - $$freigegeben
+  - $$beim Partner
+  - $$in Review
+  - $$archiviert
