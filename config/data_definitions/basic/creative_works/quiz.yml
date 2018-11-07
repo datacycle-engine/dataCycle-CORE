@@ -76,6 +76,8 @@
         :storage_location: column
         :validations:
           :min: 1
+        :api:
+          :name: headline
       :text:
         :label: Fließtext
         :type: string
