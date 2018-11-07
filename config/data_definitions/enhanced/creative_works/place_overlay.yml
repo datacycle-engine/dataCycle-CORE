@@ -12,13 +12,11 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: translated_value
-        :search: true
+        :storage_location: column
       :description:
         :label: Beschreibung
         :type: string
         :storage_location: column
-        :search: true
         :ui:
           :edit:
             :type: text_editor
