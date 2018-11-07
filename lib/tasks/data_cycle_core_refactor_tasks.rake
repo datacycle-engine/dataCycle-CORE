@@ -4,28 +4,32 @@ namespace :data_cycle_core do
   namespace :refactor do
     desc 'migrate all content_tables to things'
     task :migrate_content_to_things, [:cmd_prefix] => [:environment] do |_, args|
-      puts 'migrating all content_tables to things'
+      ActiveRecord::Base.transaction do
+        puts 'migrating all content_tables to things'
 
-      print_box('Stage 1 - Organizations')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_organizations_to_things"].invoke
+        print_box('Stage 1 - Organizations')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_organizations_to_things"].invoke
 
-      print_box('Stage 2 - Persons')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_persons_to_things"].invoke
+        print_box('Stage 2 - Persons')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_persons_to_things"].invoke
 
-      print_box('Stage 3 - Events')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_events_to_things"].invoke
+        print_box('Stage 3 - Events')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_events_to_things"].invoke
 
-      print_box('Stage 4 - Places')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_places_to_things"].invoke
+        print_box('Stage 4 - Places')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_places_to_things"].invoke
 
-      print_box('Stage 5 - Creative Works')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_creative_works_to_things"].invoke
+        print_box('Stage 5 - Creative Works')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:migrate_creative_works_to_things"].invoke
 
-      print_box('bonus stage - templates')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:refactor:import_update_all_templates"].invoke(args.fetch(:cmd_prefix, ''))
+        print_box('bonus stage - templates')
+        DataCycleCore::Thing.where(template: true).delete_all
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:update:import_templates"].invoke(args.fetch(:cmd_prefix, ''))
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:update:update_all_templates_sql"].invoke(true, args.fetch(:cmd_prefix, ''))
 
-      print_box('bonus stage - external_sources')
-      Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_source_configs"].invoke
+        print_box('bonus stage - external_sources')
+        Rake::Task["#{args.fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_source_configs"].invoke
+      end
     end
 
     desc 'migrate organizations - executes all migration tasks'
@@ -337,6 +341,20 @@ namespace :data_cycle_core do
 
         puts 'migrate data'
         puts '--> things'
+        puts '    prepare places'
+        # delete external_source for Genusslust
+        sql = <<-SQL
+          UPDATE places AS pl SET
+            external_key = NULL,
+            external_source_id = NULL
+          WHERE pl.id IN (
+            SELECT id FROM places
+            WHERE template_name = 'Gastronomischer Betrieb'
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        puts '    copy data'
         sql = <<-SQL
           INSERT INTO things (
             id, metadata,
@@ -461,13 +479,26 @@ namespace :data_cycle_core do
         puts 'migrate data'
         puts '--> things'
         puts '    prepare creative_works'
+
+        # delete external_source for Genusslust
+        sql = <<-SQL
+          UPDATE creative_works AS cw SET
+            external_key = NULL,
+            external_source_id = NULL
+          WHERE cw.id IN (
+            SELECT id FROM creative_works
+            WHERE template_name = 'Genusslust - Artikel'
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
         # prepare creative_works, as external_keys are not unique
         sql = <<-SQL
           UPDATE creative_works AS cw SET
             external_key = cw.external_key || ' - image'
           WHERE cw.id IN (
             SELECT id FROM creative_works
-            where external_key ILIKE 'Xamoom -%'
+            WHERE external_key ILIKE 'Xamoom -%'
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
