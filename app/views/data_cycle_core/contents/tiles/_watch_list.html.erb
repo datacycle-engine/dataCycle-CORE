@@ -10,11 +10,7 @@
             </div>
 
             <div class="title">
-
-                <% if !item.nil? && !item.headline.nil? %>
-                    <%= item.headline %>
-                <% end %>
-
+                <%= item&.name %>
             </div>
 
         </div>

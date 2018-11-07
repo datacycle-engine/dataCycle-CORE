@@ -9,12 +9,13 @@
                                'copy-single',
                                'content',
                                item.class.name.demodulize.underscore.dasherize,
+                               item.schema_type&.underscore&.dasherize,
                                item.template_name.underscore.dasherize,
                                changes_class(options.dig(:item_diff), item.id)
                            ].join(' ') %>" data-id="<%= [item.id] %>">
 
                 <%= render_first_existing_partial [
-                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore&.gsub(/\s+/, "")}",
+                                                      "data_cycle_core/contents/viewers/tiles/#{item.template_name.underscore}",
                                                       "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}",
                                                       'data_cycle_core/contents/viewers/tiles/default'
                                                   ], local_assigns.merge({content: item})

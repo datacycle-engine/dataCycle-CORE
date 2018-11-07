@@ -18,7 +18,7 @@ module DataCycleCore
             collections: @watch_lists.map do |l|
               {
                 id: l.id,
-                name: l.headline,
+                name: l.name,
                 url: api_v2_collection_url(l),
                 item_count: l.watch_list_data_hashes.count
               }

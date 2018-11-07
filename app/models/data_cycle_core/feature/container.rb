@@ -5,16 +5,18 @@ module DataCycleCore
     class Container < Base
       class << self
         def available_containers
-          @available_containers ||= DataCycleCore::CreativeWork.where(template: true).where("schema ->> 'content_type' = ?", 'container').order(:template_name)
+          @available_containers ||= DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", 'container').order(:template_name)
         end
 
         def apply_excluded_contents(content, entities)
           return entities if excluded_contents(content).blank?
+
           entities.where.not(template_name: excluded_contents(content))
         end
 
         def apply_allowed_contents(content, entities)
           return entities if allowed_contents(content).blank?
+
           entities.where(template_name: allowed_contents(content))
         end
 

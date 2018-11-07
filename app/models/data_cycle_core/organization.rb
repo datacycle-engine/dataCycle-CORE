@@ -3,10 +3,8 @@
 module DataCycleCore
   class Organization < Content::DataHash
     include Content::ContentLoader
-    include Content::Extensions::Organization
 
     class Translation < Globalize::ActiveRecord::Translation
-      include Content::Extensions::ContentTranslation
     end
 
     class History < Content::Content

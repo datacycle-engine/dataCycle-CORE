@@ -8,7 +8,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
@@ -27,12 +27,12 @@
       :linked_creative_work:
         :label: Linked Entity
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Linked-Creative-Work-2
       :linked_place:
         :label: Linked Place Entity
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Linked-Place-1
 
 - :data:
@@ -44,7 +44,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column

@@ -1,12 +1,10 @@
 ---
 name: Bergfex
 credentials:
-  end_point: /export/seen/xml/
   end_point: /export/
   host: https://content.bergfex.at
   partner: kaernten.at
 default_options:
-  locales: [de]
   locales: [de,en]
 config:
   download_config:
@@ -33,11 +31,6 @@ config:
     lakes:
       sorting: 1
       source_type: lakes
-      import_strategy: DataCycleCore::Generic::Bergfex::Import
-      transformations:
-        lake:
-          content_type: DataCycleCore::Place
-          template: See
       import_strategy: DataCycleCore::Generic::Bergfex::ImportLakes
       locales: [de]
     condition_avalanche_warning_level:

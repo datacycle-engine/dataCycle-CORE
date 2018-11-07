@@ -48,17 +48,17 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :person:
         :label: Personen
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
       :quotation:
         :label: Zitat
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Zitat
       :data_type:
         :label: Inhaltstype

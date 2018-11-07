@@ -46,6 +46,7 @@
     }
 
     &.headline,
+    &.name,
     &.headline_external {
       input {
         height: 6rem;
@@ -1649,4 +1650,12 @@ select {
 
 .tooltip {
   max-width: 30rem;
+}
+
+.tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+.status-container {
+  margin-top: 1rem;
 }

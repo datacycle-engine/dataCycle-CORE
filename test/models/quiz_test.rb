@@ -10,17 +10,14 @@ module DataCycleCore
     end
 
     test 'generate a Quiz with questions, then delete all questions and answers' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('Quiz')
+      data_set.save!
       data_hash = {
-        'headline' => 'Dies ist ein Test Quiz!',
+        'name' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
         'question' => [
           {
-            'headline' => 'beliebtestes Handy-OS?',
+            'name' => 'beliebtestes Handy-OS?',
             'suggested_answer' => [
               { 'text' => 'Android' },
               { 'text' => 'iOS' },
@@ -32,7 +29,7 @@ module DataCycleCore
             ]
           },
           {
-            'headline' => 'bestes Desktop OS?',
+            'name' => 'bestes Desktop OS?',
             'suggested_answer' => [
               { 'text' => 'Linux' },
               { 'text' => 'BSD' },
@@ -46,9 +43,7 @@ module DataCycleCore
         ]
       }
       expected_hash_quiz = {
-        'headline' => 'Dies ist ein Test Quiz!',
-        'output_channel' => [],
-        'tags' => [],
+        'name' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
@@ -58,7 +53,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)
       assert_equal(4, returned_data_hash['question'][1]['suggested_answer'].count)
@@ -66,7 +61,7 @@ module DataCycleCore
       assert_equal(1, returned_data_hash['question'][1]['accepted_answer'].count)
 
       # check consistency of data in DB
-      assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(13, DataCycleCore::Thing.where(template: false).count)
       assert_equal(13, DataCycleCore::ClassificationContent.count)
 
       new_data_hash = returned_data_hash # .except("output_channels")
@@ -75,22 +70,19 @@ module DataCycleCore
       data_set.save
 
       # check consistency of data in DB
-      assert_equal(1, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(1, DataCycleCore::Thing.where(template: false).count)
       assert_equal(1, DataCycleCore::ClassificationContent.count)
     end
 
     test 'generate a Quiz with questions and answers, then delete one question' do
-      template = DataCycleCore::CreativeWork.find_by(template: true, template_name: 'Quiz')
-      data_set = DataCycleCore::CreativeWork.new
-      data_set.schema = template.schema
-      data_set.template_name = template.template_name
-      data_set.save
+      data_set = DataCycleCore::TestPreparations.data_set_object('Quiz')
+      data_set.save!
       data_hash = {
-        'headline' => 'Dies ist ein Test Quiz!',
+        'name' => 'Dies ist ein Test Quiz!',
         'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
         'question' => [
           {
-            'headline' => 'beliebtestes Handy-OS?',
+            'name' => 'beliebtestes Handy-OS?',
             'suggested_answer' => [
               { 'text' => 'Android' },
               { 'text' => 'iOS' },
@@ -102,7 +94,7 @@ module DataCycleCore
             ]
           },
           {
-            'headline' => 'bestes Desktop OS?',
+            'name' => 'bestes Desktop OS?',
             'suggested_answer' => [
               { 'text' => 'Linux' },
               { 'text' => 'BSD' },
@@ -116,10 +108,8 @@ module DataCycleCore
         ]
       }
       expected_hash_quiz = {
-        'tags' => [],
-        'headline' => 'Dies ist ein Test Quiz!',
-        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!',
-        'output_channel' => []
+        'name' => 'Dies ist ein Test Quiz!',
+        'alternative_headline' => 'ein lustiges Quiz für jeden Tag!'
       }
 
       error = data_set.set_data_hash(data_hash: data_hash)
@@ -127,7 +117,7 @@ module DataCycleCore
       returned_data_hash = data_set.get_data_hash
 
       assert_equal(0, error[:error].count)
-      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes))
+      assert_equal(expected_hash_quiz, returned_data_hash.compact.except('question', *DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(2, returned_data_hash['question'].count)
       assert_equal(4, returned_data_hash['question'][0]['suggested_answer'].count)
       assert_equal(4, returned_data_hash['question'][1]['suggested_answer'].count)
@@ -135,7 +125,7 @@ module DataCycleCore
       assert_equal(1, returned_data_hash['question'][1]['accepted_answer'].count)
 
       # check consistency of data in DB
-      assert_equal(13, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(13, DataCycleCore::Thing.where(template: false).count)
       assert_equal(13, DataCycleCore::ClassificationContent.count)
 
       # leave one question alone, delete the second one incl. all related answers and classification_relations
@@ -145,7 +135,7 @@ module DataCycleCore
       data_set.save
 
       # check consistency of data in DB
-      assert_equal(7, DataCycleCore::CreativeWork.where(template: false).count)
+      assert_equal(7, DataCycleCore::Thing.where(template: false).count)
       assert_equal(7, DataCycleCore::ClassificationContent.count)
     end
   end

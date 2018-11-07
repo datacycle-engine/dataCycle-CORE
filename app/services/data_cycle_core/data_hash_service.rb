@@ -13,20 +13,6 @@ module DataCycleCore
       datahash
     end
 
-    # TODO: see old embedded-editor
-    # def self.get_internal_data(storage_location, value)
-    #   internal_objects = []
-    #   return nil if value.blank? || value.count.zero?
-    #
-    #   value.each do |object|
-    #     internal_object = ('DataCycleCore::' + storage_location.classify).constantize
-    #       .find_by(id: object['id'])
-    #     internal_objects.push(internal_object) if internal_object.present?
-    #   end
-    #
-    #   internal_objects
-    # end
-
     def self.get_internal_template(storage_location, name)
       internal_template = ('DataCycleCore::' + storage_location.classify).constantize
         .find_by(template: true, template_name: name)

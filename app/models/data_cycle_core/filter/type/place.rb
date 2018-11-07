@@ -18,11 +18,11 @@ module DataCycleCore
             .project(search[:content_data_id])
             .from(search)
             .join(place)
-            .on(search[:content_data_id].eq(place[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Place'))))
+            .on(search[:content_data_id].eq(place[:id]).and(search[:schema_type].eq(quoted('Place'))))
         end
 
         def place
-          DataCycleCore::Place.arel_table
+          DataCycleCore::Thing.arel_table
         end
       end
     end

@@ -19,8 +19,8 @@ describe DataCycleCore::MasterData::Differs::Linked do
     end
 
     it 'successfully recognizes order changes' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
+      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
       data_cases = [
         [[uuid, uuid2], [uuid2, uuid], [['>', uuid, 0, 1], ['<', uuid2, 1, 0]]],
         [[uuid2, uuid], [uuid, uuid2], [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]]
@@ -32,8 +32,8 @@ describe DataCycleCore::MasterData::Differs::Linked do
     end
 
     it 'successfully recognizes additions' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
+      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
       data_cases = [
         # a, b, a diff b
         [nil, uuid, [['+', [uuid]]]],
@@ -48,8 +48,8 @@ describe DataCycleCore::MasterData::Differs::Linked do
     end
 
     it 'successfully recognizes deletions' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
+      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
       data_cases = [
         # a, b, a diff b
         [uuid, nil, [['-', [uuid]]]],
@@ -64,9 +64,9 @@ describe DataCycleCore::MasterData::Differs::Linked do
     end
 
     it 'successfully does additions and deletions' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
-      uuid3 = DataCycleCore::CreativeWork.find_by(template_name: 'Zitat').id
+      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
+      uuid3 = DataCycleCore::Thing.find_by(template_name: 'Zitat').id
       data_cases = [
         # a, b, a diff b
         [uuid, uuid2, [['+', [uuid2]], ['-', [uuid]]]],
@@ -81,10 +81,10 @@ describe DataCycleCore::MasterData::Differs::Linked do
     end
 
     it 'successfully handles relation objects' do
-      uuid = DataCycleCore::CreativeWork.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::CreativeWork.find_by(template_name: 'Video').id
-      uuid3 = DataCycleCore::CreativeWork.find_by(template_name: 'Zitat').id
-      uuids = DataCycleCore::CreativeWork.where(template_name: ['Bild', 'Video', 'Zitat']).order(template_name: :asc)
+      uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
+      uuid3 = DataCycleCore::Thing.find_by(template_name: 'Zitat').id
+      uuids = DataCycleCore::Thing.where(template_name: ['Bild', 'Video', 'Zitat']).order(template_name: :asc)
       data_cases = [
         [[uuid2, uuid, uuid3], uuids, [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]],
         [[uuid3, uuid2, uuid], uuids, [['>', uuid3, 0, 2], ['<', uuid, 2, 0]]]

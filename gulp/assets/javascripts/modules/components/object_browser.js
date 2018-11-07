@@ -362,7 +362,7 @@ ObjectBrowser.prototype.import = function (event) {
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
     $.ajax({
       type: 'POST',
-      url: '/creative_works/import',
+      url: '/things/import',
       dataType: 'script',
       data: JSON.stringify({
         authenticity_token: AUTH_TOKEN,

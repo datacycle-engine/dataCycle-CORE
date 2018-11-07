@@ -1,69 +1,70 @@
 var ol = {
-  Map: require('ol/map').default,
+  Map: require("ol/map").default,
   layer: {
-    Tile: require('ol/layer/tile').default,
-    Vector: require('ol/layer/vector').default
+    Tile: require("ol/layer/tile").default,
+    Vector: require("ol/layer/vector").default
   },
-  Feature: require('ol/feature').default,
+  Feature: require("ol/feature").default,
   geom: {
-    Point: require('ol/geom/point').default,
-    LineString: require('ol/geom/linestring').default
+    Point: require("ol/geom/point").default,
+    LineString: require("ol/geom/linestring").default
   },
   source: {
-    OSM: require('ol/source/osm').default,
-    Vector: require('ol/source/vector').default
+    OSM: require("ol/source/osm").default,
+    Vector: require("ol/source/vector").default
   },
   style: {
-    Style: require('ol/style/style').default,
-    Stroke: require('ol/style/stroke').default,
-    Circle: require('ol/style/circle').default,
-    Fill: require('ol/style/fill').default,
-    Text: require('ol/style/text').default,
-    Icon: require('ol/style/icon').default
+    Style: require("ol/style/style").default,
+    Stroke: require("ol/style/stroke").default,
+    Circle: require("ol/style/circle").default,
+    Fill: require("ol/style/fill").default,
+    Text: require("ol/style/text").default,
+    Icon: require("ol/style/icon").default
   },
-  View: require('ol/view').default,
-  extent: require('ol/extent').default,
+  View: require("ol/view").default,
+  extent: require("ol/extent").default,
   interaction: {
-    Draw: require('ol/interaction/draw').default,
-    Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default,
-    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
+    Draw: require("ol/interaction/draw").default,
+    Modify: require("ol/interaction/modify").default,
+    Snap: require("ol/interaction/snap").default,
+    MouseWheelZoom: require("ol/interaction/mousewheelzoom").default
   },
-  interactions: require('ol/interaction').default,
-  proj: require('ol/proj').default
+  interactions: require("ol/interaction").default,
+  proj: require("ol/proj").default
 };
 
 // Map Configuration
-module.exports.initialize = function () {
-
-  if ($('.object-browser-overlay .item-info-scrollable').length) {
-    $('.object-browser-overlay .item-info-scrollable').on('details-changed', event => {
-      $(event.target).find('.geographic-map').each((index, item) => {
-        init_map(index, item);
-      });
+module.exports.initialize = function() {
+  if ($(".object-browser-overlay .item-info-scrollable").length) {
+    $(".object-browser-overlay .item-info-scrollable").on("details-changed", event => {
+      $(event.target)
+        .find(".geographic-map")
+        .each((index, item) => {
+          init_map(index, item);
+        });
     });
   }
 
-  if ($('.geographic-map').length) {
-    $('.geographic-map').each((index, item) => {
+  if ($(".geographic-map").length) {
+    $(".geographic-map").each((index, item) => {
       init_map(index, item);
     });
   }
-}
+};
 
 function init_map(idx, item) {
-  var map_id = $(item).attr('id');
+  var map_id = $(item).attr("id");
   var data = window[map_id];
   var feature, feature_old;
   var drawable = true;
 
-  if ($(item).data('icon-path') !== undefined) {
+  if ($(item).data("icon-path") !== undefined) {
     iconStyle = new ol.style.Style({
       image: new ol.style.Icon({
         anchor: [16, 32],
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
-        src: $(item).data('icon-path')
+        anchorXUnits: "pixels",
+        anchorYUnits: "pixels",
+        src: $(item).data("icon-path")
       })
     });
   } else {
@@ -71,7 +72,7 @@ function init_map(idx, item) {
       image: new ol.style.Circle({
         radius: 7,
         fill: new ol.style.Fill({
-          color: '#1779ba'
+          color: "#1779ba"
         }),
         stroke: new ol.style.Stroke({
           color: [0, 0, 0, 0.75],
@@ -86,7 +87,7 @@ function init_map(idx, item) {
     image: new ol.style.Circle({
       radius: 7,
       fill: new ol.style.Fill({
-        color: '#cc4b37'
+        color: "#cc4b37"
       }),
       stroke: new ol.style.Stroke({
         color: [0, 0, 0, 0.75],
@@ -100,7 +101,7 @@ function init_map(idx, item) {
     image: new ol.style.Circle({
       radius: 7,
       fill: new ol.style.Fill({
-        color: '#90c062'
+        color: "#90c062"
       }),
       stroke: new ol.style.Stroke({
         color: [0, 0, 0, 0.75],
@@ -110,25 +111,24 @@ function init_map(idx, item) {
     zIndex: 100000
   });
 
-
-  if ($(item).hasClass('edit') && $(item).hasClass('point')) {
+  if ($(item).hasClass("edit") && $(item).hasClass("point")) {
     drawable = false;
     feature = new ol.Feature({
-      geometry: new ol.geom.Point($(item).data('after-position'))
+      geometry: new ol.geom.Point($(item).data("after-position"))
     });
     feature_old = new ol.Feature({
-      geometry: new ol.geom.Point($(item).data('before-position'))
+      geometry: new ol.geom.Point($(item).data("before-position"))
     });
 
     feature.setStyle(greenIconStyle);
     feature_old.setStyle(redIconStyle);
-  } else if (data.type == 'Point' && data.points[0].length > 0) {
+  } else if (data.type == "Point" && data.points[0].length > 0) {
     drawable = false;
     feature = new ol.Feature({
       geometry: new ol.geom.Point(data.points[0])
     });
     if (iconStyle !== undefined) feature.setStyle(iconStyle);
-  } else if (data.type == 'LineString') {
+  } else if (data.type == "LineString") {
     feature = new ol.Feature({
       geometry: new ol.geom.LineString(data.points)
     });
@@ -141,7 +141,7 @@ function init_map(idx, item) {
 
   if (features.length > 0) {
     features.forEach(item => {
-      item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
+      item.getGeometry().transform("EPSG:4326", "EPSG:3857");
     });
     options = {
       features: features
@@ -155,16 +155,16 @@ function init_map(idx, item) {
     style: [
       new ol.style.Style({
         stroke: new ol.style.Stroke({
-          color: '#c30000',
+          color: "#c30000",
           width: 3
         }),
         image: new ol.style.Circle({
           radius: 3,
           fill: new ol.style.Fill({
-            color: '#c30000'
+            color: "#c30000"
           }),
           stroke: new ol.style.Stroke({
-            color: '#c30000',
+            color: "#c30000",
             width: 3
           })
         })
@@ -177,35 +177,45 @@ function init_map(idx, item) {
   var timeout;
 
   var oldFn = mouse_wheel_zoom.handleEvent;
-  mouse_wheel_zoom.handleEvent = function (e) {
+  mouse_wheel_zoom.handleEvent = function(e) {
     var type = e.type;
     if (type !== "wheel") {
       return true;
     }
 
     if (!e.originalEvent.ctrlKey) {
-      if (!$(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').length) {
-        $(e.map.getTargetElement().firstElementChild).find('canvas').after('<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende Strg+Scrollen zum Zoomen der Karte</div></div>');
+      if (!$(e.map.getTargetElement().firstElementChild).find(".scroll-overlay").length) {
+        $(e.map.getTargetElement().firstElementChild)
+          .find("canvas")
+          .after('<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende Strg+Scrollen zum Zoomen der Karte</div></div>');
       } else {
-        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
+        $(e.map.getTargetElement().firstElementChild)
+          .find(".scroll-overlay")
+          .fadeIn(100);
       }
 
       window.clearTimeout(timeout);
       timeout = window.setTimeout(() => {
-        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+        $(e.map.getTargetElement().firstElementChild)
+          .find(".scroll-overlay")
+          .fadeOut(100);
       }, 1000);
-      return true
+      return true;
     } else {
-      $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
+      $(e.map.getTargetElement().firstElementChild)
+        .find(".scroll-overlay")
+        .fadeOut(100);
     }
 
     oldFn.call(this, e);
-  }
+  };
 
   var map = new ol.Map({
-    interactions: ol.interactions.defaults({
-      mouseWheelZoom: false
-    }).extend([mouse_wheel_zoom]),
+    interactions: ol.interactions
+      .defaults({
+        mouseWheelZoom: false
+      })
+      .extend([mouse_wheel_zoom]),
     target: map_id,
     layers: [
       new ol.layer.Tile({
@@ -219,12 +229,12 @@ function init_map(idx, item) {
     })
   });
 
-  map.on("pointermove", function (evt) {
+  map.on("pointermove", function(evt) {
     var hit = evt.map.hasFeatureAtPixel(evt.pixel);
-    evt.map.getTargetElement().firstElementChild.style.cursor = (evt.dragging ? 'grabbing' : hit ? 'pointer' : '');
+    evt.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? "grabbing" : hit ? "pointer" : "";
   });
 
-  if ($(item).hasClass('editable')) {
+  if ($(item).hasClass("editable")) {
     var modify = new ol.interaction.Modify({
       source: source
     });
@@ -234,11 +244,11 @@ function init_map(idx, item) {
     if (drawable) {
       draw = new ol.interaction.Draw({
         source: source,
-        type: 'Point'
+        type: "Point"
       });
       map.addInteraction(draw);
 
-      draw.on('drawend', event => {
+      draw.on("drawend", event => {
         drawable = false;
         feature = event.feature;
         if (iconStyle !== undefined) feature.setStyle(iconStyle);
@@ -255,87 +265,100 @@ function init_map(idx, item) {
 
     var modifying = false;
 
-    modify.on('modifystart', () => {
+    modify.on("modifystart", () => {
       modifying = true;
     });
 
-    modify.on('modifyend', () => {
+    modify.on("modifyend", () => {
       modifying = false;
       if (feature !== undefined) {
         setHiddenFieldValue(item, feature.getGeometry().getCoordinates());
       }
     });
 
-    map.on('pointerdrag', event => {
+    map.on("pointerdrag", event => {
       if (modifying && feature !== undefined) {
         setCoordinates(item, feature.getGeometry().getCoordinates());
       }
     });
 
     // Geocoding Functionality
-    $('.geocode-address-button').on('click', event => {
+    $(".geocode-address-button").on("click", event => {
       event.preventDefault();
       $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
 
-      var address_key = $(event.currentTarget).data('address-key');
+      var address_key = $(event.currentTarget).data("address-key");
       var address = {};
 
-      $('.form-element.object.' + address_key).find('.form-element').find('input').each((index, elem) => {
-        address[elem.name.get_key()] = elem.value;
-      });
+      $(".form-element.object." + address_key)
+        .find(".form-element")
+        .find("input")
+        .each((index, elem) => {
+          address[elem.name.get_key()] = elem.value;
+        });
 
-      $.getJSON('/places/geocode_address/', address).done(data => {
-        if (data.error !== undefined) {
-          console.log(data.error);
-        } else if (data !== undefined && data.length == 2 && feature !== undefined) {
-          feature.setGeometry(new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
+      $.getJSON("/things/geocode_address/", address)
+        .done(data => {
+          if (data.error !== undefined) {
+            console.log(data.error);
+          } else if (data !== undefined && data.length == 2 && feature !== undefined) {
+            feature.setGeometry(new ol.geom.Point(data).transform("EPSG:4326", "EPSG:3857"));
+            setNewCoordinates(item, map, feature);
+          } else if (data !== undefined && data.length == 2 && feature === undefined) {
+            feature = new ol.Feature({
+              geometry: new ol.geom.Point(data).transform("EPSG:4326", "EPSG:3857")
+            });
+            if (iconStyle !== undefined) feature.setStyle(iconStyle);
+            source.addFeature(feature);
+            map.removeInteraction(draw);
+            setNewCoordinates(item, map, feature);
+          }
+        })
+        .fail((jqxhr, textStatus, error) => {
+          console.log(textStatus + ", " + error);
+        })
+        .always(() => {
+          $(event.currentTarget)
+            .find("i.fa")
+            .remove();
+        });
+    });
+
+    $(item)
+      .parent(".geographic")
+      .siblings(".map-info")
+      .first()
+      .find(".longitude input, .latitude  input")
+      .on("change", event => {
+        var valid = true;
+        var coords = getCoordinates(item);
+        coords.forEach(element => {
+          valid = valid && !isNaN(element);
+        });
+
+        if (valid && feature !== undefined) {
+          feature.setGeometry(new ol.geom.Point(getCoordinates(item)).transform("EPSG:4326", "EPSG:3857"));
           setNewCoordinates(item, map, feature);
-        } else if (data !== undefined && data.length == 2 && feature === undefined) {
+        } else if (valid && feature === undefined) {
           feature = new ol.Feature({
-            geometry: new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857')
+            geometry: new ol.geom.Point(getCoordinates(item)).transform("EPSG:4326", "EPSG:3857")
           });
           if (iconStyle !== undefined) feature.setStyle(iconStyle);
           source.addFeature(feature);
           map.removeInteraction(draw);
           setNewCoordinates(item, map, feature);
         }
-      }).fail((jqxhr, textStatus, error) => {
-        console.log(textStatus + ', ' + error);
-      }).always(() => {
-        $(event.currentTarget).find('i.fa').remove();
       });
-    });
-
-    $(item).parent('.geographic').siblings('.map-info').first().find('.longitude input, .latitude  input').on('change', event => {
-      var valid = true;
-      var coords = getCoordinates(item);
-      coords.forEach(element => {
-        valid = valid && !isNaN(element);
-      });
-
-      if (valid && feature !== undefined) {
-        feature.setGeometry(new ol.geom.Point(getCoordinates(item)).transform('EPSG:4326', 'EPSG:3857'));
-        setNewCoordinates(item, map, feature);
-      } else if (valid && feature === undefined) {
-        feature = new ol.Feature({
-          geometry: new ol.geom.Point(getCoordinates(item)).transform('EPSG:4326', 'EPSG:3857')
-        });
-        if (iconStyle !== undefined) feature.setStyle(iconStyle);
-        source.addFeature(feature);
-        map.removeInteraction(draw);
-        setNewCoordinates(item, map, feature);
-      }
-    });
   }
 
-  if (data.type == 'Point' && feature !== undefined) {
+  if (data.type == "Point" && feature !== undefined) {
     map.getView().setCenter(feature.getGeometry().getCoordinates());
-  } else if (data.type == 'LineString') {
+  } else if (data.type == "LineString") {
     map.getView().fit(feature.getGeometry());
   } else {
-    var default_position = $(item).data('default-position');
+    var default_position = $(item).data("default-position");
     if (default_position !== undefined && default_position.longitude !== undefined && default_position.latitude !== undefined) {
-      var newCoords = new ol.geom.Point([default_position.longitude, default_position.latitude]).transform('EPSG:4326', 'EPSG:3857');
+      var newCoords = new ol.geom.Point([default_position.longitude, default_position.latitude]).transform("EPSG:4326", "EPSG:3857");
       map.getView().setCenter(newCoords.getCoordinates());
     }
     if (default_position !== undefined && default_position.zoom !== undefined) map.getView().setZoom(default_position.zoom);
@@ -343,7 +366,7 @@ function init_map(idx, item) {
 }
 
 function getLatLon(coords) {
-  return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
+  return ol.proj.transform(coords, "EPSG:3857", "EPSG:4326");
 }
 
 function setNewCoordinates(container, map, feature) {
@@ -354,18 +377,46 @@ function setNewCoordinates(container, map, feature) {
 
 function setCoordinates(container, coords) {
   var latlon = getLatLon(coords);
-  $(container).parent('.geographic').siblings('.map-info').first().find('.longitude input').val(latlon[0]);
-  $(container).parent('.geographic').siblings('.map-info').first().find('.latitude input').val(latlon[1]);
+  $(container)
+    .parent(".geographic")
+    .siblings(".map-info")
+    .first()
+    .find(".longitude input")
+    .val(latlon[0]);
+  $(container)
+    .parent(".geographic")
+    .siblings(".map-info")
+    .first()
+    .find(".latitude input")
+    .val(latlon[1]);
 }
 
 function getCoordinates(container) {
   return [
-    parseFloat($(container).parent('.geographic').siblings('.map-info').first().find('.longitude input').val()),
-    parseFloat($(container).parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
+    parseFloat(
+      $(container)
+        .parent(".geographic")
+        .siblings(".map-info")
+        .first()
+        .find(".longitude input")
+        .val()
+    ),
+    parseFloat(
+      $(container)
+        .parent(".geographic")
+        .siblings(".map-info")
+        .first()
+        .find(".latitude input")
+        .val()
+    )
   ];
 }
 
 function setHiddenFieldValue(container, coords) {
   var latlon = getLatLon(coords);
-  $(container).parent('.geographic').siblings('.location-data').first().val('POINT (' + latlon[0] + ' ' + latlon[1] + ')');
+  $(container)
+    .parent(".geographic")
+    .siblings(".location-data")
+    .first()
+    .val("POINT (" + latlon[0] + " " + latlon[1] + ")");
 }

@@ -9,19 +9,16 @@ module DataCycleCore
 
     setup do
       @routes = Engine.routes
-      DataCycleCore::TestPreparations.create_contents
-      DataCycleCore::TestPreparations.create_subscription
+      @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 
     test 'subscribe article' do
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
-
       post subscriptions_path, xhr: true, params: {
-        subscribable_id: content.id,
-        subscribable_type: content.class.name
+        subscribable_id: @content.id,
+        subscribable_type: @content.class.name
       }, headers: {
-        referer: creative_work_path(content)
+        referer: thing_path(@content)
       }
 
       assert_response :success
@@ -34,16 +31,17 @@ module DataCycleCore
     test 'unsubscribe article' do
       user = User.find_by(email: 'admin@datacycle.at')
       sign_in(user)
-      content = DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel')
+
+      DataCycleCore::Subscription.find_or_create_by(subscribable_id: @content.id, subscribable_type: @content.class.name, user_id: user.id)
 
       get subscriptions_path
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestArtikel'
 
-      subscription = content.subscriptions.find_by(user_id: user.id)
+      subscription = @content.subscriptions.find_by(user_id: user.id)
 
       delete subscription_path(subscription), xhr: true, params: {}, headers: {
-        referer: creative_work_path(content)
+        referer: thing_path(@content)
       }
 
       assert_response :success

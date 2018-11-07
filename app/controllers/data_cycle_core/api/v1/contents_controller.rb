@@ -54,15 +54,15 @@ module DataCycleCore
         end
 
         def deleted
-          deleted_contents = DataCycleCore::CreativeWork::History.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+          deleted_contents = DataCycleCore::Thing::History.where(
+            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
           @language = permitted_params.fetch(:language, current_user.default_locale)
 
           if permitted_params[:deleted_since]
             deleted_contents = deleted_contents.where(
-              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
             )
           end
 

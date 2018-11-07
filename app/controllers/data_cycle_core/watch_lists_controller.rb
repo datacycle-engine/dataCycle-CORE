@@ -96,7 +96,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
@@ -111,7 +111,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
@@ -119,7 +119,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:headline, user_group_ids: [])
+      params.require(:watch_list).permit(:name, user_group_ids: [])
     end
 
     def hashable_params

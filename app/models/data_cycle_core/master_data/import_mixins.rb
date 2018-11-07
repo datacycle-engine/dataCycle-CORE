@@ -10,18 +10,18 @@ module DataCycleCore
       end
 
       # TODO: add validations + errors + warnings
-      def self.import_all_mixins(template_paths:, _validation: true)
+      def self.import_all_mixins(template_paths:, content_tables:, _validation: true)
         mixins_folder = 'mixins'
         collisions = {}
         mixin_list = {}
 
-        (DataCycleCore.content_tables + ['default']).each do |content_table_name|
+        (content_tables + ['default']).each do |content_table_name|
           mixin_list[content_table_name.to_sym] = {}
           collisions[content_table_name.to_sym] = {}
         end
 
         template_paths.each do |core_template_path|
-          (DataCycleCore.content_tables + ['default']).each do |content_table_name|
+          (content_tables + ['default']).each do |content_table_name|
             if content_table_name == 'default'
               files = core_template_path + mixins_folder + '*.yml'
             else

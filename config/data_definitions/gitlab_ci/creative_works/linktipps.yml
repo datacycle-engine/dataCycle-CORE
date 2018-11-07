@@ -38,12 +38,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :website:
         :label: Link
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Website
       :data_type:
         :label: Inhaltstype

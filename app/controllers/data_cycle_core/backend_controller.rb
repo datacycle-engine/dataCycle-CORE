@@ -28,7 +28,7 @@ module DataCycleCore
 
       @total_pages = (@total.to_f / 25).ceil
       @contents = @paginate_object.map(&:content_data)
-      @content = CreativeWork.new
+      @content = DataCycleCore::Thing.new
     end
 
     def settings

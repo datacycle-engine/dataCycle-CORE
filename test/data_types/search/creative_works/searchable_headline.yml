@@ -7,7 +7,7 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Headline
         :type: string
         :storage_location: column

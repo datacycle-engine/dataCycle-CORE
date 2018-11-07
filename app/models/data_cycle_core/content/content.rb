@@ -53,6 +53,14 @@ module DataCycleCore
         end
       end
 
+      def schema_type
+        schema&.dig('schema_type')
+      end
+
+      def translatable?
+        schema&.dig('translatable') || false
+      end
+
       def property_definitions
         schema&.dig('properties') || {}
       rescue StandardError
