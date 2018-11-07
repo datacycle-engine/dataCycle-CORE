@@ -103,6 +103,8 @@
         :template_name: Örtlichkeit
         :validations:
           :max: 1
+        :api:
+          :name: location
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
