@@ -38,7 +38,7 @@ module DataCycleCore
                   next unless asset_file.save
 
                   image_data = {
-                    headline: title,
+                    name: title,
                     asset: asset_file.id
                   }
                   new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
@@ -59,7 +59,7 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, options:)
           config = options.dig(:import, :transformations, :asset)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'DataCycle - Bild'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(

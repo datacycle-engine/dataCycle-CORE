@@ -1642,16 +1642,6 @@ select {
   }
 }
 
-.fa {
-  &.has-tip {
-    border: none;
-  }
-}
-
-.tooltip {
-  max-width: 30rem;
-}
-
 .tooltip p:last-child {
   margin-bottom: 0;
 }

@@ -2,8 +2,11 @@
 - :data:
     :name: DataCycle - PDF
     :type: object
+    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
+    :api:
+      :type: AssetObject
     :properties:
       :id:
         :label: id

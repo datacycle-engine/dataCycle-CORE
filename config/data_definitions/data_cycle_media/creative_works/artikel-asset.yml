@@ -38,7 +38,7 @@
       :image_test:
         :label: Images
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: DataCycle - Bild
       :text:
         :label: Fließtext
