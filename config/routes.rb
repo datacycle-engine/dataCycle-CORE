@@ -7,7 +7,7 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
-  CONTENT_TABLES_FALLBACK = ['organizations', 'persons', 'events', 'places', 'creative_works'].freeze
+  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'creative_works'].freeze
 
   root to: redirect('/users/sign_in')
 
