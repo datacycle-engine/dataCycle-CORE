@@ -48,7 +48,7 @@ module DataCycleCore
     CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
         event: [],
         organization: [],
@@ -209,6 +209,9 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
     Rails.root.join('..', 'data_types', 'attributes'),
     Rails.root.join('..', 'data_types', 'custom')
   ]

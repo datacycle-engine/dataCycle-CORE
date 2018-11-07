@@ -31,7 +31,7 @@ module DataCycleCore
 
       content = DataCycleCore::Thing.find_by(name: name)
 
-      assert_redirected_to edit_thing_path(content)
+      assert_redirected_to edit_polymorphic_path(content)
       assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:notice]
     end
 
@@ -78,23 +78,23 @@ module DataCycleCore
     test 'update content' do
       updated_name = "updated_test_artikel_#{Time.now.getutc.to_i}"
 
-      patch thing_path(@content), params: {
+      patch polymorphic_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash.merge('name' => updated_name)
         }
       }, headers: {
-        referer: edit_thing_path(@content)
+        referer: edit_polymorphic_path(@content)
       }
 
-      assert_redirected_to thing_path(@content)
+      assert_redirected_to polymorphic_path(@content)
       assert_equal 'Artikel wurde aktualisiert.', flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', updated_name
     end
 
     test 'delete content' do
-      delete thing_path(@content), params: {}, headers: {
-        referer: thing_path(@content)
+      delete polymorphic_path(@content), params: {}, headers: {
+        referer: polymorphic_path(@content)
       }
 
       assert_redirected_to root_path
@@ -119,11 +119,10 @@ module DataCycleCore
     end
 
     test 'delete container with child' do
-      @content.is_part_of = @container.id
-      @content.save!
+      @content.update({ is_part_of: @container.id })
 
-      delete thing_path(@container), params: {}, headers: {
-        referer: thing_path(@container)
+      delete polymorphic_path(@container), params: {}, headers: {
+        referer: polymorphic_path(@container)
       }
 
       assert_redirected_to root_path

@@ -32,13 +32,6 @@
             :type: text_editor
             :options:
               :data-size: full
-      :data_pool:
-        :label: Inhaltspool
-        :type: classification
-        :tree_label: Inhaltspools
-        :default_value: "Recherche"
-        :ui:
-          :show:
-            :disabled: true
-          :edit:
-            :disabled: true
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
