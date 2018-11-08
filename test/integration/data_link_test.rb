@@ -44,6 +44,7 @@ module DataCycleCore
       assert data_link
 
       logout
+
       get data_link_path(data_link)
       assert_redirected_to edit_polymorphic_path(@content)
       follow_redirect!
@@ -100,6 +101,7 @@ module DataCycleCore
       assert_response 403
 
       logout
+
       get data_link_path(data_link)
       assert_redirected_to polymorphic_path(watch_list)
       follow_redirect!
@@ -116,8 +118,6 @@ module DataCycleCore
       follow_redirect!
 
       logout
-      assert_response :success
-      @data_link.reload
 
       get data_link_path(@data_link)
       assert_redirected_to root_path
