@@ -301,7 +301,7 @@ module DataCycleCore
 
       authorize! :create, object_type.constantize
 
-      @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+      @asset = object_type.constantize.new(asset_params)
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
       @asset.save

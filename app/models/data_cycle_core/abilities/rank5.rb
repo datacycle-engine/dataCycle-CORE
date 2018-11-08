@@ -3,10 +3,12 @@
 module DataCycleCore
   module Abilities
     class Rank5 < DataCycleCore::Ability
+      # TODO: remove TEMPLATES constant
       TEMPLATES = (['Angebot', 'Artikel', 'Bild', 'Biografie', 'Container',
                     'Interview', 'Linktipps', 'Quiz', 'Rezept', 'SocialMediaPosting',
                     'Video', 'Zeitleiste', 'Lift', 'Örtlichkeit', 'Piste', 'POI',
-                    'Tour', 'Unterkunft', 'Event', 'Organization', 'Person', 'Recherche'] - DataCycleCore.excluded_new_item_objects).freeze
+                    'Tour', 'Unterkunft', 'Event', 'Organization', 'Person',
+                    'DataCycle - Datei', 'DataCycle - Audio', 'DataCycle - Bild', 'DataCycle - PDF', 'DataCycle - Video'] - DataCycleCore.excluded_new_item_objects).freeze
       # [DataCycleCore::CreativeWork, DataCycleCore::Thing].map { |object| object.where(template: true).where("schema ->> 'content_type' IN ('entity', 'container')").pluck(:template_name) }.flatten
       include CanCan::Ability
 

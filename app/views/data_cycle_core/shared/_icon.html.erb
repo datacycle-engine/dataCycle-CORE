@@ -11,7 +11,7 @@
     <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
 <% when "angebot" %>
     <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
-<% when "bild", "foto-serie" %>
+<% when "bild", "foto-serie", "datacycle_-_bild" %>
     <span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
 <% when "bundesländer", 'bundeslander' %>
     <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
@@ -75,10 +75,16 @@
     <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
 <% when "anonym" %>
     <span class="icon"><i class="fa fa-user-secret" aria-hidden="true"></i></span>
-<% when "video", "video-serie", "youtube-video" %>
+<% when "video", "video-serie", "youtube-video", "datacycle_-_video" %>
     <span class="icon"><i class="fa fa-video-camera" aria-hidden="true"></i></span>
 <% when "event", "subevent" %>
     <span class="icon"><i class="fa fa-calendar-o" aria-hidden="true"></i></span>
+<% when "prospekt" %>
+    <span class="icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>
+<% when "pdf", "datacycle_-_pdf" %>
+    <span class="icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>
+<% when "pdf", "datacycle_-_audio" %>
+    <span class="icon"><i class="fa fa-file-audio-o" aria-hidden="true"></i></span>
 <% else %>
     <span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
 <% end %>

@@ -35,6 +35,11 @@ delete_contents = <<-EOS
   DELETE FROM searches;
 EOS
 
+delete_assets = <<-EOS
+  DELETE FROM assets;
+  DELETE FROM asset_contents;
+EOS
+
 delete_content_histories = <<-EOS
   DELETE FROM creative_work_histories;
   DELETE FROM creative_work_history_translations;
@@ -95,6 +100,7 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
+      ActiveRecord::Base.connection.execute(delete_assets)
     end
 
     desc 'Remove all contents related data like creative works and places (does not remove classifications)'
@@ -102,6 +108,11 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
+    end
+
+    desc 'Remove all assets and asset relations'
+    task assets: :environment do
+      ActiveRecord::Base.connection.execute(delete_assets)
     end
 
     desc 'Remove the history of all content data'

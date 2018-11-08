@@ -8,6 +8,7 @@
     <%= label_tag key do %>
       <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
       <%= definition['label'] %>
+      <%= render 'helper_text', local_assigns %>
     <% end %>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"

@@ -12,6 +12,10 @@ module DataCycleCore
           life_cycle_stage&.id == stage_id
         end
 
+        def life_cycle_stage_name?(stage_name)
+          life_cycle_stage&.name == stage_name
+        end
+
         def life_cycle_classification?(classification_id)
           DataCycleCore::Feature::LifeCycle.ordered_classifications(self)&.values&.map { |value| value[:id] }&.include?(classification_id)
         end

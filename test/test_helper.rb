@@ -46,6 +46,7 @@ module DataCycleCore
   module TestPreparations
     extend DataCycleCore::Common
     CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
+    ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment'],
@@ -208,6 +209,7 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),

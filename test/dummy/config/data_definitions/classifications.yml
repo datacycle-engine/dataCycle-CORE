@@ -1,6 +1,10 @@
 - Inhaltstypen:
   - $$Asset:
-    - $$Asset Demo
+    - $$DataCycle - Audio
+    - $$DataCycle - Bild
+    - $$DataCycle - Video
+    - $$DataCycle - Datei
+    - $$DataCycle - PDF
     - $$Bild
     - $$Datei
     - $$Video
@@ -35,7 +39,6 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$Textblock
-  - $$Test-Computed
 
 - Geschlecht:
   - Männlich

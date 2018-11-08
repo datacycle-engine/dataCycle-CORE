@@ -263,7 +263,29 @@ de:
       imported: "'%{data}' wurden aus YAML Datei importiert."
   activerecord:
     errors:
+      messages:
+        record_invalid: "Ungültiger Eintrag"
       models:
+        data_cycle_core/asset:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/image:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/audio:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/video:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/pdf:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/watch_list:
           attributes:
             name:
@@ -630,3 +652,7 @@ de:
           village: Dorf
           base: Basis
           top: Top
+
+  errors:
+    messages:
+      extension_white_list_error: Ungültiger Dateityp
