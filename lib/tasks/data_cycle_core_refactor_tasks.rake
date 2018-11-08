@@ -593,7 +593,7 @@ namespace :data_cycle_core do
           WHERE tt.thing_id IN (
             SELECT id from things
             WHERE template = false
-            AND template_name IN ('PlaceOverlay', 'Textblock')
+            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
@@ -611,13 +611,25 @@ namespace :data_cycle_core do
         ActiveRecord::Base.connection.exec_query(sql)
 
         sql = <<-SQL
+          UPDATE thing_translations AS tt
+          SET content = content #- '{name}' || jsonb_build_object('headline', content->>'name')
+          WHERE (tt.content ->> 'name') IS NOT NULL
+          AND tt.thing_id IN (
+            SELECT id from things
+            WHERE template = false
+            AND template_name IN ('Hauptmenüpunkt', 'Untermenüpunkt')
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        sql = <<-SQL
           UPDATE thing_history_translations AS tt SET
           	name = tt.content ->> 'name',
             content = tt.content - 'name'
           WHERE tt.thing_history_id IN (
             SELECT id from thing_histories
             WHERE template = false
-            AND template_name IN ('PlaceOverlay', 'Textblock')
+            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
@@ -630,6 +642,18 @@ namespace :data_cycle_core do
             SELECT id from thing_histories
             WHERE template = false
             AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website')
+          );
+        SQL
+        ActiveRecord::Base.connection.exec_query(sql)
+
+        sql = <<-SQL
+          UPDATE thing_history_translations AS tt
+          SET content = content #- '{name}' || jsonb_build_object('headline', content->>'name')
+          WHERE (tt.content ->> 'name') IS NOT NULL
+          AND tt.thing_history_id IN (
+            SELECT id from thing_histories
+            WHERE template = false
+            AND template_name IN ('Hauptmenüpunkt', 'Untermenüpunkt')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
