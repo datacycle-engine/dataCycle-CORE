@@ -31,7 +31,7 @@ module DataCycleCore
       content = DataCycleCore::Thing.find_by(name: name)
 
       assert_redirected_to edit_polymorphic_path(content)
-      assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:notice]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_language), flash[:notice]
     end
 
     test 'search content by fulltext' do
@@ -65,7 +65,7 @@ module DataCycleCore
       }
 
       assert_redirected_to polymorphic_path(@content)
-      assert_equal 'Artikel wurde aktualisiert.', flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', updated_name
     end
@@ -76,7 +76,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal 'Artikel wurde gelöscht.', flash[:success]
+      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
 
       get root_path, params: {
         utf8: '✓',

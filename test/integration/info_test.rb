@@ -23,7 +23,7 @@ module DataCycleCore
       }
 
       assert_redirected_to info_path
-      assert_equal 'Erfolgreich angemeldet.', flash[:notice]
+      assert_equal I18n.t('devise.sessions.signed_in', locale: DataCycleCore.ui_language), flash[:notice]
     end
   end
 end

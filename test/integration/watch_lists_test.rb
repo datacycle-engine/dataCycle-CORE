@@ -49,7 +49,7 @@ module DataCycleCore
       }
 
       assert_redirected_to watch_list_path(@watch_list)
-      assert_equal 'Inhaltssammlung wurde aktualisiert.', flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', name
     end
@@ -60,7 +60,7 @@ module DataCycleCore
       }
 
       assert_redirected_to watch_lists_path
-      assert_equal 'Inhaltssammlung wurde gelöscht.', flash[:success]
+      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language), flash[:success]
 
       get api_v2_collections_path
       assert_response :success
