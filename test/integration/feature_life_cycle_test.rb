@@ -10,7 +10,6 @@ module DataCycleCore
     setup do
       @routes = Engine.routes
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'LifeCycleTestArtikel' })
-      @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'TestContainer' })
       @stages = DataCycleCore::Feature::LifeCycle.ordered_classifications(@content)
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
