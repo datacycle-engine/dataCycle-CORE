@@ -6,7 +6,7 @@ module DataCycleCore
   module Generic
     class DataCycleMediaTest < ActiveSupport::TestCase
       def setup
-        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
+        @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
 
       # test 'perform import' do
@@ -19,7 +19,7 @@ module DataCycleCore
       #   external_source.download(options)
       #   external_source.import(options)
       #
-      #   assert_equal(2, DataCycleCore::CreativeWork.where(template: false).count)
+      #   assert_equal(2, DataCycleCore::Thing.where(template: false).count)
       # end
     end
   end
