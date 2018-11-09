@@ -4,13 +4,13 @@ require 'test_helper'
 
 module DataCycleCore
   module Generic
-    class MediaArchiveTest < ActiveSupport::TestCase
+    class EventDatabaseTest < ActiveSupport::TestCase
       def setup
-        @cw_temp = DataCycleCore::Thing.where(template: false).count
+        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
       end
 
       def download_from_local_json(external_source)
-        path = Rails.root.join('..', 'fixtures', 'external_sources', 'media_archive')
+        path = Rails.root.join('..', 'fixtures', 'external_sources', 'event_database')
         files = path + '*.json'
 
         file_names = Dir[files]
@@ -41,15 +41,15 @@ module DataCycleCore
 
       test 'perform import' do
         options = {
+          max_count: 1,
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Medienarchiv')
+        external_source = DataCycleCore::ExternalSource.find_by(name: 'Veranstaltungsdatenbank')
         download_from_local_json(external_source)
         external_source.import(options)
 
-        assert_equal(20, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
       end
     end
   end

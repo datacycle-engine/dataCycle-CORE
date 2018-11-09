@@ -30,6 +30,8 @@
   - $$Bild
   - $$Video
   - $$Audio
+  - $$Tour
+  - $$POI
   # additional types for content entitys
   - $$Website
   - $$MobileApplication
@@ -41,6 +43,7 @@
   - $$Angebotszeitraum
   - $$Publikations-Plan
   - $$Searchable Headline
+  - $$Veranstaltungstermin
   # refactored
   # container
   - $$Container
