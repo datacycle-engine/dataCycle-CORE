@@ -41,7 +41,7 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.where(content_data_type: content_data_type) if content_data_type
+          query = query.where(content_data_type: 'DataCycleCore::Thing')
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
@@ -82,12 +82,6 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
-        end
-
-        def content_data_type
-          return unless permitted_params[:type]
-          object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-          ('DataCycleCore::' + object_type.singularize.classify).constantize
         end
 
         def apply_ordering(query)

@@ -593,7 +593,7 @@ namespace :data_cycle_core do
           WHERE tt.thing_id IN (
             SELECT id from things
             WHERE template = false
-            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video')
+            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video', 'Youtube-Video')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
@@ -629,7 +629,7 @@ namespace :data_cycle_core do
           WHERE tt.thing_history_id IN (
             SELECT id from thing_histories
             WHERE template = false
-            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video')
+            AND template_name IN ('PlaceOverlay', 'Textblock', 'Eingebettetes Video', 'Youtube-Video')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)

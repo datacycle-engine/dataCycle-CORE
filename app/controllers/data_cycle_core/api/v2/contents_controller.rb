@@ -123,11 +123,6 @@ module DataCycleCore
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
         end
 
-        def content_data_type
-          object_type_string = permitted_params[:type] || controller_name
-          data_cycle_object(object_type_string)
-        end
-
         def content_schema_type
           excluded_controller_names = ['things', 'contents']
           return permitted_params.dig(:type)&.classify if permitted_params.dig(:type).present?

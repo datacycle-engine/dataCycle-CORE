@@ -18,7 +18,7 @@ module DataCycleCore
         # Contents
         can [:show, :new_asset_object, :remove_asset_object], DataCycleCore::Asset
 
-        can [:read, :update, :import, :set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize) do |content|
+        can [:read, :update, :import, :set_life_cycle, :move_content], DataCycleCore::Thing do |content|
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
 
@@ -26,7 +26,7 @@ module DataCycleCore
         can :create, TEMPLATES
         can :create_item, '' if TEMPLATES&.size&.positive?
 
-        can :destroy, CONTENT_MODELS do |content|
+        can :destroy, DataCycleCore::Thing do |content|
           content&.created_by_user == user
         end
       end
