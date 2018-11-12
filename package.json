@@ -76,8 +76,5 @@
     "vinyl-source-stream": "1.1.0",
     "watchify": "3.9.0",
     "yarn": "^1.7.0"
-  },
-  "devDependencies": {
-    "cypress": "2.1.0"
   }
 }
