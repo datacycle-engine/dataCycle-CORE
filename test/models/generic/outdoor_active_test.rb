@@ -6,7 +6,7 @@ module DataCycleCore
   module Generic
     class OutdoorActiveTest < ActiveSupport::TestCase
       def setup
-        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
+        @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
 
       def download_from_local_json(external_source)
@@ -48,6 +48,8 @@ module DataCycleCore
         external_source = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive')
         download_from_local_json(external_source)
         external_source.import(options)
+
+        sleep 10
 
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').count)
