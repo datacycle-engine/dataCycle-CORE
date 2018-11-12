@@ -447,6 +447,8 @@ de:
     documentation:
       root: Dokumentation
       overview: Übersicht
+      architecture: Systemarchitektur
+      data_structure: Datenstruktur
       classifications: Klassifizierungen
       api:
         root: Datenschnittstelle
