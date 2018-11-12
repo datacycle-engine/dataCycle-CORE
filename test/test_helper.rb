@@ -152,16 +152,18 @@ module DataCycleCore
 
     def self.create_content(template_name: nil, data_hash: nil)
       return if template_name.blank? || data_hash.blank?
+      data_hash.deep_stringify_keys!
 
-      @content = DataCycleCore::Thing.find_by(data_hash.slice(:name, :given_name, :family_name).merge(template_name: template_name))
+      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge(template_name: template_name))
 
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
       @content.template = false
       @content.save!
+
       I18n.with_locale(:de) do
-        @content.set_data_hash(data_hash: data_hash.deep_stringify_keys, new_content: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+        @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: User.find_by(email: 'tester@datacycle.at'))
       end
       @content.reload
     end
