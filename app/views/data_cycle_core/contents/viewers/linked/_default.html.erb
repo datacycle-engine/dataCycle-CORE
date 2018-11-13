@@ -16,7 +16,7 @@
 
                 <%= render_first_existing_partial [
                                                       "data_cycle_core/contents/viewers/tiles/#{item.template_name.underscore_blanks}",
-                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore_blanks}",
+                                                      "data_cycle_core/contents/viewers/tiles/#{item.schema_type.underscore_blanks}",
                                                       'data_cycle_core/contents/viewers/tiles/default'
                                                   ], local_assigns.merge({content: item})
                 %>

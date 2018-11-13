@@ -82,7 +82,7 @@
         <span class="item-count"></span>
       </div>
 
-      <div class="items">
+      <div class="items margin-bottom-10">
         <div class="loading">
           <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
         </div>
@@ -118,7 +118,7 @@
 
           <% if can?(:create_in_objectbrowser, object_template) %>
             <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}, content: content) %>
+              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: { new_overlay_key: sanitize_to_id(key), object: DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) }, content: content) %>
             <% rescue %>
             <% end %>
           <% end %>

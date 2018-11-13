@@ -566,6 +566,16 @@
   }
 
   .items {
+    &.margin-bottom-10::after {
+      content: "";
+      float: none;
+      clear: both;
+      height: 10rem;
+      display: block;
+      flex: unset;
+      width: 100%;
+    }
+
     padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
     max-height: calc(100% - 7.9rem);
