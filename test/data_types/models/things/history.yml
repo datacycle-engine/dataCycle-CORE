@@ -1,0 +1,117 @@
+---
+
+- :data:
+    :name: TestSimple
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+
+- :data:
+    :name: TestIncludedData
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :includedData:
+        :label: embeddedDataLabel
+        :type: object
+        :storage_location: translated_value
+        :properties:
+          :item1:
+            :label: Item1Label
+            :type: string
+            :storage_location: translated_value
+          :item2:
+            :label: Item2Label
+            :type: string
+            :storage_location: translated_value
+
+- :data:
+    :name: TestClassificationData
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data_pool:
+        :label: Inhaltspools
+        :type: classification
+        :tree_label: Inhaltspools
+        :default_value: "Aktuelle Inhalte"
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+
+- :data:
+    :name: TestEmbeddedPlaceData
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :testPlace:
+        :label: Ort
+        :type: embedded
+        :linked_table: things
+        :template_name: testPlace
+
+- :data:
+    :name: TestEmbeddedCreativeWork
+    :type: object
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :testCW:
+        :label: Kreativdaten
+        :type: embedded
+        :linked_table: things
+        :template_name: EmbeddedCreativeWork
+
+- :data:
+    :name: EmbeddedCreativeWork
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :data_pool:
+        :label: Inhaltspool
+        :type: classification
+        :tree_label: Inhaltspools
+        :default_value: "Aktuelle Inhalte"
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true
+
+- :data:
+    :name: CreativeWorkEmbeddedLink
+    :type: object
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+      :linked:
+        :label: Verlinkt
+        :type: linked
+        :linked_table: things

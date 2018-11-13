@@ -11,11 +11,11 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
   describe 'loaded template_data' do
     let(:import_path) do
-      Rails.root.join('..', 'data_types', 'test_folder')
+      Rails.root.join('..', 'data_types', 'master_data', 'set_1')
     end
 
     let(:import_path2) do
-      Rails.root.join('..', 'data_types', 'test_folder2')
+      Rails.root.join('..', 'data_types', 'master_data', 'set_2')
     end
 
     let(:non_existent_path) do
@@ -26,13 +26,18 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         creative_works: [
           {
-            name: 'Bild2',
-            file: import_path.join('creative_works', 'bild2_test.yml').to_s,
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
             position: 0
           },
           {
-            name: 'BildMinimal',
-            file: import_path.join('creative_works', 'bild2_test.yml').to_s,
+            name: 'Entity-Creative-Work-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 0
+          },
+          {
+            name: 'Entity-Creative-Work-1-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
             position: 1
           }
         ]
@@ -43,14 +48,19 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         creative_works: [
           {
-            name: 'BildMinimal',
-            file: import_path.join('creative_works', 'bild2_test.yml').to_s,
-            position: 1
+            name: 'Entity-Creative-Work-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 0
           },
           {
-            name: 'Bild2',
-            file: import_path.join('creative_works', 'bild2_test.yml').to_s,
+            name: 'Entity-Creative-Work-2',
+            file: import_path.join('creative_works', 'entity_2.yml').to_s,
             position: 0
+          },
+          {
+            name: 'Entity-Creative-Work-1-1',
+            file: import_path.join('creative_works', 'entity.yml').to_s,
+            position: 1
           }
         ]
       }
@@ -59,14 +69,14 @@ describe DataCycleCore::MasterData::ImportTemplates do
     let(:duplicates_import_paths) do
       {
         creative_works: {
-          'BildMinimal' => [
+          'Entity-Creative-Work-1' => [
             {
-              file: import_path2.join('creative_works', 'bild2_test.yml').to_s,
+              file: import_path2.join('creative_works', 'entity.yml').to_s,
               position: 0
             },
             {
-              file: import_path.join('creative_works', 'bild2_test.yml').to_s,
-              position: 1
+              file: import_path.join('creative_works', 'entity.yml').to_s,
+              position: 0
             }
           ]
         }

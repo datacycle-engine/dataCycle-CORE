@@ -196,7 +196,7 @@ end
 
 DataCycleCore::TestPreparations.load_classifications(
   [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
+    Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
   ]
 )
 
@@ -207,7 +207,6 @@ DataCycleCore::TestPreparations.load_external_sources(
 )
 DataCycleCore::TestPreparations.load_templates(
   [
-    # Rails.root.join('..', 'data_types'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
@@ -217,7 +216,7 @@ DataCycleCore::TestPreparations.load_templates(
     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
     Rails.root.join('..', 'data_types', 'attributes'),
-    Rails.root.join('..', 'data_types', 'custom')
+    Rails.root.join('..', 'data_types', 'models')
   ]
 )
 DataCycleCore::TestPreparations.load_dummy_data(

@@ -52,15 +52,19 @@ module DataCycleCore
 
         def self.category_key_to_ids(data_hash, attribute, data_list, name, external_source_id, external_prefix, key)
           return data_hash if data_hash.blank? || data_list.blank?
+
           data_hash.merge(
             {
               attribute =>
                 data_list.call(data_hash)&.map do |item_data|
-                  DataCycleCore::Classification.find_by(
-                    name: item_data.dig(name),
+                  search_params = {
                     external_source_id: external_source_id,
                     external_key: external_prefix + item_data.dig(key)
-                  )&.id
+                  }
+
+                  search_params.merge(name: item_data.dig(name)) if name.present?
+
+                  DataCycleCore::Classification.find_by(search_params)&.id
                 end&.reject(&:nil?) || []
             }
           )

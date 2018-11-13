@@ -7,13 +7,13 @@ require 'minitest/autorun'
 module DataCycleCore
   class SearchTest < ActiveSupport::TestCase
     test 'test search utility functions' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Bild2')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Artikel')
       data_set.save!
       data_hash = {
-        'caption' => 'Caption Test',
-        'comment' => 'Comment Test',
+        'name' => 'Caption Test',
         'description' => 'Description Test',
-        'photographer' => 'Photographer Test'
+        'link_name' => 'Link Name Test',
+        'text' => 'Full Test'
       }
       data_set.set_data_hash(data_hash: data_hash)
       data_set.save
@@ -44,9 +44,6 @@ describe DataCycleCore::Search do
     result = nil
 
     ActiveRecord::Base.transaction do
-      DataCycleCore::TestPreparations.load_classifications([Rails.root.join('..', 'data_types', 'search', 'classifications.yml')])
-      DataCycleCore::TestPreparations.load_templates([Rails.root.join('..', 'data_types', 'search')])
-
       result = super
 
       raise ActiveRecord::Rollback
@@ -58,26 +55,26 @@ describe DataCycleCore::Search do
   before do
     @contents = [
       create_content(
-        'Searchable Headline',
+        'Artikel',
         {
           name: 'HEADLINE 1',
-          tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1')
+          tags: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       ),
       create_content(
-        'Searchable Headline',
+        'Artikel',
         {
           name: 'HEADLINE 2',
-          tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2', 'Nested Tag 1')
+          tags: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 2', 'Nested Tag 1')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       ),
       create_content(
-        'Searchable Headline',
+        'Artikel',
         {
           name: 'HEADLINE 2',
-          tag: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1', 'Tag 2')
+          tags: DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 1', 'Tag 2')
                                                  .map(&:classifications).flatten.map(&:id)
         }
       )
@@ -92,28 +89,28 @@ describe DataCycleCore::Search do
 
   it 'filters contents based on single classification' do
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .count.must_equal 3
   end
 
   it 'filters contents based on multiple classifications' do
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 1', 'Tag 2'))
       .count.must_equal 3
 
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 1'))
       .count.must_equal 2
 
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 2'))
       .count.must_equal 2
 
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 1'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Tag 2'))
       .count.must_equal 1
@@ -121,7 +118,7 @@ describe DataCycleCore::Search do
 
   it 'filters contents based on nested classifications' do
     DataCycleCore::Search
-      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Searchable Headline'))
+      .with_classification_aliases(find_classification_alias_ids('Inhaltstypen', 'Artikel'))
       .with_classification_aliases(find_classification_alias_ids('Tags', 'Nested Tag 1'))
       .count.must_equal 1
   end
