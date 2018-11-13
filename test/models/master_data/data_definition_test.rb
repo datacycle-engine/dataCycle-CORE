@@ -16,6 +16,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
           name: 'App',
           type: 'object',
           content_type: 'entity',
+          schema_type: 'CreativeWork',
           boost: 10.0,
           properties: {
             id: {
@@ -256,7 +257,9 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         data: {
           name: 'whatever',
-          type: 'object'
+          type: 'object',
+          schema_type: 'CreativeWork',
+          content_type: 'entity'
         }
       }
     end

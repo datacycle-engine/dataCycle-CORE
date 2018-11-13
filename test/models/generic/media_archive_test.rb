@@ -49,6 +49,8 @@ module DataCycleCore
         download_from_local_json(external_source)
         external_source.import(options)
 
+        sleep 10
+
         assert_equal(2, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('Place').count)
       end
