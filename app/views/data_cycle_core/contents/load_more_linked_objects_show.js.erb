@@ -7,13 +7,12 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
         <li class="<%= [
                           'copy-single',
                             'content',
-                            content.class.name.demodulize.underscore.dasherize,
-                            content.template_name.underscore.dasherize,
+                            content.schema_type.underscore.dasherize,
+                            content.template_name.underscore_blanks.dasherize,
                         ].join(' ') %>" data-id="<%= [content.id] %>">
-
             <%= render_first_existing_partial [
-                                                    "data_cycle_core/contents/viewers/tiles/#{content.class.name.demodulize.underscore}_#{content.template_name.underscore}",
-                                                    "data_cycle_core/contents/viewers/tiles/#{content.class.name.demodulize.underscore}",
+                                                    "data_cycle_core/contents/viewers/tiles/#{content.template_name.underscore_blanks}",
+                                                    "data_cycle_core/contents/viewers/tiles/#{content.schema_type.underscore_blanks}",
                                                     'data_cycle_core/contents/viewers/tiles/default'
                                               ], {
                                                   key: @params[:key],
