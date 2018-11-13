@@ -3,6 +3,8 @@
 - :data:
     :name: TestSimple
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :name:
         :label: Titel
@@ -12,6 +14,8 @@
 - :data:
     :name: TestIncludedData
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :name:
         :label: Titel
@@ -34,6 +38,8 @@
 - :data:
     :name: TestClassificationData
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :name:
         :label: Titel
@@ -53,6 +59,8 @@
 - :data:
     :name: TestEmbeddedPlaceData
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :name:
         :label: Titel
@@ -67,6 +75,8 @@
 - :data:
     :name: TestEmbeddedCreativeWork
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :name:
         :label: Titel
@@ -81,6 +91,8 @@
 - :data:
     :name: EmbeddedCreativeWork
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :id:
         :label: id
@@ -103,6 +115,8 @@
 - :data:
     :name: CreativeWorkEmbeddedLink
     :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
     :properties:
       :id:
         :label: id

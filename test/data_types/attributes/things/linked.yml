@@ -3,6 +3,7 @@
     :name: Linked-Creative-Work-1
     :type: object
     :content_type: entity
+    :schema_type: CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -38,6 +39,7 @@
     :name: Linked-Creative-Work-2
     :type: object
     :content_type: entity
+    :schema_type: CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -63,6 +65,7 @@
     :name: Linked-Place-1
     :type: object
     :content_type: entity
+    :schema_type: Place
     :boost: 100.0
     :properties:
       :id:

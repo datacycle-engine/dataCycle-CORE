@@ -3,6 +3,7 @@
     :name: Entity-Creative-Work-1
     :type: object
     :content_type: entity
+    :schema_type: CreativeWork
     :boost: 100.0
     :properties:
       :id:
@@ -28,6 +29,7 @@
     :name: Entity-Creative-Work-1-1
     :type: object
     :content_type: entity
+    :schema_type: CreativeWork
     :boost: 100.0
     :properties:
       :id:

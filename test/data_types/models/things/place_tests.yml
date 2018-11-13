@@ -2,6 +2,8 @@
 - :data:
     :name: testPlace
     :type: object
+    :content_type: entity
+    :schema_type: Place
     :properties:
       :id:
         :label: id
@@ -14,6 +16,8 @@
 - :data:
     :name: testPlaceLink
     :type: object
+    :content_type: entity
+    :schema_type: Place
     :properties:
       :id:
         :label: id
