@@ -41,7 +41,9 @@ module DataCycleCore
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
-        query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'creative_works'
+        unless template_name == 'contentLocation'
+          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'things'
+        end
 
         query = query.order(order_string)
 
@@ -91,7 +93,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+      params.permit(*permitted_parameter_keys)
     end
 
     def permitted_parameter_keys

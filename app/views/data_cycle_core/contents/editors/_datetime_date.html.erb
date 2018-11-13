@@ -7,6 +7,7 @@
             <i aria-hidden="true" class="fa fa-calendar"></i>
             <%= definition['label'] %>
         </span>
+        <%= render 'helper_text', local_assigns %>
       <% end %>
       <% if options.dig('readonly').presence&.to_s  == 'true' %>
           <%= text_field_tag key, value.blank? ? value : l(value.to_date, locale: DataCycleCore.ui_language), options.merge({ class: 'read-only date' }) %>

@@ -55,7 +55,9 @@ CREATE TABLE public.assets (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     seen_at timestamp without time zone,
-    name character varying
+    name character varying,
+    metadata jsonb,
+    duplicate_check jsonb
 );
 
 
@@ -315,118 +317,34 @@ UNION
 
 
 --
--- Name: creative_works; Type: TABLE; Schema: public; Owner: -
+-- Name: things; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.creative_works (
+CREATE TABLE public.things (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    "position" integer DEFAULT 0,
-    is_part_of uuid,
     metadata jsonb,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    template boolean DEFAULT false NOT NULL,
-    external_key character varying,
     template_name character varying,
     schema jsonb,
+    template boolean DEFAULT false NOT NULL,
+    internal_name character varying,
+    external_source_id uuid,
+    external_key character varying,
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.events (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: organizations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organizations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    external_source_id uuid,
-    external_key character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: persons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.persons (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    deleted_at timestamp without time zone,
     given_name character varying,
     family_name character varying,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: places; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.places (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
     longitude double precision,
     latitude double precision,
     elevation double precision,
     location public.geometry(Point,4326),
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    photo uuid,
     line public.geography(LineStringZ,4326),
-    metadata jsonb,
-    template boolean DEFAULT false,
     address_locality character varying,
     street_address character varying,
     postal_code character varying,
@@ -434,12 +352,7 @@ CREATE TABLE public.places (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
+    is_part_of uuid
 );
 
 
@@ -448,65 +361,17 @@ CREATE TABLE public.places (
 --
 
 CREATE VIEW public.content_meta_items AS
- SELECT creative_works.id,
-    'DataCycleCore::CreativeWork'::text AS content_type,
-    creative_works.template_name,
-    creative_works.schema,
-    creative_works.external_source_id,
-    creative_works.external_key,
-    creative_works.created_by,
-    creative_works.updated_by,
-    creative_works.deleted_by
-   FROM public.creative_works
-  WHERE (creative_works.template IS FALSE)
-UNION
- SELECT events.id,
-    'DataCycleCore::Event'::text AS content_type,
-    events.template_name,
-    events.schema,
-    events.external_source_id,
-    events.external_key,
-    events.created_by,
-    events.updated_by,
-    events.deleted_by
-   FROM public.events
-  WHERE (events.template IS FALSE)
-UNION
- SELECT persons.id,
-    'DataCycleCore::Person'::text AS content_type,
-    persons.template_name,
-    persons.schema,
-    persons.external_source_id,
-    persons.external_key,
-    persons.created_by,
-    persons.updated_by,
-    persons.deleted_by
-   FROM public.persons
-  WHERE (persons.template IS FALSE)
-UNION
- SELECT organizations.id,
-    'DataCycleCore::Organization'::text AS content_type,
-    organizations.template_name,
-    organizations.schema,
-    organizations.external_source_id,
-    organizations.external_key,
-    organizations.created_by,
-    organizations.updated_by,
-    organizations.deleted_by
-   FROM public.organizations
-  WHERE (organizations.template IS FALSE)
-UNION
- SELECT places.id,
-    'DataCycleCore::Place'::text AS content_type,
-    places.template_name,
-    places.schema,
-    places.external_source_id,
-    places.external_key,
-    places.created_by,
-    places.updated_by,
-    places.deleted_by
-   FROM public.places
-  WHERE (places.template IS FALSE);
+ SELECT things.id,
+    'DataCycleCore::Thing' AS content_type,
+    things.template_name,
+    things.schema,
+    things.external_source_id,
+    things.external_key,
+    things.created_by,
+    things.updated_by,
+    things.deleted_by
+   FROM public.things
+  WHERE (things.template IS FALSE);
 
 
 --
@@ -603,6 +468,30 @@ CREATE SEQUENCE public.creative_work_translations_id_seq
 --
 
 ALTER SEQUENCE public.creative_work_translations_id_seq OWNED BY public.creative_work_translations.id;
+
+
+--
+-- Name: creative_works; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.creative_works (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    "position" integer DEFAULT 0,
+    is_part_of uuid,
+    metadata jsonb,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    template boolean DEFAULT false NOT NULL,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
 
 
 --
@@ -743,6 +632,30 @@ ALTER SEQUENCE public.event_translations_id_seq OWNED BY public.event_translatio
 
 
 --
+-- Name: events; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.events (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: external_sources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -810,6 +723,28 @@ CREATE TABLE public.organization_translations (
     description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: organizations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.organizations (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    template_name character varying,
+    schema jsonb,
+    external_source_id uuid,
+    external_key character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
 );
 
 
@@ -907,6 +842,30 @@ CREATE SEQUENCE public.person_translations_id_seq
 --
 
 ALTER SEQUENCE public.person_translations_id_seq OWNED BY public.person_translations.id;
+
+
+--
+-- Name: persons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.persons (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    given_name character varying,
+    family_name character varying,
+    metadata jsonb,
+    template boolean DEFAULT false NOT NULL,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
 
 
 --
@@ -1024,6 +983,41 @@ ALTER SEQUENCE public.place_translations_id_seq OWNED BY public.place_translatio
 
 
 --
+-- Name: places; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.places (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    external_source_id uuid,
+    external_key character varying,
+    longitude double precision,
+    latitude double precision,
+    elevation double precision,
+    location public.geometry(Point,4326),
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    photo uuid,
+    line public.geography(LineStringZ,4326),
+    metadata jsonb,
+    template boolean DEFAULT false,
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying,
+    template_name character varying,
+    schema jsonb,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    deleted_at timestamp without time zone
+);
+
+
+--
 -- Name: roles; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1063,7 +1057,8 @@ CREATE TABLE public.searches (
     classification_string character varying,
     validity_period tstzrange,
     all_text text,
-    boost double precision DEFAULT 1.0 NOT NULL
+    boost double precision DEFAULT 1.0 NOT NULL,
+    schema_type character varying DEFAULT 'Thing'::character varying NOT NULL
 );
 
 
@@ -1094,6 +1089,80 @@ CREATE TABLE public.subscriptions (
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: thing_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_histories (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid NOT NULL,
+    metadata jsonb,
+    template_name character varying,
+    schema jsonb,
+    template boolean DEFAULT false NOT NULL,
+    internal_name character varying,
+    external_source_id uuid,
+    external_key character varying,
+    created_by uuid,
+    updated_by uuid,
+    deleted_by uuid,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    deleted_at timestamp without time zone,
+    given_name character varying,
+    family_name character varying,
+    start_date timestamp without time zone,
+    end_date timestamp without time zone,
+    longitude double precision,
+    latitude double precision,
+    elevation double precision,
+    location public.geometry(Point,4326),
+    line public.geography(LineStringZ,4326),
+    address_locality character varying,
+    street_address character varying,
+    postal_code character varying,
+    address_country character varying,
+    fax_number character varying,
+    telephone character varying,
+    email character varying,
+    is_part_of uuid
+);
+
+
+--
+-- Name: thing_history_translations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_history_translations (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_history_id uuid NOT NULL,
+    locale character varying NOT NULL,
+    content jsonb,
+    name character varying,
+    description text,
+    history_valid tstzrange,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: thing_translations; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_translations (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid NOT NULL,
+    locale character varying NOT NULL,
+    content jsonb,
+    name character varying,
+    description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -1190,7 +1259,7 @@ CREATE TABLE public.watch_list_user_groups (
 
 CREATE TABLE public.watch_lists (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    headline character varying,
+    name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -1579,6 +1648,38 @@ ALTER TABLE ONLY public.stored_filters
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_histories thing_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_histories
+    ADD CONSTRAINT thing_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_history_translations thing_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_history_translations
+    ADD CONSTRAINT thing_history_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_translations thing_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_translations
+    ADD CONSTRAINT thing_translations_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: things things_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.things
+    ADD CONSTRAINT things_pkey PRIMARY KEY (id);
 
 
 --
@@ -2338,6 +2439,111 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
+-- Name: index_thing_histories_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_histories_on_id ON public.thing_histories USING btree (id);
+
+
+--
+-- Name: index_thing_histories_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_thing_id ON public.thing_histories USING btree (thing_id);
+
+
+--
+-- Name: index_thing_history_id_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_history_id_locale ON public.thing_history_translations USING btree (thing_history_id, locale);
+
+
+--
+-- Name: index_thing_history_translations_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_history_translations_on_id ON public.thing_history_translations USING btree (id);
+
+
+--
+-- Name: index_thing_history_translations_on_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_history_translations_on_locale ON public.thing_history_translations USING btree (locale);
+
+
+--
+-- Name: index_thing_history_translations_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_history_translations_on_thing_history_id ON public.thing_history_translations USING btree (thing_history_id);
+
+
+--
+-- Name: index_thing_id_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_id_locale ON public.thing_translations USING btree (thing_id, locale);
+
+
+--
+-- Name: index_thing_translations_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_translations_on_id ON public.thing_translations USING btree (id);
+
+
+--
+-- Name: index_thing_translations_on_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_translations_on_locale ON public.thing_translations USING btree (locale);
+
+
+--
+-- Name: index_thing_translations_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations USING btree (thing_id);
+
+
+--
+-- Name: index_things_on_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_things_on_external_source_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_external_source_id ON public.things USING btree (external_source_id);
+
+
+--
+-- Name: index_things_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON public.things USING btree (external_source_id, external_key);
+
+
+--
+-- Name: index_things_on_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
+
+
+--
+-- Name: index_things_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_template_template_name_idx ON public.things USING btree (template, template_name);
+
+
+--
 -- Name: index_use_cases_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2739,6 +2945,13 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180918085636'),
 ('20180918135618'),
 ('20180921083454'),
-('20180927090624');
+('20180927090624'),
+('20180928084042'),
+('20181001000001'),
+('20181001085516'),
+('20181009131613'),
+('20181011125030'),
+('20181019075437'),
+('20181106113333');
 
 

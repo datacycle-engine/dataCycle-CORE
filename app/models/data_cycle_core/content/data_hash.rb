@@ -50,7 +50,7 @@ module DataCycleCore
 
             search_languages(update_search_all)
           end
-          run_callbacks :saved_data_hash unless prevent_history
+          reload && run_callbacks(:saved_data_hash) unless prevent_history
         end
         valid_hash
       end

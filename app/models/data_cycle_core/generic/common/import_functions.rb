@@ -18,13 +18,17 @@ module DataCycleCore
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
+        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
 
-          content = class_type.find_or_initialize_by(
-            external_source_id: utility_object.external_source.id,
-            external_key: data['external_key']
-          )
+          if local
+            content = class_type.new
+          else
+            content = class_type.find_or_initialize_by(
+              external_source_id: utility_object.external_source.id,
+              external_key: data['external_key']
+            )
+          end
           content.metadata ||= {}
           content.schema = template.schema
           content.template_name = template.template_name

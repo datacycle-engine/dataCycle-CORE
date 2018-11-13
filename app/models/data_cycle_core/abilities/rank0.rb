@@ -39,12 +39,13 @@ module DataCycleCore
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id)
             ) ||
-            (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?)
+            (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?) ||
+            DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key)
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
           if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
-            can [:update, :import], CONTENT_MODELS.map(&:constantize) do |content|
+            can [:update, :import], DataCycleCore::Thing do |content|
               release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
 
               if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present?
@@ -60,7 +61,7 @@ module DataCycleCore
           end
         end
 
-        can :print, CONTENT_MODELS.map(&:constantize) do |content|
+        can :print, DataCycleCore::Thing do |content|
           ['entity'].include?(content.schema['content_type'])
         end
       end

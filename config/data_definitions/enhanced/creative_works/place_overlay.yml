@@ -2,6 +2,7 @@
 - :data:
     :name: PlaceOverlay
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :properties:
       :id:
@@ -11,13 +12,11 @@
         :label: Titel
         :type: string
         :storage_type: string
-        :storage_location: translated_value
-        :search: true
+        :storage_location: column
       :description:
         :label: Beschreibung
         :type: string
         :storage_location: column
-        :search: true
         :ui:
           :edit:
             :type: text_editor
@@ -26,12 +25,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Öffnungszeit
       :data_type:
         :label: Inhaltstype

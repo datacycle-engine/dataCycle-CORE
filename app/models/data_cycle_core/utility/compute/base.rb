@@ -10,7 +10,7 @@ module DataCycleCore
             method_name = module_name.method(properties.dig('compute', 'method'))
 
             method_arguments = properties.dig('compute', 'parameters').values.map { |value| data_hash.dig(value) }
-            computed_value = method_name.call(*method_arguments)
+            computed_value = method_name.try(:call, *method_arguments)
             computed_value
           end
         end

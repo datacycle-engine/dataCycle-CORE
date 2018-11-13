@@ -2,6 +2,7 @@
 - :data:
     :name: Öffnungszeit
     :type: object
+    :schema_type: CreativeWork    
     :content_type: embedded
     :api:
       :type: OpeningHoursSpecification

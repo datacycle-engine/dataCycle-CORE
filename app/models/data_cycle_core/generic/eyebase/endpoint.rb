@@ -19,11 +19,11 @@ module DataCycleCore
 
                 raise 'Missing image file' if raw_asset_data.dig('quality_1').blank?
                 full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_1', 'filename', 'text'))
-                load_file(full_image_path, raw_asset_data.dig('quality_1', 'url', '#cdata-section'))
+                load_file(full_image_path, raw_asset_data.dig('quality_1', 'url', '#cdata-section')) unless File.file?(full_image_path)
 
                 raise 'Missing thumbnail file' if raw_asset_data.dig('quality_512').blank?
                 thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_512', 'filename', 'text'))
-                load_file(thumbnail_path, raw_asset_data.dig('quality_512', 'url', '#cdata-section'))
+                load_file(thumbnail_path, raw_asset_data.dig('quality_512', 'url', '#cdata-section')) unless File.file?(thumbnail_path)
 
                 yielder << raw_asset_data
               end

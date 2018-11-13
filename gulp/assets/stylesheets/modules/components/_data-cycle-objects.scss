@@ -43,8 +43,8 @@
     position: relative;
     overflow: hidden;
 
-    >div,
-    >span {
+    > div,
+    > span {
       display: block;
 
       &:not(:last-child):not(.has-parent) {
@@ -88,7 +88,7 @@
     }
   }
 
-  .inner>.title {
+  .inner > .title {
     font-size: 1.2rem;
     line-height: 1.2;
     font-weight: 200;
@@ -123,10 +123,10 @@
   margin-bottom: 1.5rem;
   padding: 1rem;
 
-  >div {
+  > div {
     padding-bottom: 0;
 
-    >div>div {
+    > div > div {
       padding-bottom: 1rem;
     }
   }
@@ -151,8 +151,8 @@
       margin-left: 1rem;
       float: right;
 
-      >a,
-      >span {
+      > a,
+      > span {
         padding: 0 3px;
 
         &.copy {
@@ -250,90 +250,98 @@
 /* Objectbrowser */
 
 .media-thumbs {
-  .media {
-    position: relative;
-    display: block;
-    float: left;
-    overflow: hidden;
-    width: auto;
-    height: auto;
-    padding: 0.65rem;
-    margin: 0 1rem 1rem 0;
-    background-position: center center;
-    background-size: contain;
-    background-repeat: no-repeat;
-    outline: none;
-    border-radius: 0;
-    background-color: rgba(white, 0.5);
-    border: 0;
-    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
-    transition: box-shadow 200ms ease-out;
-    line-height: 1.5;
-
-    .name {
-      font-size: 1.2rem;
-      line-height: 1.2rem;
-      padding: 0 0.3rem;
-    }
-
-    .delete-thumbnail {
+  .object-thumbs {
+    display: flex;
+    flex-flow: row wrap;
+    width: 100%;
+    .media {
+      flex: auto;
       position: relative;
-      float: right;
-    }
-
-    &.thumbnail {
-      position: relative;
-      width: 194px;
-      height: 170px;
-      padding: 0;
-      cursor: pointer;
-      text-align: right;
+      display: block;
+      overflow: hidden;
+      width: auto;
+      height: auto;
+      padding: 0.65rem;
+      margin: 0 1rem 1rem 0;
+      background-position: center center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      outline: none;
+      border-radius: 0;
+      background-color: rgba(white, 0.5);
       border: 0;
+      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+      transition: box-shadow 200ms ease-out;
+      line-height: 1.5;
+      width: 200px;
+      max-width: 300px;
 
-      .delete-thumbnail {
-        position: absolute;
-        float: none;
+      .name {
+        font-size: 1.2rem;
+        line-height: 1.2rem;
+        padding: 0 0.3rem;
       }
 
-      &:focus,
-      &:hover {
+      .delete-thumbnail {
+        position: relative;
+        float: right;
+      }
+
+      &.thumbnail {
+        position: relative;
+        width: 194px;
+        max-width: 194px;
+        height: 170px;
+        padding: 0;
+        cursor: pointer;
+        text-align: right;
+        border: 0;
+
+        .delete-thumbnail {
+          position: absolute;
+          float: none;
+        }
+
+        &:focus,
+        &:hover {
+          .description {
+            opacity: 1;
+          }
+        }
+
         .description {
-          opacity: 1;
+          position: absolute;
+          left: 0;
+          top: 0;
+          opacity: 0;
+          width: 100%;
+          background: rgba(255, 255, 255, 0.9);
+          height: 100%;
+          line-height: 1rem;
+          font-size: 0.8rem;
+          color: $body-font-color;
+          overflow: hidden;
+          /* white-space: nowrap; */
+          /* text-overflow: ellipsis; */
+          padding: 0.5rem;
+          text-align: center;
+          display: -ms-flexbox;
+          display: flex;
+          -ms-flex-align: center;
+          align-items: center;
+          -ms-flex-pack: center;
+          justify-content: center;
         }
       }
 
-      .description {
-        position: absolute;
-        left: 0;
-        top: 0;
-        opacity: 0;
-        width: 100%;
-        background: rgba(255, 255, 255, 0.9);
-        height: 100%;
-        line-height: 1rem;
-        font-size: 0.8rem;
-        color: $body-font-color;
-        overflow: hidden;
-        /* white-space: nowrap; */
-        /* text-overflow: ellipsis; */
-        padding: 0.5rem;
-        text-align: center;
-        display: -ms-flexbox;
-        display: flex;
-        -ms-flex-align: center;
-        align-items: center;
-        -ms-flex-pack: center;
-        justify-content: center;
+      span.caption {
+        display: none;
       }
-    }
 
-    span.caption {
-      display: none;
-    }
-
-    &.add {
-      border-color: $primary-color;
-      background-color: $primary-color;
+      &.add {
+        border-color: $primary-color;
+        background-color: $primary-color;
+      }
     }
   }
 }
@@ -440,11 +448,14 @@
       margin-right: 0;
       height: inherit;
       min-height: 70px;
+      display: block;
     }
 
     .chosen-items-container {
       width: max-content;
       line-height: 1;
+      display: flex;
+      flex-flow: row;
 
       .expired-item-overlay {
         font-size: 0;
@@ -461,6 +472,8 @@
 
       &.item {
         margin: 0 0.3rem 0 0;
+        width: auto;
+        max-width: none;
 
         .delete-thumbnail {
           display: block;
@@ -534,7 +547,7 @@
     }
   }
 
-  >.items {
+  > .items {
     .media.item {
       &.active {
         border-color: $primary-color;
@@ -553,18 +566,13 @@
   }
 
   .items {
-    &.margin-bottom-10::after {
-      content: '';
-      float: none;
-      clear: both;
-      margin-bottom: 10rem;
-      display: block;
-    }
-
     padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
-    height: calc(100% - 7.9rem);
+    max-height: calc(100% - 7.9rem);
     overflow-y: scroll;
+    position: relative;
+    display: flex;
+    flex-flow: row wrap;
 
     .media {
       width: auto;
@@ -593,20 +601,11 @@
         box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
       }
 
-      &.thumbnail {
-        width: 194px;
-        height: 170px;
-        margin: 0;
-        padding: 0;
-        background-position: center center;
-        background-size: contain;
-        background-repeat: no-repeat;
-        position: relative;
-      }
-
       &.item {
         display: block;
-        float: left;
+        flex: auto;
+        width: 200px;
+        max-width: 300px;
         margin: 0 1rem 1rem 0;
 
         .delete-thumbnail {
@@ -616,6 +615,18 @@
         .description {
           display: none;
         }
+      }
+
+      &.thumbnail {
+        width: 200px;
+        max-width: 200px;
+        height: 170px;
+        padding: 5px 0;
+        background-position: center center;
+        background-size: contain;
+        background-repeat: no-repeat;
+        background-origin: content-box;
+        position: relative;
       }
     }
 
@@ -645,7 +656,7 @@
     .item-info-scrollable {
       padding-bottom: 10rem;
 
-      >.detail-type {
+      > .detail-type {
         margin-bottom: 0.5rem;
         line-height: 2;
       }
@@ -697,7 +708,7 @@
         overflow: hidden;
 
         &::after {
-          content: '\A';
+          content: "\A";
           white-space: pre;
           line-height: 2;
         }
@@ -808,7 +819,7 @@ span.single_error.object-browser-error {
       }
     }
 
-    >.embedded-object>.buttons {
+    > .embedded-object > .buttons {
       text-align: center;
 
       button {

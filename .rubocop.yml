@@ -24,6 +24,9 @@ Lint/SplatKeywordArguments:
 Layout/IndentHash:
   EnforcedStyle: consistent
 
+Layout/EmptyLineAfterGuardClause:
+  Enabled: false
+  
 #######################################################
 ########## Style
 

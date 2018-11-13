@@ -127,7 +127,7 @@ button,
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1)
   }
 
-  .edit-headline {
+  .edit-name {
     color: $primary-color;
     position: absolute;
     left: 1.5rem;
@@ -179,6 +179,7 @@ button,
   margin: 1rem 0 0 0;
 
   >.title,
+  >.name input,
   >.headline_external input,
   >.headline input {
     font-size: 2rem;
@@ -197,6 +198,7 @@ button,
   }
 
   .headline_external,
+  .name,
   .headline {
     position: relative;
   }
@@ -243,20 +245,6 @@ button,
   >.description {
     position: relative;
     padding: 0 5rem 1rem 5rem;
-  }
-
-  >.status-container {
-    position: relative;
-    display: inline-block;
-
-    .status {
-      position: relative;
-    }
-
-    .release-comment-button {
-      position: relative; //left: -48%;
-      cursor: pointer;
-    }
   }
 
   .detail-header-info {
@@ -517,7 +505,7 @@ button,
     }
 
     .input input,
-    .string:not(.date, .datetime, .headline, .headline_external, .text_editor) input,
+    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
     .single_date input,
     .number input {
@@ -526,6 +514,7 @@ button,
     }
 
     .headline_external input,
+    .name input,
     .headline input {
       padding: 1rem 5rem 1.5rem 5rem;
     }

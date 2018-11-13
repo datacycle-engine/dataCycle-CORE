@@ -10,6 +10,9 @@ module DataCycleCore
           table_given = options[:table_name]
           postfix = options[:postfix]
 
+          self_class = "DataCycleCore::#{table_given.classify}"
+          self_class += "::#{postfix.capitalize}" unless postfix.nil?
+
           classification_content_table = 'classification_content'
           classification_content_table += "_#{postfix}" unless postfix.nil?
           class_name = 'DataCycleCore::ClassificationContent'
@@ -33,7 +36,7 @@ module DataCycleCore
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
 
-          (DataCycleCore.content_tables + DataCycleCore.linked_tables).map(&:singularize).each do |content_table_name|
+          DataCycleCore.content_tables.map(&:singularize).each do |content_table_name|
             if postfix.nil?
               if table_given.to_s.singularize <= content_table_name
                 has_many content_table_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_table_name.classify}"
@@ -52,6 +55,9 @@ module DataCycleCore
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
+
+          belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
+          has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
 
           has_many :watch_list_data_hashes, as: :hashable, dependent: :destroy
           has_many :watch_lists, through: :watch_list_data_hashes

@@ -9,19 +9,19 @@
                                'copy-single',
                                'content',
                                item.class.name.demodulize.underscore.dasherize,
+                               item.schema_type&.underscore&.dasherize,
                                item.template_name.underscore.dasherize,
                                changes_class(options.dig(:item_diff), item.id)
                            ].join(' ') %>" data-id="<%= [item.id] %>">
 
                 <%= render_first_existing_partial [
-                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}_#{item.template_name.underscore}",
-                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore}",
+                                                      "data_cycle_core/contents/viewers/tiles/#{item.template_name.underscore_blanks}",
+                                                      "data_cycle_core/contents/viewers/tiles/#{item.class.name.demodulize.underscore_blanks}",
                                                       'data_cycle_core/contents/viewers/tiles/default'
                                                   ], local_assigns.merge({content: item})
                 %>
             </li>
         <% end %>
-
         <div class="clear-both">
             <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show, locale: I18n.locale), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
         </div>

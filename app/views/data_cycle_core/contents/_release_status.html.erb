@@ -1,13 +1,12 @@
 <div class="status-container">
-  <span class="status">Status: <strong><%= content.release_status_id.presence&.first&.primary_classification_alias&.name %></strong></span>
-  <% if content.release_status_comment.present? %>
-    <i class="fa fa-comment release-comment-button" aria-hidden="true" data-toggle="release-comment-<%= content.id %>"></i>
-    <div class="reveal" id="release-comment-<%= content.id %>" data-reveal>
-      <p class="lead">Kommentar</p>
-      <%= content.release_status_comment.try(:html_safe) %>
-      <button class="close-button" data-close aria-label="Close reveal" type="button">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
+  Status:
+  <%= tag.span class: 'status',
+    data: {
+      tooltip: content.release_status_comment.present? ? true : nil,
+      allow_html: content.release_status_comment.present?
+    },
+    title: content.release_status_comment do %>
+    <%= tag.strong content.release_status_id.first&.primary_classification_alias&.name %>
+    <%= tag.i class: 'fa fa-comment' if content.release_status_comment.present? %>
   <% end %>
 </div>

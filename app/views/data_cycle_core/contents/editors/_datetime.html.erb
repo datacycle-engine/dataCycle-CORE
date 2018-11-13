@@ -6,6 +6,7 @@
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
             <i aria-hidden="true" class="fa fa-clock-o"></i> <%= definition['label'] %>
         </span>
+        <%= render 'helper_text', local_assigns %>
       <% end %>
       <% if options.dig('readonly').presence&.to_s  == 'true' %>
           <%= text_field_tag key, value.blank? ? value : l(value.to_datetime, format: :edit, locale: DataCycleCore.ui_language), options.merge({ class: 'read-only date' }) %>

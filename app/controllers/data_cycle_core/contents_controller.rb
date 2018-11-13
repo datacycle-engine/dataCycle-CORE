@@ -23,10 +23,10 @@ module DataCycleCore
 
       if DataCycleCore::Feature::Container.enabled? &&
          @content.content_type?('entity') &&
-         @content.class.name == 'DataCycleCore::CreativeWork' &&
+         @content.class.name == 'DataCycleCore::Thing' &&
          !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
         I18n.with_locale(DataCycleCore.ui_language) do
-          @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
+          @parents = DataCycleCore::Thing.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
         end
       end
 
@@ -49,7 +49,7 @@ module DataCycleCore
             @contents = @paginate_object.map(&:content_data)
           end
 
-          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
+          @entities = DataCycleCore::Thing.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
           @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
           @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
@@ -64,9 +64,9 @@ module DataCycleCore
 
     def create
       if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+        authorize!(:create_in_objectbrowser, params[:template])
       else
-        authorize!(:create, data_cycle_object(controller_name))
+        authorize!(:create, params[:template])
       end
 
       I18n.with_locale(locale_params[:locale]) do
@@ -113,7 +113,7 @@ module DataCycleCore
       if params[:locale] &&
          !@content.translated_locales.include?(params[:locale]&.to_sym) &&
          I18n.available_locales.include?(params[:locale]&.to_sym) &&
-         (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
+         @content.translatable?
         I18n.with_locale(params[:locale]) do
           @content.save
         end
@@ -207,7 +207,7 @@ module DataCycleCore
       content = params[:data].as_json
       external_source = DataCycleCore::ExternalSource.find(content['source_key'])
       api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
-      api_strategy = api_strategy_class&.constantize&.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
+      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last)
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
@@ -294,13 +294,14 @@ module DataCycleCore
 
     def upload
       return if asset_params[:file].blank?
+
       object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
 
       render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
 
       authorize! :create, object_type.constantize
 
-      @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+      @asset = object_type.constantize.new(asset_params)
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
       @asset.save

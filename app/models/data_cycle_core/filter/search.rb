@@ -36,7 +36,7 @@ module DataCycleCore
       def only_frontend_valid
         reflect(
           @query.where(
-            search[:content_data_type].not_eq(quoted('DataCycleCore::Place'))
+            search[:schema_type].not_eq(quoted('Place'))
           )
         )
       end

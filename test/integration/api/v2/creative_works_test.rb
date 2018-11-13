@@ -16,21 +16,21 @@ module DataCycleCore
 
         test 'api for article' do
           name = "test_artikel_#{Time.now.getutc.to_i}"
-          post creative_works_path, params: {
-            creative_work: {
+          post things_path, params: {
+            thing: {
               datahash: {
-                headline: name
+                name: name
               }
             },
-            table: 'creative_works',
+            table: 'things',
             template: 'Artikel',
             locale: 'de'
           }
           assert_equal 'Artikel wurde erfolgreich erstellt.', flash[:notice]
 
-          content = DataCycleCore::CreativeWork.find_by(headline: name)
+          content = DataCycleCore::Thing.find_by(name: name)
 
-          get api_v2_creative_work_path(content)
+          get api_v2_thing_path(content)
 
           assert_response :success
           assert_equal response.content_type, 'application/json'

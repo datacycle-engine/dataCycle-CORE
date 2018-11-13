@@ -2,6 +2,12 @@
 # classifications for oew top-classification is label for classificationstree
 # $$ for internal classifications
 - Inhaltstypen:
+  - $$Asset:
+    - $$DataCycle - Audio
+    - $$DataCycle - Bild
+    - $$DataCycle - Video
+    - $$DataCycle - Datei
+    - $$DataCycle - PDF
   - $$Text:
     - $$Artikel
     - $$Zeitleiste
@@ -24,6 +30,9 @@
   - $$Bild
   - $$Video
   - $$Audio
+  - $$Tour
+  - $$POI
+  - $$Unterkunft
   # additional types for content entitys
   - $$Website
   - $$MobileApplication
@@ -35,16 +44,35 @@
   - $$Angebotszeitraum
   - $$Publikations-Plan
   - $$Searchable Headline
+  - $$Veranstaltungstermin
+  - $$Öffnungszeit
   # refactored
   # container
   - $$Container
   - $$Örtlichkeit
+
+- Wochentage:
+  - Montag
+  - Dienstag
+  - Mittwoch
+  - Donnerstag
+  - Freitag
+  - Samstag
+  - Sonntag
+
+- POI - Kategorien:
 
 - Inhaltspools:
   - $$Vorschläge
   - $$Recherche
   - $$Aktuelle Inhalte
   - $$Archiv
+
+- Release-Stati:
+  - $$freigegeben
+  - $$beim Partner
+  - $$in Review
+  - $$archiviert
 
 - Ausgabekanäle:
   - Web:
@@ -326,3 +354,7 @@
   - Tag 1
   - Tag 2
   - Tag 3
+
+- Geschlecht:
+  - Männlich
+  - Weiblich

@@ -5,7 +5,7 @@ module DataCycleCore
     module Booking
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('hotel_data', 'hotel_photos') || []).each do |image_hash|
@@ -28,7 +28,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Booking::Transformations.booking_to_unterkunft(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Unterkunft' },
+            default: { content_type: DataCycleCore::Thing, template: 'Unterkunft' },
             config: config
           )
         end

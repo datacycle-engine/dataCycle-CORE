@@ -16,8 +16,8 @@
 
             <%= hidden_field_tag 'template', 'WatchList' %>
             <div class="validation-container form-element">
-                <%= f.label :headline %>
-                <%= f.text_field :headline, class: 'form-control', value:'' %>
+                <%= f.label :name %>
+                <%= f.text_field :name, class: 'form-control', value:'' %>
             </div>
             <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>
 

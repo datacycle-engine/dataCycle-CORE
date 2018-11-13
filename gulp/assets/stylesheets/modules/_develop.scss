@@ -46,6 +46,7 @@
     }
 
     &.headline,
+    &.name,
     &.headline_external {
       input {
         height: 6rem;
@@ -1639,4 +1640,12 @@ select {
     background-color: transparent;
     box-shadow: 0 0 1px $dark-gray;
   }
+}
+
+.tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+.status-container {
+  margin-top: 1rem;
 }

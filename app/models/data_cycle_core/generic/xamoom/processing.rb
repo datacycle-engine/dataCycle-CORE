@@ -10,7 +10,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_image,
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end
@@ -20,7 +20,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_poi(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end
