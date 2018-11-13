@@ -3,24 +3,19 @@
 module DataCycleCore
   module Filter
     class Search < QueryBuilder
-      include DataCycleCore::Filter::Type::Event
-      include DataCycleCore::Filter::Type::Place
-      include DataCycleCore::Filter::Type::CreativeWork
       include DataCycleCore::Filter::Common::Configurable
 
       def initialize(locale = ['de'], query = nil)
         @locale = locale
-        @query = query || DataCycleCore::Search.where(locale: @locale)
+        @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
       end
 
       def content_includes
         includes(
-          content_data: [
-            :display_classification_aliases,
-            :translations,
-            :watch_lists,
-            :external_source
-          ]
+          :display_classification_aliases,
+          :translations,
+          :watch_lists,
+          :external_source
         )
       end
 
@@ -111,44 +106,60 @@ module DataCycleCore
         )
       end
 
+      def find_children(id)
+        @query.where(thing[:is_part_of].eq(id))
+      end
+
+      def event_end_time(time)
+        time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
+        reflect(@query.where(thing[:start_date].lteq(Arel::Nodes.build_quoted(time.iso8601))))
+      end
+
+      def event_from_time(time)
+        time = DataCycleCore::MasterData::DataConverter.string_to_datetime(time)
+        reflect(@query.where(thing[:end_date].gteq(Arel::Nodes.build_quoted(time.iso8601))))
+      end
+
+      def sort_by_proximity(date = Time.zone.now)
+        reflect(
+          @query.reorder(
+            absolute_date_diff(thing[:end_date], Arel::Nodes.build_quoted(date.iso8601)),
+            absolute_date_diff(thing[:start_date], Arel::Nodes.build_quoted(date.iso8601)),
+            thing[:start_date]
+          )
+        )
+      end
+
+      def within_box(sw_lon, sw_lat, ne_lon, ne_lat)
+        reflect(@query.where(contains(place[:location], get_box(get_point(sw_lon, sw_lat), get_point(ne_lon, ne_lat))).eq('true')))
+      end
+
       def distinct_by_content_id(order_string = nil)
         return self if @locale.presence&.size == 1
 
         if order_string.is_a?(String)
-          order_expression = "#{@query.table_name}.content_data_id, #{order_string}"
+          order_expression = "searches.content_data_id, #{order_string}"
         elsif order_string.is_a?(Hash)
-          order_expression = { content_data_id: :asc }.merge(order_string)
+          order_expression = { id: :asc }.merge(order_string)
         else
-          order_expression = { content_data_id: :asc }
+          order_expression = { id: :asc }
         end
 
         order_expression = ActiveRecord::Base.send(:sanitize_sql_for_order, order_expression)
 
-        query = @query.model
-          .select(:content_data_id, :content_data_type)
-          .order(order_string)
+        query = DataCycleCore::Thing.joins(:searches)
+          .where(searches: { id: @query.select('distinct on (things.id) searches.id').except(:order, :limit, :offset) })
+          .order(order_expression)
 
-        query2 = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
-          .reorder(order_expression)
-
-        reflect(query.where(id: query2))
+        reflect(query)
       end
 
       def count_distinct
-        if @locale.presence&.size == 1
-          subquery = select(:id)
-        else
-          subquery = select("DISTINCT ON (#{@query.table_name}.content_data_id) #{@query.table_name}.id")
-        end
-
-        @query.model.from(subquery.except(:order, :limit, :offset), :count_query).count
+        @query.count('DISTINCT things.id')
       end
 
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
-
-        # manager = create_classification_alias_recursion(ids)
-        # reflect(@query.where(search[:content_data_id].in(manager)))
 
         reflect(@query.with_classification_aliases(ids))
       end
@@ -178,19 +189,24 @@ module DataCycleCore
         )
       end
 
-      def self.get_order_by_query_string(search, table_name = 'searches')
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, { boost: :desc, updated_at: :desc }) if search.blank?
-
+      def self.get_order_by_query_string(search, _table_name = 'searches')
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'searches.boost DESC, searches.updated_at DESC') if search.blank?
         search_string = (search || '').split(' ').join('%')
 
-        ActiveRecord::Base.send(:sanitize_sql_array,
-                                ["boost * (
-            8 * similarity(#{table_name}.classification_string, :search_string) +
-            4 * similarity(#{table_name}.headline, :search_string) +
-            2 * ts_rank_cd(#{table_name}.words, plainto_tsquery('simple', :search),16) +
-            1 * similarity(#{table_name}.full_text, :search_string))
-            DESC NULLS LAST,
-            #{table_name}.updated_at DESC", search_string: "%#{search_string}%", search: (search || '').squish])
+        ActiveRecord::Base.send(
+          :sanitize_sql_array,
+          [
+            "searches.boost * (
+              8 * similarity(searches.classification_string, :search_string) +
+              4 * similarity(searches.headline, :search_string) +
+              2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
+              1 * similarity(searches.full_text, :search_string))
+              DESC NULLS LAST,
+              searches.updated_at DESC",
+            search_string: "%#{search_string}%",
+            search: (search || '').squish
+          ]
+        )
       end
 
       private
@@ -268,6 +284,10 @@ module DataCycleCore
 
       def content_content
         DataCycleCore::ContentContent.arel_table
+      end
+
+      def thing
+        DataCycleCore::Thing.arel_table
       end
     end
   end
