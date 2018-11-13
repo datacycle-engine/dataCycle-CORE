@@ -14,7 +14,7 @@ DataCycleCore.setup do |config|
 
   config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
-  config.external_sources_path = Rails.root.join('config', 'external_sources').freeze
+  config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
 
   config.default_template_paths = [
     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),

@@ -160,8 +160,8 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       old_class = DataCycleCore.features[:publication_schedule][:classification_keys]
       DataCycleCore.features[:publication_schedule][:classification_keys] = ['output_channel', 'markets']
 
-      market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
-      market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
+      market1 = DataCycleCore::Classification.where(name: 'Markt 1').first.id
+      market2 = DataCycleCore::Classification.where(name: 'Markt 2').first.id
 
       output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
       output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id

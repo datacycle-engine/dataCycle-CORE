@@ -196,7 +196,7 @@ end
 
 DataCycleCore::TestPreparations.load_classifications(
   [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
+    Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
   ]
 )
 
