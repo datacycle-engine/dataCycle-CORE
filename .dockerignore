@@ -1,0 +1,13 @@
+.bundle
+*.log
+tmp/*
+node_modules
+yarn-error.log
+.byebug_history
+lib/assets
+public/assets
+public/filmcommission
+.idea
+gemsurance_report.html
+public/uploads
+db/backups/*
