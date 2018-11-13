@@ -131,31 +131,21 @@ module DataCycleCore
       end
 
       def within_box(sw_lon, sw_lat, ne_lon, ne_lat)
-        reflect(@query.where(contains(place[:location], get_box(get_point(sw_lon, sw_lat), get_point(ne_lon, ne_lat))).eq('true')))
+        reflect(@query.where(contains(thing[:location], get_box(get_point(sw_lon, sw_lat), get_point(ne_lon, ne_lat))).eq('true')))
       end
 
       def distinct_by_content_id(order_string = nil)
         return self if @locale.presence&.size == 1
 
-        if order_string.is_a?(String)
-          order_expression = "searches.content_data_id, #{order_string}"
-        elsif order_string.is_a?(Hash)
-          order_expression = { id: :asc }.merge(order_string)
-        else
-          order_expression = { id: :asc }
-        end
-
-        order_expression = ActiveRecord::Base.send(:sanitize_sql_for_order, order_expression)
-
         query = DataCycleCore::Thing.joins(:searches)
-          .where(searches: { id: @query.select('distinct on (things.id) searches.id').except(:order, :limit, :offset) })
-          .order(order_expression)
+          .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
+          .order(order_string)
 
         reflect(query)
       end
 
       def count_distinct
-        @query.count('DISTINCT things.id')
+        @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
       def classification_alias_ids(ids = nil)
