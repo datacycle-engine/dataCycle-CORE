@@ -70,12 +70,14 @@ module DataCycleCore
         users: {}
       }
 
+    # only for local testing
     def self.cli_options
       options = {}
       OptionParser.new { |opts|
-        opts.banner = 'Additional CLI options [options]'
         opts.on('-i', '--ignore_preparations') { |ignore_preparations| options[:ignore_preparations] = ignore_preparations || false }
       }.parse!
+      options
+    rescue StandardError
       options
     end
 
