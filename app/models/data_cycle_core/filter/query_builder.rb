@@ -35,6 +35,10 @@ module DataCycleCore
         reflect(@query.offset(number))
       end
 
+      def count(*params)
+        @query.except(:order, :limit, :offset).count(*params)
+      end
+
       # continue queries
       def where(*params)
         reflect(@query.where(*params))
@@ -52,45 +56,31 @@ module DataCycleCore
         reflect(@query.having(*params))
       end
 
-      # different filters
-      def with_classification_alias(name)
-        unless @classification_alias # see if joins are necessary
-          @query = join_classification_alias
-          @classification_alias = true
-        end
-        reflect(
-          @query.where(
-            tsmatch(to_tsvector(classification_alias[:name]), tsquery(quoted(name)))
-          )
-        )
-      end
-
       private
 
-      def create_classification_alias_recursion(ids)
-        children = Arel::Table.new(:children)
-        recursive_term = Arel::SelectManager.new
-          .from(classification_tree)
-          .project(Arel.star)
-          .where(classification_tree[:parent_classification_alias_id].in(ids))
-        non_recursive_term = Arel::SelectManager.new
-          .project(classification_tree[Arel.star])
-          .from(classification_tree).join(children)
-          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-        union = recursive_term.union(:all, non_recursive_term)
-        cte_as_statement = Arel::Nodes::As.new(children, union)
-        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-        manager = select_manager
-          .with(:recursive, cte_as_statement)
-          .from(children)
-          .project(children[:classification_alias_id])
+      # def create_classification_alias_recursion(ids)
+      #   children = Arel::Table.new(:children)
+      #   recursive_term = Arel::SelectManager.new
+      #     .from(classification_tree)
+      #     .project(Arel.star)
+      #     .where(classification_tree[:parent_classification_alias_id].in(ids))
+      #   non_recursive_term = Arel::SelectManager.new
+      #     .project(classification_tree[Arel.star])
+      #     .from(classification_tree).join(children)
+      #     .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
+      #   union = recursive_term.union(:all, non_recursive_term)
+      #   cte_as_statement = Arel::Nodes::As.new(children, union)
+      #   select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
+      #   manager = select_manager
+      #     .with(:recursive, cte_as_statement)
+      #     .from(children)
+      #     .project(children[:classification_alias_id])
+      #
+      #   query2 = join_classification_alias2
+      #   query2.where(classification_alias[:id].in(manager)
+      #                             .or(classification_alias[:id].in(ids)))
+      # end
 
-        query2 = join_classification_alias2
-        query2.where(classification_alias[:id].in(manager)
-                                  .or(classification_alias[:id].in(ids)))
-      end
-
-      # custom function helper
       def get_point(longitude, latitude)
         Arel::Nodes::NamedFunction.new('ST_GeomFromEWKT', ["SRID=4326;POINT (#{longitude} #{latitude})"])
       end
@@ -143,10 +133,6 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('#>>', field, path)
       end
 
-      def sql_date(field)
-        Arel::Nodes::NamedFunction.new('date', [field])
-      end
-
       def cast_tstz(date)
         Arel::Nodes::NamedFunction.new(
           'CAST', [
@@ -158,7 +144,6 @@ module DataCycleCore
         )
       end
 
-      # define Arel-tables
       def classification
         Classification.arel_table
       end

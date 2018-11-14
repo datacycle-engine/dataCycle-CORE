@@ -57,8 +57,7 @@ module DataCycleCore
               ON recursive_classification_trees.classification_alias_id = classification_groups.classification_alias_id
             WHERE classification_groups.deleted_at IS NULL AND recursive_classification_trees.deleted_at IS NULL
           ) AS #{virtual_table_name}
-            ON searches.content_data_id = #{virtual_table_name}.content_data_id
-            AND searches.content_data_type = #{virtual_table_name}.content_data_type
+            ON things.id = #{virtual_table_name}.content_data_id
         SQL
       )
     end
