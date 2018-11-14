@@ -1,3 +1,6 @@
 <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns %>
 
 <span class="name"><%= content.title %></span>
+<div class="tile-property address-line">
+  <%= sanitize(content.address_block, tags: ['br']) %>
+</div>

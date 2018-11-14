@@ -53,6 +53,14 @@ module DataCycleCore
         end
       end
 
+      def siblings
+        (parent ? parent.children : self.class.roots).where.not(id: id)
+      end
+
+      def self.roots
+        where(is_part_of: nil)
+      end
+
       def schema_type
         schema&.dig('schema_type')
       end

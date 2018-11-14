@@ -20,6 +20,8 @@ module DataCycleCore
         template_name = @definition.fetch(:template_name, nil)
         stored_filter = @definition.fetch(:stored_filter, nil)
 
+        @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
+
         if stored_filter.present?
           stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
             f.each_with_object({}) do |(k, v), hash|
@@ -42,7 +44,7 @@ module DataCycleCore
         query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
         unless template_name == 'contentLocation'
-          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'things'
+          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'things'
         end
 
         query = query.order(order_string)

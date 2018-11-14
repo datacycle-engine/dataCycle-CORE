@@ -142,13 +142,37 @@
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
+  display: flex;
+  flex-flow: row wrap;
 
   .content {
+    display: block;
+    overflow: hidden;
+    width: auto;
+    height: auto;
+    padding: 0.65rem;
+    margin: 0 1rem 1rem 0;
+    box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
+    transition: box-shadow 200ms ease-out;
+    flex: auto;
+    width: 300px;
+    max-width: 600px;
+
+    &.bild,
+    &.video {
+      width: 205px;
+      max-width: 205px;
+    }
+
+    > .name {
+      font-weight: 600;
+    }
+
     .buttons {
       position: relative;
       top: 0;
       right: 0;
-      margin-left: 1rem;
+      margin-left: 0.5rem;
       float: right;
 
       > a,
@@ -179,18 +203,6 @@
         font-size: 1.2rem;
       }
     }
-  }
-
-  .content {
-    display: block;
-    float: left;
-    overflow: hidden;
-    width: auto;
-    height: auto;
-    padding: 0.65rem;
-    margin: 0 1rem 1rem 0;
-    box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
-    transition: box-shadow 200ms ease-out;
   }
 
   .content.creative-work.bild,
@@ -273,13 +285,11 @@
       box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
       transition: box-shadow 200ms ease-out;
       line-height: 1.5;
-      width: 200px;
-      max-width: 300px;
+      width: 300px;
+      max-width: 600px;
 
       .name {
-        font-size: 1.2rem;
-        line-height: 1.2rem;
-        padding: 0 0.3rem;
+        font-weight: 600;
       }
 
       .delete-thumbnail {
@@ -566,6 +576,16 @@
   }
 
   .items {
+    &.margin-bottom-10::after {
+      content: "";
+      float: none;
+      clear: both;
+      height: 10rem;
+      display: block;
+      flex: unset;
+      width: 100%;
+    }
+
     padding: 5rem 1rem 7rem 1rem;
     margin-right: 400px;
     max-height: calc(100% - 7.9rem);
@@ -589,9 +609,7 @@
       line-height: 1.5;
 
       .name {
-        padding: 0 0.3rem;
-        font-size: 1.2rem;
-        line-height: 1.2rem;
+        font-weight: 600;
       }
 
       cursor: pointer;
@@ -604,8 +622,8 @@
       &.item {
         display: block;
         flex: auto;
-        width: 200px;
-        max-width: 300px;
+        width: 250px;
+        max-width: 500px;
         margin: 0 1rem 1rem 0;
 
         .delete-thumbnail {
