@@ -21,6 +21,14 @@
           "Husky Safari",
           "Winter"
         ],
+        "contributor": {
+          "given_name": "Given Name",
+          "family_name": "Family Name"
+        },
+        "director": {
+          "given_name": "Given Name",
+          "family_name": "Family Name"
+        },
         "dateCreated": "2014-02-03T14:06:20.000Z",
         "dateModified": "2014-02-12T14:38:21.000Z",
         "visibility": [
