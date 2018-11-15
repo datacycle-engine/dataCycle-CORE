@@ -3,10 +3,12 @@
     <% object_class_name = definition['linked_table'] %>
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+    <% object_template = definition['template_name'] %>
 
     <%= label_tag key do %>
       <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
       <%= definition['label'] %>
+      <%= render 'helper_text', local_assigns %>
     <% end %>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"

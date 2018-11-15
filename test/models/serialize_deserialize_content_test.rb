@@ -5,12 +5,12 @@ require 'test_helper'
 module DataCycleCore
   class SerializeDeserializeContentTest < ActiveSupport::TestCase
     test 'read untranslatable data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'SimpleJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name,
         metadata: { 'datum' => Time.zone.now.to_s, 'bool' => 'true', 'geo' => 'POINT (10.0 47.0)', 'text' => 'Text' },
-        headline: 'Test Data'
+        name: 'Test Data'
       )
       data.save
 
@@ -20,12 +20,12 @@ module DataCycleCore
     end
 
     test 'read translatable data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'SimpleJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name,
         content: { 'datum2' => Time.zone.now.to_s, 'bool2' => 'true', 'geo2' => 'POINT (10.0 47.0)', 'text2' => 'test' },
-        headline: 'Test Data'
+        name: 'Test Data'
       )
       data.save
 
@@ -36,11 +36,11 @@ module DataCycleCore
     end
 
     test 'read untranslatable structured data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'ComplexJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name,
-        headline: 'Test Data',
+        name: 'Test Data',
         metadata: { 'data_untrans' => {
           'datum_untrans' => Time.zone.now.to_s,
           'bool_untrans' => 'true',
@@ -57,11 +57,11 @@ module DataCycleCore
     end
 
     test 'read translatable structured data from a jsonb field and deserialize to proper objects' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'ComplexJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name,
-        headline: 'Test Data',
+        name: 'Test Data',
         content: { 'data_trans' => {
           'datum_trans' => Time.zone.now.to_s,
           'bool_trans' => 'true',
@@ -78,37 +78,32 @@ module DataCycleCore
     end
 
     test 'write untranslatable data to a jsonb field' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'SimpleJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
-        schema: data_template.schema,
-        template_name: data_template.template_name
-      )
-      data.save
+      data = DataCycleCore::TestPreparations.data_set_object('SimpleJsonTest')
+      data.save!
       data_hash = {
-        'headline' => 'Test Data',
+        'name' => 'Test Data',
         'datum' => Time.zone.now,
         'bool' => true,
         'geo' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
         'text' => 'Servas'
       }
       data.set_data_hash(data_hash: data_hash)
-      data.save
 
-      assert_equal(::String, data.headline.class)
+      assert_equal(::String, data.name.class)
       assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo.class.to_s)
     end
 
     test 'write translatable data to a jsonb field' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'SimpleJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'SimpleJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name
       )
       data.save
       data_hash = {
-        'headline' => 'Test Data',
+        'name' => 'Test Data',
         'datum2' => Time.zone.now,
         'bool2' => true,
         'geo2' => RGeo::Geographic.spherical_factory(srid: 4326).point(12.3, 40.344),
@@ -117,21 +112,21 @@ module DataCycleCore
       data.set_data_hash(data_hash: data_hash)
       data.save
 
-      assert_equal(::String, data.headline.class)
+      assert_equal(::String, data.name.class)
       assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo2.class.to_s)
     end
 
     test 'write structured data to a jsonb field' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'ComplexJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name
       )
       data.save
       data_hash = {
-        'headline' => 'Test Data',
+        'name' => 'Test Data',
         'data_untrans' => {
           'datum_untrans' => Time.zone.now,
           'bool_untrans' => true,
@@ -149,14 +144,14 @@ module DataCycleCore
     end
 
     test 'write structured data to a translateable jsonb field' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'ComplexJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'ComplexJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name
       )
       data.save
       data_hash = {
-        'headline' => 'Test Data',
+        'name' => 'Test Data',
         'data_trans' => {
           'datum_trans' => Time.zone.now,
           'bool_trans' => true,
@@ -174,14 +169,14 @@ module DataCycleCore
     end
 
     test 'serializer/deserializer can handle false, nil, not specified properties properly for bool' do
-      data_template = DataCycleCore::CreativeWork.find_by(template_name: 'BoolJsonTest', template: true)
-      data = DataCycleCore::CreativeWork.new(
+      data_template = DataCycleCore::Thing.find_by(template_name: 'BoolJsonTest', template: true)
+      data = DataCycleCore::Thing.new(
         schema: data_template.schema,
         template_name: data_template.template_name
       )
       data.save
       data_hash = {
-        'headline' => 'Test Data',
+        'name' => 'Test Data',
         'data' => {
           'flag1' => false,
           'flag2' => nil
@@ -194,7 +189,7 @@ module DataCycleCore
       assert_nil(data.data.flag2)
       assert_nil(data.data.flag3)
 
-      test_data = DataCycleCore::CreativeWork.find(data.id)
+      test_data = DataCycleCore::Thing.find(data.id)
       assert_equal(false, test_data.data.flag1)
       assert_nil(test_data.data.flag2)
       assert_nil(test_data.data.flag3)

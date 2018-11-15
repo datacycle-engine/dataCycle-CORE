@@ -26,14 +26,14 @@ config:
       import_strategy: DataCycleCore::Generic::Xamoom::ImportSpots
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:
               tree_label: Inhaltstypen
               value: Bild
         spot:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
           default_values:
             data_type:

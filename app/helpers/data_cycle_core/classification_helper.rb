@@ -5,6 +5,7 @@ module DataCycleCore
     # TODO: refactor
     def get_classifications_for_name(name)
       return if name.blank?
+
       DataCycleCore::ClassificationTreeLabel
         .includes(classification_trees: [:classification_tree_label, :sub_classification_alias])
         .find_by(name: name)

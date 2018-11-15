@@ -7,7 +7,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
 
     def index
-      @publication_classifications = DataCycleCore::CreativeWork
+      @publication_classifications = DataCycleCore::Thing
         .find_by(template: true, template_name: 'Publikations-Plan')
         &.schema
         &.dig('properties')
@@ -42,7 +42,7 @@ module DataCycleCore
         .map { |c| [c.id, c] }
         .to_h
 
-      query2 = DataCycleCore::CreativeWork.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
+      query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:content_data_id) })
 
       # TODO: move to value after final refactor_data_definition migration
       value_storage_location = 'metadata'

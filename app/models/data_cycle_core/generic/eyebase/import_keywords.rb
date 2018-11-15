@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(source_filter.merge("dump.#{locale.to_s}.mediaassettype.text": '501'))
+          mongo_item.where(source_filter.with_evaluated_values.merge("dump.#{locale.to_s}.mediaassettype.text": '501'))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)

@@ -42,23 +42,20 @@ module DataCycleCore
           end]
         end
 
-        def self.unwrap_description(data, description_type)
+        def self.unwrap_description(data, description_types)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
-          return data.map { |v| unwrap_description(v, description_type) } if data.is_a?(Array)
+          description_types = Array(description_types)
 
-          Hash[data.map do |k, v|
-            if k == 'Descriptions'
-              [
-                description_type,
-                [v['Description']].flatten.select { |h|
-                  h['Type'] == description_type
-                }.first.try(:[], 'text')
-              ]
-            else
-              [k, v]
-            end
-          end]
+          return data.map { |v| unwrap_description(v, description_types) } if data.is_a?(Array)
+
+          description_types.map { |description_type|
+            description_text = Array.wrap(data.dig('Descriptions', 'Description')).select { |h|
+              h['Type'] == description_type
+            }.first.try(:[], 'text')
+
+            { description_type => description_text }
+          }.reduce(data.reject { |k, _| k == 'Descriptions' }, &:merge)
         end
 
         def self.unwrap_address(data, address_type)

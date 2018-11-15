@@ -2,7 +2,9 @@
 - :data:
     :name: Tour
     :type: object
+    :schema_type: Place
     :content_type: entity
+    :translatable: true
     :boost: 100.0
     :properties:
       :id:
@@ -34,7 +36,7 @@
       :primary_image:
         :label: Hauptbild
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
@@ -43,7 +45,14 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true

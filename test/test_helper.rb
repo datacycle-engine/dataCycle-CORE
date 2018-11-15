@@ -45,15 +45,17 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 module DataCycleCore
   module TestPreparations
     extend DataCycleCore::Common
+    CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
+    ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted'],
-        creative_work: [],
-        event: [],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment'],
+        creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
+        event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags'],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type'],
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
         person: []
       }.freeze
 
@@ -61,11 +63,23 @@ module DataCycleCore
       {
         creative_works: {},
         events: {},
-        organizations: {},
         places: {},
         persons: {},
+        organizations: {},
+        things: {},
         users: {}
       }
+
+    # only for local testing
+    def self.cli_options
+      options = {}
+      OptionParser.new { |opts|
+        opts.on('-i', '--ignore_preparations') { |ignore_preparations| options[:ignore_preparations] = ignore_preparations || false }
+      }.parse!
+      options
+    rescue StandardError
+      options
+    end
 
     def self.load_classifications(paths)
       paths.map do |path|
@@ -95,8 +109,8 @@ module DataCycleCore
 
     def self.load_dummy_data(paths)
       paths.each do |path|
-        (DataCycleCore.content_tables + ['users']).each do |content_table_name|
-          files = path + content_table_name + '*.json'
+        CONTENT_TABLES.each do |content_table_name|
+          files = path + content_table_name.to_s + '*.json'
 
           file_names = Dir[files]
           file_names.each do |file_name|
@@ -136,44 +150,39 @@ module DataCycleCore
     def self.create_user_group
       @test_group = DataCycleCore::UserGroup.where(name: 'TestUserGroup').first_or_create
 
-      return if DataCycleCore::UserGroup.find_by(name: 'Administrators').present?
-      user_group = DataCycleCore::UserGroup.find_or_create_by(name: 'Administrators')
-      DataCycleCore::UserGroupUser.create!(
+      user_group = DataCycleCore::UserGroup.find_or_create_by!(name: 'Administrators')
+      # DataCycleCore::UserGroupUser.find_or_create_by!(
+      #   user_group_id: user_group.id,
+      #   user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id
+      # )
+      DataCycleCore::UserGroupUser.find_or_create_by!(
         user_group_id: user_group.id,
         user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       )
     end
 
-    def self.create_contents
-      if DataCycleCore::CreativeWork.find_by(headline: 'TestArtikel', template_name: 'Artikel').blank?
-        @article = DataCycleCore::CreativeWork.find_by(template_name: 'Artikel', template: true).dup
-        @article.template = false
-        @article.save!
-        I18n.with_locale(:de) do
-          @article.set_data_hash(data_hash: {
-            'headline' => 'TestArtikel'
-          }, new_content: true)
-        end
-      end
+    def self.create_content(template_name: nil, data_hash: nil)
+      return if template_name.blank? || data_hash.blank?
+      data_hash.deep_stringify_keys!
 
-      return if DataCycleCore::CreativeWork.find_by(headline: 'TestContainer', template_name: 'Container').present?
+      @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge(template_name: template_name))
 
-      @container = DataCycleCore::CreativeWork.find_by(template_name: 'Container', template: true).dup
-      @container.template = false
-      @container.save!
+      return @content if @content.present?
+
+      @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
+      @content.template = false
+      @content.save!
+
       I18n.with_locale(:de) do
-        @container.set_data_hash(data_hash: {
-          'headline' => 'TestContainer'
-        }, new_content: true)
+        @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: User.find_by(email: 'tester@datacycle.at'))
       end
+      @content.reload
     end
 
-    def self.create_watch_lists
-      @test_watch_list = DataCycleCore::WatchList.where(headline: 'TestWatchList', user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id).first_or_create
-    end
+    def self.create_watch_list(name: nil)
+      return if name.blank?
 
-    def self.create_subscription
-      DataCycleCore::Subscription.where(subscribable_id: @article.id, subscribable_type: @article.class.name, user_id: @admin.id).first_or_create
+      DataCycleCore::WatchList.find_or_create_by(name: name, user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id)
     end
 
     def self.excepted_attributes(model = nil)
@@ -185,8 +194,8 @@ module DataCycleCore
       @dummy_data_hash.dig(model.to_sym, name.to_sym)
     end
 
-    def self.data_set_object(model, template_name)
-      object = data_cycle_object(model)
+    def self.data_set_object(template_name)
+      object = DataCycleCore::Thing
       template = object.where(template: true, template_name: template_name).first
       data_set = object.new
       data_set.schema = template.schema
@@ -196,33 +205,40 @@ module DataCycleCore
   end
 end
 
-DataCycleCore::TestPreparations.load_classifications(
-  [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
-  ]
-)
+unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
+  DataCycleCore::TestPreparations.load_classifications(
+    [
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
+    ]
+  )
 
-DataCycleCore::TestPreparations.load_external_sources(
-  [
-    Rails.root.join('..', '..', 'config', 'external_sources')
-  ]
-)
-DataCycleCore::TestPreparations.load_templates(
-  [
-    # Rails.root.join('..', 'data_types'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-    Rails.root.join('..', 'data_types', 'attributes'),
-    Rails.root.join('..', 'data_types', 'custom')
-  ]
-)
+  DataCycleCore::TestPreparations.load_external_sources(
+    [
+      Rails.root.join('..', '..', 'config', 'external_sources')
+    ]
+  )
+  DataCycleCore::TestPreparations.load_templates(
+    [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', 'data_types', 'attributes'),
+      Rails.root.join('..', 'data_types', 'models')
+    ]
+  )
+end
+
 DataCycleCore::TestPreparations.load_dummy_data(
   [
     Rails.root.join('..', 'dummy_data')
   ]
 )
+
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_users
 DataCycleCore::TestPreparations.create_user_group

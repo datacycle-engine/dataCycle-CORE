@@ -16,11 +16,11 @@ module DataCycleCore
             .project(search[:content_data_id])
             .from(search)
             .join(creative_work)
-            .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::CreativeWork'))))
+            .on(search[:content_data_id].eq(creative_work[:id]).and(search[:content_data_type].eq(quoted('DataCycleCore::Thing'))))
         end
 
         def creative_work
-          DataCycleCore::CreativeWork.arel_table
+          DataCycleCore::Thing.arel_table
         end
       end
     end

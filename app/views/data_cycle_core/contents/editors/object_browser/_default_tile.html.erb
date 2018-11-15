@@ -7,9 +7,9 @@
     <% end %>
 
     <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.parameterize(separator: '_') %>
-    <% if object.try(:title) %>
-        <span class="name"><%= object.try(:title) %></span>
-    <% else %>
-        <span class="name">Keine Übersetzung vorhanden</span>
-    <% end %>
+    <span class="name"><%= object.try(:title) %></span>
+
+    <div class="tile-properties">
+      <%= yield_content!(:additional_tile_attributes) %>
+    </div>
 </div>

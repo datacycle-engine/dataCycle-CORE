@@ -20,9 +20,7 @@ module DataCycleCore
         end
 
         def show
-          object_type = content_data_type
-          return if object_type.nil?
-          @content = object_type
+          @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
         end
@@ -33,13 +31,13 @@ module DataCycleCore
 
         # TODO: refactor
         def deleted
-          deleted_contents = DataCycleCore::CreativeWork::History.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+          deleted_contents = DataCycleCore::Thing::History.where(
+            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
           if permitted_params.dig(:filter, :deleted_since)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
             )
           end
 
@@ -50,7 +48,7 @@ module DataCycleCore
           # json-api: fields, sort
           super + [
             :id, :stored_filter_id, :format, :type, :language, :mode, :q, :include,
-            { filter: [:modified_since, :created_since, :deleted_since, { classifications: [] }] }
+            { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { classifications: [] }] }
           ]
         end
 
@@ -65,7 +63,7 @@ module DataCycleCore
         end
 
         def build_search_query
-          stored_filter_id = permitted_params[:id] || permitted_params[:stored_filter_id] || nil
+          stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
             raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id)
@@ -75,7 +73,13 @@ module DataCycleCore
           filter.language = @language.split(',')
 
           query = filter.apply
-          query = query.where(content_data_type: content_data_type.to_s) if content_data_type
+          query = query.where(content_data_type: 'DataCycleCore::Thing')
+          if content_schema_type
+            query = query.where(schema_type: content_schema_type)
+            query = apply_event_query_filters(query) if content_schema_type == 'Event'
+            query = apply_place_query_filters(query) if content_schema_type == 'Place'
+          end
+          # query = query.where(schema_type: content_schema_type) if content_schema_type
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
           query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
@@ -92,6 +96,26 @@ module DataCycleCore
           query
         end
 
+        def apply_event_query_filters(query)
+          if permitted_params&.dig(:filter, :from).present?
+            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
+          else
+            query = query.event_from_time(Time.zone.now)
+          end
+
+          if permitted_params&.dig(:filter, :to).present?
+            query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)))
+          end
+          query
+        end
+
+        def apply_place_query_filters(query)
+          if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
+            query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
+          end
+          query
+        end
+
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
@@ -99,9 +123,11 @@ module DataCycleCore
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
         end
 
-        def content_data_type
-          object_type_string = permitted_params[:type] || controller_name
-          data_cycle_object(object_type_string)
+        def content_schema_type
+          excluded_controller_names = ['things', 'contents']
+          return permitted_params.dig(:type)&.classify if permitted_params.dig(:type).present?
+          return controller_name.classify unless excluded_controller_names.include?(controller_name)
+          nil
         end
       end
     end

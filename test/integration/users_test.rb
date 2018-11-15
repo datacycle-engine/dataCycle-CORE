@@ -25,17 +25,26 @@ module DataCycleCore
       }
 
       assert_response :success
-      assert_equal 'Ungültige Anmeldedaten.', flash[:alert]
+      assert_equal I18n.t('devise.failure.invalid', locale: DataCycleCore.ui_language), flash[:alert]
     end
 
-    test 'change user settings' do
+    test 'user settings page' do
       get settings_path
       assert_response :success
     end
 
-    test 'show users index page' do
-      get users_path
+    test 'show and filter users index page' do
+      @test_group_ids = DataCycleCore::UserGroup.where(name: 'TestUserGroup').ids
+      @guest = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
+      @guest.update(user_group_ids: @test_group_ids)
+
+      get users_path, params: {
+        q: 'guest datacycle',
+        roles: DataCycleCore::Role.where(name: 'guest').ids,
+        user_groups: @test_group_ids
+      }
       assert_response :success
+      assert_select 'li.grid-item .inner .description', { count: 1, text: 'guest@datacycle.at' }
     end
 
     test 'create new user' do
@@ -51,7 +60,7 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal 'Benutzer wurde erfolgreich erstellt.', flash[:success]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item .inner .description', user[:email]
     end
@@ -70,7 +79,7 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal 'Benutzer wurde aktualisiert.', flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item > .inner > .title', "Guest1 #{user.family_name}"
       assert_select 'li.grid-item > .inner > .token', { count: 1, text: /.+/ }
@@ -87,14 +96,14 @@ module DataCycleCore
       }
 
       assert_redirected_to users_path
-      assert_equal 'Benutzer wurde gesperrt.', flash[:notice]
+      assert_equal I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:notice]
 
       post unlock_user_path(user), params: {}, headers: {
         referer: users_path
       }
 
       assert_redirected_to users_path
-      assert_equal 'Benutzer wurde freigegeben.', flash[:notice]
+      assert_equal I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:notice]
     end
 
     test 'search user by email' do

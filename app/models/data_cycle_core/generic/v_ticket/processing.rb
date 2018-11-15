@@ -5,7 +5,7 @@ module DataCycleCore
     module VTicket
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::CreativeWork
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('images') || []).each do |image_hash|
@@ -29,13 +29,13 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::VTicket::Transformations.vticket_location_to_content_location,
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end
 
         def self.process_event(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Event
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Event'
 
           sub_events = loop_collect(raw_data, 'subEvent') do |item_data|

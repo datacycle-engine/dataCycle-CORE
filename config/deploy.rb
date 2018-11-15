@@ -25,13 +25,18 @@ set :puma_restart_command, 'bundle exec puma'
 # Default value for :pty is false
 # set :pty, true
 
+set :delayed_job_pools, {
+  :mailers => 1,
+  :* => 1
+}
+
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
 # Default value for :linked_files is []
 append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
-append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/tmp', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
+append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions

@@ -26,7 +26,7 @@ module SharedExamplesForContent
 
       subject do
         convert_storage_location = { 'value' => 'metadata', 'translated_value' => 'content' }
-        DataCycleCore::CreativeWork.new(
+        DataCycleCore::Thing.new(
           schema: data_definition,
           convert_storage_location[storage_location] => { 'existing_property' => property_value }
         )
@@ -68,7 +68,7 @@ module SharedExamplesForContent
       }
 
       subject do
-        DataCycleCore::CreativeWork.new(schema: data_definition)
+        DataCycleCore::Thing.new(schema: data_definition)
       end
 
       it 'provides names of plain properties' do
@@ -92,15 +92,15 @@ describe DataCycleCore::Content do
 
   describe 'with translatable and untranslatable properties' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {
               label: 'id',
               type: 'key'
             },
-            headline: {
-              label: 'headline',
+            name: {
+              label: 'name',
               type: 'string',
               storage_location: 'column'
             },
@@ -125,18 +125,18 @@ describe DataCycleCore::Content do
     end
 
     it 'provides names of plain properties' do
-      subject.plain_property_names.must_equal(['id', 'headline', '1', '2', '3'])
+      subject.plain_property_names.must_equal(['id', 'name', '1', '2', '3'])
     end
 
     it 'provides methods for all property names as string' do
-      ['id', 'headline', '1', '2', '3'].each do |item|
+      ['id', 'name', '1', '2', '3'].each do |item|
         subject.must_respond_to item
         subject.must_respond_to "#{item}="
       end
     end
 
     it 'provides methods for all property names as symbol' do
-      ['id', 'headline', '1', '2', '3'].each do |item|
+      ['id', 'name', '1', '2', '3'].each do |item|
         subject.must_respond_to item.to_sym
         subject.must_respond_to "#{item}=".to_sym
       end
@@ -163,13 +163,13 @@ describe DataCycleCore::Content do
     end
 
     it 'provides list of translatable properties' do
-      subject.translatable_property_names.must_equal(['headline', '3'])
+      subject.translatable_property_names.must_equal(['name', '3'])
     end
   end
 
   describe 'with linked properties' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {
@@ -219,7 +219,7 @@ describe DataCycleCore::Content do
 
   describe 'with embedded properties' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {
@@ -229,12 +229,12 @@ describe DataCycleCore::Content do
             existing_locations: {
               label: 'Location',
               type: 'embedded',
-              linked_table: 'places'
+              linked_table: 'thing'
             },
             nested_creative_works: {
               label: 'Nested Data',
               type: 'embedded',
-              linked_table: 'creative_works'
+              linked_table: 'thing'
             }
           }
         }
@@ -248,7 +248,7 @@ describe DataCycleCore::Content do
 
   describe 'with included properties' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {
@@ -330,7 +330,7 @@ describe DataCycleCore::Content do
 
   describe 'with included properties, two ranks deep' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {
@@ -464,7 +464,7 @@ describe DataCycleCore::Content do
 
   describe 'with included properties, different types' do
     subject do
-      DataCycleCore::CreativeWork.new(
+      DataCycleCore::Thing.new(
         schema: {
           properties: {
             id: {

@@ -83,9 +83,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'carrierwave', '~> 0.5'
   s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
+  s.add_dependency 'pdf-reader'
+  s.add_dependency 'streamio-ffmpeg'
+  s.add_dependency 'taglib-ruby'
 
   s.add_dependency 'globalize', '~> 5.1.0'
-  s.add_dependency 'loofah', '~> 2.2.2'
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
@@ -94,6 +96,9 @@ Gem::Specification.new do |s|
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
+
+  # phash
+  s.add_dependency 'pHash'
 
   # development gems
   s.add_development_dependency 'better_errors'

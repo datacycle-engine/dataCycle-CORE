@@ -5,32 +5,19 @@ require 'test_helper'
 module DataCycleCore
   class OrganizationTest < ActiveSupport::TestCase
     test 'create an organization and read all attributes' do
-      template = DataCycleCore::Organization.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Organization.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set.save
-      test_data = {
-        'legal_name' => 'Firmenname',
-        'contact_info' => {
-          'telephone' => '+ 43 123 456',
-          'fax_number' => '+ 43 654 321',
-          'email' => 'test@test.com',
-          'url' => 'http://firma.at'
-        },
-        'address' => {
-          'address_locality' => 'Test - Ort',
-          'street_address' => 'Test - Strasse',
-          'postal_code' => '1234',
-          'address_country' => 'Austria'
-        },
-        'description' => 'Short test description for company object.'
-      }
-      data_set.set_data_hash(data_hash: test_data)
-      data_set.save
+      data_set.set_data_hash(
+        data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization').merge(
+          { 'contact_info' => DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'contact_info') }
+        )
+      )
 
       organization = data_set
-      assert_equal('Firmenname', organization.legal_name)
+      assert_equal('Firmenname', organization.name)
       assert_equal('+ 43 123 456', organization.contact_info.telephone)
       assert_equal('+ 43 654 321', organization.contact_info.fax_number)
       assert_equal('test@test.com', organization.contact_info.email)
@@ -43,26 +30,13 @@ module DataCycleCore
     end
 
     test 'expect an exception when template includes wrong data-type' do
-      template = DataCycleCore::Organization.find_by(template: true, template_name: 'Organization')
-      data_set = DataCycleCore::Organization.new
+      template = DataCycleCore::Thing.find_by(template: true, template_name: 'Organization')
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema.merge('properties' => { 'test' => { 'label' => 'test', 'type' => 'test' } })
       data_set.template_name = template.template_name
       data_set.save
-      test_data = {
-        'legal_name' => 'Firmenname',
-        'telephone' => '+ 43 123 456',
-        'fax_number' => '+ 43 654 321',
-        'email' => 'test@test.com',
-        'address' => {
-          'address_locality' => 'Test - Ort',
-          'street_address' => 'Test - Strasse',
-          'postal_code' => '1234'
-        },
-        'url' => 'http://firma.at',
-        'description' => 'Short test description for company object.'
-      }
       assert_raises StandardError do
-        data_set.set_data_hash(data_hash: test_data)
+        data_set.set_data_hash(data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('things', 'organization'))
       end
     end
   end

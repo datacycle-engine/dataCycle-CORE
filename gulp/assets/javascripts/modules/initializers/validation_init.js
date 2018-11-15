@@ -182,7 +182,7 @@ module.exports.initialize = function () {
     }));
   }
 
-  let submit_creative_work_form = function (form) {
+  let submit_thing_form = function (form) {
     update_editors();
 
     $('#validation_errors').html('');
@@ -212,7 +212,7 @@ module.exports.initialize = function () {
       $(element).on('submit', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
-        submit_creative_work_form(element);
+        submit_thing_form(element);
       });
     });
   }

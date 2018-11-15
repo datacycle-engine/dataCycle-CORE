@@ -9,14 +9,14 @@
         <% end %>
 
         <%= form_for @content, html: { class: 'validation-form' } do |f| %>
-            <%= hidden_field_tag :table, :creative_works %>
+            <%= hidden_field_tag :table, :things %>
             <%= hidden_field_tag 'template', reveal_template %>
-            <%= hidden_field_tag "creative_work[datahash][#{DataCycleCore::Feature::LifeCycle.attribute_keys.first}][]", DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(life_cycle_name, :id) if DataCycleCore::Feature::LifeCycle.enabled? && local_assigns.has_key?(:life_cycle_name) %>
+            <%= hidden_field_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.attribute_keys.first}][]", DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(life_cycle_name, :id) if DataCycleCore::Feature::LifeCycle.enabled? && local_assigns.has_key?(:life_cycle_name) %>
             <%= hidden_field_tag 'parent_template', parent_template if local_assigns.has_key?(:parent_template) %>
 
             <div class="validation-container form-element">
-                <%= label_tag 'creative_work[datahash][headline]', 'Titel' %>
-                <%= text_field_tag 'creative_work[datahash][headline]', '', class: 'form-control', value: params.dig(:f, :s, :v), disabled: params.dig(:f, :s, :v).blank? %>
+                <%= label_tag 'thing[datahash][name]', 'Titel' %>
+                <%= text_field_tag 'thing[datahash][name]', '', class: 'form-control', value: params.dig(:f, :s, :v), disabled: params.dig(:f, :s, :v).blank? %>
             </div>
             <% if params.dig(:f, :s, :v).present? %>
                 <%= f.submit t(:submit, locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t(:submit, locale: DataCycleCore.ui_language) } %>

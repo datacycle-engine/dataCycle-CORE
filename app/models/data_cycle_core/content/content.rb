@@ -49,6 +49,22 @@ module DataCycleCore
         types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
       end
 
+      def siblings
+        (parent ? parent.children : self.class.roots).where.not(id: id)
+      end
+
+      def self.roots
+        where(is_part_of: nil)
+      end
+
+      def schema_type
+        schema&.dig('schema_type')
+      end
+
+      def translatable?
+        schema&.dig('translatable') || false
+      end
+
       def property_definitions
         schema&.dig('properties') || {}
       rescue StandardError

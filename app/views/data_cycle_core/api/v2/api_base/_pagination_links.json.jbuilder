@@ -2,6 +2,7 @@
 
 json.meta do
   json.total objects.total_count
+  json.pages objects.total_pages
 end
 
 json.links do

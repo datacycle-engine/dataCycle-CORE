@@ -7,7 +7,7 @@
     }
 
     .finalize-button-container {
-      input[type=checkbox] {
+      input[type="checkbox"] {
         border: 0;
         background: inherit;
         box-shadow: none;
@@ -34,15 +34,15 @@
       margin-top: 1rem;
       font-size: 1.2rem;
 
-      >ul {
+      > ul {
         display: inline-block;
 
-        >li {
+        > li {
           display: inline;
 
           &:not(:last-child) {
             &::after {
-              content: ', ';
+              content: ", ";
             }
           }
         }
@@ -50,6 +50,7 @@
     }
 
     &.headline,
+    &.name,
     &.headline_external {
       input {
         height: 6rem;
@@ -61,7 +62,7 @@
       left: 2.5rem;
     }
 
-    input[type=checkbox] {
+    input[type="checkbox"] {
       min-width: 0;
       margin: 1rem 0 0 1rem;
     }
@@ -141,13 +142,13 @@
   margin: 0;
 
   &.accordion {
-    >.accordion-item {
-      >.accordion-content {
+    > .accordion-item {
+      > .accordion-content {
         padding: 0;
         border: none;
       }
 
-      >.accordion-title {
+      > .accordion-title {
         display: block;
         padding: 0;
         text-align: center;
@@ -193,7 +194,7 @@
         }
 
         i::before {
-          content: '\f077';
+          content: "\f077";
         }
       }
     }
@@ -226,7 +227,7 @@
 }
 
 .data-cycle-object {
-  >.remove-from-watchlist-link {
+  > .remove-from-watchlist-link {
     float: right;
     margin-left: 0.5rem;
   }
@@ -312,7 +313,8 @@
   position: absolute;
   top: -5rem;
   left: 1rem;
-  box-shadow: 0 0 0 3px map-get($foundation-palette, alert), 0 0 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 3px map-get($foundation-palette, alert),
+    0 0 8px rgba(0, 0, 0, 0.4);
   background-color: lighten(map-get($foundation-palette, alert), 46%);
   padding: 1rem;
   color: $black;
@@ -374,12 +376,13 @@
   }
 
   &:after {
-    content: '▲';
+    content: "▲";
     font-size: 28px;
     bottom: -18px;
     color: lighten(map-get($foundation-palette, alert), 46%);
     transform: scaleX(3) rotate(180deg);
-    text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 -3px 0 map-get($foundation-palette, alert),
+      0 -1px 1px rgba(0, 0, 0, 0.4);
     position: absolute;
     left: 30px;
     width: 2rem;
@@ -411,7 +414,7 @@ select {
 #newContent {
   overflow-y: visible;
 
-  input[type=text] {
+  input[type="text"] {
     min-width: auto;
     display: block;
     box-sizing: border-box;
@@ -436,7 +439,7 @@ select {
       overflow: hidden;
 
       .selected-tag,
-      input[type=search] {
+      input[type="search"] {
         float: none;
         display: inline-block;
         vertical-align: top;
@@ -458,12 +461,12 @@ select {
       text-overflow: ellipsis;
     }
 
-    input[type=search] {
+    input[type="search"] {
       margin-top: 2px;
     }
   }
 
-  input[type=text] {
+  input[type="text"] {
     padding: 0 0.5rem;
   }
 
@@ -488,7 +491,7 @@ select {
         margin-top: 3rem;
         position: relative;
 
-        >br {
+        > br {
           display: none;
         }
       }
@@ -502,7 +505,6 @@ select {
       }
 
       .string {
-
         &:hover,
         &:focus {
           .copy-to-clipboard {
@@ -535,7 +537,7 @@ select {
           margin-right: 0.2rem;
         }
 
-        >.type {
+        > .type {
           margin-right: 0.2rem;
         }
 
@@ -563,7 +565,12 @@ select {
       &.fixed {
         padding: 1rem;
         top: 0rem;
-        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
+        background: linear-gradient(
+          to bottom,
+          white 0%,
+          white 30%,
+          rgba(255, 255, 255, 0) 100%
+        );
         z-index: 2;
         width: 49%;
       }
@@ -796,7 +803,7 @@ video {
     margin: 0 1rem;
     cursor: initial;
 
-    &.button>a {
+    &.button > a {
       padding: 0.5rem 0.7rem;
       margin: 0;
       font-weight: normal;
@@ -809,7 +816,7 @@ video {
     }
 
     &::after {
-      content: '\f060';
+      content: "\f060";
       font-family: FontAwesome;
       font-style: normal;
       font-weight: normal;
@@ -836,8 +843,8 @@ video {
         display: none;
       }
 
-      &~::after {
-        content: '\f061';
+      & ~ ::after {
+        content: "\f061";
         display: flex;
         left: -2.1rem;
         right: auto;
@@ -886,7 +893,7 @@ video {
 [readonly],
 [readonly]:hover,
 [readonly]:focus,
-[contenteditable=false],
+[contenteditable="false"],
 .readonly-select {
   cursor: not-allowed;
 }
@@ -950,7 +957,7 @@ a.email-link {
 
 .row {
   &.dashboard-cards {
-    >.columns {
+    > .columns {
       float: left;
     }
   }
@@ -961,7 +968,7 @@ a.email-link {
     min-height: 10rem;
   }
 
-  button[type=submit].button {
+  button[type="submit"].button {
     padding: 0.85rem 1rem;
   }
 
@@ -985,10 +992,10 @@ ul.translated-locales {
   width: auto;
   right: 0;
   left: auto !important;
-  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.10);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 
   &::before {
-    content: '▲';
+    content: "▲";
     font-size: 28px;
     top: -18px;
     color: white;
@@ -1034,8 +1041,7 @@ ul.translated-locales {
     border-color: $light-gray;
     box-shadow: 0 0 0 $dark-gray;
     position: relative;
-    transition: box-shadow 0.1s,
-    border-color 0.25s ease-in-out;
+    transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
     padding: 0 0 0 0;
 
     .select2 {
@@ -1080,7 +1086,9 @@ ul.translated-locales {
       }
     }
 
-    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+    .select2-container--default
+      .select2-selection--multiple
+      .select2-selection__choice {
       border-radius: 5px;
       padding: 0 1rem 0 0.3rem;
       background-color: rgba($primary-color, 0.5);
@@ -1096,7 +1104,7 @@ ul.translated-locales {
         text-align: right;
         font-size: 1rem;
         font-weight: normal;
-        opacity: .7;
+        opacity: 0.7;
       }
 
       &:focus,
@@ -1158,7 +1166,7 @@ ul.translated-locales {
   text-align: left;
 
   &.select2-loading::after {
-    content: '\f1ce';
+    content: "\f1ce";
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
@@ -1173,7 +1181,7 @@ ul.translated-locales {
 
   .select2-dropdown {
     .select2-results__option {
-      &[aria-disabled=true] {
+      &[aria-disabled="true"] {
         color: lighten($dark-gray, 20%);
         font-style: italic;
         cursor: not-allowed;
@@ -1293,7 +1301,7 @@ select:-moz-focusring {
         }
 
         i::before {
-          content: '\f077';
+          content: "\f077";
         }
       }
     }
@@ -1304,15 +1312,15 @@ select:-moz-focusring {
   clear: both;
 }
 
-.object-browser>.media-thumbs>.buttons,
-.embedded-object>.buttons {
+.object-browser > .media-thumbs > .buttons,
+.embedded-object > .buttons {
   .fa {
     font-size: 0.9rem;
   }
 }
 
-.buttons>.load-more-linked-contents,
-.buttons>.button {
+.buttons > .load-more-linked-contents,
+.buttons > .button {
   margin: 0;
 }
 
@@ -1351,7 +1359,7 @@ select:-moz-focusring {
           float: none;
         }
 
-        input[name*='name'] {
+        input[name*="name"] {
           display: inline-block;
           background: transparent;
           color: $dark-gray;
@@ -1399,7 +1407,6 @@ select:-moz-focusring {
 }
 
 select {
-
   &.async-select,
   &.single-select,
   &.multi-select {
@@ -1533,7 +1540,7 @@ select {
         }
       }
 
-      >img {
+      > img {
         opacity: 0.1;
       }
     }
@@ -1616,7 +1623,7 @@ select {
 }
 
 .object-browser-overlay .detail-type.geographic {
-  >.detail-label {
+  > .detail-label {
     display: none;
   }
 
@@ -1632,7 +1639,7 @@ select {
   padding: 0;
   box-shadow: none;
 
-  >.detail-label {
+  > .detail-label {
     display: none;
   }
 
@@ -1650,4 +1657,16 @@ select {
 [data-disable-with]>.fa {
   font-size: inherit;
   line-height: inherit;
+}
+
+.tooltip {
+  max-width: 90vw;
+}
+
+.tooltip p:last-child {
+  margin-bottom: 0;
+}
+
+.status-container {
+  margin-top: 1rem;
 }

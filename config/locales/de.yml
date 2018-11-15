@@ -99,6 +99,7 @@ de:
     portrait: Hochformat
     height: Höhe
     width: Breite
+    exclude: Ausnahme
     children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
     creator: Ersteller
     abo_changed_title:
@@ -118,6 +119,11 @@ de:
     parent: Container
     subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
     unsubscribe_text: Bereits abonniert.
+
+  tile_links:
+    details: zur Detailansicht
+    full_size: in voller Größe öffnen
+    media_archive: im Medienarchiv öffnen
 
   history:
     latest_edits: Letzte Bearbeitungen
@@ -270,10 +276,32 @@ de:
       imported: "'%{data}' wurden aus YAML Datei importiert."
   activerecord:
     errors:
+      messages:
+        record_invalid: "Ungültiger Eintrag"
       models:
+        data_cycle_core/asset:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/image:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/audio:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/video:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
+        data_cycle_core/pdf:
+          attributes:
+            file:
+              blank: "Datei darf nicht leer sein"
         data_cycle_core/watch_list:
           attributes:
-            headline:
+            name:
               blank: "Name: Darf nicht leer sein."
         data_cycle_core/user:
           attributes:
@@ -309,21 +337,6 @@ de:
       data_cycle_core/data_link:
         one: Externer Link
         other: Externe Links
-      data_cycle_core/creative_work:
-        one: Creative Work
-        other: Creative Works
-      data_cycle_core/place:
-        one: Ort
-        other: Orte
-      data_cycle_core/person:
-        one: Person
-        other: Personen
-      data_cycle_core/event:
-        one: Event
-        other: Events
-      data_cycle_core/organization:
-        one: Organisation
-        other: Organisationen
       data_cycle_core/stored_filter:
         one: Gespeicherte Suche
         other: Gespeicherte Suchen
@@ -336,9 +349,12 @@ de:
       data_cycle_core/asset:
         one: Asset
         other: Assets
+      data_cycle_core/role:
+        one: Benutzerrolle
+        other: Benutzerrollen
     attributes:
       data_cycle_core/watch_list:
-        headline: Name
+        name: Name
         user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
@@ -360,6 +376,20 @@ de:
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+      data_cycle_core/thing:
+        name: Name
+        legal_name: Firmenname
+        given_name: Vorname
+        family_name: Familienname
+        job_title: Berufsbezeichnung
+        name: Name
+        street: Straße
+        country: Land
+        plz: PLZ
+        address: Ort
+        longitude: Längengrad
+        latitude: Breitengrad
+        elevation: Meereshöhe (m)
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -433,6 +463,8 @@ de:
     documentation:
       root: Dokumentation
       overview: Übersicht
+      architecture: Systemarchitektur
+      data_structure: Datenstruktur
       classifications: Klassifizierungen
       api:
         root: Datenschnittstelle
@@ -635,6 +667,10 @@ de:
     bergfex:
       snow_report:
         type:
-          village: Ort
-          base: Tal
-          top: Berg
+          village: Dorf
+          base: Basis
+          top: Top
+
+  errors:
+    messages:
+      extension_white_list_error: Ungültiger Dateityp

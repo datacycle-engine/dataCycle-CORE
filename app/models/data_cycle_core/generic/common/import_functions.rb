@@ -18,13 +18,17 @@ module DataCycleCore
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
+        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
 
-          content = class_type.find_or_initialize_by(
-            external_source_id: utility_object.external_source.id,
-            external_key: data['external_key']
-          )
+          if local
+            content = class_type.new
+          else
+            content = class_type.find_or_initialize_by(
+              external_source_id: utility_object.external_source.id,
+              external_key: data['external_key']
+            )
+          end
           content.metadata ||= {}
           content.schema = template.schema
           content.template_name = template.template_name
@@ -70,7 +74,7 @@ module DataCycleCore
                   source_filter = options&.dig(:import, :source_filter) || {}
 
                   if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                    source_filter = source_filter.merge({ :updated_at.gte => utility_object.external_source.last_import })
+                    source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import })
                   end
                   durations = []
 

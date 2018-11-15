@@ -36,22 +36,25 @@
       <span class="embedded-header">
         <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
         <%= definition['label'] %>
+        <%= render 'helper_text', local_assigns %>
       </span>
 
       <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>
 
         <div class="form-element longitude number">
           <%= label_tag key.gsub(/location/, 'longitude') do %>
-            <%= DataCycleCore::Place.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:longitude, locale: DataCycleCore.ui_language) %>
           <% end %>
-          <%= number_field_tag key.gsub(/location/, 'longitude'), value.presence&.x, class: 'form-control', step: :any %>
+          <%= number_field_tag key.gsub(/location/, 'longitude'), value.presence&.x, class: 'form-control', step: :any, readonly: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
         </div>
 
         <div class="form-element latitude number">
           <%= label_tag key.gsub(/location/, 'latitude') do %>
-            <%= DataCycleCore::Place.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+            <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
           <% end %>
-          <%= number_field_tag key.gsub(/location/, 'latitude'), value.presence&.y, class: 'form-control', step: :any %>
+          <%= number_field_tag key.gsub(/location/, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
         </div>
 
         <%= render_attribute_editor key: key.gsub(/location/, 'elevation'), definition: content&.schema&.dig(*schema_path_from_key(key.gsub(/location/, 'elevation'))), value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation, parameters: { options: { force_render: true } }, content: content if content.collect_properties.flatten.include?('elevation') %>

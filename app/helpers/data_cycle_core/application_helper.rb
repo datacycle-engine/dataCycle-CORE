@@ -124,9 +124,11 @@ module DataCycleCore
     end
 
     def render_content_partial(partial, parameters)
+      raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
+      content_parameter = parameters[:content].schema['schema_type'].underscore
       partials = [
-        "#{parameters[:content].class.class_name.underscore}_#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
-        "#{parameters[:content].class.class_name.underscore}_#{partial}",
+        "#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
+        "#{content_parameter}_#{partial}",
         "content_#{partial}"
       ]
 
@@ -195,8 +197,8 @@ module DataCycleCore
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
         key.underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
+        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
+        content.try(:schema_type)&.underscore,
         definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
@@ -234,23 +236,21 @@ module DataCycleCore
 
     def content_tile(item:, parameters: {})
       partials = [
-        "#{item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_')}_#{item.try(:template_name)&.underscore&.parameterize(separator: '_')}",
         item.try(:template_name)&.underscore&.parameterize(separator: '_'),
-        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'),
+        item.try(:schema_type)&.underscore&.parameterize(separator: '_'),
+        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'), # always Things
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
       return first_existing_partial(partials), parameters.merge({ item: item })
-      # render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
       partials = [
-        "#{definition.dig('linked_table').try(:singularize).try(:underscore)}_#{definition.dig('template_name').try(:downcase).try(:underscore)}",
-        definition.dig('linked_table').try(:singularize).try(:underscore).to_s,
+        definition.dig('template_name')&.underscore_blanks,
+        parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
-
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
@@ -327,6 +327,7 @@ module DataCycleCore
     def first_existing_partial(partials)
       partials.each_with_index do |partial, _idx|
         next unless lookup_context.exists?(partial, [], true)
+
         return partial
       end
     end

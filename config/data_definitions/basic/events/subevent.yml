@@ -1,8 +1,10 @@
-
+---
 - :data:
     :name: SubEvent
     :type: object
+    :schema_type: Event
     :content_type: embedded
+    :translatable: true
     :properties:
       :id:
         :label: id
@@ -10,7 +12,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -59,7 +61,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
       :url:
         :label: Inhalt URL
@@ -70,10 +72,10 @@
           :format: url
         :api:
           :name: sameAs
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1

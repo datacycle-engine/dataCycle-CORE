@@ -3,7 +3,7 @@
 class FixSystemDatesForHistory < ActiveRecord::Migration[5.0]
   def up
     @connection = ActiveRecord::Base.connection
-    DataCycleCore.content_tables.each do |table_name|
+    ['creative_works', 'events', 'persons', 'places'].each do |table_name|
       content = table_name.singularize
       next unless @connection.table_exists?(table_name)
 

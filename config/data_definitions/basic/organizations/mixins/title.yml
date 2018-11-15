@@ -3,10 +3,10 @@
     :name: title
     :type: mixin
     :properties:
-      :legal_name:
+      :name:
         :label: Firmenname
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
         :search: true
         :validations:
           :min: 1
@@ -14,4 +14,5 @@
           :show:
             :disabled: true
         :api:
+          :name: legal_name
           :minimal: true

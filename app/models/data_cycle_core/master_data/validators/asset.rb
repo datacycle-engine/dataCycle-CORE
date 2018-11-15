@@ -5,16 +5,18 @@ module DataCycleCore
     module Validators
       class Asset < BasicValidator
         def asset_keywords
-          ['min', 'max']
+          []
         end
 
         def validate(data, template)
-          if data.is_a?(::Array)
+          if blank?(data)
+            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
+          elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
             check_reference_array([data], template)
           else
-            (@error[:warning][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language)
+            (@error[:warning][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language)
           end
           @error
         end
@@ -28,7 +30,7 @@ module DataCycleCore
               if asset_keywords.include?(key)
                 method(key).call(data, template['validations'][key])
               else
-                (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warning], data: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
+                (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
               end
             end
           end
@@ -36,33 +38,29 @@ module DataCycleCore
           # validate references themself
           data.each do |key|
             if key.is_a?(::String)
-              check_reference(key)
+              check_reference(key, template)
             else
-              (@error[:warning][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warning], data: key, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:warning][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_language)
             end
           end
         end
 
-        def check_reference(key)
+        def check_reference(key, template)
           return unless uuid?(key)
           find_asset = DataCycleCore::Asset.find(key)
-          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :warning], locale: DataCycleCore.ui_language) if find_asset.nil?
+          (@error[:warning][@template_key] ||= []) << I18n.t(:asset_upload, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if !check_asset_type(find_asset, template) || find_asset.nil?
         end
 
-        def uuid?(data)
-          data_uuid = data.downcase
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
-          (@error[:warning][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :warning], data: data, locale: DataCycleCore.ui_language) unless check_uuid
-          check_uuid
+        def check_asset_type(asset, template)
+          (asset.type == "DataCycleCore::#{template.dig('asset_type').camelize}")
         end
 
-        def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size < value
-        end
-
-        def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+        def blank?(data)
+          return true if data.blank?
+          if data.is_a?(::Array)
+            return true if data.length == 1 && data[0].blank?
+          end
+          false
         end
       end
     end
