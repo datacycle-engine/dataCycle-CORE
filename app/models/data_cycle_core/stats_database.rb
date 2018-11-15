@@ -109,6 +109,7 @@ module DataCycleCore
           )
         end
       end
+      Mongoid.override_database(nil)
     end
   end
 end
