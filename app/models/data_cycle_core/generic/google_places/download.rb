@@ -12,6 +12,14 @@ module DataCycleCore
             options: options
           )
         end
+
+        def self.data_id(data)
+          data['place_id']
+        end
+
+        def self.data_name(data)
+          data['name']
+        end
       end
     end
   end

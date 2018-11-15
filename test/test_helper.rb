@@ -227,6 +227,7 @@ unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', 'data_types', 'attributes'),
       Rails.root.join('..', 'data_types', 'models')
     ]

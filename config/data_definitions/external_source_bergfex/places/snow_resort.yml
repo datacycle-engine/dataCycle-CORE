@@ -1,0 +1,137 @@
+---
+- :data:
+    :name: Skigebiet
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :overlay:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :linked_table: things
+        :template_name: SnowResortOverlay
+        :validations:
+          :max: 1
+      :title:
+        :type: mixin
+        :name: title
+#      :status_icon:
+#        :label: Status
+#        :type: string
+#        :storage_location: value
+      :date_time_updated_at:
+        :label: Zuletzt aktualisiert
+        :type: datetime
+        :storage_location: value
+        :validations:
+          :format: date_time
+        :ui:
+          :edit:
+            :type: datetime
+            :options:
+              :class: single_date
+              :placeholder: "tt.mm.jjjj --:--"
+      :date_last_snowfall:
+        :label: Letzter Schneefall
+        :type: datetime
+        :storage_location: value
+        :validations:
+          :format: date_time
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :class: single_date
+              :placeholder: "tt.mm.jjjj"
+          :show:
+            :type: date
+      :open_lifts:
+        :label: Geöffnete Lifte
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :open_slopes:
+        :label: Geöffnete Pisten
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :opening_hours:
+        :label: Öffnungszeit
+        :type: embedded
+        :linked_table: things
+        :template_name: Öffnungszeit - Erweitert
+      :geo:
+        :type: mixin
+        :name: geo
+      :snow_report:
+        :label: Schneeberichte
+        :type: embedded
+        :linked_table: things
+        :template_name: Schneebericht
+      :url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+      :condition_avalanche_warning_level:
+        :label: "Lawinenwarnlevel"
+        :type: classification
+        :tree_label: "Bergfex - Lawinenwarnlevel"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_nordic_classic:
+        :label: "NordicClassic - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - NordicClassic - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_run_to_valley:
+        :label: "Talfahrt - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - Talfahrt - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_slopes:
+        :label: "Pisten - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - Pisten - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_snow:
+        :label: "Schnee - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - Schnee - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Skigebiet"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
