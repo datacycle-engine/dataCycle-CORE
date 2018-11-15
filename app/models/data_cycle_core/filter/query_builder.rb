@@ -13,11 +13,6 @@ module DataCycleCore
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
 
-      def initialize(locale = ['de'], query = nil)
-        @locale = locale
-        @query = query
-      end
-
       # helper for paging
       def limit(number)
         reflect(@query.limit(number))
@@ -35,10 +30,6 @@ module DataCycleCore
         reflect(@query.offset(number))
       end
 
-      def count(*params)
-        @query.except(:order, :limit, :offset).count(*params)
-      end
-
       # continue queries
       def where(*params)
         reflect(@query.where(*params))
@@ -46,14 +37,6 @@ module DataCycleCore
 
       def order(*params)
         reflect(@query.order(*params))
-      end
-
-      def group(*params)
-        reflect(@query.group(*params))
-      end
-
-      def having(*params)
-        reflect(@query.having(*params))
       end
 
       private
@@ -142,22 +125,6 @@ module DataCycleCore
             )
           ]
         )
-      end
-
-      def classification
-        Classification.arel_table
-      end
-
-      def classification_group
-        ClassificationGroup.arel_table
-      end
-
-      def classification_alias
-        ClassificationAlias.arel_table
-      end
-
-      def classification_tree
-        ClassificationTree.arel_table
       end
 
       # chain method for Builder pattern

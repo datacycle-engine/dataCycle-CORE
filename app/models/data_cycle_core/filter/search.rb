@@ -46,7 +46,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(things[:external_source_id].in(ids))
+          @query.where(thing[:external_source_id].in(ids))
         )
       end
 
@@ -157,7 +157,14 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        reflect(@query.with_classification_aliases(ids))
+        sub_query = DataCycleCore::Thing
+          .joins(:classification_aliases)
+          .merge(
+            DataCycleCore::ClassificationAlias
+              .where(id: ids)
+              .with_descendants
+          )
+        reflect(@query.where(id: sub_query))
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)
@@ -165,7 +172,7 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            search[:content_data_id].in(
+            thing[:id].in(
               join_classification_alias.where(classification_alias[:id].in(ids))
             )
           )
@@ -187,7 +194,7 @@ module DataCycleCore
         )
       end
 
-      def self.get_order_by_query_string(search, _table_name = 'searches')
+      def self.get_order_by_query_string(search)
         return ActiveRecord::Base.send(:sanitize_sql_for_order, 'searches.boost DESC, searches.updated_at DESC') if search.blank?
         search_string = (search || '').split(' ').join('%')
 
@@ -228,16 +235,28 @@ module DataCycleCore
           )
       end
 
-      def watch_list_data_hash
-        DataCycleCore::WatchListDataHash.arel_table
-      end
-
-      def search
-        DataCycleCore::Search.arel_table
-      end
-
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
+      end
+
+      def classification
+        Classification.arel_table
+      end
+
+      def classification_group
+        ClassificationGroup.arel_table
+      end
+
+      def classification_alias
+        ClassificationAlias.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
+      end
+
+      def watch_list_data_hash
+        DataCycleCore::WatchListDataHash.arel_table
       end
 
       def content_meta_item
@@ -246,6 +265,10 @@ module DataCycleCore
 
       def content_content
         DataCycleCore::ContentContent.arel_table
+      end
+
+      def search
+        DataCycleCore::Search.arel_table
       end
 
       def thing

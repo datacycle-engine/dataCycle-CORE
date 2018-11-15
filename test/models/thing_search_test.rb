@@ -21,11 +21,10 @@ module DataCycleCore
         'text' => 'Full Test'
       }
       data_set.set_data_hash(data_hash: data_hash)
-      data_set.save
       data_set.update_search(I18n.locale)
       data_set.save
 
-      assert(1, DataCycleCore::Search.count - search_count)
+      assert_equal(1, DataCycleCore::Search.count - search_count)
     end
 
     test 'filters contents based on single classification' do
@@ -33,33 +32,33 @@ module DataCycleCore
     end
 
     test 'filters contents based on multiple classifications' do
-      assert(DataCycleCore::Thing
+      items = DataCycleCore::Thing
         .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
         .with_classification_aliases(find_alias_ids('Tags', 'Tag 1', 'Tag 2'))
-        .count == 3)
+      assert_equal(3, items.count)
 
-      assert(DataCycleCore::Thing
+      items = DataCycleCore::Thing
         .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
         .with_classification_aliases(find_alias_ids('Tags', 'Tag 1'))
-        .count == 2)
+      assert_equal(2, items.count)
 
-      assert(DataCycleCore::Thing
+      items = DataCycleCore::Thing
         .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
         .with_classification_aliases(find_alias_ids('Tags', 'Tag 2'))
-        .count == 2)
+      assert_equal(2, items.count)
 
-      assert(DataCycleCore::Thing
+      items = DataCycleCore::Thing
         .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
         .with_classification_aliases(find_alias_ids('Tags', 'Tag 1'))
         .with_classification_aliases(find_alias_ids('Tags', 'Tag 2'))
-        .count == 1)
+      assert_equal(1, items.count)
     end
 
     test 'filters contents based on nested classifications' do
-      assert(DataCycleCore::Thing
+      items = DataCycleCore::Thing
         .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
         .with_classification_aliases(find_alias_ids('Tags', 'Nested Tag 1'))
-        .count == 1)
+      assert_equal(1, items.count)
     end
 
     private
