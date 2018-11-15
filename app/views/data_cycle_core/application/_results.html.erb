@@ -1,10 +1,10 @@
 <section class="search-results">
 
-    <% if contents&.size&.positive? %>
+    <% if @contents&.size&.positive? %>
 
         <div class="row">
             <div class="small-12">
-                <%= paginate @paginate_object, total_pages: @total_pages %>
+                <%= paginate @contents, total_pages: @total_pages %>
             </div>
         </div>
 
@@ -12,7 +12,7 @@
 
         <div class="row">
             <div class="small-12">
-                <%= paginate @paginate_object, total_pages: @total_pages %>
+                <%= paginate @contents, total_pages: @total_pages %>
             </div>
         </div>
 

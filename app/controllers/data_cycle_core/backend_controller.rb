@@ -11,24 +11,20 @@ module DataCycleCore
       if DataCycleCore.features&.dig(:autoload_last_filter) && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
         # TODO: fix when needed
         # filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
-        # @paginate_object = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-        # @total = @paginate_object.total_count
-        # @contents = @paginate_object.map(&:content_data)
+        # @contents = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
+        # @total = @contents.total_count
       elsif params[:stored_filter].blank?
-        @paginate_object = get_filtered_results
-        @total = @paginate_object.count_distinct
-        @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+        @contents = get_filtered_results
+        @total = @contents.count_distinct
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
         @stored_filter = save_filter
       else
         query = apply_filter(filter_id: params[:stored_filter])
-        @paginate_object = get_filtered_results(query)
-        @total = @paginate_object.count_distinct
-        @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+        @contents = get_filtered_results(query)
+        @total = @contents.count_distinct
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       end
-
-      # TODO: cleanup!!
       @total_pages = (@total.to_f / 25).ceil
-      @contents = @paginate_object # .map(&:content_data)
       @content = DataCycleCore::Thing.new
     end
 

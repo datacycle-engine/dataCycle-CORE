@@ -7,7 +7,7 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginate_object = current_user.watch_lists.page(params[:page])
+      @contents = current_user.watch_lists.page(params[:page])
     end
 
     def show
@@ -24,9 +24,8 @@ module DataCycleCore
         }
       )
 
-      @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @paginate_object.total_count
-      @contents = @paginate_object
+      @contents = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+      @total = @contents.total_count
 
       respond_to do |format|
         format.html
