@@ -28,9 +28,10 @@ module DataCycleCore
         @prevent_history = prevent_history
         @source = source
         @new_content = new_content
+        @partial_update = partial_update
         run_callbacks :save_data_hash
 
-        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if partial_update
+        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
 
         valid_hash = validate(@data_hash, schema_hash)
 
@@ -38,7 +39,7 @@ module DataCycleCore
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-            set_template_data_hash(@data_hash, partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
+            set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
             self.updated_at = @save_time
             self.updated_by = @current_user&.id
