@@ -14,12 +14,96 @@
           </div>
         </div>
 
+        <% if filter_model == DataCycleCore::User %>
+          <div class="main-filters">
+            <nav id="primary_nav_wrap">
+              <ul class="clickable-menu">
+                <li class="filter" data-tree-label="user_roles">
+                    <span class="title"><%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+                    <div>
+                        <ul class="clearfix split-list">
+                          <% DataCycleCore::Role.all.order(:rank).each do |item| %>
+                            <li>
+                                <input type="checkbox" name="roles[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @roles.presence&.ids&.include?(item.id) %> />
+                                <label for="<%= item.id %>">
+                                    <span class="title">
+                                        <span class="inner-title"><%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %></span>
+                                    </span>
+                                </label>
+                            </li>
+                          <% end %>
+                        </ul>
+                    </div>
+                </li>
+                <li class="filter" data-tree-label="user_groups">
+                    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+                    <div>
+                        <ul class="clearfix split-list">
+                          <% DataCycleCore::UserGroup.all.each do |item| %>
+                            <li>
+                                <input type="checkbox" name="user_groups[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @user_groups.presence&.ids&.include?(item.id) %> />
+                                <label for="<%= item.id %>">
+                                    <span class="title">
+                                        <span class="inner-title"><%= item.name %></span>
+                                    </span>
+                                </label>
+                            </li>
+                          <% end %>
+                        </ul>
+                    </div>
+                </li>
+              </ul>
+            </nav>
+          </div>
+        <% end %>
+
         <div class="filtertags activefilter">
           <span class="icon">
             <i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
             <% if @total&.positive? %>
               <span class="result-count">
                 (<strong><%= @total %></strong> <%= filter_model.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
+                <strong>:</strong>
+              </span>
+            <% end %>
+          </span>
+          <span class="filter-groups">
+            <% if filter_model == DataCycleCore::User && @roles.present? %>
+              <span class="tag-group tags user_roles">
+                <i class="tag-group-label">
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                  <%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
+                </i>
+                <span class="tags-container">
+                  <% @roles.presence&.each do |item| %>
+                    <label for="<%= item.id %>">
+                      <a class="tag">
+                        <%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %>
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                      </a>
+                    </label>
+                  <% end %>
+                </span>
+
+              </span>
+            <% end %>
+            <% if filter_model == DataCycleCore::User && @user_groups.present? %>
+              <span class="tag-group tags user_groups">
+                <i class="tag-group-label">
+                  <i class="fa fa-tags" aria-hidden="true"></i>
+                  <%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
+                </i>
+                <span class="tags-container">
+                  <% @user_groups.presence&.each do |item| %>
+                    <label for="<%= item.id %>">
+                      <a class="tag">
+                        <%= item.name %>
+                        <i class="fa fa-times" aria-hidden="true"></i>
+                      </a>
+                    </label>
+                  <% end %>
+                </span>
+
               </span>
             <% end %>
           </span>

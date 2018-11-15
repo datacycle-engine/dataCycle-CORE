@@ -34,8 +34,14 @@ module DataCycleCore
     end
 
     test 'show and filter users index page' do
+      @test_group_ids = DataCycleCore::UserGroup.where(name: 'TestUserGroup').ids
+      @guest = DataCycleCore::User.find_by(email: 'guest@datacycle.at')
+      @guest.update(user_group_ids: @test_group_ids)
+
       get users_path, params: {
-        q: 'guest datacycle'
+        q: 'guest datacycle',
+        roles: DataCycleCore::Role.where(name: 'guest').ids,
+        user_groups: @test_group_ids
       }
       assert_response :success
       assert_select 'li.grid-item .inner .description', { count: 1, text: 'guest@datacycle.at' }

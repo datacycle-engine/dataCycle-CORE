@@ -4,13 +4,13 @@ require 'test_helper'
 
 module DataCycleCore
   module Generic
-    class OutdoorActiveTest < ActiveSupport::TestCase
+    class VTicketTest < ActiveSupport::TestCase
       def setup
-        @cw_temp = DataCycleCore::Thing.where(template: false).count
+        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
       end
 
       def download_from_local_json(external_source)
-        path = Rails.root.join('..', 'fixtures', 'external_sources', 'outdoor_active')
+        path = Rails.root.join('..', 'fixtures', 'external_sources', 'v_ticket')
         files = path + '*.json'
 
         file_names = Dir[files]
@@ -45,12 +45,11 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive')
+        external_source = DataCycleCore::ExternalSource.find_by(name: 'V-Ticket')
         download_from_local_json(external_source)
         external_source.import(options)
 
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
       end
     end
   end

@@ -35,7 +35,8 @@ module DataCycleCore
       returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)
       end
-      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes))
+
+      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes(:event)))
       assert_equal(0, error[:error].count)
     end
 

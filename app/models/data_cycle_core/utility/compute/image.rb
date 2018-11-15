@@ -14,8 +14,7 @@ module DataCycleCore
           end
 
           def thumbnail_url(image)
-            return nil if image.blank?
-            DataCycleCore::Image.find_by(id: image)&.try(:thumbnail_url)
+            DataCycleCore::Image.find_by(id: image)&.file&.thumb_preview&.url
           end
 
           def exif_value(image_id, path)
