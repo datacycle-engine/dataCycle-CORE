@@ -51,7 +51,7 @@ module DataCycleCore
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
-        event: [],
+        event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags'],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
