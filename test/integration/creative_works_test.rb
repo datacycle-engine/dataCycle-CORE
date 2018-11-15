@@ -70,6 +70,16 @@ module DataCycleCore
       assert_select '.detail-header > .title', updated_name
     end
 
+    test 'show content history' do
+      get polymorphic_path(@content)
+      assert_response :success
+      assert_select '.detail-header > .title', @content.title
+
+      get polymorphic_path([:history, @content], history_id: @content.histories&.first&.id)
+      assert_response :success
+      assert_select('.detail-content .type.properties .has-changes', count: 1)
+    end
+
     test 'delete content' do
       delete polymorphic_path(@content), params: {}, headers: {
         referer: polymorphic_path(@content)
