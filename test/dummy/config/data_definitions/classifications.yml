@@ -10,10 +10,14 @@
     - $$Datei
     - $$Video
   - $$Person
-  - $$Tour
-  - $$POI
-  - $$Unterkunft
   - $$Veranstaltung
+  - $$Ort:
+    - $$Badeseen
+    - $$Tour
+    - $$POI
+    - $$Unterkunft
+    - $$Skigebiet
+    - $$Örtlichkeit
   - $$Text:
     - $$Linktipps
     - $$Quiz
@@ -25,8 +29,8 @@
     - $$Rezept
   - $$Organisation
   - $$Zeitleiste
-  - $$Örtlichkeit
   - $$Container
+  - $$Schneebericht
 # embedded
   - $$Angebotszeitraum
   - $$Website
@@ -39,6 +43,8 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$Textblock
+  - $$Öffnungszeit - Erweitert
+  - $$Öffnungszeit - Zeitspanne
 
 - Geschlecht:
   - Männlich
