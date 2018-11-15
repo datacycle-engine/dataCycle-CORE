@@ -72,49 +72,21 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
-      def st_distance(point1, point2)
-        Arel::Nodes::NamedFunction.new('ST_Distance', [point1, point2])
-      end
-
-      def current_date
-        Arel::Nodes::NamedFunction.new('CURRENT_DATE', [])
-      end
-
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
-      end
-
-      def to_tsvector(field)
-        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
-      end
-
-      def coalesce(field1, field2)
-        Arel::Nodes::NamedFunction.new('coalesce', [field1, field2])
       end
 
       def in_range(range, date)
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
-      def trgm_match(text1, text2)
-        Arel::Nodes::InfixOperation.new('%', text1, text2)
-      end
+      # def to_tsvector(field)
+      #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
+      # end
 
-      def concatinate(string1, string2)
-        Arel::Nodes::InfixOperation.new('||', string1, string2)
-      end
-
-      def similar_to(field, string)
-        Arel::Nodes::InfixOperation.new('SIMILAR TO', field, quoted(string))
-      end
-
-      def json_element(field, element)
-        Arel::Nodes::InfixOperation.new('->>', field, element)
-      end
-
-      def json_path(field, path)
-        Arel::Nodes::InfixOperation.new('#>>', field, path)
-      end
+      # def trgm_match(text1, text2)
+      #   Arel::Nodes::InfixOperation.new('%', text1, text2)
+      # end
 
       def cast_tstz(date)
         Arel::Nodes::NamedFunction.new(

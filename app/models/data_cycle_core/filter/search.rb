@@ -251,16 +251,8 @@ module DataCycleCore
         ClassificationAlias.arel_table
       end
 
-      def classification_tree
-        ClassificationTree.arel_table
-      end
-
       def watch_list_data_hash
         DataCycleCore::WatchListDataHash.arel_table
-      end
-
-      def content_meta_item
-        DataCycleCore::ContentMetaItem.arel_table
       end
 
       def content_content
