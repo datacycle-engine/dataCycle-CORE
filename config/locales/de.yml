@@ -341,6 +341,9 @@ de:
       data_cycle_core/asset:
         one: Asset
         other: Assets
+      data_cycle_core/role:
+        one: Benutzerrolle
+        other: Benutzerrollen
     attributes:
       data_cycle_core/watch_list:
         name: Name

@@ -10,10 +10,12 @@ module DataCycleCore
 
     def index
       @search_param = search_params[:q]
+      @roles = DataCycleCore::Role.where(id: search_params[:roles]) if search_params[:roles].present?
+      @user_groups = DataCycleCore::UserGroup.where(id: search_params[:user_groups]) if search_params[:user_groups].present?
 
       search_columns = DataCycleCore::User.columns
         .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
-        .map(&:name)
+        .map { |c| "users.#{c.name}" }
 
       query = DataCycleCore::User
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
@@ -22,6 +24,9 @@ module DataCycleCore
         search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
         query = query.where(search_term)
       end
+
+      query = query.where(role: @roles.ids) if @roles.present?
+      query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
       @paginate_object = query.includes(:role, :user_groups).order(:email).page(params[:page])
       @total = @paginate_object.total_count
@@ -107,7 +112,7 @@ module DataCycleCore
     private
 
     def search_params
-      params.permit(:q)
+      params.permit(:q, roles: [], user_groups: [])
     end
 
     def permitted_params
