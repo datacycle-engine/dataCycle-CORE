@@ -14,7 +14,7 @@ module DataCycleCore
           end
 
           def thumbnail_url(image)
-            DataCycleCore::Image.find_by(id: pdf)&.file&.thumb_preview&.url
+            DataCycleCore::Image.find_by(id: image)&.file&.thumb_preview&.url
           end
 
           def exif_value(image_id, path)
