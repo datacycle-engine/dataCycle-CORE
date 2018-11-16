@@ -7,6 +7,7 @@ module DataCycleCore
     def index
       authorize! :index, DataCycleCore::Subscription
       @contents = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
+      @total = @contents.count
     end
 
     def create

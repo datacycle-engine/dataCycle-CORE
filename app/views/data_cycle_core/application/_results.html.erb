@@ -1,7 +1,5 @@
 <section class="search-results">
-
-    <% if @contents&.size&.positive? %>
-
+    <% if @total.presence&.positive? %>
         <div class="row">
             <div class="small-12">
                 <%= paginate @contents, total_pages: @total_pages %>
