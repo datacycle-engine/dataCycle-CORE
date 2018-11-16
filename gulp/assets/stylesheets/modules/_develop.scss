@@ -62,6 +62,30 @@
       min-width: 0;
       margin: 1rem 0 0 1rem;
     }
+
+    &.classification {
+      &.check_box {
+        background-color: $light-gray;
+        padding: 2.5rem 0.5rem 1rem 0.5rem;
+        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+        &:hover {
+          box-shadow: 0 0 7px $primary-color;
+        }
+        ul {
+          margin: 0;
+        }
+        .checkbox-wrap {
+          label {
+            position: relative;
+            top: 0;
+            left: 0;
+            font-weight: normal;
+            vertical-align: text-bottom;
+            color: $black;
+          }
+        }
+      }
+    }
   }
 }
 

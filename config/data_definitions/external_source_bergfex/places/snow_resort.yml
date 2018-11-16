@@ -22,10 +22,14 @@
       :title:
         :type: mixin
         :name: title
-#      :status_icon:
-#        :label: Status
-#        :type: string
-#        :storage_location: value
+      :bergfex_status_icon:
+        :label: "Status-Icon"
+        :type: classification
+        :tree_label: "Bergfex - Status - Icon"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :date_time_updated_at:
         :label: Zuletzt aktualisiert
         :type: datetime
@@ -58,8 +62,20 @@
         :storage_location: value
         :validations:
           :format: integer
+      :max_lifts:
+        :label: Lifte gesamt
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
       :open_slopes:
         :label: Geöffnete Pisten
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :max_slopes:
+        :label: Pisten gesamt
         :type: number
         :storage_location: value
         :validations:
