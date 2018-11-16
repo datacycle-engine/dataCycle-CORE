@@ -42,11 +42,10 @@ module DataCycleCore
 
           @language ||= params.fetch(:language, ['all'])
           if @content.children.present?
-            @paginate_object = get_filtered_results
-            @total = @paginate_object.count_distinct
-            @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+            @contents = get_filtered_results
+            @total = @contents.count_distinct
             @total_pages = (@total.to_f / 25).ceil
-            @contents = @paginate_object.map(&:content_data)
+            @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
           end
 
           @entities = DataCycleCore::Thing.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
@@ -150,7 +149,9 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        if params[:new_locale].present?
+          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(polymorphic_path(@content, watch_list_params))

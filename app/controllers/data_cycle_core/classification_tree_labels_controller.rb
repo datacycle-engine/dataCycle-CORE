@@ -40,7 +40,7 @@ module DataCycleCore
               .order('classification_aliases.name')
               .page(params[:tree_page])
 
-            @order_string = { boost: :desc, data_type: :asc, headline: :asc }
+            @order_string = 'searches.boost DESC, searches.data_type ASC, searches.headline ASC'
             @contents = get_filtered_results
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
               .distinct_by_content_id(@order_string)
@@ -50,7 +50,6 @@ module DataCycleCore
             @page = @contents.current_page
             @total_count = @contents.total_count
             @total_pages = @contents.total_pages
-            @contents = @contents.map(&:content_data)
           else
             @classification_trees = @classification_tree_label.classification_trees
               .where(parent_classification_alias: nil)

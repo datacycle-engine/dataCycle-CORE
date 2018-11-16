@@ -12,21 +12,3 @@
         :label: Name
         :type: string
         :storage_location: column
-
-- :data:
-    :name: testPlaceLink
-    :type: object
-    :content_type: entity
-    :schema_type: Place
-    :properties:
-      :id:
-        :label: id
-        :type: key
-      :headline:
-        :label: Name
-        :type: string
-        :storage_location: column
-      :testArray:
-        :label: Verlinkt
-        :type: linked
-        :linked_table: things
