@@ -21,6 +21,7 @@ module DataCycleCore
             external_source.credentials = data['credentials']
             external_source.config = data['config']
             external_source.default_options = data['default_options']
+            external_source.config_out = data['config_out']
             external_source.save
 
             check_for_use_case(external_source.id)
