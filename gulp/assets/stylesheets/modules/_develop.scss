@@ -66,14 +66,12 @@
     &.classification {
       &.check_box {
         background-color: $light-gray;
-        padding: 0.5rem;
+        padding: 2.5rem 0.5rem 1rem 0.5rem;
         transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
         &:hover {
           box-shadow: 0 0 7px $primary-color;
         }
-        > ul {
-          background-color: white;
-          padding: 2rem 0 0.5rem 0;
+        ul {
           margin: 0;
         }
         .checkbox-wrap {
@@ -83,6 +81,7 @@
             left: 0;
             font-weight: normal;
             vertical-align: text-bottom;
+            color: $black;
           }
         }
       }
