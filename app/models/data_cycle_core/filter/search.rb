@@ -159,14 +159,7 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        sub_query = DataCycleCore::Thing
-          .joins(:classification_aliases)
-          .merge(
-            DataCycleCore::ClassificationAlias
-              .where(id: ids)
-              .with_descendants
-          )
-        reflect(@query.where(id: sub_query))
+        reflect(@query.with_classification_alias_ids(ids))
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)

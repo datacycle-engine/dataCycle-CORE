@@ -27,21 +27,13 @@ module DataCycleCore
           has_many :classification_aliases, through: :classification_groups
           has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
 
-          # relation content to search
-          has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data if postfix.nil?
-
           # relation content to all other contents
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
           has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
-          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
+          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
+          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
 
-          if postfix.nil?
-            has_many :things, through: :content_content_a, source: :content_b, source_type: 'DataCycleCore::Thing'
-          else
-            has_many "things_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::Thing::#{postfix.capitalize}"
-          end
-
+          has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data if postfix.nil?
           belongs_to :external_source
 
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'

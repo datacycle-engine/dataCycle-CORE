@@ -250,10 +250,8 @@ module DataCycleCore
           item = ('DataCycleCore::' + table.classify).constantize.find_by(id: key)
           translations = item.translated_locales
           if (translations - [I18n.locale]).empty?
-            # destroy relationObject + additional embeddedObjects and their relations
-            to_update_item = send(table).find_by(id: key)
-            to_update_item.destroy_children
-            to_update_item.destroy
+            item.destroy_children
+            item.destroy
           else
             # only destroy particular translation !
             item.translation.destroy

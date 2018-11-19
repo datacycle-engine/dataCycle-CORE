@@ -60,6 +60,10 @@ module DataCycleCore
       items = DataCycleCore::Filter::Search.new(:de)
         .classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
       assert_equal(3, items.count)
+      # same_as
+      items = DataCycleCore::Thing
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 3'))
+      assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
         .with_classification_aliases('Tags', 'Tag 3')

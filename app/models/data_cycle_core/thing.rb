@@ -27,7 +27,7 @@ module DataCycleCore
     attribute :content
     content_relations table_name: table_name
 
-    def self.with_classification_aliases(classification_alias_ids)
+    def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|
         "'#{id}'"
       }.join(',')
