@@ -68,8 +68,7 @@ module DataCycleCore
       end
 
       query.with_content_templates.sort_by(&:full_path).map { |c|
-        next unless can?(:create, {
-          template: c.content_template,
+        next unless can?(:create, c.content_template, {
           classification_alias: c,
           content: content
         })
@@ -263,23 +262,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_new_content_reveal(item:, parameters: {})
+    def render_new_form(new_template: nil, parameters: {})
       partials = [
-        "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}",
-        item.class.name.demodulize.underscore,
-        'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/application/new_contents/#{p}_content_reveal" }
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
-    end
-
-    def render_new_form(template: nil, parameters: {})
-      partials = [
-        template&.template_name&.parameterize(separator: '_'),
-        template&.class&.name&.demodulize&.underscore,
+        new_template&.template_name&.underscore_blanks,
+        new_template&.schema_type&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
 
-      render_first_existing_partial(partials, parameters.merge({ template: template }))
+      render_first_existing_partial(partials, parameters.merge({ new_template: new_template }))
     end
 
     private

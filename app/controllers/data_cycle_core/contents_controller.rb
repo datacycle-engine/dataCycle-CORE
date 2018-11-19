@@ -60,22 +60,15 @@ module DataCycleCore
     end
 
     def new
-      @template = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id]) if source_params.present?
-
-      @additional_params = new_params.merge(resolve_params(additional_new_params[:additional_params]))
-      @active_url = url_for(new_params.merge(source_params).merge({
-        additional_params: resolve_params(additional_new_params[:additional_params], false)
-      }))
+      @new_template = data_cycle_object(new_template_params[:source_table]).find_by(id: new_template_params[:source_id]) if new_template_params.present?
+      @resolved_params = resolve_params(new_params)
+      @active_url = contents_new_path(resolve_params(new_params, false))
 
       respond_to :js
     end
 
     def create
-      if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, params[:template])
-      else
-        authorize!(__method__, controller_path.classify.constantize)
-      end
+      authorize!(__method__, controller_path.classify.constantize)
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(controller_name, params[:template])
@@ -365,16 +358,22 @@ module DataCycleCore
     end
 
     def new_params
-      params.permit(:test, :content_id, :content_table, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []])
-    end
-
-    def additional_new_params
-      params.permit(:additional_params, additional_params: {})
+      params.permit(:test, :content_id, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
     end
 
     def source_params
       if params[:source]
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
+      elsif params[:source_id] && params[:source_table]
+        params.permit(:source_id, :source_table)
+      else
+        {}
+      end
+    end
+
+    def new_template_params
+      if params[:new_template]
+        ActionController::Parameters.new(Hash[params[:new_template].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
       elsif params[:source_id] && params[:source_table]
         params.permit(:source_id, :source_table)
       else

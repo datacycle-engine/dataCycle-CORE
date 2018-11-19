@@ -6,9 +6,10 @@
     :content_type: entity
     :translatable: true
     :boost: 10.0
-    :creatable: true
     :features:
       :geocode:
+        :allowed: true
+      :creatable:
         :allowed: true
     :properties:
       :id:

@@ -5,11 +5,12 @@
     :schema_type: CreativeWork
     :content_type: container
     :boost: 10000.0
-    :creatable: true
     :features:
       :container:
         :classification_alias:
           - Text
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

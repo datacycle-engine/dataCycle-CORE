@@ -381,7 +381,6 @@
 }
 
 .loading {
-  float: left;
   width: 100%;
   text-align: center;
   padding: 1rem 0 5rem 0;
@@ -782,7 +781,6 @@ span.single_error.object-browser-error {
 /* Object Browser New Items */
 
 .reveal {
-
   &.new-item,
   &.new-content-reveal {
     background: $white;

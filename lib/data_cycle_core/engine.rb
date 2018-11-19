@@ -86,9 +86,6 @@ module DataCycleCore
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan', 'Textblock']
 
-    mattr_accessor :excluded_new_item_objects
-    self.excluded_new_item_objects = []
-
     mattr_accessor :ui_language
     self.ui_language = :de
 
@@ -125,9 +122,7 @@ module DataCycleCore
         enabled: false
       },
       container: {
-        enabled: false,
-        exluded: [],
-        allowed: []
+        enabled: false
       },
       main_filter: {
         enabled: true,

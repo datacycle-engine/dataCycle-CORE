@@ -101,11 +101,7 @@ module DataCycleCore
     end
 
     def self.with_content_templates
-      templates = DataCycleCore.content_tables.map { |table|
-        "DataCycleCore::#{table.classify}".constantize
-      }.map { |c|
-        c.where(template: true)
-      }.flatten.compact.uniq
+      templates = DataCycleCore::Thing.where(template: true)
 
       all.map do |c|
         c.content_template = c.find_content_template(templates)

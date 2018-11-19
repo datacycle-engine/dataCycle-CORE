@@ -5,6 +5,9 @@
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 9999.0
+    :features:
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

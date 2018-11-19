@@ -3,14 +3,14 @@
 
 <%= form_with url: contents_new_path do |f| %>
   <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags',
-    additional_params: to_query_params(local_assigns).to_json,
-    url: (@active_url || contents_new_path(additional_params: to_query_params(local_assigns).to_json)),
+    additional_params: to_query_params(local_assigns),
+    url: (@active_url || contents_new_path(to_query_params(local_assigns))),
     title: yield(:new_content_form_title) %>
 
   <div class="form-element">
     <div class="v-select white">
       <%= select_tag(
-        :source,
+        :new_template,
         options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods], content: local_assigns[:content])),
         {
           class: 'single-select',

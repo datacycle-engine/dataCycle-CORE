@@ -1,41 +1,8 @@
-<% content_for :new_content_form_title, t('actions.new', data: template.template_name, locale: DataCycleCore.ui_language) %>
-<% content_for :form_crumbs, render('data_cycle_core/contents/new/shared/crumbs', crumbs: local_assigns[:form_crumbs], title: yield(:new_content_form_title)) %>
+<%= render 'data_cycle_core/contents/new/shared/form_wrapper', local_assigns do %>
 
-<%= form_with url: polymorphic_path(template.class), local: !local_assigns[:object_browser], html: { class: 'validation-form' } do %>
-  <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags', additional_params: to_query_params(local_assigns).to_json, url: @active_url, title: yield(:new_content_form_title) %>
-
-  <%= hidden_field_tag :table, template.class.table_name %>
-  <%= hidden_field_tag :template, template.template_name %>
-
-  <% unless template.content_type?('container') || I18n.available_locales.size == 1 || local_assigns[:locale].present? %>
-    <div class="form-element">
-    <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
-    <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
-    </div>
-  <% else %>
-    <%= hidden_field_tag :locale, local_assigns[:locale] %>
-  <% end %>
-
-  <% if local_assigns[:content]&.content_type?('container') && content.try(:children).present? %>
-    <%= render 'data_cycle_core/contents/new/shared/sources', content: content %>
-  <% elsif local_assigns[:source].present? %>
-    <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}" %>
-  <% end %>
-
-  <% if local_assigns[:parents].present? %>
-    <%= render 'data_cycle_core/contents/new/shared/container', parents: parents, content: content %>
-  <% elsif local_assigns[:parent]&.content_type?('container') %>
-    <%= hidden_field_tag :parent_id, parent&.id %>
-  <% end %>
-
-  <% template.new_content_fields.each do |attribute| %>
-      <div class="form-element<%= ' validation-container' if template.schema.dig('properties', attribute, 'validations').present? %>">
-        <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][#{attribute}]", "#{template.schema.dig('properties', attribute, 'label')}" %>
-        <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][#{attribute}]", nil, class: 'form-control' %>
-      </div>
-  <% end %>
-
-  <div class="buttons">
-    <%= submit_tag t('submit', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('submit', locale: DataCycleCore.ui_language) } %>
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'name', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", "#{new_template.schema.dig('properties', 'name', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control', disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
   </div>
+
 <% end %>

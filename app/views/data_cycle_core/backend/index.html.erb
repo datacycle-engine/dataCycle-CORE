@@ -4,7 +4,15 @@
 
 <% content_for :new_button do %>
   <%= render 'new_content_links',
-    query_methods: [{ method_name: 'for_tree', value: 'Inhaltstypen' }].concat(DataCycleCore::Feature::Container.index_query_methods || []), button_class: 'new-object-circle' if user_signed_in? && can?(:create, DataCycleCore::CreativeWork) %>
+    query_methods: [
+      {
+        method_name: 'for_tree',
+        value: 'Inhaltstypen'
+      }
+    ].concat(DataCycleCore::Feature::Container.index_query_methods || []),
+    button_class: 'new-object-circle',
+    search_required: true,
+    search_param: params.dig(:f, :s, :v) if user_signed_in? && can?(:create, DataCycleCore::Thing) %>
 <% end %>
 
 <% content_for :top_content do %>

@@ -22,7 +22,7 @@
       query_methods: DataCycleCore::Feature::Container.query_methods(@content),
       content: @content,
       parent: @content.content_type?(:container) ? @content : nil,
-      button_class: 'new-object-circle' if can?(:create, DataCycleCore::CreativeWork) %>
+      button_class: 'new-object-circle' if can?(:create, DataCycleCore::Thing) %>
   <% end %>
 <% else %>
   <%= render_content_partial 'details', content: @content %>

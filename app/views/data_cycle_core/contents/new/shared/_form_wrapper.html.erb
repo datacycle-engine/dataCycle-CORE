@@ -1,0 +1,44 @@
+<% content_for :new_content_form_title, t('actions.new', data: new_template.template_name, locale: DataCycleCore.ui_language) %>
+<% content_for :form_crumbs, render('data_cycle_core/contents/new/shared/crumbs', crumbs: local_assigns[:form_crumbs], title: yield(:new_content_form_title)) %>
+
+<%= form_with url: polymorphic_path(new_template.class), local: !local_assigns[:object_browser], html: { class: 'validation-form' } do %>
+
+  <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags',
+    additional_params: to_query_params(local_assigns),
+    url: @active_url,
+    title: yield(:new_content_form_title) %>
+
+  <% if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+    <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
+  <% end %>
+
+  <%= hidden_field_tag :table, new_template.class.table_name %>
+  <%= hidden_field_tag :template, new_template.template_name %>
+
+  <% unless new_template.content_type?('container') || I18n.available_locales.size == 1 || local_assigns[:locale].present? %>
+    <div class="form-element">
+    <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
+    <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
+    </div>
+  <% else %>
+    <%= hidden_field_tag :locale, local_assigns[:locale] %>
+  <% end %>
+
+  <% if local_assigns[:content]&.content_type?('container') && content.try(:children).present? %>
+    <%= render 'data_cycle_core/contents/new/shared/sources', content: content %>
+  <% elsif local_assigns[:source].present? %>
+    <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}" %>
+  <% end %>
+
+  <% if local_assigns[:parents].present? %>
+    <%= render 'data_cycle_core/contents/new/shared/container', parents: parents, content: content %>
+  <% elsif local_assigns[:parent]&.content_type?('container') %>
+    <%= hidden_field_tag :parent_id, parent&.id %>
+  <% end %>
+
+  <%= yield %>
+
+  <div class="buttons">
+    <%= submit_tag t('submit', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('submit', locale: DataCycleCore.ui_language) }, disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+  </div>
+<% end %>

@@ -5,9 +5,10 @@
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 100.0
-    :creatable: true
     :features:
       :releasable:
+        :allowed: true
+      :creatable:
         :allowed: true
     :properties:
       :id:
@@ -59,14 +60,6 @@
         :template_name: Person
         :api:
           :name: about
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - POI
-                - Unterkunft
-                - Örtlichkeit
       :quotation:
         :label: Zitat
         :type: embedded

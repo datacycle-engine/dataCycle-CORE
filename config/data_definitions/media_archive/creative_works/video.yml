@@ -6,6 +6,9 @@
     :content_type: entity
     :translatable: true
     :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
     :api:
       :type: VideoObject
     :properties:

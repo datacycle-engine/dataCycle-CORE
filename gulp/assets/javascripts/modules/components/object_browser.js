@@ -245,37 +245,47 @@ ObjectBrowser.prototype.setup = function() {
     }.bind(this)
   );
 
-  $(document).on('form-rendered remote-partial-rendered', '#new_' + this.id + '.in-object-browser .new-content-form', this.initNewFormHandlers.bind(this));
+  $(document).on(
+    "form-rendered remote-partial-rendered",
+    "#new_" + this.id + ".in-object-browser .new-content-form",
+    this.initNewFormHandlers.bind(this)
+  );
+
+  $(document).on(
+    "open.zf.reveal",
+    "#new_" + this.id + ".in-object-browser[data-reset-on-close]",
+    this.initNewFormHandlers.bind(this)
+  );
 };
 
-ObjectBrowser.prototype.initNewFormHandlers = function () {
-  var self = this;
-  $('#new_' + this.id + '.in-object-browser form').off('submit_without_redirect').on('submit_without_redirect', function (ev, data) {
-    ev.preventDefault();
-    ev.stopImmediatePropagation();
-    var form_data = $(this).serializeJSON();
-    $.extend(form_data, {
-      type: self.type,
-      locale: self.locale,
-      overlay_id: '#object_browser_' + self.id,
-      key: self.key,
-      definition: self.definition,
-      editable: self.editable,
-      options: self.options,
-      class: self.class,
-      objects: self.chosen,
-      new_overlay_id: '#new_' + self.id,
-      source: 'object_browser'
-    });
+ObjectBrowser.prototype.initNewFormHandlers = function() {
+  $("#new_" + this.id + ".in-object-browser form")
+    .off("submit_without_redirect")
+    .on("submit_without_redirect", event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      var form_data = $(event.target).serializeJSON();
+      $.extend(form_data, {
+        type: this.type,
+        locale: this.locale,
+        overlay_id: "#object_browser_" + this.id,
+        key: this.key,
+        definition: this.definition,
+        editable: this.editable,
+        options: this.options,
+        class: this.class,
+        objects: this.chosen,
+        new_overlay_id: "#new_" + this.id
+      });
 
-    $.ajax({
-      url: $(this).prop('action'),
-      method: 'POST',
-      data: JSON.stringify(form_data),
-      dataType: 'script',
-      contentType: 'application/json'
+      $.ajax({
+        url: $(event.target).prop("action"),
+        method: "POST",
+        data: JSON.stringify(form_data),
+        dataType: "script",
+        contentType: "application/json"
+      });
     });
-  });
 };
 
 ObjectBrowser.prototype.renderHiddenField = function() {
@@ -501,9 +511,12 @@ ObjectBrowser.prototype.closeOverlay = function(ev) {
 };
 
 // import media from media_archive reveal
-ObjectBrowser.prototype.import = function (event) {
-  if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-    var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+ObjectBrowser.prototype.import = function(event) {
+  if (
+    event.originalEvent.data.action !== undefined &&
+    event.originalEvent.data.action == "import"
+  ) {
+    var AUTH_TOKEN = $("meta[name=csrf-token]").attr("content");
     $.ajax({
       type: "POST",
       url: "/things/import",

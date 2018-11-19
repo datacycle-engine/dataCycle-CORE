@@ -118,6 +118,10 @@
             key: sanitize_to_id(key)
           } %>
 
+          <% new_template = "data_cycle_core/#{definition&.dig('linked_table')}".classify
+            .constantize
+            .find_by(template: true, template_name: definition&.dig('template_name')) %>
+
           <% form_parameters = form_parameters.merge(creatable.present? ? {
             query_methods: [{
               method_name: 'for_tree',
@@ -129,13 +133,11 @@
           } : {
             render_function: 'render_new_form',
             render_params: to_query_params({
-              template: "data_cycle_core/#{definition&.dig('linked_table')}".classify
-                .constantize
-                .find_by(template: true, template_name: definition&.dig('template_name'))
+              new_template: new_template
             }).to_json
           }) %>
 
-          <%= render 'new_content_links', form_parameters %>
+          <%= render 'new_content_links', form_parameters if can?(:create, new_template) %>
 
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

@@ -1,27 +1,30 @@
-var Counter = require('./../components/word_counter');
+var Counter = require("./../components/word_counter");
 
 // Word Counter
-module.exports.initialize = function () {
+module.exports.initialize = function() {
+  var CounterArray = {};
 
-  var CounterArray = [];
+  init_counters($("#edit-form"));
 
-  $('#edit-form input.form-control[type=text]:not(:disabled)').not('.flatpickr-input').each(function () {
-    CounterArray.push(new Counter(this));
+  $(document).on("open.zf.reveal", '[data-reset-on-close="true"]', event => {
+    init_counters(event.target);
   });
 
-  $(document).on('open.zf.reveal', '[data-reset-on-close="true"]', function (event) {
-    $(this).find('input.form-control[type=text]:not(:disabled)').not('.flatpickr-input').each(function () {
-      let index = CounterArray.findIndex(element => $(this).is($(element.$parent)));
-      CounterArray.splice(index, 1);
-      CounterArray.push(new Counter(this));
-    });
+  $(document).on("clone-added", ".content-object-item", event => {
+    init_counters(event.target);
   });
 
-  $(document).on('clone-added', '.content-object-item', function () {
-
-    $(this).find('input.form-control[type=text]:not(:disabled)').not('.flatpickr-input').each(function () {
-      CounterArray.push(new Counter(this));
-    });
+  $(document).on("form-rendered remote-partial-rendered", event => {
+    init_counters(event.target);
   });
 
+  function init_counters(container) {
+    $(container)
+      .find(
+        "input.form-control[type=text]:not(:disabled):not(.flatpickr-input)"
+      )
+      .each((index, element) => {
+        CounterArray[$(element).prop("id")] = new Counter(element);
+      });
+  }
 };
