@@ -3,10 +3,12 @@
     <% object_class_name = definition['linked_table'] %>
     <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
+    <% object_template = definition['template_name'] %>
 
     <%= label_tag key do %>
       <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
       <%= definition['label'] %>
+      <%= render 'helper_text', local_assigns %>
     <% end %>
 
     <div class="object-browser" id="<%= sanitize_to_id(key) %>"
@@ -105,7 +107,7 @@
           <a class="button-prime success small save-object-browser">
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
-          <% if can?(:create_in_objectbrowser, object_class) %>
+          <% if can?(:create_in_objectbrowser, object_template) %>
             <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
               <i class="fa fa-plus"></i>
             </button>
@@ -114,9 +116,9 @@
             <i aria-hidden="true" class="fa fa-times"></i>
           </button>
 
-          <% if can?(:create_in_objectbrowser, object_class) %>
+          <% if can?(:create_in_objectbrowser, object_template) %>
             <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: {new_overlay_key: sanitize_to_id(key)}, content: content) %>
+              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: { new_overlay_key: sanitize_to_id(key), object: DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) }, content: content) %>
             <% rescue %>
             <% end %>
           <% end %>

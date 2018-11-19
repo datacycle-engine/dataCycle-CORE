@@ -2,7 +2,9 @@
 - :data:
     :name: POI
     :type: object
+    :schema_type: Place
     :content_type: entity
+    :translatable: true
     :boost: 10.0
     :features:
       :geocode:
@@ -21,14 +23,14 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: PlaceOverlay
         :validations:
           :max: 1
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Öffnungszeit
       :postal_address:
         :type: mixin
@@ -62,7 +64,7 @@
       :primary_image:
         :label: Hauptbild
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
@@ -72,7 +74,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :api:
           :name: photo
@@ -80,7 +82,7 @@
       :logo:
         :label: Logo
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true

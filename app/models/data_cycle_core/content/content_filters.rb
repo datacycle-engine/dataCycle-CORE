@@ -35,6 +35,10 @@ module DataCycleCore
         where("schema ->> 'content_type' = ?", type)
       end
 
+      def with_schema_type(type)
+        where("schema ->> 'schema_type' = ?", type)
+      end
+
       def expired_not_release_id(id)
         return unless DataCycleCore::Feature::Releasable.enabled?
         joins(:classifications)

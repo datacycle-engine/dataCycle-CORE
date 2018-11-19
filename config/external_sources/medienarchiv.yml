@@ -6,6 +6,7 @@ credentials:
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
 default_options:
   locales: [de, en]
+  history: true
 config:
   download_config:
     images:
@@ -53,10 +54,10 @@ config:
       import_strategy: DataCycleCore::Generic::MediaArchive::ImportImages
       transformations:
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
           place_template: Örtlichkeit
           default_values:
@@ -69,16 +70,16 @@ config:
       import_strategy: DataCycleCore::Generic::MediaArchive::ImportVideos
       transformations:
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Örtlichkeit
         director:
-          content_type: DataCycleCore::Person
+          content_type: DataCycleCore::Thing
           template: Person
         contributor:
-          content_type: DataCycleCore::Person
+          content_type: DataCycleCore::Thing
           template: Person
         video:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Video
           place_template: Örtlichkeit
           default_values:
@@ -92,5 +93,5 @@ config:
     #   transformations:
     #     document
     #       template: Document
-    #       content_type: DataCycleCore::CreativeWork
+    #       content_type: DataCycleCore::Thing
   api_strategy: DataCycleCore::Api::MediaArchiveExternalSource

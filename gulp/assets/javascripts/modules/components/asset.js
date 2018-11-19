@@ -40,7 +40,6 @@ Asset.prototype.createAsset = function () {
       processData: false, // tell jQuery not to process the data
       contentType: false // tell jQuery not to set contentType
     }).done(function (data) {
-      this.update(true);
       this.addEventHandlers();
     }.bind(this));
   }
@@ -60,21 +59,8 @@ Asset.prototype.removeAsset = function () {
     processData: false, // tell jQuery not to process the data
     contentType: false // tell jQuery not to set contentType
   }).done(function (data) {
-    this.update(false);
     this.addEventHandlers();
   }.bind(this));
-};
-
-Asset.prototype.update = function (asset_exists = false) {
-
-  if (asset_exists && this.write) {
-    this.element.children('#add_' + this.id).hide();
-    this.element.children('.asset-object').children('.removeAsset').show();
-  } else if (this.write) {
-    this.element.children('#add_' + this.id).show();
-    this.element.children('.asset-object').children('.removeAsset').hide();
-  }
-
 };
 
 module.exports = Asset;

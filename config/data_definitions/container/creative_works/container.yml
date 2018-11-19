@@ -2,19 +2,22 @@
 - :data:
     :name: Container
     :type: object
+    :schema_type: CreativeWork
     :content_type: container
     :boost: 10000.0
     :properties:
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
         :search: true
         :validations:
           :min: 1
+        :api:
+          :name: headline
       :validity_period:
         :type: mixin
         :name: validity_period

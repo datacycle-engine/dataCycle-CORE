@@ -25,14 +25,14 @@ module DataCycleCore
           .>> t(:location)
           .>> t(:load_category_key, 'booking_hotel_types', external_source_id, ->(s) { 'Booking.com - HotelTypes - ' + s&.dig('hotel_data', 'hotel_type_id').to_s })
           .>> t(:add_field, 'booking_hotel_facility_types', ->(s) { load_hotel_facilities(s&.dig('hotel_data', 'hotel_facilities'), external_source_id) })
-          .>> t(:add_links, 'image', DataCycleCore::CreativeWork, external_source_id, ->(s) { s&.dig('hotel_data', 'hotel_photos')&.map { |item| item.dig('url_original').split('/').last } || [] })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('hotel_data', 'hotel_photos')&.map { |item| item.dig('url_original').split('/').last } || [] })
           .>> t(:reject_keys, ['hotel_data'])
           .>> t(:strip_all)
         end
 
         def self.booking_to_image(name, external_source_id)
           t(:stringify_keys)
-          .>> t(:add_field, 'headline', ->(_s) { name })
+          .>> t(:add_field, 'name', ->(_s) { name })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('url_original').split('/').last })
           .>> t(:rename_keys, { 'url_original' => 'content_url', 'url_max300' => 'thumbnail_url', 'tags' => 'keywords_booking' })
           .>> t(:reject_keys, ['main_photo', 'is_logo_photo', 'url_square60'])

@@ -95,8 +95,8 @@ en:
       models:
         data_cycle_core/watch_list:
           attributes:
-            headline:
-              blank: "Headline: Should be atleast 1 long."
+            name:
+              blank: "Name: Should be atleast 1 long."
     attributes:
       data_cycle_core/place:
         name: Name
@@ -106,7 +106,7 @@ en:
         longitude: Longitude
         latitude: Latitude
       data_cycle_core/watch_list:
-        headline: Name
+        name: Name
         user_group_ids: Usergroups
 
   date:

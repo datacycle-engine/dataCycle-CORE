@@ -8,10 +8,10 @@ module DataCycleCore
       @receiver = data_link.receiver
 
       if data_link.item.is_a?(DataCycleCore::WatchList)
-        @headline = data_link.item.try(:headline)
+        @title = data_link.item.try(:title)
       elsif DataCycleCore.content_tables.include?(data_link.item.class.table_name)
         I18n.with_locale(data_link.item.first_available_locale) do
-          @headline = data_link.item.try(:headline)
+          @title = data_link.item.try(:title)
         end
       end
       @url = url

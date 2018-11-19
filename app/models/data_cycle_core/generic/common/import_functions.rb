@@ -18,13 +18,17 @@ module DataCycleCore
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
+        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
 
-          content = class_type.find_or_initialize_by(
-            external_source_id: utility_object.external_source.id,
-            external_key: data['external_key']
-          )
+          if local
+            content = class_type.new
+          else
+            content = class_type.find_or_initialize_by(
+              external_source_id: utility_object.external_source.id,
+              external_key: data['external_key']
+            )
+          end
           content.metadata ||= {}
           content.schema = template.schema
           content.template_name = template.template_name
@@ -37,7 +41,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))

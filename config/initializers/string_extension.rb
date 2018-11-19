@@ -5,6 +5,10 @@ module DataCycleCore
     def attribute_name_from_key
       split(/[\[\]]+/).last&.underscore
     end
+
+    def underscore_blanks
+      underscore.parameterize(separator: '_')
+    end
   end
 end
 

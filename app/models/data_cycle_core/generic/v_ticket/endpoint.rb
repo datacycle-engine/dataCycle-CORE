@@ -20,7 +20,7 @@ module DataCycleCore
           max_pages = total_items.fdiv(@per).ceil
           processed_items = []
           Enumerator.new do |yielder|
-            next unless lang == :de
+            next unless lang.to_sym == :de
             (1..max_pages).each do |page|
               load_data(page: page, per: @per, lang: lang)['data'].each do |event_record|
                 next if event_record['id'].blank? || processed_items.include?(event_record['id'])

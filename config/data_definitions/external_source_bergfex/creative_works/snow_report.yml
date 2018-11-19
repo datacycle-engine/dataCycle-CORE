@@ -1,0 +1,69 @@
+---
+- :data:
+    :name: Schneebericht
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :api:
+          :minimal: true
+          :name: headline
+      :elevation:
+        :label: Seehöhe
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: m
+          :show:
+            :options:
+              :data-unit: m
+      :depth_of_snow:
+        :label: Schneehöhe
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: cm
+          :show:
+            :options:
+              :data-unit: cm
+      :depth_of_fresh_snow:
+        :label: Neuschnee
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+        :ui:
+          :edit:
+            :options:
+              :data-unit: cm
+          :show:
+            :options:
+              :data-unit: cm
+      :condition_weather:
+        :label: "Wetter - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - Wetter - Meldung"
+        :external: true
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Schneebericht"
+      :meta_data:
+        :type: mixin
+        :name: meta_data

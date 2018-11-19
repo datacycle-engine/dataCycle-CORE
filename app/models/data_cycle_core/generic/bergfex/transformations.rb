@@ -50,6 +50,7 @@ module DataCycleCore
             'snow' => 'snow_old'
           })
           .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') })
+          .>> t(:add_links, 'bergfex_status_icon', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('bergfexStatusIcon', 'id').present? ? ["Bergfex - Status - Icon -#{s&.dig('bergfexStatusIcon', 'id')}"] : [] })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('lat', 'text')&.to_f })
           .>> t(:add_field, 'longitude', ->(s) { s.dig('lng', 'text')&.to_f })
           .>> t(:add_field, 'location', ->(s) { RGeo::Geographic.spherical_factory(srid: 4326).point(s['longitude'], s['latitude']) if s['longitude'] && s['latitude'] })
@@ -57,6 +58,8 @@ module DataCycleCore
           .>> t(:add_field, 'date_last_snowfall', ->(s) { s.dig('dateLastSnowfall', 'text') })
           .>> t(:add_field, 'open_lifts', ->(s) { s.dig('openLifts', 'text')&.to_i })
           .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_i })
+          .>> t(:add_field, 'max_lifts', ->(s) { s.dig('openLifts', 'max')&.to_i })
+          .>> t(:add_field, 'max_slopes', ->(s) { s.dig('openSlopes', 'max')&.to_i })
           .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
           .>> t(:operations_to_opening_hours, 'opening_hours', 'operations')
           .>> t(:reject_keys, ['operations'])
@@ -79,7 +82,7 @@ module DataCycleCore
           .>> t(:add_field, 'elevation', ->(s) { s.dig('elevation_old')&.to_f })
           .>> t(:add_field, 'depth_of_snow', ->(s) { s.dig('depth_old', 'text')&.to_f })
           .>> t(:add_field, 'depth_of_fresh_snow', ->(s) { s.dig('depthFresh24', 'text')&.to_f })
-          .>> t(:get_title_from_locale, 'headline', ->(s) { s.dig('type') }, locale)
+          .>> t(:get_title_from_locale, 'name', ->(s) { s.dig('type') }, locale)
           .>> t(:add_links, 'condition_weather', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionWeather', 'id').present? ? ["CATEGORY:#{s&.dig('conditionWeather', 'id')}"] : [] })
           .>> t(:strip_all)
         end
