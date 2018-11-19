@@ -21,7 +21,7 @@ module DataCycleCore
       return if file.blank?
       self.content_type = file.file.content_type
       self.file_size = file.size
-      self.name = file.file.filename
+      self.name ||= file.file.filename
       self.metadata = file.metadata if file.respond_to?(:metadata)
       self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
     end

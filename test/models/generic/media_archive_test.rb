@@ -41,6 +41,7 @@ module DataCycleCore
 
       test 'perform import' do
         options = {
+          max_count: 1,
           mode: 'full'
         }
 
@@ -48,7 +49,7 @@ module DataCycleCore
         download_from_local_json(external_source)
         external_source.import(options)
 
-        assert_equal(20, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
+        assert_equal(2, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('Place').count)
       end
     end

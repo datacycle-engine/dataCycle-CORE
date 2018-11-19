@@ -22,9 +22,14 @@ module DataCycleCore
           content.try(:external_key).blank? || DataCycleCore::Feature::Overlay.allowed?(content) || content.global_property_names.present?
         end
 
+        # PDFs for shared links
+        can :create, DataCycleCore::TextFile
+
         # TODO: change when migration is finished
-        can :create, TEMPLATES
         can :create_item, '' if TEMPLATES&.size&.positive?
+        can :create, DataCycleCore::Thing do |template|
+          TEMPLATES.include?(template.template_name)
+        end
 
         can :destroy, DataCycleCore::Thing do |content|
           content&.created_by_user == user

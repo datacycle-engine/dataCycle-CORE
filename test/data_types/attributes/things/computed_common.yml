@@ -1,0 +1,33 @@
+---
+- :data:
+    :name: Calculation-Common
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :value_1:
+        :label: Value 1
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :value_2:
+        :label: Comp Value 2
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: integer
+      :common_copy:
+        :label: Common Copy Value
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Common
+          :method: copy
+          :parameters:
+            :0: value_1

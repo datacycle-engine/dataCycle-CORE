@@ -66,7 +66,7 @@ module DataCycleCore
       if params[:source] == 'object_browser'
         authorize!(:create_in_objectbrowser, params[:template])
       else
-        authorize!(:create, params[:template])
+        authorize!(__method__, controller_path.classify.constantize)
       end
 
       I18n.with_locale(locale_params[:locale]) do
@@ -150,7 +150,9 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        if params[:new_locale].present?
+          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(polymorphic_path(@content, watch_list_params))

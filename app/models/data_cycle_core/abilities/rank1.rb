@@ -16,10 +16,6 @@ module DataCycleCore
 
         can :read, DataCycleCore::WatchList, watch_list_user_groups: { user_group_id: user.user_group_ids }
         can [:add_item, :remove_item], DataCycleCore::WatchList, valid_write_links?: false, watch_list_user_groups: { user_group_id: user.user_group_ids }
-
-        can :show, DataCycleCore::DataAttribute do |attribute|
-          DataCycleCore::Feature::Releasable.allowed_attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key)
-        end
       end
     end
   end

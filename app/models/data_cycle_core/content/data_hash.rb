@@ -17,7 +17,7 @@ module DataCycleCore
       # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_webhooks, if: -> { self.class.name == 'DataCycleCore::CreativeWork' }
+      after_saved_data_hash :execute_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
@@ -28,9 +28,10 @@ module DataCycleCore
         @prevent_history = prevent_history
         @source = source
         @new_content = new_content
+        @partial_update = partial_update
         run_callbacks :save_data_hash
 
-        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if partial_update
+        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
 
         valid_hash = validate(@data_hash, schema_hash)
 
@@ -38,7 +39,7 @@ module DataCycleCore
           ActiveRecord::Base.transaction do
             to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-            set_template_data_hash(@data_hash, partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
+            set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
             self.updated_at = @save_time
             self.updated_by = @current_user&.id

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-
+# TODO: rename to Thing / Content
 module DataCycleCore
   class CreativeWorkHistoryTest < ActiveSupport::TestCase
     test "create CreativeWork and don't store History" do

@@ -51,7 +51,7 @@ module DataCycleCore
       {
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
-        event: [],
+        event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags'],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
@@ -69,6 +69,17 @@ module DataCycleCore
         things: {},
         users: {}
       }
+
+    # only for local testing
+    def self.cli_options
+      options = {}
+      OptionParser.new { |opts|
+        opts.on('-i', '--ignore_preparations') { |ignore_preparations| options[:ignore_preparations] = ignore_preparations || false }
+      }.parse!
+      options
+    rescue StandardError
+      options
+    end
 
     def self.load_classifications(paths)
       paths.map do |path|
@@ -194,32 +205,35 @@ module DataCycleCore
   end
 end
 
-DataCycleCore::TestPreparations.load_classifications(
-  [
-    Rails.root.join('..', 'data_types', 'classifications.yml')
-  ]
-)
+unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
+  DataCycleCore::TestPreparations.load_classifications(
+    [
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
+    ]
+  )
 
-DataCycleCore::TestPreparations.load_external_sources(
-  [
-    Rails.root.join('..', '..', 'config', 'external_sources')
-  ]
-)
-DataCycleCore::TestPreparations.load_templates(
-  [
-    # Rails.root.join('..', 'data_types'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
-    Rails.root.join('..', 'data_types', 'attributes'),
-    Rails.root.join('..', 'data_types', 'custom')
-  ]
-)
+  DataCycleCore::TestPreparations.load_external_sources(
+    [
+      Rails.root.join('..', '..', 'config', 'external_sources')
+    ]
+  )
+  DataCycleCore::TestPreparations.load_templates(
+    [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
+      Rails.root.join('..', 'data_types', 'attributes'),
+      Rails.root.join('..', 'data_types', 'models')
+    ]
+  )
+end
+
 DataCycleCore::TestPreparations.load_dummy_data(
   [
     Rails.root.join('..', 'dummy_data')

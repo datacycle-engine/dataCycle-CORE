@@ -49,8 +49,6 @@ module DataCycleCore
         download_from_local_json(external_source)
         external_source.import(options)
 
-        sleep 10
-
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').count)
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
