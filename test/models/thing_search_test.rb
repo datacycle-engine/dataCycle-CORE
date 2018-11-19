@@ -28,36 +28,36 @@ module DataCycleCore
     end
 
     test 'filters contents based on single classification' do
-      assert_equal(3, DataCycleCore::Thing.with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel')).count)
+      assert_equal(3, DataCycleCore::Thing.with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel')).count)
     end
 
     test 'filters contents based on multiple classifications' do
       items = DataCycleCore::Thing
-        .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Tag 1', 'Tag 2'))
+        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1', 'Tag 2'))
       assert_equal(3, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Tag 1'))
+        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1'))
       assert_equal(2, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Tag 2'))
+        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
       assert_equal(2, items.count)
 
       items = DataCycleCore::Thing
-        .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Tag 1'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Tag 2'))
+        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 1'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
       assert_equal(1, items.count)
     end
 
     test 'filters contents based on nested classifications' do
       items = DataCycleCore::Thing
-        .with_classification_aliases(find_alias_ids('Inhaltstypen', 'Artikel'))
-        .with_classification_aliases(find_alias_ids('Tags', 'Nested Tag 1'))
+        .with_classification_alias_ids(find_alias_ids('Inhaltstypen', 'Artikel'))
+        .with_classification_alias_ids(find_alias_ids('Tags', 'Nested Tag 1'))
       assert_equal(1, items.count)
     end
 
