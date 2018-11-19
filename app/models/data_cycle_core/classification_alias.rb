@@ -80,6 +80,10 @@ module DataCycleCore
       classifications.min_by { |c| (created_at - c.created_at).abs }
     end
 
+    def primary_classification_id
+      primary_classification&.id
+    end
+
     def linked_contents
       classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
         c.classifications.includes(:classification_contents).map(&:classification_contents)

@@ -41,7 +41,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))

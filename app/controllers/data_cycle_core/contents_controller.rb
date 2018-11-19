@@ -151,7 +151,9 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        if params[:new_locale].present?
+          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(polymorphic_path(@content, watch_list_params))

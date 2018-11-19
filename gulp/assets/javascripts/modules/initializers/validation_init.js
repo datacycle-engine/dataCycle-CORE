@@ -366,6 +366,35 @@ module.exports.initialize = function() {
       if (!form_data.equal_to(new_form_data) && form_data.length !== 0)
         return "Wollen Sie die Seite wirklich verlassen ohne zu speichern?";
     });
+
+    // language redirect if changes present
+    if ($(".edit-header #language-menu").length) {
+      $(document).on(
+        "click",
+        ".edit-header #language-menu .list-items li a",
+        event => {
+          update_editors();
+          var new_form_data = $(".edit-content-form").serializeArray();
+          if (form_data.length !== 0 && !form_data.equal_to(new_form_data)) {
+            event.preventDefault();
+
+            var confirmationModal = new ConfirmationModal(
+              "Wollen Sie speichern und auf die neue Sprache wechseln?",
+              "success",
+              true,
+              function() {
+                $(".edit-content-form").append(
+                  '<input type="hidden" name="new_locale" value="' +
+                    $(event.target).data("locale") +
+                    '">'
+                );
+                $(".edit-content-form").trigger("submit");
+              }.bind(this)
+            );
+          }
+        }
+      );
+    }
   }
 
   // Validation
