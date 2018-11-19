@@ -6,6 +6,7 @@ credentials:
   token: 0PwwV8Z4PyF1lYBtGopUANWrZFGR38my
 default_options:
   locales: [de, en]
+  history: true
 config:
   download_config:
     images:
