@@ -20,8 +20,8 @@ module DataCycleCore
         query = query.where(search_term)
       end
 
-      @paginate_object = query.includes(:users).order(:name).page(params[:page])
-      @total = @paginate_object.total_count
+      @contents = query.includes(:users).order(:name).page(params[:page])
+      @total = @contents.total_count
     end
 
     def create

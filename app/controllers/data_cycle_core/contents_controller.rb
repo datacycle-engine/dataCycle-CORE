@@ -44,11 +44,10 @@ module DataCycleCore
 
           @language ||= params.fetch(:language, ['all'])
           if @content.children.present?
-            @paginate_object = get_filtered_results
-            @total = @paginate_object.count_distinct
-            @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+            @contents = get_filtered_results
+            @total = @contents.count_distinct
             @total_pages = (@total.to_f / 25).ceil
-            @contents = @paginate_object.map(&:content_data)
+            @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
           end
         end
 

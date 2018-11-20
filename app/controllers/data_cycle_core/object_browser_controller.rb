@@ -33,8 +33,8 @@ module DataCycleCore
           query = filter.apply
         else
           query = filter.apply
-          query = query.where(content_data_type: data_cycle_object(linked_table).to_s) if data_cycle_object(linked_table)
-          query = query.where(data_type: template_name.to_s) if template_name
+          query = query.where(searches: { content_data_type: data_cycle_object(linked_table).to_s }) if data_cycle_object(linked_table)
+          query = query.where(template_name: template_name.to_s) if template_name
         end
 
         order_string = DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search])
@@ -61,7 +61,7 @@ module DataCycleCore
         end
         @page ||= 1
 
-        @results = query.page(@page).per(@per).includes(content_data: [:translations]).map(&:content_data)
+        @results = query.page(@page).per(@per).includes(:translations)
 
         respond_to(:js)
       end

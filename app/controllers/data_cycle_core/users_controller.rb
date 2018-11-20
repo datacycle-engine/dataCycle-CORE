@@ -28,8 +28,8 @@ module DataCycleCore
       query = query.where(role: @roles.ids) if @roles.present?
       query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
-      @paginate_object = query.includes(:role, :user_groups).order(:email).page(params[:page])
-      @total = @paginate_object.total_count
+      @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
+      @total = @contents.total_count
     end
 
     def create_user
