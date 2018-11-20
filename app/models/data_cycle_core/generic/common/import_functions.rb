@@ -41,7 +41,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -221,7 +221,7 @@ module DataCycleCore
           end
 
           classification.name = classification_data[:name]
-          classification.description = classification_data[:description]
+          classification.description = classification_data[:description] if classification_data[:description].present?
           classification.external_key = classification_data[:external_key]
 
           if classification.new_record?
@@ -252,7 +252,7 @@ module DataCycleCore
           else
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.name = classification_data[:name]
-            primary_classification_alias.description = classification_data[:description]
+            primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree

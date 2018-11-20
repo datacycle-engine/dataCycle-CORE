@@ -350,6 +350,8 @@ de:
         user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
+        description: Beschreibungstext
+        classification_ids: Klassifizierungs-Mapping
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
