@@ -221,7 +221,7 @@ module DataCycleCore
           end
 
           classification.name = classification_data[:name]
-          classification.description = classification_data[:description]
+          classification.description = classification_data[:description] if classification_data[:description].present?
           classification.external_key = classification_data[:external_key]
 
           if classification.new_record?
@@ -252,7 +252,7 @@ module DataCycleCore
           else
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.name = classification_data[:name]
-            primary_classification_alias.description = classification_data[:description]
+            primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree
