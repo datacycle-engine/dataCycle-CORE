@@ -14,7 +14,7 @@
 
             <% if content_for?(:media_thumbs) %>
                 <%= yield_content!(:media_thumbs) %>
-            <% elsif item.try(:image).is_a?(ActiveRecord::Relation) && item.try(:image).present? %>
+            <% elsif item.try(:image).is_a?(ActiveRecord::Relation) && item.image.present? %>
                 <%= render 'data_cycle_core/contents/tiles/attributes/images', local_assigns %>
             <% else %>
                 <%= render 'data_cycle_core/contents/tiles/attributes/assets', local_assigns if item.try(:asset).is_a?(ActiveRecord::Relation) && item.try(:asset).present? %>

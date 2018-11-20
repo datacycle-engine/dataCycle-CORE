@@ -4,7 +4,9 @@
     :type: object
     :schema_type: Event
     :content_type: embedded
-    :translatable: true
+    :features:
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

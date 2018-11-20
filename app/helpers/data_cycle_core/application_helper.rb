@@ -235,9 +235,9 @@ module DataCycleCore
 
     def content_tile(item:, parameters: {})
       partials = [
-        item.try(:template_name)&.underscore&.parameterize(separator: '_'),
-        item.try(:schema_type)&.underscore&.parameterize(separator: '_'),
-        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'), # always Things
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 

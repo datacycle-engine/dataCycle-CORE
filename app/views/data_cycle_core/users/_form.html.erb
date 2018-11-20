@@ -88,7 +88,7 @@
         <% if can? :set_role, content %>
           <div class="form-element">
               <%= f.label :role_id, DataCycleCore::User.human_attribute_name(:role_id, locale: DataCycleCore.ui_language) %>
-              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
+              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
           </div>
         <% end %>
 

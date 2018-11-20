@@ -62,7 +62,7 @@ module DataCycleCore
       end
 
       def translatable?
-        schema&.dig('translatable') || false
+        schema&.dig('features', 'translatable', 'allowed') || false
       end
 
       def property_definitions

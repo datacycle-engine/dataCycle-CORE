@@ -5,9 +5,10 @@
     :schema_type: Event
     :boost: 100.0
     :content_type: entity
-    :translatable: true
     :features:
       :overlay:
+        :allowed: true
+      :translatable:
         :allowed: true
     :properties:
       :id:

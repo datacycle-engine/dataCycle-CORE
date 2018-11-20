@@ -15,7 +15,7 @@
   <%= hidden_field_tag :table, new_template.class.table_name %>
   <%= hidden_field_tag :template, new_template.template_name %>
 
-  <% unless new_template.content_type?('container') || I18n.available_locales.size == 1 || local_assigns[:locale].present? %>
+  <% if !new_template.content_type?('container') && I18n.available_locales.many? && local_assigns[:locale].blank? %>
     <div class="form-element">
     <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
     <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
@@ -30,7 +30,7 @@
     <%= hidden_field_tag 'source', "source_id=>#{source.id},source_table=>#{source.class.table_name}" %>
   <% end %>
 
-  <% if local_assigns[:parents].present? %>
+  <% if local_assigns[:parents].present? && DataCycleCore::Feature::Container.enabled? %>
     <%= render 'data_cycle_core/contents/new/shared/container', parents: parents, content: content %>
   <% elsif local_assigns[:parent]&.content_type?('container') %>
     <%= hidden_field_tag :parent_id, parent&.id %>

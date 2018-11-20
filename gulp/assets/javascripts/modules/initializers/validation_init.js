@@ -1,18 +1,18 @@
-var ConfirmationModal = require("./../components/confirmation_modal");
-var quill_helpers = require("./../helpers/quill_helpers");
+var ConfirmationModal = require('./../components/confirmation_modal');
+var quill_helpers = require('./../helpers/quill_helpers');
 
 // Add Validation to Form Elements
 module.exports.initialize = function() {
   var promises = [];
 
   let check_agbs_accepted = function() {
-    if ($("#accept_agbs").length > 0 && $("#accept_agbs").is(":checked")) {
+    if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
       $(
-        "#" + $(".submit-edit-form").data("toggle") + " #button_agbs_accepted"
+        '#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted'
       ).remove();
       return true;
-    } else if ($("#accept_agbs").length > 0) {
-      $("#" + $(".submit-edit-form").data("toggle")).append(
+    } else if ($('#accept_agbs').length > 0) {
+      $('#' + $('.submit-edit-form').data('toggle')).append(
         '<span id="button_agbs_accepted" class="tooltip-error"><strong>AGBs</strong><br>Die AGBs müssen noch akzeptiert werden.<br></span>'
       );
       return false;
@@ -20,7 +20,7 @@ module.exports.initialize = function() {
   };
 
   let update_editors = function() {
-    $(".quill-editor").each((index, elem) => {
+    $('.quill-editor').each((index, elem) => {
       quill_helpers.update_value(elem);
     });
   };
@@ -44,70 +44,70 @@ module.exports.initialize = function() {
           }
         } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-        if (isValid && submit && $(".form-element .warning.counter").length) {
-          var warnings = $(".form-element .warning.counter")
-            .closest(".form-element")
+        if (isValid && submit && $('.form-element .warning.counter').length) {
+          var warnings = $('.form-element .warning.counter')
+            .closest('.form-element')
             .map((index, elem) => {
-              return $(elem).data("label");
+              return $(elem).data('label');
             })
             .get()
-            .join(", ");
+            .join(', ');
           var confirmationModal = new ConfirmationModal(
-            "Es sind Warnungen vorhanden (" +
+            'Es sind Warnungen vorhanden (' +
               warnings +
-              ").<br>Soll der Inhalt trotzdem gespeichert werden?",
-            "warning",
+              ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+            'warning',
             true,
             () => {
               if (
                 $(form)
-                  .closest(".reveal")
-                  .hasClass("in-object-browser")
+                  .closest('.reveal')
+                  .hasClass('in-object-browser')
               ) {
-                $(form).trigger("submit_without_redirect");
+                $(form).trigger('submit_without_redirect');
               } else {
-                $(window).off("beforeunload");
+                $(window).off('beforeunload');
                 form.submit();
               }
             },
             () => {
-              $(".submit-edit-form")
+              $('.submit-edit-form')
                 .html('<i class="fa fa-check" aria-hidden="true"></i>')
-                .prop("disabled", false);
+                .prop('disabled', false);
             }
           );
         } else if (isValid && submit) {
           if (
             $(form)
-              .closest(".reveal")
-              .hasClass("in-object-browser")
+              .closest('.reveal')
+              .hasClass('in-object-browser')
           ) {
-            $(form).trigger("submit_without_redirect");
+            $(form).trigger('submit_without_redirect');
           } else {
-            $(window).off("beforeunload");
+            $(window).off('beforeunload');
             form.submit();
           }
         } else if (submit) {
           $(form)
-            .find("input[type=submit]")
-            .removeAttr("disabled");
-          $(".submit-edit-form")
+            .find('input[type=submit]')
+            .removeAttr('disabled');
+          $('.submit-edit-form')
             .html('<i class="fa fa-check" aria-hidden="true"></i>')
-            .prop("disabled", false);
+            .prop('disabled', false);
 
           var first_error_offset, container;
-          if ($(form).hasClass("edit-content-form")) {
-            var error_container = $(".single_error").first();
+          if ($(form).hasClass('edit-content-form')) {
+            var error_container = $('.single_error').first();
 
-            if ($(".split-content.edit-content").length > 0) {
-              container = $(".flex-box .edit-content");
+            if ($('.split-content.edit-content').length > 0) {
+              container = $('.flex-box .edit-content');
               first_error_offset =
                 error_container.offset().top -
                 container.offset().top +
                 container.scrollTop() -
                 50;
             } else {
-              container = $("html, body");
+              container = $('html, body');
               first_error_offset = error_container.offset().top - 100;
             }
 
@@ -123,111 +123,111 @@ module.exports.initialize = function() {
       .fail(data => {
         var button_text =
           '<span id="button_server_error" class="tooltip-error">' +
-          "<strong>Fehler:</strong><br>" +
+          '<strong>Fehler:</strong><br>' +
           data.statusText +
-          "<br></span>";
+          '<br></span>';
 
-        $(".submit-edit-form")
+        $('.submit-edit-form')
           .html('<i class="fa fa-check" aria-hidden="true"></i>')
-          .prop("disabled", false)
-          .addClass("alert");
-        $("#" + $(".submit-edit-form").data("toggle")).append(button_text);
+          .prop('disabled', false)
+          .addClass('alert');
+        $('#' + $('.submit-edit-form').data('toggle')).append(button_text);
       });
   };
 
   let render_error_msg = function(data, validation_container) {
-    let out = "";
-    let item_id = "";
+    let out = '';
+    let item_id = '';
     let item_label = $(validation_container)
-      .find("label")
+      .find('label')
       .first();
-    let button_text = "";
+    let button_text = '';
 
     if (
       validation_container != null &&
-      $(validation_container).data("id") != undefined
+      $(validation_container).data('id') != undefined
     )
-      item_id = $(validation_container).data("id") + "_error";
+      item_id = $(validation_container).data('id') + '_error';
     else if (
       validation_container != null &&
-      $(item_label).attr("for") != undefined
+      $(item_label).attr('for') != undefined
     )
-      item_id = $(item_label).attr("for") + "_error";
+      item_id = $(item_label).attr('for') + '_error';
 
-    if ($("#" + item_id).length != 0) return "";
+    if ($('#' + item_id).length != 0) return '';
 
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
 
     for (let key in data.error) {
       if (
-        ($(validation_container).data("id") != undefined &&
+        ($(validation_container).data('id') != undefined &&
           $(validation_container)
-            .data("id")
-            .search(new RegExp(key, "i")) != -1) ||
-        ($(validation_container).data("id") == undefined &&
-          $(item_label).attr("for") != undefined &&
+            .data('id')
+            .search(new RegExp(key, 'i')) != -1) ||
+        ($(validation_container).data('id') == undefined &&
+          $(item_label).attr('for') != undefined &&
           $(item_label)
-            .attr("for")
-            .search(new RegExp(key, "i")) != -1)
+            .attr('for')
+            .search(new RegExp(key, 'i')) != -1)
       ) {
         button_text +=
-          "<strong>" +
-          ($(item_label).html() || "Error") +
-          ":</strong><br>" +
+          '<strong>' +
+          ($(item_label).html() || 'Error') +
+          ':</strong><br>' +
           data.error[key] +
-          "<br>";
+          '<br>';
         out +=
-          "<strong>" +
-          ($(item_label).html() || "Error") +
-          ":</strong> " +
+          '<strong>' +
+          ($(item_label).html() || 'Error') +
+          ':</strong> ' +
           data.error[key] +
-          "</br>";
+          '</br>';
       }
     }
-    out += "</span>";
+    out += '</span>';
 
-    if ($(out).text().length == 0) return ""; // return if there are no errors for this container
+    if ($(out).text().length == 0) return ''; // return if there are no errors for this container
     if (
       $(validation_container)
-        .closest("form")
-        .hasClass("edit-content-form")
+        .closest('form')
+        .hasClass('edit-content-form')
     ) {
-      $(".submit-edit-form").addClass("alert");
-      $("#" + $(".submit-edit-form").data("toggle"))
-        .find("#button_" + item_id)
+      $('.submit-edit-form').addClass('alert');
+      $('#' + $('.submit-edit-form').data('toggle'))
+        .find('#button_' + item_id)
         .remove();
-      $("#" + $(".submit-edit-form").data("toggle")).append(
-        button_text + "</span>"
+      $('#' + $('.submit-edit-form').data('toggle')).append(
+        button_text + '</span>'
       );
     }
     return out;
   };
 
   let remove_submit_button_errors = function(item = null) {
-    var item_id = "";
+    var item_id = '';
     let item_label = $(item)
-      .find("label")
+      .find('label')
       .first();
-    if (item != null && $(item).data("id") != undefined)
-      item_id = $(item).data("id") + "_error";
-    else if (item != null && $(item_label).attr("for") != undefined)
-      item_id = $(item_label).attr("for") + "_error";
+    if (item != null && $(item).data('id') != undefined)
+      item_id = $(item).data('id') + '_error';
+    else if (item != null && $(item_label).attr('for') != undefined)
+      item_id = $(item_label).attr('for') + '_error';
 
     if (item == null) {
-      $(".submit-edit-form").removeClass("alert");
+      $('.submit-edit-form').removeClass('alert');
       $(
-        "#" + $(".submit-edit-form").data("toggle") + " .tooltip-error"
+        '#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error'
       ).remove();
     } else {
-      $("#" + $(".submit-edit-form").data("toggle"))
-        .find("#button_" + item_id)
+      $('#' + $('.submit-edit-form').data('toggle'))
+        .find('#button_' + item_id)
         .remove();
       if (
-        $("#" + $(".submit-edit-form").data("toggle") + " .tooltip-error")
+        $('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error')
           .length == 0
       ) {
-        $(".submit-edit-form").removeClass("alert");
+        $('.submit-edit-form').removeClass('alert');
       }
     }
   };
@@ -235,60 +235,60 @@ module.exports.initialize = function() {
   let validate_item = function(form, validation_container) {
     //reset errors
     $(validation_container)
-      .children(".single_error")
+      .children('.single_error')
       .remove();
-    $(validation_container).removeClass("has-error");
+    $(validation_container).removeClass('has-error');
 
     let items = [];
-    if ($(validation_container).data("key") != undefined) {
+    if ($(validation_container).data('key') != undefined) {
       items = $(validation_container).find(
-        '[name^="' + $(validation_container).data("key") + '"]'
+        '[name^="' + $(validation_container).data('key') + '"]'
       );
-    } else if ($(validation_container).children("label").length) {
+    } else if ($(validation_container).children('label').length) {
       items = $(validation_container).find(
-        "#" +
+        '#' +
           $(validation_container)
-            .children("label")
+            .children('label')
             .first()
-            .prop("for")
+            .prop('for')
       );
     }
 
     let form_data = items.serializeArray();
     let uuid = $(form)
-      .find("input#uuid")
+      .find('input#uuid')
       .val();
     let table = $(form)
-      .find("input#table")
+      .find('input#table')
       .val();
-    let template = $(form).find("#template");
+    let template = $(form).find('#template');
     if (template.length) {
       form_data.push({
-        name: "template",
+        name: 'template',
         value: template.val()
       });
     }
 
-    let url = "/" + table + (uuid != undefined ? "/" + uuid : "") + "/validate";
+    let url = '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
 
     promises.push(
       $.ajax({
-        type: "POST",
+        type: 'POST',
         url: url,
         data: $.param(form_data),
-        dataType: "json"
+        dataType: 'json'
       }).done(data => {
         if (data != undefined && Object.keys(data.error).length > 0) {
           if (
             items
               .first()
-              .prop("id")
-              .search(new RegExp(Object.keys(data.error).join("|"), "i")) != -1
+              .prop('id')
+              .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
           ) {
             $(validation_container).append(
               render_error_msg(data, validation_container)
             );
-            $(validation_container).addClass("has-error");
+            $(validation_container).addClass('has-error');
           }
         } else {
           remove_submit_button_errors(validation_container);
@@ -300,13 +300,13 @@ module.exports.initialize = function() {
   let submit_thing_form = function(form) {
     update_editors();
 
-    $("#validation_errors").html("");
+    $('#validation_errors').html('');
 
     var items = [];
     promises = [];
 
     $(form)
-      .find(".validation-container")
+      .find('.validation-container')
       .each((index, elem) => {
         validate_item(form, elem);
         items.push(elem);
@@ -316,23 +316,23 @@ module.exports.initialize = function() {
 
   let init_event_handlers = function(container) {
     $(container)
-      .find(".validation-form")
+      .find('.validation-form')
       .each((index, element) => {
-        $(element).on("change", ".validation-container", event => {
+        $(element).on('change', '.validation-container', event => {
           promises = [];
           validate_item(element, event.currentTarget);
           catch_promises(element, false);
         });
 
         $(element).on(
-          "remove-submit-button-errors",
-          ".validation-container",
+          'remove-submit-button-errors',
+          '.validation-container',
           event => {
             remove_submit_button_errors($(event.currentTarget));
           }
         );
 
-        $(element).on("submit", event => {
+        $(element).on('submit', event => {
           event.preventDefault();
           event.stopImmediatePropagation();
           submit_thing_form(element);
@@ -342,53 +342,53 @@ module.exports.initialize = function() {
 
   let remove_event_handlers = function(container) {
     $(container)
-      .find(".validation-form")
+      .find('.validation-form')
       .each((index, element) => {
-        $(element).off("change", ".validation-container");
-        $(element).off("remove-submit-button-errors", ".validation-container");
-        $(element).off("submit");
+        $(element).off('change', '.validation-container');
+        $(element).off('remove-submit-button-errors', '.validation-container');
+        $(element).off('submit');
       });
   };
 
   // check if data changed and confirm leaving the page
 
-  if ($(".edit-content-form").length > 0) {
+  if ($('.edit-content-form').length > 0) {
     var form_data = [];
-    $(window).on("load", event => {
+    $(window).on('load', event => {
       update_editors();
-      form_data = $(".edit-content-form").serializeArray();
+      form_data = $('.edit-content-form').serializeArray();
     });
 
-    $(window).on("beforeunload", function() {
+    $(window).on('beforeunload', function() {
       update_editors();
-      var new_form_data = $(".edit-content-form").serializeArray();
+      var new_form_data = $('.edit-content-form').serializeArray();
 
       if (!form_data.equal_to(new_form_data) && form_data.length !== 0)
-        return "Wollen Sie die Seite wirklich verlassen ohne zu speichern?";
+        return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
 
     // language redirect if changes present
-    if ($(".edit-header #language-menu").length) {
+    if ($('.edit-header #language-menu').length) {
       $(document).on(
-        "click",
-        ".edit-header #language-menu .list-items li a",
+        'click',
+        '.edit-header #language-menu .list-items li a',
         event => {
           update_editors();
-          var new_form_data = $(".edit-content-form").serializeArray();
+          var new_form_data = $('.edit-content-form').serializeArray();
           if (form_data.length !== 0 && !form_data.equal_to(new_form_data)) {
             event.preventDefault();
 
             var confirmationModal = new ConfirmationModal(
-              "Wollen Sie speichern und auf die neue Sprache wechseln?",
-              "success",
+              'Wollen Sie speichern und auf die neue Sprache wechseln?',
+              'success',
               true,
               function() {
-                $(".edit-content-form").append(
+                $('.edit-content-form').append(
                   '<input type="hidden" name="new_locale" value="' +
-                    $(event.target).data("locale") +
+                    $(event.target).data('locale') +
                     '">'
                 );
-                $(".edit-content-form").trigger("submit");
+                $('.edit-content-form').trigger('submit');
               }.bind(this)
             );
           }
@@ -399,21 +399,21 @@ module.exports.initialize = function() {
 
   // Validation
 
-  if ($(".validation-form").length > 0) {
+  if ($('.validation-form').length > 0) {
     // disable button if agbs not accepted
-    $("button.submit-edit-form").toggleClass("alert", !check_agbs_accepted());
+    $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
 
-    if ($("#accept_agbs").length > 0) {
-      $("#accept_agbs").on("change", function(event) {
-        $("button.submit-edit-form").toggleClass(
-          "alert",
+    if ($('#accept_agbs').length > 0) {
+      $('#accept_agbs').on('change', function(event) {
+        $('button.submit-edit-form').toggleClass(
+          'alert',
           !check_agbs_accepted()
         );
       });
     }
 
-    var form = document.querySelector(".edit-content-form");
-    $("button.submit-edit-form").on("click", function(ev) {
+    var form = document.querySelector('.edit-content-form');
+    $('button.submit-edit-form').on('click', function(ev) {
       ev.preventDefault();
 
       if (!check_agbs_accepted()) {
@@ -423,52 +423,52 @@ module.exports.initialize = function() {
       remove_submit_button_errors();
       $(ev.currentTarget)
         .html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>')
-        .prop("disabled", true);
+        .prop('disabled', true);
 
-      if ($(form).find("input#finalize:checked").length > 0) {
+      if ($(form).find('input#finalize:checked').length > 0) {
         var confirmationModal = new ConfirmationModal(
-          "Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.",
-          "success",
+          'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
+          'success',
           true,
           function() {
-            $(form).trigger("submit");
+            $(form).trigger('submit');
           }.bind(this)
         );
       } else {
-        $(form).trigger("submit");
+        $(form).trigger('submit');
       }
     });
 
     // validate on value change
-    init_event_handlers("body");
+    init_event_handlers('body');
   }
 
   $(document).on(
-    "open.zf.reveal",
-    ".new-content-reveal[data-reset-on-close]",
+    'open.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
     event => {
       init_event_handlers(event.target);
     }
   );
 
   $(document).on(
-    "closed.zf.reveal",
-    ".new-content-reveal[data-reset-on-close]",
+    'closed.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
     event => {
       remove_event_handlers(event.target);
     }
   );
 
-  $(document).on("closed.zf.reveal", ".new-content-reveal", event => {
+  $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
     $(event.target)
-      .find(".has-error")
-      .removeClass("has-error");
+      .find('.has-error')
+      .removeClass('has-error');
     $(event.target)
-      .find(".single_error")
+      .find('.single_error')
       .remove();
   });
 
-  $(document).on("form-rendered remote-partial-rendered", event => {
-    init_event_handlers(event.target);
-  });
+  // $(document).on('form-rendered remote-partial-rendered', event => {
+  //   init_event_handlers(event.target);
+  // });
 };
