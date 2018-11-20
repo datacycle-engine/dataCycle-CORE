@@ -2,10 +2,76 @@ ul.backend-treeview-list {
   list-style-type: none;
   margin: 2rem 0;
 
-  >li {
+  .edit_classification_alias {
+    margin-left: 1rem;
+
+    &::before {
+      content: "";
+      position: absolute;
+      left: calc(-1rem - 2px);
+      top: 50%;
+      width: calc(1rem + 2px);
+      border: 1px solid $medium-gray;
+      border-top: 0 none transparent;
+      border-right: 0 none transparent;
+    }
+  }
+
+  .edit_classification_alias,
+  .edit_classification_tree_label,
+  .new_classification_alias,
+  .new_classification_tree_label {
+    position: relative;
+    border: 1px solid $medium-gray;
+
+    .ca-buttons {
+      position: absolute;
+      top: -2rem;
+      right: 1rem;
+      z-index: 1;
+    }
+    .ca-input {
+      position: relative;
+      &:not(:last-of-type) {
+        margin-bottom: 1rem;
+      }
+      &:not(:first-of-type) {
+        margin-top: 1rem;
+      }
+      .ca-checkbox {
+        display: block;
+      }
+      label {
+        display: inline-block;
+        vertical-align: text-bottom;
+        &.ca-label {
+          display: block;
+          position: absolute;
+          top: 0.2rem;
+          left: 1rem;
+          z-index: 12;
+          color: $dark-gray;
+        }
+      }
+
+      input.ca-input-field {
+        padding: 3rem 1rem 1.5rem 1rem;
+        max-width: none;
+        display: block;
+        height: auto;
+      }
+    }
+  }
+
+  .edit_classification_tree_label {
+    border-top: none;
+    border-bottom: none;
+  }
+
+  > li {
     border-top: 1px solid $medium-gray;
 
-    >span.inner-item {
+    > span.inner-item {
       padding: 0.7rem 1rem;
       display: inline-block;
     }
@@ -37,7 +103,7 @@ ul.backend-treeview-list {
         padding: 0 1rem 1rem 1rem;
       }
 
-      >li {
+      > li {
         list-style-type: none;
         border-left: 1px solid $medium-gray;
         margin-left: 2em;
@@ -45,13 +111,13 @@ ul.backend-treeview-list {
       }
 
       li:not(.active) {
-        >span.inner-item {
+        > span.inner-item {
           position: relative;
           padding: 0.5rem 0 0 1rem;
           display: inline-block;
 
           &::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 0;
             left: -1px;
@@ -64,12 +130,12 @@ ul.backend-treeview-list {
         }
       }
 
-      >li:nth-last-child(2),
-      >li:last-child {
+      > li:nth-last-child(2),
+      > li:last-child {
         border-left: 1px solid transparent;
       }
 
-      >li.new-button {
+      > li.new-button {
         padding: 1rem 0.5rem 1.5rem 1rem;
         margin: 0;
       }
@@ -80,32 +146,32 @@ ul.backend-treeview-list {
       list-style: none;
       margin-left: 1rem;
 
-      >li {
+      > li {
         display: inline-block;
         color: $dark-gray;
         font-size: 0.8rem;
         padding-top: 0;
       }
 
-      >li:first-child:before {
-        content: '(';
+      > li:first-child:before {
+        content: "(";
       }
 
-      >li:not(:last-child):after {
-        content: ', '
+      > li:not(:last-child):after {
+        content: ", ";
       }
 
-      >li:last-child:after {
-        content: ')';
+      > li:last-child:after {
+        content: ")";
       }
     }
   }
 
-  li:not(.active)>form {
+  li:not(.active) > form {
     display: none;
   }
 
-  li.active> :not(form) {
+  li.active > :not(form) {
     display: none;
   }
 
@@ -116,7 +182,7 @@ ul.backend-treeview-list {
 
     padding: 1rem;
 
-    input[type='text'] {
+    input[type="text"] {
       max-width: 400px;
       display: inline-block;
       margin-bottom: 0;
@@ -166,8 +232,7 @@ ul.backend-treeview-list {
       border-color: #e6e6e6;
       box-shadow: 0 0 0 #9d9d9d;
       position: relative;
-      transition: box-shadow 0.1s,
-      border-color 0.25s ease-in-out;
+      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
       min-width: 280px;
       padding: 0 0 0 0;
 
@@ -195,7 +260,9 @@ ul.backend-treeview-list {
         }
       }
 
-      .select2-container--default .select2-selection--multiple .select2-selection__choice {
+      .select2-container--default
+        .select2-selection--multiple
+        .select2-selection__choice {
         border-radius: 5px;
         padding: 0 1rem 0 0.3rem;
         background-color: rgba($primary-color, 0.5);
@@ -211,7 +278,7 @@ ul.backend-treeview-list {
           text-align: right;
           font-size: 1rem;
           font-weight: normal;
-          opacity: .7;
+          opacity: 0.7;
         }
 
         &:focus,
@@ -237,12 +304,12 @@ ul.backend-treeview-list {
     border: 0;
   }
 
-  >li {
+  > li {
     ul.children {
       li.load-more-link {
         font-style: italic;
 
-        >span.inner-item {
+        > span.inner-item {
           .fa {
             font-size: 0.75rem;
           }
@@ -261,11 +328,11 @@ ul.backend-treeview-list {
 // classification_tree_label_view
 #classification-tree-label-list {
   .backend-treeview-list {
-    >li {
+    > li {
       border: none;
 
       ul.children {
-        >li {
+        > li {
           .inner-item {
             padding: 1rem 0 1rem 1rem;
 
@@ -306,7 +373,7 @@ ul.backend-treeview-list {
         }
 
         &.has-contents {
-          >li:last-child {
+          > li:last-child {
             border-left: 1px solid $medium-gray;
           }
         }
@@ -316,7 +383,7 @@ ul.backend-treeview-list {
         display: none;
         position: relative;
 
-        >li.content-row {
+        > li.content-row {
           transition: background-color 0.1s;
           position: relative;
           width: calc(100% - 2rem);
@@ -331,7 +398,7 @@ ul.backend-treeview-list {
           }
 
           &:not(.button-row)::before {
-            content: '';
+            content: "";
             position: absolute;
             top: 0;
             left: -1px;
@@ -342,7 +409,7 @@ ul.backend-treeview-list {
             border-right: 0 none transparent;
           }
 
-          >div {
+          > div {
             position: relative;
             display: inline;
             flex: 1;
