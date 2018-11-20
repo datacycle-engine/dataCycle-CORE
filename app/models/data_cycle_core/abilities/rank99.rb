@@ -7,9 +7,8 @@ module DataCycleCore
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter
         can :manage, :dash_board
         can :become, DataCycleCore::User
-        can :map_classifications, DataCycleCore::ClassificationAlias
         can :destroy, DataCycleCore::ClassificationTreeLabel
-        can :destroy, DataCycleCore::ClassificationAlias
+        can :manage, DataCycleCore::ClassificationAlias
       end
     end
   end
