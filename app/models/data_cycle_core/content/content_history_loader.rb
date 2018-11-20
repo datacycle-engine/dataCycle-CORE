@@ -21,57 +21,46 @@ module DataCycleCore
         differ.diff?(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template)
       end
 
-      def load_embedded_objects(relation_name)
-        target_name = properties_for(relation_name)&.dig('linked_table')
-        target_class = "DataCycleCore::#{target_name.classify}::History"
-        selector = target_name < self.class.table_name
-        content_one_data = [nil, target_class, '']
-        content_two_data = [id, self.class.to_s, relation_name]
-        where_hash = where_hash_connected_content(selector, content_one_data, content_two_data)
-
-        join_table = selector ? :content_content_a_history : :content_content_b_history
-        order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC'
-        target_table_name = "#{target_name.singularize}_history_translations".to_sym
-
-        query = target_class.constantize
-        query = query.joins(:translations).where(target_table_name => { locale: I18n.locale })
-        query = query.joins(join_table)
-        where_hash.each do |key, value|
-          query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["content_content_histories.#{key} = ?", value]))
-        end
-        query.order(order_string)
-      end
-
       def load_linked_objects(relation_name)
-        target_name = properties_for(relation_name)&.dig('linked_table')
-        target_class = "DataCycleCore::#{target_name.classify}"
-        selector = target_name < self.class.table_name
-        content_one_data = [nil, target_class, '']
-        content_two_data = [id, self.class.to_s, relation_name]
-        where_hash = where_hash_connected_content(selector, content_one_data, content_two_data)
+        DataCycleCore::Thing
+          .joins(:content_content_b_history)
+          .where({
+            content_content_histories: {
+              content_a_history_id: id,
+              content_a_history_type: 'DataCycleCore::Thing::History',
+              relation_a: relation_name,
+              content_b_history_type: 'DataCycleCore::Thing',
+              relation_b: ''
+            }
+          })
+          .joins(:translations).where(thing_translations: { locale: I18n.locale })
+          .order('content_content_histories.order_a ASC')
 
-        join_table = selector ? :content_content_a_history : :content_content_b_history
-        order_string = selector ? 'content_content_histories.order_b ASC' : 'content_content_histories.order_a ASC' if history?
-
-        query = target_class.constantize
-        if DataCycleCore.content_tables.include?(target_name)
-          target_table_name = "#{target_name.singularize}_translations".to_sym
-          query = query.joins(:translations).where(target_table_name => { locale: I18n.locale })
-        end
-        query = query.joins(join_table)
-        where_hash.each do |key, value|
-          query = query.where(ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["content_content_histories.#{key} = ?", value]))
-        end
-        query.order(order_string)
+        # maybe implement links to History too! (needs more work!)
+        # related_items = DataCycleCore::ContentContent::History
+        #   .where({
+        #     content_a_history_id: id,
+        #     content_a_history_type: 'DataCycleCore::Thing::History',
+        #     relation_a: relation_name
+        #   })
+        #   .order(order_a: :asc)
+        # related_items.map(&:content_b_history).select { |item| item.available_locales.include?(I18n.locale) }
       end
 
-      def where_hash_connected_content(selector, content_one_data, content_two_data)
-        ['a', 'b'].map { |abselector|
-          ["content_#{abselector}_history_id".to_sym,
-           "content_#{abselector}_history_type".to_sym,
-           "relation_#{abselector}".to_sym]
-        }.flatten
-          .zip(selector ? content_one_data + content_two_data : content_two_data + content_one_data).to_h.compact
+      def load_embedded_objects(relation_name)
+        DataCycleCore::Thing::History
+          .joins(:content_content_b_history)
+          .where({
+            content_content_histories: {
+              content_a_history_id: id,
+              content_a_history_type: 'DataCycleCore::Thing::History',
+              relation_a: relation_name,
+              content_b_history_type: 'DataCycleCore::Thing::History',
+              relation_b: ''
+            }
+          })
+          .joins(:translations).where(thing_history_translations: { locale: I18n.locale })
+          .order('content_content_histories.order_a ASC')
       end
 
       def load_classifications(relation_name)

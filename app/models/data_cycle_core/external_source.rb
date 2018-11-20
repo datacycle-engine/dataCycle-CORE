@@ -12,11 +12,8 @@ module DataCycleCore
     has_many :classification_trees
     has_many :content_contents
     has_many :content_content_histories
-
-    DataCycleCore.content_tables.each do |item_table|
-      has_many item_table.to_sym
-      has_many "#{item_table.singularize}_histories".to_sym, class_name: "DataCycleCore::#{item_table.classify}::History", inverse_of: :external_sources
-    end
+    has_many :things
+    has_many :thing_histories, class_name: 'DataCycleCore::Thing::History', inverse_of: :external_source
 
     def download(options = {}, &block)
       ts_start = Time.zone.now

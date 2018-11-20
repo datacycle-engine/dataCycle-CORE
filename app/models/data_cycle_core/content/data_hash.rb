@@ -14,7 +14,6 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
-      # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_webhooks
@@ -122,9 +121,9 @@ module DataCycleCore
       def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked(key, value, properties['linked_table'])
+          set_linked(key, value)
         when 'embedded'
-          set_embedded(key, value, properties['linked_table'], properties['template_name'])
+          set_embedded(key, value, properties['template_name'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -182,18 +181,17 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked(field_name, input_data, table)
+      def set_linked(field_name, input_data)
         item_ids_before_update = send(field_name).ids
-        selector = table < self.class.table_name
         item_ids_after_update = parse_linked_ids(input_data)
 
         item_ids_after_update.each_index do |index|
           next if item_ids_before_update[index] == item_ids_after_update[index]
 
           upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-            get_relation_data_hash(field_name, table, item_ids_after_update[index])
+            get_relation_data_hash(field_name, item_ids_after_update[index])
           )
-          upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
+          upsert_relation.order_a = index
           upsert_relation.save
         end
 
@@ -201,7 +199,7 @@ module DataCycleCore
         return if item_ids_to_delete.size.zero?
         # destroy relations
         DataCycleCore::ContentContent
-          .where(get_relation_data_hash(field_name, table, item_ids_to_delete))
+          .where(get_relation_data_hash(field_name, item_ids_to_delete))
           .destroy_all
       end
 
@@ -213,32 +211,29 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, table, name)
+      def set_embedded(field_name, input_data, name)
         updated_item_keys = []
         available_update_item_keys = send(field_name).ids
-        selector = table < self.class.table_name
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?
-            upsert_content(table, name, item) if item.keys.size > 1
+            upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
               upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-                get_relation_data_hash(field_name, table, item['id'])
+                get_relation_data_hash(field_name, item['id'])
               )
-              upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
+              upsert_relation.order_a = index
               upsert_relation.save
             end
 
             updated_item_keys << item['id']
           else
-            insert_item = upsert_content(table, name, item)
-
-            order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
+            insert_item = upsert_content(name, item)
             DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
+              get_relation_data_hash(field_name, insert_item.id).merge({ order_a: index, order_b: nil })
             )
 
             updated_item_keys << insert_item.id
@@ -247,7 +242,7 @@ module DataCycleCore
 
         potentially_delete = available_update_item_keys - updated_item_keys
         potentially_delete.each do |key|
-          item = ('DataCycleCore::' + table.classify).constantize.find_by(id: key)
+          item = DataCycleCore::Thing.find_by(id: key)
           translations = item.translated_locales
           if (translations - [I18n.locale]).empty?
             item.destroy_children
@@ -271,12 +266,12 @@ module DataCycleCore
         end
       end
 
-      def upsert_content(table, name, item)
-        template = load_template(table, name)
+      def upsert_content(name, item)
+        template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         if item['id'].present?
-          upsert_item = ('DataCycleCore::' + table.classify).constantize.find_or_create_by(id: item['id'])
+          upsert_item = DataCycleCore::Thing.find_or_create_by(id: item['id'])
         else
-          upsert_item = ('DataCycleCore::' + table.classify).constantize.new
+          upsert_item = DataCycleCore::Thing.new
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
@@ -286,13 +281,12 @@ module DataCycleCore
         upsert_item
       end
 
-      def get_relation_data_hash(field_name, table, item_id)
-        item_data = [item_id, "DataCycleCore::#{table.classify}", '']
+      def get_relation_data_hash(field_name, item_id)
+        item_data = [item_id, 'DataCycleCore::Thing', '']
         self_data = [id, self.class.to_s, field_name]
         ['a', 'b'].map { |selector|
           ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-        }.flatten
-          .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
+        }.flatten.zip(self_data + item_data).to_h
       end
 
       def set_classification_relation_ids(ids, relation_name, tree_label, default_value)

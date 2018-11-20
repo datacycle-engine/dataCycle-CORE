@@ -33,6 +33,10 @@ DataCycleCore.setup do |config|
       },
       overlay: {
         enabled: true
+      },
+      container: {
+        enabled: true,
+        excluded: ['Bild', 'Video']
       }
     }
   )
