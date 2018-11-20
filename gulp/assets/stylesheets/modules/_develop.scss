@@ -2,7 +2,7 @@
 /* Fixes for Firefox */
 .detail-header.editor {
   .form-element {
-    label+select {
+    label + select {
       margin-top: 3rem;
     }
 
@@ -1678,7 +1678,7 @@ select {
   }
 }
 
-[data-disable-with]>.fa {
+[data-disable-with] > .fa {
   font-size: inherit;
   line-height: inherit;
 }
