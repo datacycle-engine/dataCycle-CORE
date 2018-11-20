@@ -10,7 +10,6 @@ module.exports.initialize = function() {
       $(event.target)
         .closest('.reveal')
         .foundation('open');
-      // rePosition($(event.target).closest('.reveal'));
     }
   });
 

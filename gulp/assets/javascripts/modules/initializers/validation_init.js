@@ -467,8 +467,4 @@ module.exports.initialize = function() {
       .find('.single_error')
       .remove();
   });
-
-  // $(document).on('form-rendered remote-partial-rendered', event => {
-  //   init_event_handlers(event.target);
-  // });
 };
