@@ -206,7 +206,7 @@ end
 unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
     ]
   )
 
