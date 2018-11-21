@@ -6,8 +6,6 @@
     :content_type: entity
     :boost: 1.0
     :features:
-      :creatable:
-        :allowed: true
       :translatable:
         :allowed: true
     :properties:
