@@ -48,8 +48,7 @@ module DataCycleCore
     end
 
     def import_classifications
-      path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      MasterData::ImportClassifications.import(path.to_s)
+      MasterData::ImportClassifications.import_all
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: DataCycleCore.ui_language
       redirect_to admin_path
     end

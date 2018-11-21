@@ -82,9 +82,7 @@ module DataCycleCore
     end
 
     def self.load_classifications(paths)
-      paths.map do |path|
-        DataCycleCore::MasterData::ImportClassifications.import(path)
-      end
+      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
     end
 
     def self.load_templates(paths)
