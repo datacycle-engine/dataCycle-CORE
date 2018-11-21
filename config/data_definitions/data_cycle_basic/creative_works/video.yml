@@ -1,17 +1,12 @@
 ---
 - :data:
-    :name: Bild
+    :name: Video
     :type: object
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
-    :features:
-      :creatable:
-        :allowed: true
-      :translatable:
-        :allowed: true
     :api:
-      :type: ImageObject
+      :type: VideoObject
     :properties:
       :id:
         :label: id
@@ -43,8 +38,6 @@
         :storage_location: value
         :validations:
           :format: url
-        :api:
-          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
@@ -53,9 +46,7 @@
           :format: url
         :ui:
           :show:
-            :type: preview_image
-        :api:
-          :minimal: true
+            :type: image
       :url:
         :label: Inhalt URL
         :type: string
@@ -64,18 +55,21 @@
           :format: url
         :api:
           :name: sameAs
-#      :asset:
-#        :label: Datei
-#        :type: asset
-#        :type_name: DataCycleCore::Image
-#        :storage_location: asset_relation
-#        :editor:
-#          :type: imageAsset
-      :photographer:
-        :label: Fotograf
+      :image:
+        :label: Teaserbild
         :type: string
         :storage_location: value
-        :search: true
+        :validations:
+          :format: url
+        :ui:
+          :show:
+            :type: preview_image
+      :youtube_url:
+        :label: YouTube URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
       :license:
         :label: Copyright / Lizenz
         :type: string
@@ -108,20 +102,25 @@
         :label: Dateiformat
         :type: string
         :storage_location: value
-      :tags:
-        :type: mixin
-        :name: tags
-      :media_archive:
-        :type: mixin
-        :name: media_archive
-      :media_archive_categories:
-        :type: mixin
-        :name: media_archive_categories
+      :duration:
+        :label: Länge
+        :type: string
+        :storage_location: value
+      :director:
+        :label: "Regie"
+        :type: linked
+        :linked_table: things
+        :template_name: Person
+      :contributor:
+        :label: "Kamera"
+        :type: linked
+        :linked_table: things
+        :template_name: Person
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Bild"
+        :default_value: "Video"
       :content_classifications:
         :type: mixin
         :name: content_classifications

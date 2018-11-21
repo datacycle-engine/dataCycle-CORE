@@ -5,11 +5,6 @@
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
-    :features:
-      :creatable:
-        :allowed: true
-      :translatable:
-        :allowed: true
     :api:
       :type: ImageObject
     :properties:
@@ -64,13 +59,10 @@
           :format: url
         :api:
           :name: sameAs
-#      :asset:
-#        :label: Datei
-#        :type: asset
-#        :type_name: DataCycleCore::Image
-#        :storage_location: asset_relation
-#        :editor:
-#          :type: imageAsset
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
       :photographer:
         :label: Fotograf
         :type: string
@@ -111,12 +103,6 @@
       :tags:
         :type: mixin
         :name: tags
-      :media_archive:
-        :type: mixin
-        :name: media_archive
-      :media_archive_categories:
-        :type: mixin
-        :name: media_archive_categories
       :data_type:
         :label: Inhaltstype
         :type: classification
