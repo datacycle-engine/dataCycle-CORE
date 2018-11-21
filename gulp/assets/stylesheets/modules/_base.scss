@@ -36,14 +36,14 @@ h5 {
 /* Forms */
 form {
   label {
-    font-size: 1rem;
+    font-size: 0.9rem;
   }
 
   input {
     font-size: 1rem;
   }
 
-  button[type="submit"] {
+  button[type='submit'] {
     &.button {
       padding: 0.2rem 4.5rem;
 
@@ -146,7 +146,7 @@ button,
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
 
       &::before {
-        content: "▲";
+        content: '▲';
         font-size: 28px;
         top: -32px;
         color: white;
@@ -209,7 +209,7 @@ button,
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
       i:before {
-        content: "\f02c";
+        content: '\f02c';
         font-family: FontAwesome;
         font-style: normal;
         font-weight: normal;
@@ -218,25 +218,25 @@ button,
 
       &.themenbereiche {
         i:before {
-          content: "\f07c";
+          content: '\f07c';
         }
       }
 
       &.zielmarkt {
         i:before {
-          content: "\f192";
+          content: '\f192';
         }
       }
 
       &.bundesland {
         i:before {
-          content: "\f041";
+          content: '\f041';
         }
       }
 
       &.gultigkeitszeitraum {
         i:before {
-          content: "\f017";
+          content: '\f017';
         }
       }
     }
@@ -278,7 +278,7 @@ button,
       color: $primary-color;
 
       i:before {
-        content: "\f02e";
+        content: '\f02e';
       }
     }
   }
@@ -482,9 +482,10 @@ button,
         color: rgba($dark-gray, 50%);
       }
 
-      [type="checkbox"] + label[for],
-      [type="radio"] + label[for] {
+      [type='checkbox'] + label[for],
+      [type='radio'] + label[for] {
         margin-left: 0.5rem;
+        left: 2rem;
       }
 
       &:focus,
@@ -636,7 +637,7 @@ span.single_error,
 
 span.single_error:before,
 .form-error:before {
-  content: "";
+  content: '';
   position: absolute;
   width: 0;
   height: 0;
@@ -734,7 +735,7 @@ span.single_error:before,
     }
 
     &:before {
-      content: "";
+      content: '';
       position: absolute;
       position: absolute;
       left: -60px;
@@ -1011,7 +1012,7 @@ a[data-toggle] {
   max-width: 300px;
 
   &::before {
-    content: "▲";
+    content: '▲';
     font-size: 28px;
     top: -17px;
     color: white;
@@ -1119,7 +1120,7 @@ a[data-toggle] {
     top: 100% !important;
 
     &:before {
-      content: "▲";
+      content: '▲';
       font-size: 28px;
       top: -17px;
       color: white;

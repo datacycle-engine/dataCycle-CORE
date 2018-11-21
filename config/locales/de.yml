@@ -119,6 +119,7 @@ de:
     parent: Container
     subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
     unsubscribe_text: Bereits abonniert.
+    life_cycle: Lebenszyklus
 
   tile_links:
     details: zur Detailansicht

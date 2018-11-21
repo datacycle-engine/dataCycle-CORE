@@ -11,7 +11,7 @@
     <div class="v-select white">
       <%= select_tag(
         :new_template,
-        options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods], content: local_assigns[:content])),
+        options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods], content: local_assigns[:content], scope: local_assigns[:scope])),
         {
           class: 'single-select',
           data: {
@@ -24,6 +24,6 @@
   </div>
 
   <div class="buttons">
-    <%= f.button t('actions.next', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.next', locale: DataCycleCore.ui_language) } %>
+    <%= f.button t('actions.next', locale: DataCycleCore.ui_language), type: :submit, class: "button primary", data: { disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('actions.next', locale: DataCycleCore.ui_language)}" } %>
   </div>
 <% end %>

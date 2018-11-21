@@ -14,9 +14,11 @@ module DataCycleCore
 
         def index_query_methods
           ca_names = available_containers.map { |a| allowed_classification_aliases(a) }.flatten.uniq
+          ca_names = ca_names.without(DataCycleCore::Feature::IdeaCollection.template_data_type) if DataCycleCore::Feature::IdeaCollection.enabled?
+
           cad_names = DataCycleCore::ClassificationAlias.with_name(ca_names).with_descendants.map(&:name)
 
-          return nil unless enabled?
+          return [] unless enabled?
 
           [
             {
@@ -27,7 +29,7 @@ module DataCycleCore
         end
 
         def query_methods(content)
-          [
+          queries = [
             {
               method_name: 'with_name',
               value: allowed_classification_aliases(content)
@@ -36,6 +38,13 @@ module DataCycleCore
               method_name: 'with_descendants'
             }
           ]
+
+          return queries unless content.life_cycle_stage_index > content.life_cycle_stage_index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage(content))
+
+          queries.push({
+            method_name: 'without_name',
+            value: DataCycleCore::Feature::IdeaCollection.template_data_type(content)
+          })
         end
       end
     end

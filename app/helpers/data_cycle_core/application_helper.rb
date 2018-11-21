@@ -56,10 +56,10 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil)
-      query = query.includes(:classification_alias_path)
+    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil, scope: nil)
+      query = query.includes(:classification_alias_path).for_tree('Inhaltstypen')
 
-      query_methods.presence&.each do |query_method|
+      query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
         if query.respond_to?(query_method['method_name']) && query_method['value'].present?
           query = query.try(query_method['method_name'], query_method['value'])
         elsif query.respond_to?(query_method['method_name'])
@@ -67,20 +67,17 @@ module DataCycleCore
         end
       end
 
-      query.with_content_templates.sort_by(&:full_path).map { |c|
-        next unless can?(:create, c.content_template, {
+      query.order(:name).with_content_templates.map { |c|
+        next unless can?(:create, c.content_template, scope, {
           classification_alias: c,
           content: content
         })
 
         [
-          c.full_path,
+          c.name,
           "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
           {
-            title: [
-              c.full_path,
-              c.description
-            ].reject(&:blank?).join("\n\n"),
+            title: c.description,
             disabled: c&.content_template&.id.blank?
           }
         ]

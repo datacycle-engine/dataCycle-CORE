@@ -2,7 +2,7 @@
 
     <span class="type <%= content.template_name.downcase %>">
         <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.downcase %>
-        <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+        <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
     </span>
 
     <span class="created-at">

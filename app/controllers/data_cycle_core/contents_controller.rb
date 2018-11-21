@@ -359,7 +359,7 @@ module DataCycleCore
     end
 
     def new_params
-      params.permit(:test, :content_id, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
+      params.permit(:test, :content_id, :scope, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
     end
 
     def source_params

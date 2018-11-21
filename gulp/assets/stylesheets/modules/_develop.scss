@@ -7,26 +7,19 @@
     }
 
     .finalize-button-container {
-      input[type="checkbox"] {
+      position: relative;
+      input[type='checkbox'] {
         border: 0;
         background: inherit;
         box-shadow: none;
         min-width: auto;
-        display: inline-block;
-        vertical-align: middle;
         transform: scale(1.1);
-        margin: 0;
       }
 
       label {
-        padding: 0;
-        display: inline-block;
-        vertical-align: middle;
-        top: auto;
         font-weight: bold;
         font-size: 1.5rem;
         line-height: 1.5rem;
-        left: initial;
       }
     }
 
@@ -42,7 +35,7 @@
 
           &:not(:last-child) {
             &::after {
-              content: ", ";
+              content: ', ';
             }
           }
         }
@@ -62,7 +55,7 @@
       left: 2.5rem;
     }
 
-    input[type="checkbox"] {
+    input[type='checkbox'] {
       min-width: 0;
       margin: 1rem 0 0 1rem;
     }
@@ -182,7 +175,7 @@
 
         &::before {
           position: absolute;
-          content: "";
+          content: '';
           height: 1px;
           border-bottom: 1px solid $medium-gray;
           right: 0;
@@ -218,7 +211,7 @@
         }
 
         i::before {
-          content: "\f077";
+          content: '\f077';
         }
       }
     }
@@ -273,7 +266,7 @@
   box-shadow: 0 0 3px $medium-gray inset;
 
   &::after {
-    content: "\f0ea";
+    content: '\f0ea';
     font-family: FontAwesome;
     position: absolute;
     display: none;
@@ -400,7 +393,7 @@
   }
 
   &:after {
-    content: "▲";
+    content: '▲';
     font-size: 28px;
     bottom: -18px;
     color: lighten(map-get($foundation-palette, alert), 46%);
@@ -438,7 +431,7 @@ select {
 #newContent {
   overflow-y: visible;
 
-  input[type="text"] {
+  input[type='text'] {
     min-width: auto;
     display: block;
     box-sizing: border-box;
@@ -463,7 +456,7 @@ select {
       overflow: hidden;
 
       .selected-tag,
-      input[type="search"] {
+      input[type='search'] {
         float: none;
         display: inline-block;
         vertical-align: top;
@@ -485,12 +478,12 @@ select {
       text-overflow: ellipsis;
     }
 
-    input[type="search"] {
+    input[type='search'] {
       margin-top: 2px;
     }
   }
 
-  input[type="text"] {
+  input[type='text'] {
     padding: 0 0.5rem;
   }
 
@@ -688,7 +681,7 @@ select {
 }
 
 .send-link {
-  button[type="submit"] {
+  button[type='submit'] {
     &.button {
       padding: 0.85em 1em;
     }
@@ -706,7 +699,7 @@ select {
       flex-direction: row;
 
       &.has-more:after {
-        content: "...";
+        content: '...';
         display: flex;
         line-height: 1.2rem;
         font-size: 1.5rem;
@@ -791,8 +784,8 @@ a.has-tip {
   iframe {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
-    width: 90vw;
-    height: 84vh;
+    width: 96vw;
+    height: 87vh;
     max-width: 1200px;
   }
 
@@ -840,7 +833,7 @@ video {
     }
 
     &::after {
-      content: "\f060";
+      content: '\f060';
       font-family: FontAwesome;
       font-style: normal;
       font-weight: normal;
@@ -868,7 +861,7 @@ video {
       }
 
       & ~ ::after {
-        content: "\f061";
+        content: '\f061';
         display: flex;
         left: -2.1rem;
         right: auto;
@@ -888,20 +881,10 @@ video {
 }
 
 .reveal {
-  min-width: min-content;
-  max-width: 98vw;
-  max-height: 98vh;
+  min-width: 600px;
+  width: fit-content;
+  max-height: 100vh;
   overflow-y: visible;
-
-  // &.width-content {
-  //   width: min-content;
-
-  //   img,
-  //   video {
-  //     max-width: 90vw;
-  //     max-height: 90vh;
-  //   }
-  // }
 }
 
 .copied-to-clipboard {
@@ -917,7 +900,7 @@ video {
 [readonly],
 [readonly]:hover,
 [readonly]:focus,
-[contenteditable="false"],
+[contenteditable='false'],
 .readonly-select {
   cursor: not-allowed;
 }
@@ -992,7 +975,7 @@ a.email-link {
     min-height: 10rem;
   }
 
-  button[type="submit"].button {
+  button[type='submit'].button {
     padding: 0.85rem 1rem;
   }
 
@@ -1019,7 +1002,7 @@ ul.translated-locales {
   box-shadow: 0 2px 3px rgba(0, 0, 0, 0.1);
 
   &::before {
-    content: "▲";
+    content: '▲';
     font-size: 28px;
     top: -18px;
     color: white;
@@ -1155,7 +1138,7 @@ ul.translated-locales {
         color: white;
       }
 
-      input[type="file"] {
+      input[type='file'] {
         display: none;
       }
     }
@@ -1190,7 +1173,7 @@ ul.translated-locales {
   text-align: left;
 
   &.select2-loading::after {
-    content: "\f1ce";
+    content: '\f1ce';
     font-family: FontAwesome;
     font-style: normal;
     font-weight: normal;
@@ -1205,7 +1188,7 @@ ul.translated-locales {
 
   .select2-dropdown {
     .select2-results__option {
-      &[aria-disabled="true"] {
+      &[aria-disabled='true'] {
         color: lighten($dark-gray, 20%);
         font-style: italic;
         cursor: not-allowed;
@@ -1277,7 +1260,7 @@ select:-moz-focusring {
 
     &::before {
       position: absolute;
-      content: "";
+      content: '';
       height: 1px;
       border-bottom: 1px solid lighten($dark-gray, 20%);
       right: 0;
@@ -1325,7 +1308,7 @@ select:-moz-focusring {
         }
 
         i::before {
-          content: "\f077";
+          content: '\f077';
         }
       }
     }
@@ -1383,7 +1366,7 @@ select:-moz-focusring {
           float: none;
         }
 
-        input[name*="name"] {
+        input[name*='name'] {
           display: inline-block;
           background: transparent;
           color: $dark-gray;
@@ -1424,7 +1407,7 @@ select:-moz-focusring {
 }
 
 .reveal {
-  button[type="submit"].button {
+  button[type='submit'].button {
     padding: 0.85rem 1rem;
     margin: 0;
   }
@@ -1678,7 +1661,7 @@ select {
   }
 }
 
-[data-disable-with] > .fa {
+[data-disable-with]:not(.submit-edit-form) > .fa {
   font-size: inherit;
   line-height: inherit;
 }

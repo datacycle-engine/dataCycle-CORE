@@ -16,9 +16,8 @@ module DataCycleCore
             DataCycleCore::Feature::Overlay.allowed?(content) ||
             content.global_property_names.present?
         end
-        can :create, DataCycleCore::Thing do |template|
-          template&.schema&.dig('content_type') != 'embedded' &&
-            template&.schema&.dig('features', 'creatable', 'allowed')
+        can :create, DataCycleCore::Thing do |template, _scope|
+          template&.creatable?
         end
 
         can :destroy, DataCycleCore::Thing do |content|

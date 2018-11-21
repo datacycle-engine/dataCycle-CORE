@@ -50,7 +50,7 @@ end
 # Content Crumbs
 crumb :content do |content, watch_list|
   I18n.with_locale(content.first_available_locale) do
-    link to_html_string(t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language), content.title), polymorphic_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
+    link to_html_string(t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language), content.title), polymorphic_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
   end
 
   if watch_list

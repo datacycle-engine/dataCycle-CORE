@@ -71,9 +71,7 @@ module.exports.initialize = function() {
               }
             },
             () => {
-              $('.submit-edit-form')
-                .html('<i class="fa fa-check" aria-hidden="true"></i>')
-                .prop('disabled', false);
+              enable_form(form);
             }
           );
         } else if (isValid && submit) {
@@ -88,12 +86,7 @@ module.exports.initialize = function() {
             form.submit();
           }
         } else if (submit) {
-          $(form)
-            .find('input[type=submit]')
-            .removeAttr('disabled');
-          $('.submit-edit-form')
-            .html('<i class="fa fa-check" aria-hidden="true"></i>')
-            .prop('disabled', false);
+          enable_form(form);
 
           var first_error_offset, container;
           if ($(form).hasClass('edit-content-form')) {
@@ -127,13 +120,31 @@ module.exports.initialize = function() {
           data.statusText +
           '<br></span>';
 
-        $('.submit-edit-form')
-          .html('<i class="fa fa-check" aria-hidden="true"></i>')
-          .prop('disabled', false)
-          .addClass('alert');
+        enable_form(form);
+        $('.submit-edit-form').addClass('alert');
         $('#' + $('.submit-edit-form').data('toggle')).append(button_text);
       });
   };
+
+  function disable_form(form) {
+    $.rails.disableFormElement(
+      $(form)
+        .siblings('.edit-header')
+        .find('.submit-edit-form')
+        .first()
+    );
+    $.rails.disableFormElements($(form));
+  }
+
+  function enable_form(form) {
+    $.rails.enableFormElement(
+      $(form)
+        .siblings('.edit-header')
+        .find('.submit-edit-form')
+        .first()
+    );
+    $.rails.enableFormElements($(form));
+  }
 
   let render_error_msg = function(data, validation_container) {
     let out = '';
@@ -299,6 +310,7 @@ module.exports.initialize = function() {
 
   let submit_thing_form = function(form) {
     update_editors();
+    disable_form(form);
 
     $('#validation_errors').html('');
 
@@ -421,9 +433,6 @@ module.exports.initialize = function() {
       }
 
       remove_submit_button_errors();
-      $(ev.currentTarget)
-        .html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>')
-        .prop('disabled', true);
 
       if ($(form).find('input#finalize:checked').length > 0) {
         var confirmationModal = new ConfirmationModal(

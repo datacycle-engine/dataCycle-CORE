@@ -7,7 +7,7 @@
             <% else %>
               <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
             <% end %>
-            <span class="template-title"><%= t("content_type.#{item.template_name.downcase}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
+            <span class="template-title"><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
             <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </div>
     </div>

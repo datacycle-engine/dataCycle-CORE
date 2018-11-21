@@ -65,6 +65,11 @@ module DataCycleCore
         schema&.dig('features', 'translatable', 'allowed') || false
       end
 
+      def creatable?
+        schema&.dig('content_type') != 'embedded' &&
+          schema&.dig('features', 'creatable', 'allowed')
+      end
+
       def property_definitions
         schema&.dig('properties') || {}
       rescue StandardError

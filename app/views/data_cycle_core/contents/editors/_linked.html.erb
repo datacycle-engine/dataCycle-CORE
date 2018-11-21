@@ -115,7 +115,8 @@
             button_class: 'small new-content-button',
             locale: I18n.locale,
             object_browser: true,
-            key: sanitize_to_id(key)
+            key: sanitize_to_id(key),
+            scope: 'object_browser'
           } %>
 
           <% new_template = "data_cycle_core/#{definition&.dig('linked_table')}".classify
@@ -124,9 +125,6 @@
 
           <% form_parameters = form_parameters.merge(creatable.present? ? {
             query_methods: [{
-              method_name: 'for_tree',
-              value: 'Inhaltstypen'
-            }, {
               method_name: 'with_name',
               value: creatable
             }]
@@ -137,7 +135,7 @@
             }).to_json
           }) %>
 
-          <%= render 'new_content_links', form_parameters if can?(:create, new_template) %>
+          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') %>
 
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

@@ -4,5 +4,5 @@
   $('.new-content-reveal:visible .new-content-form').html('<%= j render 'data_cycle_core/contents/new/new_stage', @resolved_params %>').trigger('form-rendered');
 <% end %>
 
-$('.new-content-reveal:visible .new_content_form_title').html('<%= yield :new_content_form_title %>');
+$('.new-content-reveal:visible .new_content_form_title').html('<%= j yield :new_content_form_title %>');
 $('.new-content-reveal:visible .form_crumbs').html('<%= j yield :form_crumbs %>');

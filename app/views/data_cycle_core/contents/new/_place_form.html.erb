@@ -1,0 +1,23 @@
+<%= render 'data_cycle_core/contents/new/shared/form_wrapper', local_assigns.merge(search_param: true) do %>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'name', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", "#{new_template.schema.dig('properties', 'name', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'address', 'properties', 'street_address', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][street_address]", "#{new_template.schema.dig('properties', 'address', 'properties', 'street_address', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][street_address]", nil, class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'address', 'properties', 'postal_code', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][postal_code]", "#{new_template.schema.dig('properties', 'address', 'properties', 'postal_code', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][postal_code]", nil, class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'address', 'properties', 'address_locality', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][address_locality]", "#{new_template.schema.dig('properties', 'address', 'properties', 'address_locality', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][address][address_locality]", nil, class: 'form-control' %>
+  </div>
+
+<% end %>

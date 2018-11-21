@@ -3,12 +3,10 @@ module.exports.initialize = function() {
   // reposition reveal after it is loaded
   $(document).on('lazyloaded form-rendered remote-partial-rendered', event => {
     if (
-      !$(event.target)
-        .closest('.reveal')
-        .hasClass('object-browser-overlay')
+      $(event.target).closest('.reveal:not(.object-browser-overlay)').length
     ) {
       $(event.target)
-        .closest('.reveal')
+        .closest('.reveal:not(.object-browser-overlay)')
         .foundation('open');
     }
   });
