@@ -1,0 +1,53 @@
+---
+- :data:
+    :name: Container
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: container
+    :boost: 10000.0
+    :features:
+      :container:
+        :classification_alias:
+          - Text
+      :creatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :min: 1
+        :api:
+          :name: headline
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Container"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

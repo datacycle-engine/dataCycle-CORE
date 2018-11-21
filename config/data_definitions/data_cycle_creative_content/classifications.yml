@@ -1,0 +1,31 @@
+- Inhaltstypen:
+  - $$Text:
+    - $$Linktipps
+    - $$Quiz
+    - $$Angebot
+    - $$Biografie
+    - $$Interview
+    - $$Social Media Posting
+    - $$Rezept
+# hidden
+  - $$Zeitleiste
+# embedded
+  - $$Angebotszeitraum
+  - $$Website
+  - $$Zeitleiste-Eintrag
+  - $$Frage
+  - $$Antwort
+# container
+  - $$Container
+
+- Inhaltspools:
+  - $$Vorschläge
+  - $$Recherche
+  - $$Aktuelle Inhalte
+  - $$Archiv
+
+- Release-Stati:
+  - $$freigegeben
+  - $$beim Partner
+  - $$in Review
+  - $$archiviert
