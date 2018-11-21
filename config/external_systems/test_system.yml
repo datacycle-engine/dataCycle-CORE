@@ -1,0 +1,21 @@
+---
+name: Test-System
+credentials:
+  key: some_key
+  token: some_token
+  secret: some_secret
+  host: protocol://host/
+config:
+  push_config:
+    create:
+#      webhook: Sprinklr::Webhooks::Create
+#      filter: Sprinklr::Webhooks::Create
+    update:
+#      webhook: Sprinklr::Webhooks::Update
+#      filter: Sprinklr::Webhooks::Update
+    delete:
+#      webhook: Sprinklr::Webhooks::Delete
+#      filter: Sprinklr::Webhooks::Delete
+  refresh_config:
+#    webhook: Sprinklr::Webhooks::RefreshToken
+#    endoint: /oauth/token

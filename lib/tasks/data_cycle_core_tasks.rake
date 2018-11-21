@@ -213,6 +213,18 @@ namespace :data_cycle_core do
       end
     end
 
+    desc 'import all external_system configs'
+    task import_external_system_configs: [:environment] do
+      puts 'importing new external_system configs'
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
+      if errors.blank?
+        puts '[done] ... looks good'
+      else
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
     desc 'recreate the entries in the search table for all data-types in the Database'
     task rebuild_search: [:environment] do
       puts 'updating search:'

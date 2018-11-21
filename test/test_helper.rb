@@ -107,6 +107,15 @@ module DataCycleCore
       end
     end
 
+    def self.load_external_systems(paths)
+      paths.map do |path|
+        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
+        next if errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
     def self.load_dummy_data(paths)
       paths.each do |path|
         CONTENT_TABLES.each do |content_table_name|
@@ -215,6 +224,12 @@ unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   DataCycleCore::TestPreparations.load_external_sources(
     [
       Rails.root.join('..', '..', 'config', 'external_sources')
+    ]
+  )
+
+  DataCycleCore::TestPreparations.load_external_systems(
+    [
+      Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )
   DataCycleCore::TestPreparations.load_templates(

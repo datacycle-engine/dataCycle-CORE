@@ -18,6 +18,7 @@ Lint/NestedMethodDefinition:
   Exclude:
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
+    - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
 
 # TODO: check after import refactoring
 Lint/UnusedMethodArgument:
@@ -108,6 +109,7 @@ Rails/Output:
     - 'app/models/data_cycle_core/master_data/import_classifications.rb'
     - 'app/models/data_cycle_core/master_data/import_templates.rb'
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
+    - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
     - 'app/models/data_cycle_core/master_data/validate_data.rb'
     - 'app/models/data_cycle_core/update/base.rb'
 
