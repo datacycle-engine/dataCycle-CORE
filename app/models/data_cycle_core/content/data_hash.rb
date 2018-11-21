@@ -320,7 +320,7 @@ module DataCycleCore
         to_delete = present_relation_ids - ids
         return if to_delete.empty?
         DataCycleCore::ClassificationContent
-          .with_content(id, self.class.to_s)
+          .with_content(id)
           .with_classification_ids(to_delete)
           .with_relation(relation_name)
           .destroy_all
@@ -329,7 +329,7 @@ module DataCycleCore
       def set_asset_id(id, relation_name, asset_type)
         if id.present?
           DataCycleCore::AssetContent.find_or_create_by(
-            'content_data_id' => self.id,
+            'content_data_id' => id,
             'content_data_type' => self.class.to_s,
             asset_id: id,
             asset_type: asset_type,
@@ -342,7 +342,7 @@ module DataCycleCore
         to_delete = found_ids - [id]
         return if to_delete.empty?
         DataCycleCore::AssetContent
-          .with_content(self.id, self.class.to_s)
+          .with_content(id)
           .with_assets(to_delete, asset_type)
           .with_relation(relation_name)
           .destroy_all

@@ -48,7 +48,7 @@ module DataCycleCore
               INNER JOIN recursive_classification_trees
                 ON classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
             )
-            SELECT DISTINCT content_data_id, content_data_type
+            SELECT DISTINCT content_data_id
             FROM classification_contents
             JOIN classification_groups
               ON classification_contents.classification_id = classification_groups.classification_id

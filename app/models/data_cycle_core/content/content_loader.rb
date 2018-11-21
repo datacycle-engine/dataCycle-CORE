@@ -61,13 +61,14 @@ module DataCycleCore
       def as_of(timestamp)
         return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
 
-        base_content_class = self.class.to_s
-        history_table = "#{base_content_class}::History".safe_constantize.arel_table
-        history_table_translation = "#{base_content_class}::History::Translation".safe_constantize.arel_table
-        history_id = "#{base_content_class}::History".safe_constantize.table_name.singularize.foreign_key.to_sym
+        history_table = DataCycleCore::Thing::History.arel_table
+        history_table_translation = DataCycleCore::Thing::History::Translation.arel_table
 
         return_data = histories.joins(
-          history_table.join(history_table_translation).on(history_table[:id].eq(history_table_translation[history_id])).join_sources
+          history_table
+            .join(history_table_translation)
+            .on(history_table[:id].eq(history_table_translation[:thing_history_id]))
+            .join_sources
         ).where(
           in_range(history_table_translation, timestamp)
         ).order(history_table_translation[:history_valid])

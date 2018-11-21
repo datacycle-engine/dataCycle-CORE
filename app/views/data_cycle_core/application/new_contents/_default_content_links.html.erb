@@ -29,16 +29,13 @@
                   </a>
               <% end %>
           <% else %>
-              <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
-              <% object_types.each do |object_type| %>
-                  <% object_type.constantize.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |entity| %>
-                    <% if can?(:create, entity) %>
-                      <a class="option" href="#" data-open="new-<%= entity.template_name.parameterize(separator: '_') %>">
-                          <%= render 'data_cycle_core/shared/icon', icon_type: entity.template_name.parameterize(separator: '_') %>
-                          <%= t('actions.new', data: entity.template_name.titleize, locale: DataCycleCore.ui_language) %>
-                      </a>
-                    <% end %>
-                  <% end %>
+              <% DataCycleCore::Thing.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |entity| %>
+                <% if can?(:create, entity) %>
+                  <a class="option" href="#" data-open="new-<%= entity.template_name.parameterize(separator: '_') %>">
+                      <%= render 'data_cycle_core/shared/icon', icon_type: entity.template_name.parameterize(separator: '_') %>
+                      <%= t('actions.new', data: entity.template_name.titleize, locale: DataCycleCore.ui_language) %>
+                  </a>
+                <% end %>
               <% end %>
           <% end %>
           <%= yield :additional_content_links %>
@@ -63,11 +60,8 @@
         <%#= render 'new_content_reveal', reveal_id: "new-#{container.template_name&.parameterize(separator: '_')}", reveal_title: t('actions.new', data: container.template_name.titleize, locale: DataCycleCore.ui_language), reveal_template: container.template_name %>
     <% end %>
 <% else %>
-    <% object_types = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) } %>
-    <% object_types.each do |object_type| %>
-        <% object_type.constantize.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |default_type| %>
-            <%= render_new_content_reveal(item: default_type) if can?(:create, default_type) %>
-        <% end %>
+    <% DataCycleCore::Thing.where("template = true AND schema ->> 'content_type' = ? AND template_name NOT IN(?)", 'entity', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects).order(:template_name).each do |default_type| %>
+        <%= render_new_content_reveal(item: default_type) if can?(:create, default_type) %>
     <% end %>
 <% end %>
 <%= yield :additional_content_reveals %>
