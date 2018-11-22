@@ -3,10 +3,13 @@
     :name: tags
     :type: mixin
     :properties:
-      :keywords:
+      :tags:
         :label: Tags
         :type: classification
         :tree_label: Tags
+        :ui:
+          :show:
+            :content_area: header
       :keywords_eyebase:
         :label: Eyebase - Tags
         :type: classification
