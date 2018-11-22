@@ -4,7 +4,7 @@
   <%= render 'data_cycle_core/users/filter', filter_model: DataCycleCore::UserGroup if user_signed_in? %>
 <% end %>
 
-<%= render 'results', contents: @paginate_object, no_cache: true %>
+<%= render 'results', contents: @contents, no_cache: true %>
 
 <% if can? :create, DataCycleCore::UserGroup %>
   <% content_for :new_button do %>
