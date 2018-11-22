@@ -19,7 +19,7 @@ module DataCycleCore
         )
       end
 
-      query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing.joins(:searches)] : [@language]
       query ||= DataCycleCore::Filter::Search.new(*query_params)
 
       # add default filters for user role if any exist

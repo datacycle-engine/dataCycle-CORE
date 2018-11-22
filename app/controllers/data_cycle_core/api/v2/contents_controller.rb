@@ -15,7 +15,7 @@ module DataCycleCore
           query = apply_ordering(query)
 
           @pagination_contents = apply_paging(query)
-          @contents = @pagination_contents.map(&:content_data)
+          @contents = @pagination_contents
           render 'index'
         end
 
@@ -55,6 +55,7 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
+          query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
           if permitted_params[:q].blank?
             query
           else
@@ -73,9 +74,8 @@ module DataCycleCore
           filter.language = @language.split(',')
 
           query = filter.apply
-          query = query.where(content_data_type: 'DataCycleCore::Thing')
           if content_schema_type
-            query = query.where(schema_type: content_schema_type)
+            query = query.where(searches: { schema_type: content_schema_type })
             query = apply_event_query_filters(query) if content_schema_type == 'Event'
             query = apply_place_query_filters(query) if content_schema_type == 'Place'
           end
