@@ -38,3 +38,8 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Recherche"
