@@ -1,7 +1,7 @@
 - Inhaltstypen:
   - $$Asset:
-    - $$DataCycle - Audio
-    - $$DataCycle - Bild
-    - $$DataCycle - Video
-    - $$DataCycle - Datei
-    - $$DataCycle - PDF
+    - $$Audio
+    - $$Bild
+    - $$Video
+    - $$Datei
+    - $$PDF

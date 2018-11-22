@@ -1,10 +1,15 @@
 ---
 - :data:
-    :name: DataCycle - Bild
+    :name: Bild
     :type: object
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
     :api:
       :type: ImageObject
     :properties:
@@ -110,7 +115,7 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "DataCycle - Bild"
+        :default_value: "Bild"
       :content_classifications:
         :type: mixin
         :name: content_classifications
