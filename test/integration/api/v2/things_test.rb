@@ -76,24 +76,23 @@ module DataCycleCore
 
         test 'stored article can be found from different way to find it' do
           get(api_v2_contents_search_path)
-
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data_search = JSON.parse(response.body)
 
           get(api_v2_things_path)
-
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data_things = JSON.parse(response.body)
 
           get(api_v2_creative_works_path)
-
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data_creative_works = JSON.parse(response.body)
 
+          assert(json_data_search != json_data_things)
           assert_equal(json_data_search.except('links'), json_data_things.except('links'))
+          assert(json_data_search != json_data_creative_works)
           assert_equal(json_data_search.except('links'), json_data_creative_works.except('links'))
         end
       end
