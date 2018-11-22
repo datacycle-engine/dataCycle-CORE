@@ -31,7 +31,7 @@ module DataCycleCore
         type: @biografy.schema.dig('schema_type'),
         search: @person.family_name
       }, headers: {
-        referer: polymorphic_path(@biografy)
+        referer: thing_path(@biografy)
       }
 
       assert_response :success
@@ -55,7 +55,7 @@ module DataCycleCore
         },
         type: @person.schema.dig('schema_type')
       }, headers: {
-        referer: edit_polymorphic_path(@biografy)
+        referer: edit_thing_path(@biografy)
       }
 
       assert_response :success
@@ -82,7 +82,7 @@ module DataCycleCore
         },
         type: @person.schema.dig('schema_type')
       }, headers: {
-        referer: edit_polymorphic_path(@biografy)
+        referer: edit_thing_path(@biografy)
       }
 
       assert_response :success
@@ -101,7 +101,7 @@ module DataCycleCore
         },
         type: @person.schema.dig('schema_type')
       }, headers: {
-        referer: edit_polymorphic_path(@biografy)
+        referer: edit_thing_path(@biografy)
       }
 
       assert_response :success

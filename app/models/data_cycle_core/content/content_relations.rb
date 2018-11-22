@@ -33,9 +33,7 @@ module DataCycleCore
           has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
 
-          has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data if postfix.nil?
           belongs_to :external_source
-
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'

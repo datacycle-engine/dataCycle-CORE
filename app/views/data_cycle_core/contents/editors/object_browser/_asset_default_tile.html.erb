@@ -30,7 +30,7 @@
         <div class="description">
 
             <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
-            <%= link_to 'zur Detailansicht', polymorphic_path(object), target: :_blank %> |
+            <%= link_to 'zur Detailansicht', thing_path(object), target: :_blank %> |
             <% if can?(:download, object) %>
               <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
             <% end %>

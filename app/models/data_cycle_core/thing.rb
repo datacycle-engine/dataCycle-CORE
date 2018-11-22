@@ -20,6 +20,7 @@ module DataCycleCore
       belongs_to :thing
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
+    has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
     translates :name, :description, :content
     attribute :name

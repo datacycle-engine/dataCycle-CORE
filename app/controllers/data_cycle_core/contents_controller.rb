@@ -55,7 +55,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to polymorphic_path([:api, :v2, @content]) }
+          format.json { redirect_to thing_path([:api, :v2, @content]) }
           format.html { render && return }
         end
       end
@@ -84,7 +84,7 @@ module DataCycleCore
         respond_to do |format|
           if @content.present?
             format.html do
-              redirect_to edit_polymorphic_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
+              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
             end
             format.js
           else
@@ -119,7 +119,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
       end
@@ -131,13 +131,13 @@ module DataCycleCore
       @content = data_cycle_object(controller_name).find_by(external_key: params[:external_key])
       authorize!(:edit, @content)
 
-      redirect_to edit_polymorphic_path(@content)
+      redirect_to edit_thing_path(@content)
     end
 
     def update
       @content = data_cycle_object(controller_name).find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
+        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
         object_params = content_params(controller_name, @content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
@@ -145,16 +145,16 @@ module DataCycleCore
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
-        redirect_to(edit_polymorphic_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
+        redirect_to(edit_thing_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
         if params[:new_locale].present?
-          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+          redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
         elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
-          redirect_to(polymorphic_path(@content, watch_list_params))
+          redirect_to(thing_path(@content, watch_list_params))
         end
       end
     end
@@ -165,7 +165,7 @@ module DataCycleCore
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-      redirect_to(polymorphic_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+      redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
 
       redirect_to root_path
     end
@@ -216,7 +216,7 @@ module DataCycleCore
         format.js do
           if params[:render_html]
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-            render js: "document.location = '#{polymorphic_path(@content)}'"
+            render js: "document.location = '#{thing_path(@content)}'"
           end
         end
       end
