@@ -38,6 +38,8 @@ module DataCycleCore
           end
 
           # validate references
+          return if blank?(converted_data)
+
           converted_data.each do |key|
             validate_reference(key, template)
           end
