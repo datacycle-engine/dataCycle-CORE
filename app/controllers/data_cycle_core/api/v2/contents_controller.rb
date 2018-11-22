@@ -55,6 +55,7 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
+          query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
           if permitted_params[:q].blank?
             query
           else
