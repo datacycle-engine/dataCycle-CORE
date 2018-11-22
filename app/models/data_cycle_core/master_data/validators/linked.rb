@@ -5,13 +5,12 @@ module DataCycleCore
     module Validators
       class Linked < BasicValidator
         def keywords
-          ['min', 'max']
+          ['min', 'max', 'required']
         end
 
         def validate(data, template)
           if blank?(data)
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
-            # @error[:warning].push "No data given for #{template['label']}."
+            check_reference_array(data, template)
           elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
@@ -68,11 +67,15 @@ module DataCycleCore
         end
 
         def min(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size < value
+          (@error[:error][@template_key] ||= []) << I18n.t(:min_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i < value
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data&.size.to_i, value: value, locale: DataCycleCore.ui_language) if data&.size.to_i > value
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
         end
       end
     end
