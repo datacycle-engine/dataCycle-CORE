@@ -140,6 +140,9 @@ module DataCycleCore
       },
       gpx_converter: {
         enabled: true
+      },
+      external_media_archive: {
+        enabled: false
       }
     }
 
