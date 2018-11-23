@@ -13,7 +13,7 @@
             <%= link_to previous_authorized_crumb.url do %>
 							<button type="button" class="button discard top" data-tooltip aria-haspopup="true" data-click-open="false" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
             <% end if previous_authorized_crumb.present? %>
-            <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-click-open="false" title="Änderungen speichern"><i class="fa fa-check" aria-hidden="true"></i></button>
+            <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" data-click-open="false" title="Änderungen speichern" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
 					</li>
 				</ul>
 			</div>
@@ -88,7 +88,7 @@
         <% if can? :set_role, content %>
           <div class="form-element">
               <%= f.label :role_id, DataCycleCore::User.human_attribute_name(:role_id, locale: DataCycleCore.ui_language) %>
-              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
+              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
           </div>
         <% end %>
 

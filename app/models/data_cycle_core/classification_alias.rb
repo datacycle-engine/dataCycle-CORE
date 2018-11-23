@@ -12,6 +12,8 @@ module DataCycleCore
       end
     end
 
+    attr_accessor :content_template
+
     acts_as_paranoid
 
     belongs_to :external_source
@@ -45,6 +47,10 @@ module DataCycleCore
 
     def self.with_name(*names)
       where(name: names.flatten)
+    end
+
+    def self.without_name(*names)
+      where.not(name: names.flatten)
     end
 
     def self.with_descendants
@@ -96,6 +102,27 @@ module DataCycleCore
 
     def full_path
       classification_alias_path.full_path_names.reverse.join(' > ')
+    end
+
+    def self.with_content_templates
+      templates = DataCycleCore::Thing.where(template: true)
+
+      all.map do |c|
+        c.content_template = c.find_content_template(templates)
+        c
+      end
+    end
+
+    def find_content_template(templates)
+      template = templates.select { |t| t.schema&.dig('properties', 'data_type', 'default_value') == name }
+
+      if template.blank? && ancestors&.first.is_a?(DataCycleCore::ClassificationAlias)
+        ancestors.first.find_content_template(templates)
+      elsif template.blank?
+        return nil
+      else
+        template.first
+      end
     end
 
     private

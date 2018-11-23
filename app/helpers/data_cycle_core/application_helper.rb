@@ -56,6 +56,48 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
+    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil, scope: nil)
+      query = query.includes(:classification_alias_path).for_tree('Inhaltstypen')
+
+      query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
+        if query.respond_to?(query_method['method_name']) && query_method['value'].present?
+          query = query.try(query_method['method_name'], query_method['value'])
+        elsif query.respond_to?(query_method['method_name'])
+          query = query.try(query_method['method_name'])
+        end
+      end
+
+      query.order(:name).with_content_templates.map { |c|
+        next unless can?(:create, c.content_template, scope, {
+          classification_alias: c,
+          content: content
+        })
+
+        [
+          c.name,
+          "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
+          {
+            title: c.description,
+            disabled: c&.content_template&.id.blank?
+          }
+        ]
+      }.compact
+    end
+
+    def to_query_params(options_hash)
+      params_hash = {}
+      options_hash.each do |key, value|
+        if value.is_a?(ActiveRecord::Base)
+          params_hash[key] = { id: value&.id, class: value&.class&.name }
+        elsif value.is_a?(ActiveRecord::Relation)
+          params_hash[key] = { ids: value&.ids, class: value&.class&.name }
+        else
+          params_hash[key] = value
+        end
+      end
+      params_hash
+    end
+
     def add_attribute_options(options, definition, scope)
       attribute_options = definition.try(:[], 'ui').try(:[], scope.to_s).try(:[], 'options')
       attribute_options.nil? ? options : options.merge(attribute_options)
@@ -190,9 +232,9 @@ module DataCycleCore
 
     def content_tile(item:, parameters: {})
       partials = [
-        item.try(:template_name)&.underscore&.parameterize(separator: '_'),
-        item.try(:schema_type)&.underscore&.parameterize(separator: '_'),
-        item.try(:class).try(:name).try(:demodulize).to_s.underscore.parameterize(separator: '_'), # always Things
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
@@ -217,13 +259,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_new_content_reveal(item:, parameters: {})
+    def render_new_form(new_template: nil, parameters: {})
       partials = [
-        "#{item.class.name.demodulize.underscore}_#{item.template_name.parameterize(separator: '_')}",
-        item.class.name.demodulize.underscore,
+        new_template&.template_name&.underscore_blanks,
+        new_template&.schema_type&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/application/new_contents/#{p}_content_reveal" }
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
+
+      render_first_existing_partial(partials, parameters.merge({ new_template: new_template }))
     end
 
     private

@@ -3,6 +3,8 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::ParamsResolver
+
     DataCycleCore.features.each_key do |key|
       module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
       include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
@@ -47,11 +49,6 @@ module DataCycleCore
             @total_pages = (@total.to_f / 25).ceil
             @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
           end
-
-          @entities = DataCycleCore::Thing.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
-          @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
-          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
-          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
         respond_to do |format|
@@ -61,12 +58,16 @@ module DataCycleCore
       end
     end
 
+    def new
+      @new_template = data_cycle_object(new_template_params[:source_table]).find_by(id: new_template_params[:source_id]) if new_template_params.present?
+      @resolved_params = resolve_params(new_params)
+      @active_url = contents_new_path(resolve_params(new_params, false))
+
+      respond_to :js
+    end
+
     def create
-      if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, params[:template])
-      else
-        authorize!(__method__, controller_path.classify.constantize)
-      end
+      authorize!(__method__, controller_path.classify.constantize)
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(controller_name, params[:template])
@@ -357,9 +358,23 @@ module DataCycleCore
       params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
     end
 
+    def new_params
+      params.permit(:test, :content_id, :scope, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
+    end
+
     def source_params
       if params[:source]
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
+      elsif params[:source_id] && params[:source_table]
+        params.permit(:source_id, :source_table)
+      else
+        {}
+      end
+    end
+
+    def new_template_params
+      if params[:new_template]
+        ActionController::Parameters.new(Hash[params[:new_template].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
       elsif params[:source_id] && params[:source_table]
         params.permit(:source_id, :source_table)
       else

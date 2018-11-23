@@ -37,11 +37,11 @@
     <% if DataCycleCore::Feature::IdeaCollection.enabled? &&
           (DataCycleCore::Feature::LifeCycle.ordered_items&.index(@content.try(DataCycleCore::Feature::LifeCycle.attribute_keys.first)&.first&.name)&.<= DataCycleCore::Feature::LifeCycle.ordered_items&.index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage_name(@content))) %>
       <div class="reveal new-item" id="new-idea-collection" data-reveal data-multiple-opened="true">
-          <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template, locale: DataCycleCore.ui_language) %></h3>
+          <h3><%= t('actions.new', data: DataCycleCore::Feature::IdeaCollection.template_name, locale: DataCycleCore.ui_language) %></h3>
 
           <%= form_for :thing, :url => {:action => "create"} do |f| %>
               <%= hidden_field_tag :type, :things %>
-              <%= hidden_field_tag 'template', DataCycleCore::Feature::IdeaCollection.template %>
+              <%= hidden_field_tag 'template', DataCycleCore::Feature::IdeaCollection.template_name %>
               <%= hidden_field_tag 'parent_id', @content.id %>
               <div class="validation-container form-element">
                   <%= label_tag 'thing[datahash][name]', 'Titel' %>

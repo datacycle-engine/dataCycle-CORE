@@ -1,0 +1,39 @@
+---
+- :data:
+    :name: PlaceOverlay
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: things
+        :template_name: Bild
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: embedded
+        :linked_table: things
+        :template_name: Öffnungszeit
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Overlay"

@@ -4,8 +4,16 @@ module DataCycleCore
   module Feature
     class IdeaCollection < Base
       class << self
-        def template(content = nil)
+        def template_name(content = nil)
           configuration(content).dig('template')
+        end
+
+        def template(content = nil)
+          DataCycleCore::Thing.find_by(template: true, template_name: template_name(content))
+        end
+
+        def template_data_type(content = nil)
+          template(content)&.schema&.dig('properties', 'data_type', 'default_value')
         end
 
         def life_cycle_stage(content = nil)

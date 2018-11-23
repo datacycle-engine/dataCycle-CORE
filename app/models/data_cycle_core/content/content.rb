@@ -45,12 +45,8 @@ module DataCycleCore
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
-      def content_type?(types)
-        if types.is_a?(Array)
-          types.include?(schema&.dig('content_type'))
-        else
-          types == schema&.dig('content_type')
-        end
+      def content_type?(*types)
+        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
       end
 
       def siblings
@@ -66,7 +62,12 @@ module DataCycleCore
       end
 
       def translatable?
-        schema&.dig('translatable') || false
+        schema&.dig('features', 'translatable', 'allowed') || false
+      end
+
+      def creatable?
+        schema&.dig('content_type') != 'embedded' &&
+          schema&.dig('features', 'creatable', 'allowed')
       end
 
       def property_definitions

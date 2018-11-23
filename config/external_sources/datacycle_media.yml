@@ -22,7 +22,7 @@ config:
       transformations:
         asset:
           content_type: DataCycleCore::Thing
-          template: DataCycle - Bild
+          template: Bild
     videos:
       sorting: 2
       source_type: videos
@@ -31,7 +31,7 @@ config:
       transformations:
         asset:
           content_type: DataCycleCore::Thing
-          template: DataCycle - Video
+          template: Video
     audio:
       sorting: 3
       source_type: audio
@@ -40,7 +40,7 @@ config:
       transformations:
         asset:
           content_type: DataCycleCore::Thing
-          template: DataCycle - Audio
+          template: Audio
     pdf:
       sorting: 4
       source_type: pdf
@@ -49,4 +49,4 @@ config:
       transformations:
         asset:
           content_type: DataCycleCore::Thing
-          template: DataCycle - PDF
+          template: PDF

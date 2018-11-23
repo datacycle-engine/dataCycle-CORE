@@ -3,49 +3,103 @@
 module DataCycleCore
   module MasterData
     module ImportClassifications
-      def self.import(filename)
-        data_trees = YAML.load(File.open(filename))
-        iterate_tree_array(data_trees)
-      rescue StandardError => e
-        puts "could not access the file: #{filename}"
-        puts e.message
-        puts e.backtrace
-      end
+      def self.import_all(_validation: true, classification_paths: nil)
+        classification_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
 
-      def self.iterate_tree_array(trees_array)
-        trees_array.each do |item|
-          @label_id = get_label(item.keys.first).id
-          walk_tree(item[item.keys.first], nil)
+        if classification_paths.blank?
+          puts '###### classifications not found'
+          return
         end
+
+        merged_data_trees = {}
+
+        classification_paths.each do |classification_path|
+          file = classification_path + 'classifications.yml'
+          next unless File.exist?(file)
+          tree_array = YAML.load(File.open(file.to_s))
+          merged_data_trees.deep_merge!(iterate_array(tree_array))
+        end
+        iterate_tree_hash(merged_data_trees)
       end
 
-      def self.walk_tree(data_tree, parent)
-        return nil if data_tree.blank?
-        data_tree.each do |data|
-          internal = false
-          if data.is_a?(String)
-            split_data = data.split('|').map(&:squish)
-            data = split_data[0]
-            description = split_data[1]
-            if data.starts_with?('$$')            # '$$' prefix for interal classifications
-              data = data[2..(data.length - 1)]
-              internal = true
-            end
-            save_data(data, parent, internal, description)
-          elsif data.is_a?(Hash)
-            parent_name = data.keys.first
-            split_data = parent_name.split('|').map(&:squish)
-            parent_name = split_data[0]
-            description = split_data[1]
-            if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
-              parent_name = data.keys.first[2..(data.keys.first.length - 1)]
-              internal = true
-            end
-            parent_id = save_data(parent_name, parent, internal, description)
-            walk_tree(data[data.keys.first], parent_id)
+      def self.iterate_array(array)
+        data = array.map { |item| item.is_a?(::String) ? { item => nil } : item }.reduce({}, :merge)
+        data.map { |key, value|
+          if value.blank? || value.is_a?(::String)
+            { key => value }
+          else
+            { key => iterate_array(data[key]) }
           end
+        }.reduce({}, :merge)
+      end
+
+      def self.iterate_tree_hash(trees_hash)
+        trees_hash.each do |k, v|
+          @label_id = get_label(k).id
+          walk_tree_hash(v, nil)
         end
       end
+
+      def self.walk_tree_hash(data_tree, parent)
+        return nil if data_tree.blank?
+        data_tree.each do |k, v|
+          internal = false
+          if k.starts_with?('$$') # '$$' prefix for interal classifications
+            k = k[2..(k.length - 1)]
+            internal = true
+          end
+          split_data = k.split('|').map(&:squish)
+          name = split_data[0]
+          description = split_data[1]
+          current_id = save_data(name, parent, internal, description)
+
+          walk_tree_hash(v, current_id) if v.is_a?(Hash)
+        end
+      end
+
+      # def self.import(filename)
+      #   data_trees = YAML.load(File.open(filename))
+      #   iterate_tree_array(data_trees)
+      # rescue StandardError => e
+      #   puts "could not access the file: #{filename}"
+      #   puts e.message
+      #   puts e.backtrace
+      # end
+
+      # def self.iterate_tree_array(trees_array)
+      #   trees_array.each do |item|
+      #     @label_id = get_label(item.keys.first).id
+      #     walk_tree(item[item.keys.first], nil)
+      #   end
+      # end
+      #
+      # def self.walk_tree(data_tree, parent)
+      #   return nil if data_tree.blank?
+      #   data_tree.each do |data|
+      #     internal = false
+      #     if data.is_a?(String)
+      #       split_data = data.split('|').map(&:squish)
+      #       data = split_data[0]
+      #       description = split_data[1]
+      #       if data.starts_with?('$$')            # '$$' prefix for interal classifications
+      #         data = data[2..(data.length - 1)]
+      #         internal = true
+      #       end
+      #       save_data(data, parent, internal, description)
+      #     elsif data.is_a?(Hash)
+      #       parent_name = data.keys.first
+      #       split_data = parent_name.split('|').map(&:squish)
+      #       parent_name = split_data[0]
+      #       description = split_data[1]
+      #       if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
+      #         parent_name = data.keys.first[2..(data.keys.first.length - 1)]
+      #         internal = true
+      #       end
+      #       parent_id = save_data(parent_name, parent, internal, description)
+      #       walk_tree(data[data.keys.first], parent_id)
+      #     end
+      #   end
+      # end
 
       def self.save_data(data, parent, internal, description)
         if parent.nil?

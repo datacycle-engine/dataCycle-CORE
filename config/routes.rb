@@ -165,9 +165,11 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
+  post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application
+  post :remote_render, controller: :application
 end

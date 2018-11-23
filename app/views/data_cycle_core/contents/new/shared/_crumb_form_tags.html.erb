@@ -1,0 +1,11 @@
+<% additional_params.dig(:form_crumbs).presence&.each do |crumb| %>
+  <%= hidden_field_tag 'form_crumbs[][url]', crumb[:url] %>
+  <%= hidden_field_tag 'form_crumbs[][title]', crumb[:title] %>
+<% end %>
+
+<% additional_params.except(:form_crumbs).each do |key, value| %>
+  <%= hidden_field_tag key, value.to_json %>
+<% end %>
+
+<%= hidden_field_tag 'form_crumbs[][url]', url %>
+<%= hidden_field_tag 'form_crumbs[][title]', title %>

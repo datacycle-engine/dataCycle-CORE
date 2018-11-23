@@ -34,21 +34,6 @@ module DataCycleCore
           end
         end
 
-        def new_content_fields
-          case schema_type
-          when 'Organization'
-            ['name']
-          when 'Person'
-            ['given_name', 'family_name']
-          when 'Event'
-            ['name']
-          when 'Place'
-            ['name']
-          when 'CreativeWork'
-            ['name']
-          end
-        end
-
         def object_browser_fields
           # title is shown by default
           case schema_type
