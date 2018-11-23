@@ -25,7 +25,7 @@ module DataCycleCore
           assert_equal('TestArtikel', json_data['headline'])
         end
 
-        test 'stored article can be found' do
+        test 'stored article can be found and is correct' do
           get(api_v2_things_path)
 
           assert_response(:success)
@@ -74,7 +74,7 @@ module DataCycleCore
           assert(json_data.dig('links', 'self').present?)
         end
 
-        test 'stored article can be found from different way to find it' do
+        test 'stored article can be found in different ways' do
           get(api_v2_contents_search_path)
           assert_response(:success)
           assert_equal('application/json', response.content_type)
@@ -94,6 +94,53 @@ module DataCycleCore
           assert_equal(json_data_search.except('links'), json_data_things.except('links'))
           assert(json_data_search != json_data_creative_works)
           assert_equal(json_data_search.except('links'), json_data_creative_works.except('links'))
+        end
+
+        test 'sorted article is also found in V1 and has the same values as V2' do
+          get(api_v1_contents_search_path)
+          assert_response(:success)
+          assert_equal('application/json', response.content_type)
+          json_data_search_old = JSON.parse(response.body)
+
+          get(api_v2_contents_search_path)
+          assert_response(:success)
+          assert_equal('application/json', response.content_type)
+          json_data_search = JSON.parse(response.body)
+          data_hash = json_data_search['data'].first
+
+          v1_hash = {
+            '@context' => 'http://schema.org/thing',
+            'contentType' => 'Artikel',
+            '@id' => @content.id,
+            'identifier' => "http://www.example.com/things/#{@content.id}",
+            'url' => "http://www.example.com/things/#{@content.id}",
+            'inLanguage' => 'de',
+            'name' => 'TestArtikel'
+          }
+          v1_except = ['dateCreated', 'dateModified', 'classifications']
+
+          v2_hash = {
+            '@context' => data_hash['@context'] + '/thing',
+            'contentType' => data_hash['contentType'],
+            '@id' => data_hash['@id'].split('/').last,
+            'identifier' => 'http://www.example.com/things/' + data_hash['identifier'],
+            'url' => data_hash['url'],
+            'inLanguage' => data_hash['inLanguage'],
+            'name' => data_hash['headline']
+          }
+
+          v1_classifications = json_data_search_old['contents'].first.dig('classifications').map { |item| item.dig('name') }.sort
+          v2_classifications = data_hash
+            .select { |key, _value| ['classifications', 'releaseStatusId', 'dataPool'].include?(key) }
+            .map { |_key, value| value.is_a?(::Array) ? value.map { |item| item.dig('name') } : value.dig('name') }
+            .flatten
+            .sort
+
+          assert_equal(v1_hash, json_data_search_old['contents'].first.except(*v1_except))
+          assert_equal(v1_hash, v2_hash)
+          assert_equal(1, json_data_search_old['total'])
+          assert_equal(json_data_search_old['total'], json_data_search.dig('meta', 'total'))
+          assert_equal(v1_classifications, v2_classifications)
         end
       end
     end
