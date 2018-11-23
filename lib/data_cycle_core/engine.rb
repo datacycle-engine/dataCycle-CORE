@@ -77,8 +77,8 @@ module DataCycleCore
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
 
-    mattr_accessor :content_tables
-    self.content_tables = ['things']
+    # mattr_accessor :content_tables
+    # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']

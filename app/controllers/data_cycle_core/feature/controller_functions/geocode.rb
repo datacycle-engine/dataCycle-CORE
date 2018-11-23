@@ -9,9 +9,7 @@ module DataCycleCore
         included do
           DataCycleCore::Engine.routes.prepend do
             unless has_named_route?(:geocode_address_thing)
-              DataCycleCore.content_tables.each do |table|
-                get "/#{table}/geocode_address", action: :geocode_address, controller: table, as: "geocode_address_#{table.singularize}"
-              end
+              get '/things/geocode_address', action: :geocode_address, controller: 'things', as: 'geocode_address_thing'
             end
           end
           Rails.application.reload_routes!

@@ -2,12 +2,12 @@
 
 module DataCycleCore
   class AssetContent < ApplicationRecord
-    belongs_to :content_data, polymorphic: true
+    belongs_to :content_data, class_name: 'DataCycleCore::Thing'
     belongs_to :asset
 
     class << self
-      def with_content(content_id, content_type)
-        where(content_data_id: content_id, content_data_type: content_type)
+      def with_content(content_id)
+        where(content_data_id: content_id)
       end
 
       def with_assets(ids, type)

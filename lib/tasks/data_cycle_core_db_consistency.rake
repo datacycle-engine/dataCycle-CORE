@@ -30,19 +30,16 @@ namespace :data_cycle_core do
         'ClassificationContent',
         'content_data_id IS NULL'
       )
-      DataCycleCore.content_tables.each do |content_name|
-        content_object_name = "DataCycleCore::#{content_name.classify}"
-        status_relation(
-          DataCycleCore::ClassificationContent.where(content_data_type: content_object_name).where("classification_contents.content_data_id NOT IN (SELECT id FROM #{content_name})").count,
-          'ClassificationContent',
-          "content_data_id(#{content_object_name})"
-        )
-        status_relation(
-          content_object_name.constantize.where("#{content_name}.external_source_id IS NOT NULL AND #{content_name}.external_source_id NOT IN (SELECT id FROM external_sources)").count,
-          content_object_name,
-          'external_source_id valid'
-        )
-      end
+      status_relation(
+        DataCycleCore::ClassificationContent.where(content_data_type: 'DataCycleCore::Thing').where('classification_contents.content_data_id NOT IN (SELECT id FROM things)').count,
+        'ClassificationContent',
+        'content_data_id(DataCycleCore::Thing)'
+      )
+      status_relation(
+        DataCycleCore::Thing.where('things.external_source_id IS NOT NULL AND things.external_source_id NOT IN (SELECT id FROM external_sources)').count,
+        DataCycleCore::Thing,
+        'external_source_id valid'
+      )
       status_relation(
         DataCycleCore::Classification.where('classifications.external_source_id IS NOT NULL AND classifications.external_source_id NOT IN (SELECT id FROM external_sources)').count,
         'Classification',

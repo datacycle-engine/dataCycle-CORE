@@ -35,16 +35,13 @@ module DataCycleCore
       @pg_classification_content = ClassificationContent.count
       @pg_tree_label = ClassificationTreeLabel.count
       @pg_tree_nodes = ClassificationTree.count
-
       @pg_content = {}
-      @pg_content_history = 0
-      DataCycleCore.content_tables.each do |item|
-        @pg_content[item.humanize] = ('DataCycleCore::' + item.classify).safe_constantize.count
-        @pg_content_history += "DataCycleCore::#{item.classify}::History".safe_constantize.count
-      end
+      @pg_content['Thing'] = DataCycleCore::Thing.count
+      @pg_content['Thing-Translations'] = DataCycleCore::Thing::Translation.count
+      @pg_content['History'] = DataCycleCore::Thing::History.count
+      @pg_content['History-Translations'] = DataCycleCore::Thing::History::Translation.count
 
       @pg_content_content = DataCycleCore::ContentContent.count
-      # @pg_overlays = Overlay.count
     end
 
     def load_mongo_data(_user_id)

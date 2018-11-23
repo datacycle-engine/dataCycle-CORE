@@ -9,7 +9,7 @@ module DataCycleCore
 
       if data_link.item.is_a?(DataCycleCore::WatchList)
         @title = data_link.item.try(:title)
-      elsif DataCycleCore.content_tables.include?(data_link.item.class.table_name)
+      elsif data_link.item.class.table_name == 'things'
         I18n.with_locale(data_link.item.first_available_locale) do
           @title = data_link.item.try(:title)
         end

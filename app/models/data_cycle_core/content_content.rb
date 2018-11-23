@@ -2,8 +2,8 @@
 
 module DataCycleCore
   class ContentContent < ApplicationRecord
-    belongs_to :content_a, polymorphic: true
-    belongs_to :content_b, polymorphic: true
+    belongs_to :content_a, class_name: 'DataCycleCore::Thing'
+    belongs_to :content_b, class_name: 'DataCycleCore::Thing'
 
     class History < ApplicationRecord
       belongs_to :content_a_history, polymorphic: true

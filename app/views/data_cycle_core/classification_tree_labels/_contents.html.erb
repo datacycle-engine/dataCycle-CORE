@@ -3,14 +3,14 @@
     <li id="<%= content.id %>" class="content-row">
 
       <div class="type <%= content.template_name.downcase %>">
-        <%= link_to polymorphic_path(content) do %>
+        <%= link_to thing_path(content) do %>
           <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.parameterize(separator: '_') %>
           <span class="title"><%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name, locale: DataCycleCore.ui_language) %></span>
           <span class="locale">(<%= content.translated_locales.join(', ') %>)</span>
         <% end %>
       </div>
       <div class="title-text">
-        <span class="title"><%= link_to content.title, polymorphic_path(content) if content.try(:title).present? %></span>
+        <span class="title"><%= link_to content.title, thing_path(content) if content.try(:title).present? %></span>
       </div>
       <%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content if content.try(:display_classification_aliases).present? %>
 

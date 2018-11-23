@@ -19,16 +19,16 @@ module DataCycleCore
 
       @content.update({ is_part_of: @container.id })
 
-      patch polymorphic_path([:update_life_cycle, @container]), params: {
+      patch update_life_cycle_thing_path(@container), params: {
         life_cycle: {
           id: stages.values.last[:id],
           name: stages.keys.last
         }
       }, headers: {
-        referer: polymorphic_path(@container)
+        referer: thing_path(@container)
       }
 
-      assert_redirected_to polymorphic_path(@container)
+      assert_redirected_to thing_path(@container)
       follow_redirect!
 
       assert @container.reload.life_cycle_stage?(stages.values.last[:id])
@@ -59,8 +59,8 @@ module DataCycleCore
     test 'delete container with child' do
       @content.update({ is_part_of: @container.id })
 
-      delete polymorphic_path(@container), params: {}, headers: {
-        referer: polymorphic_path(@container)
+      delete thing_path(@container), params: {}, headers: {
+        referer: thing_path(@container)
       }
 
       assert_redirected_to root_path
