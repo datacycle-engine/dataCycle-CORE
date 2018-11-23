@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:2.5.1
+image: patrickrainer/data_cycle_base:2.5.1-11.1
 
 variables:
   POSTGRES_USER: postgres
@@ -45,9 +45,9 @@ cache:
     - lib/assets
 
 services:
-  - name: mdillon/postgis:9.6
+  - name: patrickrainer/data_cycle_postgis:latest
     alias: postgres
-  - name: mvertes/alpine-mongo:3.4.10-0
+  - name: mvertes/alpine-mongo:3.6.5-0
     alias: mongodb
 
 ########################################################################
