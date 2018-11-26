@@ -21,7 +21,6 @@ config:
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
       transformations:
         asset:
-          content_type: DataCycleCore::Thing
           template: DataCycle - Bild
     videos:
       sorting: 2
@@ -30,7 +29,6 @@ config:
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
       transformations:
         asset:
-          content_type: DataCycleCore::Thing
           template: DataCycle - Video
     audio:
       sorting: 3
@@ -39,7 +37,6 @@ config:
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
       transformations:
         asset:
-          content_type: DataCycleCore::Thing
           template: DataCycle - Audio
     pdf:
       sorting: 4
@@ -48,5 +45,4 @@ config:
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
       transformations:
         asset:
-          content_type: DataCycleCore::Thing
           template: DataCycle - PDF

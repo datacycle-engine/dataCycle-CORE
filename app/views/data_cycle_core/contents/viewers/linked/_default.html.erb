@@ -2,7 +2,7 @@
 
     <ul class="content-tiles">
         <% objects = value.presence&.includes(:translations) %>
-        <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+        <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
         <% objects.presence&.each do |item| %>
             <li class="<%= [

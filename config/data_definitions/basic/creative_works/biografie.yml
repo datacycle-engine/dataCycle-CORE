@@ -44,12 +44,10 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :about:
         :label: Person
         :type: linked
-        :linked_table: things
         :template_name: Person
         :validations:
           :max: 1

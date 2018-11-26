@@ -1,31 +1,31 @@
 # frozen_string_literal: true
 
-class RemoveOrganizations < ActiveRecord::Migration[5.1]
+class RemoveContentTables < ActiveRecord::Migration[5.1]
   def up
-    drop_table :organizations
-    drop_table :organization_translations
-    drop_table :organization_histories
-    drop_table :organization_history_translations
+    drop_table :organizations, if_exists: true
+    drop_table :organization_translations, if_exists: true
+    drop_table :organization_histories, if_exists: true
+    drop_table :organization_history_translations, if_exists: true
 
-    drop_table :persons
-    drop_table :person_translations
-    drop_table :person_histories
-    drop_table :person_history_translations
+    drop_table :persons, if_exists: true
+    drop_table :person_translations, if_exists: true
+    drop_table :person_histories, if_exists: true
+    drop_table :person_history_translations, if_exists: true
 
-    drop_table :events
-    drop_table :event_translations
-    drop_table :event_histories
-    drop_table :event_history_translations
+    drop_table :events, if_exists: true
+    drop_table :event_translations, if_exists: true
+    drop_table :event_histories, if_exists: true
+    drop_table :event_history_translations, if_exists: true
 
-    drop_table :places
-    drop_table :place_translations
-    drop_table :place_histories
-    drop_table :place_history_translations
+    drop_table :places, if_exists: true
+    drop_table :place_translations, if_exists: true
+    drop_table :place_histories, if_exists: true
+    drop_table :place_history_translations, if_exists: true
 
-    drop_table :creative_works
-    drop_table :creative_work_translations
-    drop_table :creative_work_histories
-    drop_table :creative_work_history_translations
+    drop_table :creative_works, if_exists: true
+    drop_table :creative_work_translations, if_exists: true
+    drop_table :creative_work_histories, if_exists: true
+    drop_table :creative_work_history_translations, if_exists: true
   end
 
   def down

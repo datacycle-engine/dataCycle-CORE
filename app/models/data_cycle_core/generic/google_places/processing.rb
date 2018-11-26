@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::GooglePlaces::Transformations.google_places_to_poi(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
+            default: { template: 'Örtlichkeit' },
             config: config
           )
         end

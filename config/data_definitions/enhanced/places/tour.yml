@@ -36,7 +36,6 @@
       :primary_image:
         :label: Hauptbild
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
@@ -45,14 +44,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true
       :logo:
         :label: Logo
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true

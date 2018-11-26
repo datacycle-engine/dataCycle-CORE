@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         def update_life_cycle
-          @object = data_cycle_object(controller_name).find_by(id: params[:id])
+          @object = DataCycleCore::Thing.find_by(id: params[:id])
           authorize! :set_life_cycle, @object, life_cycle_params
 
           # Create idea_collection if it doesn't exist and active life_cycle_stage is correct
@@ -25,7 +25,7 @@ module DataCycleCore
              DataCycleCore::Feature::IdeaCollection.life_cycle_stage(@object) == life_cycle_params[:id] &&
              !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template).exists?
             idea_collection_params = ActionController::Parameters.new({ datahash: { name: @object.name } }).permit!
-            idea_collection = DataCycleCore::DataHashService.create_internal_object(controller_name, DataCycleCore::Feature::IdeaCollection.template, idea_collection_params, current_user)
+            idea_collection = DataCycleCore::DataHashService.create_internal_object(DataCycleCore::Feature::IdeaCollection.template, idea_collection_params, current_user)
             idea_collection.is_part_of = @object.id unless @object.nil?
             idea_collection.save
           end

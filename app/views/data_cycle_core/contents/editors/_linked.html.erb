@@ -1,7 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-    <% object_class_name = definition['linked_table'] %>
-    <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
+    <% object_class = DataCycleCore::Thing %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
     <% object_template = definition['template_name'] %>
 
@@ -21,7 +20,7 @@
       data-options="<%= options.to_json %>"
       data-class="<%= object_class %>"
       data-editable="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
-      data-table="<%= object_class_name %>"
+      data-table="<%= 'things' %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value.presence&.ids %>"
       data-content-id="<%= (local_assigns[:parent] || content).id %>"

@@ -16,7 +16,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: EventOverlay
         :external: true
         :validations:

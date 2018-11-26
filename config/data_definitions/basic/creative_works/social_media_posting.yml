@@ -36,7 +36,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :url:
         :label: Link
@@ -50,7 +49,6 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
       :data_type:
         :label: Inhaltstype

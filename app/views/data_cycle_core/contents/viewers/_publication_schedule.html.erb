@@ -1,7 +1,7 @@
 <%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, data_attributes: { id: value.presence&.ids || [], editor: 'embedded_object' }, content: content do %>
 
     <% objects = value.presence&.order("(metadata ->> 'publish_at')::timestamptz ASC")&.to_a || [] %>
-    <% objects = objects.concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).order("(metadata ->> 'publish_at')::timestamptz ASC").to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+    <% objects = objects.concat(new_relations(options.dig(:item_diff), 'things').order("(metadata ->> 'publish_at')::timestamptz ASC").to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
     <div class="publication-list">
         <!-- # TODO: move to value after final refactor_data_definition migration -->

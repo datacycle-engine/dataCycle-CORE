@@ -6,7 +6,6 @@
       :publication_schedule:
         :label: Geplante Publikation
         :type: embedded
-        :linked_table: things
         :template_name: Publikations-Plan
         :validations:
           :classifications: no_conflicts

@@ -16,7 +16,6 @@ module DataCycleCore
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language
 
-        linked_table = @definition.fetch(:linked_table, nil)
         template_name = @definition.fetch(:template_name, nil)
         stored_filter = @definition.fetch(:stored_filter, nil)
 
@@ -33,7 +32,6 @@ module DataCycleCore
           query = filter.apply
         else
           query = filter.apply
-          query = query.where(searches: { content_data_type: data_cycle_object(linked_table).to_s }) if data_cycle_object(linked_table)
           query = query.where(template_name: template_name.to_s) if template_name
         end
 

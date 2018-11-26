@@ -34,7 +34,6 @@
       :timeline_item:
         :label: Eintrag
         :type: embedded
-        :linked_table: things
         :template_name: Zeitleiste-Eintrag
       :data_type:
         :label: Inhaltstype
@@ -126,14 +125,12 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
       :data_type:
         :label: Inhaltstype

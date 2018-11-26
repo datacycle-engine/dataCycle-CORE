@@ -16,9 +16,9 @@ module DataCycleCore
         private
 
         def create_parent
-          object_params = content_params(controller_name, params[:template])
+          object_params = content_params(params[:template])
 
-          parent = DataCycleCore::DataHashService.create_internal_object(params[:table], params[:parent_template], object_params, current_user)
+          parent = DataCycleCore::DataHashService.create_internal_object(params[:parent_template], object_params, current_user)
           life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::IdeaCollection.life_cycle_stage, :id)
           parent.set_data_hash(data_hash: { DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(parent).first => [life_cycle_id] }, current_user: current_user, partial_update: true, prevent_history: true)
 

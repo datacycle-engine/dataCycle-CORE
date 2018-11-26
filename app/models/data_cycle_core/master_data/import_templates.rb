@@ -195,8 +195,8 @@ module DataCycleCore
                 en: {
                   errors: {
                     included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data).",
-                    embedded_object: "type must be 'embedded'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
-                    linked_object:   "type must be 'linked'. either define a stored_filter, or a linked_table (plural) in combination with a template_name",
+                    embedded_object: "type must be 'embedded'. either define a stored_filter, or a template_name",
+                    linked_object:   "type must be 'linked'. either define a stored_filter, or a template_name",
                     asset_relation:  "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'file', 'pdf', 'audio'",
                     classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
@@ -290,13 +290,13 @@ module DataCycleCore
             )
           end
 
-          rule(embedded_object: [:type, :linked_table, :template_name, :stored_filter]) do |type, linked_table, template_name, stored_filter|
-            (type.eql?('embedded') > (linked_table.filled? & template_name.filled?)) |
+          rule(embedded_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
+            (type.eql?('embedded') > template_name.filled?) |
               (type.eql?('embedded') > stored_filter.filled?)
           end
 
-          rule(linked_object: [:type, :linked_table, :stored_filter]) do |type, linked_table, stored_filter|
-            (type.eql?('linked') > linked_table.filled?) |
+          rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
+            (type.eql?('linked') > template_name.filled?) |
               (type.eql?('linked') > stored_filter.filled?)
           end
 

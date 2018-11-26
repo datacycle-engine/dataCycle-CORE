@@ -151,18 +151,6 @@ module DataCycleCore
         property_definitions.select { |_, val| val['type'] == 'geographic' }
       end
 
-      def embedded_relations
-        embedded_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
-      def linked_relations
-        linked_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)
