@@ -13,12 +13,22 @@ namespace :data_cycle_core do
         ap errors
       end
     end
+    desc 'import all external_system configs'
+    task import_external_system_configs: [:environment] do
+      puts 'importing new external_system configs'
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
+      if errors.blank?
+        puts '[done] ... looks good'
+      else
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
 
     desc 'import classifications'
     task import_classifications: [:environment] do
       puts 'importing new classification definitions'
-      path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      DataCycleCore::MasterData::ImportClassifications.import(path.to_s)
+      DataCycleCore::MasterData::ImportClassifications.import_all
     end
 
     desc 'import all template definitions'
