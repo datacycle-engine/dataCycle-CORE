@@ -27,7 +27,7 @@ module DataCycleCore
       {
         'label' => 'Ersteller',
         'type' => 'linked',
-        'linked_table' => 'things',
+        'template_name' => 'Bild',
         'validations' => {
           'max' => 1
         }

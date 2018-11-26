@@ -11,8 +11,8 @@
                    value: value,
                    options: options.merge({
                     hide_label: true,
-                    item_diff: changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id),
-                    mode: changes_class(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id)
+                    item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
+                    mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id)
                    }),
                    data_attributes: {id: [object.id], editor: 'embedded_object'},
                    content: content do %>
@@ -30,7 +30,7 @@
                 <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
 
                 <% object_options = options.merge({ item_diff: nil }) %>
-                <% object_options[:item_diff] = attribute_changes(object.diff(object.try(definition.dig('linked_table').singularize)&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id), '~').present? %>
+                <% object_options[:item_diff] = attribute_changes(object.diff(object.try('thing')&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id), '~').present? %>
                 <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
                 <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 

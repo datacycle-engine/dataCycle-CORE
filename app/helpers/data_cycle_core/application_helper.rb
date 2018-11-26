@@ -153,7 +153,7 @@ module DataCycleCore
         key.underscore.to_s,
         definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
         content.try(:schema_type)&.underscore,
-        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
 
@@ -164,8 +164,8 @@ module DataCycleCore
       partials = [
         key.underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
-        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
+        'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
 

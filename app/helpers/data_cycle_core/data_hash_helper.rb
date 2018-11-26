@@ -5,7 +5,7 @@ module DataCycleCore
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
 
     def object_from_definition(definition)
-      return nil if definition.blank? || definition.dig('linked_table').nil? || definition.dig('template_name').nil?
+      return nil if definition.blank? || definition.dig('template_name').nil?
 
       template_name = definition['template_name']
       DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
