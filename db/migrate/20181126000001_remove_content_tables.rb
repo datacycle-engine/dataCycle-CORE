@@ -122,8 +122,8 @@ class RemoveContentTables < ActiveRecord::Migration[5.1]
       t.text :description
       t.timestamps
       t.index :id, unique: true
-      t.index [:organization_id, :locale], name: 'index_person_id_locale', using: :btree, unique: true
-      t.index :organization_id
+      t.index [:person_id, :locale], name: 'index_person_id_locale', using: :btree, unique: true
+      t.index :person_id
       t.index :locale
     end
 
