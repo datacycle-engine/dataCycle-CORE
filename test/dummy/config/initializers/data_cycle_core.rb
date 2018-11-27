@@ -35,8 +35,7 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       container: {
-        enabled: true,
-        excluded: ['Bild', 'Video']
+        enabled: false
       }
     }
   )

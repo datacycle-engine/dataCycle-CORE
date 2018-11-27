@@ -118,9 +118,7 @@
             scope: 'object_browser'
           } %>
 
-          <% new_template = "data_cycle_core/#{definition&.dig('linked_table')}".classify
-            .constantize
-            .find_by(template: true, template_name: definition&.dig('template_name')) %>
+          <% new_template = DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) %>
 
           <% form_parameters = form_parameters.merge(creatable.present? ? {
             query_methods: [{

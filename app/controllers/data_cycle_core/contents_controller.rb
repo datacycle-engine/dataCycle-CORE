@@ -59,7 +59,7 @@ module DataCycleCore
     end
 
     def new
-      @new_template = data_cycle_object(new_template_params[:source_table]).find_by(id: new_template_params[:source_id]) if new_template_params.present?
+      @new_template = DataCycleCore::Thing.find_by(id: new_template_params[:source_id]) if new_template_params.present?
       @resolved_params = resolve_params(new_params)
       @active_url = contents_new_path(resolve_params(new_params, false))
 

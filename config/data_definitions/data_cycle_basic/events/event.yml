@@ -17,7 +17,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: EventOverlay
         :external: true
         :validations:
@@ -95,12 +94,10 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1
@@ -109,7 +106,6 @@
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
-        :linked_table: things
         :template_name: SubEvent
       :data_type:
         :label: Inhaltstype
