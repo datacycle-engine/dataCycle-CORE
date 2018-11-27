@@ -41,7 +41,10 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data = JSON.parse(response.body)
-          assert_equal({ 'total' => 47, 'pages' => 2 }, json_data.dig('meta'))
+
+          total = classification_tree.classification_trees.count
+          pages = (total/25.0).ceil
+          assert_equal({ 'total' => total, 'pages' => pages }, json_data.dig('meta'))
           assert_equal(25, json_data.dig('data').count)
         end
       end
