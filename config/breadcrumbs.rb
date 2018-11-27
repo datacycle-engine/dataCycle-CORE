@@ -107,3 +107,8 @@ crumb :documentation do
     link t(translation_key, locale: DataCycleCore.ui_language), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
   end
 end
+
+# Schema
+crumb :schema do
+  link t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language), '#', authorized: false
+end
