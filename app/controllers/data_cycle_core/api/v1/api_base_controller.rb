@@ -30,6 +30,10 @@ module DataCycleCore
           query.page(permitted_params.fetch(:page, 1).to_i).per(permitted_params.fetch(:per, DEFAULT_PAGE_SIZE).to_i)
         end
 
+        def current_ability
+          @current_ability ||= DataCycleCore::Ability.new(current_user, session)
+        end
+
         private
 
         def authenticate

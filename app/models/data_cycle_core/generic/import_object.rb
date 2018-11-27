@@ -17,7 +17,7 @@ module DataCycleCore
         @locales = options[:locales]
         @logging = init_logging(:import)
         @history = options.dig(:history) || false
-        @mode = options.dig(:mode)&.to_sym || :incremental
+        @mode = options.dig(:import, :mode)&.to_sym || options.dig(:mode)&.to_sym || :incremental
       end
     end
   end
