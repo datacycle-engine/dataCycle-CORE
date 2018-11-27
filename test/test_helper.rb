@@ -44,7 +44,6 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 module DataCycleCore
   module TestPreparations
-    extend DataCycleCore::Common
     CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =

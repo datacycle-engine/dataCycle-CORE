@@ -67,13 +67,13 @@ module DataCycleCore
 
     def find
       authorize! :show, :object_browser
-      return if permitted_params[:class].blank? || permitted_params[:ids].blank?
+      return if permitted_params[:ids].blank?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         if permitted_params[:external]
-          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(external_key: permitted_params[:ids])
+          @objects = DataCycleCore::Thing.where(external_key: permitted_params[:ids])
         else
-          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(id: permitted_params[:ids])
+          @objects = DataCycleCore::Thing.where(id: permitted_params[:ids])
         end
       end
 
@@ -83,9 +83,9 @@ module DataCycleCore
     def details
       authorize! :show, :object_browser
 
-      unless permitted_params[:class].blank? || permitted_params[:id].blank?
+      if permitted_params[:id].present?
         I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-          @object = data_cycle_object(permitted_params[:class].demodulize.tableize).find(permitted_params[:id])
+          @object = DataCycleCore::Thing.find(permitted_params[:id])
         end
       end
 
@@ -97,7 +97,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:class, :per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
+      [:per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
     end
   end
 end

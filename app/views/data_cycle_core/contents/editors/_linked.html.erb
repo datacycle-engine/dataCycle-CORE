@@ -43,8 +43,8 @@
           </div>
 
           <div class="buttons clear-both">
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), thing_path(
-              [:load_more_linked_objects, local_assigns[:parent] || content],
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+              local_assigns[:parent] || content,
               key: key.attribute_name_from_key,
               complete_key: key,
               definition: definition,
