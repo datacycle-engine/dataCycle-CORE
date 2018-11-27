@@ -43,7 +43,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           total = classification_tree.classification_trees.count
-          pages = (total/25.0).ceil
+          pages = (total / 25.0).ceil
           assert_equal({ 'total' => total, 'pages' => pages }, json_data.dig('meta'))
           assert_equal(25, json_data.dig('data').count)
         end
