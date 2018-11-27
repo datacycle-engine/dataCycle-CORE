@@ -7,7 +7,7 @@ module DataCycleCore
         log name, "#{data.id} (#{data.template_name})"
 
         get_webhooks_for('update', data).each do |webhook|
-          webhook.new.execute(data)
+          webhook.process(data)
         end
       end
     end

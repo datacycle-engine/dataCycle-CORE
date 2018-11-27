@@ -19,7 +19,7 @@ DataCycleCore.setup do |config|
 
   config.default_template_paths = [
     Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive')
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content')
   ].freeze
 
   config.features = config.features.deep_merge(
@@ -60,4 +60,5 @@ DataCycleCore.setup do |config|
       }
     )
   end
+  config.webhooks = ['Local-Text-File']
 end

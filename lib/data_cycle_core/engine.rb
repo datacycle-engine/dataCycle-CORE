@@ -159,11 +159,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = {
-      create: [],
-      delete: [],
-      update: []
-    }
+    self.webhooks = []
 
     # template directories
     mattr_accessor :template_path

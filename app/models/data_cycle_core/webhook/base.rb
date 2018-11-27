@@ -9,19 +9,18 @@ module DataCycleCore
       end
 
       def self.get_webhooks_for(action, data)
-        webhooks = DataCycleCore.webhooks.try(:[], action.try(:to_sym))
+        external_systems = DataCycleCore.webhooks.collect { |hook| DataCycleCore::ExternalSystem.find_by(name: hook) }.compact
 
-        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
+        webhooks = external_systems.collect { |external_system| external_system.push_config.dig(action.to_sym) }.compact
+        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook.symbolize_keys, data) }.reject(&:blank?)
       end
 
       def self.validate_webhook(webhook, data)
-        return webhook if webhook.is_a?(Class)
-        return unless webhook.is_a?(Hash)
+        return unless webhook.dig(:strategy) || !webhook.dig(:strategy).is_a?(Class)
 
-        webhook_class = webhook.keys.first
-        filter = webhook[webhook_class].fetch(:filter) { raise KeyError, 'Filter must be supplied for webhook' }
-
-        return webhook_class if filter.call(data)
+        export_class = webhook.dig(:strategy).constantize
+        return export_class if export_class.filter(data)
+        nil
       end
     end
   end
