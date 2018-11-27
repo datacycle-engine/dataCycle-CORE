@@ -23,9 +23,9 @@ module DataCycleCore
           if DataCycleCore::Feature::IdeaCollection.enabled? &&
              @object.content_type?('container') &&
              DataCycleCore::Feature::IdeaCollection.life_cycle_stage(@object) == life_cycle_params[:id] &&
-             !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template).exists?
+             !@object.children.where(template_name: DataCycleCore::Feature::IdeaCollection.template_name).exists?
             idea_collection_params = ActionController::Parameters.new({ datahash: { name: @object.name } }).permit!
-            idea_collection = DataCycleCore::DataHashService.create_internal_object(DataCycleCore::Feature::IdeaCollection.template, idea_collection_params, current_user)
+            idea_collection = DataCycleCore::DataHashService.create_internal_object(DataCycleCore::Feature::IdeaCollection.template_name, idea_collection_params, current_user)
             idea_collection.is_part_of = @object.id unless @object.nil?
             idea_collection.save
           end

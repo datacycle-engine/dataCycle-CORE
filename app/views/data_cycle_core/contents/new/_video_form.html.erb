@@ -1,0 +1,24 @@
+<% content_for :new_content_form_title do %>
+  <%= t('actions.new',
+    data: t("content_type.#{new_template.template_name.underscore_blanks}",
+      default: new_template.template_name,
+      locale: DataCycleCore.ui_language),
+    locale: DataCycleCore.ui_language) %>
+<% end %>
+
+<% content_for :form_crumbs do %>
+  <%= render 'data_cycle_core/contents/new/shared/crumbs',
+    crumbs: local_assigns[:form_crumbs],
+    title: yield(:new_content_form_title) %>
+<% end %>
+
+<% if Rails.configuration.try(:media_archive_webhook_host).present? && Rails.configuration.try(:media_archive_webhook_api_token).present? %>
+  <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= Rails.configuration.media_archive_webhook_host %>admin/media/import_iframe?type=Video&token=<%= Rails.configuration.media_archive_webhook_api_token %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>">
+    <p>Formular konnte nicht geladen werden</p>
+  </iframe>
+<% else %>
+  <div class="callout alert">
+    <h4>Fehler!</h4>
+    <p>Verbindung zum Medienarchiv nicht möglich.</p>
+  </div>
+<% end %>

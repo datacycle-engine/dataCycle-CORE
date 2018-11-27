@@ -1,6 +1,6 @@
 <span class="diff metadata">
     <span class="type <%= content.template_name.downcase %>">
-        <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+        <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
     </span>
 
     <% if content.history? %>

@@ -115,6 +115,12 @@ module.exports.initialize = function() {
               return '';
             }
           },
+          templateSelection: function(data) {
+            return select2_helpers.removeTreeLabelFromSelection(
+              data.text,
+              tree_label
+            );
+          },
           matcher: function(params, data) {
             // If there are no search terms, return all of the data
             if ($.trim(params.term) === '') {
@@ -143,6 +149,30 @@ module.exports.initialize = function() {
         });
       });
   };
+
+  function removeHandlers(element) {
+    $(element)
+      .find('.single-select, .multi-select, .async-select')
+      .each((_, element) => {
+        $(element).select2('destroy');
+      });
+  }
+
+  $(document).on(
+    'open.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      init(event.target);
+    }
+  );
+
+  $(document).on(
+    'closed.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      removeHandlers(event.target);
+    }
+  );
 
   $(document).on(
     'clone-added',

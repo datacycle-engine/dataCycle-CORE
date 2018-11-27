@@ -1,0 +1,18 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :name:
+        :label: Firmenname
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :min: 1
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :name: legal_name
+          :minimal: true

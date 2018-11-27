@@ -81,9 +81,7 @@ module DataCycleCore
     end
 
     def self.load_classifications(paths)
-      paths.map do |path|
-        DataCycleCore::MasterData::ImportClassifications.import(path)
-      end
+      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
     end
 
     def self.load_templates(paths)
@@ -207,7 +205,7 @@ end
 unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
     ]
   )
 

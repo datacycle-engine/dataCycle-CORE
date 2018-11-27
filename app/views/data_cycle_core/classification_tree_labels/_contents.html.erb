@@ -5,7 +5,7 @@
       <div class="type <%= content.template_name.downcase %>">
         <%= link_to thing_path(content) do %>
           <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.parameterize(separator: '_') %>
-          <span class="title"><%= t("content_type.#{content.template_name.downcase}", default: content.template_name, locale: DataCycleCore.ui_language) %></span>
+          <span class="title"><%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name, locale: DataCycleCore.ui_language) %></span>
           <span class="locale">(<%= content.translated_locales.join(', ') %>)</span>
         <% end %>
       </div>

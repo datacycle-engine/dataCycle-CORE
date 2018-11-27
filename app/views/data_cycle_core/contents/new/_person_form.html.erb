@@ -1,0 +1,13 @@
+<%= render 'data_cycle_core/contents/new/shared/form_wrapper', local_assigns.merge(search_param: true) do %>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'given_name', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][given_name]", "#{new_template.schema.dig('properties', 'given_name', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][given_name]", local_assigns[:search_param], class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'family_name', 'validations').present? %>">
+    <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][family_name]", "#{new_template.schema.dig('properties', 'family_name', 'label')}" %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][family_name]", local_assigns[:search_param], class: 'form-control' %>
+  </div>
+
+<% end %>

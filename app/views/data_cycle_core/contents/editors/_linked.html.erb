@@ -106,21 +106,39 @@
           <a class="button-prime success small save-object-browser">
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
-          <% if can?(:create_in_objectbrowser, object_template) %>
-            <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
-              <i class="fa fa-plus"></i>
-            </button>
-          <% end %>
+
+          <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
+
+          <% form_parameters = {
+            content: content,
+            button_class: 'small new-content-button',
+            locale: I18n.locale,
+            object_browser: true,
+            key: sanitize_to_id(key),
+            scope: 'object_browser'
+          } %>
+
+          <% new_template = "data_cycle_core/#{definition&.dig('linked_table')}".classify
+            .constantize
+            .find_by(template: true, template_name: definition&.dig('template_name')) %>
+
+          <% form_parameters = form_parameters.merge(creatable.present? ? {
+            query_methods: [{
+              method_name: 'with_name',
+              value: creatable
+            }]
+          } : {
+            render_function: 'render_new_form',
+            render_params: to_query_params({
+              new_template: new_template
+            }).to_json
+          }) %>
+
+          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') %>
+
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>
           </button>
-
-          <% if can?(:create_in_objectbrowser, object_template) %>
-            <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: { new_overlay_key: sanitize_to_id(key), object: DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) }, content: content) %>
-            <% rescue %>
-            <% end %>
-          <% end %>
         </div>
       </div>
     </div>

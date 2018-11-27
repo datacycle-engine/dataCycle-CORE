@@ -8,6 +8,8 @@
     :features:
       :releasable:
         :allowed: true
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

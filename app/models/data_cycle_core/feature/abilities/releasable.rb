@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class Releasable
-        include CanCan::Ability
-
+      class Releasable < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

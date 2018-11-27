@@ -1,0 +1,168 @@
+---
+- :data:
+    :name: Tour
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :linked_table: things
+        :template_name: Bild
+        :validations:
+          :max: 1
+        :api:
+          :minimal: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :linked_table: things
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :linked_table: things
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :location:
+        :label: GPS-Startkoordinaten
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      :tour:
+        :label: Route
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      :directions_public_transport:
+        :label: Anfahrt mit öffentlichen Verkehrsmitteln
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :instructions:
+        :label: Wegbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :safety_instructions:
+        :label: Sicherheitshinweis
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :equipment:
+        :label: Ausrüstung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :suggestion:
+        :label: Tipps
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :additional_information:
+        :label: Zusatzinformation
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :ascent:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+      :descent:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+      :min_altitude:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+      :max_altitude:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+      :duration:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+      :condition_rating:
+        :label: Bewertung - Kondition
+        :type: number
+        :storage_location: value
+      :difficulty_rating:
+        :label: Bewertung - Schwierigkeit
+        :type: number
+        :storage_location: value
+      :experience_rating:
+        :label: Bewertung - Erlebnis
+        :type: number
+        :storage_location: value
+      :landscape_rating:
+        :label: Bewertung - Landschaft
+        :type: number
+        :storage_location: value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Tour"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

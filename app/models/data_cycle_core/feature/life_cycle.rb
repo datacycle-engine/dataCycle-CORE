@@ -21,6 +21,13 @@ module DataCycleCore
           configuration(content).dig('ordered')
         end
 
+        def creatable_stages(content = nil)
+          ordered_classifications(content)
+            .except('Archiv')
+            .except(DataCycleCore::Feature::IdeaCollection.enabled? ? DataCycleCore::Feature::IdeaCollection.life_cycle_stage_name(content) : nil)
+            .map { |k, v| [k, v[:id]] }
+        end
+
         def tree_label(content = nil)
           configuration(content).dig('tree_label')
         end

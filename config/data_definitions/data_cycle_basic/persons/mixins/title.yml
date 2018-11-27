@@ -1,0 +1,27 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :given_name:
+        :label: Vorname
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :min: 1
+        :ui:
+          :show:
+            :disabled: true
+      :family_name:
+        :label: Nachname
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :min: 1
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
