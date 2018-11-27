@@ -6,10 +6,11 @@ module DataCycleCore
     belongs_to :user
 
     def apply
-      query_params = language.include?('all') ? [nil, DataCycleCore::Search.all] : [language]
+      query_params = language.include?('all') ? [nil, DataCycleCore::Thing.joins(:searches)] : [language]
       query = DataCycleCore::Filter::Search.new(*query_params)
 
       parameters.presence&.each do |filter|
+        filter['v'] = filter['v'].map { |k, v| "searches.#{k} #{v.upcase}" }&.join(', ') if filter['t'] == 'order' && filter['v'].is_a?(Hash)
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
       end
       query
