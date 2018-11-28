@@ -8,9 +8,7 @@ module DataCycleCore
 
     # Create different versions of your uploaded files:
     version :thumb_preview do
-      process convert: 'png'
-      # process :colorspace => 'rgb'
-      # process resize_to_fit: [800, 300]
+      process :convert_to_png
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
@@ -20,6 +18,21 @@ module DataCycleCore
 
     def extension_white_list
       ['pdf']
+    end
+
+    def convert_to_png
+      pdf = MiniMagick::Image.new(current_path)
+      MiniMagick::Tool::Convert.new do |convert|
+        convert.density(pdf.resolution.map { |t| t * 4 }.join('x'))
+        convert.trim
+        convert.quality(100)
+        convert.flatten
+        convert.resize('25%')
+        convert.colorspace('RGB')
+        convert << current_path + '[0]'
+        convert << Rails.root.join('public', store_path)
+      end
+      FileUtils.rm_f(current_path)
     end
 
     def metadata
