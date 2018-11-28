@@ -12,6 +12,12 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_links,
+                'feratel_locations',
+                DataCycleCore::Classification,
+                external_source_id, lambda { |s|
+                  s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] }
+                })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap, 'Position')
