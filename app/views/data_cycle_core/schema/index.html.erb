@@ -1,0 +1,15 @@
+<% breadcrumb :schema, autoroot: false %>
+
+<h1><%= t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language)%></h1>
+
+<ul>
+  <% ['container', 'entity'].each do |content_type| %>
+    <li><%= t("data_cycle_core.schema.#{content_type.pluralize}", locale: DataCycleCore.ui_language) %></li>
+
+    <ul class="<%= content_type %>_templates">
+      <% DataCycleCore::Schema.templates_with_content_type(content_type).order(:template_name).each do |template| %>
+        <li><%= template.template_name %></li>
+      <% end %>
+    </ul>
+  <% end %>
+</ul>

@@ -14,6 +14,8 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
 
+  get '/schema', to: 'schema#index'
+
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
