@@ -7,7 +7,7 @@ module DataCycleCore
     load_and_authorize_resource         # from cancancan (authorize)
 
     def index
-      @paginate_object = current_user.watch_lists.page(params[:page])
+      @contents = current_user.watch_lists.page(params[:page])
     end
 
     def show
@@ -24,9 +24,8 @@ module DataCycleCore
         }
       )
 
-      @paginate_object = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @paginate_object.total_count
-      @contents = @paginate_object.map(&:content_data)
+      @contents = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+      @total = @contents.total_count
 
       respond_to do |format|
         format.html
@@ -96,7 +95,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :removedFrom, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
@@ -111,7 +110,7 @@ module DataCycleCore
       end
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.headline, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
@@ -119,7 +118,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:headline, user_group_ids: [])
+      params.require(:watch_list).permit(:name, user_group_ids: [])
     end
 
     def hashable_params

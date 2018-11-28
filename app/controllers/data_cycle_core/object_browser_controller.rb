@@ -20,6 +20,8 @@ module DataCycleCore
         template_name = @definition.fetch(:template_name, nil)
         stored_filter = @definition.fetch(:stored_filter, nil)
 
+        @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
+
         if stored_filter.present?
           stored_filter_params = stored_filter.to_a.map(&:to_h).map do |f|
             f.each_with_object({}) do |(k, v), hash|
@@ -31,8 +33,8 @@ module DataCycleCore
           query = filter.apply
         else
           query = filter.apply
-          query = query.where(content_data_type: data_cycle_object(linked_table).to_s) if data_cycle_object(linked_table)
-          query = query.where(data_type: template_name.to_s) if template_name
+          query = query.where(searches: { content_data_type: data_cycle_object(linked_table).to_s }) if data_cycle_object(linked_table)
+          query = query.where(template_name: template_name.to_s) if template_name
         end
 
         order_string = DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search])
@@ -41,7 +43,9 @@ module DataCycleCore
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
-        query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.enabled? && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'creative_works'
+        unless template_name == 'contentLocation'
+          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'things'
+        end
 
         query = query.order(order_string)
 
@@ -57,7 +61,7 @@ module DataCycleCore
         end
         @page ||= 1
 
-        @results = query.page(@page).per(@per).includes(content_data: [:translations]).map(&:content_data)
+        @results = query.page(@page).per(@per).includes(:translations)
 
         respond_to(:js)
       end
@@ -91,7 +95,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+      params.permit(*permitted_parameter_keys)
     end
 
     def permitted_parameter_keys

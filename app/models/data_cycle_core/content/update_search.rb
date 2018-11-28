@@ -35,56 +35,59 @@ module DataCycleCore
 
       def update_search(language)
         return if search_property_names.blank?
+
         I18n.with_locale(language) do
           full_text = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
           full_text = '' if full_text.nil?
           full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
           full_text_most = '' if full_text_most.nil?
-          headline = try('send', 'headline')
+          headline = try('send', 'title')
           headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
           headline = '' if headline.nil?
           classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
           classification_string = '' if classification_string.nil?
           all_text = [headline, classification_string, full_text].join(' ')
-
           # TODO: remove hardcoded metadata
           validity_hash = metadata.nil? ? nil : metadata['validity_period']
           validity_string = get_validity(validity_hash)
           boost = schema['boost'] || 1.0
+          schema_type = schema.dig('schema_type')
 
           connection = ActiveRecord::Base.connection
           sql_query = <<-EOS
-          INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
-            created_at, updated_at, headline, classification_string, data_type, all_text, validity_period,boost)
-          VALUES
-          ( DEFAULT,
-            '#{id}',
-            '#{self.class}',
-            '#{language}',
-            to_tsvector('simple', '#{full_text}'),
-            '#{full_text_most}',
-            '#{created_at}',
-            '#{Time.zone.now.to_s(:long_usec)}',
-            '#{headline}',
-            '#{classification_string}',
-            '#{template_name}',
-            '#{all_text}',
-            '#{validity_string}',
-            #{boost}
-          )
-          ON CONFLICT (content_data_id, content_data_type, locale)
-          WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{language}'
-          DO UPDATE SET
-            words = EXCLUDED.words,
-            full_text = EXCLUDED.full_text,
-            created_at = EXCLUDED.created_at,
-            updated_at = EXCLUDED.updated_at,
-            headline = EXCLUDED.headline,
-            classification_string = EXCLUDED.classification_string,
-            data_type = EXCLUDED.data_type,
-            all_text = EXCLUDED.all_text,
-            validity_period = EXCLUDED.validity_period,
-            boost = EXCLUDED.boost;
+            INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
+              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type)
+            VALUES
+            ( DEFAULT,
+              '#{id}',
+              '#{self.class}',
+              '#{language}',
+              to_tsvector('simple', '#{full_text}'),
+              '#{full_text_most}',
+              '#{created_at}',
+              '#{Time.zone.now.to_s(:long_usec)}',
+              '#{headline}',
+              '#{classification_string}',
+              '#{template_name}',
+              '#{all_text}',
+              '#{validity_string}',
+              #{boost},
+              '#{schema_type}'
+            )
+            ON CONFLICT (content_data_id, content_data_type, locale)
+            WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{language}'
+            DO UPDATE SET
+              words = EXCLUDED.words,
+              full_text = EXCLUDED.full_text,
+              created_at = EXCLUDED.created_at,
+              updated_at = EXCLUDED.updated_at,
+              headline = EXCLUDED.headline,
+              classification_string = EXCLUDED.classification_string,
+              data_type = EXCLUDED.data_type,
+              all_text = EXCLUDED.all_text,
+              validity_period = EXCLUDED.validity_period,
+              boost = EXCLUDED.boost,
+              schema_type = EXCLUDED.schema_type;
           EOS
           connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         end

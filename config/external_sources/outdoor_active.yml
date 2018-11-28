@@ -97,10 +97,10 @@ config:
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
         tour:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: Tour
     places:
       sorting: 21
@@ -108,8 +108,8 @@ config:
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPlaces
       transformations:
         image:
-          content_type: DataCycleCore::CreativeWork
+          content_type: DataCycleCore::Thing
           template: Bild
         place:
-          content_type: DataCycleCore::Place
+          content_type: DataCycleCore::Thing
           template: POI

@@ -154,159 +154,71 @@ module DataCycleCore
         end
 
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.Categories('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Categories('Show' => true)
           end
         end
 
         def create_locations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.Countries('Show' => true, 'IncludeTranslations' => true)
-              xml.Regions('Show' => true, 'IncludeTranslations' => true)
-              xml.Towns('Show' => true, 'IncludeTranslations' => true)
-              xml.Districts('Show' => true, 'IncludeTranslations' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Countries('Show' => true, 'IncludeTranslations' => true)
+            xml.Regions('Show' => true, 'IncludeTranslations' => true)
+            xml.Towns('Show' => true, 'IncludeTranslations' => true)
+            xml.Districts('Show' => true, 'IncludeTranslations' => true)
           end
         end
 
         def create_holiday_themes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.HolidayThemes('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HolidayThemes('Show' => true)
           end
         end
 
         def create_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.InfrastructureTypes('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.InfrastructureTypes('Show' => true)
           end
         end
 
         def create_infrastructure_topics_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.InfrastructureTopics('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.InfrastructureTopics('Show' => true)
           end
         end
 
         def create_custom_attributes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.CustomAttributes('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.CustomAttributes('Show' => true)
           end
         end
 
         def create_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.FacilityGroups('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.FacilityGroups('Show' => true)
           end
         end
 
         def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.Facilities('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Facilities('Show' => true)
           end
         end
 
         def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.Stars('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Stars('Show' => true)
           end
         end
 
         def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.Classifications('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Classifications('Show' => true)
           end
         end
 
         def create_rating_questions_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
-          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
-            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
-              xml.Translations do
-                Array(lang).each do |l|
-                  xml.Language('Value' => l.to_s)
-                end
-              end
-
-              xml.RatingQuestions('Show' => true)
-            end
+          create_key_value_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.RatingQuestions('Show' => true)
           end
         end
 
@@ -425,6 +337,20 @@ module DataCycleCore
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
                 xml.GTC('DateFrom' => '1980-01-01')
               end
+            end
+          end
+        end
+
+        def create_key_value_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
+              xml.Translations do
+                Array(lang).each do |l|
+                  xml.Language('Value' => l.to_s)
+                end
+              end
+
+              yield(xml)
             end
           end
         end

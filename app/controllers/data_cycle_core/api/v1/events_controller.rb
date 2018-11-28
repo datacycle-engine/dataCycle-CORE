@@ -5,7 +5,7 @@ module DataCycleCore
     module V1
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
-          query = Event.includes(:translations, :classifications).with_content_type('entity')
+          query = DataCycleCore::Thing.includes(:translations, :classifications).with_schema_type('Event').with_content_type('entity')
           if permitted_params&.dig(:q)
             query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language, DataCycleCore.ui_language))
           end
@@ -33,7 +33,7 @@ module DataCycleCore
         end
 
         def show
-          @content = Event.includes(:classifications, :translations).find(permitted_params[:id])
+          @content = DataCycleCore::Thing.with_schema_type('Event').includes(:classifications, :translations).find(permitted_params[:id])
         end
 
         def permitted_parameter_keys

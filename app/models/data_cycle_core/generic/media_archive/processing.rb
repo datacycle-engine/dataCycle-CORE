@@ -15,7 +15,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_place_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_content_location(template),
-            default: { content_type: DataCycleCore::Place, template: 'Örtlichkeit' },
+            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
             config: config
           )
         end
@@ -26,7 +26,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_bild(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end
@@ -37,7 +37,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_video(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Video' },
+            default: { content_type: DataCycleCore::Thing, template: 'Video' },
             config: config
           )
         end
@@ -52,7 +52,7 @@ module DataCycleCore
 
         def self.process_person(utility_object, raw_data, external_key, config)
           return nil if raw_data.blank?
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Person
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(

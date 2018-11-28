@@ -13,7 +13,7 @@ module DataCycleCore
         @options = options.with_indifferent_access
         @external_source = options[:external_source]
         @source_object = DataCycleCore::Generic::Collection
-        @source_type = Mongoid::PersistenceContext.new(source_object, collection: options.dig(:download, :source_type))
+        @source_type = Mongoid::PersistenceContext.new(@source_object, collection: options.dig(:download, :source_type))
         @logging = init_logging(:download)
 
         if options&.dig(:download, :read_type).present?

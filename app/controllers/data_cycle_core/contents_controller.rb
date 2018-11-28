@@ -23,10 +23,10 @@ module DataCycleCore
 
       if DataCycleCore::Feature::Container.enabled? &&
          @content.content_type?('entity') &&
-         @content.class.name == 'DataCycleCore::CreativeWork' &&
+         @content.class.name == 'DataCycleCore::Thing' &&
          !['Bild', 'Video', 'Video-Serie', 'Foto-Serie'].include?(@content.template_name)
         I18n.with_locale(DataCycleCore.ui_language) do
-          @parents = DataCycleCore::CreativeWork.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
+          @parents = DataCycleCore::Thing.where("schema ->> 'content_type' = 'container' AND template = FALSE").includes(:translations).map { |c| [c.title, c.id] }.presence&.to_h
         end
       end
 
@@ -42,14 +42,13 @@ module DataCycleCore
 
           @language ||= params.fetch(:language, ['all'])
           if @content.children.present?
-            @paginate_object = get_filtered_results
-            @total = @paginate_object.count_distinct
-            @paginate_object = @paginate_object.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+            @contents = get_filtered_results
+            @total = @contents.count_distinct
             @total_pages = (@total.to_f / 25).ceil
-            @contents = @paginate_object.map(&:content_data)
+            @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
           end
 
-          @entities = DataCycleCore::CreativeWork.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
+          @entities = DataCycleCore::Thing.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
           @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
           @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
           @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
@@ -64,9 +63,9 @@ module DataCycleCore
 
     def create
       if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, data_cycle_object(controller_name))
+        authorize!(:create_in_objectbrowser, params[:template])
       else
-        authorize!(:create, data_cycle_object(controller_name))
+        authorize!(__method__, controller_path.classify.constantize)
       end
 
       I18n.with_locale(locale_params[:locale]) do
@@ -113,7 +112,7 @@ module DataCycleCore
       if params[:locale] &&
          !@content.translated_locales.include?(params[:locale]&.to_sym) &&
          I18n.available_locales.include?(params[:locale]&.to_sym) &&
-         (DataCycleCore.translatable_types & [@content.class.name, @content.template_name]).present?
+         @content.translatable?
         I18n.with_locale(params[:locale]) do
           @content.save
         end
@@ -150,7 +149,9 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-        if (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        if params[:new_locale].present?
+          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(polymorphic_path(@content, watch_list_params))
@@ -207,7 +208,7 @@ module DataCycleCore
       content = params[:data].as_json
       external_source = DataCycleCore::ExternalSource.find(content['source_key'])
       api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
-      api_strategy = api_strategy_class&.constantize&.new(external_source, 'creative_work', content.values.first['url'].split('/').last)
+      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last)
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 
@@ -294,13 +295,14 @@ module DataCycleCore
 
     def upload
       return if asset_params[:file].blank?
+
       object_type = DataCycleCore.asset_objects.find { |object| object.downcase.include?(asset_params[:file].content_type&.split('/')&.first&.downcase) }
 
       render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
 
       authorize! :create, object_type.constantize
 
-      @asset = object_type.constantize.new(asset_params).set_content_type.set_file_size
+      @asset = object_type.constantize.new(asset_params)
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
       @asset.save

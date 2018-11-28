@@ -14,7 +14,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Bilder',
         'type' => 'embedded',
-        'linked_table' => 'creative_works',
+        'linked_table' => 'things',
         'template_name' => 'Bild',
         'validations' => {
           'max' => 1
@@ -26,7 +26,7 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Geplante Publikation',
         'type' => 'embedded',
-        'linked_table' => 'creative_works',
+        'linked_table' => 'things',
         'template_name' => 'Publikations-Plan',
         'validations' => {
           'classifications' => 'no_conflicts'
@@ -39,20 +39,20 @@ describe DataCycleCore::MasterData::Validators::Embedded do
     end
 
     let(:bild1) do
-      DataCycleCore::CreativeWork.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000') do |item|
-        item.headline = 'Bild1'
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000000') do |item|
+        item.name = 'Bild1'
       end
     end
 
     let(:bild2) do
-      DataCycleCore::CreativeWork.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
-        item.headline = 'Bild2'
+      DataCycleCore::Thing.find_or_create_by!(id: '00000000-0000-0000-0000-000000000001') do |item|
+        item.name = 'Bild2'
       end
     end
 
     after do
-      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
-      DataCycleCore::CreativeWork.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
+      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
+      DataCycleCore::Thing.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
     end
 
     it 'successfully validates embedded Bild' do
@@ -160,8 +160,8 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       old_class = DataCycleCore.features[:publication_schedule][:classification_keys]
       DataCycleCore.features[:publication_schedule][:classification_keys] = ['output_channel', 'markets']
 
-      market1 = DataCycleCore::Classification.where(name: 'Australien').first.id
-      market2 = DataCycleCore::Classification.where(name: 'Belgien').first.id
+      market1 = DataCycleCore::Classification.where(name: 'Markt 1').first.id
+      market2 = DataCycleCore::Classification.where(name: 'Markt 2').first.id
 
       output_channel1 = DataCycleCore::Classification.where(name: 'Web').first.id
       output_channel2 = DataCycleCore::Classification.where(name: 'Social Media').first.id

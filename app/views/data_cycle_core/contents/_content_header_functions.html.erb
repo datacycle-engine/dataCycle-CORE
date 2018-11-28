@@ -4,9 +4,9 @@
 
         <%= render 'locale_links', local_assigns if content.try(:translated_locales)&.many? %>
 
-        <% if can?(:index, content) && content.respond_to?(:siblings) && content.respond_to?(:parent) && !content.parent.nil? && !content.siblings.try(:size).nil? && !content.siblings.try(:size).zero? %>
+        <% if can?(:index, content) && content.parent.present? && content.siblings.exists? %>
           <li class="has-dropdown">
-            <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_creative_work_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
+            <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
         <% if content.content_type?('container') && I18n.available_locales&.many? && content.try(:children).present? %>

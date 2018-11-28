@@ -18,13 +18,17 @@ module DataCycleCore
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:)
+        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
 
-          content = class_type.find_or_initialize_by(
-            external_source_id: utility_object.external_source.id,
-            external_key: data['external_key']
-          )
+          if local
+            content = class_type.new
+          else
+            content = class_type.find_or_initialize_by(
+              external_source_id: utility_object.external_source.id,
+              external_key: data['external_key']
+            )
+          end
           content.metadata ||= {}
           content.schema = template.schema
           content.template_name = template.template_name
@@ -37,7 +41,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: true, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -70,7 +74,7 @@ module DataCycleCore
                   source_filter = options&.dig(:import, :source_filter) || {}
 
                   if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                    source_filter = source_filter.merge({ :updated_at.gte => utility_object.external_source.last_import })
+                    source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import })
                   end
                   durations = []
 
@@ -217,7 +221,7 @@ module DataCycleCore
           end
 
           classification.name = classification_data[:name]
-          classification.description = classification_data[:description]
+          classification.description = classification_data[:description] if classification_data[:description].present?
           classification.external_key = classification_data[:external_key]
 
           if classification.new_record?
@@ -248,7 +252,7 @@ module DataCycleCore
           else
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.name = classification_data[:name]
-            primary_classification_alias.description = classification_data[:description]
+            primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree

@@ -54,7 +54,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE ?", "%#{q}%")
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR classification_aliases.description ILIKE :q", q: "%#{q}%")
     end
 
     def self.order_by_similarity(term)
@@ -72,6 +72,10 @@ module DataCycleCore
 
     def primary_classification
       classifications.min_by { |c| (created_at - c.created_at).abs }
+    end
+
+    def primary_classification_id
+      primary_classification&.id
     end
 
     def linked_contents

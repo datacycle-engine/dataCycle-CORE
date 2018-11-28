@@ -17,7 +17,7 @@ module DataCycleCore
 
         test '/api/v2/contents/search default results' do
           get api_v2_contents_search_path
-          count = DataCycleCore::Search.select(:content_data_id).distinct.limit(25).size
+          count = DataCycleCore::Search.select(:id).distinct.limit(25).size
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -40,7 +40,7 @@ module DataCycleCore
 
         test '/api/v2/creative_works default results' do
           get api_v2_creative_works_path
-          count = DataCycleCore::CreativeWork.where(template: false).limit(25).size
+          count = DataCycleCore::Thing.where("metadata ->> 'schema_type' = 'CreativeWork'").where(template: false).limit(25).size
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -89,8 +89,8 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal 13, json_data['data'].length
-          assert_equal 13, json_data['meta']['total'].to_i
+          assert_equal 11, json_data['data'].length
+          assert_equal 11, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
 
           test_classification = json_data['data'].select { |a| a['name'] == 'Tags' }.first['id']

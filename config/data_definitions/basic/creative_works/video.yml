@@ -2,6 +2,7 @@
 - :data:
     :name: Video
     :type: object
+    :schema_type: CreativeWork
     :content_type: entity
     :boost: 10.0
     :api:
@@ -77,7 +78,7 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: places
+        :linked_table: things
         :template_name: Örtlichkeit
       :width:
         :label: Breite
@@ -108,12 +109,12 @@
       :director:
         :label: "Regie"
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
       :contributor:
         :label: "Kamera"
         :type: linked
-        :linked_table: persons
+        :linked_table: things
         :template_name: Person
       :data_type:
         :label: Inhaltstype

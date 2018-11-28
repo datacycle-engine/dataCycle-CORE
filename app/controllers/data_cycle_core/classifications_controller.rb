@@ -12,6 +12,7 @@ module DataCycleCore
           authorize! :index, DataCycleCore::ClassificationTreeLabel
 
           @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
+            .includes(classification_aliases: :classifications)
             .order(:created_at)
             .distinct
         end
@@ -114,7 +115,7 @@ module DataCycleCore
     def update
       permitted_params = params.permit(
         classification_tree_label: [:id, :name, :internal],
-        classification_alias: [:id, :name, :internal, :assignable, classification_ids: []]
+        classification_alias: [:id, :name, :internal, :assignable, :description, classification_ids: []]
       )
 
       respond_to do |format|

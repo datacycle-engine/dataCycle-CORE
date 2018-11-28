@@ -27,7 +27,7 @@
     li {
       .watch-list-item {
         padding: 0 0 0.5rem 0;
-        .watchlist-headline {
+        .watchlist-name {
           width: 100%;
           display: block;
           i.fa{
@@ -131,7 +131,7 @@
   }
 }
 
-.watchlist-headline{
+.watchlist-name{
   .fa{
     font-size: 1rem;
   }

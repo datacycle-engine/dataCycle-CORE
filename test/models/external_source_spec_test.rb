@@ -45,7 +45,7 @@ describe DataCycleCore::ExternalSource do
             import_strategy: 'DataCycleCore::Generic::GooglePlaces::Import',
             transformations: {
               place: {
-                content_type: 'DataCycleCore::Place',
+                content_type: 'DataCycleCore::Thing',
                 template: 'Örtlichkeit'
               }
             }

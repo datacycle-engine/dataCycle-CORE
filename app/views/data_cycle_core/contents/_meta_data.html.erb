@@ -1,7 +1,7 @@
 <div class="metadata">
 
     <span class="type <%= content.template_name.downcase %>">
-        <%= render_content_partial 'icon', content: content %>
+        <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.downcase %>
         <%= t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
     </span>
 

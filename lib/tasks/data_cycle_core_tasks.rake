@@ -35,6 +35,11 @@ delete_contents = <<-EOS
   DELETE FROM searches;
 EOS
 
+delete_assets = <<-EOS
+  DELETE FROM assets;
+  DELETE FROM asset_contents;
+EOS
+
 delete_content_histories = <<-EOS
   DELETE FROM creative_work_histories;
   DELETE FROM creative_work_history_translations;
@@ -65,6 +70,7 @@ Rake::Task['db:create'].enhance do
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
   else
     ActiveRecord::Base.establish_connection(:development)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -72,6 +78,8 @@ Rake::Task['db:create'].enhance do
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:development)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.establish_connection(:development)
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
 
     ActiveRecord::Base.establish_connection(:test)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "postgis";')
@@ -79,6 +87,8 @@ Rake::Task['db:create'].enhance do
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "uuid-ossp";')
     ActiveRecord::Base.establish_connection(:test)
       .connection.execute('CREATE EXTENSION IF NOT EXISTS "pg_trgm";')
+    ActiveRecord::Base.establish_connection(:test)
+      .connection.execute('CREATE EXTENSION IF NOT EXISTS "pgcrypto";')
   end
 end
 
@@ -90,6 +100,7 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
+      ActiveRecord::Base.connection.execute(delete_assets)
     end
 
     desc 'Remove all contents related data like creative works and places (does not remove classifications)'
@@ -97,6 +108,11 @@ namespace :data_cycle_core do
       ActiveRecord::Base.connection.execute(delete_secondary_data)
       ActiveRecord::Base.connection.execute(delete_contents)
       ActiveRecord::Base.connection.execute(delete_content_histories)
+    end
+
+    desc 'Remove all assets and asset relations'
+    task assets: :environment do
+      ActiveRecord::Base.connection.execute(delete_assets)
     end
 
     desc 'Remove the history of all content data'
@@ -656,20 +672,6 @@ namespace :data_cycle_core do
   end
 
   namespace :refactor do
-    desc 'executes all migration tasks'
-    task migrate_all_templates: :environment do
-      temp = Time.zone.now
-
-      Rake::Task['db:migrate'].invoke
-      Rake::Task['data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['data_cycle_core:update:import_templates'].invoke
-      Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
-      Rake::Task['data_cycle_core:update:update_all_templates_sql'].invoke(true)
-
-      puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
-    end
-
     desc 'dev mode'
     task restore_dev_mode: :environment do
       temp = Time.zone.now
@@ -763,5 +765,16 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> MIGRATION COMPLETE #{(Time.zone.now - temp).round(3)}"
     end
+  end
+
+  desc 'reset database and import classifications, external sources and templates'
+  task reset_all: :environment do
+    Rake::Task['db:drop'].invoke
+    Rake::Task['db:create'].invoke
+    Rake::Task['db:migrate'].invoke
+    Rake::Task['db:seed'].invoke
+    Rake::Task['data_cycle_core:update:import_classifications'].invoke
+    Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
+    Rake::Task['data_cycle_core:refactor:import_update_all_templates'].invoke
   end
 end

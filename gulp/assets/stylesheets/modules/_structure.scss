@@ -26,7 +26,7 @@ textarea {
 }
 
 .fa {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 /* Header */
@@ -40,7 +40,12 @@ header {
     padding: 0;
     background-color: $black;
     line-height: 4.1rem;
-    background: linear-gradient(to bottom, darken($black, 15%) 0%, $black 50%, lighten($black, 7%) 100%);
+    background: linear-gradient(
+      to bottom,
+      darken($black, 15%) 0%,
+      $black 50%,
+      lighten($black, 7%) 100%
+    );
     .logo {
       padding: 0 0 0 1rem;
       float: left;
@@ -83,14 +88,24 @@ header {
       }
       button {
         background-color: $black;
-        background: linear-gradient(to top, darken($black, 3%) 0%, $black 50%, lighten($black, 10%) 100%);
-        &[aria-expanded=true] {
+        background: linear-gradient(
+          to top,
+          darken($black, 3%) 0%,
+          $black 50%,
+          lighten($black, 10%) 100%
+        );
+        &[aria-expanded='true'] {
           outline: none;
           background: map-get($foundation-palette, primary);
         }
         &:focus,
         &:hover {
-          background: linear-gradient(to bottom, $black 0%, $black 50%, lighten($black, 10%) 100%);
+          background: linear-gradient(
+            to bottom,
+            $black 0%,
+            $black 50%,
+            lighten($black, 10%) 100%
+          );
           box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.7);
         }
         span {
@@ -113,7 +128,7 @@ header {
   z-index: 5;
   bottom: 2rem;
   right: 2rem;
-  >a {
+  > a {
     z-index: 1006;
   }
 }
@@ -128,7 +143,7 @@ header {
   border: 0;
   background-color: white;
   max-width: 32rem;
-  box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.20);
+  box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.2);
   &:focus,
   &:active {
     border: 0;
@@ -161,7 +176,7 @@ header {
         position: absolute;
         bottom: -1.5rem;
         right: 1rem;
-        filter: drop-shadow(1px 4px 2px rgba(0, 1, 1, 0.20));
+        filter: drop-shadow(1px 4px 2px rgba(0, 1, 1, 0.2));
       }
       &:hover:after {
         @include css-triangle(1.5rem, $primary-color, 'down');
@@ -209,7 +224,7 @@ button.button-prime {
     font-size: 3rem;
   }
   &:focus,
-  &:hover {
+  &:hoverprime {
     background-color: lighten($primary-color, 10%);
   }
   &:active {
@@ -268,7 +283,7 @@ body.login-page {
         font-weight: normal;
         text-align: center;
       }
-      button[type=submit].button {
+      button[type='submit'].button {
         background-color: $dark-gray;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         padding: 0.8rem 1rem;
@@ -373,11 +388,11 @@ body.login-page {
     background-position: center bottom;
     background-attachment: fixed;
     background-size: cover;
-    content: "";
+    content: '';
     transition: all 1s ease-out;
   }
   &.show::after {
-    filter: url("data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%225%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3C%2Fsvg%3E#blur");
+    filter: url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%225%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3C%2Fsvg%3E#blur');
     -webkit-filter: blur(5px);
     filter: blur(5px);
   }
@@ -388,7 +403,7 @@ body.login-page {
     width: 100%;
     height: 100%;
     background-color: #fff;
-    -ms-filter: "progid:DXImageTransform.Microsoft.Alpha(opacity=20)";
+    -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(opacity=20)';
   }
 }
 

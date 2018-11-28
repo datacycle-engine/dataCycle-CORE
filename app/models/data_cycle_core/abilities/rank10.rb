@@ -16,9 +16,9 @@ module DataCycleCore
         end
 
         # Contents
-        can [:set_life_cycle, :move_content], CONTENT_MODELS.map(&:constantize)
+        can [:set_life_cycle, :move_content], DataCycleCore::Thing
 
-        can :destroy, CONTENT_MODELS.map(&:constantize) do |content|
+        can :destroy, DataCycleCore::Thing do |content|
           content.try(:external_key).blank?
         end
 

@@ -1,11 +1,11 @@
 <li>
     <span class="watch-list-item">
-        <span class="watchlist-headline">
+        <span class="watchlist-name">
         <%= link_to watch_list_path(watch_list), class: 'watchlist-link' do %>
             <% if watch_list.watch_list_user_groups.size.positive? %>
                 <i class="fa fa-users"></i>
             <% end %>
-            <%= watch_list.headline %>
+            <%= watch_list.name %>
         <% end %>
         </span>
     </span>

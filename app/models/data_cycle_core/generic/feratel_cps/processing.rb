@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'POI' },
+            default: { content_type: DataCycleCore::Thing, template: 'POI' },
             config: config
           )
         end
@@ -19,7 +19,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_slope(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Piste' },
+            default: { content_type: DataCycleCore::Thing, template: 'Piste' },
             config: config
           )
         end
@@ -29,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::FeratelCps::Transformations.feratel_to_lift(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Lift' },
+            default: { content_type: DataCycleCore::Thing, template: 'Lift' },
             config: config
           )
         end

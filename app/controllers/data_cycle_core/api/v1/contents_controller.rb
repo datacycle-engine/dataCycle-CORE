@@ -41,7 +41,7 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.where(content_data_type: content_data_type) if content_data_type
+          query = query.where("searches.content_data_type = 'DataCycleCore::Thing'")
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
@@ -50,19 +50,19 @@ module DataCycleCore
 
           @total = query.count
 
-          @contents = apply_paging(query).map(&:content_data)
+          @contents = apply_paging(query)
         end
 
         def deleted
-          deleted_contents = DataCycleCore::CreativeWork::History.where(
-            DataCycleCore::CreativeWork::History.arel_table[:deleted_at].not_eq(nil)
+          deleted_contents = DataCycleCore::Thing::History.where(
+            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
           @language = permitted_params.fetch(:language, current_user.default_locale)
 
           if permitted_params[:deleted_since]
             deleted_contents = deleted_contents.where(
-              DataCycleCore::CreativeWork::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params[:deleted_since]))
             )
           end
 
@@ -82,12 +82,6 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
-        end
-
-        def content_data_type
-          return unless permitted_params[:type]
-          object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-          ('DataCycleCore::' + object_type.singularize.classify).constantize
         end
 
         def apply_ordering(query)

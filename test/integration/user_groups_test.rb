@@ -13,8 +13,11 @@ module DataCycleCore
     end
 
     test 'show user_groups index page' do
-      get user_groups_path
+      get user_groups_path, params: {
+        q: 'test group'
+      }
       assert_response :success
+      assert_select 'li.grid-item > .inner > .title', { count: 1, text: 'TestUserGroup' }
     end
 
     test 'create new user_group' do
@@ -28,7 +31,7 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal 'Benutzergruppe wurde erfolgreich erstellt.', flash[:success]
+      assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item > .inner > .title', group_name
     end
@@ -50,7 +53,7 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal 'Benutzergruppe wurde aktualisiert.', flash[:success]
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item > .inner > .infoRow > .title', 'Benutzergruppe (1)'
       assert_select 'li.grid-item > .inner > .title', group_name
@@ -64,7 +67,7 @@ module DataCycleCore
       }
 
       assert_redirected_to user_groups_path
-      assert_equal 'Benutzergruppe wurde gelöscht.', flash[:success]
+      assert_equal I18n.t(:destroyed, scope: [:controllers, :success], data: 'Benutzergruppe', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item > .inner > .title', { count: 0, text: 'TestUserGroup' }
     end

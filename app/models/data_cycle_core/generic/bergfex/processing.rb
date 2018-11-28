@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_see,
-            default: { content_type: DataCycleCore::Place, template: 'See' },
+            default: { content_type: DataCycleCore::Thing, template: 'See' },
             config: config
           )
         end
@@ -25,7 +25,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Bergfex::Transformations.bergfex_to_ski_resort(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Place, template: 'Skigebiet' },
+            default: { content_type: DataCycleCore::Thing, template: 'Skigebiet' },
             config: config
           )
         end

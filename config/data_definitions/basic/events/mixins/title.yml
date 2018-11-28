@@ -6,7 +6,7 @@
       :name:
         :label: Titel
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
         :search: true
         :validations:
           :min: 1
@@ -14,4 +14,4 @@
           :show:
             :disabled: true
         :api:
-          :minimal: true
+          :minimal: true            

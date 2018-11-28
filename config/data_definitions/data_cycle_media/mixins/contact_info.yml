@@ -1,0 +1,35 @@
+---
+- :data:
+    :name: contact_info
+    :type: mixin
+    :properties:
+      :contact_info:
+        :label: Kontakt
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :telephone:
+            :label: Telefonnummer
+            :type: string
+            :storage_location: translated_value
+          :fax_number:
+            :label: Fax
+            :type: string
+            :storage_location: translated_value
+          :email:
+            :label: E-Mail
+            :type: string
+            :storage_location: translated_value
+#            :validations:
+#              :format: email
+          :url:
+            :label: Web
+            :type: string
+            :storage_location: translated_value
+            :api:
+              :name: website
+#            :validations:
+#              :format: url

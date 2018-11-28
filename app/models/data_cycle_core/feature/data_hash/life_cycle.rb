@@ -5,6 +5,10 @@ module DataCycleCore
     module DataHash
       module LifeCycle
         def self.prepended(base)
+          base.before_save_data_hash :set_changed_life_cycle_stage, if: proc {
+            @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.present? &&
+              life_cycle_stage&.id != @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
+          }
           base.before_save_data_hash :inherit_life_cycle_attributes, if: -> { @new_content && @source.present? }
         end
 
@@ -38,6 +42,10 @@ module DataCycleCore
             end
             @data_hash = source_data_hash.merge(@data_hash)
           end
+        end
+
+        def set_changed_life_cycle_stage
+          @changed_life_cycle_stage = @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
         end
       end
     end

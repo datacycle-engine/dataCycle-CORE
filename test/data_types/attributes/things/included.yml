@@ -1,0 +1,97 @@
+---
+- :data:
+    :name: Included-Object-Creative-Work
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: created_at
+            :to: updated_at
+        :properties:
+          :created_at:
+            :label: Gültigkeit
+            :type: datetime
+            :storage_location: column
+          :updated_at:
+            :label: bis
+            :type: datetime
+            :storage_location: column
+
+- :data:
+    :name: Nested-Included-Object-Creative-Work
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :period:
+        :label: Gültigkeitszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: created_at
+            :to: updated_at
+        :properties:
+          :created_at:
+            :label: Gültigkeit
+            :type: datetime
+            :storage_location: column
+          :updated_at:
+            :label: bis
+            :type: datetime
+            :storage_location: column
+          :description:
+            :label: Beschreibung
+            :type: string
+            :storage_location: value
+          :validity_period:
+            :label: Zeitraum
+            :type: object
+            :storage_location: value
+            :validations:
+              :daterange:
+                :from: valid_from
+                :to: valid_until
+            :properties:
+              :valid_from:
+                :label: Gültigkeit
+                :type: datetime
+                :storage_location: value
+              :valid_until:
+                :label: bis
+                :type: datetime
+                :storage_location: value

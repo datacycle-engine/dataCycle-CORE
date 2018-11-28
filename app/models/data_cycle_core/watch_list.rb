@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WatchList < ApplicationRecord
-    validates :headline, presence: true
+    validates :name, presence: true
 
     scope :by_user, ->(user) { where user: user }
 

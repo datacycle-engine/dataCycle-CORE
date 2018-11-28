@@ -7,7 +7,21 @@ module DataCycleCore
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
-      @paginate_object = DataCycleCore::UserGroup.all.includes(:users).order(:name).page(params[:page])
+      @search_param = search_params[:q]
+
+      query = DataCycleCore::UserGroup.all
+
+      search_columns = DataCycleCore::UserGroup.columns
+        .select { |c| c.type == :string }
+        .map(&:name)
+
+      if @search_param.present?
+        search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
+        query = query.where(search_term)
+      end
+
+      @contents = query.includes(:users).order(:name).page(params[:page])
+      @total = @contents.total_count
     end
 
     def create
@@ -49,6 +63,10 @@ module DataCycleCore
     end
 
     private
+
+    def search_params
+      params.permit(:q)
+    end
 
     def user_group_params
       params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])

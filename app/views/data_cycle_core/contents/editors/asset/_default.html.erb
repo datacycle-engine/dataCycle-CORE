@@ -1,19 +1,28 @@
-<% if value.blank? %>
+<% value = value&.first %>
+<% if value.blank? || value.invalid? %>
+
+    <% if value&.invalid? && value.errors.size.positive? %>
+        <span id="<%= key %>" class="single_error">
+            <% value.errors.messages.dig(:file).each do |error| %>
+                <%= error %><br />
+            <% end %>
+        </span>
+    <% end %>
 
     <%= hidden_field_tag "#{key}", '', id: "#{sanitize_to_id(key)}_hidden" %>
     <%= file_field_tag "asset[file]", id:"#{sanitize_to_id(key)}_file" %>
 
+    <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addAsset">hochladen <i class="fa fa-upload"></i></button>
+
 <% else %>
 
-    <% asset = value.first %>
+    <% asset = value %>
     <%= hidden_field_tag "#{key}", asset.id, id: "#{sanitize_to_id(key)}_hidden" %>
 
-    <%= render_asset_viewer(key: key, definition: definition, value: value, parameters: { options: options }, content: content) %>
+    <%= render_asset_viewer(key: key, definition: definition, value: [value], parameters: { options: options }, content: content) %>
 
-<% end %>
+    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+        <button type="button" class="button removeAsset"><i class="fa fa-times"></i></button>
+    <% end %>
 
-<button id="add_<%= sanitize_to_id(key) %>" style="<%= 'display:none;' unless value.blank? %>" type="button" class="button addAsset">hochladen <i class="fa fa-upload"></i></button>
-
-<% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
-    <button type="button" style="<%= 'display:none;' if value.blank? %>" class="button removeAsset"><i class="fa fa-times"></i></button>
 <% end %>

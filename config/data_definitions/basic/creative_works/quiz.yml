@@ -2,6 +2,7 @@
 - :data:
     :name: Quiz
     :type: object
+    :schema_type: CreativeWork
     :content_type: entity
     :boost: 100.0
     :features:
@@ -38,7 +39,7 @@
       :question:
         :label: Frage
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Frage
       :data_type:
         :label: Inhaltstype
@@ -61,6 +62,7 @@
 - :data:
     :name: Frage
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :api:
       :type: Question
@@ -68,12 +70,14 @@
       :id:
         :label: id
         :type: key
-      :headline:
+      :name:
         :label: Titel
         :type: string
         :storage_location: column
         :validations:
           :min: 1
+        :api:
+          :name: headline
       :text:
         :label: Fließtext
         :type: string
@@ -86,21 +90,21 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :accepted_answer:
         :label: Richtige Antwort
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Antwort
         :validations:
           :max: 1
       :suggested_answer:
         :label: Falsche Antwort
         :type: embedded
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Antwort
       :data_type:
         :label: Inhaltstype
@@ -111,6 +115,7 @@
 - :data:
     :name: Antwort
     :type: object
+    :schema_type: CreativeWork
     :content_type: embedded
     :api:
       :type: Answer
@@ -132,7 +137,7 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: creative_works
+        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1

@@ -1,0 +1,25 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag key do %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= definition['label'] %>
+    <%= render 'helper_text', local_assigns %>
+  <% end %>
+
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
+
+  <ul class="no-bullet">
+    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :name) do |cb| %>
+      <li class="checkbox-wrap">
+        <%= cb.check_box value: cb.value, checked: value&.ids&.include?(cb.value) %>
+        <% if cb.object.try(:description).present? %>
+          <%= cb.label title: cb.object.try(:description), data: { tooltip: true } do %>
+            <%= cb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <% end %>
+        <% else %>
+          <%= cb.label %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end if classification_tree_label_has_children?(definition['tree_label']) %>

@@ -10,7 +10,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('image'),
             transformation: DataCycleCore::Generic::EventDatabase::Transformations.event_database_to_image(raw_data.dig('name')),
-            default: { content_type: DataCycleCore::CreativeWork, template: 'Bild' },
+            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
             config: config
           )
         end
@@ -21,13 +21,13 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::EventDatabase::Transformations.event_database_location_to_content_location,
-            default: { content_type: DataCycleCore::Place, template: 'Veranstaltungsort' },
+            default: { content_type: DataCycleCore::Thing, template: 'Veranstaltungsort' },
             config: config
           )
         end
 
         def self.process_event(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Event
+          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Event'
 
           sub_event_ids = loop_collect(raw_data, 'subEvents') do |item_data|

@@ -17,7 +17,7 @@ module DataCycleCore
           .>> t(:location)
           .>> t(:tags_to_ids, 'tags', external_source_id, 'Xamoom - tag - ')
           .>> t(:rename_keys, { 'tags' => 'xamoom_tags' })
-          .>> t(:add_field, 'image', ->(s) { s.dig('attributes', 'image').present? ? [DataCycleCore::CreativeWork.find_by(external_key: "Xamoom - #{s['id']}")&.id] : nil })
+          .>> t(:add_field, 'image', ->(s) { s.dig('attributes', 'image').present? ? [DataCycleCore::Thing.find_by(external_key: "Xamoom - #{s['id']} - image")&.id] : nil })
           .>> t(:add_field, 'external_key', ->(s) { "Xamoom - #{s['id']}" })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
@@ -26,8 +26,8 @@ module DataCycleCore
         def self.xamoom_to_image
           t(:stringify_keys)
           .>> t(:unwrap, 'attributes', ['name', 'image'])
-          .>> t(:rename_keys, { 'name' => 'headline', 'image' => 'thumbnail_url' })
-          .>> t(:add_field, 'external_key', ->(s) { "Xamoom - #{s['id']}" })
+          .>> t(:rename_keys, { 'image' => 'thumbnail_url' })
+          .>> t(:add_field, 'external_key', ->(s) { "Xamoom - #{s['id']} - image" })
           .>> t(:reject_keys, ['attributes', 'id'])
           .>> t(:strip_all)
         end
