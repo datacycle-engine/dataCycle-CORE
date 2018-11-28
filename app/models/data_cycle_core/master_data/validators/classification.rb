@@ -5,12 +5,12 @@ module DataCycleCore
     module Validators
       class Classification < BasicValidator
         def keywords
-          ['min', 'max']
+          ['min', 'max', 'required']
         end
 
         def validate(data, template)
           if blank?(data)
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language)
+            check_reference_array(data, template)
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
@@ -71,6 +71,10 @@ module DataCycleCore
 
         def max(data, value)
           (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
         end
       end
     end
