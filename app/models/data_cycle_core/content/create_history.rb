@@ -24,7 +24,6 @@ module DataCycleCore
         classification_content.all.find_each do |item|
           classification_history = DataCycleCore::ClassificationContent::History.new
           classification_history.content_data_history_id = data_set_history.id
-          classification_history.content_data_history_type = data_set_history.class.to_s
           item.attributes.except('id', 'content_data_id', 'content_data_type').each do |key, value|
             classification_history.send("#{key}=", value)
           end
@@ -37,35 +36,33 @@ module DataCycleCore
           content_relation = send(content_name)
           content_relation.each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
-            create_relation_history(new_content_history, data_set_history, content_name, index, save_time)
+            DataCycleCore::ContentContent::History.create!({
+              content_a_history_id: data_set_history.id,
+              relation_a: content_name,
+              order_a: index,
+              content_b_history_id: new_content_history.id,
+              content_b_history_type: 'DataCycleCore::Thing::History',
+              history_valid: (new_content_history.updated_at...save_time)
+            })
           end
         end
 
         linked_property_names.each do |content_name|
           content_relation = send(content_name)
           content_relation.each_with_index do |content_item, index|
-            create_relation_history(content_item, data_set_history, content_name, index, save_time)
+            DataCycleCore::ContentContent::History.create!({
+              content_a_history_id: data_set_history.id,
+              relation_a: content_name,
+              order_a: index,
+              content_b_history_id: content_item.id,
+              content_b_history_type: 'DataCycleCore::Thing',
+              history_valid: (content_item.updated_at...save_time)
+            })
           end
         end
 
         data_set_history.save
         data_set_history
-      end
-
-      def create_relation_history(content_item, data_set_history, content_name, index, save_time)
-        content_one_data = [content_item.id, content_item.class.to_s, '', nil]
-        content_two_data = [data_set_history.id, data_set_history.class.to_s, content_name, index]
-        content_relation_history_data = ['a', 'b'].map { |selector|
-          [
-            "content_#{selector}_history_id".to_sym,
-            "content_#{selector}_history_type".to_sym,
-            "relation_#{selector}".to_sym,
-            "order_#{selector}".to_sym
-          ]
-        }.flatten
-          .zip(content_two_data + content_one_data).to_h
-        content_relation_history_data['history_valid'] = (content_item.updated_at...save_time)
-        DataCycleCore::ContentContent::History.create!(content_relation_history_data)
       end
     end
   end

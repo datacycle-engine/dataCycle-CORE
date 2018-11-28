@@ -28,10 +28,10 @@ module DataCycleCore
           has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
 
           # relation content to all other contents
-          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
+          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
+          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'

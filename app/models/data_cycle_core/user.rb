@@ -11,11 +11,6 @@ module DataCycleCore
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
 
-    has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-    has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
-    has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
-    has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
     has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
     has_many :things_deleted, class_name: 'DataCycleCore::Thing', foreign_key: :deleted_by

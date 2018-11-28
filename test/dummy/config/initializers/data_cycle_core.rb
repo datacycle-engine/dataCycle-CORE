@@ -21,7 +21,6 @@ DataCycleCore.setup do |config|
     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
     Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
   ].freeze
 
@@ -36,6 +35,9 @@ DataCycleCore.setup do |config|
       },
       container: {
         enabled: false
+      },
+      external_media_archive: {
+        enabled: true
       }
     }
   )

@@ -312,10 +312,8 @@ namespace :data_cycle_core do
       end
 
       duplicated_content_relations = DataCycleCore::ContentContent
-        .select(:content_a_id, :content_a_type, :relation_a,
-                :content_b_id, :content_b_type, :relation_b,
-                'MIN(created_at) AS "oldest_creation_date"')
-        .group(:content_a_id, :content_a_type, :relation_a, :content_b_id, :content_b_type, :relation_b)
+        .select(:content_a_id, :relation_a, :content_b_id, 'MIN(created_at) AS "oldest_creation_date"')
+        .group(:content_a_id, :relation_a, :content_b_id)
         .having('COUNT(*) > 1')
 
       duplicated_content_relations_count = duplicated_content_relations.to_a.size
@@ -325,11 +323,8 @@ namespace :data_cycle_core do
       duplicated_content_relations.each do |duplicated_relation|
         DataCycleCore::ContentContent.where(
           content_a_id: duplicated_relation.content_a_id,
-          content_a_type: duplicated_relation.content_a_type,
           relation_a: duplicated_relation.relation_a,
-          content_b_id: duplicated_relation.content_b_id,
-          content_b_type: duplicated_relation.content_b_type,
-          relation_b: duplicated_relation.relation_b
+          content_b_id: duplicated_relation.content_b_id
         ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
       end
 
