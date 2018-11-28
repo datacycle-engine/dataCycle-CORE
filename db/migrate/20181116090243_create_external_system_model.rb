@@ -19,16 +19,11 @@ class CreateExternalSystemModel < ActiveRecord::Migration[5.1]
     end
 
     add_index :external_systems, :id, unique: true
-    add_index :thing_external_systems, :thing_id, unique: true
-    add_index :thing_external_systems, :external_system_id, unique: true
+    add_index :thing_external_systems, [:thing_id, :external_system_id], unique: true
   end
 
   def down
     drop_table :external_systems
     drop_table :thing_external_systems
-
-    remove_index :external_systems, :id
-    remove_index :thing_external_systems, :thing_id
-    remove_index :thing_external_systems, :external_system_id
   end
 end
