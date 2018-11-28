@@ -9,17 +9,17 @@ module DataCycleCore
       end
 
       def self.get_webhooks_for(action, data)
-        external_systems = DataCycleCore.webhooks.collect { |hook| DataCycleCore::ExternalSystem.find_by(name: hook) }.compact
-
-        webhooks = external_systems.collect { |external_system| external_system.push_config.dig(action.to_sym) }.compact
-        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook.symbolize_keys, data) }.reject(&:blank?)
+        DataCycleCore.webhooks
+          .collect { |hook| DataCycleCore::ExternalSystem.find_by(name: hook) }
+          .collect { |external_system| validate_webhook(external_system, action, data) }.compact
       end
 
-      def self.validate_webhook(webhook, data)
-        return unless webhook.dig(:strategy) || !webhook.dig(:strategy).is_a?(Class)
+      def self.validate_webhook(external_system, action, data)
+        webhook = external_system.push_config.dig(action.to_sym)&.symbolize_keys
+        return unless webhook&.dig(:strategy)
 
         export_class = webhook.dig(:strategy).constantize
-        return export_class if export_class.filter(data)
+        return [external_system, export_class] if export_class.filter(data)
         nil
       end
     end
