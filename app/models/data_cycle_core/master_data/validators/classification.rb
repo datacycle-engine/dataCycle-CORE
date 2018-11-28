@@ -36,6 +36,8 @@ module DataCycleCore
           end
 
           # validate references themself
+          return if blank?(data)
+
           data.each do |key|
             if key.is_a?(::String)
               check_reference(key, template)
