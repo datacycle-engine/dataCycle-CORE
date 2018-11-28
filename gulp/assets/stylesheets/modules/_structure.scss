@@ -26,7 +26,7 @@ textarea {
 }
 
 .fa {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 /* Header */
@@ -104,7 +104,6 @@ header {
           $black 50%,
           lighten($black, 10%) 100%
         );
-
         &[aria-expanded='true'] {
           outline: none;
           background: map-get($foundation-palette, primary);
@@ -315,7 +314,6 @@ body.login-page {
         font-weight: normal;
         text-align: center;
       }
-
       button[type='submit'].button {
         background-color: $dark-gray;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);

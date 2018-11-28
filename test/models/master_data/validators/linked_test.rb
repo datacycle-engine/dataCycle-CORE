@@ -21,6 +21,17 @@ describe DataCycleCore::MasterData::Validators::Linked do
       }
     end
 
+    let(:creator_hash_required) do
+      {
+        'label' => 'Ersteller',
+        'type' => 'linked',
+        'linked_table' => 'users',
+        'validations' => {
+          'required' => true
+        }
+      }
+    end
+
     let(:no_error_hash) do
       { error: {}, warning: {} }
     end
@@ -42,6 +53,17 @@ describe DataCycleCore::MasterData::Validators::Linked do
         item.password = 'password'
         item.role_id = DataCycleCore::Role.find_by(rank: 5)&.id
       end
+    end
+
+    it 'successfully validates required linked User' do
+      uuid = person1.id
+      validator = subject.new([uuid], creator_hash_required)
+      assert_equal(no_error_hash, validator.error)
+    end
+
+    it 'properly errors out with missing required value' do
+      validator = subject.new([], creator_hash_required)
+      assert_equal(1, validator.error[:error].size)
     end
 
     it 'successfully validates linked User' do

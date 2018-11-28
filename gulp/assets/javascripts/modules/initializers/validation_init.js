@@ -59,11 +59,7 @@ module.exports.initialize = function() {
             'warning',
             true,
             () => {
-              if (
-                $(form)
-                  .closest('.reveal')
-                  .hasClass('in-object-browser')
-              ) {
+              if ($(form).parent('.reveal.in-object-browser').length) {
                 $(form).trigger('submit_without_redirect');
               } else {
                 $(window).off('beforeunload');
@@ -71,22 +67,25 @@ module.exports.initialize = function() {
               }
             },
             () => {
-              enable_form(form);
+              $('.submit-edit-form')
+                .html('<i class="fa fa-check" aria-hidden="true"></i>')
+                .prop('disabled', false);
             }
           );
         } else if (isValid && submit) {
-          if (
-            $(form)
-              .closest('.reveal')
-              .hasClass('in-object-browser')
-          ) {
+          if ($(form).parent('.reveal.in-object-browser').length) {
             $(form).trigger('submit_without_redirect');
           } else {
             $(window).off('beforeunload');
             form.submit();
           }
         } else if (submit) {
-          enable_form(form);
+          $(form)
+            .find('input[type=submit]')
+            .removeAttr('disabled');
+          $('.submit-edit-form')
+            .html('<i class="fa fa-check" aria-hidden="true"></i>')
+            .prop('disabled', false);
 
           var first_error_offset, container;
           if ($(form).hasClass('edit-content-form')) {
@@ -120,8 +119,10 @@ module.exports.initialize = function() {
           data.statusText +
           '<br></span>';
 
-        enable_form(form);
-        $('.submit-edit-form').addClass('alert');
+        $('.submit-edit-form')
+          .html('<i class="fa fa-check" aria-hidden="true"></i>')
+          .prop('disabled', false)
+          .addClass('alert');
         $('#' + $('.submit-edit-form').data('toggle')).append(button_text);
       });
   };
@@ -292,6 +293,7 @@ module.exports.initialize = function() {
         if (data != undefined && Object.keys(data.error).length > 0) {
           if (
             items
+              .filter('[id]')
               .first()
               .prop('id')
               .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
@@ -363,7 +365,6 @@ module.exports.initialize = function() {
   };
 
   // check if data changed and confirm leaving the page
-
   if ($('.edit-content-form').length > 0) {
     var form_data = [];
     $(window).on('load', event => {
@@ -375,7 +376,7 @@ module.exports.initialize = function() {
       update_editors();
       var new_form_data = $('.edit-content-form').serializeArray();
 
-      if (!form_data.equal_to(new_form_data) && form_data.length !== 0)
+      if (form_data.length !== 0 && !form_data.equal_to(new_form_data))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
 
@@ -433,6 +434,9 @@ module.exports.initialize = function() {
       }
 
       remove_submit_button_errors();
+      $(ev.currentTarget)
+        .html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>')
+        .prop('disabled', true);
 
       if ($(form).find('input#finalize:checked').length > 0) {
         var confirmationModal = new ConfirmationModal(
@@ -450,30 +454,30 @@ module.exports.initialize = function() {
 
     // validate on value change
     init_event_handlers('body');
+
+    $(document).on(
+      'open.zf.reveal',
+      '.new-item[data-reset-on-close]',
+      event => {
+        init_event_handlers(event.currentTarget);
+      }
+    );
+
+    $(document).on(
+      'closed.zf.reveal',
+      '.new-item[data-reset-on-close]',
+      event => {
+        remove_event_handlers(event.currentTarget);
+      }
+    );
+
+    $(document).on('closed.zf.reveal', '.new-item', event => {
+      $(event.currentTarget)
+        .find('.has-error')
+        .removeClass('has-error');
+      $(event.currentTarget)
+        .find('.single_error')
+        .remove();
+    });
   }
-
-  $(document).on(
-    'open.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      init_event_handlers(event.target);
-    }
-  );
-
-  $(document).on(
-    'closed.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      remove_event_handlers(event.target);
-    }
-  );
-
-  $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
-    $(event.target)
-      .find('.has-error')
-      .removeClass('has-error');
-    $(event.target)
-      .find('.single_error')
-      .remove();
-  });
 };

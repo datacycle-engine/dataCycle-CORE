@@ -691,6 +691,12 @@ select {
 // Thumbnails in Grid Items
 .data-cycle-object {
   .inner {
+    .infoRow {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      padding-right: 1rem;
+    }
     .grid-thumbnails {
       height: 3rem;
       padding: 0;
