@@ -30,13 +30,9 @@
 
   &:hover,
   &:focus {
-    box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3); //background: $primary-color;
+    box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3);
     transform: perspective(1px) scale(1.029);
-    z-index: 2; //a, .type, .inner > .title, .row, .description { color: white; }
-    // .tags .tag {
-    //   //background: rgba($white, 0.3);
-    //   // color: rgba($white, 0.8);
-    // }
+    z-index: 2;
   }
 
   .inner {
@@ -71,7 +67,7 @@
       }
 
       &:before {
-        content: "\f148";
+        content: '\f148';
         transform: rotate(90deg);
         font-family: FontAwesome;
         font-style: normal;
@@ -93,8 +89,6 @@
     line-height: 1.2;
     font-weight: 200;
     color: $black;
-    white-space: nowrap;
-    text-overflow: ellipsis;
     overflow: hidden;
   }
 
@@ -215,7 +209,7 @@
 
   &:before,
   &:after {
-    content: "";
+    content: '';
     display: table;
   }
 
@@ -577,7 +571,7 @@
 
   .items {
     &.margin-bottom-10::after {
-      content: "";
+      content: '';
       float: none;
       clear: both;
       height: 10rem;
@@ -726,7 +720,7 @@
         overflow: hidden;
 
         &::after {
-          content: "\A";
+          content: '\A';
           white-space: pre;
           line-height: 2;
         }
