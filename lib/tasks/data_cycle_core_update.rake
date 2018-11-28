@@ -18,7 +18,7 @@ namespace :data_cycle_core do
     task import_classifications: [:environment] do
       puts 'importing new classification definitions'
       path = Rails.root.join('config', 'data_definitions', 'classifications.yml')
-      DataCycleCore::MasterData::ImportClassifications.import(path.to_s)
+      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [path])
     end
 
     desc 'import all template definitions'
