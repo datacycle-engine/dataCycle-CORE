@@ -13,9 +13,19 @@ class RemovePolymorphTypeColumns < ActiveRecord::Migration[5.1]
     remove_column :content_content_histories, :relation_b
     remove_column :content_content_histories, :order_b
     remove_column :content_content_histories, :content_a_history_type
+
+    remove_column :searches, :content_data_type
+
+    remove_index :searches, [:locale, :content_data_id]
+    add_index :searches, [:content_data_id, :locale], unique: true
   end
 
   def down
+    remove_index :searches, [:content_data_id, :locale]
+    add_index :searches, [:locale, :content_data_id]
+
+    add_column :searches, :content_data_type, :string, default: 'DataCycleCore::Thing', null: false
+
     add_column :content_content_histories, :content_a_history_type, :string, default: 'DataCycleCore::Thing::History', null: false
     add_column :content_content_histories, :order_b, :integer
     add_column :content_content_histories, :relation_b, :string

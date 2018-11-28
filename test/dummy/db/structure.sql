@@ -451,7 +451,6 @@ CREATE TABLE schema_migrations (
 CREATE TABLE searches (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
     content_data_id uuid,
-    content_data_type character varying,
     locale character varying,
     words tsvector,
     full_text text,
@@ -935,13 +934,6 @@ CREATE INDEX all_text_idx ON searches USING gin (all_text gin_trgm_ops);
 
 
 --
--- Name: by_content_data_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_content_data_locale ON searches USING btree (content_data_id, content_data_type, locale);
-
-
---
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1229,17 +1221,17 @@ CREATE INDEX index_searches_on_content_data_id ON searches USING btree (content_
 
 
 --
+-- Name: index_searches_on_content_data_id_and_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_searches_on_content_data_id_and_locale ON searches USING btree (content_data_id, locale);
+
+
+--
 -- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_locale ON searches USING btree (locale);
-
-
---
--- Name: index_searches_on_locale_and_content_data_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_searches_on_locale_and_content_data_id ON searches USING btree (locale, content_data_id);
 
 
 --
