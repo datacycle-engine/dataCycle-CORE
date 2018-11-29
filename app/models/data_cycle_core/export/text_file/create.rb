@@ -8,7 +8,7 @@ module DataCycleCore
 
         def self.process(utility_object:, data:)
           return if data.blank?
-          Functions.update(utility_object: utility_object, data: data)
+          Functions.create(utility_object: utility_object, data: data)
         end
 
         def self.filter(data)

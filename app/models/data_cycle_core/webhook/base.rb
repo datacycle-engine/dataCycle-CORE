@@ -3,11 +3,6 @@
 module DataCycleCore
   module Webhook
     class Base
-      def self.log(webhook, message)
-        # logger = Logger.new('webhook')
-        Rails.logger.info("#{webhook}: #{message}")
-      end
-
       def self.get_webhooks_for(action, data)
         DataCycleCore.webhooks
           .collect { |hook| DataCycleCore::ExternalSystem.find_by(name: hook) }

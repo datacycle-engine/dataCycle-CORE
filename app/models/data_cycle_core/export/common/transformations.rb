@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Export
-    module TextFile
+    module Common
       module Transformations
         def self.json_api_v2(_utility_object, data)
           DataCycleCore::Api::V2::ContentsController.render(
