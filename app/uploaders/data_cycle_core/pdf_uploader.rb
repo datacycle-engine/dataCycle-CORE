@@ -21,16 +21,15 @@ module DataCycleCore
     end
 
     def convert_to_png
-      pdf = MiniMagick::Image.new(current_path)
       MiniMagick::Tool::Convert.new do |convert|
-        convert.density(pdf.resolution.map { |t| t * 4 }.join('x'))
+        convert.density(288)
         convert.trim
         convert.quality(100)
         convert.flatten
         convert.resize('25%')
         convert.colorspace('RGB')
-        convert << current_path + '[0]'
-        convert << Rails.root.join('public', store_path)
+        convert << "#{current_path}[0]"
+        convert << "#{root}/#{store_path}"
       end
       FileUtils.rm_f(current_path)
     end
