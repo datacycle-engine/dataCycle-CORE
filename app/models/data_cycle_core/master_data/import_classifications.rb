@@ -57,50 +57,6 @@ module DataCycleCore
         end
       end
 
-      # def self.import(filename)
-      #   data_trees = YAML.load(File.open(filename))
-      #   iterate_tree_array(data_trees)
-      # rescue StandardError => e
-      #   puts "could not access the file: #{filename}"
-      #   puts e.message
-      #   puts e.backtrace
-      # end
-
-      # def self.iterate_tree_array(trees_array)
-      #   trees_array.each do |item|
-      #     @label_id = get_label(item.keys.first).id
-      #     walk_tree(item[item.keys.first], nil)
-      #   end
-      # end
-      #
-      # def self.walk_tree(data_tree, parent)
-      #   return nil if data_tree.blank?
-      #   data_tree.each do |data|
-      #     internal = false
-      #     if data.is_a?(String)
-      #       split_data = data.split('|').map(&:squish)
-      #       data = split_data[0]
-      #       description = split_data[1]
-      #       if data.starts_with?('$$')            # '$$' prefix for interal classifications
-      #         data = data[2..(data.length - 1)]
-      #         internal = true
-      #       end
-      #       save_data(data, parent, internal, description)
-      #     elsif data.is_a?(Hash)
-      #       parent_name = data.keys.first
-      #       split_data = parent_name.split('|').map(&:squish)
-      #       parent_name = split_data[0]
-      #       description = split_data[1]
-      #       if data.keys.first.starts_with?('$$') # '$$' prefix for interal classifications
-      #         parent_name = data.keys.first[2..(data.keys.first.length - 1)]
-      #         internal = true
-      #       end
-      #       parent_id = save_data(parent_name, parent, internal, description)
-      #       walk_tree(data[data.keys.first], parent_id)
-      #     end
-      #   end
-      # end
-
       def self.save_data(data, parent, internal, description)
         if parent.nil?
           find_alias = DataCycleCore::ClassificationAlias

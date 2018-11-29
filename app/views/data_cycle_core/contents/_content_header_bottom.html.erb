@@ -13,32 +13,33 @@
     scope: 'duplicate',
     render_params: to_query_params({ new_template: content }).to_json if can?(:create, content, 'duplicate') && content.content_type?('entity') && !content.translatable? %>
 
-    <% if can?(:move_content, content) && @parents.present? %>
-        <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-            <i class="fa fa-folder" aria-hidden="true"></i>
-        <% end %>
-        <%= render 'move_to_container_overlay', content: content %>
-    <% end %>
-    
-    <%= link_to gpx_thing_path(content), class: 'button-prime small gpx-content-link', data: { tooltip: true, click_open: false }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-        <i class="fa fa-location-arrow" aria-hidden="true"></i>
-    <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
+  <% if can?(:move_content, content) && @parents.present? %>
+      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+          <i class="fa fa-folder" aria-hidden="true"></i>
+      <% end %>
+      <%= render 'move_to_container_overlay', content: content %>
+  <% end %>
 
-    <%= link_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
-        <i class="fa fa-pencil" aria-hidden="true"></i>
-    <% end if can? :edit, content %>
+  <%= link_to gpx_thing_path(content), class: 'button-prime small gpx-content-link', data: { tooltip: true, click_open: false }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+      <i class="fa fa-location-arrow" aria-hidden="true"></i>
+  <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-    <%= link_to thing_path(content, watch_list_id: @watch_list),
-                method: :delete,
-                class:'button-prime small delete-content-link',
-                data: {
-                    tooltip: true,
-                    click_open: false,
-                    confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{content.try(:children)&.any? ? t('common.children_present_html', languages: content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.join(', '), locale: DataCycleCore.ui_language) : '' }"
-                },
-                title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
-        <i class="fa fa-trash-o" aria-hidden="true"></i>
-    <% end if can? :destroy, content %>
+  <%= link_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+      <i class="fa fa-pencil" aria-hidden="true"></i>
+  <% end if can? :edit, content %>
+
+  <%= link_to thing_path(content, watch_list_id: @watch_list),
+              method: :delete,
+              class:'button-prime small delete-content-link',
+              data: {
+                  tooltip: true,
+                  click_open: false,
+                  confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{content.try(:children)&.any? ? t('common.children_present_html', languages: content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.join(', '), locale: DataCycleCore.ui_language) : '' }"
+              },
+              title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+      <i class="fa fa-trash-o" aria-hidden="true"></i>
+  <% end if can? :destroy, content %>
+
 </div>
 
 <%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && content.try(:release_status_id).present? %>

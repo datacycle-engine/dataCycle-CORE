@@ -1,5 +1,5 @@
 <% objects = value.presence&.includes(:translations) %>
-<% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+<% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% objects.presence&.each_with_index do |object, index| %>
 
@@ -11,8 +11,8 @@
                    value: value,
                    options: options.merge({
                     hide_label: true,
-                    item_diff: changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id),
-                    mode: changes_class(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id)
+                    item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
+                    mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id)
                    }),
                    data_attributes: {id: [object.id], editor: 'embedded_object'},
                    content: content do %>
@@ -30,7 +30,7 @@
                 <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
 
                 <% object_options = options.merge({ item_diff: nil }) %>
-                <% object_options[:item_diff] = attribute_changes(object.diff(object.try(definition.dig('linked_table').singularize)&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id), '~').present? %>
+                <% object_options[:item_diff] = attribute_changes(object.diff(object.try('thing')&.get_data_hash), key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id), '~').present? %>
                 <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
                 <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
@@ -45,5 +45,5 @@
 <% end %>
 
 <div class="clear-both">
-    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), thing_path([:load_more_linked_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if value.try(:total_pages)&.positive? && !value&.last_page? %>
+    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(content, key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if value.try(:total_pages)&.positive? && !value&.last_page? %>
 </div>

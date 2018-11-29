@@ -1194,6 +1194,9 @@ ul.translated-locales {
 
   .select2-dropdown {
     .select2-results__option {
+      > span {
+        display: block;
+      }
       &[aria-disabled='true'] {
         color: lighten($dark-gray, 20%);
         font-style: italic;

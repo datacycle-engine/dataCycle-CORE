@@ -5,12 +5,10 @@ module DataCycleCore
     module Common
       module ImportFunctions
         def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
-          type = config&.dig(:content_type)&.constantize || default.dig(:content_type)
           template = config&.dig(:template) || default.dig(:template)
           create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: load_template(type, template),
+            template: load_template(template),
             data: merge_default_values(
               config,
               transformation.call(raw_data)
@@ -18,13 +16,12 @@ module DataCycleCore
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
+        def self.create_or_update_content(utility_object:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
-
           if local
-            content = class_type.new
+            content = DataCycleCore::Thing.new
           else
-            content = class_type.find_or_initialize_by(
+            content = DataCycleCore::Thing.find_or_initialize_by(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )
@@ -135,12 +132,12 @@ module DataCycleCore
           return_data.reject { |_, value| value.blank? }
         end
 
-        def self.load_template(target_type, template_name)
+        def self.load_template(template_name)
           I18n.with_locale(:de) do
-            target_type.find_by!(template: true, template_name: template_name)
+            DataCycleCore::Thing.find_by!(template: true, template_name: template_name)
           end
         rescue ActiveRecord::RecordNotFound
-          raise "Missing template #{template_name} for #{target_type}"
+          raise "Missing template #{template_name}"
         end
 
         def self.default_classification(value:, tree_label:)

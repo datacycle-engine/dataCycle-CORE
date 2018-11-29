@@ -59,13 +59,11 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, options:)
           config = options.dig(:import, :transformations, :asset)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
               raw_data

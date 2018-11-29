@@ -80,7 +80,6 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
       :width:
         :label: Breite
@@ -111,12 +110,10 @@
       :director:
         :label: Regie
         :type: linked
-        :linked_table: things
         :template_name: Person
       :contributor:
         :label: Kamera
         :type: linked
-        :linked_table: things
         :template_name: Person
       :tags:
         :type: mixin

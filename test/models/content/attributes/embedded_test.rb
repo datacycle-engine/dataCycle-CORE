@@ -8,7 +8,7 @@ module DataCycleCore
       class EmbeddedTest < ActiveSupport::TestCase
         def setup
           # insert embedded within same table (embedded includes linked from other table)
-          @cw_temp = DataCycleCore::CreativeWork.count
+          @cw_temp = DataCycleCore::Thing.count
 
           linked = DataCycleCore::TestPreparations.data_set_object('Linked-Place-1')
           linked.save

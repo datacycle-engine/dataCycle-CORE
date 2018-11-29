@@ -19,7 +19,7 @@ module DataCycleCore
     end
 
     def show
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
@@ -59,7 +59,7 @@ module DataCycleCore
     end
 
     def new
-      @new_template = data_cycle_object(new_template_params[:source_table]).find_by(id: new_template_params[:source_id]) if new_template_params.present?
+      @new_template = DataCycleCore::Thing.find_by(id: new_template_params[:source_id]) if new_template_params.present?
       @resolved_params = resolve_params(new_params)
       @active_url = contents_new_path(resolve_params(new_params, false))
 
@@ -70,15 +70,15 @@ module DataCycleCore
       authorize!(__method__, controller_path.classify.constantize)
 
       I18n.with_locale(locale_params[:locale]) do
-        object_params = content_params(controller_name, params[:template])
+        object_params = content_params(params[:template])
 
         if source_params.present?
-          source = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id])
+          source = DataCycleCore::Thing.find_by(id: source_params[:source_id])
         else
-          source = data_cycle_object(controller_name).find_by(id: parent_params[:parent_id])
+          source = DataCycleCore::Thing.find_by(id: parent_params[:parent_id])
         end
 
-        @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user, parent_params[:parent_id], source)
+        @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         redirect_back(fallback_location: root_path) && return if @content.nil?
 
@@ -96,11 +96,11 @@ module DataCycleCore
     end
 
     def edit
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
       # get show data for split view
       if source_params.present?
-        @split_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
+        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
         @split_schema = []
 
         if @split_source.present?
@@ -129,18 +129,18 @@ module DataCycleCore
     def edit_by_external_key
       return if params[:external_key].blank?
 
-      @content = data_cycle_object(controller_name).find_by(external_key: params[:external_key])
+      @content = DataCycleCore::Thing.find_by(external_key: params[:external_key])
       authorize!(:edit, @content)
 
       redirect_to edit_thing_path(@content)
     end
 
     def update
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
-        object_params = content_params(controller_name, @content.template_name)
+        object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
 
@@ -161,7 +161,7 @@ module DataCycleCore
     end
 
     def destroy
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
       @content.destroy_content(current_user: current_user)
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
@@ -172,12 +172,12 @@ module DataCycleCore
     end
 
     def compare
-      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       authorize! :show, @content
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
-      @diff_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
+      @diff_source = DataCycleCore::Thing.find(source_params[:source_id])
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
@@ -191,7 +191,7 @@ module DataCycleCore
     end
 
     def history
-      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       @diff_source = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
@@ -224,51 +224,49 @@ module DataCycleCore
     end
 
     def new_embedded_object
-      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
-      return unless can?(:edit, objects_class) || can?(:edit, @content)
+      return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
 
       respond_to(:js)
     end
 
     # only used in split-view
     def render_embedded_object
-      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
-      authorize! :edit, objects_class
+      authorize! :edit, DataCycleCore::Thing
 
-      @objects = objects_class.where(id: params[:object_ids]).includes(:translations)
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
+      @content = DataCycleCore::Thing.find(params[:id])
 
       respond_to(:js)
     end
 
     def gpx
-      @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      @object = DataCycleCore::Thing.find_by(id: params[:id])
       authorize! :show, @object
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
     def validate
-      @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      @object = DataCycleCore::Thing.find_by(id: params[:id])
 
       if @object.blank? && params[:template].present?
-        @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])
+        @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template])
       end
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 
       authorize! :show, @object
 
-      object_params = content_params(controller_name, @object.template_name)
+      object_params = content_params(@object.template_name)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
       valid = @object.validate(datahash)
       render json: valid.to_json
     end
 
     def load_more_linked_objects
-      @content = data_cycle_object(linked_object_params[:content_type]).find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
-      @object = data_cycle_object(controller_name).find(linked_object_params[:id])
+      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
+      @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
       @page = linked_object_params.fetch(:page, 1)
@@ -353,8 +351,8 @@ module DataCycleCore
       params.require(:life_cycle).permit(:name, :id)
     end
 
-    def content_params(storage_location, template_name)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
+    def content_params(template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(template_name)
       params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
     end
 

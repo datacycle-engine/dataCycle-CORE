@@ -23,8 +23,8 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
       <% end %>
     <% end %>
     <div class="clear-both">
-      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), thing_path(
-        [:load_more_linked_objects, @object],
+      <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+        @object,
         key: @params[:key],
         definition: @params[:definition],
         options: @params[:options],

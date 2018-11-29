@@ -43,7 +43,6 @@ module DataCycleCore
           .joins(:classification_contents)
           .where(
             classification_contents: {
-              content_data_type: self.class.to_s,
               content_data_id: id, relation: relation_name
             }
           )

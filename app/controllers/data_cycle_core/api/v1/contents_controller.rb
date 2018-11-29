@@ -36,7 +36,6 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.where("searches.content_data_type = 'DataCycleCore::Thing'")
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
@@ -44,7 +43,6 @@ module DataCycleCore
           query = apply_ordering(query)
 
           @total = query.count
-
           @contents = apply_paging(query)
         end
 

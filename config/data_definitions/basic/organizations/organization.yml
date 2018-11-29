@@ -36,7 +36,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :data_type:
         :label: Inhaltstype

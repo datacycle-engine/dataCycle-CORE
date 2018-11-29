@@ -27,24 +27,12 @@ module DataCycleCore
           .where({
             content_content_histories: {
               content_a_history_id: id,
-              content_a_history_type: 'DataCycleCore::Thing::History',
               relation_a: relation_name,
-              content_b_history_type: 'DataCycleCore::Thing',
-              relation_b: ''
+              content_b_history_type: 'DataCycleCore::Thing'
             }
           })
           .joins(:translations).where(thing_translations: { locale: I18n.locale })
           .order('content_content_histories.order_a ASC')
-
-        # maybe implement links to History too! (needs more work!)
-        # related_items = DataCycleCore::ContentContent::History
-        #   .where({
-        #     content_a_history_id: id,
-        #     content_a_history_type: 'DataCycleCore::Thing::History',
-        #     relation_a: relation_name
-        #   })
-        #   .order(order_a: :asc)
-        # related_items.map(&:content_b_history).select { |item| item.available_locales.include?(I18n.locale) }
       end
 
       def load_embedded_objects(relation_name)
@@ -53,10 +41,8 @@ module DataCycleCore
           .where({
             content_content_histories: {
               content_a_history_id: id,
-              content_a_history_type: 'DataCycleCore::Thing::History',
               relation_a: relation_name,
-              content_b_history_type: 'DataCycleCore::Thing::History',
-              relation_b: ''
+              content_b_history_type: 'DataCycleCore::Thing::History'
             }
           })
           .joins(:translations).where(thing_history_translations: { locale: I18n.locale })
@@ -68,7 +54,6 @@ module DataCycleCore
           .joins(:classification_content_histories)
           .where(
             classification_content_histories: {
-              content_data_history_type: self.class.to_s,
               content_data_history_id: id,
               relation: relation_name
             }

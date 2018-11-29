@@ -2,7 +2,7 @@
 
     <ul class="content-tiles">
         <% objects = value.presence&.includes(:translations) %>
-        <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+        <% objects = (objects.to_a || []).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
         <% objects.presence&.each do |item| %>
             <li class="<%= [
@@ -23,7 +23,7 @@
             </li>
         <% end %>
         <div class="clear-both">
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), thing_path([:load_more_linked_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show, locale: I18n.locale), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(content, key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show, locale: I18n.locale), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
         </div>
 
     </ul>

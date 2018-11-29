@@ -186,20 +186,25 @@ module DataCycleCore
         item_ids_after_update = parse_linked_ids(input_data)
 
         item_ids_after_update.each_index do |index|
-          next if item_ids_before_update[index] == item_ids_after_update[index]
-
-          upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-            get_relation_data_hash(field_name, item_ids_after_update[index])
-          )
-          upsert_relation.order_a = index
-          upsert_relation.save
+          update_relation = DataCycleCore::ContentContent.find_or_create_by({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_after_update[index]
+          })
+          update_relation.order_a = index
+          update_relation.save!
         end
 
         item_ids_to_delete = item_ids_before_update - item_ids_after_update
+
         return if item_ids_to_delete.size.zero?
         # destroy relations
         DataCycleCore::ContentContent
-          .where(get_relation_data_hash(field_name, item_ids_to_delete))
+          .where({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_to_delete
+          })
           .destroy_all
       end
 
@@ -222,20 +227,23 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-                get_relation_data_hash(field_name, item['id'])
-              )
-              upsert_relation.order_a = index
-              upsert_relation.save
+              DataCycleCore::ContentContent.find_or_create_by!({
+                content_a_id: id,
+                relation_a: field_name,
+                order_a: index,
+                content_b_id: item['id']
+              })
             end
 
             updated_item_keys << item['id']
           else
             insert_item = upsert_content(name, item)
-            DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, insert_item.id).merge({ order_a: index, order_b: nil })
-            )
-
+            DataCycleCore::ContentContent.create!({
+              content_a_id: id,
+              relation_a: field_name,
+              order_a: index,
+              content_b_id: insert_item.id
+            })
             updated_item_keys << insert_item.id
           end
         end
@@ -281,14 +289,6 @@ module DataCycleCore
         upsert_item
       end
 
-      def get_relation_data_hash(field_name, item_id)
-        item_data = [item_id, 'DataCycleCore::Thing', '']
-        self_data = [id, self.class.to_s, field_name]
-        ['a', 'b'].map { |selector|
-          ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-        }.flatten.zip(self_data + item_data).to_h
-      end
-
       def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
@@ -299,7 +299,6 @@ module DataCycleCore
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(
                 'content_data_id' => id,
-                'content_data_type' => self.class.to_s,
                 classification_id: classification_id,
                 relation: relation_name
               )
@@ -310,7 +309,6 @@ module DataCycleCore
             next if present_relation_ids.include?(classification_id_value)
             DataCycleCore::ClassificationContent.find_or_create_by!(
               'content_data_id' => id,
-              'content_data_type' => self.class.to_s,
               classification_id: classification_id_value,
               relation: relation_name
             )
