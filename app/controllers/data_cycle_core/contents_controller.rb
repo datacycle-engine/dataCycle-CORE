@@ -306,7 +306,12 @@ module DataCycleCore
       @asset.creator_id = current_user.try(:id)
       @asset.save
 
-      errors = MediaArchive::Webhooks::Create.new.execute(@asset)
+
+      external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
+      return if external_system.blank?
+      utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+      errors = ::Export::MediaArchive::Create.process(utility_object: utility_object, data: @asset)
+
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset
