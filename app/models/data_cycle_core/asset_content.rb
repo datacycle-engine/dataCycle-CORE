@@ -6,8 +6,8 @@ module DataCycleCore
     belongs_to :asset
 
     class << self
-      def with_content(content_id)
-        where(content_data_id: content_id)
+      def with_content(content_id, content_type)
+        where(content_data_id: content_id, content_data_type: content_type)
       end
 
       def with_assets(ids, type)
