@@ -53,7 +53,7 @@ module DataCycleCore
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags'],
         organization: [],
-        place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
+        place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
         person: []
