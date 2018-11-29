@@ -306,7 +306,6 @@ module DataCycleCore
       @asset.creator_id = current_user.try(:id)
       @asset.save
 
-
       external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
       return if external_system.blank?
       utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
