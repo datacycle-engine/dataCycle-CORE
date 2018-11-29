@@ -235,6 +235,7 @@ GEM
       rails (>= 3.1.0)
     hashdiff (0.3.7)
     hashery (2.1.2)
+    htmlentities (4.3.4)
     i18n (1.1.1)
       concurrent-ruby (~> 1.0)
     jbuilder (2.8.0)

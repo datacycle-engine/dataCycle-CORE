@@ -4,11 +4,11 @@ module DataCycleCore
   module Export
     module TextFile
       module Update
-        def self.process(data)
-          output_file = DataCycleCore::Generic::Logger::LogFile.new('my_super_log')
-          output_file.preparing_phase('Update Item')
-          output_file.info(data.name, data.id)
-          output_file.close if output_file.respond_to?(:close)
+        include Functions
+
+        def self.process(utility_object:, data:)
+          return if data.blank?
+          Functions.update(utility_object: utility_object, data: data)
         end
 
         def self.filter(data)
