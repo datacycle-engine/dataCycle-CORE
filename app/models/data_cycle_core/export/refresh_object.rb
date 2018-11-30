@@ -11,7 +11,10 @@ module DataCycleCore
         @external_system = options[:external_system]
         @options = options.with_indifferent_access
         @logging = init_logging(:refresh)
-        @endpoint = @external_system.refresh_config[:endpoint].constantize.new(options[:external_system].credentials.symbolize_keys)
+
+        endpoint_options = options[:external_system].credentials
+        endpoint_options[:data] = @external_system.data if @external_system.data.present?
+        @endpoint = @external_system.push_config[:endpoint].constantize.new(endpoint_options.symbolize_keys)
       end
     end
   end
