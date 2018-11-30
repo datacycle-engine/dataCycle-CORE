@@ -1,6 +1,12 @@
 <% breadcrumb :schema, autoroot: false %>
 
-<h1><%= t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language)%></h1>
+<h1>
+  <%= t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language)%>
+
+  <a class="download" href="<%= schema_path + '.xlsx' %>">
+    <i class="fa fa-download"></i>
+  </a>
+</h1>
 
 <ul>
   <% ['container', 'entity'].each do |content_type| %>
