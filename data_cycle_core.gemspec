@@ -112,6 +112,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'puma', '~> 3.11.0'
   s.add_dependency 'puma_worker_killer'
 
+  # Excel Generator
+  s.add_dependency 'axlsx_rails'
+
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'

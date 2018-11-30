@@ -131,7 +131,8 @@ module DataCycleCore
       },
       main_filter: {
         enabled: true,
-        classification_alias_ids: ['Inhaltstypen']
+        classification_alias_ids: ['Inhaltstypen'],
+        autoload_last_filter: false
       },
       advanced_filter: {
         enabled: true,

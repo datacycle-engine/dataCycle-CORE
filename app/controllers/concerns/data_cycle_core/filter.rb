@@ -81,7 +81,7 @@ module DataCycleCore
          DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&
          DataCycleCore::Feature::LifeCycle.default_filter.present? &&
          @filters.none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? } &&
-         params[:stored_filter].blank?
+         (@stored_filters || []).none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? }
 
         @filters.push(
           {
@@ -93,6 +93,14 @@ module DataCycleCore
           }
         )
       end
+    end
+
+    def load_stored_filter
+      @query = apply_filter(filter_id: params[:stored_filter])
+    end
+
+    def load_last_filter
+      @query = apply_filter(filter_id: current_user.stored_filters.order(created_at: :desc)&.first&.id)
     end
 
     def filter_params
