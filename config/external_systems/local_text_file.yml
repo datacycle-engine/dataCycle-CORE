@@ -11,5 +11,6 @@ config:
       strategy: DataCycleCore::Export::TextFile::Update
 #    delete:
 #      strategy: DataCycleCore::Export::TextFile::Delete
-#  refresh_config:
-#      strategy: DataCycleCore::Export::LogFile::Refresh
+  refresh_config:
+    endpoint: DataCycleCore::Export::TextFile::Endpoint
+    strategy: DataCycleCore::Export::TextFile::Refresh
