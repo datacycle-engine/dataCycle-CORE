@@ -19,11 +19,9 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            clazz = options.dig(:import, :target_type).constantize
-
             external_key_path = options.dig(:import, :external_key_path).split('.')
 
-            clazz.find_by(
+            DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
               external_key: raw_data.dig(*external_key_path)
             ).try(:destroy!)
