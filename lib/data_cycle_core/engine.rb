@@ -24,7 +24,6 @@ require 'awesome_print'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
-require 'delayed_job'
 require 'delayed_job_active_record'
 
 # REST-client
