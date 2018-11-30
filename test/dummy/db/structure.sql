@@ -617,19 +617,6 @@ CREATE TABLE public.thing_translations (
 
 
 --
--- Name: use_cases; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.use_cases (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    user_id uuid,
-    external_source_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
 -- Name: user_group_users; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -928,14 +915,6 @@ ALTER TABLE ONLY public.thing_translations
 
 ALTER TABLE ONLY public.things
     ADD CONSTRAINT things_pkey PRIMARY KEY (id);
-
-
---
--- Name: use_cases use_cases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.use_cases
-    ADD CONSTRAINT use_cases_pkey PRIMARY KEY (id);
 
 
 --
@@ -1449,27 +1428,6 @@ CREATE INDEX index_things_template_template_name_idx ON public.things USING btre
 
 
 --
--- Name: index_use_cases_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_use_cases_on_external_source_id ON public.use_cases USING btree (external_source_id);
-
-
---
--- Name: index_use_cases_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_use_cases_on_id ON public.use_cases USING btree (id);
-
-
---
--- Name: index_use_cases_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_use_cases_on_user_id ON public.use_cases USING btree (user_id);
-
-
---
 -- Name: index_user_group_users_on_user_group_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1713,6 +1671,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181106113333'),
 ('20181116090243'),
 ('20181126000001'),
-('20181127142527');
+('20181127142527'),
+('20181130130052');
 
 

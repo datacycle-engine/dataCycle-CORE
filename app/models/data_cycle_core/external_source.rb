@@ -2,7 +2,6 @@
 
 module DataCycleCore
   class ExternalSource < ApplicationRecord
-    has_many :use_cases
     has_many :classifications
     has_many :classification_alias
     has_many :classification_contents

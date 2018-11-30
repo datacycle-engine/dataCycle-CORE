@@ -5,7 +5,6 @@ module DataCycleCore
     devise :database_authenticatable, :registerable,
            :recoverable, :rememberable, :trackable, :validatable, :lockable
 
-    has_many :use_cases
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
