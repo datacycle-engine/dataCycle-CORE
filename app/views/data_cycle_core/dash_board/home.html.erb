@@ -51,4 +51,17 @@
         <% end %>
     </div>
 
+    <div class="row">
+        <div class="small-12 columns">
+            <br/></br>
+            <h4>
+                <i class='fa fa-arrow-circle-o-down' aria-hidden='true'></i>&nbsp; export modules<br/>&nbsp;
+            </h4>
+        </div>
+    </div>
+    <div class="row dashboard-cards">
+        <% external_systems = DataCycleCore::ExternalSystem.all %>
+        <%= render partial: 'export_modules', collection: external_systems, as: 'external_system' %>
+    </div>
+
 </section>
