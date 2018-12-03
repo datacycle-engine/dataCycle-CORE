@@ -4,9 +4,7 @@ module DataCycleCore
   module Webhook
     class Delete < Base
       def self.execute_all(data)
-        get_webhooks_for('delete', data).each do |external_system, webhook|
-          webhook.process(utility_object: DataCycleCore::Export::PushObject.new(external_system: external_system), data: data)
-        end
+        Base.execute_all(data, 'delete')
       end
     end
   end
