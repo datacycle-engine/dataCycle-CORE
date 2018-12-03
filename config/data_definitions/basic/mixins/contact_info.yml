@@ -25,6 +25,7 @@
             :storage_location: translated_value
 #            :validations:
 #              :format: email
+            :normalize: email
           :url:
             :label: Web
             :type: string

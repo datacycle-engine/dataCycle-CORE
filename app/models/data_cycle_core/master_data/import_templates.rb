@@ -281,6 +281,29 @@ module DataCycleCore
           end
           optional(:tree_label) { str? }
           optional(:stored_filter) { array? }
+          optional(:normalize) do
+            str? &
+              included_in?(
+                [
+                  'sex',
+                  'degree',
+                  'forename',
+                  'surname',
+                  'company',
+                  'street',
+                  'streetnr',
+                  'city',
+                  'zip',
+                  'country',
+                  'birthdate',
+                  'email',
+                  'zip_country',
+                  'city_zip',
+                  'street_streetnr',
+                  'surname_forename'
+                ]
+              )
+          end
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (

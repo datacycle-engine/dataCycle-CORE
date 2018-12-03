@@ -14,15 +14,19 @@
             :label: Straße
             :type: string
             :storage_location: value
+            :normalize: street
           :postal_code:
             :label: PLZ
             :type: string
             :storage_location: value
+            :normalize: zip
           :address_locality:
             :label: Ort
             :type: string
             :storage_location: value
+            :normalize: city
           :address_country:
             :label: Land
             :type: string
             :storage_location: value
+            :normalize: country
