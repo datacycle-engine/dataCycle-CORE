@@ -20,6 +20,18 @@ module DataCycleCore
           )
         end
 
+        def self.process_photographer(utility_object, raw_data, config = {})
+          type = raw_data&.dig('photographer', 'type')
+          config[:template] = config&.dig("#{type}_template".to_sym) || 'Person'
+
+          process_person(
+            utility_object,
+            type == 'person' ? raw_data['photographer']&.except('type', 'name') : raw_data['photographer']&.except('type', 'givenName', 'familyName'),
+            "Fotograf: #{raw_data['url'].split('/').last}",
+            config
+          )
+        end
+
         def self.process_image(utility_object, raw_data, config)
           place_template = config&.dig(:place_template) || 'Örtlichkeit'
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
@@ -43,15 +55,15 @@ module DataCycleCore
         end
 
         def self.process_contributor(utility_object, raw_data, config)
-          process_person(utility_object, raw_data['contributor'], "Kamera: #{raw_data['url'].split('/').last}", config)
+          process_person(utility_object, raw_data['contributor'], "Person: #{raw_data['url'].split('/').last}", config)
         end
 
         def self.process_director(utility_object, raw_data, config)
-          process_person(utility_object, raw_data['director'], "Regie: #{raw_data['url'].split('/').last}", config)
+          process_person(utility_object, raw_data['director'], "Person: #{raw_data['url'].split('/').last}", config)
         end
 
         def self.process_person(utility_object, raw_data, external_key, config)
-          return nil if raw_data.blank?
+          return if raw_data&.values_at('name', 'givenName', 'familyName').blank?
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(

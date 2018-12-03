@@ -18,21 +18,7 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
-          I18n.with_locale(locale) do
-            ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'file_format_videos'].each do |tag_name|
-              DataCycleCore::Generic::Common::ImportTags.process_content(
-                utility_object: utility_object,
-                raw_data: raw_data,
-                locale: locale,
-                options: { import: utility_object.external_source.config.dig('import_config', tag_name)&.deep_symbolize_keys }
-              )
-            end
-
-            DataCycleCore::Generic::MediaArchive::Processing.process_place(
-              utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :place)
-            )
+          I18n.with_locale('de') do
             DataCycleCore::Generic::MediaArchive::Processing.process_director(
               utility_object,
               raw_data,
@@ -42,6 +28,22 @@ module DataCycleCore
               utility_object,
               raw_data,
               options.dig(:import, :transformations, :contributor)
+            )
+          end
+
+          I18n.with_locale(locale) do
+            ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'file_format_videos'].each do |tag_name|
+              DataCycleCore::Generic::Common::ImportTags.process_content(
+                utility_object: utility_object,
+                raw_data: raw_data,
+                locale: locale,
+                options: { import: utility_object.external_source.config.dig('import_config', tag_name)&.deep_symbolize_keys }
+              )
+            end
+            DataCycleCore::Generic::MediaArchive::Processing.process_place(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :place)
             )
             DataCycleCore::Generic::MediaArchive::Processing.process_video(
               utility_object,
