@@ -2,17 +2,17 @@
 
 module DataCycleCore
   class ClassificationContent < ApplicationRecord
-    belongs_to :content_data, polymorphic: true
+    belongs_to :content_data, class_name: 'DataCycleCore::Thing'
     belongs_to :classification
 
     class History < ApplicationRecord
-      belongs_to :content_data_history, polymorphic: true
+      belongs_to :content_data_history, class_name: 'DataCycleCore::Thing::History'
       belongs_to :classification
     end
 
     class << self
-      def with_content(content_data_id, content_data_type)
-        where(content_data_id: content_data_id, content_data_type: content_data_type)
+      def with_content(content_data_id)
+        where(content_data_id: content_data_id)
       end
 
       def with_relation(relation_name)

@@ -15,7 +15,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: BodyOfWaterOverlay
         :validations:
           :max: 1
@@ -88,7 +87,6 @@
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: things
         :template_name: Öffnungszeit - Erweitert
       :url:
         :label: Link

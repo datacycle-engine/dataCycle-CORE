@@ -4,8 +4,12 @@
     :type: object
     :schema_type: CreativeWork
     :content_type: entity
-    :translatable: true
     :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
     :api:
       :type: ImageObject
     :properties:
@@ -39,6 +43,8 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :type: string
@@ -48,6 +54,8 @@
         :ui:
           :show:
             :type: preview_image
+        :api:
+          :minimal: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -76,7 +84,6 @@
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
       :width:
         :label: Breite

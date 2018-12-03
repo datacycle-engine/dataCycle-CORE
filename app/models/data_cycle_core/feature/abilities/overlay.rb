@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class Overlay
-        include CanCan::Ability
-
+      class Overlay < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

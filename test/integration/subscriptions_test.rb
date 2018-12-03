@@ -18,7 +18,7 @@ module DataCycleCore
         subscribable_id: @content.id,
         subscribable_type: @content.class.name
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
 
       assert_response :success
@@ -41,7 +41,7 @@ module DataCycleCore
       subscription = @content.subscriptions.find_by(user_id: user.id)
 
       delete subscription_path(subscription), xhr: true, params: {}, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
 
       assert_response :success

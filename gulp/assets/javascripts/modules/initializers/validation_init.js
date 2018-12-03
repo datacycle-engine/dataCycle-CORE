@@ -127,6 +127,26 @@ module.exports.initialize = function() {
       });
   };
 
+  function disable_form(form) {
+    $.rails.disableFormElement(
+      $(form)
+        .siblings('.edit-header')
+        .find('.submit-edit-form')
+        .first()
+    );
+    $.rails.disableFormElements($(form));
+  }
+
+  function enable_form(form) {
+    $.rails.enableFormElement(
+      $(form)
+        .siblings('.edit-header')
+        .find('.submit-edit-form')
+        .first()
+    );
+    $.rails.enableFormElements($(form));
+  }
+
   let render_error_msg = function(data, validation_container) {
     let out = '';
     let item_id = '';
@@ -267,7 +287,8 @@ module.exports.initialize = function() {
       $.ajax({
         type: 'POST',
         url: url,
-        data: $.param(form_data)
+        data: $.param(form_data),
+        dataType: 'json'
       }).done(data => {
         if (data != undefined && Object.keys(data.error).length > 0) {
           if (
@@ -291,6 +312,7 @@ module.exports.initialize = function() {
 
   let submit_thing_form = function(form) {
     update_editors();
+    disable_form(form);
 
     $('#validation_errors').html('');
 

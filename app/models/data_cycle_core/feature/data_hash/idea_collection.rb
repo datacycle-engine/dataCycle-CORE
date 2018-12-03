@@ -8,7 +8,7 @@ module DataCycleCore
           base.before_save_data_hash :change_life_cycle_stage, if: proc {
             @new_content &&
               try(:is_part_of).present? &&
-              template_name == DataCycleCore::Feature::IdeaCollection.template &&
+              template_name == DataCycleCore::Feature::IdeaCollection.template_name &&
               !parent.life_cycle_stage?(DataCycleCore::Feature::IdeaCollection.life_cycle_stage(self))
           }
         end

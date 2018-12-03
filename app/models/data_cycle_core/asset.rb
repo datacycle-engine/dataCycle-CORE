@@ -12,10 +12,8 @@ module DataCycleCore
 
     include AssetHelpers
 
-    DataCycleCore.content_tables.each do |content_table|
-      has_many :asset_contents, dependent: :destroy
-      has_many content_table.to_sym, through: :asset_contents, source: 'content_data', source_type: "DataCycleCore::#{content_table.singularize.classify}"
-    end
+    has_many :asset_contents, dependent: :destroy
+    has_many :things, through: :asset_contents, source: 'content_data', source_type: 'DataCycleCore::Thing'
 
     def update_asset_attributes
       return if file.blank?

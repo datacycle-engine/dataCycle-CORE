@@ -1,14 +1,11 @@
 - Inhaltstypen:
   - $$Asset:
-    - $$DataCycle - Audio
-    - $$DataCycle - Bild
-    - $$DataCycle - Video
-    - $$DataCycle - Datei
-    - $$DataCycle - PDF
+    - $$PDF
     - $$Audio
     - $$Bild
     - $$Datei
     - $$Video
+    - $$PDF
   - $$Person
   - $$Veranstaltung
   - $$Ort:

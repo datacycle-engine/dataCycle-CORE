@@ -27,7 +27,6 @@
       :embedded_creative_work:
         :label: Embedded Creative-Work
         :type: embedded
-        :linked_table: things
         :template_name: Embedded-Creative-Work-2
 
 - :data:
@@ -58,5 +57,4 @@
       :linked_place:
         :label: Linked Place Entity
         :type: linked
-        :linked_table: things
         :template_name: Linked-Place-1

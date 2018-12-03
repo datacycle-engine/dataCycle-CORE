@@ -44,7 +44,6 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 
 module DataCycleCore
   module TestPreparations
-    extend DataCycleCore::Common
     CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
@@ -82,9 +81,7 @@ module DataCycleCore
     end
 
     def self.load_classifications(paths)
-      paths.map do |path|
-        DataCycleCore::MasterData::ImportClassifications.import(path)
-      end
+      DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: paths)
     end
 
     def self.load_templates(paths)
@@ -101,6 +98,15 @@ module DataCycleCore
     def self.load_external_sources(paths)
       paths.map do |path|
         errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
+        next if errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
+    def self.load_external_systems(paths)
+      paths.map do |path|
+        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
         next if errors.blank?
         puts 'the following errors were encountered during import:'
         ap errors
@@ -208,13 +214,19 @@ end
 unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   DataCycleCore::TestPreparations.load_classifications(
     [
-      Rails.root.join('..', 'dummy', 'config', 'data_definitions', 'classifications.yml')
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
     ]
   )
 
   DataCycleCore::TestPreparations.load_external_sources(
     [
       Rails.root.join('..', '..', 'config', 'external_sources')
+    ]
+  )
+
+  DataCycleCore::TestPreparations.load_external_systems(
+    [
+      Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )
   DataCycleCore::TestPreparations.load_templates(

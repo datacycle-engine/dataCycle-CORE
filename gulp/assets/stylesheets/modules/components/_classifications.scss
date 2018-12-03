@@ -29,6 +29,9 @@ ul.backend-treeview-list {
       top: -2rem;
       right: 1rem;
       z-index: 1;
+      .fa {
+        width: 3rem;
+      }
     }
     .ca-input {
       position: relative;

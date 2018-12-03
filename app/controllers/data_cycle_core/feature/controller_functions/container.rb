@@ -9,21 +9,19 @@ module DataCycleCore
         included do
           DataCycleCore::Engine.routes.append do
             unless has_named_route?(:set_parent_thing)
-              DataCycleCore.content_tables.each do |table|
-                post "/#{table}/:id/set_parent", action: :set_parent, controller: table, as: "set_parent_#{table.singularize}"
-              end
+              post '/things/:id/set_parent', action: :set_parent, controller: 'things', as: 'set_parent_thing'
             end
           end
           Rails.application.reload_routes!
         end
 
         def set_parent
-          @content = data_cycle_object(controller_name).find(params[:id])
+          @content = DataCycleCore::Thing.find(params[:id])
           authorize! :edit, @content
 
           redirect_back(fallback_location: root_path, alert: I18n.t(:invalid_parent, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if parent_params[:parent_id].blank?
 
-          @parent = data_cycle_object(controller_name).find(parent_params[:parent_id])
+          @parent = DataCycleCore::Thing.find(parent_params[:parent_id])
 
           I18n.with_locale(@content.first_available_locale) do
             @content.is_part_of = @parent.id

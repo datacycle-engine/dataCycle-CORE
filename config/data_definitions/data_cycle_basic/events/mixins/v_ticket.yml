@@ -1,0 +1,21 @@
+---
+- :data:
+    :name: v_ticket
+    :type: mixin
+    :properties:
+      :v_ticket_categories:
+        :label: V-Ticket Categories
+        :type: classification
+        :tree_label: VTicket - Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :v_ticket_tags:
+        :label: V-Ticket Tags
+        :type: classification
+        :tree_label: VTicket - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

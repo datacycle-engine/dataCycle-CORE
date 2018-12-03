@@ -14,7 +14,7 @@ describe DataCycleCore::MasterData::Differs::Linked do
       {
         'label' => 'Inhaltstyp',
         'type' => 'linked',
-        'linked_table' => 'creative_works'
+        'template_name' => 'Bild'
       }
     end
 

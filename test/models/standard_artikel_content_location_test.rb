@@ -88,11 +88,7 @@ module DataCycleCore
       # check consistency of data in DB
       assert_equal(5, DataCycleCore::Thing.count - count_thing)
       assert_equal(3, DataCycleCore::ContentContent.count)
-
-      assert_equal(['DataCycleCore::Thing'], DataCycleCore::ContentContent.all.pluck(:content_a_type).uniq)
-      assert_equal(['DataCycleCore::Thing'], DataCycleCore::ContentContent.all.pluck(:content_b_type).uniq)
       assert_equal(['author', 'content_location', 'quotation'], DataCycleCore::ContentContent.all.pluck(:relation_a).uniq.sort)
-      assert_equal([''], DataCycleCore::ContentContent.all.pluck(:relation_b).uniq)
 
       returned_data_hash['content_location'] = [place_id2]
       error = data_set.set_data_hash(data_hash: returned_data_hash)

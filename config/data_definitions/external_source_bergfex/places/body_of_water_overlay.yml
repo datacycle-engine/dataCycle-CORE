@@ -19,7 +19,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
 #      :tourism_region:
 #        :label: Tourismus-Region

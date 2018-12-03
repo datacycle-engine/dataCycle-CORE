@@ -22,7 +22,6 @@ module DataCycleCore
             .join(search_entries)
             .on(
               contents[:id].eq(search_entries[:content_data_id])
-                .and(search_entries[:content_data_type].eq(name))
                 .and(search_entries[:locale].eq(language))
             ).join_sources
         ).where(

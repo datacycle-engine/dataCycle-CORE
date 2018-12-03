@@ -10,18 +10,15 @@ module DataCycleCore
         end
 
         def show
-          object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
+          return if permitted_params[:type].nil? || permitted_params[:type] == 'things'
 
-          return if object_type.nil?
-          @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+          @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
         end
 
         def update
-          object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-
-          @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+          @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
 
@@ -29,9 +26,7 @@ module DataCycleCore
         end
 
         def destroy
-          object_type = DataCycleCore.content_tables.find { |object| object == permitted_params[:type] }
-
-          @content = ('DataCycleCore::' + object_type.singularize.classify).constantize
+          @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
             .find(permitted_params[:id])
 
@@ -41,7 +36,6 @@ module DataCycleCore
 
         def search
           query = build_search_query
-          query = query.where("searches.content_data_type = 'DataCycleCore::Thing'")
           query = query.modified_since(permitted_params[:modified_since]) if permitted_params[:modified_since]
           query = query.created_since(permitted_params[:created_since]) if permitted_params[:created_since]
           query = query.in_validity_period if permitted_params[:modified_since] && permitted_params[:created_since]
@@ -49,7 +43,6 @@ module DataCycleCore
           query = apply_ordering(query)
 
           @total = query.count
-
           @contents = apply_paging(query)
         end
 

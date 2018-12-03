@@ -27,6 +27,12 @@ describe DataCycleCore::MasterData::Validators::Geographic do
       assert_equal(no_error_hash, subject.new(geo_object, template_hash).error)
     end
 
+    it 'properly returns a warning if no data are given' do
+      error_hash = subject.new(nil, template_hash)
+      assert_equal(0, error_hash.error[:error].size)
+      assert_equal(1, error_hash.error[:warning].size)
+    end
+
     it 'rejects arbitrary objects' do
       test_cases = [10, :wednesday, 'POINT (10.0 47.0 hallo)']
       test_cases.each do |test_case|

@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class AssetContent < ApplicationRecord
-    belongs_to :content_data, polymorphic: true
+    belongs_to :content_data, class_name: 'DataCycleCore::Thing'
     belongs_to :asset
 
     class << self

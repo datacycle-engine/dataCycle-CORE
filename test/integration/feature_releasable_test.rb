@@ -31,29 +31,29 @@ module DataCycleCore
           item_type: @content.class.name
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content)
       follow_redirect!
       assert_equal DataCycleCore::Feature::Releasable.get_stage('partner'), @content.reload.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.first&.name
     end
 
     test 'change release status after finished editing content' do
       get data_link_path(@data_link)
-      assert_redirected_to edit_polymorphic_path(@content)
+      assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
-      patch polymorphic_path(@content), params: {
+      patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash
         },
         finalize: true
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal DataCycleCore::Feature::Releasable.get_stage('review'), @content.reload.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.first&.name
     end
