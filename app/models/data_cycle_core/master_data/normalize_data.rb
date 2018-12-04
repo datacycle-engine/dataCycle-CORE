@@ -16,7 +16,6 @@ module DataCycleCore
         @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host: host, end_point: end_point, **options)
       end
 
-      # keys of the data-hash defined as keys in the template
       def normalize(data, template_hash)
         if data.blank?
           @logger.error 'No data given for normalization.'
@@ -27,25 +26,53 @@ module DataCycleCore
           return data
         end
 
-        # select_data(data, template_hash)
+        normalize_hash = normalizable_data(nil, template_hash.dig('properties'), data)
+        transformation_hash = create_transformation(normalize_hash)
 
-        ap normalizable_attributes(nil, template_hash.dig('properties'))
-        @norm_data # = Normalizer::Object.new(data, template_hash['properties'])
+        normalize_report = @endpoint.normalize(normalize_hash)
+        normalized_data = back_transformation(normalize_report.dig('entry', 'fields'), transformation_hash)
+
+        updated_data = update_data(data, normalized_data)
+        return updated_data, normalize_report
       end
 
-      def normalizable_attributes(root, template_hash)
+      def normalizable_data(root, template_hash, data_hash)
         template_hash.map { |key, value|
-          new_key = nil
           if value.dig('properties').present?
-            # included object
-            puts "included: #{[root, key].compact.join('/')}"
-            new_key = normalizable_attributes([root, key].compact.join('/'), value.dig('properties'))
+            normalizable_data([root, key].compact.join('/'), value.dig('properties'), data_hash&.dig(key))
           elsif value.dig('normalize').present?
-            puts "item: #{[root, key].compact.join('/')}"
-            new_key = [root, key].compact.join('/')
+            { 'id' => [root, key].compact.join('/'), 'type' => value.dig('normalize').upcase, 'content' => data_hash&.dig(key) }
           end
-          new_key
-        }.flatten.reject(&:nil?)
+        }.compact.flatten
+      end
+
+      def create_transformation(normalize_hash)
+        normalize_hash.map { |item|
+          { item.dig('type') => item.dig('id') }
+        }.reduce({}, :merge)
+      end
+
+      def back_transformation(data, transformation)
+        data.map { |item| item.merge('id' => transformation[item.dig('type')]) }
+      end
+
+      def update_data(old_data, update_list)
+        new_data = old_data.deep_dup
+        update_list.each do |item|
+          new_data = update_path(new_data, item.dig('id'), item.dig('content'))
+        end
+        new_data
+      end
+
+      def update_path(hash, path, value)
+        return hash if path.blank? || value.blank?
+        set_value(hash, path.split('/'), value)
+      end
+
+      def set_value(hash, path, value)
+        return value if path.blank?
+        hash[path.first] = set_value(hash[path.first], path[1..-1], value)
+        hash
       end
     end
   end

@@ -14,7 +14,7 @@
             :label: Straße
             :type: string
             :storage_location: value
-            :normalize: street
+            :normalize: street_streetnr
           :postal_code:
             :label: PLZ
             :type: string
