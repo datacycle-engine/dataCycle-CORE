@@ -24,6 +24,21 @@ module DataCycleCore
           @parent = DataCycleCore::Thing.find(parent_params[:parent_id])
 
           I18n.with_locale(@content.first_available_locale) do
+            # update_hash = {
+            #   current_user: current_user,
+            #   save_time: Time.zone.now
+            # }
+
+            # if DataCycleCore::Feature::LifeCycle.allowed?(@content)
+            #   update_hash.merge({
+            #     DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [
+            #       @parent.try(:life_cycle_stage)
+            #     ]
+            #   })
+            # end
+
+            # binding.pry
+
             @content.is_part_of = @parent.id
             if @content.save(touch: false)
               redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
