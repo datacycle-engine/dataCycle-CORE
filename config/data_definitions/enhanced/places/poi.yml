@@ -12,6 +12,8 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :creatable:
+        :allowed: true
     :api:
       :type: TouristAttraction
     :properties:
