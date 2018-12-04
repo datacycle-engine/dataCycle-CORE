@@ -26,10 +26,33 @@
   <%= hidden_field_tag :table, new_template.class.table_name %>
   <%= hidden_field_tag :template, new_template.template_name %>
 
+  <% data_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name(new_template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants %>
+
+  <% if data_types.many? %>
+    <div class="form-element">
+      <%= label_tag 'thing[datahash][data_type][]', t('common.data_type', locale: DataCycleCore.ui_language) %>
+      <div class="v-select white">
+        <%= select_tag 'thing[datahash][data_type][]', options_for_select(data_types.map{ |c| [c.name, c.primary_classification.id] }), {
+          class: 'single-select',
+          data: {
+            allow_clear: false
+          }
+        } %>
+      </div>
+    </div>
+  <% end %>
+
   <% if !new_template.content_type?('container') && I18n.available_locales.many? && local_assigns[:locale].blank? %>
     <div class="form-element">
-    <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
-    <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale) %>
+      <%= label_tag 'locale', t('common.language', locale: DataCycleCore.ui_language) %>
+      <div class="v-select white">
+        <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale), {
+          class: 'single-select',
+          data: {
+            allow_clear: false
+          }
+        } %>
+      </div>
     </div>
   <% else %>
     <%= hidden_field_tag :locale, local_assigns[:locale] %>

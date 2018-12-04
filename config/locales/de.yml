@@ -121,6 +121,7 @@ de:
     unsubscribe_text: Bereits abonniert.
     life_cycle: Lebenszyklus
     create_new_content: Neuen Inhalt erstellen
+    data_type: Inhaltstyp
 
   tile_links:
     details: zur Detailansicht

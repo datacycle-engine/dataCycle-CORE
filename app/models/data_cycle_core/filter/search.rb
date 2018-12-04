@@ -17,7 +17,7 @@ module DataCycleCore
             :translations,
             :watch_lists,
             :external_source,
-            :parent,
+            :parent
           )
         )
       end

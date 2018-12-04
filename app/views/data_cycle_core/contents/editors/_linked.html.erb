@@ -107,8 +107,6 @@
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
 
-          <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
-
           <% form_parameters = {
             content: content,
             button_class: 'small new-content-button',
@@ -120,9 +118,11 @@
 
           <% new_template = DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) %>
 
-          <% form_parameters = form_parameters.merge(creatable.present? ? {
+          <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
+
+          <% form_parameters = form_parameters.merge(definition&.dig('stored_filter').present? ? {
             query_methods: [{
-              method_name: 'with_name',
+              method_name: 'with_default_data_type',
               value: creatable
             }]
           } : {
@@ -132,7 +132,10 @@
             }).to_json
           }) %>
 
-          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') %>
+          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') || new_content_select_options(query_methods: [{
+              method_name: 'with_default_data_type',
+              value: creatable
+            }], scope: 'object_browser').present? %>
 
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

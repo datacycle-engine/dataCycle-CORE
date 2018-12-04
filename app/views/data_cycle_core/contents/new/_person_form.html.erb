@@ -7,7 +7,7 @@
 
   <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'family_name', 'validations').present? %>">
     <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][family_name]", "#{new_template.schema.dig('properties', 'family_name', 'label')}" %>
-    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][family_name]", local_assigns[:search_param], class: 'form-control' %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][family_name]", nil, class: 'form-control' %>
   </div>
 
 <% end %>

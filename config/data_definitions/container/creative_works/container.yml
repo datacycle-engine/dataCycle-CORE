@@ -7,8 +7,8 @@
     :boost: 10000.0
     :features:
       :container:
-        :classification_alias:
-          - Text
+        :allowed_templates:
+          - Artikel
       :creatable:
         :allowed: true
     :properties:

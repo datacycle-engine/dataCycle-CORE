@@ -56,8 +56,8 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil, scope: nil)
-      query = query.includes(:classification_alias_path).for_tree('Inhaltstypen')
+    def new_content_select_options(query: DataCycleCore::Thing, query_methods: [], content: nil, scope: nil)
+      query = query.where(template: true)
 
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
         if query.respond_to?(query_method['method_name']) && query_method['value'].present?
@@ -67,21 +67,12 @@ module DataCycleCore
         end
       end
 
-      query.order(:name).with_content_templates.map { |c|
-        next unless can?(:create, c.content_template, scope, {
-          classification_alias: c,
-          content: content
-        })
-
+      query.order(:template_name).select { |t| can?(:create, t, scope, { content: content }) }.map do |t|
         [
-          c.name,
-          "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
-          {
-            title: c.description,
-            disabled: c&.content_template&.id.blank?
-          }
+          t.template_name,
+          "source_id=>#{t.id},source_table=>#{t.class.table_name}"
         ]
-      }.compact
+      end
     end
 
     def to_query_params(options_hash)
