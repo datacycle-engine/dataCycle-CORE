@@ -5,8 +5,8 @@ credentials:
 config:
   push_config:
     endpoint: DataCycleCore::Export::TextFile::Endpoint
-#    create:
-#      strategy: DataCycleCore::Export::TextFile::Create
+    create:
+      strategy: DataCycleCore::Export::TextFile::Create
     update:
       strategy: DataCycleCore::Export::TextFile::Update
 #    delete:
