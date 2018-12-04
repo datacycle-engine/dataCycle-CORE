@@ -68,45 +68,49 @@
                     <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                     <div class="accordion-content" data-tab-content>
 
-                        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-                            <%= f.error_notification %>
+                        <% if DataCycleCore::User.included_modules.include?(Devise::Models::Registerable) %>
 
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_email" class="text-right middle">E-Mail:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :email, required: true, autofocus: true, label: false, disabled: true %>
-                                </div>
-                            </div>
+                            <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+                                <%= f.error_notification %>
 
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_password" class="text-right middle">Passwort:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false, disabled: true %>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :password_confirmation, required: true, label: false, disabled: true %>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="small-7 small-offset-4 columns end">
-                                    <div class="form-actions">
-                                        <%= f.button :button, class:"button",type:"submit", disabled: true do %>
-                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
-                                        <% end %>
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_email" class="text-right middle">E-Mail:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :email, required: true, autofocus: true, label: false, disabled: true %>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_password" class="text-right middle">Passwort:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false, disabled: true %>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :password_confirmation, required: true, label: false, disabled: true %>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="small-7 small-offset-4 columns end">
+                                        <div class="form-actions">
+                                            <%= f.button :button, class:"button",type:"submit", disabled: true do %>
+                                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                            <% end %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <% end %>
 
                         <% end %>
 
