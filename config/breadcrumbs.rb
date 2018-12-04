@@ -32,7 +32,7 @@ end
 
 # Default Show Crumb
 crumb :show do |item, title_method, watch_list|
-  link to_html_string(item.model_name.human(locale: DataCycleCore.ui_language), item.try(title_method)), thing_path(item), authorized: can?(:show, item)
+  link to_html_string(item.model_name.human(locale: DataCycleCore.ui_language), item.try(title_method)), polymorphic_path(item), authorized: can?(:show, item)
   parent :show, watch_list, :name if watch_list.present?
 end
 

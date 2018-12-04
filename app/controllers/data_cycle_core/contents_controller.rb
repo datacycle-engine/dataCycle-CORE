@@ -120,7 +120,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
       end
@@ -132,7 +132,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find_by(external_key: params[:external_key])
       authorize!(:edit, @content)
 
-      redirect_to edit_thing_path(@content)
+      redirect_to edit_thing_path(@content, watch_list_params)
     end
 
     def update
