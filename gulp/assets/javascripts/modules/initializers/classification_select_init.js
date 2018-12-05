@@ -99,7 +99,8 @@ module.exports.initialize = function() {
             }
 
             var term = query.term || '';
-            var text_value = data.name || data.text;
+            var text_value = data.title || data.text;
+
             var result = text_value
               ? select2_helpers.markMatch(text_value, term)
               : null;

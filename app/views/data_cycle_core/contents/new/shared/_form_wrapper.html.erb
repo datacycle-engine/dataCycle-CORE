@@ -28,15 +28,27 @@
   <%= hidden_field_tag :table, new_template.class.table_name %>
   <%= hidden_field_tag :template, new_template.template_name %>
 
-  <% data_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name(new_template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants %>
+  <% data_types = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name(new_template&.schema&.dig('properties', 'data_type', 'default_value')).with_descendants.preload(:classification_alias_path, :classifications)
+ %>
 
   <% if data_types.many? %>
     <div class="form-element">
       <%= label_tag 'thing[datahash][data_type][]', t('common.data_type', locale: DataCycleCore.ui_language) %>
       <div class="v-select white">
-        <%= select_tag 'thing[datahash][data_type][]', options_for_select(data_types.map{ |c| [c.name, c.primary_classification.id] }), {
+        <%= select_tag 'thing[datahash][data_type][]', options_for_select(data_types.map { |c|
+          [
+            c.name,
+            c.primary_classification&.id,
+            {
+              title: [
+                c.full_path,
+                c.description
+              ].reject(&:blank?).join("\n\n"),
+            }
+          ] if c.primary_classification&.id.present? }.compact), {
           class: 'single-select',
           data: {
+            tree_label: 'Inhaltstypen',
             allow_clear: false
           }
         } %>
