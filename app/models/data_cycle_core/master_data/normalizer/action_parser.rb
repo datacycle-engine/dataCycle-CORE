@@ -1,0 +1,74 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module MasterData
+    module Normalizer
+      module ActionParser
+        class << self
+          def action_type
+            {
+              'ADD' => :add,
+              'ALTER' => :alter,
+              'DELETE' => :delete,
+              'SPLIT' => :split,
+              'PROPOSE' => :propose,
+              'ERROR' => :error
+            }
+          end
+
+          def parse(normalize_report)
+            actions = []
+            normalize_report.dig('actionList').each do |action|
+              raise ArgumentError, "Unknown taskType: #{action.dig('taskType')} | known types: #{action_type.keys}" unless action_type.key?(action.dig('taskType'))
+              actions << send(action_type[action['taskType']], action)
+            end
+            consolidate(actions.flatten)
+          end
+
+          def add(action)
+            action.dig('fieldsAfter')
+              .map { |item| { item['type'] => ['+', item['content']] } }
+          end
+
+          def alter(action)
+            action.dig('fieldsAfter')
+              .zip(action.dig('fieldsBefore'))
+              .map { |after, before| { after['type'] => ['~', after['content'], before['content']] } }
+          end
+
+          def delete(action)
+            action.dig('fieldsBefore')
+              .map { |item| { item['type'] => ['-', item['content']] } }
+          end
+
+          def split(action)
+            action.dig('fieldsAfter')
+              .product(action.dig('fieldsBefore'))
+              .map do |after, before|
+                if after.dig('type') == before.dig('type')
+                  { after['type'] => ['~', after['content'], before['content']] }
+                else
+                  { after['type'] => ['+', after['content']] }
+                end
+              end
+          end
+
+          def propose(action)
+            [{
+              action.dig('fieldsProposed').first.dig('type') =>
+                ['?', action.dig('fieldsProposed').map { |item| item['content'] }]
+            }]
+          end
+
+          def error(action)
+            [{ 'ERROR' => ['!', action['message']] }]
+          end
+
+          def consolidate(diffs)
+            diffs.reduce({}) { |hash, item| hash.merge(item) { |_key, old_val, new_val| old_val[0].is_a?(::String) ? [old_val] + [new_val] : old_val << new_val } }
+          end
+        end
+      end
+    end
+  end
+end

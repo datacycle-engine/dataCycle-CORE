@@ -12,23 +12,7 @@ module DataCycleCore
 
         def normalize(data_hash)
           return if data_hash.blank?
-
-          # normalized_hash = load_data(reduce_data(data_hash))
-          # normalized_hash['entry']['fields'] = merge_ids(normalized_hash.dig('entry', 'fields'), data_hash)
-          # normalized_hash
-          load_data(reduce_data(data_hash))
-        end
-
-        # def merge_ids(obtained_hash, data_hash)
-        #   items = (obtained_hash.map { |item| item.dig('type') } + data_hash.map { |item| item.dig('type') }).uniq
-        #   items.map { |item|
-        #     ({}&.merge(data_hash.find(ifnone = {}) { |entry| entry&.dig('type') == item }))
-        #       &.merge(obtained_hash.find(ifnone = {}) { |entry| entry&.dig('type') == item })
-        #   }.reject { |item| item == {} }
-        # end
-
-        def reduce_data(data_list)
-          data_list.map { |item| item.except('id') }
+          load_data(data_hash)
         end
 
         def load_data(data_list)
