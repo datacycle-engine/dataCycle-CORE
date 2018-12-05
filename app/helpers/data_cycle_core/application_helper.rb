@@ -60,7 +60,7 @@ module DataCycleCore
       query = query.where(template: true)
 
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
-        if query.respond_to?(query_method['method_name']) && query_method['value'].present?
+        if query.respond_to?(query_method['method_name']) && query_method.has_key?('value')
           query = query.try(query_method['method_name'], query_method['value'])
         elsif query.respond_to?(query_method['method_name'])
           query = query.try(query_method['method_name'])
