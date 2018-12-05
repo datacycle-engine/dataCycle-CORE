@@ -76,19 +76,28 @@
 
         <% if can? :generate_access_token, content %>
           <div class="form-element">
+            <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
             <%= f.label :access_token, nil, class: 'margin-left' do %>
               <%= DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language) %>
 
               <%= content_tag :span, "(#{content.access_token})", class: 'copy-to-clipboard with-shadow', title: DataCycleCore::User.human_attribute_name(:access_token, locale: DataCycleCore.ui_language), data: { value: content.access_token } if content.access_token.present? %>
             <% end %>
-            <%= f.check_box :access_token, label: false, checked: content.access_token.present? %>
           </div>
         <% end %>
 
         <% if can? :set_role, content %>
           <div class="form-element">
-              <%= f.label :role_id, DataCycleCore::User.human_attribute_name(:role_id, locale: DataCycleCore.ui_language) %>
-              <%= f.select :role_id, DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]}, {}, class: "with-label" %>
+            <%= f.label :role_id, DataCycleCore::User.human_attribute_name(:role_id, locale: DataCycleCore.ui_language) %>
+
+            <div class="v-select">
+              <%= f.select :role_id,
+                DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]},
+                {},
+                class: 'single-select',
+                data: {
+                  allow_clear: false
+                } %>
+            </div>
           </div>
         <% end %>
 

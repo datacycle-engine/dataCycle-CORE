@@ -1,7 +1,7 @@
 <div class="reveal" id="content-upload-reveal" data-reveal data-image-validations="<%= DataCycleCore.image_validations.to_json %>" data-video-validations="<%= DataCycleCore.video_validations.to_json %>" data-multiple-opened="true">
   <h2><%= t('data_cycle_core.upload') %></h2>
 
-  <div class="callout alert" data-closable>
+  <div class="callout warning" data-closable>
     <%= t('media_archive.close_warning_html', locale: DataCycleCore.ui_language) %>
     <%= link_to nil, target: :_blank do %>
       <i class="fa fa-external-link" aria-hidden="true"></i>

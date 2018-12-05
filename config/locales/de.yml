@@ -122,6 +122,7 @@ de:
     life_cycle: Lebenszyklus
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
+    change_api_access: API Freigabe ändern
 
   tile_links:
     details: zur Detailansicht

@@ -12,16 +12,18 @@
     title: yield(:new_content_form_title) %>
 <% end %>
 
+<% if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+  <div class="callout alert">
+    <%= t('common.no_search', locale: DataCycleCore.ui_language) %>
+  </div>
+<% end %>
+
 <%= form_with url: polymorphic_path(new_template.class), local: !local_assigns[:object_browser], html: { class: 'validation-form' } do %>
 
   <%= render 'data_cycle_core/contents/new/shared/crumb_form_tags',
     additional_params: to_query_params(local_assigns),
     url: @active_url,
     title: yield(:new_content_form_title) %>
-
-  <% if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
-    <span class="notice"><%= t('common.no_search', locale: DataCycleCore.ui_language) %></span>
-  <% end %>
 
   <%= hidden_field_tag :table, new_template.class.table_name %>
   <%= hidden_field_tag :template, new_template.template_name %>

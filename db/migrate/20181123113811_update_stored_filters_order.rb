@@ -9,7 +9,8 @@ class UpdateStoredFiltersOrder < ActiveRecord::Migration[5.1]
       parameters = filter.parameters.without(order_hash).push(
         order_hash.map { |fk, fv| [fk, fv.is_a?(Hash) ? fv.map { |k, v| "searches.#{k} #{v.upcase}" }&.join(', ') : fv] }.to_h
       )
-      filter.update(parameters: parameters)
+      filter.parameters = parameters
+      filter.save(touch: false)
     end
   end
 
