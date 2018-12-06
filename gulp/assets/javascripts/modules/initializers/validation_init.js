@@ -44,7 +44,11 @@ module.exports.initialize = function() {
           }
         } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-        if (isValid && submit && $('.form-element .warning.counter').length) {
+        if (
+          isValid &&
+          submit &&
+          $(form).find('.form-element .warning.counter').length
+        ) {
           var warnings = $('.form-element .warning.counter')
             .closest('.form-element')
             .map((index, elem) => {
@@ -59,7 +63,11 @@ module.exports.initialize = function() {
             'warning',
             true,
             () => {
-              if ($(form).parent('.reveal.in-object-browser').length) {
+              if (
+                $(form)
+                  .closest('.reveal')
+                  .hasClass('in-object-browser')
+              ) {
                 $(form).trigger('submit_without_redirect');
               } else {
                 $(window).off('beforeunload');
@@ -67,25 +75,22 @@ module.exports.initialize = function() {
               }
             },
             () => {
-              $('.submit-edit-form')
-                .html('<i class="fa fa-check" aria-hidden="true"></i>')
-                .prop('disabled', false);
+              enable_form(form);
             }
           );
         } else if (isValid && submit) {
-          if ($(form).parent('.reveal.in-object-browser').length) {
+          if (
+            $(form)
+              .closest('.reveal')
+              .hasClass('in-object-browser')
+          ) {
             $(form).trigger('submit_without_redirect');
           } else {
             $(window).off('beforeunload');
             form.submit();
           }
         } else if (submit) {
-          $(form)
-            .find('input[type=submit]')
-            .removeAttr('disabled');
-          $('.submit-edit-form')
-            .html('<i class="fa fa-check" aria-hidden="true"></i>')
-            .prop('disabled', false);
+          enable_form(form);
 
           var first_error_offset, container;
           if ($(form).hasClass('edit-content-form')) {
@@ -119,10 +124,8 @@ module.exports.initialize = function() {
           data.statusText +
           '<br></span>';
 
-        $('.submit-edit-form')
-          .html('<i class="fa fa-check" aria-hidden="true"></i>')
-          .prop('disabled', false)
-          .addClass('alert');
+        enable_form(form);
+        $('.submit-edit-form').addClass('alert');
         $('#' + $('.submit-edit-form').data('toggle')).append(button_text);
       });
   };
@@ -361,6 +364,7 @@ module.exports.initialize = function() {
         $(element).off('change', '.validation-container');
         $(element).off('remove-submit-button-errors', '.validation-container');
         $(element).off('submit');
+        enable_form(element);
       });
   };
 
@@ -434,9 +438,6 @@ module.exports.initialize = function() {
       }
 
       remove_submit_button_errors();
-      $(ev.currentTarget)
-        .html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>')
-        .prop('disabled', true);
 
       if ($(form).find('input#finalize:checked').length > 0) {
         var confirmationModal = new ConfirmationModal(
@@ -454,30 +455,30 @@ module.exports.initialize = function() {
 
     // validate on value change
     init_event_handlers('body');
-
-    $(document).on(
-      'open.zf.reveal',
-      '.new-item[data-reset-on-close]',
-      event => {
-        init_event_handlers(event.currentTarget);
-      }
-    );
-
-    $(document).on(
-      'closed.zf.reveal',
-      '.new-item[data-reset-on-close]',
-      event => {
-        remove_event_handlers(event.currentTarget);
-      }
-    );
-
-    $(document).on('closed.zf.reveal', '.new-item', event => {
-      $(event.currentTarget)
-        .find('.has-error')
-        .removeClass('has-error');
-      $(event.currentTarget)
-        .find('.single_error')
-        .remove();
-    });
   }
+
+  $(document).on(
+    'open.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      init_event_handlers(event.currentTarget);
+    }
+  );
+
+  $(document).on(
+    'closed.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      remove_event_handlers(event.currentTarget);
+    }
+  );
+
+  $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
+    $(event.currentTarget)
+      .find('.has-error')
+      .removeClass('has-error');
+    $(event.currentTarget)
+      .find('.single_error')
+      .remove();
+  });
 };

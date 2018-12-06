@@ -333,20 +333,6 @@ namespace :data_cycle_core do
   end
 
   namespace :refactor do
-    desc 'dev mode'
-    task restore_dev_mode: :environment do
-      temp = Time.zone.now
-
-      Rake::Task['app:data_cycle_core:clear:all'].invoke
-      Rake::Task['app:data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['app:data_cycle_core:update:import_templates'].invoke
-      Rake::Task['app:data_cycle_core:update:import_external_source_configs'].invoke
-      Rake::Task['app:data_cycle_core:import:list'].invoke
-
-      puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
-    end
-
     desc 'import and update all templates'
     task :import_update_all_templates, [:prefix] => [:environment] do |_, args|
       temp = Time.zone.now
@@ -358,16 +344,5 @@ namespace :data_cycle_core do
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
-  end
-
-  desc 'reset database and import classifications, external sources and templates'
-  task reset_all: :environment do
-    Rake::Task['db:drop'].invoke
-    Rake::Task['db:create'].invoke
-    Rake::Task['db:migrate'].invoke
-    Rake::Task['db:seed'].invoke
-    Rake::Task['data_cycle_core:update:import_classifications'].invoke
-    Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
-    Rake::Task['data_cycle_core:refactor:import_update_all_templates'].invoke
   end
 end

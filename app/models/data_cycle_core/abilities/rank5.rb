@@ -16,8 +16,8 @@ module DataCycleCore
             DataCycleCore::Feature::Overlay.allowed?(content) ||
             content.global_property_names.present?
         end
-        can :create, DataCycleCore::Thing do |template, _scope|
-          template&.creatable?
+        can :create, DataCycleCore::Thing do |template, scope|
+          template&.creatable?(scope)
         end
 
         can :destroy, DataCycleCore::Thing do |content|

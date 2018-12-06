@@ -45,6 +45,10 @@ module DataCycleCore
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
     end
 
+    def self.without_deleted
+      where(deleted_at: nil)
+    end
+
     def self.with_name(*names)
       where(name: names.flatten)
     end
@@ -56,7 +60,10 @@ module DataCycleCore
     def self.with_descendants
       query = is_a?(ActiveRecord::Relation) ? self : all
 
-      query.unscoped.joins(:classification_alias_path).where('full_path_ids && ARRAY[?]::uuid[]', query.pluck(:id))
+      query.unscoped
+        .without_deleted
+        .joins(:classification_alias_path)
+        .where('full_path_ids && ARRAY[?]::uuid[]', query.pluck(:id))
     end
 
     def self.search(q)

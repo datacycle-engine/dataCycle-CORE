@@ -12,6 +12,8 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

@@ -12,9 +12,10 @@
       crumbs: local_assigns[:form_crumbs],
       title: yield(:new_content_form_title) %>
   <% end %>
-    <% external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv') %>
+
+  <% external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv') %>
   <% if external_system.present? %>
-    <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= external_system.credentials.dig('host') %>admin/media/import_iframe?type=Image&token=<%= external_system.credentials.dig('token') %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>">
+    <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= external_system.credentials.dig('host') %>/admin/media/import_iframe?type=Image&token=<%= external_system.credentials.dig('token') %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>">
       <p>Formular konnte nicht geladen werden</p>
     </iframe>
   <% else %>

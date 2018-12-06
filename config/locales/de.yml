@@ -120,6 +120,9 @@ de:
     subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
     unsubscribe_text: Bereits abonniert.
     life_cycle: Lebenszyklus
+    create_new_content: Neuen Inhalt erstellen
+    data_type: Inhaltstyp
+    change_api_access: API Freigabe ändern
 
   tile_links:
     details: zur Detailansicht

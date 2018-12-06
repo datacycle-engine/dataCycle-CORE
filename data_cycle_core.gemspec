@@ -63,7 +63,6 @@ Gem::Specification.new do |s|
   # simple logger for import/load
   s.add_dependency 'logging'
   # background-jobs
-  s.add_dependency 'delayed_job'
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
   s.add_dependency 'daemons'

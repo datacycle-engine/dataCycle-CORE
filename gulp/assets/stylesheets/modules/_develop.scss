@@ -57,7 +57,7 @@
 
     input[type='checkbox'] {
       min-width: 0;
-      margin: 1rem 0 0 1rem;
+      margin: 0 0 0 1rem;
     }
 
     &.classification {
@@ -77,7 +77,6 @@
             top: 0;
             left: 0;
             font-weight: normal;
-            vertical-align: text-bottom;
             color: $black;
           }
         }
@@ -1685,4 +1684,16 @@ select {
 
 .status-container {
   margin-top: 1rem;
+}
+[type='checkbox'],
+[type='radio'] {
+  display: inline-block;
+  vertical-align: sub;
+}
+
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__choice__remove {
+  float: right;
+  padding-left: 5px;
 }

@@ -6,6 +6,7 @@ module DataCycleCore
       self.abstract_class = true
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
+      define_model_callbacks :created_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
@@ -16,8 +17,9 @@ module DataCycleCore
 
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_webhooks
+      after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_created_data_hash :execute_create_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
         return {} if data_hash.blank?
@@ -42,15 +44,18 @@ module DataCycleCore
 
             self.updated_at = @save_time
             self.updated_by = @current_user&.id
+
+            # TODO: check if id is still valid
             if id.nil?
               self.created_at = @save_time
               self.created_by = @current_user&.id
             end
             save(touch: false)
-
             search_languages(update_search_all)
           end
-          reload && run_callbacks(:saved_data_hash) unless prevent_history
+          reload
+          run_callbacks(:saved_data_hash) unless prevent_history
+          run_callbacks(:created_data_hash) if @new_content
         end
         valid_hash
       end
@@ -74,8 +79,12 @@ module DataCycleCore
         end
       end
 
-      def execute_webhooks
+      def execute_update_webhooks
         Webhook::Update.execute_all(self)
+      end
+
+      def execute_create_webhooks
+        Webhook::Create.execute_all(self)
       end
 
       def get_inherit_datahash(parent)
@@ -283,6 +292,7 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)

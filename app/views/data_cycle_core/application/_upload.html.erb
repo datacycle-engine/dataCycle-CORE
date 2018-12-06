@@ -1,11 +1,11 @@
 <div class="reveal" id="content-upload-reveal" data-reveal data-image-validations="<%= DataCycleCore.image_validations.to_json %>" data-video-validations="<%= DataCycleCore.video_validations.to_json %>" data-multiple-opened="true">
   <h2><%= t('data_cycle_core.upload') %></h2>
 
-  <div class="callout alert" data-closable>
+  <div class="callout warning" data-closable>
     <%= t('media_archive.close_warning_html', locale: DataCycleCore.ui_language) %>
     <%= link_to nil, target: :_blank do %>
       <i class="fa fa-external-link" aria-hidden="true"></i>
-      <%= t('media_archive.continue_in_new_tab') %>
+      <%= t('media_archive.continue_in_new_tab', locale: DataCycleCore.ui_language) %>
     <% end %>
     <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
       <span aria-hidden="true">&times;</span>
@@ -30,7 +30,7 @@
   <%= form_tag('/contents/upload', multipart: true, id: 'content-upload-form') do %>
     <%= file_field_tag 'files', multiple: true, accept: 'image/*,video/*', class: 'upload-file' %>
     <%= label_tag 'files', content_tag(:i, nil, class: 'fa fa-plus'), class: 'button' %>
-    <%= button_tag t('actions.upload'), class: 'button' %>
+    <%= button_tag t('actions.upload', locale: DataCycleCore.ui_language), class: 'button' %>
   <% end %>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>

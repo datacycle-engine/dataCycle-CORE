@@ -22,7 +22,6 @@ PATH
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
       daemons
-      delayed_job
       delayed_job_active_record
       devise
       dotenv-rails
