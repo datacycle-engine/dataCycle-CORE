@@ -333,7 +333,7 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     it 'does the whole normalization correctly' do
       logger = Logger.new(Rails.root.join('log', 'normalize.log'))
-      updated_data, diffs = subject.new(logger: logger).normalize(data_hash, person_template)
+      _updated_data, _diffs = subject.new(logger: logger).normalize(data_hash, person_template)
       # diffs.must_equal diff_hash
       # updated_data.must_equal returned_data
     end

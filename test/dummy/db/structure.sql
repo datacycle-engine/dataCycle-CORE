@@ -30,7 +30,7 @@ CREATE TABLE ar_internal_metadata (
 --
 
 CREATE TABLE asset_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     content_data_type character varying,
     asset_id uuid,
@@ -47,7 +47,7 @@ CREATE TABLE asset_contents (
 --
 
 CREATE TABLE assets (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     file character varying,
     type character varying,
     content_type character varying,
@@ -67,7 +67,7 @@ CREATE TABLE assets (
 --
 
 CREATE TABLE classification_aliases (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -85,7 +85,7 @@ CREATE TABLE classification_aliases (
 --
 
 CREATE TABLE classification_tree_labels (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     seen_at timestamp without time zone,
@@ -101,7 +101,7 @@ CREATE TABLE classification_tree_labels (
 --
 
 CREATE TABLE classification_trees (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     external_source_id uuid,
     parent_classification_alias_id uuid,
     classification_alias_id uuid,
@@ -149,7 +149,7 @@ CREATE VIEW classification_alias_paths AS
 --
 
 CREATE TABLE classification_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_data_history_id uuid,
     classification_id uuid,
     tag boolean,
@@ -167,7 +167,7 @@ CREATE TABLE classification_content_histories (
 --
 
 CREATE TABLE classification_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     classification_id uuid,
     tag boolean,
@@ -185,7 +185,7 @@ CREATE TABLE classification_contents (
 --
 
 CREATE TABLE classification_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -201,7 +201,7 @@ CREATE TABLE classification_groups (
 --
 
 CREATE TABLE classifications (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     external_source_id uuid,
     external_key character varying,
@@ -222,7 +222,7 @@ CREATE TABLE classifications (
 --
 
 CREATE TABLE content_content_histories (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_a_history_id uuid,
     relation_a character varying,
     content_b_history_id uuid,
@@ -239,7 +239,7 @@ CREATE TABLE content_content_histories (
 --
 
 CREATE TABLE content_contents (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_a_id uuid,
     relation_a character varying,
     content_b_id uuid,
@@ -254,7 +254,7 @@ CREATE TABLE content_contents (
 --
 
 CREATE TABLE data_links (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     item_id uuid,
     item_type character varying,
     creator_id uuid,
@@ -275,7 +275,7 @@ CREATE TABLE data_links (
 --
 
 CREATE TABLE watch_list_data_hashes (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     watch_list_id uuid,
     hashable_id uuid,
     hashable_type character varying,
@@ -412,7 +412,7 @@ ALTER SEQUENCE delayed_jobs_id_seq OWNED BY delayed_jobs.id;
 --
 
 CREATE TABLE external_sources (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     credentials jsonb,
     config jsonb,
@@ -443,7 +443,7 @@ CREATE TABLE external_systems (
 --
 
 CREATE TABLE roles (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     rank integer,
     created_at timestamp without time zone NOT NULL,
@@ -465,7 +465,7 @@ CREATE TABLE schema_migrations (
 --
 
 CREATE TABLE searches (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     content_data_id uuid,
     locale character varying,
     words tsvector,
@@ -487,7 +487,7 @@ CREATE TABLE searches (
 --
 
 CREATE TABLE stored_filters (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     language character varying[],
@@ -505,7 +505,7 @@ CREATE TABLE stored_filters (
 --
 
 CREATE TABLE subscriptions (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     user_id uuid,
     subscribable_id uuid,
     subscribable_type character varying,
@@ -607,7 +607,7 @@ CREATE TABLE thing_translations (
 --
 
 CREATE TABLE user_group_users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     user_group_id uuid,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -621,7 +621,7 @@ CREATE TABLE user_group_users (
 --
 
 CREATE TABLE user_groups (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -634,7 +634,7 @@ CREATE TABLE user_groups (
 --
 
 CREATE TABLE users (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     given_name character varying DEFAULT ''::character varying NOT NULL,
     email character varying DEFAULT ''::character varying NOT NULL,
     encrypted_password character varying DEFAULT ''::character varying NOT NULL,
@@ -679,7 +679,7 @@ CREATE TABLE watch_list_user_groups (
 --
 
 CREATE TABLE watch_lists (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+    id uuid DEFAULT uuid_generate_v4() NOT NULL,
     name character varying,
     user_id uuid,
     seen_at timestamp without time zone,
@@ -1646,10 +1646,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20180917103214'),
 ('20180918085636'),
 ('20180918135618'),
+('20180920111943'),
 ('20180921083454'),
 ('20180927090624'),
 ('20180928084042'),
 ('20181001000001'),
+('20181001083347'),
 ('20181001085516'),
 ('20181009131613'),
 ('20181011125030'),

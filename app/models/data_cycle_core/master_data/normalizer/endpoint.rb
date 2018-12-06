@@ -31,6 +31,17 @@ module DataCycleCore
           data
         end
 
+        # def test_data_list
+        #   [
+        #     { 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' },
+        #     { 'type' => 'COUNTRY', 'content' => 'Österreich' },
+        #     { 'type' => 'CITY', 'content' => 'Villach' },
+        #     { 'type' => 'FORENAME', 'content' => 'Martin' },
+        #     { 'type' => 'SURNAME', 'content' => 'Oehzelt' },
+        #     { 'type' => 'EMAIL', 'content' => 'oehzelt@test.at' }
+        #   ]
+        # end
+
         # def test_data
         #   {
         #     'id' => '123',
