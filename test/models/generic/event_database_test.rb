@@ -6,7 +6,7 @@ module DataCycleCore
   module Generic
     class EventDatabaseTest < ActiveSupport::TestCase
       def setup
-        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
+        @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
 
       def download_from_local_json(external_source)

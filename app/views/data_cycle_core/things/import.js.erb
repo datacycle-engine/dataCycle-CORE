@@ -9,7 +9,7 @@
 
     $('#object_browser_<%= sanitize_to_id(params[:key]) %>').find('.item-info-scrollable').html('<%= escape_javascript(render_object_browser_partial(partial: 'detail', key: params[:key], definition: params[:definition], parameters: { object: @content, options: params[:options] })) %>');
 
-    $('#object_browser_<%= sanitize_to_id(params[:key]) %>').trigger('import-complete', {id: '<%= @content.id %>'});
+    $('#object_browser_<%= sanitize_to_id(params[:key]) %>').trigger('import-complete', { id: '<%= @content.id %>' });
 
   <% end %>
 <% end %>

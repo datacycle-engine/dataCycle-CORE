@@ -5,6 +5,12 @@
     :schema_type: CreativeWork
     :content_type: container
     :boost: 10000.0
+    :features:
+      :container:
+        :allowed_templates:
+          - Artikel
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

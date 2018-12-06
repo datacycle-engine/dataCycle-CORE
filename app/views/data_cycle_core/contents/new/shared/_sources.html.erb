@@ -1,0 +1,14 @@
+<% sources = [] %>
+<% content.children.each do |child| %>
+  <% I18n.with_locale(child.first_available_locale) do %>
+    <% sources.push(["#{child.title} (#{child.template_name}, #{I18n.locale})", "source_id=>#{child.id},source_table=>#{child.class.table_name}"]) %>
+  <% end %>
+<% end %>
+
+<div class="form-element">
+  <%= label_tag 'source', t('common.splitsource', locale: DataCycleCore.ui_language) %>
+
+  <div class="v-select white">
+    <%= select_tag('source', options_for_select(sources), { class: 'single-select select', data: { placeholder: '' }, include_blank: true }) %>
+  </div>
+</div>

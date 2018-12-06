@@ -10,8 +10,8 @@ var load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@para
 <% end %>
 
 <% content_for :buttons, flush: true do %>
-  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
-    [:load_more_linked_objects, @object],
+  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+    @object,
     key: @params[:key],
     complete_key: @params[:complete_key],
     definition: @params[:definition],
@@ -42,5 +42,5 @@ $('#<%= sanitize_to_id(@params[:complete_key]) %>').trigger('reinit-event-handle
 $('#<%= sanitize_to_id(@params[:complete_key]) %> > .buttons').prepend('<%= j yield(:buttons) %>');
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 
-$($.map(<%== @linked_objects.ids %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
+$($.map(<%= @linked_objects.ids.to_json.html_safe %>, id => $('#<%= sanitize_to_id(@params[:complete_key]) %> > input:hidden[value="' + id + '"]'))).each((index, elem) => $(elem).remove());
 load_more_button.remove();

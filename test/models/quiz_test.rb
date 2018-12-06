@@ -4,11 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class QuizTest < ActiveSupport::TestCase
-    test 'CreativeWork exists' do
-      data = DataCycleCore::CreativeWork.new
-      assert_equal(data.class, DataCycleCore::CreativeWork)
-    end
-
     test 'generate a Quiz with questions, then delete all questions and answers' do
       data_set = DataCycleCore::TestPreparations.data_set_object('Quiz')
       data_set.save!

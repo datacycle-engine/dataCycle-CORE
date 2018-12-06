@@ -21,6 +21,12 @@ module DataCycleCore
           configuration(content).dig('ordered')
         end
 
+        def creatable_stages(content = nil)
+          ordered_classifications(content)
+            .except('Archiv')
+            .map { |k, v| [k, v[:id]] }
+        end
+
         def tree_label(content = nil)
           configuration(content).dig('tree_label')
         end

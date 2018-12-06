@@ -8,24 +8,38 @@ module DataCycleCore
           @available_containers ||= DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", 'container').order(:template_name)
         end
 
-        def apply_excluded_contents(content, entities)
-          return entities if excluded_contents(content).blank?
-
-          entities.where.not(template_name: excluded_contents(content))
+        def allowed_templates(content)
+          configuration(content).dig('allowed_templates')
         end
 
-        def apply_allowed_contents(content, entities)
-          return entities if allowed_contents(content).blank?
+        def index_query_methods
+          return [] unless enabled?
 
-          entities.where(template_name: allowed_contents(content))
+          ca_names = available_containers.map { |a| allowed_templates(a) }.flatten.uniq
+          ca_names = ca_names.without(DataCycleCore::Feature::IdeaCollection.template_name) if DataCycleCore::Feature::IdeaCollection.enabled?
+
+          [
+            {
+              method_name: 'without_template_names',
+              value: ca_names
+            }
+          ]
         end
 
-        def allowed_contents(content)
-          content&.schema&.dig('features', name.demodulize.underscore, 'allowed') || DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :allowed) || []
-        end
+        def query_methods(content)
+          queries = [
+            {
+              method_name: 'with_template_names',
+              value: allowed_templates(content)
+            }
+          ]
 
-        def excluded_contents(content)
-          content&.schema&.dig('features', name.demodulize.underscore, 'excluded') || DataCycleCore.features.dig(name.demodulize.underscore.to_sym, :excluded) || []
+          return queries unless content.life_cycle_stage_index > content.life_cycle_stage_index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage(content))
+
+          queries.push({
+            method_name: 'without_template_names',
+            value: DataCycleCore::Feature::IdeaCollection.template_name(content)
+          })
         end
       end
     end

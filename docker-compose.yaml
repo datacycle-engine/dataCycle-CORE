@@ -1,13 +1,13 @@
-version: '2'
+version: '3.1'
 services:
   postgres:
-    image: 'mdillon/postgis:9.6'
+    image: 'patrickrainer/data_cycle_postgis:latest'
     environment:
     - ALLOW_IP_RANGE=0.0.0.0/0
     ports:
     - '5446:5432'
   mongodb:
-    image: 'mvertes/alpine-mongo:3.4.10-0'
+    image: 'mvertes/alpine-mongo:3.6.5-0'
     ports:
     - '27026:27017'
   web:

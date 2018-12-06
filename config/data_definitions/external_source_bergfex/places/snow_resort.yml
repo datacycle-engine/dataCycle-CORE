@@ -15,7 +15,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: SnowResortOverlay
         :validations:
           :max: 1
@@ -83,7 +82,6 @@
       :opening_hours:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: things
         :template_name: Öffnungszeit - Erweitert
       :geo:
         :type: mixin
@@ -91,7 +89,6 @@
       :snow_report:
         :label: Schneeberichte
         :type: embedded
-        :linked_table: things
         :template_name: Schneebericht
       :url:
         :label: Link

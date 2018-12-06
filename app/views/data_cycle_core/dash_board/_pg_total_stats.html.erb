@@ -1,22 +1,20 @@
-<div class="card" style="width: 300px; background-color: white;">
-    <div class="card-divider">
+<div class='card' style='width: 300px'>
+    <div class='card-divider'>
         <h5><%= @stat_outdoor_active.pg_name %></h5>
     </div>
-    <div class="card-section">
+    <div class='card-section'>
         Total-size<%="&nbsp;&#8614&nbsp;#{number_to_human_size(@stat_outdoor_active.pg_size)}".html_safe %>
     </div>
 
-    <div class="card-section">
+    <div class='card-section'>
         Content: <br />
         <ul>
             <% @stat_outdoor_active.pg_content.each do |key, value| %>
                 <%=content_tag(:li, "#{key}: #{value}")%>
             <% end %>
-            <%=content_tag(:li, "Overlays: #{@stat_outdoor_active.pg_overlays}")%>
-            <%=content_tag(:li, "History: #{@stat_outdoor_active.pg_content_history}")%>
         </ul>
     </div>
-    <div class="card-section">
+    <div class='card-section'>
         Relations: <br />
         <ul>
           <%=content_tag(:li, "Content &#8644 Content: #{@stat_outdoor_active.pg_content_content}".html_safe)%>
@@ -24,7 +22,7 @@
         </ul>
     </div>
 
-    <div class="card-section">
+    <div class='card-section'>
         Categorization:
         <ul>
             <%=content_tag(:li, "Classifications: #{@stat_outdoor_active.pg_classifications}")%>

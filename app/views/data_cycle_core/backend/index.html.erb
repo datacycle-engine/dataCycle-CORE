@@ -3,7 +3,12 @@
 <% content_for(:title, "Backend") %>
 
 <% content_for :new_button do %>
-  <%= render 'new_content_links' if user_signed_in? && can?(:create_item, '') %>
+  <%= render 'new_content_links',
+    query_methods: DataCycleCore::Feature::Container.index_query_methods,
+    button_class: 'new-object-circle',
+    search_required: true,
+    scope: 'backend',
+    search_param: params.dig(:f, :s, :v) if user_signed_in? && new_content_select_options(query_methods: DataCycleCore::Feature::Container.index_query_methods, scope: 'backend').present? %>
 <% end %>
 
 <% content_for :top_content do %>

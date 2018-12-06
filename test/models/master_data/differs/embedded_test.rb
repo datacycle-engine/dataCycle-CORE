@@ -14,7 +14,6 @@ describe DataCycleCore::MasterData::Differs::Embedded do
       {
         'label' => 'Inhaltstyp',
         'type' => 'embedded',
-        'linked_table' => 'things',
         'template_name' => 'Bild'
       }
     end
@@ -52,7 +51,6 @@ describe DataCycleCore::MasterData::Differs::Embedded do
       template = {
         'label' => 'Bilder',
         'type' => 'embedded',
-        'linked_table' => 'things',
         'template_name' =>  'Bild'
       }
       uuid = '00000000-0000-0000-0000-000000000000'

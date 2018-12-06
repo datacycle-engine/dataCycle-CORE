@@ -15,7 +15,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_place_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_content_location(template),
-            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
+            default: { template: 'Örtlichkeit' },
             config: config
           )
         end
@@ -26,7 +26,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_bild(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
+            default: { template: 'Bild' },
             config: config
           )
         end
@@ -37,7 +37,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::MediaArchive::Transformations.media_archive_to_video(utility_object.external_source.id, place_template),
-            default: { content_type: DataCycleCore::Thing, template: 'Video' },
+            default: { template: 'Video' },
             config: config
           )
         end
@@ -52,13 +52,11 @@ module DataCycleCore
 
         def self.process_person(utility_object, raw_data, external_key, config)
           return nil if raw_data.blank?
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
               DataCycleCore::Generic::MediaArchive::Transformations

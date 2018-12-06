@@ -2,31 +2,19 @@
 
 module DataCycleCore
   class User < ApplicationRecord
-    devise :database_authenticatable, :registerable,
-           :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
 
-    has_many :use_cases
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
 
-    has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-    has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
-    has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
-    has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-
-    DataCycleCore.content_tables.each do |item|
-      class_name = item.classify
-      has_many "#{item}_created".to_sym, class_name: class_name, foreign_key: :created_by
-      has_many "#{item}_updated".to_sym, class_name: class_name, foreign_key: :updated_by
-      has_many "#{item}_deleted".to_sym, class_name: class_name, foreign_key: :deleted_by
-
-      history_class_name = class_name + '::History'
-      has_many "#{item.singularize}_histories_created".to_sym, class_name: history_class_name, foreign_key: :created_by
-      has_many "#{item.singularize}_histories_updated".to_sym, class_name: history_class_name, foreign_key: :updated_by
-      has_many "#{item.singularize}_histories_deleted".to_sym, class_name: history_class_name, foreign_key: :deleted_by
-    end
+    has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
+    has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
+    has_many :things_deleted, class_name: 'DataCycleCore::Thing', foreign_key: :deleted_by
+    has_many :thing_histories_created, class_name: 'DataCycleCore::Thing::History', foreign_key: :created_by
+    has_many :thing_histories_updated, class_name: 'DataCycleCore::Thing::History', foreign_key: :updated_by
+    has_many :thing_histories_deleted, class_name: 'DataCycleCore::Thing::History', foreign_key: :deleted_by
 
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users

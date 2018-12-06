@@ -1,7 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-    <% object_class_name = definition['linked_table'] %>
-    <% object_class = ("DataCycleCore::"+("#{object_class_name}".classify)).constantize %>
+    <% object_class = DataCycleCore::Thing %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
     <% object_template = definition['template_name'] %>
 
@@ -21,7 +20,7 @@
       data-options="<%= options.to_json %>"
       data-class="<%= object_class %>"
       data-editable="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
-      data-table="<%= object_class_name %>"
+      data-table="<%= 'things' %>"
       data-per="<%= DataCycleCore.linked_objects_page_size %>"
       data-objects="<%= value.presence&.ids %>"
       data-content-id="<%= (local_assigns[:parent] || content).id %>"
@@ -44,8 +43,8 @@
           </div>
 
           <div class="buttons clear-both">
-            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path(
-              [:load_more_linked_objects, local_assigns[:parent] || content],
+            <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+              local_assigns[:parent] || content,
               key: key.attribute_name_from_key,
               complete_key: key,
               definition: definition,
@@ -107,21 +106,40 @@
           <a class="button-prime success small save-object-browser">
             <i class="fa fa-check" aria-hidden="true"></i>
           </a>
-          <% if can?(:create_in_objectbrowser, object_template) %>
-            <button data-open="new_<%= sanitize_to_id(key) %>" class="new-item-button button-prime small" type="button">
-              <i class="fa fa-plus"></i>
-            </button>
-          <% end %>
+
+          <% form_parameters = {
+            content: content,
+            button_class: 'small new-content-button',
+            locale: I18n.locale,
+            object_browser: true,
+            key: sanitize_to_id(key),
+            scope: 'object_browser'
+          } %>
+
+          <% new_template = DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) %>
+
+          <% creatable = definition&.dig('stored_filter')&.map { |v| v&.values&.select { |c| c&.has_value?('Inhaltstypen') }&.map { |c| c&.dig('aliases') } }&.flatten&.compact %>
+
+          <% form_parameters = form_parameters.merge(definition&.dig('stored_filter').present? ? {
+            query_methods: [{
+              method_name: 'with_default_data_type',
+              value: creatable
+            }]
+          } : {
+            render_function: 'render_new_form',
+            render_params: to_query_params({
+              new_template: new_template
+            }).to_json
+          }) %>
+
+          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') || new_content_select_options(query_methods: [{
+              method_name: 'with_default_data_type',
+              value: creatable
+            }], scope: 'object_browser').present? %>
+
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>
           </button>
-
-          <% if can?(:create_in_objectbrowser, object_template) %>
-            <% begin %>
-              <%= render_object_browser_partial(partial: 'new', key: key, definition: definition, parameters: { new_overlay_key: sanitize_to_id(key), object: DataCycleCore::Thing.find_by(template: true, template_name: definition&.dig('template_name')) }, content: content) %>
-            <% rescue %>
-            <% end %>
-          <% end %>
         </div>
       </div>
     </div>

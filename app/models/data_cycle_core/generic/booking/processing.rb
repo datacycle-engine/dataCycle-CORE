@@ -5,14 +5,12 @@ module DataCycleCore
     module Booking
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('hotel_data', 'hotel_photos') || []).each do |image_hash|
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
-              class_type: type,
-              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
               data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
                 DataCycleCore::Generic::Booking::Transformations
@@ -28,7 +26,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Booking::Transformations.booking_to_unterkunft(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Thing, template: 'Unterkunft' },
+            default: { template: 'Unterkunft' },
             config: config
           )
         end

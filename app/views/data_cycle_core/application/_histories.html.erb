@@ -23,7 +23,7 @@
 
             <% if can?(:history, content) && item != @diff_source %>
                 <span class="history-link">
-                  <%= link_to polymorphic_path([:history, content], history_id: item.id, watch_list_id: @watch_list) do %>
+                  <%= link_to history_thing_path(content, history_id: item.id, watch_list_id: @watch_list) do %>
                     <i class="fa fa-history" aria-hidden="true"></i>
                   <% end %>
                 </span>

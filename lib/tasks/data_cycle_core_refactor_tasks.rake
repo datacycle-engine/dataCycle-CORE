@@ -605,7 +605,7 @@ namespace :data_cycle_core do
           AND tt.thing_id IN (
             SELECT id from things
             WHERE template = false
-            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website', '+CARD Holiday Leistung', 'Slow Food Travel Baustein')
+            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website', 'Veranstaltung', '+CARD Holiday Leistung', 'Slow Food Travel Baustein')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)
@@ -641,7 +641,7 @@ namespace :data_cycle_core do
           AND tt.thing_history_id IN (
             SELECT id from thing_histories
             WHERE template = false
-            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website', '+CARD Holiday Leistung', 'Slow Food Travel Baustein')
+            AND template_name IN ('Angebot', 'Artikel', 'Rezept', 'Website', 'Veranstaltung', '+CARD Holiday Leistung', 'Slow Food Travel Baustein')
           );
         SQL
         ActiveRecord::Base.connection.exec_query(sql)

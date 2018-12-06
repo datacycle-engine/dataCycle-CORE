@@ -100,7 +100,7 @@ module DataCycleCore
     end
 
     def load_last_filter
-      @query = apply_filter(filter_id: current_user.stored_filters.order(created_at: :desc)&.first&.id)
+      params[:stored_filter] = current_user.stored_filters.order(updated_at: :desc)&.first&.id
     end
 
     def filter_params

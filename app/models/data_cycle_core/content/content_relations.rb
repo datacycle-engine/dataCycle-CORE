@@ -27,31 +27,13 @@ module DataCycleCore
           has_many :classification_aliases, through: :classification_groups
           has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
 
-          # relation content to search
-          has_many :content_search_all, class_name: 'DataCycleCore::Search', foreign_key: content_name.foreign_key, dependent: :destroy if postfix.nil?
-
           # relation content to all other contents
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
-          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
+          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-
-          DataCycleCore.content_tables.map(&:singularize).each do |content_table_name|
-            if postfix.nil?
-              if table_given.to_s.singularize <= content_table_name
-                has_many content_table_name.pluralize.to_sym, through: :content_content_a, source: :content_b, source_type: "DataCycleCore::#{content_table_name.classify}"
-              else
-                has_many content_table_name.pluralize.to_sym, through: :content_content_b, source: :content_a, source_type: "DataCycleCore::#{content_table_name.classify}"
-              end
-            elsif table_given.to_s.singularize <= content_table_name
-              has_many "#{content_table_name}_#{postfix}".pluralize.to_sym, through: :content_content_a_history, source: :content_b_history, source_type: "DataCycleCore::#{content_table_name.classify}::#{postfix.capitalize}"
-            else
-              has_many "#{content_table_name}_#{postfix}".pluralize.to_sym, through: :content_content_b_history, source: :content_a_history, source_type: "DataCycleCore::#{content_table_name.classify}::#{postfix.capitalize}"
-            end
-          end
+          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source
-
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'

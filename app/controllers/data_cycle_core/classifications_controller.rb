@@ -74,7 +74,7 @@ module DataCycleCore
         :classification_tree_label_id,
         :classification_tree_id,
         { classification_tree_label: [:name, :internal] },
-        { classification_alias: [:name, :internal, :assignable] }
+        { classification_alias: [:name, :internal, :description, :assignable] }
       )
 
       respond_to do |format|

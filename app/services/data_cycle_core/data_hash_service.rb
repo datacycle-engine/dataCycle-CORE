@@ -13,25 +13,24 @@ module DataCycleCore
       datahash
     end
 
-    def self.get_internal_template(storage_location, name)
-      internal_template = ('DataCycleCore::' + storage_location.classify).constantize
-        .find_by(template: true, template_name: name)
+    def self.get_internal_template(name)
+      internal_template = DataCycleCore::Thing.find_by(template: true, template_name: name)
 
       return nil if internal_template.blank?
 
       internal_template
     end
 
-    def self.get_object_params(storage_location, template_name)
-      template = get_internal_template(storage_location, template_name)
+    def self.get_object_params(template_name)
+      template = get_internal_template(template_name)
       datahash = get_params_from_hash(template.schema)
       datahash
     end
 
-    def self.create_internal_object(storage_location, template_name, object_params, current_user, is_part_of = nil, source = nil)
-      object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
+    def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
+      object = DataCycleCore::Thing.new(object_params)
 
-      template = get_internal_template(storage_location, template_name)
+      template = get_internal_template(template_name)
       object.schema = template.schema
       object.template_name = template.template_name
       object.created_by = current_user.id
@@ -59,7 +58,7 @@ module DataCycleCore
 
         template_hash['properties'].each do |key, value|
           if value['type'] == 'embedded'
-            object_properties = get_internal_template(value['linked_table'], value['template_name'])
+            object_properties = get_internal_template(value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = { key.to_sym => get_params_from_hash(value) }
@@ -84,7 +83,7 @@ module DataCycleCore
           if value.is_a?(::Hash)
 
             if properties['type'] == 'embedded'
-              object_properties = get_internal_template(properties['linked_table'], properties['template_name'])
+              object_properties = get_internal_template(properties['template_name'])
               temp_value = []
 
               value.each_value do |object_value|

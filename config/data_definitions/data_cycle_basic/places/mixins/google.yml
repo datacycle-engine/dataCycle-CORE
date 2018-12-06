@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: google
+    :type: mixin
+    :properties:
+      :google_tags:
+        :label: GooglePlaces - Tags
+        :type: classification
+        :tree_label: GooglePlaces - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

@@ -30,7 +30,7 @@
         .watchlist-name {
           width: 100%;
           display: block;
-          i.fa{
+          i.fa {
             font-size: 1rem;
           }
         }
@@ -113,7 +113,7 @@
       }
     }
     form {
-      [type=submit] {
+      [type='submit'] {
         position: absolute;
         right: 0;
         top: 0;
@@ -122,8 +122,9 @@
         line-height: 1.4rem;
         border: none;
         z-index: 2;
+        width: 2.5rem;
       }
-      button[type="submit"].button i {
+      button[type='submit'].button i {
         font-size: 1rem;
         line-height: 1.2rem;
       }
@@ -131,14 +132,14 @@
   }
 }
 
-.watchlist-name{
-  .fa{
+.watchlist-name {
+  .fa {
     font-size: 1rem;
   }
 }
 
-.description.watchlist{
-  .fa{
+.description.watchlist {
+  .fa {
     margin-right: 0.5rem;
   }
 }

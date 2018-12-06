@@ -85,7 +85,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'gives empty list when wrong path is given for checking duplicates' do
       import_list, _duplicates = subject.check_for_duplicates([non_existent_path], ['things'])
-      assert_equal DataCycleCore.content_tables.map { |item| { item.to_sym => [] } }.inject(&:merge), import_list
+      assert_equal({ things: [] }, import_list)
     end
 
     it 'gives nil for duplicates when wrong path is given for checking duplicates' do

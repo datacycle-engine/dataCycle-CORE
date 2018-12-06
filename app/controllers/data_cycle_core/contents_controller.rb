@@ -3,6 +3,8 @@
 module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::ParamsResolver
+
     DataCycleCore.features.each_key do |key|
       module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
       include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
@@ -17,7 +19,7 @@ module DataCycleCore
     end
 
     def show
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
       redirect_back(fallback_location: root_path) && return if @content.nil?
 
@@ -47,44 +49,43 @@ module DataCycleCore
             @total_pages = (@total.to_f / 25).ceil
             @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
           end
-
-          @entities = DataCycleCore::Thing.where("template = ? AND schema ->> 'content_type' = ?", true, 'entity').order(:template_name)
-          @entities = @entities.where('template_name NOT IN(?)', DataCycleCore.excluded_filter_classifications + DataCycleCore.excluded_new_item_objects)
-          @entities = DataCycleCore::Feature::Container.apply_allowed_contents(@content, @entities)
-          @entities = DataCycleCore::Feature::Container.apply_excluded_contents(@content, @entities)
         end
 
         respond_to do |format|
-          format.json { redirect_to polymorphic_path([:api, :v2, @content]) }
+          format.json { redirect_to thing_path([:api, :v2, @content]) }
           format.html { render && return }
         end
       end
     end
 
+    def new
+      @new_template = DataCycleCore::Thing.find_by(id: new_template_params[:source_id]) if new_template_params.present?
+      @resolved_params = resolve_params(new_params)
+      @active_url = contents_new_path(resolve_params(new_params, false))
+
+      respond_to :js
+    end
+
     def create
-      if params[:source] == 'object_browser'
-        authorize!(:create_in_objectbrowser, params[:template])
-      else
-        authorize!(__method__, controller_path.classify.constantize)
-      end
+      authorize!(__method__, controller_path.classify.constantize)
 
       I18n.with_locale(locale_params[:locale]) do
-        object_params = content_params(controller_name, params[:template])
+        object_params = content_params(params[:template])
 
         if source_params.present?
-          source = data_cycle_object(source_params[:source_table]).find_by(id: source_params[:source_id])
+          source = DataCycleCore::Thing.find_by(id: source_params[:source_id])
         else
-          source = data_cycle_object(controller_name).find_by(id: parent_params[:parent_id])
+          source = DataCycleCore::Thing.find_by(id: parent_params[:parent_id])
         end
 
-        @content = DataCycleCore::DataHashService.create_internal_object(controller_name, params[:template], object_params, current_user, parent_params[:parent_id], source)
+        @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
         redirect_back(fallback_location: root_path) && return if @content.nil?
 
         respond_to do |format|
           if @content.present?
             format.html do
-              redirect_to edit_polymorphic_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
+              redirect_to edit_thing_path(@content, source_params.merge(watch_list_params)), notice: I18n.t(:created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language)
             end
             format.js
           else
@@ -95,11 +96,11 @@ module DataCycleCore
     end
 
     def edit
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
       # get show data for split view
       if source_params.present?
-        @split_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
+        @split_source = DataCycleCore::Thing.find(source_params[:source_id])
         @split_schema = []
 
         if @split_source.present?
@@ -119,7 +120,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
       end
@@ -128,55 +129,55 @@ module DataCycleCore
     def edit_by_external_key
       return if params[:external_key].blank?
 
-      @content = data_cycle_object(controller_name).find_by(external_key: params[:external_key])
+      @content = DataCycleCore::Thing.find_by(external_key: params[:external_key])
       authorize!(:edit, @content)
 
-      redirect_to edit_polymorphic_path(@content)
+      redirect_to edit_thing_path(@content, watch_list_params)
     end
 
     def update
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(polymorphic_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
+        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
-        object_params = content_params(controller_name, @content.template_name)
+        object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
 
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
-        redirect_to(edit_polymorphic_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
+        redirect_to(edit_thing_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
         if params[:new_locale].present?
-          redirect_to(edit_polymorphic_path(@content, watch_list_params.merge(locale: params[:new_locale])))
+          redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
         elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
-          redirect_to(polymorphic_path(@content, watch_list_params))
+          redirect_to(thing_path(@content, watch_list_params))
         end
       end
     end
 
     def destroy
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
       @content.destroy_content(current_user: current_user)
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
-      redirect_to(polymorphic_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+      redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
 
       redirect_to root_path
     end
 
     def compare
-      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       authorize! :show, @content
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if source_params.blank?
 
-      @diff_source = data_cycle_object(source_params[:source_table]).find(source_params[:source_id])
+      @diff_source = DataCycleCore::Thing.find(source_params[:source_id])
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
@@ -190,7 +191,7 @@ module DataCycleCore
     end
 
     def history
-      @content = data_cycle_object(controller_name).includes(:classifications).find(params[:id])
+      @content = DataCycleCore::Thing.includes(:classifications).find(params[:id])
       @diff_source = @content.histories.find(params[:history_id]) if params[:history_id].present?
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
@@ -216,58 +217,56 @@ module DataCycleCore
         format.js do
           if params[:render_html]
             flash[:success] = I18n.t :created, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-            render js: "document.location = '#{polymorphic_path(@content)}'"
+            render js: "document.location = '#{thing_path(@content)}'"
           end
         end
       end
     end
 
     def new_embedded_object
-      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @content = DataCycleCore::Thing.find(params[:id])
 
-      return unless can?(:edit, objects_class) || can?(:edit, @content)
+      return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
 
       respond_to(:js)
     end
 
     # only used in split-view
     def render_embedded_object
-      objects_class = data_cycle_object(params.dig(:definition, 'linked_table'))
-      authorize! :edit, objects_class
+      authorize! :edit, DataCycleCore::Thing
 
-      @objects = objects_class.where(id: params[:object_ids]).includes(:translations)
-      @content = data_cycle_object(controller_name).find(params[:id])
+      @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
+      @content = DataCycleCore::Thing.find(params[:id])
 
       respond_to(:js)
     end
 
     def gpx
-      @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      @object = DataCycleCore::Thing.find_by(id: params[:id])
       authorize! :show, @object
       send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
     end
 
     def validate
-      @object = data_cycle_object(controller_name).find_by(id: params[:id])
+      @object = DataCycleCore::Thing.find_by(id: params[:id])
 
       if @object.blank? && params[:template].present?
-        @object = data_cycle_object(controller_name).find_by(template: true, template_name: params[:template])
+        @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template])
       end
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 
       authorize! :show, @object
 
-      object_params = content_params(controller_name, @object.template_name)
+      object_params = content_params(@object.template_name)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
       valid = @object.validate(datahash)
       render json: valid.to_json
     end
 
     def load_more_linked_objects
-      @content = data_cycle_object(linked_object_params[:content_type]).find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
-      @object = data_cycle_object(controller_name).find(linked_object_params[:id])
+      @content = DataCycleCore::Thing.find(linked_object_params[:content_id]) if linked_object_params[:content_type].present?
+      @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
       @page = linked_object_params.fetch(:page, 1)
@@ -307,7 +306,11 @@ module DataCycleCore
       @asset.creator_id = current_user.try(:id)
       @asset.save
 
-      errors = MediaArchive::Webhooks::Create.new.execute(@asset)
+      external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
+      return if external_system.blank?
+      utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+      errors = ::Export::MediaArchive::Create.process(utility_object: utility_object, data: @asset)
+
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset
@@ -352,14 +355,28 @@ module DataCycleCore
       params.require(:life_cycle).permit(:name, :id)
     end
 
-    def content_params(storage_location, template_name)
-      datahash = DataCycleCore::DataHashService.get_object_params(storage_location, template_name)
+    def content_params(template_name)
+      datahash = DataCycleCore::DataHashService.get_object_params(template_name)
       params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
+    end
+
+    def new_params
+      params.permit(:test, :content_id, :scope, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
     end
 
     def source_params
       if params[:source]
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
+      elsif params[:source_id] && params[:source_table]
+        params.permit(:source_id, :source_table)
+      else
+        {}
+      end
+    end
+
+    def new_template_params
+      if params[:new_template]
+        ActionController::Parameters.new(Hash[params[:new_template].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
       elsif params[:source_id] && params[:source_table]
         params.permit(:source_id, :source_table)
       else
