@@ -44,6 +44,9 @@
                 c.full_path,
                 c.description
               ].reject(&:blank?).join("\n\n"),
+              data: {
+                title: c.full_path
+              }
             }
           ] if c.primary_classification&.id.present? }.compact), {
           class: 'single-select',

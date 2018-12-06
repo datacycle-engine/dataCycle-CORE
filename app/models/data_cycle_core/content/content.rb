@@ -57,10 +57,13 @@ module DataCycleCore
         schema&.dig('features', 'translatable', 'allowed') || false
       end
 
-      def creatable?(scope = nil)
+      def creatable?(scope)
         schema.dig('content_type') != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
-          schema.dig('features', 'creatable', 'scope').in?([scope, nil])
+          (
+            schema.dig('features', 'creatable', 'scope').blank? ||
+            schema.dig('features', 'creatable', 'scope')&.include?(scope)
+          )
       end
 
       def property_definitions
