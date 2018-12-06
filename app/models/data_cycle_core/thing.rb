@@ -13,6 +13,10 @@ module DataCycleCore
       include Content::ContentHistoryLoader
 
       translates :name, :description, :content, :history_valid
+      attribute :name
+      attribute :description
+      attribute :content
+      attribute :history_valid
       content_relations table_name: 'things', postfix: 'history'
 
       belongs_to :thing
@@ -21,6 +25,9 @@ module DataCycleCore
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
     translates :name, :description, :content
+    attribute :name
+    attribute :description
+    attribute :content
     content_relations table_name: table_name
 
     has_many :thing_external_systems, dependent: :destroy
