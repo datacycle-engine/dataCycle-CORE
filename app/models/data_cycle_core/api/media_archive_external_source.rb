@@ -57,7 +57,7 @@ module DataCycleCore
           .uniq
           .first
 
-        contents = @target_type.where(external_source_id: @external_source.id, external_key: content_id)
+        contents = DataCycleCore::Thing.where(external_source_id: @external_source.id, external_key: content_id)
 
         original_id = data
           .map { |_, content| content['contentUrl'] }
@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         if original_id
-          original = @target_type.find_by(external_source_id: @external_source.id, external_key: original_id)
+          original = DataCycleCore::Thing.find_by(external_source_id: @external_source.id, external_key: original_id)
 
           DataCycleCore::ContentContent.where(content_b_id: contents.map(&:id)).find_each do |content_relation|
             content_relation.update!(content_b_id: original.id)
