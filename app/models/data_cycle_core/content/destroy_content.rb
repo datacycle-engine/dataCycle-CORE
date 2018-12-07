@@ -14,6 +14,7 @@ module DataCycleCore
           destroy_children
           destroy
         end
+        run_callbacks(:destroyed_data_hash) unless history?
       end
 
       def destroy_children

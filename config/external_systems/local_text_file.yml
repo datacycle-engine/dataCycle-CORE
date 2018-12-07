@@ -9,8 +9,8 @@ config:
       strategy: DataCycleCore::Export::TextFile::Create
     update:
       strategy: DataCycleCore::Export::TextFile::Update
-#    delete:
-#      strategy: DataCycleCore::Export::TextFile::Delete
+    delete:
+      strategy: DataCycleCore::Export::TextFile::Delete
   refresh_config:
     endpoint: DataCycleCore::Export::TextFile::Endpoint
     strategy: DataCycleCore::Export::TextFile::Refresh
