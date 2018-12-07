@@ -9,10 +9,14 @@ module DataCycleCore
       assert(content.enabled_features.size.positive?)
     end
 
-    test 'content_object' do
+    test 'content_object without template' do
       content = DataCycleCore::Thing.new
       assert_raise NoMethodError do
         content.servas
+      end
+
+      assert_raise NotImplementedError do
+        content.get_property_value('test', { 'test' => { 'label' => 'test', 'type' => 'test' } })
       end
     end
 

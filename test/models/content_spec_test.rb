@@ -510,6 +510,13 @@ describe DataCycleCore::Content do
       )
     end
 
+    it 'throws an exception of wrong data_definition are given ' do
+      subject.schema['properties']['included_object']['properties']['property1']['storage_location'] = 'Tschibuti'
+      assert_raises StandardError do
+        subject.included_object
+      end
+    end
+
     it 'returns values for included sub_properties' do
       subject.included_object.property1.must_equal('data property1')
       subject.included_object.property2.must_equal('data property2')
