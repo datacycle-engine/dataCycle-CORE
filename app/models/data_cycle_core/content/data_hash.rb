@@ -7,6 +7,7 @@ module DataCycleCore
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
       define_model_callbacks :created_data_hash, only: :after
+      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
@@ -20,6 +21,7 @@ module DataCycleCore
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_created_data_hash :execute_create_webhooks
+      after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
         return {} if data_hash.blank?
@@ -85,6 +87,10 @@ module DataCycleCore
 
       def execute_create_webhooks
         Webhook::Create.execute_all(self)
+      end
+
+      def execute_delete_webhooks
+        Webhook::Delete.execute_all(self)
       end
 
       def get_inherit_datahash(parent)
