@@ -68,8 +68,6 @@ module DataCycleCore
 
       def property_definitions
         schema&.dig('properties') || {}
-      rescue StandardError
-        {}
       end
 
       def property_names
@@ -197,10 +195,6 @@ module DataCycleCore
 
       def history?
         respond_to?('history_valid')
-      end
-
-      def as_of(_timestamp)
-        self
       end
 
       def collect_properties(definition = schema, parents = [])

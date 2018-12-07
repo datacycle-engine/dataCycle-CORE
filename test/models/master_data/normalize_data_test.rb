@@ -250,6 +250,16 @@ describe DataCycleCore::MasterData::NormalizeData do
             'taskType' => 'ADD',
             'taskId' => 'Correction_SexForename',
             'taskPhase' => 'CORRECT'
+          },
+          {
+            'entryId' => '123xyz',
+            'fieldsBefore' => [],
+            'fieldsAfter' => [],
+            'fieldsProposed' => [],
+            'taskType' => 'ERROR',
+            'taskId' => 'Check_CountryZipCityStreet',
+            'taskPhase' => 'VALIDATE',
+            'message' => 'Unknown or Invalid address COUNTRY+ZIP+CITY+STREET'
           }
         ],
         'entry' => {
@@ -277,7 +287,8 @@ describe DataCycleCore::MasterData::NormalizeData do
           'address_country' => ['~', 'AT', 'Österreich']
         },
         'STREETNR' => ['+', '30'],
-        'SEX' => ['+', 'M']
+        'SEX' => ['+', 'M'],
+        'ERROR' => ['!', 'Unknown or Invalid address COUNTRY+ZIP+CITY+STREET']
       }
     end
 
