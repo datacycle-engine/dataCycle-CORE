@@ -19,15 +19,17 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale('de') do
-            DataCycleCore::Generic::MediaArchive::Processing.process_director(
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :director)
+              raw_data['contributor'],
+              options.dig(:import, :transformations, :contributor),
+              "MedienArchive - Person - #{raw_data.dig('contributor', 'id')}"
             )
-            DataCycleCore::Generic::MediaArchive::Processing.process_contributor(
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :contributor)
+              raw_data['director'],
+              options.dig(:import, :transformations, :director),
+              "MedienArchive - Person - #{raw_data.dig('director', 'id')}"
             )
           end
 

@@ -28,6 +28,8 @@ module DataCycleCore
                 'headline' => 'name')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
+          .>> t(:add_link, 'photographer', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('photographer_organization', 'id')}" }, ->(s) { s['photographer_organization'].present? })
+          .>> t(:add_link, 'photographer', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('photographer_person', 'id')}" }, ->(s) { s['photographer_person'].present? })
           .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
           .>> t(:reject_keys, ['orig_content_location'])
           .>> t(:strip_all)
@@ -50,8 +52,8 @@ module DataCycleCore
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive',
                 'headline' => 'name')
-          .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
-          .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
+          .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('director', 'id')}" })
+          .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('contributor', 'id')}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
           .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
@@ -75,6 +77,7 @@ module DataCycleCore
         def self.media_archive_to_person
           t(:stringify_keys)
           .>> t(:underscore_keys)
+          .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
           .>> t(:compact)
         end

@@ -19,10 +19,18 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale('de') do
-            DataCycleCore::Generic::MediaArchive::Processing.process_photographer(
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :photographer)
+              raw_data['photographerOrganization'],
+              options.dig(:import, :transformations, :photographer_organization),
+              "MedienArchive - Photographer - #{raw_data.dig('photographerOrganization', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['photographerPerson'],
+              options.dig(:import, :transformations, :photographer_person),
+              "MedienArchive - Photographer - #{raw_data.dig('photographerPerson', 'id')}"
             )
           end
 
