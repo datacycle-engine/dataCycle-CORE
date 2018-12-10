@@ -88,7 +88,6 @@
   <% end %>
 
   <% if new_template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(new_template) %>
-    <%  %>
     <div class="form-element">
       <%= label_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(new_template)&.first}][]", t('common.life_cycle', locale: DataCycleCore.ui_language) %>
       <%= select_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(new_template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(new_template)) %>
