@@ -7,6 +7,7 @@ module DataCycleCore
     include CarrierWave::MiniMagick
 
     version :thumb_preview do
+      process :remove_animation
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
       process colorspace: 'RGB'
@@ -39,6 +40,12 @@ module DataCycleCore
         phash: Phash::Image.new(file.file).try(:compute_phash).try(:data)
       }
       model.save!
+    end
+
+    def remove_animation
+      manipulate! do |img, index|
+        img if index.to_i.zero?
+      end
     end
 
     def colorspace(cs)

@@ -15,6 +15,8 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
 
+  get '/schema', to: 'schema#index'
+
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
@@ -82,6 +84,7 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_config', to: 'dash_board#import_config'
+  get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
 
   defaults format: :json do

@@ -44,7 +44,11 @@ module.exports.initialize = function() {
           }
         } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-        if (isValid && submit && $('.form-element .warning.counter').length) {
+        if (
+          isValid &&
+          submit &&
+          $(form).find('.form-element .warning.counter').length
+        ) {
           var warnings = $('.form-element .warning.counter')
             .closest('.form-element')
             .map((index, elem) => {
@@ -292,6 +296,7 @@ module.exports.initialize = function() {
         if (data != undefined && Object.keys(data.error).length > 0) {
           if (
             items
+              .filter('[id]')
               .first()
               .prop('id')
               .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
@@ -359,11 +364,11 @@ module.exports.initialize = function() {
         $(element).off('change', '.validation-container');
         $(element).off('remove-submit-button-errors', '.validation-container');
         $(element).off('submit');
+        enable_form(element);
       });
   };
 
   // check if data changed and confirm leaving the page
-
   if ($('.edit-content-form').length > 0) {
     var form_data = [];
     $(window).on('load', event => {
@@ -375,7 +380,7 @@ module.exports.initialize = function() {
       update_editors();
       var new_form_data = $('.edit-content-form').serializeArray();
 
-      if (!form_data.equal_to(new_form_data) && form_data.length !== 0)
+      if (form_data.length !== 0 && !form_data.equal_to(new_form_data))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
 
@@ -456,7 +461,7 @@ module.exports.initialize = function() {
     'open.zf.reveal',
     '.new-content-reveal[data-reset-on-close]',
     event => {
-      init_event_handlers(event.target);
+      init_event_handlers(event.currentTarget);
     }
   );
 
@@ -464,15 +469,15 @@ module.exports.initialize = function() {
     'closed.zf.reveal',
     '.new-content-reveal[data-reset-on-close]',
     event => {
-      remove_event_handlers(event.target);
+      remove_event_handlers(event.currentTarget);
     }
   );
 
   $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
-    $(event.target)
+    $(event.currentTarget)
       .find('.has-error')
       .removeClass('has-error');
-    $(event.target)
+    $(event.currentTarget)
       .find('.single_error')
       .remove();
   });

@@ -26,7 +26,7 @@ textarea {
 }
 
 .fa {
-  font-size: 1.2rem;
+  font-size: 1.1rem;
 }
 
 /* Header */
@@ -104,7 +104,6 @@ header {
           $black 50%,
           lighten($black, 10%) 100%
         );
-
         &[aria-expanded='true'] {
           outline: none;
           background: map-get($foundation-palette, primary);
@@ -167,6 +166,13 @@ a.button-prime.new-object-circle {
     overflow-y: auto;
   }
 
+  .new-favorites {
+    a.option:last-child {
+      border-bottom: 1px solid $light-gray;
+      margin-bottom: 2px;
+    }
+  }
+
   a.option {
     border-bottom: 1px solid $light-gray;
     padding: 0.5rem;
@@ -176,6 +182,12 @@ a.button-prime.new-object-circle {
     font-size: 1.5rem;
     font-weight: 200;
     transition: all ease-in-out 0.1s;
+
+    &.default-new-option {
+      border-top: 1px solid $light-gray;
+      font-weight: 600;
+      font-style: italic;
+    }
 
     .fa {
       font-size: 1.5rem;
@@ -307,6 +319,13 @@ body.login-page {
       padding: 1rem 2rem;
     }
 
+    button[type='submit'].button {
+      padding: 0.2rem 4.5rem;
+      i {
+        font-size: 3rem;
+      }
+    }
+
     .login-form {
       h3 {
         border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -315,7 +334,6 @@ body.login-page {
         font-weight: normal;
         text-align: center;
       }
-
       button[type='submit'].button {
         background-color: $dark-gray;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);

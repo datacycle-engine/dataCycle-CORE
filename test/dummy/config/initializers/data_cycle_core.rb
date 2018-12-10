@@ -15,13 +15,11 @@ DataCycleCore.setup do |config|
   config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
+  config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
 
   config.default_template_paths = [
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content')
   ].freeze
 
   config.features = config.features.deep_merge(
@@ -34,10 +32,8 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       container: {
-        enabled: false
-      },
-      external_media_archive: {
-        enabled: true
+        enabled: false,
+        excluded: ['Bild', 'Video']
       }
     }
   )
@@ -64,4 +60,5 @@ DataCycleCore.setup do |config|
       }
     )
   end
+  config.webhooks = ['Local-Text-File']
 end

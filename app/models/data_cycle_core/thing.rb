@@ -4,6 +4,7 @@ module DataCycleCore
   class Thing < Content::DataHash
     include Content::ContentLoader
     include Content::Extensions::Thing
+    include Content::ExternalData
 
     class Translation < Globalize::ActiveRecord::Translation
     end
@@ -27,6 +28,9 @@ module DataCycleCore
     attribute :description
     attribute :content
     content_relations table_name: table_name
+
+    has_many :thing_external_systems, dependent: :destroy
+    has_many :external_systems, through: :thing_external_systems
 
     def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|

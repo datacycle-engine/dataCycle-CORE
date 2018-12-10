@@ -125,7 +125,8 @@ module DataCycleCore
       },
       main_filter: {
         enabled: true,
-        classification_alias_ids: ['Inhaltstypen']
+        classification_alias_ids: ['Inhaltstypen'],
+        autoload_last_filter: false
       },
       advanced_filter: {
         enabled: true,
@@ -158,11 +159,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = {
-      create: [],
-      delete: [],
-      update: []
-    }
+    self.webhooks = []
 
     # template directories
     mattr_accessor :template_path
@@ -171,6 +168,9 @@ module DataCycleCore
 
     # location of import/download configs
     mattr_accessor :external_sources_path
+
+    # location of external_system configs
+    mattr_accessor :external_systems_path
 
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications

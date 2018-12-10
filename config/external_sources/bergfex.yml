@@ -93,5 +93,6 @@ config:
       locales: [de]
     snow_resorts:
       sorting: 9
+      mode: full
       source_type: snow_resorts
       import_strategy: DataCycleCore::Generic::Bergfex::ImportSnowResorts

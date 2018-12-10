@@ -52,7 +52,7 @@ module DataCycleCore
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags'],
         organization: [],
-        place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types',
+        place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
         person: []
@@ -98,6 +98,15 @@ module DataCycleCore
     def self.load_external_sources(paths)
       paths.map do |path|
         errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
+        next if errors.blank?
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
+    def self.load_external_systems(paths)
+      paths.map do |path|
+        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
         next if errors.blank?
         puts 'the following errors were encountered during import:'
         ap errors
@@ -212,6 +221,12 @@ unless DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   DataCycleCore::TestPreparations.load_external_sources(
     [
       Rails.root.join('..', '..', 'config', 'external_sources')
+    ]
+  )
+
+  DataCycleCore::TestPreparations.load_external_systems(
+    [
+      Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )
   DataCycleCore::TestPreparations.load_templates(

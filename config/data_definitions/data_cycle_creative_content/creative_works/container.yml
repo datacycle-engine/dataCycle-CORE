@@ -7,8 +7,14 @@
     :boost: 10000.0
     :features:
       :container:
-        :classification_alias:
-          - Text
+        :allowed_templates:
+          - Linktipps
+          - Quiz
+          - Angebot
+          - Biografie
+          - Interview
+          - SocialMediaPosting
+          - Rezept
       :creatable:
         :allowed: true
     :properties:

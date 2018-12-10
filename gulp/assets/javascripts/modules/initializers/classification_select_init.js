@@ -94,12 +94,15 @@ module.exports.initialize = function() {
           width: '100%',
           dropdownParent: $(that).parent(),
           templateResult: function(data) {
+            var title = $(data.element).data('title');
+
             if (data.loading) {
               return data.text;
             }
 
             var term = query.term || '';
-            var text_value = data.name || data.text;
+            var text_value = title || data.text;
+
             var result = text_value
               ? select2_helpers.markMatch(text_value, term)
               : null;

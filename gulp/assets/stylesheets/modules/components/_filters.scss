@@ -5,8 +5,8 @@
     background: $light-gray;
 
     .main-filters {
-      li[data-children]>label:after {
-        content: "\f105";
+      li[data-children] > label:after {
+        content: '\f105';
         font-family: FontAwesome;
         font-style: normal;
         font-weight: normal;
@@ -18,8 +18,8 @@
         transition: all ease-in-out 0.1s;
       }
 
-      li[data-children]:hover>label:after,
-      li[data-children]:focus>label:after {
+      li[data-children]:hover > label:after,
+      li[data-children]:focus > label:after {
         right: 0.8rem;
       }
     }
@@ -65,7 +65,7 @@
           background-color: $white;
         }
 
-        >div {
+        > div {
           position: relative;
           display: flex;
           flex: 0;
@@ -132,7 +132,7 @@
       }
     }
 
-    >.row>.column>div {
+    > .row > .column > div {
       margin: 1rem 0;
     }
 
@@ -153,7 +153,7 @@
         transition: background ease-in-out 0.2s;
         margin-bottom: 0;
 
-        >* {
+        > * {
           background-color: transparent;
         }
 
@@ -199,7 +199,7 @@
       }
     }
 
-    button[type="submit"].button {
+    button[type='submit'].button {
       padding: 0.85em 1em;
 
       i {
@@ -232,7 +232,7 @@
         cursor: pointer;
 
         label:hover:before {
-          opacity: .3;
+          opacity: 0.3;
         }
 
         input {
@@ -240,7 +240,7 @@
         }
 
         /* :: CHECKED :: */
-        input:checked~label {
+        input:checked ~ label {
           background-color: $primary-color;
           color: white;
 
@@ -249,7 +249,7 @@
           }
         }
 
-        input:checked~label:before {
+        input:checked ~ label:before {
           animation: throw 0.2s linear;
           top: 0px;
           color: white;
@@ -279,7 +279,7 @@
           background: #ddd;
         }
 
-        >div {
+        > div {
           display: none;
           z-index: 2;
           position: absolute;
@@ -332,7 +332,7 @@
             box-shadow: none;
             background: lighten($light-gray, 4%);
 
-            >label i {
+            > label i {
               left: 16.7rem;
             }
           }
@@ -385,23 +385,22 @@
         }
       }
 
-      ul>li:hover> {
-
+      ul > li:hover > {
         div,
         ul,
-        div>ul {
+        div > ul {
           display: block;
         }
       }
     }
 
-    >ul {
+    > ul {
       display: flex;
       position: relative;
       width: 100%;
       line-height: 1;
 
-      >li {
+      > li {
         padding: 1rem;
         float: none;
         position: initial;
@@ -427,7 +426,7 @@
     font-size: 0.8rem;
     display: flex;
 
-    >.icon {
+    > .icon {
       white-space: nowrap;
       margin-right: 0.5rem;
     }
@@ -522,6 +521,15 @@
       a.button {
         color: $black;
         background: transparent;
+        &#reset-filter {
+          i {
+            color: $alert-color;
+          }
+          &:hover i,
+          &:focus i {
+            color: lighten($alert-color, 10%);
+          }
+        }
       }
 
       button,
@@ -537,12 +545,14 @@
           color: lighten($black, 30%);
         }
 
-        transition: background-color ease-in-out 0.25s,
-        color ease-in-out 0.25s;
+        transition: all ease-in-out 0.25s, color ease-in-out 0.25s;
         margin: 0 2rem 0 0;
         font-weight: normal;
 
         i {
+          transition: all ease-in-out 0.25s, color ease-in-out 0.25s;
+          font-size: 1.1rem;
+          line-height: 1.2;
           margin-right: 0.2rem;
         }
       }
@@ -559,7 +569,7 @@
         text-align: left;
         cursor: pointer;
 
-        >ul {
+        > ul {
           display: none;
 
           li {
@@ -568,10 +578,12 @@
             }
 
             a:not(.button) {
-              transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+              transition: background-color ease-in-out 0.25s,
+                color ease-in-out 0.25s;
 
               span {
-                transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
+                transition: background-color ease-in-out 0.25s,
+                  color ease-in-out 0.25s;
 
                 &.global {
                   font-weight: bold;
@@ -650,11 +662,15 @@
           }
         }
 
-        >span,
-        >i {
+        > span,
+        > i {
           flex: 1;
           white-space: nowrap;
           padding-right: 5px;
+        }
+
+        > i {
+          line-height: inherit;
         }
 
         &.active {
@@ -662,7 +678,7 @@
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
 
-          >ul {
+          > ul {
             display: block;
             position: absolute;
             left: 0;
@@ -702,11 +718,11 @@
       padding: 0;
     }
 
-    >.accordion-item.is-active>.accordion-title {
+    > .accordion-item.is-active > .accordion-title {
       margin-top: 1rem;
 
-      >span {
-        >i::before {
+      > span {
+        > i::before {
           content: '\f077';
         }
       }
@@ -743,7 +759,7 @@
 
       &::before {
         position: absolute;
-        content: "";
+        content: '';
         height: 1px;
         border-bottom: 1px solid $medium-gray;
         right: 0;
@@ -796,7 +812,7 @@
 
         &:before {
           position: absolute;
-          content: "";
+          content: '';
           height: 1px;
           border-bottom: 1px solid $medium-gray;
           right: 0;
@@ -968,16 +984,15 @@
 .clickable-menu {
   margin: 0;
 
-  >li.active {
-
-    >div,
-    >ul,
-    >div>ul {
+  > li.active {
+    > div,
+    > ul,
+    > div > ul {
       display: block !important;
     }
   }
 
-  >li {
+  > li {
     transition: background 0.4s ease;
 
     &:hover {

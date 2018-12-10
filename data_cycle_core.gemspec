@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
 
   # rails
   # s.add_dependency 'jquery-rails'
-  s.add_dependency 'rails', '~> 5.1.6'
+  s.add_dependency 'rails', '~> 5.1.6.1'
   s.add_dependency 'rake'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
@@ -110,6 +110,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.11.0'
   s.add_dependency 'puma_worker_killer'
+
+  # Excel Generator
+  s.add_dependency 'axlsx_rails'
 
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'

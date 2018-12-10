@@ -45,14 +45,34 @@
 
                 <div class="form-element validation-container">
                   <%= f.label :notification_frequency, DataCycleCore::User.human_attribute_name(:notification_frequency, locale: DataCycleCore.ui_language) %>
-                  <%= f.select :notification_frequency, DataCycleCore.notification_frequencies.map{ |f| [t("notification.frequency.#{f}", locale: DataCycleCore.ui_language), f] }, {}, class: 'with-label' %>
+                  <div class="v-select">
+                    <%= f.select :notification_frequency,
+                      DataCycleCore.notification_frequencies.map{ |f|
+                        [
+                          t("notification.frequency.#{f}", locale: DataCycleCore.ui_language),
+                          f
+                        ]
+                      },
+                      {},
+                      class: 'single-select',
+                      data: {
+                        allow_clear: false
+                      } %>
+                  </div>
                 </div>
 
                 <div class="form-element">
                   <%= f.label :default_locale, DataCycleCore::User.human_attribute_name(:default_locale, locale: DataCycleCore.ui_language) %>
-                  <%= f.select :default_locale, available_locales_with_names.except(:all).invert, {}, class: 'with-label' %>
+                  <div class="v-select">
+                    <%= f.select :default_locale,
+                      available_locales_with_names.except(:all).invert,
+                      {},
+                      class: 'single-select',
+                      data: {
+                        allow_clear: false
+                      } %>
+                  </div>
                 </div>
-
               </div>
             </div>
           </div>

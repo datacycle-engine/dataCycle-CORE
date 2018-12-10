@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to thing_path([:api, :v2, @content]) }
+          format.json { redirect_to api_v2_thing_path(@content) }
           format.html { render && return }
         end
       end
@@ -120,7 +120,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
-        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
       end
@@ -132,7 +132,7 @@ module DataCycleCore
       @content = DataCycleCore::Thing.find_by(external_key: params[:external_key])
       authorize!(:edit, @content)
 
-      redirect_to edit_thing_path(@content)
+      redirect_to edit_thing_path(@content, watch_list_params)
     end
 
     def update
@@ -306,7 +306,11 @@ module DataCycleCore
       @asset.creator_id = current_user.try(:id)
       @asset.save
 
-      errors = MediaArchive::Webhooks::Create.new.execute(@asset)
+      external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv')
+      return if external_system.blank?
+      utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+      errors = ::Export::MediaArchive::Create.process(utility_object: utility_object, data: @asset)
+
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset

@@ -178,6 +178,7 @@ namespace :data_cycle_core do
       Rake::Task["#{args[:prefix]}db:seed"].invoke
       Rake::Task["#{args[:prefix]}data_cycle_core:update:import_classifications"].invoke
       Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_source_configs"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_system_configs"].invoke
       Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
       puts 'Reset Complete...'
     end

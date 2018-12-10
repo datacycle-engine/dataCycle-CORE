@@ -12,6 +12,12 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_links,
+                'feratel_locations',
+                DataCycleCore::Classification,
+                external_source_id, lambda { |s|
+                  s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] }
+                })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap, 'Position')
@@ -38,8 +44,10 @@ module DataCycleCore
             }
           )
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('feratel_documents')&.select { |d| d['Class'] == 'Image' }&.sort_by { |item| item['Order'].to_i }&.map { |item| item&.dig('Id') } || [] })
-          .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('feratel_documents')&.select { |d| d['Class'] == 'Image' && d['Type'] == 'ServiceProviderLogo' }&.sort_by { |item| item['Order'].to_i }&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
+                document_filter(document_classes: ['Image'], document_types: ['ServiceProvider']))
+          .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id,
+                document_filter(document_classes: ['Image'], document_types: ['ServiceProviderLogo']))
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'accommodation_categories', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Categories', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_classifications', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Classifications', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
@@ -95,11 +103,14 @@ module DataCycleCore
           .>> t(:location)
           .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_hours(s.dig('OpeningHours', 'OpeningHour')) })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('feratel_documents')&.select { |d| d['Class'] == 'Image' }&.sort_by { |item| item['Order'].to_i }&.map { |item| item&.dig('Id') } || [] })
-          .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('feratel_documents')&.select { |d| d['Class'] == 'Image' && d['Type'] == 'InfrastructureLogo' }&.sort_by { |item| item['Order'].to_i }&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
+                document_filter(document_classes: ['Image'], document_types: ['Infrastructure']))
+          .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id,
+                document_filter(document_classes: ['Image'], document_types: ['InfrastructureLogo']))
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_topics', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Topics', 'Topic')]&.flatten&.map { |item| item&.dig('Id') } || [] })
+          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item')]&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:load_category_key, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
@@ -149,6 +160,15 @@ module DataCycleCore
           DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
             .where('classification_tree_labels.name = ?', 'Wochentage')
             .where('classification_aliases.name = ?', day_hash[day]).first!.id
+        end
+
+        def self.document_filter(document_classes: [], document_types: [])
+          lambda do |data|
+            data&.dig('feratel_documents')
+              &.select { |d| document_classes.include?(d['Class']) && document_types.include?(d['Type']) }
+              &.sort_by { |item| item['Order'].to_i }
+              &.map { |item| item&.dig('Id') } || []
+          end
         end
       end
     end

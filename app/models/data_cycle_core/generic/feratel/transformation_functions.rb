@@ -61,8 +61,6 @@ module DataCycleCore
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
-          return data.map { |v| unwrap_address(v, address_type) } if data.is_a?(Array)
-
           Hash[data.map do |k, v|
             if k == 'Addresses'
               [
@@ -71,7 +69,15 @@ module DataCycleCore
                   h['Type'] == address_type
                 }.first
               ]
-            elsif v.is_a?(Hash) || v.is_a?(Array)
+            elsif v.is_a?(Array)
+              [k, v.map do |item|
+                if item.is_a?(Array) || item.is_a?(Hash)
+                  unwrap_address(item, address_type)
+                else
+                  item
+                end
+              end]
+            elsif v.is_a?(Hash)
               [k, unwrap_address(v, address_type)]
             else
               [k, v]
