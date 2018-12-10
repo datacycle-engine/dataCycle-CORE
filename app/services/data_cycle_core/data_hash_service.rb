@@ -40,7 +40,6 @@ module DataCycleCore
       return nil if object_params[:datahash].nil?
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-      datahash['headline_external'] = datahash['headline']
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 

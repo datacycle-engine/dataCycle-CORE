@@ -1697,3 +1697,8 @@ select {
   float: right;
   padding-left: 5px;
 }
+
+.button-prime.sprinklr-disabled {
+  cursor: not-allowed;
+  background-color: $dark-gray;
+}

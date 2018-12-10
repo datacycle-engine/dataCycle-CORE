@@ -56,9 +56,8 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def new_content_select_options(query: DataCycleCore::Thing, query_methods: [], content: nil, scope: nil)
+    def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
       query = query.where(template: true)
-
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
         if query.respond_to?(query_method['method_name']) && query_method.key?('value')
           query = query.try(query_method['method_name'], query_method['value'])
@@ -67,12 +66,10 @@ module DataCycleCore
         end
       end
 
-      query.order(:template_name).select { |t| can?(:create, t, scope, { content: content }) }.map do |t|
-        [
-          t.template_name,
-          "source_id=>#{t.id},source_table=>#{t.class.table_name}"
-        ]
-      end
+      query = query.select { |t| can?(:create, t, scope, { content: content }) }
+      query = query.sort_by { |t| ordered_array.index(t.template_name).to_i } if ordered_array.present?
+      query = query.first(limit.to_i) if limit.present?
+      query.sort_by(&:template_name)
     end
 
     def to_query_params(options_hash)
