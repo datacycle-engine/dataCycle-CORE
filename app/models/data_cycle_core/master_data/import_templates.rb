@@ -297,10 +297,12 @@ module DataCycleCore
                   'country',
                   'birthdate',
                   'email',
-                  'zip_country',
-                  'city_zip',
-                  'street_streetnr',
-                  'surname_forename'
+                  'eventname',
+                  'datetime',
+                  'datetime2',
+                  'place',
+                  'longitude',
+                  'latitude'
                 ]
               )
           end

@@ -61,7 +61,13 @@ module DataCycleCore
         end
 
         def reduce_data(data_list)
-          data_list.map { |item| item.update({ 'id' => item['type'] }) }
+          data_list.map do |item|
+            if item['type'] == 'datetime2'
+              item.update({ 'id' => time['type'], 'type' => 'datetime' })
+            else
+              item.update({ 'id' => item['type'] })
+            end
+          end
         end
 
         def create_transformation(normalize_hash)

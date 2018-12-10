@@ -54,6 +54,7 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize: datetime
           :end_date:
             :label: Endzeitpunkt
             :type: datetime
@@ -66,6 +67,7 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize: datetime2
       :description:
         :label: Beschreibung
         :type: string

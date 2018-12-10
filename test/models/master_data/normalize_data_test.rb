@@ -131,7 +131,7 @@ describe DataCycleCore::MasterData::NormalizeData do
         'given_name' => 'Martin',
         'family_name' => 'Oehzelt',
         'address' => {
-          'postal_code' => '20',
+          'postal_code' => '',
           'street_address' => 'Ossiacher Zeile 30',
           'address_country' => 'Österreich',
           'address_locality' => 'Villach'
@@ -147,7 +147,7 @@ describe DataCycleCore::MasterData::NormalizeData do
       [
         { 'id' => 'given_name',               'type' => 'FORENAME', 'content' => 'Martin'             },
         { 'id' => 'family_name',              'type' => 'SURNAME',  'content' => 'Oehzelt'            },
-        { 'id' => 'address/postal_code',      'type' => 'ZIP',      'content' => '20'                 },
+        { 'id' => 'address/postal_code',      'type' => 'ZIP',      'content' => ''                   },
         { 'id' => 'address/street_address',   'type' => 'STREET',   'content' => 'Ossiacher Zeile 30' },
         { 'id' => 'address/address_country',  'type' => 'COUNTRY',  'content' => 'Österreich'         },
         { 'id' => 'address/address_locality', 'type' => 'CITY',     'content' => 'Villach'            },
@@ -200,7 +200,7 @@ describe DataCycleCore::MasterData::NormalizeData do
         'actionList' => [
           {
             'entryId' => '123xyz',
-            'fieldsBefore' => [{ 'type' => 'ZIP', 'content' => '' }],
+            'fieldsBefore' => [{ 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '' }],
             'fieldsAfter' => [],
             'fieldsProposed' => [],
             'taskType' => 'DELETE',
@@ -209,10 +209,10 @@ describe DataCycleCore::MasterData::NormalizeData do
           },
           {
             'entryId' => '123xyz',
-            'fieldsBefore' => [{ 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' }],
+            'fieldsBefore' => [{ 'id' => 'STREET', 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' }],
             'fieldsAfter' => [
-              { 'type' => 'STREET', 'content' => 'Ossiacher Zeile' },
-              { 'type' => 'STREETNR', 'content' => '30' }
+              { 'id' => 'STREET', 'type' => 'STREET', 'content' => 'Ossiacher Zeile' },
+              { 'id' => 'STREETNR', 'type' => 'STREETNR', 'content' => '30' }
             ],
             'fieldsProposed' => [],
             'taskType' => 'SPLIT',
@@ -224,10 +224,10 @@ describe DataCycleCore::MasterData::NormalizeData do
             'fieldsBefore' => [],
             'fieldsAfter' => [],
             'fieldsProposed' => [
-              { 'type' => 'ZIP', 'content' => '9504' },
-              { 'type' => 'ZIP', 'content' => '9585' },
-              { 'type' => 'ZIP', 'content' => '9524' },
-              { 'type' => 'ZIP', 'content' => '9500' }
+              { 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '9504' },
+              { 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '9585' },
+              { 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '9524' },
+              { 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '9500' }
             ],
             'taskType' => 'PROPOSE',
             'taskId' => 'Correction_CountryCityZip',
@@ -235,8 +235,8 @@ describe DataCycleCore::MasterData::NormalizeData do
           },
           {
             'entryId' => '123xyz',
-            'fieldsBefore' => [{ 'type' => 'COUNTRY', 'content' => 'Österreich' }],
-            'fieldsAfter' => [{ 'type' => 'COUNTRY', 'content' => 'AT' }],
+            'fieldsBefore' => [{ 'id' => 'COUNTRY', 'type' => 'COUNTRY', 'content' => 'Österreich' }],
+            'fieldsAfter' => [{ 'id' => 'COUNTRY', 'type' => 'COUNTRY', 'content' => 'AT' }],
             'fieldsProposed' => [],
             'taskType' => 'ALTER',
             'taskId' => 'Norm_Country',
@@ -245,7 +245,7 @@ describe DataCycleCore::MasterData::NormalizeData do
           {
             'entryId' => '123xyz',
             'fieldsBefore' => [],
-            'fieldsAfter' => [{ 'type' => 'SEX', 'content' => 'M' }],
+            'fieldsAfter' => [{ 'id' => 'SEX', 'type' => 'SEX', 'content' => 'M' }],
             'fieldsProposed' => [],
             'taskType' => 'ADD',
             'taskId' => 'Correction_SexForename',
@@ -302,7 +302,7 @@ describe DataCycleCore::MasterData::NormalizeData do
         'given_name' => 'Martin',
         'family_name' => 'Oehzelt',
         'address' => {
-          'postal_code' => '20',
+          'postal_code' => '',
           'street_address' => 'Ossiacher Zeile',
           'address_country' => 'AT',
           'address_locality' => 'Villach'

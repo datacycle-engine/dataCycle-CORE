@@ -26,36 +26,40 @@ module DataCycleCore
           end
 
           def add(action)
-            action.dig('fieldsAfter')
-              .map { |item| { item['type'] => ['+', item['content']] } }
+            action
+              .dig('fieldsAfter')
+              .map { |item| { item['id'] => ['+', item['content']] } }
           end
 
           def alter(action)
-            action.dig('fieldsAfter')
+            action
+              .dig('fieldsAfter')
               .zip(action.dig('fieldsBefore'))
-              .map { |after, before| { after['type'] => ['~', after['content'], before['content']] } }
+              .map { |after, before| { after['id'] => ['~', after['content'], before['content']] } }
           end
 
           def delete(action)
-            action.dig('fieldsBefore')
-              .map { |item| { item['type'] => ['-', item['content']] } }
+            action
+              .dig('fieldsBefore')
+              .map { |item| { item['id'] => ['-', item['content']] } }
           end
 
           def split(action)
-            action.dig('fieldsAfter')
+            action
+              .dig('fieldsAfter')
               .product(action.dig('fieldsBefore'))
               .map do |after, before|
-                if after.dig('type') == before.dig('type')
-                  { after['type'] => ['~', after['content'], before['content']] }
+                if after.dig('id') == before.dig('id')
+                  { after['id'] => ['~', after['content'], before['content']] }
                 else
-                  { after['type'] => ['+', after['content']] }
+                  { after['id'] => ['+', after['content']] }
                 end
               end
           end
 
           def propose(action)
             [{
-              action.dig('fieldsProposed').first.dig('type') =>
+              action.dig('fieldsProposed').first.dig('id') =>
                 ['?', action.dig('fieldsProposed').map { |item| item['content'] }]
             }]
           end

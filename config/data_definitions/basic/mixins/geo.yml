@@ -20,6 +20,7 @@
             :disabled: true
           :show:
             :disabled: true
+        :normalize: longitude
       :latitude:
         :label: Latitude
         :type: number
@@ -37,6 +38,7 @@
             :disabled: true
           :show:
             :disabled: true
+        :normalize: latitude
       :elevation:
         :label: Meereshöhe (m)
         :type: number

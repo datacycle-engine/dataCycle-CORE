@@ -10,9 +10,9 @@ module DataCycleCore
           @options = options
         end
 
-        def normalize(id, data_list)
+        def normalize(id, data_list, comment = 'data_cycle')
           return if data_list.blank?
-          load_data(id || SecureRandom.uuid, data_list)
+          load_data(id || SecureRandom.uuid, comment, data_list)
         end
 
         def load_data(id, data_list)
@@ -22,6 +22,7 @@ module DataCycleCore
             req.headers['Content-Type'] = 'application/json'
             req.body = {
               id: id,
+              comment: comment,
               fields: data_list
             }.to_json
           end

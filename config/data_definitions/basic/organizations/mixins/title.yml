@@ -16,3 +16,4 @@
         :api:
           :name: legal_name
           :minimal: true
+        :normalize: company
