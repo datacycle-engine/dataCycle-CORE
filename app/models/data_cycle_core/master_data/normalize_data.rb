@@ -16,7 +16,7 @@ module DataCycleCore
         @endpoint = DataCycleCore::MasterData::Normalizer::Endpoint.new(host: host, end_point: end_point, **options)
       end
 
-      def normalize(data, template_hash)
+      def normalize(data, template_hash, **options)
         if data.blank?
           @logger.error 'No data given for normalization.'
           return data, {}
@@ -26,9 +26,12 @@ module DataCycleCore
           return data, {}
         end
 
+        id = options&.dig(:id)
+        comment = options&.dig(:comment)
+
         normalize_hash, transformation_hash = self.class.preprocess_data(template_hash, data)
 
-        report = @endpoint.normalize(data['id'], self.class.reduce_data(normalize_hash))
+        report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash), comment)
 
         self.class.postprocess_data(data, report, transformation_hash)
       end
@@ -40,7 +43,10 @@ module DataCycleCore
         end
 
         def postprocess_data(data, report, transformation_hash)
-          normalized_data = back_transformation(report.dig('entry', 'fields'), transformation_hash)
+          normalized_data = back_transformation(
+            merge_street_streetnr(report.dig('entry', 'fields')),
+            transformation_hash
+          )
           updated_data = update_data(data, normalized_data)
 
           diffs = Normalizer::ActionParser.parse(report)
@@ -68,6 +74,22 @@ module DataCycleCore
               item.update({ 'id' => item['type'] })
             end
           end
+        end
+
+        def merge_street_streetnr(fields_list)
+          types = fields_list.map { |item| item['type'] }.uniq
+          fields_list unless types.include?('STREET') && types.include?('STREETNR')
+          street_nr = fields_list[fields_list.find_index { |item| item['type'] == 'STREETNR' }]['content']
+          fields_list.map { |item|
+            if item['type'] == 'STREET'
+              item['content'] += ' ' + street_nr
+              item
+            elsif item['type'] == 'STREETNR'
+              nil
+            else
+              item
+            end
+          }.compact
         end
 
         def create_transformation(normalize_hash)

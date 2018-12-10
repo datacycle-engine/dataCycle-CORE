@@ -15,7 +15,7 @@ module DataCycleCore
           load_data(id || SecureRandom.uuid, comment, data_list)
         end
 
-        def load_data(id, data_list)
+        def load_data(id, comment, data_list)
           response = Faraday.new.post do |req|
             req.url(@host + @end_point)
             req.headers['Accept'] = 'application/json'

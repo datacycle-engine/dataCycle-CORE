@@ -155,19 +155,6 @@ describe DataCycleCore::MasterData::NormalizeData do
       ]
     end
 
-    let(:normalized_data) do
-      [
-        { 'id' => 'STREET',   'type' => 'STREET',   'content' => 'Ossiacher Zeile'  },
-        { 'id' => 'COUNTRY',  'type' => 'COUNTRY',  'content' => 'AT'               },
-        { 'id' => 'CITY',     'type' => 'CITY',     'content' => 'Villach'          },
-        { 'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Martin'           },
-        { 'id' => 'SURNAME',  'type' => 'SURNAME',  'content' => 'Oehzelt'          },
-        { 'id' => 'EMAIL',    'type' => 'EMAIL',    'content' => 'oehzelt@test.at'  },
-        { 'id' => 'STREETNR', 'type' => 'STREETNR', 'content' => '30'               },
-        { 'id' => 'SEX',      'type' => 'SEX',      'content' => 'M'                }
-      ]
-    end
-
     let(:transformation_hash) do
       {
         'FORENAME' => 'given_name',
@@ -182,13 +169,12 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     let(:back_transformed_data) do
       [
-        { 'id' => 'address/street_address', 'type' => 'STREET', 'content' => 'Ossiacher Zeile' },
+        { 'id' => 'address/street_address', 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' },
         { 'id' => 'address/address_country', 'type' => 'COUNTRY', 'content' => 'AT' },
         { 'id' => 'address/address_locality', 'type' => 'CITY', 'content' => 'Villach' },
         { 'id' => 'given_name', 'type' => 'FORENAME', 'content' => 'Martin' },
         { 'id' => 'family_name', 'type' => 'SURNAME', 'content' => 'Oehzelt' },
         { 'id' => 'contact_info/email', 'type' => 'EMAIL', 'content' => 'oehzelt@test.at' },
-        { 'id' => nil, 'type' => 'STREETNR', 'content' => '30' },
         { 'id' => nil, 'type' => 'SEX', 'content' => 'M' }
       ]
     end
@@ -279,6 +265,31 @@ describe DataCycleCore::MasterData::NormalizeData do
       }
     end
 
+    let(:normalized_data) do
+      [
+        { 'id' => 'STREET',   'type' => 'STREET',   'content' => 'Ossiacher Zeile'  },
+        { 'id' => 'COUNTRY',  'type' => 'COUNTRY',  'content' => 'AT'               },
+        { 'id' => 'CITY',     'type' => 'CITY',     'content' => 'Villach'          },
+        { 'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Martin'           },
+        { 'id' => 'SURNAME',  'type' => 'SURNAME',  'content' => 'Oehzelt'          },
+        { 'id' => 'EMAIL',    'type' => 'EMAIL',    'content' => 'oehzelt@test.at'  },
+        { 'id' => 'STREETNR', 'type' => 'STREETNR', 'content' => '30'               },
+        { 'id' => 'SEX',      'type' => 'SEX',      'content' => 'M'                }
+      ]
+    end
+
+    let(:merged_fields) do
+      [
+        { 'id' => 'STREET',   'type' => 'STREET',   'content' => 'Ossiacher Zeile 30' },
+        { 'id' => 'COUNTRY',  'type' => 'COUNTRY',  'content' => 'AT'                 },
+        { 'id' => 'CITY',     'type' => 'CITY',     'content' => 'Villach'            },
+        { 'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Martin'             },
+        { 'id' => 'SURNAME',  'type' => 'SURNAME',  'content' => 'Oehzelt'            },
+        { 'id' => 'EMAIL',    'type' => 'EMAIL',    'content' => 'oehzelt@test.at'    },
+        { 'id' => 'SEX',      'type' => 'SEX',      'content' => 'M'                  }
+      ]
+    end
+
     let(:diff_hash) do
       {
         'address' => {
@@ -303,7 +314,7 @@ describe DataCycleCore::MasterData::NormalizeData do
         'family_name' => 'Oehzelt',
         'address' => {
           'postal_code' => '',
-          'street_address' => 'Ossiacher Zeile',
+          'street_address' => 'Ossiacher Zeile 30',
           'address_country' => 'AT',
           'address_locality' => 'Villach'
         },
@@ -328,8 +339,12 @@ describe DataCycleCore::MasterData::NormalizeData do
       trans_hash.must_equal transformation_hash
     end
 
+    it 'merges correctly street and street_nr' do
+      subject.merge_street_streetnr(normalized_data).must_equal merged_fields
+    end
+
     it 'back_transforms normalized_data to original ids and schema' do
-      subject.back_transformation(normalized_data, transformation_hash).must_equal back_transformed_data
+      subject.back_transformation(merged_fields, transformation_hash).must_equal back_transformed_data
     end
 
     it 'correctly updates data according to normalized action_list' do
