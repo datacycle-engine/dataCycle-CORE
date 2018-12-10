@@ -166,6 +166,13 @@ a.button-prime.new-object-circle {
     overflow-y: auto;
   }
 
+  .new-favorites {
+    a.option:last-child {
+      border-bottom: 1px solid $light-gray;
+      margin-bottom: 2px;
+    }
+  }
+
   a.option {
     border-bottom: 1px solid $light-gray;
     padding: 0.5rem;
@@ -175,6 +182,12 @@ a.button-prime.new-object-circle {
     font-size: 1.5rem;
     font-weight: 200;
     transition: all ease-in-out 0.1s;
+
+    &.default-new-option {
+      border-top: 1px solid $light-gray;
+      font-weight: 600;
+      font-style: italic;
+    }
 
     .fa {
       font-size: 1.5rem;

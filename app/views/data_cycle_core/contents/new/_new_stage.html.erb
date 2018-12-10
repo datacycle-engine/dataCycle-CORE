@@ -17,7 +17,18 @@
     <div class="v-select white">
       <%= select_tag(
         :new_template,
-        options_for_select(new_content_select_options(query_methods: local_assigns[:query_methods], content: local_assigns[:content], scope: local_assigns[:scope])),
+        options_for_select(
+          new_content_select_options(
+            query_methods: local_assigns[:query_methods],
+            content: local_assigns[:content],
+            scope: local_assigns[:scope]
+          ).map { |t|
+            [
+              t.template_name,
+              "source_id=>#{t.id},source_table=>#{t.class.table_name}"
+            ]
+          }
+        ),
         {
           class: 'single-select',
           data: {

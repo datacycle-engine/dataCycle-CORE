@@ -18,7 +18,7 @@
   <%= render 'results', contents: @contents %>
 
   <% content_for :new_button do %>
-    <%= render 'new_content_links',
+    <%= render 'new_content_button',
       query_methods: DataCycleCore::Feature::Container.query_methods(@content),
       content: @content,
       parent: @content.content_type?(:container) ? @content : nil,

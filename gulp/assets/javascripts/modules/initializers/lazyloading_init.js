@@ -8,6 +8,7 @@ module.exports.initialize = function() {
       $(event.target)
         .closest('.reveal:not(.object-browser-overlay)')
         .foundation('open');
+      $(event.target).foundation();
     }
   });
 
