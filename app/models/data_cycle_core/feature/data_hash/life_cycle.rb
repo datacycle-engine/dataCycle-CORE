@@ -9,7 +9,10 @@ module DataCycleCore
             @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.present? &&
               life_cycle_stage&.id != @data_hash&.dig(DataCycleCore::Feature::LifeCycle.attribute_keys&.first)&.first
           }
-          base.before_save_data_hash :inherit_life_cycle_attributes, if: -> { @new_content && @source.present? }
+          base.before_save_data_hash :inherit_life_cycle_attributes, if: proc {
+            @new_content &&
+              parent.present?
+          }
         end
 
         def set_life_cycle_classification(classification_id, user)
@@ -35,11 +38,9 @@ module DataCycleCore
         private
 
         def inherit_life_cycle_attributes
-          I18n.with_locale(@source.first_available_locale) do
+          I18n.with_locale(parent.first_available_locale) do
             source_data_hash = {}
-            DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(self).each do |key|
-              source_data_hash[key] = @source.try(key)&.ids if @source.try(key)&.ids.present?
-            end
+            source_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys(self).first] = parent.try(DataCycleCore::Feature::LifeCycle.attribute_keys(parent).first)&.ids
             @data_hash = source_data_hash.merge(@data_hash)
           end
         end

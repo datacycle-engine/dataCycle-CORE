@@ -1,0 +1,34 @@
+---
+- :data:
+    :name: Skigebiet - Addon
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: LocationFeatureSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :api:
+          :minimal: true
+          :name: headline
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: value
+        :api:
+          :minimal: true
+          :name: value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Skigebiet - Addon"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
