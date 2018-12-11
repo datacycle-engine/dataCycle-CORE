@@ -155,7 +155,7 @@ module DataCycleCore
         referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to thing_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal 'read', @data_link.reload.permissions
     end

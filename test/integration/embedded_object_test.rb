@@ -26,7 +26,7 @@ module DataCycleCore
         referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to thing_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_equal 6, @content.reload.quotation.size
@@ -56,7 +56,7 @@ module DataCycleCore
         referer: edit_thing_path(content_with_quotation)
       }
 
-      assert_redirected_to thing_path(content_with_quotation)
+      assert_redirected_to thing_path(content_with_quotation, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_quotation.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_equal 'Updated Zitat 1', content_with_quotation.reload.quotation.first.text
