@@ -67,7 +67,7 @@ module DataCycleCore
     end
 
     def create
-      authorize!(__method__, controller_path.classify.constantize)
+      authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]))
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(params[:template])
