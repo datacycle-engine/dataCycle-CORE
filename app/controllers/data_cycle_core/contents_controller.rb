@@ -155,7 +155,7 @@ module DataCycleCore
         elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
-          redirect_to(thing_path(@content, watch_list_params))
+          redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
         end
       end
     end
