@@ -8,6 +8,7 @@ test/dummy/tmp/
 test/dummy/public/eyebase/*
 tmp/
 .byebug_history
+.irb-history
 
 node_modules/
 lib/assets

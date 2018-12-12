@@ -67,7 +67,7 @@ module DataCycleCore
     end
 
     def create
-      authorize!(__method__, controller_path.classify.constantize)
+      authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]))
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(params[:template])
@@ -155,7 +155,7 @@ module DataCycleCore
         elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
-          redirect_to(thing_path(@content, watch_list_params))
+          redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
         end
       end
     end

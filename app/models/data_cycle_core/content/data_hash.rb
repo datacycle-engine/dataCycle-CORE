@@ -93,23 +93,6 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def get_inherit_datahash(parent)
-        data_hash = get_data_hash
-
-        I18n.with_locale(parent.first_available_locale) do
-          parent_data_hash = parent.get_data_hash
-
-          DataCycleCore.inheritable_attributes.each do |attribute_key|
-            parent_data = parent_data_hash[attribute_key]
-            data_hash[attribute_key] = parent_data if parent_data.present?
-          end
-
-          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
-        end
-
-        data_hash.compact!
-      end
-
       def validate(data, schema_hash = nil)
         validator = DataCycleCore::MasterData::ValidateData.new
         validator.validate(data, schema_hash || schema)

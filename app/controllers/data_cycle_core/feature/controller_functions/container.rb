@@ -24,26 +24,24 @@ module DataCycleCore
           @parent = DataCycleCore::Thing.find(parent_params[:parent_id])
 
           I18n.with_locale(@content.first_available_locale) do
-            # update_hash = {
-            #   current_user: current_user,
-            #   save_time: Time.zone.now
-            # }
-
-            # if DataCycleCore::Feature::LifeCycle.allowed?(@content)
-            #   update_hash.merge({
-            #     DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [
-            #       @parent.try(:life_cycle_stage)
-            #     ]
-            #   })
-            # end
-
-            # binding.pry
+            update_hash = {
+              current_user: current_user,
+              save_time: Time.zone.now,
+              partial_update: true,
+              data_hash: {
+                DataCycleCore::Feature::LifeCycle.attribute_keys(@content).first => [
+                  @parent.try(:life_cycle_stage)&.id
+                ]
+              }
+            }
 
             @content.is_part_of = @parent.id
-            if @content.save(touch: false)
-              redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
+            @content.save(touch: false)
+            valid = @content.set_data_hash(update_hash)
+            if valid[:error].present?
+              redirect_back(fallback_location: root_path, alert: valid[:error])
             else
-              redirect_back(fallback_location: root_path, alert: @content.errors.full_messages)
+              redirect_back(fallback_location: root_path, notice: I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @parent.title))
             end
           end
         end

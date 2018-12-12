@@ -47,7 +47,8 @@ module DataCycleCore
           .>> t(:rename_keys, {
             'id' => 'external_key',
             'name' => 'name_old',
-            'snow' => 'snow_old'
+            'snow' => 'snow_old',
+            'addons' => 'addons_old'
           })
           .>> t(:add_field, 'name', ->(s) { s.dig('name_old', 'text') })
           .>> t(:add_links, 'bergfex_status_icon', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('bergfexStatusIcon', 'id').present? ? ["Bergfex - Status - Icon -#{s&.dig('bergfexStatusIcon', 'id')}"] : [] })
@@ -57,15 +58,21 @@ module DataCycleCore
           .>> t(:add_field, 'date_time_updated_at', ->(s) { s.dig('datetime', 'text') })
           .>> t(:add_field, 'date_last_snowfall', ->(s) { s.dig('dateLastSnowfall', 'text') })
           .>> t(:add_field, 'open_lifts', ->(s) { s.dig('openLifts', 'text')&.to_i })
-          .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_i })
+          .>> t(:add_field, 'open_slopes', ->(s) { s.dig('openSlopes', 'text')&.to_f })
           .>> t(:add_field, 'max_lifts', ->(s) { s.dig('openLifts', 'max')&.to_i })
-          .>> t(:add_field, 'max_slopes', ->(s) { s.dig('openSlopes', 'max')&.to_i })
+          .>> t(:add_field, 'max_slopes', ->(s) { s.dig('openSlopes', 'max')&.to_f })
+          .>> t(:add_field, 'open_slopes_count', ->(s) { s.dig('openSlopesCount', 'text')&.to_i })
+          .>> t(:add_field, 'max_slopes_count', ->(s) { s.dig('openSlopesCount', 'max')&.to_i })
+          .>> t(:add_field, 'length_nordic_classic', ->(s) { s.dig('lengthNordicClassic', 'text')&.to_f })
+          .>> t(:add_field, 'length_nordic_skating', ->(s) { s.dig('lengthNordicSkating', 'text')&.to_f })
           .>> t(:nest, 'operations', ['operation', 'operationRemarks', 'operationStart', 'operationEnd'])
           .>> t(:operations_to_opening_hours, 'opening_hours', 'operations')
           .>> t(:reject_keys, ['operations'])
           .>> t(:add_field, 'url', ->(s) { s.dig('linkDetailedReport', 'text') })
+          .>> t(:add_field, 'addons', ->(s) { (s.dig('addons_old', 'addon').present? ? (s.dig('addons_old', 'addon').is_a?(Hash) ? [s.dig('addons_old', 'addon')] : s.dig('addons_old', 'addon')) : []) })
           .>> t(:add_links, 'condition_avalanche_warning_level', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('avalancheWarningLevel', 'id').present? ? ["CATEGORY:#{s&.dig('avalancheWarningLevel', 'id')}"] : [] })
           .>> t(:add_links, 'condition_nordic_classic', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionNordicClassic', 'id').present? ? ["CATEGORY:#{s&.dig('conditionNordicClassic', 'id')}"] : [] })
+          .>> t(:add_links, 'condition_nordic_skating', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionNordicSkating', 'id').present? ? ["CATEGORY:#{s&.dig('conditionNordicSkating', 'id')}"] : [] })
           .>> t(:add_links, 'condition_run_to_valley', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionRunToValley', 'id').present? ? ["CATEGORY:#{s&.dig('conditionRunToValley', 'id')}"] : [] })
           .>> t(:add_links, 'condition_slopes', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionSlopes', 'id').present? ? ["CATEGORY:#{s&.dig('conditionSlopes', 'id')}"] : [] })
           .>> t(:add_links, 'condition_snow', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('conditionSnow', 'id').present? ? ["CATEGORY:#{s&.dig('conditionSnow', 'id')}"] : [] })
