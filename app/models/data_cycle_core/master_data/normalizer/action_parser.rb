@@ -10,7 +10,7 @@ module DataCycleCore
               'ADD' => :add,
               'ALTER' => :alter,
               'DELETE' => :delete,
-              'SPLIT' => :split,
+              'SPLIT' => :nothing, #:split,
               'PROPOSE' => :propose,
               'ERROR' => :error
             }
@@ -20,9 +20,13 @@ module DataCycleCore
             actions = []
             normalize_report.dig('actionList').each do |action|
               raise ArgumentError, "Unknown taskType: #{action.dig('taskType')} | known types: #{action_type.keys}" unless action_type.key?(action.dig('taskType'))
-              actions << send(action_type[action['taskType']], action)
+              entry = send(action_type[action['taskType']], action)
+              actions << entry if entry.present?
             end
             consolidate(actions.flatten)
+          end
+
+          def nothing(_action)
           end
 
           def add(action)
@@ -41,7 +45,8 @@ module DataCycleCore
           def delete(action)
             action
               .dig('fieldsBefore')
-              .map { |item| { item['id'] => ['-', item['content']] } }
+              .map { |item| item['content'].blank? ? nil : { item['id'] => ['-', item['content']] } }
+              .compact
           end
 
           def split(action)

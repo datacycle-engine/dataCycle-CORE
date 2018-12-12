@@ -19,7 +19,8 @@ DataCycleCore.setup do |config|
 
   config.default_template_paths = [
     Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content')
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
+    Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
   ].freeze
 
   config.features = config.features.deep_merge(
@@ -34,6 +35,9 @@ DataCycleCore.setup do |config|
       container: {
         enabled: false,
         excluded: ['Bild', 'Video']
+      },
+      external_media_archive: {
+        enabled: true
       }
     }
   )

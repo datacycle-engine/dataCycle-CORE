@@ -14,6 +14,12 @@ module DataCycleCore
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
+      def self.import_template_list(template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
+        import_hash.map { |_key, value| value }.reduce([], :+).map { |item| item[:name] }.uniq.sort
+      end
+
       def self.check_for_duplicates(template_paths, content_tables)
         import_list = {}
         collisions = {}

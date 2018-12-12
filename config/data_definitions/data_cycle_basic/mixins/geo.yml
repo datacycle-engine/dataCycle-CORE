@@ -9,6 +9,7 @@
         :storage_location: column
         :validations:
           :format: float
+        :normalize: longitude
         :api:
           :transformation:
             :method: nest
@@ -26,6 +27,7 @@
         :storage_location: column
         :validations:
           :format: float
+        :normalize: latitude
         :api:
           :transformation:
             :method: nest

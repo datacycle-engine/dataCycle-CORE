@@ -9,6 +9,7 @@
         :storage_location: column
         :validations:
           :format: float
+        :normalize: longitude
         :api:
           :transformation:
             :method: nest
@@ -20,13 +21,13 @@
             :disabled: true
           :show:
             :disabled: true
-        :normalize: longitude
       :latitude:
         :label: Latitude
         :type: number
         :storage_location: column
         :validations:
           :format: float
+        :normalize: latitude          
         :api:
           :transformation:
             :method: nest
@@ -38,7 +39,6 @@
             :disabled: true
           :show:
             :disabled: true
-        :normalize: latitude
       :elevation:
         :label: Meereshöhe (m)
         :type: number

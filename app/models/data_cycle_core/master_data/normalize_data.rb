@@ -28,12 +28,19 @@ module DataCycleCore
 
         id = options&.dig(:id)
         comment = options&.dig(:comment)
+        @logger.info "processing -> #{id}"
 
         normalize_hash, transformation_hash = self.class.preprocess_data(template_hash, data)
+        return data, [] if transformation_hash.blank? || normalize_hash.blank?
 
         report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash), comment)
 
-        self.class.postprocess_data(data, report, transformation_hash)
+        splits = report['actionList'].find_all { |item| item['taskType'] == 'SPLIT' }
+        @logger.info "splits -> #{splits}" if splits.size > 1
+
+        updated_hash, diffs = self.class.postprocess_data(data, report, transformation_hash, template_hash)
+        @logger.info "transforming -> #{diffs}" if diffs.present?
+        return updated_hash, diffs
       end
 
       class << self
@@ -42,12 +49,20 @@ module DataCycleCore
           return normalize_hash, create_transformation(normalize_hash)
         end
 
-        def postprocess_data(data, report, transformation_hash)
+        def postprocess_data(data, report, transformation_hash, template_hash)
+          cleaned_report = merge_street_streetnr(report)
           normalized_data = back_transformation(
-            merge_street_streetnr(report.dig('entry', 'fields')),
+            cleaned_report.dig('entry', 'fields'),
             transformation_hash
           )
-          updated_data = update_data(data, normalized_data)
+          converted_data = convert_data_types(
+            normalized_data,
+            template_hash
+          )
+          updated_data = update_data(
+            data,
+            converted_data
+          )
 
           diffs = Normalizer::ActionParser.parse(report)
             .map { |key, value| { transformation_hash[key] || key => value } }
@@ -76,11 +91,29 @@ module DataCycleCore
           end
         end
 
-        def merge_street_streetnr(fields_list)
+        # maybe support
+        #   {
+        #    "fieldsProposed" => [],
+        #    "entryId" => "32855836",
+        #    "taskPhase" => "RESTRUCTURE",
+        #    "taskType" => "SPLIT",
+        #    "taskId" => "Split_CityZip",
+        #    "fieldsBefore" => [{ "type" => "CITY", "content" => "9545 Radenthein", "id" => "CITY" }],
+        #    "fieldsAfter" => [
+        #      { "type" => "CITY", "content" => "Radenthein", "id" => "CITY" },
+        #      { "type" => "ZIP", "content" => "9545", "id" => "ZIP" }
+        #     ]
+        #   }
+        # later
+        def merge_street_streetnr(report)
+          fields_list = report&.dig('entry', 'fields')
+          return report if fields_list.blank?
           types = fields_list.map { |item| item['type'] }.uniq
-          fields_list unless types.include?('STREET') && types.include?('STREETNR')
-          street_nr = fields_list[fields_list.find_index { |item| item['type'] == 'STREETNR' }]['content']
-          fields_list.map { |item|
+          return report unless types.include?('STREET') && types.include?('STREETNR')
+
+          index_street_nr = fields_list.find_index { |item| item['type'] == 'STREETNR' }
+          street_nr = fields_list[index_street_nr]['content']
+          report['entry']['fields'] = fields_list.map { |item|
             if item['type'] == 'STREET'
               item['content'] += ' ' + street_nr
               item
@@ -90,6 +123,26 @@ module DataCycleCore
               item
             end
           }.compact
+
+          action_list = report.dig('actionList')
+          action_index = action_list.find_index { |item| item['taskType'] == 'SPLIT' && item['taskId'] == 'Split_StreetStreetnr' }
+          action_entry = action_list[action_index]
+          new_name = fields_list[fields_list.find_index { |item| item['type'] == 'STREET' }]['content']
+          old_name = action_entry['fieldsBefore'].first&.dig('content')
+
+          if new_name == old_name
+            action_list.delete_at(action_index)
+          else
+            byebug if action_list.find_all { |item| item['taskType'] == 'SPLIT' }.size > 1
+            field_entry = action_entry['fieldsAfter'].find { |item| item['type'] == 'STREET' }
+            field_entry['content'] = new_name
+            action_entry['fieldsAfter'] = [field_entry]
+            action_entry['taskType'] = 'ALTER'
+            action_list[action_index] = action_entry
+          end
+          report['actionList'] = action_list
+
+          report
         end
 
         def create_transformation(normalize_hash)
@@ -100,6 +153,20 @@ module DataCycleCore
 
         def back_transformation(data, transformation)
           data.map { |item| item.update('id' => transformation[item.dig('type')]) }
+        end
+
+        def convert_data_types(data, template)
+          data.map do |item|
+            item['content'] = DataCycleCore::MasterData::DataConverter.convert_to_type(
+              get_type_from_path(item['id'], template),
+              item['content']
+            )
+            item
+          end
+        end
+
+        def get_type_from_path(path, template)
+          template.dig(*(['properties'] * path.split('/').size).zip(path.split('/')).flatten.compact + ['type'])
         end
 
         def update_data(old_data, update_list)
