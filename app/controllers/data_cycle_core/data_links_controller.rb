@@ -17,7 +17,7 @@ module DataCycleCore
 
       link.update_attribute(:seen_at, Time.zone.now)
 
-      if link.permissions == 'write' && DataCycleCore.content_tables.include?(link.item.class.table_name)
+      if link.permissions == 'write' && link.item.class.table_name == 'things'
         redirect_to edit_polymorphic_path(link.item, split_params)
       else
         redirect_to polymorphic_path(link.item)

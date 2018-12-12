@@ -2,27 +2,24 @@
 /* Fixes for Firefox */
 .detail-header.editor {
   .form-element {
+    label + select {
+      margin-top: 3rem;
+    }
+
     .finalize-button-container {
+      position: relative;
       input[type='checkbox'] {
         border: 0;
         background: inherit;
         box-shadow: none;
         min-width: auto;
-        display: inline-block;
-        vertical-align: middle;
         transform: scale(1.1);
-        margin: 0;
       }
 
       label {
-        padding: 0;
-        display: inline-block;
-        vertical-align: middle;
-        top: auto;
         font-weight: bold;
         font-size: 1.5rem;
         line-height: 1.5rem;
-        left: initial;
       }
     }
 
@@ -60,7 +57,7 @@
 
     input[type='checkbox'] {
       min-width: 0;
-      margin: 1rem 0 0 1rem;
+      margin: 0 0 0 1rem;
     }
 
     &.classification {
@@ -80,7 +77,6 @@
             top: 0;
             left: 0;
             font-weight: normal;
-            vertical-align: text-bottom;
             color: $black;
           }
         }
@@ -414,10 +410,6 @@
   }
 }
 
-label + select {
-  margin-top: 3rem;
-}
-
 select {
   &.no-margin {
     margin-top: 0;
@@ -733,7 +725,7 @@ select {
 .reveal {
   .loading {
     text-align: center;
-    padding: 8rem;
+    padding: 4rem 8rem;
     display: block;
 
     .fa {
@@ -792,12 +784,13 @@ a.has-tip {
   text-align: center;
 }
 
-.new-item {
+.new-item,
+.new-content-reveal {
   iframe {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
-    width: 90vw;
-    height: 90vh;
+    width: 96vw;
+    height: 87vh;
     max-width: 1200px;
   }
 
@@ -893,15 +886,10 @@ video {
 }
 
 .reveal {
-  &.width-content {
-    width: min-content;
-
-    img,
-    video {
-      max-width: 90vw;
-      max-height: 90vh;
-    }
-  }
+  min-width: 600px;
+  width: fit-content;
+  max-height: 100vh;
+  overflow-y: visible;
 }
 
 .copied-to-clipboard {
@@ -1681,6 +1669,11 @@ select {
   }
 }
 
+[data-disable-with]:not(.submit-edit-form) > .fa {
+  font-size: inherit;
+  line-height: inherit;
+}
+
 .tooltip {
   max-width: 90vw;
 }
@@ -1691,4 +1684,21 @@ select {
 
 .status-container {
   margin-top: 1rem;
+}
+[type='checkbox'],
+[type='radio'] {
+  display: inline-block;
+  vertical-align: sub;
+}
+
+.select2-container--default
+  .select2-selection--multiple
+  .select2-selection__choice__remove {
+  float: right;
+  padding-left: 5px;
+}
+
+.button-prime.sprinklr-disabled {
+  cursor: not-allowed;
+  background-color: $dark-gray;
 }

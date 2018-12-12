@@ -30,7 +30,7 @@ module DataCycleCore
 
       content = DataCycleCore::Thing.find_by(name: name)
 
-      assert_redirected_to edit_polymorphic_path(content)
+      assert_redirected_to edit_thing_path(content)
       assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_language), flash[:notice]
     end
 
@@ -56,33 +56,33 @@ module DataCycleCore
     test 'update content' do
       updated_name = "updated_test_artikel_#{Time.now.getutc.to_i}"
 
-      patch polymorphic_path(@content), params: {
+      patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash.merge('name' => updated_name)
         }
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select '.detail-header > .title', updated_name
     end
 
     test 'show content history' do
-      get polymorphic_path(@content)
+      get thing_path(@content)
       assert_response :success
       assert_select '.detail-header > .title', @content.title
 
-      get polymorphic_path([:history, @content], history_id: @content.histories&.first&.id)
+      get history_thing_path(@content, history_id: @content.histories&.first&.id)
       assert_response :success
       assert_select('.detail-content .type.properties .has-changes', count: 1)
     end
 
     test 'delete content' do
-      delete polymorphic_path(@content), params: {}, headers: {
-        referer: polymorphic_path(@content)
+      delete thing_path(@content), params: {}, headers: {
+        referer: thing_path(@content)
       }
 
       assert_redirected_to root_path

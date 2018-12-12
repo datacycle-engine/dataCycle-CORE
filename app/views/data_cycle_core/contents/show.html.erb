@@ -18,7 +18,12 @@
   <%= render 'results', contents: @contents %>
 
   <% content_for :new_button do %>
-    <%= render 'new_content_links' if can?(:create_item, '') %>
+    <%= render 'new_content_button',
+      query_methods: DataCycleCore::Feature::Container.query_methods(@content),
+      content: @content,
+      parent: @content.content_type?(:container) ? @content : nil,
+      scope: 'container',
+      button_class: 'new-object-circle' if new_content_select_options(query_methods: DataCycleCore::Feature::Container.query_methods(@content), scope: 'container').present? %>
   <% end %>
 <% else %>
   <%= render_content_partial 'details', content: @content %>

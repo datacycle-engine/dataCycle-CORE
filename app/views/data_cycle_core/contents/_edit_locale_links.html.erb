@@ -5,7 +5,7 @@
     <ul class="list-items">
       <% locales.each do |locale| %>
         <li class="<%= "active" if locale.first == I18n.locale %>">
-          <%= link_to_unless locale.first == I18n.locale, locale.last, edit_polymorphic_path(content, watch_list_id: @watch_list, locale: locale.first), data: { locale: locale.first } %>
+          <%= link_to_unless locale.first == I18n.locale, locale.last, edit_thing_path(content, watch_list_id: @watch_list, locale: locale.first), data: { locale: locale.first } %>
           <%== '<span class="buttons"><i class="fa fa-language" aria-hidden="true"></i></span>' if content.translated_locales.include?(locale.first) %>
         </li>
       <% end %>

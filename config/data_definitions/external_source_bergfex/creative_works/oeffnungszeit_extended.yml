@@ -56,7 +56,6 @@
       :time:
         :label: Zeit
         :type: embedded
-        :linked_table: things
         :template_name: Öffnungszeit - Zeitspanne
       :remark:
         :label: Text

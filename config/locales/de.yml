@@ -116,6 +116,13 @@ de:
     abo_finalized:
       one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
       other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
+    parent: Container
+    subscribe_text: Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.
+    unsubscribe_text: Bereits abonniert.
+    life_cycle: Lebenszyklus
+    create_new_content: Neuen Inhalt erstellen
+    data_type: Inhaltstyp
+    change_api_access: API Freigabe ändern
 
   tile_links:
     details: zur Detailansicht
@@ -154,12 +161,14 @@ de:
     lock: sperren
     unlock: freischalten
     delete: löschen
+    choose_type: "Inhaltstyp wählen"
     new: "%{data} erstellen"
     generate: "%{data} generieren"
     send: versenden
     send_with_data: "%{data} versenden"
     delete_with_data: "%{data} löschen"
     subscribe: "abonnieren"
+    unsubscribe: "Abonnement löschen"
     subscribed: "abonniert"
     reset:
       one: "Zurücksetzen"
@@ -184,6 +193,8 @@ de:
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
+    next: Weiter
+    back: Zurück
 
   validation:
     errors:
@@ -245,6 +256,7 @@ de:
       email_exists: "Für diese E-Mail existiert bereits ein Link"
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
+      missing_parameter: Parameter fehlt!
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."

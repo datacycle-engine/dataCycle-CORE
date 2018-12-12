@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class GpxConverter
-        include CanCan::Ability
-
+      class GpxConverter < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

@@ -19,9 +19,12 @@ module DataCycleCore
 
         def first_available_locale(locale = nil)
           translated = [locale].flatten & translated_locales.map(&:to_s)
-          if translated.present? then translated.first.try(:to_sym)
-          elsif translated_locales.include?(I18n.locale) then I18n.locale
-          else translated_locales.first
+          if translated.present?
+            translated.first.try(:to_sym)
+          elsif translated_locales.include?(I18n.locale)
+            I18n.locale
+          else
+            translated_locales.first
           end
         end
 

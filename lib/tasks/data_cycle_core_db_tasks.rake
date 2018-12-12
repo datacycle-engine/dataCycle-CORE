@@ -159,6 +159,30 @@ namespace :data_cycle_core do
       logger.info('Imported Live DB successfully')
     end
 
+    desc 'reset database, import templates, classifications, external_sources'
+    task :reset, [:prefix] => :environment do |_, args|
+      args[:prefix] ||= ''
+
+      ENV['RAILS_ENV'] ||= Rails.env
+      puts "Environment: #{ENV['RAILS_ENV']}"
+
+      begin
+        Rake::Task["#{args[:prefix]}data_cycle_core:db:clear_connections"].invoke
+        Rake::Task["#{args[:prefix]}db:drop"].invoke
+      rescue ActiveRecord::NoDatabaseError
+        puts 'No Database to drop, proceeding...'
+      end
+
+      Rake::Task["#{args[:prefix]}db:create"].invoke
+      Rake::Task["#{args[:prefix]}db:migrate"].invoke
+      Rake::Task["#{args[:prefix]}db:seed"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_classifications"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_source_configs"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_system_configs"].invoke
+      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
+      puts 'Reset Complete...'
+    end
+
     private
 
     def ensure_format(format)

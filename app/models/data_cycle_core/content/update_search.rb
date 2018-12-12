@@ -55,12 +55,11 @@ module DataCycleCore
 
           connection = ActiveRecord::Base.connection
           sql_query = <<-EOS
-            INSERT INTO searches (id, content_data_id, content_data_type, locale, words, full_text,
+            INSERT INTO searches (id, content_data_id, locale, words, full_text,
               created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type)
             VALUES
             ( DEFAULT,
               '#{id}',
-              '#{self.class}',
               '#{language}',
               to_tsvector('simple', '#{full_text}'),
               '#{full_text_most}',
@@ -74,8 +73,8 @@ module DataCycleCore
               #{boost},
               '#{schema_type}'
             )
-            ON CONFLICT (content_data_id, content_data_type, locale)
-            WHERE content_data_id = '#{id}' AND content_data_type = '#{self.class}' AND locale = '#{language}'
+            ON CONFLICT (content_data_id, locale)
+            WHERE content_data_id = '#{id}' AND locale = '#{language}'
             DO UPDATE SET
               words = EXCLUDED.words,
               full_text = EXCLUDED.full_text,

@@ -24,7 +24,6 @@ require 'awesome_print'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
-require 'delayed_job'
 require 'delayed_job_active_record'
 
 # REST-client
@@ -77,17 +76,14 @@ module DataCycleCore
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
 
-    mattr_accessor :content_tables
-    self.content_tables = ['things']
+    # mattr_accessor :content_tables
+    # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
 
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan', 'Textblock']
-
-    mattr_accessor :excluded_new_item_objects
-    self.excluded_new_item_objects = []
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -125,9 +121,7 @@ module DataCycleCore
         enabled: false
       },
       container: {
-        enabled: false,
-        exluded: [],
-        allowed: []
+        enabled: false
       },
       main_filter: {
         enabled: true,
@@ -146,6 +140,9 @@ module DataCycleCore
       },
       gpx_converter: {
         enabled: true
+      },
+      external_media_archive: {
+        enabled: false
       }
     }
 
@@ -162,11 +159,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = {
-      create: [],
-      delete: [],
-      update: []
-    }
+    self.webhooks = []
 
     # template directories
     mattr_accessor :template_path
@@ -175,6 +168,9 @@ module DataCycleCore
 
     # location of import/download configs
     mattr_accessor :external_sources_path
+
+    # location of external_system configs
+    mattr_accessor :external_systems_path
 
     # obsolete: remove after projects initializer update
     mattr_accessor :allowed_content_api_classifications

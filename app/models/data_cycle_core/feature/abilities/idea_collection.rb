@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class IdeaCollection
-        include CanCan::Ability
-
+      class IdeaCollection < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

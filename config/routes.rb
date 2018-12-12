@@ -8,6 +8,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'creative_works'].freeze
+  CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('/users/sign_in')
 
@@ -28,9 +29,9 @@ DataCycleCore::Engine.routes.draw do
     post :create_user, on: :collection
   end
   resources :user_groups
-  # raise nil.inspect
+
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
@@ -42,18 +43,6 @@ DataCycleCore::Engine.routes.draw do
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
     end
-    # resources(*DataCycleCore.content_tables.map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy]) do
-    #   post :import, on: :collection
-    #   get 'history/:history_id', action: :history, on: :member, as: :history
-    #   get 'compare', on: :member
-    #   get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
-    #   get :load_more_linked_objects, on: :member
-    #   get :gpx, on: :member
-    #   post :validate, on: :member
-    #   post :validate, on: :collection
-    #   get :new_embedded_object, on: :member
-    #   get :render_embedded_object, on: :member
-    # end
   end
 
   resources :subscriptions, only: [:index, :create, :destroy]
@@ -95,8 +84,8 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_config', to: 'dash_board#import_config'
+  get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
-  # mount RailsDb::Engine => '/db', :as => 'db'
 
   defaults format: :json do
     namespace :api do
@@ -112,8 +101,8 @@ DataCycleCore::Engine.routes.draw do
         # TODO: refactor with new API implementation
         resources :events, only: [:index, :show]
 
-        type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-        resources :contents, path: ':type', constraints: { type: type_regexp }, only: [:show] do
+        # type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
+        resources :contents, path: ':type', constraints: { type: /things/ }, only: [:show] do
           get :search, on: :collection
           patch :update, on: :member
         end
@@ -136,7 +125,7 @@ DataCycleCore::Engine.routes.draw do
         # end
 
         # TODO: check if additional parameter is necessary, to achieve old results especially for index!!
-        resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index, :show])
+        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
         # type_regexp = Regexp.new(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym).join('|'))
         # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index], controller: :things, constraints: {type: type_regexp})
         # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:show], controller: :things, constraints: {type: type_regexp})
@@ -166,9 +155,11 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
+  post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application
+  post :remote_render, controller: :application
 end

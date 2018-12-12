@@ -6,59 +6,75 @@ credentials:
   host: https://www.outdooractive.com
   end_point: api/project
 default_options:
-  locales: ['de']
+  locales: [de, en]
 config:
   download_config:
-    categories:
+    tour_categories:
       sorting: 1
-      source_type: categories
+      source_type: tour_categories
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       endpoint_method: tour_categories
       download_strategy: DataCycleCore::Generic::OutdoorActive::Download
-    regions:
+    place_categories:
       sorting: 2
+      source_type: place_categories
+      endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
+      endpoint_method: place_categories
+      download_strategy: DataCycleCore::Generic::OutdoorActive::Download
+    regions:
+      sorting: 3
       source_type: regions
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::Download
     places:
-      sorting: 3
+      sorting: 4
       source_type: places
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::Download
     tours:
-      sorting: 4
+      sorting: 5
       source_type: tours
       endpoint: DataCycleCore::Generic::OutdoorActive::Endpoint
       download_strategy: DataCycleCore::Generic::OutdoorActive::Download
   import_config:
-    categories:
+    tour_categories:
       sorting: 1
-      source_type: categories
+      source_type: tour_categories
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportCategories
-      tree_label: OutdoorActive - Kategorien
-    regions:
+      tree_label: OutdoorActive - Touren-Kategorien
+      locales: [de]
+    place_categories:
       sorting: 2
+      source_type: place_categories
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportCategories
+      tree_label: OutdoorActive - POI-Kategorien
+      locales: [de]
+    regions:
+      sorting: 3
       source_type: regions
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportRegions
       tree_label: OutdoorActive - Regionen
+      locales: [de]
     source_places:
-      sorting: 3
-      source_type: places
-      import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tree_label: OutdoorActive - Quellen
-      tag_id_path: 'meta.source.id'
-      tag_name_path: 'meta.source.name'
-      external_id_prefix: 'SOURCE:'
-    source_tours:
       sorting: 4
+      source_type: places
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: OutdoorActive - Quellen
+      tag_id_path: 'meta.source.id'
+      tag_name_path: 'meta.source.name'
+      external_id_prefix: 'SOURCE:'
+      locales: [de]
+    source_tours:
+      sorting: 5
       source_type: tours
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: OutdoorActive - Quellen
       tag_id_path: 'meta.source.id'
       tag_name_path: 'meta.source.name'
       external_id_prefix: 'SOURCE:'
+      locales: [de]
     frontendtype_places:
-      sorting: 5
+      sorting: 6
       source_type: places
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: OutdoorActive - FrontendTypes
@@ -66,8 +82,9 @@ config:
       tag_name_path: 'frontendtype'
       external_id_prefix: 'FRONTENDTYPE:'
       external_id_hash_method: 'MD5'
+      locales: [de]
     frontendtype_tours:
-      sorting: 6
+      sorting: 7
       source_type: tours
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: OutdoorActive - FrontendTypes
@@ -75,32 +92,33 @@ config:
       tag_name_path: 'frontendtype'
       external_id_prefix: 'FRONTENDTYPE:'
       external_id_hash_method: 'MD5'
+      locales: [de]
     tag_places:
-      sorting: 5
+      sorting: 8
       source_type: places
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: OutdoorActive - Tags
       tag_id_path: 'properties.property.tag'
       tag_name_path: 'properties.property.text'
       external_id_prefix: 'TAG:'
+      locales: [de]
     tag_tours:
-      sorting: 6
+      sorting: 9
       source_type: tours
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: OutdoorActive - Tags
       tag_id_path: 'properties.property.tag'
       tag_name_path: 'properties.property.text'
       external_id_prefix: 'TAG:'
+      locales: [de]
     tours:
       sorting: 20
       source_type: tours
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
       transformations:
         image:
-          content_type: DataCycleCore::Thing
           template: Bild
         tour:
-          content_type: DataCycleCore::Thing
           template: Tour
     places:
       sorting: 21
@@ -108,8 +126,6 @@ config:
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPlaces
       transformations:
         image:
-          content_type: DataCycleCore::Thing
           template: Bild
         place:
-          content_type: DataCycleCore::Thing
           template: POI

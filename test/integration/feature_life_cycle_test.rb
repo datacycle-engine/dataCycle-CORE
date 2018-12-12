@@ -15,16 +15,16 @@ module DataCycleCore
     end
 
     test 'change life_cycle_stage to archive' do
-      patch polymorphic_path([:update_life_cycle, @content]), params: {
+      patch update_life_cycle_thing_path(@content), params: {
         life_cycle: {
           id: @stages.values.last[:id],
           name: @stages.keys.last
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content)
       follow_redirect!
 
       assert @content.reload.life_cycle_stage?(@stages.values.last[:id])

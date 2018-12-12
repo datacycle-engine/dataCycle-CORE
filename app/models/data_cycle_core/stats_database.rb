@@ -35,36 +35,31 @@ module DataCycleCore
       @pg_classification_content = ClassificationContent.count
       @pg_tree_label = ClassificationTreeLabel.count
       @pg_tree_nodes = ClassificationTree.count
-
       @pg_content = {}
-      @pg_content_history = 0
-      DataCycleCore.content_tables.each do |item|
-        @pg_content[item.humanize] = ('DataCycleCore::' + item.classify).safe_constantize.count
-        @pg_content_history += "DataCycleCore::#{item.classify}::History".safe_constantize.count
-      end
+      @pg_content['Thing'] = DataCycleCore::Thing.count
+      @pg_content['Thing-Translations'] = DataCycleCore::Thing::Translation.count
+      @pg_content['History'] = DataCycleCore::Thing::History.count
+      @pg_content['History-Translations'] = DataCycleCore::Thing::History::Translation.count
 
       @pg_content_content = DataCycleCore::ContentContent.count
-      # @pg_overlays = Overlay.count
     end
 
     def load_mongo_data(_user_id)
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
-      UseCase.find_each do |use_case|
-        external_source_id = use_case.external_source_id
-        external_source = ExternalSource.find_by(id: external_source_id)
+      DataCycleCore::ExternalSource.find_each do |external_source|
         import_name = external_source.name
         next if external_source.config.blank?
 
         Mongoid.override_database(nil)
-        mongo_database = "#{Generic::Collection.database_name}_#{external_source_id}"
+        mongo_database = "#{Generic::Collection.database_name}_#{external_source.id}"
         Mongoid.override_database(mongo_database)
         mongo_dbs_index = mongo_dbs.find_index { |db| db['name'] == mongo_database }
 
         if mongo_dbs_index.nil?
           @import_modules.push(
             {
-              uuid: external_source_id,
+              uuid: external_source.id,
               name: import_name,
               database: mongo_database,
               db_size: 0,
@@ -77,12 +72,12 @@ module DataCycleCore
           )
         else
           mongo_dbsize = mongo_dbs[mongo_dbs_index]['sizeOnDisk']
-          Mongoid.clients[external_source_id] = {
+          Mongoid.clients[external_source.id] = {
             'database' => mongo_database,
             'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
             'options' => nil
           }
-          mongo_data = Hash[Mongoid.client(external_source_id).collections.map { |item| [item.name.humanize, item.count] }]
+          mongo_data = Hash[Mongoid.client(external_source.id).collections.map { |item| [item.name.humanize, item.count] }]
 
           if external_source.last_import.nil?
             last_import = 'never'
@@ -98,7 +93,7 @@ module DataCycleCore
 
           @import_modules.push(
             {
-              uuid: external_source_id,
+              uuid: external_source.id,
               name: import_name,
               database: mongo_database,
               db_size: mongo_dbsize,

@@ -94,12 +94,15 @@ module.exports.initialize = function() {
           width: '100%',
           dropdownParent: $(that).parent(),
           templateResult: function(data) {
+            var title = $(data.element).data('title');
+
             if (data.loading) {
               return data.text;
             }
 
             var term = query.term || '';
-            var text_value = data.name || data.text;
+            var text_value = title || data.text;
+
             var result = text_value
               ? select2_helpers.markMatch(text_value, term)
               : null;
@@ -114,6 +117,12 @@ module.exports.initialize = function() {
 
               return '';
             }
+          },
+          templateSelection: function(data) {
+            return select2_helpers.removeTreeLabelFromSelection(
+              data.text,
+              tree_label
+            );
           },
           matcher: function(params, data) {
             // If there are no search terms, return all of the data
@@ -143,6 +152,30 @@ module.exports.initialize = function() {
         });
       });
   };
+
+  function removeHandlers(element) {
+    $(element)
+      .find('.single-select, .multi-select, .async-select')
+      .each((_, element) => {
+        $(element).select2('destroy');
+      });
+  }
+
+  $(document).on(
+    'open.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      init(event.target);
+    }
+  );
+
+  $(document).on(
+    'closed.zf.reveal',
+    '.new-content-reveal[data-reset-on-close]',
+    event => {
+      removeHandlers(event.target);
+    }
+  );
 
   $(document).on(
     'clone-added',

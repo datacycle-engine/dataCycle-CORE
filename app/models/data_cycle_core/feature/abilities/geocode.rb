@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class Geocode
-        include CanCan::Ability
-
+      class Geocode < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

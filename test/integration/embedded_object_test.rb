@@ -16,17 +16,17 @@ module DataCycleCore
 
     test 'update content -> add multiple embedded objects (Zitat)' do
       quotations = Array.new(6) { |i| { 'text' => "Quotation #{i}" } }
-      patch polymorphic_path(@content), params: {
+      patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash.merge({
             'quotation' => quotations
           })
         }
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_equal 6, @content.reload.quotation.size
@@ -48,22 +48,22 @@ module DataCycleCore
         })
       ]
 
-      patch polymorphic_path(content_with_quotation), params: {
+      patch thing_path(content_with_quotation), params: {
         thing: {
           datahash: content_hash
         }
       }, headers: {
-        referer: edit_polymorphic_path(content_with_quotation)
+        referer: edit_thing_path(content_with_quotation)
       }
 
-      assert_redirected_to polymorphic_path(content_with_quotation)
+      assert_redirected_to thing_path(content_with_quotation, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_quotation.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_equal 'Updated Zitat 1', content_with_quotation.reload.quotation.first.text
     end
 
     test 'render new embedded object (Zitat in Artikel)' do
-      get polymorphic_path([:new_embedded_object, @content]), xhr: true, as: :json, params: {
+      get new_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
         content_id: @content.id,
         content_type: @content.class.table_name,
         definition: @content.schema.dig('properties', 'quotation'),
@@ -74,7 +74,7 @@ module DataCycleCore
           readonly: false
         }
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
       assert_response :success
@@ -91,7 +91,7 @@ module DataCycleCore
 
       assert quotation.reload
 
-      get polymorphic_path([:render_embedded_object, @content]), xhr: true, as: :json, params: {
+      get render_embedded_object_thing_path(@content), xhr: true, as: :json, params: {
         content_id: @content.id,
         content_type: @content.class.table_name,
         definition: @content.schema.dig('properties', 'quotation'),
@@ -105,7 +105,7 @@ module DataCycleCore
           quotation.id
         ]
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
       assert_response :success

@@ -12,7 +12,7 @@ json.partial! 'container_parent_properties', content: content, options: options 
 if content.translations.size > 1 && @include_parameters.include?('translations')
   json.set! 'inLanguage', content.translations.map(&:locale)
 else
-  json.set! 'inLanguage', content.translations.map(&:locale).include?(@language.to_sym) ? @language : content.translations.first.locale
+  json.set! 'inLanguage', content.translations.map(&:locale).include?(@language.to_sym) ? @language : content.translations&.first&.locale
 end
 
 json.partial! 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')

@@ -8,60 +8,33 @@ module DataCycleCore
 
         def title
           case schema_type
-          when 'Organization'
+          when 'Organization', 'Event', 'CreativeWork'
             name
           when 'Person'
             "#{given_name} #{family_name}"
-          when 'Event'
-            name
           when 'Place'
             name.presence || I18n.t('common.no_translation', locale: DataCycleCore.ui_language)
-          when 'CreativeWork'
-            name
           end
         end
 
         def desc
           case schema_type
-          when 'Organization'
+          when 'Organization', 'Event', 'CreativeWork'
             description
           when 'Person'
             content['job_title']
-          when 'Event'
-            description
-          when 'CreativeWork'
-            description
-          end
-        end
-
-        def new_content_fields
-          case schema_type
-          when 'Organization'
-            ['name']
-          when 'Person'
-            ['given_name', 'family_name']
-          when 'Event'
-            ['name']
-          when 'Place'
-            ['name']
-          when 'CreativeWork'
-            ['name']
           end
         end
 
         def object_browser_fields
           # title is shown by default
           case schema_type
-          when 'Organization'
+          when 'Organization', 'Event', 'CreativeWork'
             []
           when 'Person'
             ['honorific_prefix', 'job_title', 'contact_info']
-          when 'Event'
-            []
           when 'Place'
             ['address']
-          when 'CreativeWork'
-            []
           end
         end
 

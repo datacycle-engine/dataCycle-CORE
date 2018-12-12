@@ -1,0 +1,11 @@
+$('#<%= @target %>').children().fadeOut('fast', function(){
+  <% if @render_function.present? && respond_to?(@render_function) %>
+    $('#<%= @target %>').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').trigger('remote-partial-rendered');
+  <% else %>
+    $('#<%= @target %>').html('<%= j render(@partial, @options) %>').trigger('remote-partial-rendered');
+  <% end %>
+
+  <% @content_for.presence&.each do |yield_class| %>
+    $('#<%= @target %>').siblings('.<%= yield_class %>').add($('#<%= @target %>').closest('.<%= yield_class %>')).first().html('<%= j yield(yield_class.to_sym) %>')
+  <% end %>
+});

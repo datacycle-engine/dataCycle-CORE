@@ -34,6 +34,7 @@ textarea {
 header {
   z-index: 3;
   position: relative;
+
   .top-bar {
     max-height: 4.1rem;
     overflow: hidden;
@@ -46,14 +47,17 @@ header {
       $black 50%,
       lighten($black, 7%) 100%
     );
+
     .logo {
       padding: 0 0 0 1rem;
       float: left;
+
       img {
         max-height: 80px;
         width: auto;
       }
     }
+
     .title {
       color: $white;
       float: left;
@@ -63,12 +67,15 @@ header {
       font-size: 1.2em;
       font-weight: 200;
     }
+
     .top-bar-title {
       padding: 0;
     }
   }
+
   ul.menu {
     line-height: 4rem;
+
     li {
       a,
       button {
@@ -77,15 +84,18 @@ header {
         padding: 0 1.5rem;
         line-height: 64px;
         border-bottom: 0;
+
         i.icon-right {
           margin-left: 0.75rem;
           margin-right: 0;
         }
+
         &:focus,
         &:hover {
           color: $light-gray;
         }
       }
+
       button {
         background-color: $black;
         background: linear-gradient(
@@ -98,6 +108,7 @@ header {
           outline: none;
           background: map-get($foundation-palette, primary);
         }
+
         &:focus,
         &:hover {
           background: linear-gradient(
@@ -108,10 +119,12 @@ header {
           );
           box-shadow: inset 0 0 3px 0 rgba(0, 0, 0, 0.7);
         }
+
         span {
           position: relative;
         }
       }
+
       &:last-child {
         a {
           padding-right: 0.5rem;
@@ -123,14 +136,11 @@ header {
 
 /* new object element */
 
-#new-object-circle {
+a.button-prime.new-object-circle {
   position: fixed;
-  z-index: 5;
   bottom: 2rem;
   right: 2rem;
-  > a {
-    z-index: 1006;
-  }
+  z-index: 1005;
 }
 
 #new-object.reveal {
@@ -144,15 +154,25 @@ header {
   background-color: white;
   max-width: 32rem;
   box-shadow: 1px 4px 2px 0px rgba(0, 1, 1, 0.2);
+
   &:focus,
   &:active {
     border: 0;
     outline: 0;
   }
+
   .new-object-links {
     max-height: 80vh;
     overflow-y: auto;
   }
+
+  .new-favorites {
+    a.option:last-child {
+      border-bottom: 1px solid $light-gray;
+      margin-bottom: 2px;
+    }
+  }
+
   a.option {
     border-bottom: 1px solid $light-gray;
     padding: 0.5rem;
@@ -162,14 +182,23 @@ header {
     font-size: 1.5rem;
     font-weight: 200;
     transition: all ease-in-out 0.1s;
+
+    &.default-new-option {
+      border-top: 1px solid $light-gray;
+      font-weight: 600;
+      font-style: italic;
+    }
+
     .fa {
       font-size: 1.5rem;
       width: 2rem;
       margin-right: 1rem;
       text-align: center;
     }
+
     &:last-child {
       border-bottom: 0;
+
       &:after {
         transition: all ease-in-out 0.1s;
         @include css-triangle(1.5rem, $white, 'down');
@@ -178,10 +207,12 @@ header {
         right: 1rem;
         filter: drop-shadow(1px 4px 2px rgba(0, 1, 1, 0.2));
       }
+
       &:hover:after {
         @include css-triangle(1.5rem, $primary-color, 'down');
       }
     }
+
     &:focus,
     &:hover {
       background: $primary-color;
@@ -202,20 +233,25 @@ button.button-prime {
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+
   &.alert {
     background-color: map-get($foundation-palette, alert);
+
     &:focus,
     &:hover {
       background-color: lighten(map-get($foundation-palette, alert), 10%);
     }
   }
+
   &.success {
     background-color: map-get($foundation-palette, success);
+
     &:focus,
     &:hover {
       background-color: lighten(map-get($foundation-palette, success), 10%);
     }
   }
+
   i {
     color: $white;
     position: relative;
@@ -223,17 +259,20 @@ button.button-prime {
     line-height: 5rem;
     font-size: 3rem;
   }
+
   &:focus,
   &:hoverprime {
     background-color: lighten($primary-color, 10%);
   }
+
   &:active {
-    top: 2px;
     box-shadow: 0 0 1px 0px rgba(0, 1, 1, 0.18);
   }
+
   &.small {
     height: 3rem;
     width: 3rem;
+
     i {
       line-height: 3rem;
       font-size: 1.5rem;
@@ -250,9 +289,11 @@ body.login-page {
   display: flex;
   align-items: center;
   justify-content: center;
+
   .off-canvas-content {
     background: none;
   }
+
   header,
   .off-canvas-wrapper {
     display: none;
@@ -266,15 +307,25 @@ body.login-page {
   width: 70%;
   padding: 0;
   transition: box-shadow 1s ease-in-out;
+
   .home-container-content {
     .centered-text {
       text-align: center;
     }
+
     a.button {
       font-weight: bold;
       font-size: 1rem;
       padding: 1rem 2rem;
     }
+
+    button[type='submit'].button {
+      padding: 0.2rem 4.5rem;
+      i {
+        font-size: 3rem;
+      }
+    }
+
     .login-form {
       h3 {
         border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -287,12 +338,14 @@ body.login-page {
         background-color: $dark-gray;
         text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
         padding: 0.8rem 1rem;
+
         &:hover,
         &:focus {
           background-color: darken($dark-gray, 10%);
         }
       }
     }
+
     color: white;
     text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.5);
     overflow: hidden;
@@ -308,22 +361,28 @@ body.login-page {
     background-color: rgba(255, 255, 255, 0.4);
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   }
+
   &.show {
     box-shadow: 0 3px 13px rgba(0, 0, 0, 0.3);
+
     .home-container-content {
       opacity: 1;
     }
   }
+
   .home-logo {
     padding: 10px 0 0 0;
   }
+
   h1 {
     text-align: center;
   }
+
   .accordion {
     margin-bottom: 0;
     background: none;
     line-height: initial;
+
     li.accordion-item {
       a.accordion-title {
         &.without-content {
@@ -331,29 +390,35 @@ body.login-page {
             content: '';
           }
         }
+
         border: 0;
         color: white;
         text-align: center;
         font-size: 2rem;
         padding: 1rem 0;
         border-top: 1px solid rgba(255, 255, 255, 0.2);
+
         i {
           font-size: 2rem;
           margin-right: 0.75rem;
         }
+
         &::before {
           top: 30%;
         }
+
         &:hover,
         &:focus {
           background: none;
         }
+
         &:hover {
           color: white;
           opacity: 0.7;
         }
       }
     }
+
     .accordion-content {
       border: 0;
       padding: 0;
@@ -362,8 +427,10 @@ body.login-page {
       color: white;
     }
   }
+
   form {
     margin-top: 1rem;
+
     label {
       color: white;
     }
@@ -375,6 +442,7 @@ body.login-page {
   -moz-backface-visibility: hidden;
   backface-visibility: hidden;
   position: relative;
+
   &::after {
     -webkit-backface-visibility: hidden;
     -moz-backface-visibility: hidden;
@@ -391,11 +459,13 @@ body.login-page {
     content: '';
     transition: all 1s ease-out;
   }
+
   &.show::after {
     filter: url('data:image/svg+xml,%3C%3Fxml%20version%3D%221.0%22%20encoding%3D%22UTF-8%22%3F%3E%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20version%3D%221.1%22%3E%3Cdefs%3E%3Cfilter%20id%3D%22blur%22%3E%3CfeGaussianBlur%20stdDeviation%3D%225%22%2F%3E%3C%2Ffilter%3E%3C%2Fdefs%3E%3C%2Fsvg%3E#blur');
     -webkit-filter: blur(5px);
     filter: blur(5px);
   }
+
   .legacy-ie-fix {
     position: absolute;
     top: 0;
@@ -424,18 +494,22 @@ body.login-page {
     border: 0;
     border-top: 0.3rem solid $customercolor;
     color: white;
+
     .close-button,
     .close-button.medium {
       line-height: 3rem;
       color: white;
     }
   }
+
   &.success {
     background: rgba(map-get($foundation-palette, success), 0.95);
   }
+
   &.alert {
     background: rgba(map-get($foundation-palette, alert), 0.95);
   }
+
   &.info {
     background: rgba(map-get($foundation-palette, warning), 0.95);
   }

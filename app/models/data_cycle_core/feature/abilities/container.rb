@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class Container
-        include CanCan::Ability
-
+      class Container < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end
