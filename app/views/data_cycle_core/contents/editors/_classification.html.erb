@@ -58,6 +58,9 @@
                   c.sub_classification_alias.full_path,
                   c.sub_classification_alias.description
                 ].reject(&:blank?).join("\n\n"),
+                data: {
+                  title: c.sub_classification_alias.full_path,
+                },
                 disabled: !c.sub_classification_alias.assignable
               }
             ]

@@ -6,6 +6,8 @@ module DataCycleCore
       self.abstract_class = true
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
+      define_model_callbacks :created_data_hash, only: :after
+      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
@@ -14,11 +16,12 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
-      # before_save_data_hash :set_last_updated_by, if: -> { schema&.dig('properties', 'last_updated_by').present? }
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_webhooks
+      after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_created_data_hash :execute_create_webhooks
+      after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
         return {} if data_hash.blank?
@@ -43,15 +46,18 @@ module DataCycleCore
 
             self.updated_at = @save_time
             self.updated_by = @current_user&.id
+
+            # TODO: check if id is still valid
             if id.nil?
               self.created_at = @save_time
               self.created_by = @current_user&.id
             end
             save(touch: false)
-
             search_languages(update_search_all)
           end
-          reload && run_callbacks(:saved_data_hash) unless prevent_history
+          reload
+          run_callbacks(:saved_data_hash) unless prevent_history
+          run_callbacks(:created_data_hash) if @new_content
         end
         valid_hash
       end
@@ -75,25 +81,16 @@ module DataCycleCore
         end
       end
 
-      def execute_webhooks
+      def execute_update_webhooks
         Webhook::Update.execute_all(self)
       end
 
-      def get_inherit_datahash(parent)
-        data_hash = get_data_hash
+      def execute_create_webhooks
+        Webhook::Create.execute_all(self)
+      end
 
-        I18n.with_locale(parent.first_available_locale) do
-          parent_data_hash = parent.get_data_hash
-
-          DataCycleCore.inheritable_attributes.each do |attribute_key|
-            parent_data = parent_data_hash[attribute_key]
-            data_hash[attribute_key] = parent_data if parent_data.present?
-          end
-
-          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
-        end
-
-        data_hash.compact!
+      def execute_delete_webhooks
+        Webhook::Delete.execute_all(self)
       end
 
       def validate(data, schema_hash = nil)
@@ -122,9 +119,9 @@ module DataCycleCore
       def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked(key, value, properties['linked_table'])
+          set_linked(key, value)
         when 'embedded'
-          set_embedded(key, value, properties['linked_table'], properties['template_name'])
+          set_embedded(key, value, properties['template_name'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -182,26 +179,30 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked(field_name, input_data, table)
+      def set_linked(field_name, input_data)
         item_ids_before_update = send(field_name).ids
-        selector = table < self.class.table_name
         item_ids_after_update = parse_linked_ids(input_data)
 
         item_ids_after_update.each_index do |index|
-          next if item_ids_before_update[index] == item_ids_after_update[index]
-
-          upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-            get_relation_data_hash(field_name, table, item_ids_after_update[index])
-          )
-          upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
-          upsert_relation.save
+          update_relation = DataCycleCore::ContentContent.find_or_create_by({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_after_update[index]
+          })
+          update_relation.order_a = index
+          update_relation.save!
         end
 
         item_ids_to_delete = item_ids_before_update - item_ids_after_update
+
         return if item_ids_to_delete.size.zero?
         # destroy relations
         DataCycleCore::ContentContent
-          .where(get_relation_data_hash(field_name, table, item_ids_to_delete))
+          .where({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_to_delete
+          })
           .destroy_all
       end
 
@@ -213,47 +214,45 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, table, name)
+      def set_embedded(field_name, input_data, name)
         updated_item_keys = []
         available_update_item_keys = send(field_name).ids
-        selector = table < self.class.table_name
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
           item = data[index]
           if item.key?('id') && item['id'].present?
-            upsert_content(table, name, item) if item.keys.size > 1
+            upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-                get_relation_data_hash(field_name, table, item['id'])
-              )
-              upsert_relation.send(selector ? 'order_b=' : 'order_a=', index)
-              upsert_relation.save
+              DataCycleCore::ContentContent.find_or_create_by!({
+                content_a_id: id,
+                relation_a: field_name,
+                order_a: index,
+                content_b_id: item['id']
+              })
             end
 
             updated_item_keys << item['id']
           else
-            insert_item = upsert_content(table, name, item)
-
-            order_hash = selector ? { order_a: nil, order_b: index } : { order_a: index, order_b: nil }
-            DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, table, insert_item.id).merge(order_hash)
-            )
-
+            insert_item = upsert_content(name, item)
+            DataCycleCore::ContentContent.create!({
+              content_a_id: id,
+              relation_a: field_name,
+              order_a: index,
+              content_b_id: insert_item.id
+            })
             updated_item_keys << insert_item.id
           end
         end
 
         potentially_delete = available_update_item_keys - updated_item_keys
         potentially_delete.each do |key|
-          item = ('DataCycleCore::' + table.classify).constantize.find_by(id: key)
+          item = DataCycleCore::Thing.find_by(id: key)
           translations = item.translated_locales
           if (translations - [I18n.locale]).empty?
-            # destroy relationObject + additional embeddedObjects and their relations
-            to_update_item = send(table).find_by(id: key)
-            to_update_item.destroy_children
-            to_update_item.destroy
+            item.destroy_children
+            item.destroy
           else
             # only destroy particular translation !
             item.translation.destroy
@@ -273,28 +272,20 @@ module DataCycleCore
         end
       end
 
-      def upsert_content(table, name, item)
-        template = load_template(table, name)
+      def upsert_content(name, item)
+        template = DataCycleCore::Thing.find_by(template: true, template_name: name)
         if item['id'].present?
-          upsert_item = ('DataCycleCore::' + table.classify).constantize.find_or_create_by(id: item['id'])
+          upsert_item = DataCycleCore::Thing.find_or_create_by(id: item['id'])
         else
-          upsert_item = ('DataCycleCore::' + table.classify).constantize.new
+          upsert_item = DataCycleCore::Thing.new
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         upsert_item
-      end
-
-      def get_relation_data_hash(field_name, table, item_id)
-        item_data = [item_id, "DataCycleCore::#{table.classify}", '']
-        self_data = [id, self.class.to_s, field_name]
-        ['a', 'b'].map { |selector|
-          ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-        }.flatten
-          .zip(table < self.class.table_name ? item_data + self_data : self_data + item_data).to_h
       end
 
       def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
@@ -307,7 +298,6 @@ module DataCycleCore
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(
                 'content_data_id' => id,
-                'content_data_type' => self.class.to_s,
                 classification_id: classification_id,
                 relation: relation_name
               )
@@ -318,7 +308,6 @@ module DataCycleCore
             next if present_relation_ids.include?(classification_id_value)
             DataCycleCore::ClassificationContent.find_or_create_by!(
               'content_data_id' => id,
-              'content_data_type' => self.class.to_s,
               classification_id: classification_id_value,
               relation: relation_name
             )
@@ -328,18 +317,18 @@ module DataCycleCore
         to_delete = present_relation_ids - ids
         return if to_delete.empty?
         DataCycleCore::ClassificationContent
-          .with_content(id, self.class.to_s)
+          .with_content(id)
           .with_classification_ids(to_delete)
           .with_relation(relation_name)
           .destroy_all
       end
 
-      def set_asset_id(id, relation_name, asset_type)
+      def set_asset_id(asset_id, relation_name, asset_type)
         if id.present?
           DataCycleCore::AssetContent.find_or_create_by(
-            'content_data_id' => self.id,
+            'content_data_id' => id,
             'content_data_type' => self.class.to_s,
-            asset_id: id,
+            asset_id: asset_id,
             asset_type: asset_type,
             relation: relation_name
           )
@@ -347,10 +336,10 @@ module DataCycleCore
 
         # delete old id
         found_ids = load_asset_relation(relation_name).ids
-        to_delete = found_ids - [id]
+        to_delete = found_ids - [asset_id]
         return if to_delete.empty?
         DataCycleCore::AssetContent
-          .with_content(self.id, self.class.to_s)
+          .with_content(id, self.class.to_s)
           .with_assets(to_delete, asset_type)
           .with_relation(relation_name)
           .destroy_all

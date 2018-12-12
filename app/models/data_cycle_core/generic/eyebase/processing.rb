@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Eyebase::Transformations.eyebase_to_bild(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Thing, template: 'Bild' },
+            default: { template: 'Bild' },
             config: config
           )
         end

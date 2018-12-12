@@ -1,0 +1,61 @@
+---
+- :data:
+    :name: feratel_categories
+    :type: mixin
+    :properties:
+      :holiday_themes:
+        :label: Feratel - Urlaubsthemen
+        :type: classification
+        :tree_label: Feratel - Urlaubsthemen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :accommodation_categories:
+        :label: Feratel - Unterkunftsarten
+        :type: classification
+        :tree_label: Feratel - Unterkunftsarten
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_classifications:
+        :label: Feratel - Unterkunftsklassifizierungen
+        :type: classification
+        :tree_label: Feratel - Unterkunftsklassifizierungen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_types:
+        :label: Feratel - Infrastrukturtypen
+        :type: classification
+        :tree_label: Feratel - Infrastrukturtypen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_topics:
+        :label: Feratel - Infrastrukturklassifizierungen
+        :type: classification
+        :tree_label: Feratel - Infrastrukturklassifizierungen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :stars:
+        :label: Feratel - Sterne
+        :type: classification
+        :tree_label: Feratel - Sterne
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

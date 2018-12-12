@@ -211,10 +211,8 @@ config:
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
       transformations:
         image:
-          content_type: DataCycleCore::Thing
           template: Bild
         infrastructure:
-          content_type: DataCycleCore::Thing
           template: POI
     accommodations:
       sorting: 21
@@ -222,8 +220,6 @@ config:
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
       transformations:
         image:
-          content_type: DataCycleCore::Thing
           template: Bild
         place:
-          content_type: DataCycleCore::Thing
           template: Unterkunft

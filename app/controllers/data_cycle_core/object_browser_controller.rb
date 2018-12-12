@@ -16,7 +16,6 @@ module DataCycleCore
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language
 
-        linked_table = @definition.fetch(:linked_table, nil)
         template_name = @definition.fetch(:template_name, nil)
         stored_filter = @definition.fetch(:stored_filter, nil)
 
@@ -33,7 +32,6 @@ module DataCycleCore
           query = filter.apply
         else
           query = filter.apply
-          query = query.where(searches: { content_data_type: data_cycle_object(linked_table).to_s }) if data_cycle_object(linked_table)
           query = query.where(template_name: template_name.to_s) if template_name
         end
 
@@ -44,7 +42,7 @@ module DataCycleCore
         query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
         unless template_name == 'contentLocation'
-          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present? && permitted_params.dig(:definition, 'linked_table') == 'things'
+          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present?
         end
 
         query = query.order(order_string)
@@ -69,13 +67,13 @@ module DataCycleCore
 
     def find
       authorize! :show, :object_browser
-      return if permitted_params[:class].blank? || permitted_params[:ids].blank?
+      return if permitted_params[:ids].blank?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         if permitted_params[:external]
-          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(external_key: permitted_params[:ids])
+          @objects = DataCycleCore::Thing.where(external_key: permitted_params[:ids])
         else
-          @objects = data_cycle_object(permitted_params[:class].demodulize.tableize).where(id: permitted_params[:ids])
+          @objects = DataCycleCore::Thing.where(id: permitted_params[:ids])
         end
       end
 
@@ -85,9 +83,9 @@ module DataCycleCore
     def details
       authorize! :show, :object_browser
 
-      unless permitted_params[:class].blank? || permitted_params[:id].blank?
+      if permitted_params[:id].present?
         I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-          @object = data_cycle_object(permitted_params[:class].demodulize.tableize).find(permitted_params[:id])
+          @object = DataCycleCore::Thing.find(permitted_params[:id])
         end
       end
 
@@ -99,7 +97,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:class, :per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
+      [:per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
     end
   end
 end

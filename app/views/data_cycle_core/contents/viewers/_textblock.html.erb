@@ -1,5 +1,5 @@
 <% objects = value.presence&.includes(:translations).to_a || [] %>
-<% objects = objects.concat(new_relations(options.dig(:item_diff), definition.dig('linked_table')).includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+<% objects = objects.concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% objects.presence&.each_with_index do |object, index| %>
     <% I18n.with_locale(object.first_available_locale) do %>
@@ -12,8 +12,8 @@
         definition: validation_properties['text'],
         value: object.try(:text),
         options: options.merge({
-                    item_diff: changes_by_value(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id),
-                    mode: changes_class(options.dig(:item_diff), object.try("#{definition.dig('linked_table').singularize}_id") || object.id)
+                    item_diff: changes_by_value(options.dig(:item_diff), object.id),
+                    mode: changes_class(options.dig(:item_diff), object.id)
                    }),
         content: content,
         data_attributes: { editor: 'embedded_object', id: [object.id] },
@@ -24,5 +24,5 @@
 <% end %>
 
 <div class="clear-both">
-  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), polymorphic_path([:load_more_linked_objects, content], key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if value.try(:total_pages)&.positive? && !value&.last_page? %>
+  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(content, key: key, definition: definition, options: options, page: params.fetch(:page, 1).to_i + 1, load_more_action: :show), remote: true, id: "load_more_#{content&.id}_#{sanitize_to_id(key)}", class: 'load-more-linked-contents button small secondary', data: { disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" } if value.try(:total_pages)&.positive? && !value&.last_page? %>
 </div>

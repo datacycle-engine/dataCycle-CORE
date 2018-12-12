@@ -55,14 +55,12 @@ config:
       import_strategy: DataCycleCore::Generic::Booking::Import
       transformations:
         image:
-          content_type: DataCycleCore::Thing
           template: Bild
           default_values:
             data_type:
               tree_label: Inhaltstypen
               value: Bild
         hotel:
-          content_type: DataCycleCore::Thing
           template: Unterkunft
           default_values:
             data_type:

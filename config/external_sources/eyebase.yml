@@ -27,5 +27,4 @@ config:
       import_strategy: DataCycleCore::Generic::Eyebase::Import
       transformations:
         media_asset:
-          content_type: DataCycleCore::Thing
           template: Bild

@@ -45,20 +45,8 @@ module DataCycleCore
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
 
-      def content_type?(types)
-        if types.is_a?(Array)
-          types.include?(schema&.dig('content_type'))
-        else
-          types == schema&.dig('content_type')
-        end
-      end
-
-      def siblings
-        (parent ? parent.children : self.class.roots).where.not(id: id)
-      end
-
-      def self.roots
-        where(is_part_of: nil)
+      def content_type?(*types)
+        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
       end
 
       def schema_type
@@ -66,7 +54,16 @@ module DataCycleCore
       end
 
       def translatable?
-        schema&.dig('translatable') || false
+        schema&.dig('features', 'translatable', 'allowed') || false
+      end
+
+      def creatable?(scope)
+        schema.dig('content_type') != 'embedded' &&
+          schema.dig('features', 'creatable', 'allowed') &&
+          (
+            schema.dig('features', 'creatable', 'scope').blank? ||
+            schema.dig('features', 'creatable', 'scope')&.include?(scope)
+          )
       end
 
       def property_definitions
@@ -157,18 +154,6 @@ module DataCycleCore
 
       def geo_properties
         property_definitions.select { |_, val| val['type'] == 'geographic' }
-      end
-
-      def embedded_relations
-        embedded_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
-      def linked_relations
-        linked_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
       end
 
       def to_h(timestamp = Time.zone.now)

@@ -5,7 +5,6 @@ module DataCycleCore
     module Feratel
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           ([raw_data.dig('Documents', 'Document')].flatten.reject(&:nil?).select { |d|
@@ -13,8 +12,7 @@ module DataCycleCore
           }.each do |image_hash|
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
-              class_type: type,
-              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
               data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
                 DataCycleCore::Generic::Feratel::Transformations
@@ -31,7 +29,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_accommodation(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Thing, template: 'Unterkunft' },
+            default: { template: 'Unterkunft' },
             config: config
           )
         end
@@ -41,7 +39,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
-            default: { content_type: DataCycleCore::Thing, template: 'POI' },
+            default: { template: 'POI' },
             config: config
           )
         end

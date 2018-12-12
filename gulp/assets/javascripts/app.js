@@ -38,6 +38,8 @@ initializers.push(require("./modules/initializers/stored_filters_init"));
 initializers.push(require("./modules/initializers/dropdown_pane_init"));
 initializers.push(require("./modules/initializers/file_upload_init"));
 initializers.push(require("./modules/initializers/htmldiff_init"));
+initializers.push(require("./modules/initializers/remote_render_init"));
+initializers.push(require("./modules/initializers/new_contents_init"));
 
 $(function() {
   initializers.forEach(element => {

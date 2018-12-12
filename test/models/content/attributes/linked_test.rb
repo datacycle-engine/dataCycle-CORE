@@ -8,7 +8,7 @@ module DataCycleCore
       class LinkedTest < ActiveSupport::TestCase
         def setup
           # create entity and add 5 linked entities from the same table
-          @cw_temp = DataCycleCore::Thing.count
+          @things_before = DataCycleCore::Thing.count
 
           @linked_objects = []
           5.times do
@@ -19,7 +19,7 @@ module DataCycleCore
             @linked_objects.push(linked.id)
           end
 
-          assert_equal(@linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(@linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(0, DataCycleCore::ContentContent.count)
           assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -32,7 +32,7 @@ module DataCycleCore
           )
           @data_set.save
 
-          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(0, DataCycleCore::ContentContent.count)
           assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -45,7 +45,7 @@ module DataCycleCore
             )
           )
           @data_set.save
-          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + @linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(5, DataCycleCore::ContentContent.count)
           assert_equal(1, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -54,7 +54,6 @@ module DataCycleCore
         test 'replace linked with only one item' do
           linked_objects = @linked_objects
           data_set = @data_set
-
           data_set.set_data_hash(
             data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
               {
@@ -62,7 +61,7 @@ module DataCycleCore
               }
             )
           )
-          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(1, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
@@ -74,14 +73,14 @@ module DataCycleCore
 
           data_set.destroy_content
 
-          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(0, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
 
           data_set.histories.each(&:destroy_content)
 
-          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(0, DataCycleCore::ContentContent.count)
           assert_equal(0, DataCycleCore::Thing::History.count)
           assert_equal(0, DataCycleCore::ContentContent::History.count)
@@ -98,7 +97,7 @@ module DataCycleCore
               }
             )
           )
-          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(3, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
@@ -123,7 +122,7 @@ module DataCycleCore
               }
             )
           )
-          assert_equal(1 + linked_objects.size + linked_objects2.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + linked_objects.size + linked_objects2.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(7, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
@@ -152,7 +151,7 @@ module DataCycleCore
               }
             )
           )
-          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(1 + linked_objects.size, DataCycleCore::Thing.count - @things_before)
           assert_equal(5, DataCycleCore::ContentContent.count)
           assert_equal(2, DataCycleCore::Thing::History.count)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
@@ -191,7 +190,7 @@ module DataCycleCore
           )
           assert_equal(linked_places.size, place_count)
           assert_equal(linked_places.size, DataCycleCore::Thing.where(template: false, template_name: 'Linked-Place-1').count)
-          assert_equal(@linked_objects.count + place_count + 1, DataCycleCore::Thing.count - @cw_temp)
+          assert_equal(@linked_objects.count + place_count + 1, DataCycleCore::Thing.count - @things_before)
           assert_equal(3, DataCycleCore::ContentContent.count)
           assert_equal(1, DataCycleCore::Thing::History.count - setup_history)
           assert_equal(5, DataCycleCore::ContentContent::History.count)

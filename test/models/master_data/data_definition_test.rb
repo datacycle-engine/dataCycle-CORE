@@ -98,7 +98,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
             image: {
               label: 'Bild',
               type: 'linked',
-              linked_table: 'things',
               template_name: 'Bild',
               validations: { max: 1 },
               ui: {
@@ -114,7 +113,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
             video: {
               label: 'Video',
               type: 'linked',
-              linked_table: 'things',
               template_name: 'Video',
               validations: { max: 1 },
               ui: {
@@ -130,7 +128,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
             mobile_application: {
               label: 'Link',
               type: 'embedded',
-              linked_table: 'things',
               template_name: 'MobileApplication',
               ui: {
                 edit: {
@@ -236,7 +233,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
             creator: {
               label: 'Ersteller',
               type: 'linked',
-              linked_table: 'users'
+              template_name: 'Person'
             },
             date_created: {
               label: 'Erstellungsdatum',
@@ -285,7 +282,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       {
         label: 'whatever',
         type: 'embedded',
-        linked_table: 'things',
         template_name: 'MobileApplication'
       }
     end
@@ -360,22 +356,6 @@ describe DataCycleCore::MasterData::ImportTemplates do
       test_hash = {}
       test_hash[:data] = header_hash[:data].except(:type)
       assert !subject.validate_header.call(test_hash).success?
-    end
-
-    it 'checks header if translatable is a boolean' do
-      test_hash = header_hash.dup
-      test_hash[:data][:translatable] = true
-      assert subject.validate_header.call(test_hash).success?
-      test_hash[:data][:translatable] = false
-      assert subject.validate_header.call(test_hash).success?
-    end
-
-    it 'fails validation if header contains translatable that is not a bool' do
-      test_hash = header_hash.dup
-      ['test', 42, 4.2].each do |item|
-        test_hash[:data][:translatable] = item
-        assert !subject.validate_header.call(test_hash).success?
-      end
     end
 
     it 'checks properties for presence of label' do
@@ -464,7 +444,7 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks included_object_hash for wrong storage_locations' do
       test_hash = included_object_hash
-      (['key', 'column', 'classification_relation'] + DataCycleCore.content_tables).each do |location|
+      (['key', 'column', 'classification_relation'] + ['things']).each do |location|
         test_hash[:storage_location] = location
         assert !subject.validate_property.call(test_hash).success?
       end

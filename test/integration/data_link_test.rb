@@ -46,12 +46,12 @@ module DataCycleCore
       logout
 
       get data_link_path(data_link)
-      assert_redirected_to edit_polymorphic_path(@content)
+      assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
       assert_equal I18n.t(:no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language), flash[:alert]
-      assert_redirected_to polymorphic_path(readonly_content)
+      assert_redirected_to thing_path(readonly_content)
     end
 
     test 'create new external link for watch_list' do
@@ -112,9 +112,9 @@ module DataCycleCore
 
     test 'lock external link' do
       delete data_link_path(@data_link), params: {}, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content)
       follow_redirect!
 
       logout
@@ -133,29 +133,29 @@ module DataCycleCore
           comment: 'hahaha, i hacked the link'
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content)
       assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_language), flash[:alert]
       assert_nil @data_link.reload.comment
     end
 
     test 'set external link to readonly after finishing' do
       get data_link_path(@data_link)
-      assert_redirected_to edit_polymorphic_path(@content)
+      assert_redirected_to edit_thing_path(@content)
       follow_redirect!
 
-      patch polymorphic_path(@content), params: {
+      patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash
         },
         finalize: true
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal 'read', @data_link.reload.permissions
     end

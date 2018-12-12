@@ -37,8 +37,8 @@ module DataCycleCore
             b_item = find_uuid(data_b, a_uuid)
             next if b_item.nil?
             next if a_item.is_a?(::String) && b_item.is_a?(::String)
-            a_content = history_a ? load_content(a_item, template, a) : load_content(a_item, template, nil)
-            b_content = history_b ? load_content(b_item, template, b) : load_content(b_item, template, nil)
+            a_content = history_a ? load_content(a_item, a) : load_content(a_item, nil)
+            b_content = history_b ? load_content(b_item, b) : load_content(b_item, nil)
             changes = Differs::Object.new(a_content, b_content, load_template(template)).diff_hash
             change << a_uuid if changes.present?
           end
@@ -57,8 +57,7 @@ module DataCycleCore
         end
 
         def load_template(def_hash)
-          "DataCycleCore::#{def_hash.dig('linked_table').classify}"
-            .constantize
+          DataCycleCore::Thing
             .find_by(
               template: true,
               template_name: def_hash.dig('template_name')
@@ -67,11 +66,11 @@ module DataCycleCore
             .dig('properties')
         end
 
-        def load_content(data, template, relation)
-          return relation.find_by("#{template.dig('linked_table').singularize}_id".to_sym => data).get_data_hash if relation.present?
+        def load_content(data, relation)
+          return relation.find_by(things_id: data).get_data_hash if relation.present?
           data_hash = data.is_a?(::String) ? { 'id' => data } : data
           return data_hash if (data_hash.keys - ['id']).size.positive?
-          "DataCycleCore::#{template.dig('linked_table').classify}".constantize.find(data_hash.dig('id')).get_data_hash
+          DataCycleCore::Thing.find(data_hash.dig('id')).get_data_hash
         end
 
         def parse_uuids(a)

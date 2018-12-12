@@ -4,8 +4,12 @@
     :type: object
     :schema_type: Organization
     :content_type: entity
-    :translatable: true
     :boost: 1.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -32,7 +36,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :data_type:
         :label: Inhaltstype

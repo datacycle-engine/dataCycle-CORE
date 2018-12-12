@@ -178,13 +178,11 @@ describe DataCycleCore::Content do
             },
             existing_locations: {
               label: 'Location',
-              type: 'linked',
-              linked_table: 'places'
+              type: 'linked'
             },
             existing_main_location: {
               label: 'Main Location',
-              type: 'linked',
-              linked_table: 'places'
+              type: 'linked'
             }
           },
           metadata: {
@@ -228,13 +226,11 @@ describe DataCycleCore::Content do
             },
             existing_locations: {
               label: 'Location',
-              type: 'embedded',
-              linked_table: 'thing'
+              type: 'embedded'
             },
             nested_creative_works: {
               label: 'Nested Data',
-              type: 'embedded',
-              linked_table: 'thing'
+              type: 'embedded'
             }
           }
         }

@@ -11,10 +11,10 @@ module DataCycleCore
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
       @saved_count = @saved_stored_searches.size
 
-      @stored_searches = current_user.stored_filters.order(created_at: :desc).page(params[:page])
+      @stored_searches = current_user.stored_filters.order(updated_at: :desc).page(params[:page])
       @history_count = @stored_searches.total_count
       @pages = @stored_searches.total_pages
-      @stored_searches = @stored_searches.group_by { |c| l(c.created_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }
+      @stored_searches = @stored_searches.group_by { |c| l(c.updated_at&.to_date, format: :long, locale: DataCycleCore.ui_language) }
 
       respond_to(:html, :js)
     end

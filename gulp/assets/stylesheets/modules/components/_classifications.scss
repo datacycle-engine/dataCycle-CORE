@@ -6,7 +6,7 @@ ul.backend-treeview-list {
     margin-left: 1rem;
 
     &::before {
-      content: "";
+      content: '';
       position: absolute;
       left: calc(-1rem - 2px);
       top: 50%;
@@ -29,6 +29,12 @@ ul.backend-treeview-list {
       top: -2rem;
       right: 1rem;
       z-index: 1;
+      .fa {
+        width: 3rem;
+        height: 3rem;
+        font-size: 1.5rem;
+        line-height: 3rem;
+      }
     }
     .ca-input {
       position: relative;
@@ -43,7 +49,6 @@ ul.backend-treeview-list {
       }
       label {
         display: inline-block;
-        vertical-align: text-bottom;
         &.ca-label {
           display: block;
           position: absolute;
@@ -117,7 +122,7 @@ ul.backend-treeview-list {
           display: inline-block;
 
           &::before {
-            content: "";
+            content: '';
             position: absolute;
             top: 0;
             left: -1px;
@@ -154,15 +159,15 @@ ul.backend-treeview-list {
       }
 
       > li:first-child:before {
-        content: "(";
+        content: '(';
       }
 
       > li:not(:last-child):after {
-        content: ", ";
+        content: ', ';
       }
 
       > li:last-child:after {
-        content: ")";
+        content: ')';
       }
     }
   }
@@ -182,7 +187,7 @@ ul.backend-treeview-list {
 
     padding: 1rem;
 
-    input[type="text"] {
+    input[type='text'] {
       max-width: 400px;
       display: inline-block;
       margin-bottom: 0;
@@ -345,7 +350,7 @@ ul.backend-treeview-list {
             }
 
             .tree-link:after {
-              content: "\f107";
+              content: '\f107';
               font-family: FontAwesome;
               font-style: normal;
               font-weight: normal;
@@ -357,7 +362,7 @@ ul.backend-treeview-list {
 
             &.open {
               .tree-link:after {
-                content: "\f106";
+                content: '\f106';
               }
             }
           }
@@ -398,7 +403,7 @@ ul.backend-treeview-list {
           }
 
           &:not(.button-row)::before {
-            content: "";
+            content: '';
             position: absolute;
             top: 0;
             left: -1px;
@@ -442,7 +447,7 @@ ul.backend-treeview-list {
               max-height: 1.6rem;
 
               &:before {
-                content: "\f02c";
+                content: '\f02c';
                 font-family: FontAwesome;
                 font-style: normal;
                 font-weight: normal;

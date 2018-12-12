@@ -29,17 +29,17 @@ module DataCycleCore
         })
       end
 
-      patch polymorphic_path(@content), params: {
+      patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash.merge({
             DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first => publication_schedules
           })
         }
       }, headers: {
-        referer: edit_polymorphic_path(@content)
+        referer: edit_thing_path(@content)
       }
 
-      assert_redirected_to polymorphic_path(@content)
+      assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal 2, @content.reload.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first).size
     end

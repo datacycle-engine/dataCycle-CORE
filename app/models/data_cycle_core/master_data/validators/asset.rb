@@ -28,7 +28,7 @@ module DataCycleCore
           if template.key?('validations')
             template['validations'].each_key do |key|
               if asset_keywords.include?(key)
-                method(key).call(data, template['validations'][key])
+                # method(key).call(data, template['validations'][key]) # no keywords
               else
                 (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
               end

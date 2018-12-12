@@ -1,6 +1,6 @@
 <%= render_content_partial 'edit_header_functions', content: content %>
 
-<%= form_for content, url: polymorphic_path(content, watch_list_id: @watch_list), html: {class: 'validation-form edit-content-form'} do |f| %>
+<%= form_for content, url: thing_path(content, watch_list_id: @watch_list), html: {class: 'validation-form edit-content-form'} do |f| %>
     <%= hidden_field_tag 'uuid', content.id %>
     <%= hidden_field_tag :table, content.class.table_name %>
     <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>

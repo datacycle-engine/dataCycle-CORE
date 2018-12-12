@@ -1,38 +1,7 @@
 - Inhaltstypen:
   - $$Asset:
-    - $$DataCycle - Audio
-    - $$DataCycle - Bild
-    - $$DataCycle - Video
-    - $$DataCycle - Datei
-    - $$DataCycle - PDF
-
-- Geschlecht:
-  - Männlich
-  - Weiblich
-
-- Wochentage:
-  - Montag
-  - Dienstag
-  - Mittwoch
-  - Donnerstag
-  - Freitag
-  - Samstag
-  - Sonntag
-
-- Release-Stati:
-  - freigegeben
-  - beim Partner
-  - in Bearbeitung
-  - in Review
-  - Draft
-  - archiviert
-
-- Tags:
-
-- Ausgabekanäle:
-
-- Rezept-Gänge:
-
-- Rezept-Kategorien:
-
-- POI - Kategorien:
+    - $$Audio
+    - $$Bild
+    - $$Video
+    - $$Datei
+    - $$PDF

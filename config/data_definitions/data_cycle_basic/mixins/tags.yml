@@ -1,0 +1,20 @@
+---
+- :data:
+    :name: tags
+    :type: mixin
+    :properties:
+      :tags:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+        :ui:
+          :show:
+            :content_area: header
+      :keywords_eyebase:
+        :label: Eyebase - Tags
+        :type: classification
+        :tree_label: Eyebase - Tags
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

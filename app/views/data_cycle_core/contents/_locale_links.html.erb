@@ -6,7 +6,7 @@
     <ul class="list-items">
       <% available_locales_with_names.slice(*content.translated_locales).each do |locale| %>
         <li class="<%= "active" if locale.first == I18n.locale %>">
-          <%= link_to_unless locale.first == I18n.locale, locale.last, polymorphic_path(content, watch_list_id: @watch_list, locale: locale.first) %>
+          <%= link_to_unless locale.first == I18n.locale, locale.last, thing_path(content, watch_list_id: @watch_list, locale: locale.first) %>
         </li>
       <% end %>
     </ul>

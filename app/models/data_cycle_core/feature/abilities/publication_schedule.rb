@@ -3,9 +3,7 @@
 module DataCycleCore
   module Feature
     module Abilities
-      class PublicationSchedule
-        include CanCan::Ability
-
+      class PublicationSchedule < DataCycleCore::Ability
         def initialize(_user, _session = {})
         end
       end

@@ -12,7 +12,16 @@
         <%= f.label :system, DataCycleCore::StoredFilter.human_attribute_name(:system, locale: DataCycleCore.ui_language) %><br>
       </div>
     <% end %>
-    <%= f.submit t('actions.save', locale: DataCycleCore.ui_language), class: 'button primary', data: { save: t('actions.save', locale: DataCycleCore.ui_language), update: t('actions.update', locale: DataCycleCore.ui_language), disable_with: t('actions.save', locale: DataCycleCore.ui_language) } %>
+    <div class="buttons">
+      <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
+        class: 'button primary',
+        data: {
+          save: t('actions.save', locale: DataCycleCore.ui_language),
+          update: t('actions.update', locale: DataCycleCore.ui_language),
+          disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.save', locale: DataCycleCore.ui_language)}"
+        },
+        type: :submit %>
+    </div>
   <% end %>
   <button class="close-button" data-close aria-label="Close modal" type="button">
     <span aria-hidden="true">&times;</span>
