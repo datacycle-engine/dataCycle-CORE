@@ -2,18 +2,15 @@
 
 module DataCycleCore
   class Logger
-    def initialize(filename, log_to_disk = true)
+    def initialize(filename, log_to_disk = true, log_to_stdout = true)
       @log_to_disk = log_to_disk
       @log = Logging.logger[filename]
 
-      if log_to_disk
-        @log.add_appenders(
-          Logging.appenders.stdout,
-          Logging.appenders.file(Rails.root.join("log/#{filename}.log").to_s)
-        )
-      else
-        @log.add_appenders(Logging.appenders.stdout)
-      end
+      appenders = []
+      appenders << Logging.appenders.stdout if log_to_stdout
+      appenders << Logging.appenders.file(Rails.root.join("log/#{filename}.log").to_s) if log_to_disk
+      @log.add_appenders(*appenders)
+
       @log.level = :debug
     end
 

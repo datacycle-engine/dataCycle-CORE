@@ -8,7 +8,7 @@ module DataCycleCore
 
       def initialize(logger: nil, host: nil, end_point: nil, **options)
         if logger.blank?
-          @logger = Logger.new(Rails.root.join('log', 'normalize.log'))
+          @logger = Logger.new('normalize.log', true, false)
         else
           @logger = logger
         end
@@ -33,7 +33,7 @@ module DataCycleCore
         normalize_hash, transformation_hash = self.class.preprocess_data(template_hash, data)
         return data, [] if transformation_hash.blank? || normalize_hash.blank?
 
-        report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash), comment)
+        report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash.deep_dup), comment)
 
         splits = report['actionList'].find_all { |item| item['taskType'] == 'SPLIT' }
         @logger.info "splits -> #{splits}" if splits.size > 1
@@ -51,24 +51,18 @@ module DataCycleCore
 
         def postprocess_data(data, report, transformation_hash, template_hash)
           cleaned_report = merge_street_streetnr(report)
-          normalized_data = back_transformation(
-            cleaned_report.dig('entry', 'fields'),
-            transformation_hash
-          )
-          converted_data = convert_data_types(
-            normalized_data,
-            template_hash
-          )
-          updated_data = update_data(
-            data,
-            converted_data
-          )
+          normalized_data = back_transform(cleaned_report.dig('entry', 'fields'), transformation_hash)
+          converted_data = convert_data_types(normalized_data, template_hash)
+          updated_data = update_data(data, converted_data)
+          diffs = generate_diffs(report, transformation_hash)
+          return updated_data, diffs
+        end
 
-          diffs = Normalizer::ActionParser.parse(report)
+        def generate_diffs(report, transformation_hash)
+          Normalizer::ActionParser.parse(report)
             .map { |key, value| { transformation_hash[key] || key => value } }
             .reduce({}, :merge)
             .reduce({}) { |hash, item| update_path(hash, item[0], item[1]) }
-          return updated_data, diffs
         end
 
         def normalizable_data(root, template_hash, data_hash)
@@ -83,11 +77,12 @@ module DataCycleCore
 
         def reduce_data(data_list)
           data_list.map do |item|
-            if item['type'] == 'datetime2'
-              item.update({ 'id' => time['type'], 'type' => 'datetime' })
+            if item['type'] == 'DATETIME2'
+              item.update({ 'id' => 'DATETIME2', 'type' => 'DATETIME' })
             else
               item.update({ 'id' => item['type'] })
             end
+            item
           end
         end
 
@@ -133,7 +128,6 @@ module DataCycleCore
           if new_name == old_name
             action_list.delete_at(action_index)
           else
-            byebug if action_list.find_all { |item| item['taskType'] == 'SPLIT' }.size > 1
             field_entry = action_entry['fieldsAfter'].find { |item| item['type'] == 'STREET' }
             field_entry['content'] = new_name
             action_entry['fieldsAfter'] = [field_entry]
@@ -151,21 +145,20 @@ module DataCycleCore
           }.reduce({}, :merge)
         end
 
-        def back_transformation(data, transformation)
+        def back_transform(data, transformation)
           data.map { |item| item.update('id' => transformation[item.dig('type')]) }
         end
 
         def convert_data_types(data, template)
           data.map do |item|
-            item['content'] = DataCycleCore::MasterData::DataConverter.convert_to_type(
-              get_type_from_path(item['id'], template),
-              item['content']
-            )
+            data_type = get_type_from_path(item['id'], template)
+            item['content'] = DataCycleCore::MasterData::DataConverter.convert_to_type(data_type, item['content']) if data_type.present?
             item
           end
         end
 
         def get_type_from_path(path, template)
+          return if path.blank?
           template.dig(*(['properties'] * path.split('/').size).zip(path.split('/')).flatten.compact + ['type'])
         end
 

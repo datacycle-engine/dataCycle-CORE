@@ -293,11 +293,9 @@ describe DataCycleCore::MasterData::NormalizeData do
     let(:diff_hash) do
       {
         'address' => {
-          'postal_code' => [['-', ''], ['?', ['9504', '9585', '9524', '9500']]],
-          'street_address' => ['~', 'Ossiacher Zeile', 'Ossiacher Zeile 30'],
+          'postal_code' => ['?', ['9504', '9585', '9524', '9500']],
           'address_country' => ['~', 'AT', 'Österreich']
         },
-        'STREETNR' => ['+', '30'],
         'SEX' => ['+', 'M'],
         'ERROR' => ['!', 'Unknown or Invalid address COUNTRY+ZIP+CITY+STREET']
       }
@@ -340,11 +338,14 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'merges correctly street and street_nr' do
-      subject.merge_street_streetnr(normalized_data).must_equal merged_fields
+      merged_report = subject.merge_street_streetnr(normalize_report)
+      merged_report.dig('entry', 'fields').must_equal merged_fields
+      new_action_list = normalize_report.dig('actionList').deep_dup
+      merged_report.dig('actionList').must_equal(new_action_list)
     end
 
     it 'back_transforms normalized_data to original ids and schema' do
-      subject.back_transformation(merged_fields, transformation_hash).must_equal back_transformed_data
+      subject.back_transform(merged_fields, transformation_hash).must_equal back_transformed_data
     end
 
     it 'correctly updates data according to normalized action_list' do
@@ -352,7 +353,7 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'does post_processing correctly' do
-      updated_data, diffs = subject.postprocess_data(data_hash, normalize_report, transformation_hash)
+      updated_data, diffs = subject.postprocess_data(data_hash, normalize_report, transformation_hash, person_template)
       diffs.must_equal diff_hash
       updated_data.must_equal returned_data
     end

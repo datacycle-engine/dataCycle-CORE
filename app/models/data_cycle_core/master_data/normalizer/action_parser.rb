@@ -10,7 +10,7 @@ module DataCycleCore
               'ADD' => :add,
               'ALTER' => :alter,
               'DELETE' => :delete,
-              'SPLIT' => :nothing, #:split,
+              'SPLIT' => :split,
               'PROPOSE' => :propose,
               'ERROR' => :error
             }
@@ -24,9 +24,6 @@ module DataCycleCore
               actions << entry if entry.present?
             end
             consolidate(actions.flatten)
-          end
-
-          def nothing(_action)
           end
 
           def add(action)
@@ -50,6 +47,7 @@ module DataCycleCore
           end
 
           def split(action)
+            return if action['taskId'] == 'Split_StreetStreetnr'
             action
               .dig('fieldsAfter')
               .product(action.dig('fieldsBefore'))

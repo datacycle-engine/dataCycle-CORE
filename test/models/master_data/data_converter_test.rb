@@ -13,6 +13,14 @@ describe DataCycleCore::MasterData::DataConverter do
     a ? b : true
   end
 
+  describe 'convert key' do
+    it 'does not touch key items' do
+      assert_nil(subject.convert_to_type('key', nil))
+      uuid = SecureRandom.uuid
+      assert_equal(uuid, subject.convert_to_type('key', uuid))
+    end
+  end
+
   describe 'convert booleans' do
     it 'converts properly booleans to strings' do
       test_cases = [true, false, 'true', 'false', '    true     ']
