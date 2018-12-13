@@ -8,7 +8,8 @@ module DataCycleCore
 
       def initialize(logger: nil, host: nil, end_point: nil, **options)
         if logger.blank?
-          @logger = Logger.new('normalize.log', true, false)
+          @logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
+          # @logger = Logger.new('normalize.log', true, false)
         else
           @logger = logger
         end
@@ -18,28 +19,28 @@ module DataCycleCore
 
       def normalize(data, template_hash, **options)
         if data.blank?
-          @logger.error 'No data given for normalization.'
+          @logger.error(nil, nil, nil, 'No data given for normalization.')
           return data, {}
         end
         if template_hash.blank?
-          @logger.error 'No data_template given for normalization.'
+          @logger.error(nil, nil, nil, 'No data_template given for normalization.')
           return data, {}
         end
 
         id = options&.dig(:id)
         comment = options&.dig(:comment)
-        @logger.info "processing -> #{id}"
+        @logger.info('processing  ', id)
 
         normalize_hash, transformation_hash = self.class.preprocess_data(template_hash, data)
         return data, [] if transformation_hash.blank? || normalize_hash.blank?
 
         report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash.deep_dup), comment)
 
-        splits = report['actionList'].find_all { |item| item['taskType'] == 'SPLIT' }
-        @logger.info "splits -> #{splits}" if splits.size > 1
+        # splits = report['actionList'].find_all { |item| item['taskType'] == 'SPLIT' }
+        # @logger.info('splits', splits) if splits.size > 1
 
         updated_hash, diffs = self.class.postprocess_data(data, report, transformation_hash, template_hash)
-        @logger.info "transforming -> #{diffs}" if diffs.present?
+        @logger.info('transforming', diffs) if diffs.present?
         return updated_hash, diffs
       end
 

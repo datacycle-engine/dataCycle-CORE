@@ -359,14 +359,14 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'does the whole normalization correctly' do
-      logger = Logger.new(Rails.root.join('log', 'normalize.log'))
-      _updated_data, _diffs = subject.new(logger: logger).normalize(data_hash, person_template)
-      # diffs.must_equal diff_hash
-      # updated_data.must_equal returned_data
+      logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
+      updated_data, diffs = subject.new(logger: logger).normalize(data_hash, person_template)
+      diffs.must_equal diff_hash.except('ERROR')
+      updated_data.must_equal returned_data
     end
 
     it 'returns original data and a empty hash if no template, or no data a given' do
-      logger = Logger.new(Rails.root.join('log', 'normalize.log'))
+      logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
 
       updated_data, diffs = subject.new(logger: logger).normalize(data_hash, nil)
       assert(diffs == {})
