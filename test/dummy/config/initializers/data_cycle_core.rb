@@ -38,6 +38,10 @@ DataCycleCore.setup do |config|
       },
       external_media_archive: {
         enabled: true
+      },
+      normalize: {
+        enabled: true,
+        external_source: 'Econob Normalize'
       }
     }
   )

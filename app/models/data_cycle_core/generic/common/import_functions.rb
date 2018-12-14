@@ -37,13 +37,17 @@ module DataCycleCore
             global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
 
-          normalize_options = {
-            id: data['external_key'],
-            comment: utility_object.external_source.name
-          }
+          global_data = global_attributes.merge(data)
 
-          # add feature to switch it on && have config stored somewhere
-          normalized_data, _diff = DataCycleCore::MasterData::NormalizeData.new.normalize(global_attributes.merge(data), template.schema, normalize_options)
+          if DataCycleCore::Feature::Normalize.enabled?
+            normalize_options = {
+              id: data['external_key'],
+              comment: utility_object.external_source.name
+            }
+            normalized_data, _diff = utility_object.normalizer.normalize(global_data, template.schema, normalize_options)
+          else
+            normalized_data = global_data
+          end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
           error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)

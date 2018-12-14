@@ -143,6 +143,9 @@ module DataCycleCore
       },
       external_media_archive: {
         enabled: false
+      },
+      normalize: {
+        enabled: false
       }
     }
 
