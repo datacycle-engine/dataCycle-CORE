@@ -14,8 +14,9 @@
                 </div>
             <% end %>
 
+            <%= tag.span image.name, class: 'asset-title' if image.name.present? %>
             <span class="asset-type">
-                <%= image.content_type %> (<%= number_to_human_size(image.file_size) %>)
+              <%= image.content_type %> (<%= number_to_human_size(image.file_size) %>)
             </span>
         </div>
     </div>

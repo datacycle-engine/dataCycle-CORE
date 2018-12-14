@@ -32,7 +32,7 @@ module DataCycleCore
       @data_link = DataCycleCore::DataLink.new(create_link_params)
       @data_link.creator = current_user if current_user.present?
 
-      @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
+      @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create!(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if @receiver.blank?
 
