@@ -680,9 +680,9 @@ de:
     bergfex:
       snow_report:
         type:
-          village: Dorf
-          base: Basis
-          top: Top
+          village: Schneehöhe Ort
+          base: Tal (Piste)
+          top: Berg (Piste)
 
   errors:
     messages:
