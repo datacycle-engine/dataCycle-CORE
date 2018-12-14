@@ -14,6 +14,7 @@ module DataCycleCore
           .>> t(:rename_keys, 'contentLocation' => 'orig_content_location')
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
+          .>> t(:add_links, 'keyword_ids', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('keyword_ids').present? ? s&.dig('keyword_ids')&.map { |k| "MedienArchive - keyword - #{k['id']}" } : [] }, ->(s) { s&.dig('keyword_ids').present? })
           .>> t(:tags_to_ids, 'types_of_use', external_source_id, 'MedienArchive - Verwendungsart - ')
           .>> t(:tags_to_ids, 'color_space', external_source_id, 'MedienArchive - Farbraum - ')
           .>> t(:tags_to_ids, 'audiences', external_source_id, 'MedienArchive - Zielgruppe - ')
@@ -25,6 +26,7 @@ module DataCycleCore
                 'date_published' => 'valid_from',
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive',
+                'keyword_ids' => 'keywords_medienarchive',
                 'headline' => 'name')
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['url'].split('/').last}" }, ->(s) { s['orig_content_location'].present? })
@@ -41,6 +43,7 @@ module DataCycleCore
           .>> t(:rename_keys, 'contentLocation' => 'orig_content_location')
           .>> t(:underscore_keys)
           .>> t(:tags_to_ids, 'keywords', external_source_id, 'MedienArchive - keyword - ')
+          .>> t(:add_links, 'keyword_ids', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('keyword_ids').present? ? s&.dig('keyword_ids')&.map { |k| "MedienArchive - keyword - #{k['id']}" } : [] }, ->(s) { s&.dig('keyword_ids').present? })
           .>> t(:tags_to_ids, 'types_of_use', external_source_id, 'MedienArchive - Verwendungsart - ')
           .>> t(:tags_to_ids, 'audiences', external_source_id, 'MedienArchive - Zielgruppe - ')
           .>> t(:tags_to_ids, 'file_type', external_source_id, 'MedienArchive - Dateiformat - ')
@@ -51,6 +54,7 @@ module DataCycleCore
                 'date_published' => 'valid_from',
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive',
+                'keyword_ids' => 'keywords_medienarchive',
                 'headline' => 'name')
           .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('director', 'id')}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('contributor', 'id')}" })

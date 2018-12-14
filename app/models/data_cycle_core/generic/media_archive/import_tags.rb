@@ -21,6 +21,7 @@ module DataCycleCore
         end
 
         def self.extract_data(options, raw_data)
+          # TODO: remove after all tags are migrated
           classification = DataCycleCore::Classification.find_by(external_source_id: options.dig(:external_source_id), external_key: "#{options.dig(:import, :external_id_prefix)}#{raw_data['name']}")
 
           if classification.present?
