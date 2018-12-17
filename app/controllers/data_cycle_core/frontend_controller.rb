@@ -6,6 +6,7 @@ module DataCycleCore
     end
 
     def info
+      redirect_to authenticated_root_path
     end
   end
 end

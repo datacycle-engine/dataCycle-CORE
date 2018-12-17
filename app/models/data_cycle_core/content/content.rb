@@ -134,6 +134,12 @@ module DataCycleCore
         }.keys
       end
 
+      def combined_property_names
+        property_definitions.select { |_, definition|
+          definition.dig('api', 'transformation', 'method') == 'combine'
+        }.keys
+      end
+
       def classification_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'classification'

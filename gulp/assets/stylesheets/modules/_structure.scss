@@ -477,6 +477,34 @@ body.login-page {
   }
 }
 
+.home-container.reset-password {
+  main {
+    padding: 1rem 0;
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    form {
+      ul.errors {
+        margin: 1rem;
+        padding: 1rem;
+        background: rgba(map-get($foundation-palette, alert), 0.95);
+        list-style-type: none;
+      }
+
+      button[type='submit'].button {
+        padding: 1rem 1rem;
+        font-size: 1rem;
+      }
+
+      span.error {
+        display: none;
+      }
+    }
+  }
+}
+
 .flash-notification {
   &.alert,
   &.info,

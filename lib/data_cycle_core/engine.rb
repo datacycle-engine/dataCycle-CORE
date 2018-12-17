@@ -76,6 +76,9 @@ module DataCycleCore
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
 
+    mattr_accessor :file_uploader_whitelist
+    self.file_uploader_whitelist = []
+
     # mattr_accessor :content_tables
     # self.content_tables = ['things']
 
