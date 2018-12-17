@@ -27,7 +27,7 @@ module DataCycleCore
 
     def download_single(name, options = {})
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
-      full_options = (default_options || {}).symbolize_keys.merge({ download: download_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
@@ -55,11 +55,16 @@ module DataCycleCore
 
     def import_single(name, options = {})
       raise "unknown importer name: #{name}" if import_config.dig(name).blank?
-      full_options = (default_options || {}).symbolize_keys.merge({ import: import_config.dig(name).symbolize_keys.except(:sorting) }).merge(options.symbolize_keys)
+      full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ import: import_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
       utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
       full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+    end
+
+    def import_one(name, external_key, options = {})
+      raise 'no external key given' if external_key.blank?
+      import_single(name, options.deep_merge({ mode: 'full', import: { source_filter: { external_id: external_key } } }))
     end
 
     def import_config

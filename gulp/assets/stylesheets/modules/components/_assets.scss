@@ -1,18 +1,18 @@
-.edit-content-form{
-  .asset-object{
+.edit-content-form {
+  .asset-object {
     padding: 3rem 0 0 0.1rem;
     text-align: left;
-    button{
-      &.addAsset{
-        i.fa{
+    button {
+      &.addAsset {
+        i.fa {
           margin-left: 0.5rem;
         }
       }
-      &.removeAsset{
+      &.removeAsset {
         vertical-align: top;
       }
     }
-    input[type=file]{
+    input[type='file'] {
       width: auto;
       display: inline-block;
       vertical-align: middle;
@@ -25,7 +25,7 @@
       line-height: 1;
       text-align: center;
     }
-    .inner{
+    .inner {
       text-align: center;
       padding: 1rem;
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
@@ -33,23 +33,23 @@
       background: #fefefe;
       width: auto;
       display: inline-block;
-      span{
+      span {
         display: block;
         padding-bottom: 0.3rem;
-        &.asset-title{}
-        &.asset-type{
+        &.asset-type {
+          font-size: 0.9rem;
           opacity: 0.7;
         }
       }
-      .thumb{
+      .thumb {
         text-align: center;
         padding-top: 1rem;
         width: auto;
-        a{
+        a {
           display: inline-block;
         }
-        .placeholder{
-          i.fa{
+        .placeholder {
+          i.fa {
             font-size: 13rem;
           }
         }
