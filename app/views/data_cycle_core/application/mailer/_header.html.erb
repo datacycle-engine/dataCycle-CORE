@@ -8,23 +8,18 @@
       padding: 0;
     }
 
-    .header .header_top {
-      height: 5px;
-    }
     .header .header_top td {
       height: 5px;
       background: #cc0000;
     }
 
-    .header .header_main {
-      height: 65px;
-      background: #333333;
-    }
     .header .header_main td {
       width: 33%;
-      height: 65px;
       background: #333333;
       text-align: center;
+    }
+    .header .header_main td:not(:first-child):not(:last-child) {
+      width: 34%;
     }
     .header .header_main img.logo {
       display: block;
@@ -33,13 +28,7 @@
       margin: 0 auto;
     }
 
-    .header .header_bottom {
-      height: 8px;
-      line-height: 4px;
-    }
     .header .header_bottom td {
-      height: 8px;
-      line-height: 4px;
       background: #d6d6d6;
       text-align: center;
     }
@@ -62,7 +51,7 @@
       <tr class="header_main">
         <td width="33%">
 
-        <td width="33%" align="center">
+        <td width="34%" align="center">
           <img border="0" width="120" height="65" src="<%= image_url('eml-datacycle.png') %>" alt="dataCycle Logo">
         </td>
 
