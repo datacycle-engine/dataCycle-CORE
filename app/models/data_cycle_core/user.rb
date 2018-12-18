@@ -25,7 +25,7 @@ module DataCycleCore
     before_create :set_default_role
 
     def recoverable?
-      !external?
+      !(external? || is_rank?(0))
     end
 
     def full_name

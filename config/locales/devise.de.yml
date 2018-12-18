@@ -71,7 +71,7 @@ de:
       updated: Ihr Passwort wurde geändert. Sie sind jetzt angemeldet.
       updated_not_active: Ihr Passwort wurde geändert.
       user:
-        not_recoverable: Das Passwort von externen Benutzern kann nicht zurückgesetzt werden.
+        not_recoverable: Das Passwort von externen Benutzern oder Gastbenutzern kann nicht zurückgesetzt werden.
     registrations:
       destroyed: Ihr Account wurde gelöscht.
       edit:
