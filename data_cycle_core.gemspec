@@ -114,6 +114,9 @@ Gem::Specification.new do |s|
   # Excel Generator
   s.add_dependency 'axlsx_rails'
 
+  # premailer
+  s.add_dependency 'premailer'
+
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
