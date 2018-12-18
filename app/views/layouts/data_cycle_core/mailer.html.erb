@@ -1,3 +1,6 @@
+<% header = render 'data_cycle_core/application/mailer/header' %>
+<% footer = render 'data_cycle_core/application/mailer/footer' %>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -142,12 +145,15 @@
         </o:OfficeDocumentSettings>
     </xml>
     <![endif]-->
+
+    <%= yield :head %>
+</head>
 <body>
 <div align="center">
 
 <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
 
- <%= render 'data_cycle_core/application/mailer/header' %>
+ <%= header %>
 
  <tr>
   <td style='background:#d6d6d6;padding:36pt'>
@@ -160,10 +166,9 @@
  </tr>
  <tr>
   <td style="background:#b8b8b8;padding:24pt 24pt 24pt 36pt">
-  <table border="0" cellspacing="0" cellpadding="0" width="100%"
-   style="width:100%;">
-    <%= render 'data_cycle_core/application/mailer/footer' %>
-  </table>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+      <%= footer %>
+    </table>
   </td>
  </tr>
 </table>
