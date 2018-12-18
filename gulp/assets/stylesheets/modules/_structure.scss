@@ -309,6 +309,8 @@ body.login-page {
   transition: box-shadow 1s ease-in-out;
 
   .home-container-content {
+    padding: rem-calc(15) 0;
+
     .centered-text {
       text-align: center;
     }
