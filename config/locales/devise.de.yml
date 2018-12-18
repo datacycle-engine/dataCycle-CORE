@@ -70,6 +70,8 @@ de:
       send_paranoid_instructions: Falls Ihre E-Mail-Adresse in unserer Datenbank existiert, erhalten Sie in wenigen Minuten eine E-Mail, mit der Anleitung, wie Sie Ihr Passwort zurücksetzen können.
       updated: Ihr Passwort wurde geändert. Sie sind jetzt angemeldet.
       updated_not_active: Ihr Passwort wurde geändert.
+      user:
+        not_recoverable: Das Passwort von externen Benutzern kann nicht zurückgesetzt werden.
     registrations:
       destroyed: Ihr Account wurde gelöscht.
       edit:

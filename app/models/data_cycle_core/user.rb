@@ -24,6 +24,10 @@ module DataCycleCore
 
     before_create :set_default_role
 
+    def recoverable?
+      !external?
+    end
+
     def full_name
       name || "#{given_name} #{family_name}"
     end
