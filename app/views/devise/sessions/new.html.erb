@@ -37,6 +37,12 @@
                                 </div>
                                 <div class="small-7 columns end">
                                     <%= f.input :password, required: false, label: false %>
+
+                                    <%- if devise_mapping.recoverable? %>
+                                        <%= link_to t('devise.shared.links.forgot_your_password'),
+                                                    new_password_path(resource_name),
+                                                    class: 'forgotten_password_link' %>
+                                    <% end -%>
                                 </div>
                             </div>
 
