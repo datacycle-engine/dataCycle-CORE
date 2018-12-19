@@ -483,6 +483,10 @@ de:
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
 
+    warning:
+      bild:
+        valid_until: Dieses Bild ist ungültig
+
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
                   <ul class="no-bullet">
