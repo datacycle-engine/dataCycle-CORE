@@ -54,14 +54,14 @@ services:
       - 'redis:/data'
     ports:
     - '6380:6379'
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    build: .
-    restart: always
-    environment:
-    - REDIS_HOSTS=local:redis:6379
-    ports:
-    - 8087:8081
+#  redis-commander:
+#    image: rediscommander/redis-commander:latest
+#    build: .
+#    restart: always
+#    environment:
+#    - REDIS_HOSTS=local:redis:6379
+#    ports:
+#    - 8087:8081
 #  chrome:
 #    image: selenium/standalone-chrome-debug
 #    volumes:
