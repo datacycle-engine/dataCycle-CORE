@@ -67,6 +67,14 @@
             :disabled: true
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
@@ -121,6 +129,9 @@
           :method: file_format
           :parameters:
             :0: asset
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -67,6 +67,14 @@
             :disabled: true
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
