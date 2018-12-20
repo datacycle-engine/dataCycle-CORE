@@ -49,7 +49,8 @@ module DataCycleCore
                 'date_published' => 'valid_from',
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive',
-                'headline' => 'name')
+                'headline' => 'name',
+                'image' => 'thumbnail_url')
           .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "Regie: #{s['url'].split('/').last}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "Kamera: #{s['url'].split('/').last}" })
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])

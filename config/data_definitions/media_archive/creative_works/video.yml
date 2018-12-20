@@ -53,7 +53,7 @@
           :show:
             :disabled: true
       :thumbnail_url:
-        :label: Thumbnail URL
+        :label: Teaserbild
         :storage_location: value
         :type: computed
         :compute:
@@ -64,7 +64,7 @@
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
       :url:
@@ -163,15 +163,6 @@
           :method: quality
           :parameters:
             :0: asset
-      :image:
-        :label: Teaserbild
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-        :ui:
-          :show:
-            :type: preview_image
       :youtube_url:
         :label: YouTube URL
         :type: string

@@ -134,6 +134,7 @@
         :type: string
         :storage_location: value
         :search: true
+        :external: true
       :tags:
         :type: mixin
         :name: tags
