@@ -42,11 +42,11 @@
           :method: content_url
           :parameters:
             :0: asset
-        :api:
-          :minimal: true
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :storage_location: value
@@ -59,7 +59,7 @@
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
       :url:

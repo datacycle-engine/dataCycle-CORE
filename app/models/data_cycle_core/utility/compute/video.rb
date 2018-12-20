@@ -6,11 +6,11 @@ module DataCycleCore
       module Video
         class << self
           def width(**args)
-            meta_stream_value(args.dig(:computed_parameters)&.first, ['width'])&.to_i || args.dig(:data_hash, args.dig(:key))
+            meta_stream_value(args.dig(:computed_parameters)&.first, ['width'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def height(**args)
-            meta_stream_value(args.dig(:computed_parameters)&.first, ['height'])&.to_i || args.dig(:data_hash, args.dig(:key))
+            meta_stream_value(args.dig(:computed_parameters)&.first, ['height'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def frame_size(**args)
@@ -22,11 +22,11 @@ module DataCycleCore
           end
 
           def duration(**args)
-            meta_value(args.dig(:computed_parameters)&.first, ['format', 'duration'])&.to_f || args.dig(:data_hash, args.dig(:key))
+            meta_value(args.dig(:computed_parameters)&.first, ['format', 'duration'])&.to_f || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def thumbnail_url(**args)
-            DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.try(:thumbnail_url) || args.dig(:data_hash, args.dig(:key))
+            DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.try(:thumbnail_url) || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def meta_value(video_id, path)
