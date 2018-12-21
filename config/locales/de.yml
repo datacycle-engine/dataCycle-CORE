@@ -487,7 +487,6 @@ de:
     warning:
       common:
         invalid: Gültigkeitszeitraum überschritten
-      bild:
         translation_missing: Keine Übersetzung vorhanden
 
   media_archive:

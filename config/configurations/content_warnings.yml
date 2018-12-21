@@ -2,6 +2,5 @@ Common:
   invalid:
     active: true
     hard: true
-Bild:
   translation_missing:
     active: true
