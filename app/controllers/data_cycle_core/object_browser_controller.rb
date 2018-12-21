@@ -11,9 +11,8 @@ module DataCycleCore
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.fetch(:definition, nil)
         template_name = @definition.fetch(:template_name, nil)
-        stored_filter = @definition.fetch(:stored_filter, nil).dup
-        @language = Array(stored_filter&.find { |f| f['language'].present? }&.dig('language').presence || permitted_params.fetch(:locale, current_user.default_locale))
-        stored_filter&.reject! { |f| f['language'].present? }
+        stored_filter = @definition.fetch(:stored_filter, nil)
+        @language = Array(@definition.dig(:linked_language)&.remove('same').presence || permitted_params.fetch(:locale, current_user.default_locale))
 
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language
