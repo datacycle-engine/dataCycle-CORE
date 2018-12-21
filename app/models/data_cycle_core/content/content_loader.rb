@@ -19,7 +19,15 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name)
-        load_relation(relation_name)
+        # load_relation(relation_name)
+        DataCycleCore::Thing
+          .joins(:content_content_b)
+          .where({
+            content_contents: {
+              content_a_id: id,
+              relation_a: relation_name
+            }
+          }).order('content_contents.order_a ASC')
       end
 
       def load_embedded_objects(relation_name)

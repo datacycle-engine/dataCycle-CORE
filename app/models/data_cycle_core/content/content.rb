@@ -27,6 +27,7 @@ module DataCycleCore
       include DestroyContent
       include DataHashUtility
       include Extensions::Content
+      include Extensions::ContentWarnings
 
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))

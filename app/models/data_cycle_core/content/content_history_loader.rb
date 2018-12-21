@@ -31,8 +31,8 @@ module DataCycleCore
               content_b_history_type: 'DataCycleCore::Thing'
             }
           })
-          .joins(:translations).where(thing_translations: { locale: I18n.locale })
           .order('content_content_histories.order_a ASC')
+        # .joins(:translations).where(thing_translations: { locale: I18n.locale })
       end
 
       def load_embedded_objects(relation_name)

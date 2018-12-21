@@ -103,7 +103,7 @@ ObjectBrowser.prototype.setup = function() {
       self.loadDetails($(this).data('id'));
     }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
-      self.addObject($(this).data('id'), $(this).clone(true), event);
+      self.addObject($(this).data('id'), $(this).clone(), event);
     } else {
       self.removeObject($(this).data('id'), event);
     }
@@ -239,7 +239,7 @@ ObjectBrowser.prototype.setup = function() {
         });
       this.addObject(
         data.id,
-        this.overlay.find('[data-id=' + data.id + ']').clone(true),
+        this.overlay.find('[data-id=' + data.id + ']').clone(),
         event
       );
     }.bind(this)
@@ -344,6 +344,17 @@ ObjectBrowser.prototype.setChosen = function() {
           );
         $(this).foundation();
       });
+
+    this.element
+      .children('.media-thumbs')
+      .children('.object-thumbs')
+      .children('.item')
+      .find('[data-tooltip]')
+      .each(function() {
+        $(this)
+          .attr('title', $(this).data('title'))
+          .foundation();
+      });
   }
 };
 
@@ -354,6 +365,13 @@ ObjectBrowser.prototype.addObject = function(id, element, event) {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
+      $(element)
+        .find('[data-tooltip]')
+        .each(function() {
+          $(this)
+            .attr('title', $(this).data('title'))
+            .foundation();
+        });
       this.overlay
         .children('.items')
         .find('.item[data-id=' + id + ']')
@@ -452,9 +470,13 @@ ObjectBrowser.prototype.resetOverlay = function() {
 ObjectBrowser.prototype.setPreselected = function() {
   this.overlay
     .find('.chosen-items-container')
-    .html(
-      this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true)
-    );
+    .html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone())
+    .find('[data-tooltip]')
+    .each(function() {
+      $(this)
+        .attr('title', $(this).data('title'))
+        .foundation();
+    });
 
   this.chosen = $.map(
     this.element.find('> .media-thumbs > .object-thumbs > .item'),

@@ -1,21 +1,11 @@
 <a data-open="media-reveal-<%= content.id %>">
     <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.image})" if content.try(:image).present? %>">
-        <% unless content.is_valid? %>
-          <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
-        <% end %>
-
         <% unless content.title.blank? %>
             <div class="description">
                 <%= content.title %>
             </div>
         <% end %>
-
-        <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-            <span data-tooltip aria-haspopup="true" class="has-tip warning" data-click-open="false" tabindex="1"
-                  title="Einschränkungen: <%= content.restrictions %>">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            </span>
-        <% end %>
+        <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content %>
     </div>
 </a>
 
@@ -31,16 +21,7 @@
         </video>
     </div>
     <div class="description">
-
-        <!-- todo: check only for empty string -->
-        <% if !content.try(:restrictions).nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
-            <strong>Einschränkungen: </strong>
-            <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            <% end %>
-            <%= content.restrictions.try(:html_safe) %><br /><br />
-        <% end %>
-
+        <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, text: true %>
         <%= link_to content, target: '_blank' do %>
             zur Detailansicht
         <% end %> |
