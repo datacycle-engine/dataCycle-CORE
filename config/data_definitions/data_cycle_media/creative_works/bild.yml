@@ -95,6 +95,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: E37
+          :unit_code: pixel
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -109,6 +117,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: E37
+          :unit_code: pixel
+          :transformation:
+            :method: combine
+            :name: height
       :content_size:
         :label: Dateigröße
         :storage_location: value
