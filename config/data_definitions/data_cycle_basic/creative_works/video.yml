@@ -96,7 +96,7 @@
           :unit_text: E37
           :unit_code: pixel
           :transformation:
-            :method: combine
+            :method: nest
             :name: width
       :height:
         :label: Höhe
@@ -118,7 +118,7 @@
           :unit_text: E37
           :unit_code: pixel
           :transformation:
-            :method: combine
+            :method: nest
             :name: height
       :content_size:
         :label: Dateigröße

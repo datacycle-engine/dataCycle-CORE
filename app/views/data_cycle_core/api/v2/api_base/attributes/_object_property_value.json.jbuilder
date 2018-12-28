@@ -1,13 +1,9 @@
 # frozen_string_literal: true
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
-  key_name = definition.dig('api', 'name') || key
   if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'method').present?
     json.set! definition.dig('api', 'transformation', 'name') do
-      json.set! '@context', 'http://schema.org'
-      json.set! '@type', definition.dig('api', 'type') if definition.dig('api', 'type').present?
-      json.set! 'identifier', key_name.camelize(:lower)
-      json.set! 'name', definition.dig('label')
+      json.partial! 'data_cycle_core/api/v2/api_base/headers/property_value', key: key, definition: definition
 
       if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
         ordered_validation_properties(validation: definition).each do |o_key, o_definition|
@@ -27,10 +23,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
       end
     end
   else
-    json.set! '@context', 'http://schema.org'
-    json.set! '@type', definition.dig('api', 'type') if definition.dig('api', 'type').present?
-    json.set! 'identifier', key_name.camelize(:lower)
-    json.set! 'name', definition.dig('label')
+    json.partial! 'data_cycle_core/api/v2/api_base/headers/property_value', key: key, definition: definition
 
     if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
       ordered_validation_properties(validation: definition).each do |o_key, o_definition|
