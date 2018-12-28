@@ -56,11 +56,16 @@
             :type: text_editor
             :options:
               :data-size: full
-      # schema.org AdditionalProperties
       :textblock:
         :label: Textblock
         :type: embedded
         :template_name: Textblock
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :image:
         :label: Bilder
         :type: linked
@@ -75,6 +80,12 @@
         :label: Zitat
         :type: embedded
         :template_name: Zitat
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :data_type:
         :label: Inhaltstype
         :type: classification
