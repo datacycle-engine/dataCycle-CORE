@@ -4,6 +4,8 @@
     :type: object
     :schema_type: CreativeWork
     :content_type: embedded
+    # schema.org AdditionalProperties
+    # schema.org pending: http://schema.org/Quotation
     :properties:
       :id:
         :label: id

@@ -14,6 +14,7 @@
       :id:
         :label: id
         :type: key
+      # schema.org AdditionalProperties
       :release_status:
         :type: mixin
         :name: releasable
@@ -55,6 +56,7 @@
             :type: text_editor
             :options:
               :data-size: full
+      # schema.org AdditionalProperties
       :textblock:
         :label: Textblock
         :type: embedded
@@ -67,6 +69,8 @@
         :label: Ort
         :type: linked
         :template_name: POI
+      # schema.org AdditionalProperties
+      # schema.org pending: http://schema.org/Quotation
       :quotation:
         :label: Zitat
         :type: embedded
