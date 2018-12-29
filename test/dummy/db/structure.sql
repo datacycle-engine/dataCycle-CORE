@@ -8,20 +8,6 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -367,7 +353,7 @@ CREATE TABLE public.things (
 
 CREATE VIEW public.content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing'::text AS content_type,
+    'DataCycleCore::Thing' AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -406,7 +392,6 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -450,6 +435,23 @@ CREATE TABLE public.external_systems (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
+
+--
+-- Name: primary_classification_groups; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.primary_classification_groups AS
+ SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
+    classification_groups.classification_id,
+    classification_groups.classification_alias_id,
+    classification_groups.external_source_id,
+    classification_groups.seen_at,
+    classification_groups.created_at,
+    classification_groups.updated_at,
+    classification_groups.deleted_at
+   FROM public.classification_groups
+  ORDER BY classification_groups.classification_id, classification_groups.created_at;
 
 
 --
@@ -707,14 +709,6 @@ CREATE TABLE public.watch_lists (
 --
 
 ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
-
-
---
--- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.ar_internal_metadata
-    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -1673,6 +1667,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181123113811'),
 ('20181126000001'),
 ('20181127142527'),
-('20181130130052');
+('20181130130052'),
+('20181229111741');
 
 
