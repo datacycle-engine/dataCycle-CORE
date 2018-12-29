@@ -25,9 +25,10 @@ module DataCycleCore
           has_many :classifications, through: classification_content_table.to_sym
           has_many :classification_groups, through: :classifications
           has_many :classification_aliases, through: :classification_groups
-          has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
           has_many :primary_classification_groups, through: :classifications
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
+          has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false).distinct },
+                   through: :classification_groups, source: :classification_alias
 
           # relation content to all other contents
           has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
