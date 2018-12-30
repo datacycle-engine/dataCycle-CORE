@@ -57,6 +57,9 @@ require 'carrierwave_backgrounder'
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
+# progress bar
+require 'ruby-progressbar'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
