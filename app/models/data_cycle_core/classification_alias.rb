@@ -12,6 +12,16 @@ module DataCycleCore
       end
     end
 
+    class Statistics < ApplicationRecord
+      self.table_name = 'classification_alias_statistics'
+
+      belongs_to :classification_alias, foreign_key: 'id'
+
+      def readonly?
+        true
+      end
+    end
+
     attr_accessor :content_template
 
     acts_as_paranoid
@@ -37,6 +47,8 @@ module DataCycleCore
     has_many :descendant_paths, ->(a) { unscope(:where).where('ancestor_ids @> ARRAY[?]::uuid[]', a.id) },
              class_name: 'Path'
     has_many :descendants, through: :descendant_paths, source: :classification_alias
+
+    has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
 
