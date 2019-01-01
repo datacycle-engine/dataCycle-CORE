@@ -4,6 +4,7 @@ module DataCycleCore
   class ClassificationGroup < ApplicationRecord
     class PrimaryClassificationGroup < ApplicationRecord
       self.table_name = 'primary_classification_groups'
+      self.primary_key = 'id'
 
       acts_as_paranoid
 

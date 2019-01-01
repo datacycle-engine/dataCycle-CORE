@@ -48,6 +48,13 @@ module DataCycleCore
              class_name: 'Path'
     has_many :descendants, through: :descendant_paths, source: :classification_alias
 
+    has_one :primary_classification_group, class_name: 'DataCycleCore::ClassificationGroup::PrimaryClassificationGroup'
+    has_one :primary_classification, through: :primary_classification_group, source: :classification
+    has_many :additional_classification_groups, lambda {
+      where.not(id: DataCycleCore::ClassificationGroup::PrimaryClassificationGroup.all)
+    }, class_name: 'DataCycleCore::ClassificationGroup'
+    has_many :additional_classifications, through: :additional_classification_groups, source: :classification
+
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
@@ -93,10 +100,6 @@ module DataCycleCore
                                   "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
                                 }.join(' + ') + ' DESC')
       )
-    end
-
-    def primary_classification
-      classifications.min_by { |c| (created_at - c.created_at).abs }
     end
 
     def primary_classification_id
