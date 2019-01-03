@@ -216,7 +216,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+        available_update_item_keys = send(field_name).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
