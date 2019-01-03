@@ -225,12 +225,13 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              DataCycleCore::ContentContent.find_or_create_by!({
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                order_a: index,
                 content_b_id: item['id']
               })
+              upsert_relation.order_a = index
+              upsert_relation.save
             end
 
             updated_item_keys << item['id']
