@@ -985,6 +985,9 @@ body.login-page {
 a[data-toggle] {
   display: inline-block;
   padding-bottom: 1rem;
+  &.has-tip {
+    padding-bottom: 0;
+  }
 }
 
 .dropdown-pane {
@@ -1078,6 +1081,7 @@ a[data-toggle] {
 
     li {
       text-align: left;
+      display: flex;
     }
 
     .center-text {
@@ -1088,11 +1092,23 @@ a[data-toggle] {
       color: $dark-gray;
     }
 
+    .email,
+    .buttons {
+      flex: auto;
+      white-space: nowrap;
+    }
+
+    .buttons {
+      text-align: right;
+      .has-tip {
+        border: none;
+      }
+    }
+
     .email {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: calc(100% - 3rem);
       display: inline-block;
       vertical-align: middle;
     }

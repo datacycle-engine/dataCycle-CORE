@@ -10,19 +10,24 @@ module DataCycleCore
     end
 
     def create
-      if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
+      return if asset_params[:file].blank?
 
-        authorize! :create, object_type.constantize
-
-        @asset = object_type.constantize.new(asset_params)
-        @asset.name = @asset.file.identifier if asset_params[:name].blank?
-        @asset.creator_id = current_user.try(:id)
-
-        @asset.save
+      object_type = DataCycleCore.asset_objects.find do |object|
+        object.downcase.include?(asset_params[:file].content_type&.gsub('application/pdf', 'pdf')&.gsub('application', 'file')&.split('/')&.first&.downcase)
       end
 
-      respond_to(:js)
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
+
+      authorize! :create, object_type.constantize
+
+      @asset = object_type.constantize.new(asset_params)
+      @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
+      @asset.creator_id = current_user.try(:id)
+      if @asset.save
+        render json: @asset
+      else
+        render(json: { error: @asset.errors.full_messages })
+      end
     end
 
     def update

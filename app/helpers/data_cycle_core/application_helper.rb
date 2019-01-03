@@ -107,6 +107,30 @@ module DataCycleCore
       feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
     end
 
+    def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
+      if value.is_a? Hash
+        return_html = ''
+        value.each do |k, v|
+          return_html += uploader_validation_to_text(v, parents + [k])
+        end
+        return_html
+      else
+        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
+      end
+    end
+
+    def merge_uploader_white_list
+      uploader_validations = DataCycleCore.uploader_validations.dup
+      DataCycleCore.asset_objects.map { |a|
+        a.classify.constantize.uploaders.values
+      }.flatten.uniq.each do |u|
+        (uploader_validations[u.name.demodulize.underscore.remove('_uploader').to_sym] ||= {}).merge!({
+          format: u.new.extension_white_list
+        })
+      end
+      uploader_validations
+    end
+
     def render_content_partial(partial, parameters)
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
       content_parameter = parameters[:content].schema['schema_type'].underscore

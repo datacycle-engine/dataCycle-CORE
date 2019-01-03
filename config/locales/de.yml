@@ -483,22 +483,31 @@ de:
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
 
-  media_archive:
-    allowed_html: '<h4>Einschränkungen</h4>
-                  <ul class="no-bullet">
-                    <li><b>Bild:</b>
-                      <ul>
-                        <li>Formate: %{image_types}</li>
-                        <li>Abmessungen: %{image_dimensions}</li>
-                      </ul>
-                    </li>
-                    <li><b>Video:</b>
-                      <ul>
-                        <li>Formate: %{video_types}</li>
-                        <li>Codecs: h264 (audio: mp3/aac)</li>
-                      </ul>
-                    </li>
-                  </ul>'
+  uploader:
+    restrictions: 'Einschränkungen'
+    type:
+      image: Bild
+      video: Video
+      pdf: Pdf
+      file: Datei
+    validation:
+      format: 'Erlaubte Formate: %{data}'
+      dimensions:
+        exclude:
+          format: 'Folgende Formate sind in jeder Größe erlaubt: %{data}'
+        landscape:
+          min:
+            width: 'Minimale Breite für Medien im Querformat: %{data}px'
+            height: 'Minimale Höhe für Medien im Querformat: %{data}px'
+        portrait:
+          min:
+            width: 'Minimale Breite für Medien im Hochformat: %{data}px'
+            height: 'Minimale Höhe für Medien im Hochformat: %{data}px'
+        logo:
+          max:
+            height: 'Maximale Höhe für Logos: %{data}px'
+      codec: 'Erlaubte Codecs: %{data}'
+
     close_warning_html: '<h4>Achtung!</h4>
                           <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
                           Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'

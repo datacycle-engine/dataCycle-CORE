@@ -16,7 +16,7 @@
                 </div>
             <% end %>
             <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-                <span data-tooltip aria-haspopup="true" class="has-tip warning" data-click-open="false" tabindex="1"
+                <span data-tooltip aria-haspopup="true" class="has-tip warning" tabindex="1"
                       title="Einschränkungen: <%= content.restrictions %>">
                     <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
                 </span>

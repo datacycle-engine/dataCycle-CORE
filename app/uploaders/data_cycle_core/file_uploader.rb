@@ -3,7 +3,7 @@
 module DataCycleCore
   class FileUploader < CommonUploader
     def extension_white_list
-      DataCycleCore.file_uploader_whitelist
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format) || []
     end
   end
 end

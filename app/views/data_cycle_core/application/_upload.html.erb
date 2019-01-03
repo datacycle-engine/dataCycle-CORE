@@ -1,38 +1,61 @@
-<div class="reveal" id="content-upload-reveal" data-reveal data-image-validations="<%= DataCycleCore.image_validations.to_json %>" data-video-validations="<%= DataCycleCore.video_validations.to_json %>" data-multiple-opened="true">
+<% uploader_validations = merge_uploader_white_list %>
+
+<div class="reveal"
+  id="content-upload-reveal"
+  data-reveal
+  data-validations="<%= uploader_validations.to_json %>"
+  data-multiple-opened="true">
   <h2><%= t('data_cycle_core.upload') %></h2>
 
   <div class="callout warning" data-closable>
-    <%= t('media_archive.close_warning_html', locale: DataCycleCore.ui_language) %>
+    <%= t('uploader.close_warning_html', locale: DataCycleCore.ui_language) %>
     <%= link_to nil, target: :_blank do %>
-      <i class="fa fa-external-link" aria-hidden="true"></i>
-      <%= t('media_archive.continue_in_new_tab', locale: DataCycleCore.ui_language) %>
-    <% end %>
-    <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+    <i class="fa fa-external-link" aria-hidden="true"></i> <%=
+    t('uploader.continue_in_new_tab', locale: DataCycleCore.ui_language) %> <%
+    end %>
+    <button class="close-button"
+      aria-label="Dismiss alert"
+      type="button"
+      data-close>
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 
-  <div class="callout primary" data-closable>
-    <%= t('media_archive.allowed_html',
-      image_types: DataCycleCore.image_validations.dig(:format)&.join(', '),
-      video_types: DataCycleCore.video_validations.dig(:format)&.join(', '),
-      image_dimensions: "<ul>#{DataCycleCore.image_validations.dig(:dimensions)&.map{ |i_format, i_validations|
-        "<li>#{t("common.#{i_format}", locale: DataCycleCore.ui_language)}: <ul>#{i_validations.map{ |validation_type, validations|
-          "<li>#{t("common.#{validation_type}", locale: DataCycleCore.ui_language)}: #{(validations.is_a?(Hash) && validations[:width].present? && validations[:height].present?) ? "#{validations[:width]}x#{validations[:height]}" : (validations.is_a?(Hash) ? "#{t("common.#{validations.keys.first}", locale: DataCycleCore.ui_language)}: #{validations.values.first}" : (validations.is_a?(Array) ? validations.join(', ') : validations) ) }</li>"
-        }.join }</ul>"
-      }&.join }</ul>".html_safe,
-      locale: DataCycleCore.ui_language) %>
-    <button class="close-button" aria-label="Dismiss alert" type="button" data-close>
+  <div class="callout primary upload-restrictions" data-closable>
+    <h4>
+      <%= t('uploader.restrictions', locale: DataCycleCore.ui_language) %>
+    </h4>
+    <ul class="no-bullet">
+      <% uploader_validations.each do |type, validation| %>
+      <li>
+        <b><%= t("uploader.type.#{type}", locale: DataCycleCore.ui_language) %></b>
+        <ul>
+          <%= uploader_validation_to_text(validation).html_safe %>
+        </ul>
+      </li>
+      <% end %>
+    </ul>
+
+    <button class="close-button"
+      aria-label="Dismiss alert"
+      type="button"
+      data-close>
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
 
-  <%= form_tag('/contents/upload', multipart: true, id: 'content-upload-form') do %>
-    <%= file_field_tag 'files', multiple: true, accept: 'image/*,video/*', class: 'upload-file' %>
+  <%= form_tag(assets_path, multipart: true, id: 'content-upload-form') do %>
+    <%= file_field_tag 'files',
+      multiple: true,
+      accept: uploader_validations.values.map { |v| v[:format] }.flatten.compact.uniq.presence&.map{ |e| ".#{e}" }&.join(', '),
+      class: 'upload-file' %>
     <%= label_tag 'files', content_tag(:i, nil, class: 'fa fa-plus'), class: 'button' %>
     <%= button_tag t('actions.upload', locale: DataCycleCore.ui_language), class: 'button' %>
   <% end %>
-  <button class="close-button" data-close aria-label="Close modal" type="button">
+  <button class="close-button"
+    data-close
+    aria-label="Close modal"
+    type="button">
     <span aria-hidden="true">&times;</span>
   </button>
 </div>

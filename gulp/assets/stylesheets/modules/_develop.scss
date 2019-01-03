@@ -889,7 +889,6 @@ video {
 .reveal {
   min-width: 600px;
   width: fit-content;
-  max-height: 100vh;
   overflow-y: visible;
 }
 
@@ -1702,4 +1701,8 @@ select {
 .button-prime.sprinklr-disabled {
   cursor: not-allowed;
   background-color: $dark-gray;
+}
+
+.upload-restrictions {
+  font-size: 0.9rem;
 }

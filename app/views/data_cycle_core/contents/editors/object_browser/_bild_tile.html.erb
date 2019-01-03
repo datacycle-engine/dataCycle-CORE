@@ -4,7 +4,7 @@
         <%= hidden_field_tag key, object.id %>
 
         <% if object.try(:restrictions).try(:include?, 'gesperrt') %>
-            <span data-tooltip aria-haspopup="true" class="has-tip warning" data-click-open="false" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
+            <span data-tooltip aria-haspopup="true" class="has-tip warning" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
         <% end %>
 
         <% unless object.is_valid? %>
