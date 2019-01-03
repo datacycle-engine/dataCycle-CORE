@@ -22,6 +22,8 @@ module DataCycleCore
     has_many :received_data_links, class_name: :DataLink, foreign_key: :receiver_id, dependent: :destroy
     has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
 
+    has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
+
     before_create :set_default_role
 
     def full_name
