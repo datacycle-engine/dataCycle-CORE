@@ -404,7 +404,7 @@ module.exports.initialize = function() {
                 media_html += '</dl>';
                 files = validate_and_render(
                   files,
-                  validations.file,
+                  validations.text,
                   the_file,
                   undefined,
                   event.currentTarget,
@@ -457,14 +457,6 @@ module.exports.initialize = function() {
             .find('.error')
             .remove();
           var data = new FormData();
-          data.append(
-            'asset[uploader]',
-            element.type
-              .replace('application/pdf', 'pdf')
-              .replace('application', 'file')
-              .split('/')
-              .shift()
-          );
           data.append('asset[file]', element);
 
           var startTime = new Date().getTime();

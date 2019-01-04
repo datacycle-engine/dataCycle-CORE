@@ -9,11 +9,22 @@ module DataCycleCore
     process_in_background :file
     validates :file, presence: true
     validates_integrity_of :file
+    validate :custom_validators
 
     include AssetHelpers
 
     has_many :asset_contents, dependent: :destroy
     has_many :things, through: :asset_contents, source: 'content_data', source_type: 'DataCycleCore::Thing'
+
+    def self.without_contents
+      includes(:asset_contents).where(asset_contents: { id: nil })
+    end
+
+    def custom_validators
+      DataCycleCore.uploader_validations.dig(file.class.name.demodulize.underscore.remove('_uploader').to_sym)&.except(:format)&.presence&.each do |validator, options|
+        try("#{validator}_validation", options)
+      end
+    end
 
     def update_asset_attributes
       return if file.blank?

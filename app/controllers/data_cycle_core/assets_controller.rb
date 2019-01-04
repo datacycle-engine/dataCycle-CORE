@@ -13,7 +13,7 @@ module DataCycleCore
       return if asset_params[:file].blank?
 
       object_type = DataCycleCore.asset_objects.find do |object|
-        object.downcase.include?(asset_params[:file].content_type&.gsub('application/pdf', 'pdf')&.gsub('application', 'asset')&.split('/')&.first&.downcase)
+        object.underscore.include?(asset_params[:file].content_type&.gsub('application/pdf', 'pdf')&.gsub('application', 'text_file')&.split('/')&.first&.underscore)
       end
 
       render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
@@ -26,7 +26,7 @@ module DataCycleCore
       if @asset.save
         render json: @asset
       else
-        render(json: { error: @asset.errors.full_messages })
+        render(json: { error: @asset.errors.full_messages.join(', ') })
       end
     end
 

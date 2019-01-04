@@ -122,8 +122,8 @@ module DataCycleCore
     def merge_uploader_white_list
       uploader_validations = DataCycleCore.uploader_validations.dup
       DataCycleCore.asset_objects.map { |a|
-        a.classify.constantize.uploaders.values
-      }.flatten.uniq.each do |u|
+        can?(:create, a.classify.constantize) ? a.classify.constantize.uploaders.values : uploader_validations.delete(a.demodulize.underscore.to_sym)
+      }.compact.flatten.uniq.each do |u|
         (uploader_validations[u.name.demodulize.underscore.remove('_uploader').to_sym] ||= {}).merge!({
           format: u.new.extension_white_list
         })

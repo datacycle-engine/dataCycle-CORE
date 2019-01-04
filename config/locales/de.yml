@@ -489,7 +489,7 @@ de:
       image: Bild
       video: Video
       pdf: Pdf
-      file: Datei
+      text: Text-Datei
     validation:
       format: 'Erlaubte Formate: %{data}'
       dimensions:
@@ -506,7 +506,9 @@ de:
         logo:
           max:
             height: 'Maximale Höhe für Logos: %{data}px'
-      codec: 'Erlaubte Codecs: %{data}'
+      codec:
+        video: 'Erlaubte Video-Codecs: %{data}'
+        audio: 'Erlaubte Audio-Codecs: %{data}'
 
     close_warning_html: '<h4>Achtung!</h4>
                           <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
