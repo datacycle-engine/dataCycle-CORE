@@ -1075,6 +1075,13 @@ CREATE INDEX all_text_idx ON public.searches USING gin (all_text public.gin_trgm
 
 
 --
+-- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
+
+
+--
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1418,10 +1425,17 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
--- Name: index_thing_external_systems_on_thing_id_and_external_system_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_thing_external_systems_on_external_system_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id_and_external_system_id ON public.thing_external_systems USING btree (thing_id, external_system_id);
+CREATE UNIQUE INDEX index_thing_external_systems_on_external_system_id ON public.thing_external_systems USING btree (external_system_id);
+
+
+--
+-- Name: index_thing_external_systems_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id ON public.thing_external_systems USING btree (thing_id);
 
 
 --
@@ -1777,6 +1791,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181127142527'),
 ('20181130130052'),
 ('20181229111741'),
-('20181231081526');
+('20181231081526'),
+('20190107074405');
 
 

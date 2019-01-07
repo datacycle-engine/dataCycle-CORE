@@ -58,6 +58,8 @@
         :asset_type: asset
         :api:
           :disabled: true
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
         :storage_location: value
