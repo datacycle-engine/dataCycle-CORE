@@ -1,6 +1,7 @@
 de:
   title: dataCycle
   hello: "Guten Tag!"
+  welcome: "Willkommen!"
   order:
     header: "Sortierung"
     title: "Titel"
