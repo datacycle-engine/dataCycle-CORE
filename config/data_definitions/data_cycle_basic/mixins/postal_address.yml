@@ -26,3 +26,12 @@
             :label: Land
             :type: string
             :storage_location: value
+      :country_code:
+        :label: Ländercode
+        :type: classification
+        :tree_label: Ländercodes
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: country_code
