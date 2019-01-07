@@ -53,6 +53,12 @@
         :ui:
           :show:
             :content_area: header
+        :api:
+          :partial: gender
+          :type: GenderType
+          :transformation:
+            :method: serialize
+            :name: string
       :data_type:
         :label: Inhaltstype
         :type: classification
