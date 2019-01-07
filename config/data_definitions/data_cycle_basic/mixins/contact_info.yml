@@ -30,6 +30,6 @@
             :type: string
             :storage_location: translated_value
             :api:
-              :name: website
+              :name: sameAs
 #            :validations:
 #              :format: url
