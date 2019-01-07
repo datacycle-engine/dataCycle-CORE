@@ -31,7 +31,6 @@
         :label: Veranstaltungszeitraum
         :type: object
         :storage_location: value
-        :external: true
         :validations:
           :daterange:
             :from: start_date
