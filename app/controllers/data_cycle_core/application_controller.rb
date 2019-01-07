@@ -46,7 +46,7 @@ module DataCycleCore
       @render_params = resolve_params(params[:render_params])
       @options = resolve_params(params[:options])
 
-      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return if (@target.blank? && @render_function.blank?) || @partial.blank?
+      render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?
 
       respond_to(:js)
     end

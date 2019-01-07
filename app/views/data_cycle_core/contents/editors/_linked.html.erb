@@ -132,7 +132,7 @@
             }).to_json
           }) %>
 
-          <%= render 'new_content_links', form_parameters if can?(:create, new_template, 'object_browser') || new_content_select_options(query_methods: [{
+          <%= render 'new_content_button', form_parameters if can?(:create, new_template, 'object_browser') || new_content_select_options(query_methods: [{
               method_name: 'with_default_data_type',
               value: creatable
             }], scope: 'object_browser').present? %>

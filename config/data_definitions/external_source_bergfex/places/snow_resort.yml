@@ -8,6 +8,8 @@
     :features:
       :overlay:
         :allowed: true
+    :api:
+      :type: SkiResort
     :properties:
       :id:
         :label: id
@@ -68,21 +70,49 @@
         :validations:
           :format: integer
       :open_slopes:
+        :label: Pistenlänge, geöffnete Pisten
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :max_slopes:
+        :label: Pistenlänge
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :open_slopes_count:
         :label: Geöffnete Pisten
         :type: number
         :storage_location: value
         :validations:
           :format: integer
-      :max_slopes:
+      :max_slopes_count:
         :label: Pisten gesamt
         :type: number
         :storage_location: value
         :validations:
           :format: integer
+      :length_nordic_classic:
+        :label: Loipenlänge Nordisch Klassisch
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :length_nordic_skating:
+        :label: Loipenlänge Nordisch Skating
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
       :opening_hours:
         :label: Öffnungszeit
         :type: embedded
-        :template_name: Öffnungszeit - Erweitert
+        :template_name: Öffnungszeit
+      :addons:
+        :label: Addons
+        :type: embedded
+        :template_name: Skigebiet - Addon
       :geo:
         :type: mixin
         :name: geo
@@ -94,6 +124,8 @@
         :label: Link
         :type: string
         :storage_location: translated_value
+        :api:
+          :name: sameAs
       :condition_avalanche_warning_level:
         :label: "Lawinenwarnlevel"
         :type: classification
@@ -104,6 +136,14 @@
             :content_area: header
       :condition_nordic_classic:
         :label: "NordicClassic - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - NordicClassic - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_nordic_skating:
+        :label: "NordicSkating - Meldung"
         :type: classification
         :tree_label: "Bergfex - NordicClassic - Meldung"
         :external: true

@@ -9,11 +9,11 @@ module DataCycleCore
         def show
           @stored_filter = DataCycleCore::StoredFilter.find(permitted_params[:id])
 
-          raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id)
+          raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users.to_a + [@stored_filter.user_id]).include?(current_user.id)
 
-          query = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page]).includes(content_data: [:classifications, :translations, :watch_lists])
-          @contents = query.map(&:content_data)
-          @total = query.total_count
+          query = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page])
+          @contents = query.includes(:classifications, :translations, :watch_lists)
+          @total = @contents.total_count
         end
 
         private

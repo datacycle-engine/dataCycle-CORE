@@ -1,0 +1,24 @@
+<% template_names = current_user.things_created.select(:template_name).order(created_at: :desc).map(&:template_name).uniq %>
+
+<% templates = new_content_select_options(
+  query_methods: local_assigns[:query_methods].push({
+    'method_name' => 'with_template_names',
+    'value' => template_names
+  }),
+  scope: scope,
+  limit: 5,
+  ordered_array: template_names
+) %>
+
+<% templates.each do |template| %>
+  <%= render 'data_cycle_core/application/new_contents/new_content_form', local_assigns.merge({
+    key: template&.template_name&.underscore_blanks,
+    render_function: "render_new_form",
+    render_params: to_query_params({ new_template: template }).to_json
+  }) %>
+
+  <a class="option" href="#" data-open="new_<%= template&.template_name&.underscore_blanks %>">
+    <%= render 'data_cycle_core/shared/icon', icon_type: template.template_name&.underscore_blanks %>
+    <%= t('actions.new', data: "#{template.template_name.titleize}", locale: DataCycleCore.ui_language) %>
+  </a>
+<% end %>

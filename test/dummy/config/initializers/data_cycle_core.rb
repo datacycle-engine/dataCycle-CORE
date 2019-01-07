@@ -17,11 +17,19 @@ DataCycleCore.setup do |config|
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
 
-  config.default_template_paths = [
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
-    Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
-  ].freeze
+  if Rails.env.test?
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
+    ].freeze
+  else
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content')
+    ].freeze
+  end
 
   config.features = config.features.deep_merge(
     {
@@ -33,8 +41,7 @@ DataCycleCore.setup do |config|
         enabled: true
       },
       container: {
-        enabled: false,
-        excluded: ['Bild', 'Video']
+        enabled: false
       },
       external_media_archive: {
         enabled: true
@@ -46,13 +53,13 @@ DataCycleCore.setup do |config|
     }
   )
 
-  if ENV['RAILS_ENV'] == 'test'
+  if Rails.env.test?
     config.features = config.features.deep_merge(
       releasable: {
         enabled: true
       },
       container: {
-        enabled: false
+        enabled: true
       },
       life_cycle: {
         enabled: true,
@@ -69,4 +76,9 @@ DataCycleCore.setup do |config|
     )
   end
   config.webhooks = ['Local-Text-File']
+  config.file_uploader_whitelist = [
+    'mp4',
+    'png',
+    'jpg'
+  ]
 end

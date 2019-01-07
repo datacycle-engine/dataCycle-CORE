@@ -7,6 +7,7 @@ module DataCycleCore
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
       define_model_callbacks :created_data_hash, only: :after
+      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
@@ -20,6 +21,7 @@ module DataCycleCore
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_created_data_hash :execute_create_webhooks
+      after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
         return {} if data_hash.blank?
@@ -87,21 +89,8 @@ module DataCycleCore
         Webhook::Create.execute_all(self)
       end
 
-      def get_inherit_datahash(parent)
-        data_hash = get_data_hash
-
-        I18n.with_locale(parent.first_available_locale) do
-          parent_data_hash = parent.get_data_hash
-
-          DataCycleCore.inheritable_attributes.each do |attribute_key|
-            parent_data = parent_data_hash[attribute_key]
-            data_hash[attribute_key] = parent_data if parent_data.present?
-          end
-
-          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
-        end
-
-        data_hash.compact!
+      def execute_delete_webhooks
+        Webhook::Delete.execute_all(self)
       end
 
       def validate(data, schema_hash = nil)
@@ -227,7 +216,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+        available_update_item_keys = send(field_name).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -236,12 +225,13 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              DataCycleCore::ContentContent.find_or_create_by!({
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                order_a: index,
                 content_b_id: item['id']
               })
+              upsert_relation.order_a = index
+              upsert_relation.save
             end
 
             updated_item_keys << item['id']

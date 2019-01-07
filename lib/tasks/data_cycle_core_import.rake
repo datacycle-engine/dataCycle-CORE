@@ -56,7 +56,7 @@ namespace :data_cycle_core do
 
     desc 'Import a specific data_set from a given source'
     task :import_one, [:external_source_id, :stage, :external_key] => [:environment] do |_, args|
-      options = args.to_h
+      options = args.to_h.symbolize_keys
       external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
       puts "importing from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       # puts 'Be aware that the data_set might not be updated if the data_hash detects that the old and the new data are the same!'

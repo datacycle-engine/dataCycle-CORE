@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def metadata
-      image = ::MiniMagick::Image.open(current_path)
+      image = ::MiniMagick::Image.new(current_path)
       image.data
     end
 

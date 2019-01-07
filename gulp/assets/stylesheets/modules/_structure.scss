@@ -166,6 +166,13 @@ a.button-prime.new-object-circle {
     overflow-y: auto;
   }
 
+  .new-favorites {
+    a.option:last-child {
+      border-bottom: 1px solid $light-gray;
+      margin-bottom: 2px;
+    }
+  }
+
   a.option {
     border-bottom: 1px solid $light-gray;
     padding: 0.5rem;
@@ -175,6 +182,12 @@ a.button-prime.new-object-circle {
     font-size: 1.5rem;
     font-weight: 200;
     transition: all ease-in-out 0.1s;
+
+    &.default-new-option {
+      border-top: 1px solid $light-gray;
+      font-weight: 600;
+      font-style: italic;
+    }
 
     .fa {
       font-size: 1.5rem;
@@ -296,6 +309,8 @@ body.login-page {
   transition: box-shadow 1s ease-in-out;
 
   .home-container-content {
+    padding: rem-calc(15) 0;
+
     .centered-text {
       text-align: center;
     }
@@ -304,6 +319,15 @@ body.login-page {
       font-weight: bold;
       font-size: 1rem;
       padding: 1rem 2rem;
+    }
+
+    a.forgotten_password_link {
+      display: block;
+      margin: -.75rem 0 1rem 0;
+      text-align: right;
+      font-size: 0.9rem;
+      color: white;
+      text-decoration: underline;
     }
 
     button[type='submit'].button {
@@ -461,6 +485,34 @@ body.login-page {
     height: 100%;
     background-color: #fff;
     -ms-filter: 'progid:DXImageTransform.Microsoft.Alpha(opacity=20)';
+  }
+}
+
+.home-container.reset-password {
+  main {
+    padding: 1rem 0;
+
+    h1 {
+      font-size: 1.75rem;
+    }
+
+    form {
+      ul.errors {
+        margin: 1rem;
+        padding: 1rem;
+        background: rgba(map-get($foundation-palette, alert), 0.95);
+        list-style-type: none;
+      }
+
+      button[type='submit'].button {
+        padding: 1rem 1rem;
+        font-size: 1rem;
+      }
+
+      span.error {
+        display: none;
+      }
+    }
   }
 }
 

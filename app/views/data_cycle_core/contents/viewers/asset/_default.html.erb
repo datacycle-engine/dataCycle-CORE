@@ -2,8 +2,9 @@
 
 <% unless asset.nil? %>
     <div class="inner">
+        <%= tag.span asset.name, class: 'asset-title' if asset.name.present? %>
         <span class="asset-type">
-            <%= asset.content_type %> (<%= number_to_human_size(asset.file_size) %>)
+          <%= asset.content_type %> (<%= number_to_human_size(asset.file_size) %>)
         </span>
 
         <div class="thumb hide-for-print">

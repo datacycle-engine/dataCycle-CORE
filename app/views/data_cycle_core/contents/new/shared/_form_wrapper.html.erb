@@ -12,7 +12,7 @@
     title: yield(:new_content_form_title) %>
 <% end %>
 
-<% if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+<% if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template) %>
   <div class="callout alert">
     <%= t('common.no_search', locale: DataCycleCore.ui_language) %>
   </div>
@@ -88,7 +88,6 @@
   <% end %>
 
   <% if new_template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(new_template) %>
-    <%  %>
     <div class="form-element">
       <%= label_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(new_template)&.first}][]", t('common.life_cycle', locale: DataCycleCore.ui_language) %>
       <%= select_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(new_template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(new_template)) %>
@@ -98,6 +97,6 @@
   <%= yield %>
 
   <div class="buttons">
-    <%= button_tag t('submit', locale: DataCycleCore.ui_language), type: :submit, class: "button primary", data: { disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('submit', locale: DataCycleCore.ui_language)}" }, disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+    <%= button_tag t('submit', locale: DataCycleCore.ui_language), type: :submit, class: "button primary", data: { disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i> #{t('submit', locale: DataCycleCore.ui_language)}" }, disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template) %>
   </div>
 <% end %>

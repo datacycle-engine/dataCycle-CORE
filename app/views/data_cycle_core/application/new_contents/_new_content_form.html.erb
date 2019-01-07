@@ -1,0 +1,22 @@
+<div class="reveal new-content-reveal<%= local_assigns[:object_browser] ? ' in-object-browser' : '' %>"
+    id="new_<%= local_assigns.fetch(:key, 'default') %>"
+    data-reveal
+    data-multiple-opened="true"
+    data-reset-on-close="true">
+  <h3 class="new_content_form_title"><%= t('actions.choose_type', locale: DataCycleCore.ui_language) %></h3>
+  <div class="form_crumbs">
+  </div>
+
+  <div class="new-content-form remote-render"
+      id="<%= local_assigns.fetch(:key, 'default') %>_new_form"
+      data-remote-path="data_cycle_core/contents/new/new_stage"
+      data-remote-render-function="<%= local_assigns[:render_function] %>"
+      data-remote-render-params="<%= local_assigns[:render_params] %>"
+      data-remote-options="<%= to_query_params(local_assigns).to_json %>"
+      data-remote-content-for='["new_content_form_title", "form_crumbs"]'>
+  </div>
+
+  <button class="close-button" data-close aria-label="Close modal" type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

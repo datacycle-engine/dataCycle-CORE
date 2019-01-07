@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to thing_path([:api, :v2, @content]) }
+          format.json { redirect_to api_v2_thing_path(@content) }
           format.html { render && return }
         end
       end
@@ -67,7 +67,7 @@ module DataCycleCore
     end
 
     def create
-      authorize!(__method__, controller_path.classify.constantize)
+      authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]), resolve_params(params, false).dig(:scope))
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(params[:template])
@@ -155,7 +155,7 @@ module DataCycleCore
         elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
           redirect_back(fallback_location: root_path)
         else
-          redirect_to(thing_path(@content, watch_list_params))
+          redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
         end
       end
     end
@@ -241,18 +241,10 @@ module DataCycleCore
       respond_to(:js)
     end
 
-    def gpx
-      @object = DataCycleCore::Thing.find_by(id: params[:id])
-      authorize! :show, @object
-      send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
-    end
-
     def validate
       @object = DataCycleCore::Thing.find_by(id: params[:id])
 
-      if @object.blank? && params[:template].present?
-        @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template])
-      end
+      @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template]) if @object.blank? && params[:template].present?
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 

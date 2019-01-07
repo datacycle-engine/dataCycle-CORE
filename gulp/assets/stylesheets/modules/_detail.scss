@@ -58,7 +58,6 @@
             background-color: transparent;
 
             &.has-changes {
-
               &.new.bild .thumbnail,
               &.new.video .thumbnail,
               &.new:not(.bild, .video) {
@@ -138,7 +137,7 @@
               }
             }
 
-            >span {
+            > span {
               display: inline-block;
               margin-right: 2rem;
             }
@@ -146,7 +145,6 @@
 
           &.has-changes.geographic {
             &.new {
-
               .geographic,
               .map-info {
                 &::after {
@@ -160,7 +158,6 @@
             }
 
             &.remove {
-
               .geographic,
               .map-info {
                 &::after {
@@ -183,7 +180,7 @@
             margin-bottom: 1rem;
           }
 
-          >div:not(.detail-type, .map-info, .geographic) {
+          > div:not(.detail-type, .map-info, .geographic) {
             margin-bottom: 1rem;
           }
 
@@ -196,7 +193,7 @@
               box-shadow: 0 0 1px #9d9d9d;
               padding: 2.2rem 1rem 1rem 1rem;
 
-              >.detail-label {
+              > .detail-label {
                 position: absolute;
                 float: none;
               }
@@ -216,7 +213,8 @@
                 display: block;
 
                 &.asset-type {
-                  opacity: 0.8;
+                  font-size: 0.9rem;
+                  opacity: 0.7;
                 }
               }
 
@@ -310,7 +308,7 @@
   .type {
     &.translations {
       .header {
-        margin: 0 0 1rem 1.25rem
+        margin: 0 0 1rem 1.25rem;
       }
     }
   }
@@ -318,7 +316,7 @@
   .object.detail_object {
     padding-bottom: 1rem;
 
-    >.detail-type {
+    > .detail-type {
       padding-left: 1rem;
     }
   }

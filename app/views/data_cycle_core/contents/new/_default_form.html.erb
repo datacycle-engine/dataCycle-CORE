@@ -2,7 +2,7 @@
 
   <div class="form-element<%= ' validation-container' if new_template.schema.dig('properties', 'name', 'validations').present? %>">
     <%= label_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", "#{new_template.schema.dig('properties', 'name', 'label')}" %>
-    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control', disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template.template_name) %>
+    <%= text_field_tag "#{new_template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control', disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, new_template) %>
   </div>
 
 <% end %>
