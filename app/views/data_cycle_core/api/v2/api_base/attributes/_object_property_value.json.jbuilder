@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
-  if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'method').present?
+  if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'name').present?
     json.set! definition.dig('api', 'transformation', 'name') do
       json.partial! 'data_cycle_core/api/v2/api_base/headers/property_value', key: key, definition: definition
 
