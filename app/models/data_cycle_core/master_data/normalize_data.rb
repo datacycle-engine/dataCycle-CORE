@@ -76,6 +76,16 @@ module DataCycleCore
           }.compact.flatten
         end
 
+        def parse_normalizable_fields(root, template_hash)
+          template_hash.map { |key, value|
+            if value.dig('properties').present?
+              parse_normalizable_fields([root, key].compact.join('/'), value.dig('properties'))
+            elsif value.dig('normalize').present?
+              { 'id' => [root, key].compact.join('/'), 'type' => value.dig('normalize').upcase }
+            end
+          }.compact.flatten
+        end
+
         def reduce_data(data_list)
           data_list.map do |item|
             if item['type'] == 'DATETIME2'
