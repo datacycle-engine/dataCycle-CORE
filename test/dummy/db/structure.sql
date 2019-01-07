@@ -8,20 +8,6 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -452,7 +438,7 @@ CREATE TABLE public.things (
 
 CREATE VIEW public.content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing'::text AS content_type,
+    'DataCycleCore::Thing' AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -491,7 +477,6 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE

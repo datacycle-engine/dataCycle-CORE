@@ -1,22 +1,68 @@
- <tr style="height:5px">
-  <td style="background:#cc0000;padding:0;height:5px"></td>
- </tr>
- <tr><td>
-  <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;border-collapse:collapse;">
-  <tr style="height:65px;background:#333333">
-    <td style="height:65px;background:#333333;width:33%" width="33%">
-    <!--<img border="0" width="200" height="65"
-      src="<%#= image_url('eml-logo.png') %>"
-      style="height:65px;width:200px;display:block;margin-left: 36pt" alt="<%= t('title', locale: DataCycleCore.ui_language) %>">--></td>
-    <td style="height:65px;background:#333333;text-align: center;width:33%" width="33%" align="center"><img border="0" width="120" height="65"
-      src="<%= image_url('eml-datacycle.png') %>"
-      style="height:65px;width:120px;display:block;margin: 0 auto" alt="Data Cycle"></td>
-    <td style="height:65px;background:#333333;width:33%" width="33%"></td>
-  </tr>
-  <tr style="height:8px;line-height: 4px;">
-    <td style="height:8px;background:#d6d6d6;text-align: center;line-height: 4px;" align="center" colspan="3"><img border="0" width="101" height="8"
-      src="<%= image_url('eml-datacycle-border.png') %>"
-      style="height:8px;width:102px;display:block;margin: 0 auto" alt="Datacycle Border"></td>
-  </tr>
-  </table>
- </td></tr>
+<% content_for :head do %>
+  <style>
+    .header table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .header td {
+      padding: 0;
+    }
+
+    .header .header_top td {
+      height: 5px;
+      background: #cc0000;
+    }
+
+    .header .header_main td {
+      width: 33%;
+      background: #333333;
+      text-align: center;
+    }
+    .header .header_main td:not(:first-child):not(:last-child) {
+      width: 34%;
+    }
+    .header .header_main img {
+      display: block;
+      width: 120px;
+      height: 65px;
+      margin: 0 auto;
+    }
+
+    .header .header_bottom td {
+      background: #d6d6d6;
+      text-align: center;
+    }
+    .header .header_bottom img {
+      display: block;
+      height: 8px;
+      width: 102px;
+      margin: 0 auto;
+    }
+  </style>
+<% end %>
+
+ <tr class="header">
+  <td>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+      <tr class="header_top">
+        <td colspan="3"></td>
+      </tr>
+
+      <tr class="header_main">
+        <td width="33%">
+
+        <td width="34%" align="center">
+          <img border="0" width="120" height="65" src="<%= image_url('eml-datacycle.png') %>" alt="dataCycle Logo">
+        </td>
+
+        <td width="33%"></td>
+      </tr>
+
+      <tr class="header_bottom">
+        <td align="center" colspan="3">
+          <img border="0" width="101" height="8" src="<%= image_url('eml-datacycle-border.png') %>" alt="dataCycle Border">
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>
