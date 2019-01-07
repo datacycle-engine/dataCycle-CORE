@@ -216,7 +216,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+        available_update_item_keys = send(field_name).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -225,12 +225,13 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              DataCycleCore::ContentContent.find_or_create_by!({
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                order_a: index,
                 content_b_id: item['id']
               })
+              upsert_relation.order_a = index
+              upsert_relation.save
             end
 
             updated_item_keys << item['id']

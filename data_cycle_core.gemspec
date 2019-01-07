@@ -99,6 +99,9 @@ Gem::Specification.new do |s|
   # phash
   s.add_dependency 'pHash'
 
+  # progress bar
+  s.add_dependency 'ruby-progressbar'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'

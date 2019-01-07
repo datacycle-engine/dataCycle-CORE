@@ -3,7 +3,7 @@
         <%= link_to tree_label.name, classifications_path(classification_tree_label_id: tree_label.id),
             class: 'name',
             data: {
-                remote: true, 
+                remote: true,
                 disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"
             } %>
 
@@ -12,16 +12,9 @@
         <% end %>
 
         <% if can?(:destroy, tree_label) %>
-            <% confirmation_text = "#{t('common.are_you_sure', locale: DataCycleCore.ui_language)}" %>
-            <% confirmation_text += "<span class='warning'>
-            <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.classification_tree_relations', locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.any? { |ca| ca.classifications.includes(:classification_contents).any? { |c| c.classification_contents.exists? } } %>
-
-            <% confirmation_text += "<span class='warning'>
-            <i class='fa fa-exclamation-triangle' aria-hidden='true'></i> #{t('data_cycle_core.child_classification_relations', count: tree_label.classification_aliases.size, data: t('data_cycle_core.this_classification_tree', locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</span>" if tree_label.classification_aliases.size.positive? %>
-
             <%= link_to classifications_path(classification_tree_label_id: tree_label.id), class: 'destroy',
                 data: {remote: true, method: :delete,
-                confirm: confirmation_text,
+                confirm: render('classification_tree_label_removal_warning', classification_tree_label: tree_label),
                 disable_with: '<i class="fa fa-spinner fa-spin"></i>'} do %>
                 <i class="fa fa-trash-o" aria-hidden="true"></i>
             <% end %>

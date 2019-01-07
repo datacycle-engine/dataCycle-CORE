@@ -51,6 +51,7 @@ PATH
       redis-rails
       rgeo
       rgeo-geojson
+      ruby-progressbar
       simple_form
       streamio-ffmpeg
       taglib-ruby

@@ -73,5 +73,12 @@ module DataCycleCore
         .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
         .where('classification_tree_labels.name = ?', treelabel).count.positive?
     end
+
+    def classification_tooltip(classification_alias)
+      [
+        "<b>#{classification_alias.full_path}</b>",
+        classification_alias.description
+      ].reject(&:blank?).join('<br /><br />')
+    end
   end
 end
