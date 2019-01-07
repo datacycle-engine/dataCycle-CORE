@@ -93,8 +93,8 @@
         :api:
           :partial: property_value
           :type: QuantitativeValue
-          :unit_text: E37
-          :unit_code: pixel
+          :unit_text: pixel
+          :unit_code: E37
           :transformation:
             :method: nest
             :name: width
@@ -115,8 +115,8 @@
         :api:
           :partial: property_value
           :type: QuantitativeValue
-          :unit_text: E37
-          :unit_code: pixel
+          :unit_text: pixel
+          :unit_code: E37
           :transformation:
             :method: nest
             :name: height
