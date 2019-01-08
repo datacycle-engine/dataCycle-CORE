@@ -66,6 +66,14 @@ module DataCycleCore
       )
     end
 
+    def translated_locales
+      if translations.loaded?
+        translations.map(&:locale).sort
+      else
+        translations.translated_locales
+      end
+    end
+
     # to cash also translated values (comming from gem Globalize)
     def cache_key
       super + '-' + Globalize.locale.to_s
