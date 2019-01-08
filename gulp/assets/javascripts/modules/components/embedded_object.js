@@ -2,7 +2,7 @@ var ConfirmationModal = require('./../components/confirmation_modal');
 var Sortable = require('sortablejs');
 
 // Embedded Object Module
-var EmbeddedObject = function (selector) {
+var EmbeddedObject = function(selector) {
   this.element = selector;
   this.page = 1;
   this.id = this.element.prop('id');
@@ -26,34 +26,66 @@ var EmbeddedObject = function (selector) {
   this.setup();
 };
 
-EmbeddedObject.prototype.setup = function () {
+EmbeddedObject.prototype.setup = function() {
   this.sortable = new Sortable(this.element[0], {
     group: this.id,
     handle: '.draggable-handle',
     draggable: '.content-object-item.draggable_' + this.id
   });
 
-  if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max)) $(this.element).find('> .buttons > #add_' + this.id).show();
+  if (
+    this.write &&
+    (this.max == 0 ||
+      this.element.children('.content-object-item').length < this.max)
+  )
+    $(this.element)
+      .find('> .buttons > #add_' + this.id)
+      .show();
 
-  this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
+  this.element
+    .off('reinit-event-handlers')
+    .on('reinit-event-handlers', this.addEventHandlers.bind(this));
 
-  this.element.off('import-data').on('import-data', function (event, data) {
-    let page = data.page || 1;
+  this.element.off('import-data').on(
+    'import-data',
+    function(event, data) {
+      let page = data.page || 1;
 
-    let new_items = data.ids.diff(this.element.children('.content-object-item').map((index, elem) => $(elem).data('id')).get());
+      let new_items = data.ids.diff(
+        this.element
+          .children('.content-object-item')
+          .map((index, elem) => $(elem).data('id'))
+          .get()
+      );
 
-    if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max) && new_items.length > 0) {
-      this.renderEmbeddedObjects('render', new_items);
-    } else if (this.write && this.max != 0 && (ids.length + new_items.length) > this.max) {
-      var confirmationModal = new ConfirmationModal("Maximalanzahl: " + this.max);
-    }
-  }.bind(this));
+      if (
+        this.write &&
+        (this.max == 0 ||
+          this.element.children('.content-object-item').length < this.max) &&
+        new_items.length > 0
+      ) {
+        this.renderEmbeddedObjects('render', new_items);
+      } else if (
+        this.write &&
+        this.max != 0 &&
+        ids.length + new_items.length > this.max
+      ) {
+        var confirmationModal = new ConfirmationModal(
+          'Maximalanzahl: ' + this.max
+        );
+      }
+    }.bind(this)
+  );
 
   this.addEventHandlers();
 };
 
-EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
-  this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
+EmbeddedObject.prototype.renderEmbeddedObjects = function(type, ids = []) {
+  this.element
+    .find('> .buttons > button')
+    .prop('disabled', true)
+    .find('.fa')
+    .css('display', 'inline-block');
   $.ajax({
     url: this.url + '/' + type + '_embedded_object',
     method: 'GET',
@@ -77,40 +109,69 @@ EmbeddedObject.prototype.renderEmbeddedObjects = function (type, ids = []) {
   });
 };
 
-EmbeddedObject.prototype.addEventHandlers = function () {
+EmbeddedObject.prototype.addEventHandlers = function() {
   var self = this;
 
-  this.element.find('> .buttons > #add_' + this.id).off('click').on('click', event => {
-    this.renderEmbeddedObjects('new');
-  });
+  this.element
+    .find('> .buttons > #add_' + this.id)
+    .off('click')
+    .on('click', event => {
+      this.renderEmbeddedObjects('new');
+    });
 
   this.element.children('.content-object-item').each((index, element) => {
-    $(element).children('.removeContentObject').off('click').on('click', event => {
-      event.preventDefault();
-      let id = $(event.currentTarget).closest('.content-object-item').data('id');
-      this.element.find('input:hidden[value="' + id + '"]').remove();
-      $(event.currentTarget).closest('.content-object-item').remove();
-      self.update();
-    });
+    $(element)
+      .children('.removeContentObject')
+      .off('click')
+      .on('click', event => {
+        event.preventDefault();
+        $(element).trigger('clone-removed');
+        let id = $(event.currentTarget)
+          .closest('.content-object-item')
+          .data('id');
+        this.element.find('input:hidden[value="' + id + '"]').remove();
+        $(event.currentTarget)
+          .closest('.content-object-item')
+          .remove();
+        self.update();
+      });
   });
 };
 
-EmbeddedObject.prototype.update = function () {
+EmbeddedObject.prototype.update = function() {
   var self = this;
-  if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
+  if (
+    this.max != 0 &&
+    this.element.children('.content-object-item').length >= this.max
+  ) {
     this.element.find('> .buttons > #add_' + this.id).hide();
   } else if (this.write) {
     this.element.find('> .buttons > #add_' + this.id).show();
   }
 
-  if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-    this.element.children('.content-object-item').children('.removeContentObject').hide();
+  if (
+    this.min != 0 &&
+    this.element.children('.content-object-item').length <= this.min
+  ) {
+    this.element
+      .children('.content-object-item')
+      .children('.removeContentObject')
+      .hide();
   } else if (this.write) {
-    this.element.children('.content-object-item').children('.removeContentObject').show();
+    this.element
+      .children('.content-object-item')
+      .children('.removeContentObject')
+      .show();
   }
 
   if (this.element.children('.content-object-item').length == 0) {
-    this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');
+    this.element.append(
+      '<input type="hidden" value="" id="' +
+        this.id +
+        '_default" name="' +
+        this.key +
+        '[]">'
+    );
   } else {
     this.element.find('input[type=hidden]#' + this.id + '_default').remove();
   }

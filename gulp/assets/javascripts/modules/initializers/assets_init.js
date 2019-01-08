@@ -1,40 +1,47 @@
-var Asset = require('./../components/asset');
+// var Asset = require('./../components/asset');
 var duration_helpers = require('./../helpers/duration_helpers');
 var object_helpers = require('./../helpers/object_helpers');
+var AssetSelector = require('./../components/asset_selector');
 
 // Word Counter
 module.exports.initialize = function() {
-  var assets = [];
+  // Asset Selector
 
-  $('.edit-content-form .asset .asset-object').each(function() {
-    assets.push(new Asset($(this)));
-  });
+  var asset_selectors = [];
 
-  $(document).on('clone-added', '.content-object-item', function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    $(this)
-      .find('.asset .asset-object')
-      .each(function() {
-        assets.push(new Asset($(this)));
+  function init(container = document) {
+    $(container)
+      .find('.asset-selector-button')
+      .each((index, element) => {
+        asset_selectors.push(new AssetSelector(element, asset_selectors));
       });
-  });
-
-  function reject(obj, keys) {
-    return Object.keys(obj)
-      .filter(k => !keys.includes(k))
-      .map(k =>
-        Object.assign(
-          {},
-          {
-            [k]: obj[k]
-          }
-        )
-      )
-      .reduce((res, o) => Object.assign(res, o), {});
   }
 
-  // Upload Form
+  init();
+
+  $(document).on('clone-added', '.content-object-item', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    init(event.target);
+  });
+
+  $(document).on('clone-removed', '.content-object-item', event => {
+    event.preventDefault();
+    event.stopPropagation();
+    if ($(event.target).find('.asset-selector-button').length) {
+      asset_selectors = asset_selectors.filter(value => {
+        return (
+          value.button.data('open') !=
+          $(event.target)
+            .find('.asset-selector-button')
+            .first()
+            .data('open')
+        );
+      });
+    }
+  });
+
+  // Upload Form Validation TODO: move to component
 
   let reset_file_field = function(field) {
     field.removeClass('uploading error');

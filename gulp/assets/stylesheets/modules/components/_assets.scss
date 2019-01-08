@@ -1,58 +1,90 @@
 .edit-content-form {
-  .asset-object {
-    padding: 3rem 0 0 0.1rem;
-    text-align: left;
-    button {
-      &.addAsset {
-        i.fa {
-          margin-left: 0.5rem;
-        }
-      }
-      &.removeAsset {
-        vertical-align: top;
-      }
-    }
-    input[type='file'] {
-      width: auto;
-      display: inline-block;
-      vertical-align: middle;
-      margin: 0 0 1rem 0;
-      padding: 0.85em 1em;
-      -webkit-appearance: none;
-      border-radius: 0;
-      transition: background-color 0.25s ease-out, color 0.25s ease-out;
-      font-size: 0.9rem;
+  .asset {
+    padding: 2.5rem 0.5rem 1rem 0.5rem;
+  }
+}
+
+.asset-list-container {
+  display: flex;
+  flex-flow: column;
+  height: calc(100vh - 2rem);
+  .scrollable-asset-list {
+    overflow-y: auto;
+    flex: 1;
+  }
+  .select-asset-link {
+    margin: 0;
+  }
+}
+
+ul.asset-list {
+  display: flex;
+  flex-flow: row wrap;
+  li {
+    position: relative;
+    display: block;
+    flex: auto;
+    word-wrap: break-word;
+    width: 250px;
+    max-width: 300px;
+    padding: 0.5rem;
+    margin: 0.5rem;
+    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+
+    .asset-deselect {
+      display: none;
+      position: relative;
+      float: right;
       line-height: 1;
-      text-align: center;
+      font-size: 1.2rem;
+      margin-left: 5px;
+      color: $alert-color;
     }
-    .inner {
+    .inner > span {
+      display: block;
+      &.asset-title {
+        font-size: 1.2rem;
+        line-height: 1.5;
+        font-weight: 200;
+      }
+      &.asset-file-link {
+        float: right;
+      }
+    }
+    .inner > .thumb {
+      margin-top: 0.5rem;
       text-align: center;
-      padding: 1rem;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
-      transition: all ease-in-out 0.2s;
-      background: #fefefe;
-      width: auto;
-      display: inline-block;
-      span {
+      img {
+        max-height: 300px;
+      }
+    }
+    transition: all 0.1s ease-in-out;
+  }
+
+  &.editable {
+    li {
+      .asset-deselect {
         display: block;
-        padding-bottom: 0.3rem;
-        &.asset-type {
-          font-size: 0.9rem;
-          opacity: 0.7;
+      }
+    }
+  }
+
+  &.selectable {
+    li {
+      cursor: pointer;
+
+      &.active {
+        border-color: $primary-color;
+        background-color: $primary-color;
+        box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        color: $white;
+        a {
+          color: $white;
         }
       }
-      .thumb {
-        text-align: center;
-        padding-top: 1rem;
-        width: auto;
-        a {
-          display: inline-block;
-        }
-        .placeholder {
-          i.fa {
-            font-size: 13rem;
-          }
-        }
+      &:hover,
+      &:focus {
+        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
       }
     }
   }

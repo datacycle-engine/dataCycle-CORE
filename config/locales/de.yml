@@ -124,6 +124,8 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     change_api_access: API Freigabe ändern
+    select_asset: '%{data} auswählen'
+    select_asset_title: Hochgeladene Dateien
 
   tile_links:
     details: zur Detailansicht
@@ -355,6 +357,9 @@ de:
       data_cycle_core/asset:
         one: Asset
         other: Assets
+      data_cycle_core/text_file:
+        one: Textdokument
+        other: Textdokumente
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen

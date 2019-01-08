@@ -6,7 +6,11 @@ module DataCycleCore
 
     def index
       authorize! :index, DataCycleCore::Asset
-      @assets = DataCycleCore::Asset.all
+      @html_target = permitted_params[:html_target]
+      @selected = permitted_params[:selected]
+      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(:type)
+      @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
+      @assets = @assets.where.not(id: permitted_params[:locked_assets]) if permitted_params[:locked_assets].present?
     end
 
     def create
@@ -68,7 +72,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :type)
+      params.permit(:id, :type, :html_target, :selected, locked_assets: [], types: [])
     end
 
     def additional_params

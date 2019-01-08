@@ -235,8 +235,9 @@ module DataCycleCore
     end
 
     def render_asset_viewer(key:, value:, definition:, parameters: {}, content: nil)
+      value = value.first if value.is_a?(ActiveRecord::Relation) || value.is_a?(Array)
       partials = [
-        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        value.try(:type)&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
