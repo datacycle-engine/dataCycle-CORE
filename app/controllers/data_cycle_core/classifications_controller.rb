@@ -11,8 +11,9 @@ module DataCycleCore
         format.html do
           authorize! :index, DataCycleCore::ClassificationTreeLabel
 
-          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
-            .includes(classification_aliases: :classifications)
+          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel
+            .accessible_by(current_ability)
+            .includes(:statistics)
             .order(:created_at)
             .distinct
         end
@@ -24,21 +25,31 @@ module DataCycleCore
 
           if permitted_params.include?(:classification_tree_label_id)
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
-              .where(parent_classification_alias: nil)
-              .order(:created_at).page(params[:page])
-            @page = @classification_trees.current_page
-            @total_pages = @classification_trees.total_pages
+            @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
+
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
-            @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
-              .order(:created_at).page(params[:page])
-            @page = @classification_trees.current_page
-            @total_pages = @classification_trees.total_pages
+            @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
+
+          @classification_trees = @classification_trees
+            .accessible_by(current_ability)
+            .includes(
+              sub_classification_alias: {
+                classifications: { primary_classification_alias: :classification_alias_path },
+                primary_classification: {},
+                additional_classifications: {},
+                statistics: {}
+              }
+            ).order(:created_at)
+            .page(params[:page])
+
+          @page = @classification_trees.current_page
+
+          @total_pages = @classification_trees.total_pages
         end
       end
     end

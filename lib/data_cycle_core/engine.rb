@@ -57,6 +57,11 @@ require 'carrierwave_backgrounder'
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
+# progress bar
+require 'ruby-progressbar'
+
+require 'premailer'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -260,6 +265,8 @@ module DataCycleCore
       ).each do |c|
         require_dependency(c)
       end
+
+      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
     end
   end
 end

@@ -4,6 +4,16 @@ require 'csv'
 
 module DataCycleCore
   class ClassificationTreeLabel < ApplicationRecord
+    class Statistics < ApplicationRecord
+      self.table_name = 'classification_tree_label_statistics'
+
+      belongs_to :classification_tree_label, foreign_key: 'id', inverse_of: :statistics
+
+      def readonly?
+        true
+      end
+    end
+
     acts_as_paranoid
 
     belongs_to :external_source
@@ -14,6 +24,7 @@ module DataCycleCore
         joins(:classification_tree).where(classification_trees: { parent_classification_alias_id: nil })
       end
     end
+    has_one :statistics, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label # rubocop:disable Rails/HasManyOrHasOneDependent
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
