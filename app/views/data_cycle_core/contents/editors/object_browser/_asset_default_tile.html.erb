@@ -1,38 +1,38 @@
 <div class="media thumbnail item <%= 'hard-warnings' if object.hard_content_warnings? %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="<%= "background-image: url(#{object.asset.first.thumbnail_url})" if object.try(:asset)&.first&.thumbnail_url? %>" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
+    <% render_locale = I18n.locale %>
+    <% I18n.with_locale(object.first_available_locale) do %>
+      <%= hidden_field_tag key, object.id %>
 
-    <%= hidden_field_tag key, object.id %>
+      <% if object.try(:title) %>
+          <div class="description"><%= object.try(:title) %> (<%= I18n.locale.to_s %>)</div>
+      <% end %>
 
-    <% if object.try(:title) %>
-        <div class="description"><%= object.try(:title) %></div>
+      <% if editable ||= false %>
+          <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
+          <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
+      <% end %>
+
+      <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, locale: render_locale %>
+
+      <div class="width-content reveal media-preview" id="media_reveal_<%= object.id %>" data-reveal>
+          <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+          </button>
+          <%= tag.span "#{object.title} (#{I18n.locale.to_s})", class: 'preview-title' if object.try(:title).present? %>
+          <% if object.try(:asset)&.first&.thumbnail_url? %>
+              <div class="image">
+                  <img class="lazyload" data-src="<%= object.try(:asset)&.first&.thumbnail_url %>" />
+              </div>
+          <% end %>
+          <div class="description">
+
+              <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+              <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, text: true, locale: render_locale %>
+              <%= link_to 'zur Detailansicht', thing_path(object), target: :_blank %> |
+              <% if can?(:download, object) %>
+                <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
+              <% end %>
+          </div>
+      </div>
     <% end %>
-
-    <% if editable ||= false %>
-        <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-        <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
-    <% end %>
-
-    <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object %>
-
-    <div class="width-content reveal media-preview" id="media_reveal_<%= object.id %>" data-reveal>
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        <span class="preview-title">
-      <%= object.try(:title) %>
-    </span>
-        <% if object.try(:asset)&.first&.thumbnail_url? %>
-            <div class="image">
-                <img class="lazyload" data-src="<%= object.try(:asset)&.first&.thumbnail_url %>" />
-            </div>
-        <% end %>
-        <div class="description">
-
-            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
-            <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, text: true %>
-            <%= link_to 'zur Detailansicht', thing_path(object), target: :_blank %> |
-            <% if can?(:download, object) %>
-              <%= link_to 'in voller Größe öffnen', object.try(:content_url), target: :_blank %> |
-            <% end %>
-        </div>
-    </div>
 </div>

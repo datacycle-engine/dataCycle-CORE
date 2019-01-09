@@ -1,4 +1,6 @@
 <div class="media person item <%= 'active' if (objects ||= []).include?(object.id) %> <%= 'hard-warnings' if object.hard_content_warnings? %>" data-id="<%= object.id %>">
+  <% render_locale = I18n.locale %>
+  <% I18n.with_locale(object.first_available_locale) do %>
     <%= hidden_field_tag key, object.id %>
 
     <% if editable ||= false %>
@@ -6,12 +8,13 @@
         <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
     <% end %>
 
-    <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object %>
+    <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, locale: render_locale %>
 
     <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.parameterize(separator: '_') %>
-    <span class="name"><%= object.try(:title) %></span>
+    <%= tag.span "#{object.title} (#{I18n.locale.to_s})", class: 'name' if object.try(:title).present? %>
 
     <div class="tile-properties">
       <%= yield_content!(:additional_tile_attributes) %>
     </div>
+  <% end %>
 </div>
