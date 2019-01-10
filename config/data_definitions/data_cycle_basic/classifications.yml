@@ -15,12 +15,10 @@
   - $$Person
   - $$Veranstaltung
 # embedded
-  - $$Zitat
   - $$Veranstaltungstermin
   - $$Öffnungszeit
   - $$Overlay
   - $$Publikations-Plan
-  - $$Textblock
 
 - Geschlecht:
   - Männlich | Male

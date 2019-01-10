@@ -45,6 +45,3 @@
             :api:
               :transformation:
                 :method: nest
-                :name: address
-#            :validations:
-#              :format: url

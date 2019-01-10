@@ -9,15 +9,8 @@
         :template_name: Publikations-Plan
         :validations:
           :classifications: no_conflicts
-#        :ui:
-#          :show:
-#            :content_area: header
         :features:
           :publication_schedule:
             :allowed: true
         :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
+          :disabled: true

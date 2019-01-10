@@ -1,13 +1,13 @@
 # frozen_string_literal: true
 
-definition ||= nil
+# definition ||= nil
 json.set! key do
   json.array!(classification_aliases) do |classification_alias|
     json.cache!("#{classification_alias.class}_#{classification_alias.id}_#{classification_alias.updated_at}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
       json.id classification_alias.id
-      if definition.present?
-        json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
-      end
+      # if definition.present?
+      #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
+      # end
       json.name classification_alias.name
       json.description classification_alias.description if classification_alias.description.present?
       json.createdAt classification_alias.created_at
@@ -17,9 +17,9 @@ json.set! key do
         json.ancestors do
           json.array!(classification_alias.ancestors) do |ancestor|
             json.id ancestor.id
-            if definition.present?
-              json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
-            end
+            # if definition.present?
+            #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
+            # end
             json.name ancestor.name
             json.createdAt ancestor.created_at
             json.updatedAt ancestor.updated_at

@@ -14,7 +14,6 @@
       :id:
         :label: id
         :type: key
-      # schema.org AdditionalProperties
       :release_status:
         :type: mixin
         :name: releasable
@@ -24,68 +23,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :link_name:
-        :label: Linktitel
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :name: name
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :textblock:
-        :label: Textblock
-        :type: embedded
-        :template_name: Textblock
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: POI
-      # schema.org AdditionalProperties
-      # schema.org pending: http://schema.org/Quotation
-      :quotation:
-        :label: Zitat
-        :type: embedded
-        :template_name: Zitat
-        :api:
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :data_type:
         :label: Inhaltstype
         :type: classification
