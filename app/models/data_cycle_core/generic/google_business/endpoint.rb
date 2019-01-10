@@ -6,12 +6,20 @@ module DataCycleCore
       class Endpoint
         AccessToken = Struct.new(:token, :type, :expiration_time)
 
-        attr_reader :client_id, :client_secret, :refresh_token, :access_token
+        attr_reader :client_id, :client_secret, :refresh_token
 
         def initialize(client_id:, client_secret:, refresh_token:, **_options)
           @client_id = client_id
           @client_secret = client_secret
           @refresh_token = refresh_token
+        end
+
+        def access_token
+          if @access_token.nil? || @access_token.expiration_time - 60.seconds <= Time.zone.now
+            refresh_access_token
+          end
+
+          @access_token
         end
 
         def accounts
@@ -52,17 +60,18 @@ module DataCycleCore
           end
         end
 
-        def load_accounts(next_page_token:)
-          response = Faraday.new(url: 'https://mybusiness.googleapis.com/v4/accounts').get do |req|
-            req.headers['Authorization'] = [access_token.type, access_token.token].join(' ')
-            req.params['pageToken'] = next_page_token if next_page_token.present?
-          end
+        private
 
-          JSON.parse(response.body)
+        def load_accounts(next_page_token:)
+          load_data('https://mybusiness.googleapis.com/v4/accounts', next_page_token: next_page_token)
         end
 
         def load_locations(account_path, next_page_token:)
-          response = Faraday.new(url: "https://mybusiness.googleapis.com/v4/#{account_path}/locations").get do |req|
+          load_data("https://mybusiness.googleapis.com/v4/#{account_path}/locations", next_page_token: next_page_token)
+        end
+
+        def load_data(url, next_page_token:)
+          response = Faraday.new(url: url).get do |req|
             req.headers['Authorization'] = [access_token.type, access_token.token].join(' ')
             req.params['pageToken'] = next_page_token if next_page_token.present?
           end
