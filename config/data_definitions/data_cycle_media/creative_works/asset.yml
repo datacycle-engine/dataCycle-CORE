@@ -11,7 +11,7 @@
       :translatable:
         :allowed: true
     :api:
-      :type: AssetObject
+      :type: MediaObject
     :properties:
       :id:
         :label: id
@@ -22,11 +22,6 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
-        :label: Alt-Label
-        :type: string
-        :storage_location: translated_value
-        :search: true
       :description:
         :label: Teasertext
         :type: string

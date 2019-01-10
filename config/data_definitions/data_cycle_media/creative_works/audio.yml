@@ -11,7 +11,7 @@
       :translatable:
         :allowed: true
     :api:
-      :type: VideoObject
+      :type: AudioObject
     :properties:
       :id:
         :label: id
@@ -22,11 +22,6 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
-        :label: Alt-Label
-        :type: string
-        :storage_location: translated_value
-        :search: true
       :description:
         :label: Teasertext
         :type: string
@@ -52,6 +47,14 @@
         :ui:
           :show:
             :disabled: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
@@ -94,6 +97,11 @@
           :show:
             :options:
               :data-unit: sec
+        :api:
+          :partial: duration
+          :format:
+            :append: S
+            :prepend: PT
       :data_type:
         :label: Inhaltstype
         :type: classification
