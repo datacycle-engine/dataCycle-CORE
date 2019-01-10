@@ -79,6 +79,13 @@ DataCycleCore::Engine.routes.draw do
     get :download, on: :collection
   end
 
+  scope :admin do
+    resources :external_sources, only: [] do
+      get :authorize, on: :member
+      get :callback, on: :member
+    end
+  end
+
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download', to: 'dash_board#download'
   get  '/admin/import', to: 'dash_board#import'
