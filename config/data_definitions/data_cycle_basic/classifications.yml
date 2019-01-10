@@ -17,6 +17,8 @@
 # embedded
   - $$Veranstaltungstermin
   - $$Öffnungszeit
+  - $$Öffnungszeit - Simple
+  - $$Öffnungszeit - Zeitspanne
   - $$Overlay
   - $$Publikations-Plan
 

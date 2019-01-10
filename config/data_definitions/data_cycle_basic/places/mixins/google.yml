@@ -11,3 +11,9 @@
         :ui:
           :show:
             :content_area: header
+      :opening_hours_specification:
+        :label: Öffnungszeit
+        :type: embedded
+        :template_name: Öffnungszeit - Simple
+        :api:
+          :partial: simple_opening_hours_specification
