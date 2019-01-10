@@ -29,7 +29,7 @@ module DataCycleCore
             loop do
               data = load_accounts(next_page_token: next_page_token)
 
-              data['accounts'].each do |account_data|
+              (data['accounts'] || []).each do |account_data|
                 yielder << account_data
               end
 
@@ -48,7 +48,7 @@ module DataCycleCore
               loop do
                 data = load_locations(account['name'], next_page_token: next_page_token)
 
-                data['locations'].each do |location_data|
+                (data['locations'] || []).each do |location_data|
                   yielder << location_data
                 end
 
