@@ -12,8 +12,6 @@
 
             <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :post }) do |f| %>
                 <% if resource.errors.any? %>
-                    <% binding.pry %>
-
                     <ul class="errors">
                         <% resource.errors.full_messages.each do |message| %>
                             <li><%= message %></li>

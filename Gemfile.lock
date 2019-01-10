@@ -42,6 +42,7 @@ PATH
       pHash
       pdf-reader
       pg (~> 0.21)
+      premailer
       puma (~> 3.11.0)
       puma_worker_killer
       rails (~> 5.1.6.1)
@@ -166,6 +167,8 @@ GEM
     coderay (1.1.2)
     concurrent-ruby (1.1.4)
     crass (1.0.4)
+    css_parser (1.6.0)
+      addressable
     daemons (1.2.6)
     debug_inspector (0.0.3)
     delayed_job (4.1.5)
@@ -304,6 +307,10 @@ GEM
       ttfunk
     pg (0.21.0)
     powerpack (0.1.2)
+    premailer (1.11.1)
+      addressable
+      css_parser (>= 1.6.0)
+      htmlentities (>= 4.0.0)
     pry (0.12.2)
       coderay (~> 1.1.0)
       method_source (~> 0.9.0)
