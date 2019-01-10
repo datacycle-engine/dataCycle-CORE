@@ -845,7 +845,7 @@ body .v-select {
 }
 
 .reveal-overlay,
-.reveal.without-overlay {
+.reveal.without-overlay:not(.full) {
   background: none;
 }
 

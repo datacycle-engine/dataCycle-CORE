@@ -275,6 +275,10 @@ module.exports.initialize = function() {
   };
 
   if ($('#content-upload-reveal').length) {
+    $('#content-upload-reveal').on('closed.zf.reveal', event => {
+      $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
+    });
+
     $('#content-upload-reveal').on('open.zf.reveal', event => {
       $(event.currentTarget)
         .parent('.reveal-overlay')

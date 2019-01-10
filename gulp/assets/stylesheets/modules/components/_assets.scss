@@ -8,6 +8,11 @@
   display: flex;
   flex-flow: column;
   height: calc(100vh - 2rem);
+  .content-upload-link {
+    position: absolute;
+    right: 3rem;
+    top: 0.8rem;
+  }
   .scrollable-asset-list {
     overflow-y: auto;
     flex: 1;

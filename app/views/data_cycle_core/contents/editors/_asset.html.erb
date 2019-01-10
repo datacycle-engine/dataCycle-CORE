@@ -7,12 +7,17 @@
     <% end %>
 
     <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-    <%= hidden_field_tag key, value %>
+    <%= hidden_field_tag key, value&.id %>
     <%= render 'data_cycle_core/assets/asset_list', assets: Array(value), class: 'editable' %>
 
     <a class="button asset-selector-button" data-open="asset-selector-<%= sanitize_to_id(key) %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
     <div class="full reveal asset-selector-reveal" id="asset-selector-<%= sanitize_to_id(key) %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= sanitize_to_id(key) %>">
       <div class="asset-list-container">
+        <a class="content-upload-link" data-open="content-upload-reveal">
+          <i class="fa fa-upload" aria-hidden="true"></i>
+          <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
+        </a>
+
         <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>
         <div class="scrollable-asset-list">
           <%= render 'data_cycle_core/assets/asset_list', class: 'selectable', key: key, assets: nil, asset_types: DataCycleCore.asset_objects.select { |a| a.underscore.include?(definition['asset_type']) } %>

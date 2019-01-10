@@ -10,10 +10,10 @@
             <ul class="menu">
                 <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
                   <li>
-                    <%= link_to '#', class: 'content-upload-link', data: { open: 'content-upload-reveal' } do %>
+                    <a class="content-upload-link" data-open="content-upload-reveal">
                       <i class="fa fa-upload" aria-hidden="true"></i>
                       <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
-                    <% end %>
+                    </a>
                     <%= render 'upload' %>
                   </li>
                 <% end %>

@@ -360,6 +360,15 @@ de:
       data_cycle_core/text_file:
         one: Textdokument
         other: Textdokumente
+      data_cycle_core/pdf:
+        one: Pdf
+        other: Pdfs
+      data_cycle_core/image:
+        one: Bild
+        other: Bilder
+      data_cycle_core/video:
+        one: Video
+        other: Videos
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
