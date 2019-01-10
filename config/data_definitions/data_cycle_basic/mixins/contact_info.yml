@@ -43,7 +43,6 @@
             :type: string
             :storage_location: translated_value
             :api:
-              :name: sameAs
               :transformation:
                 :method: nest
                 :name: address
