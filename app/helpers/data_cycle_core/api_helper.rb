@@ -5,6 +5,7 @@ module DataCycleCore
     include DataHashHelper
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, _scope: :api)
+      api_version = @api_version || 2
       partials = [
         key.underscore.to_s,
         "#{definition['type'].underscore}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
@@ -13,7 +14,7 @@ module DataCycleCore
         definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/api/v2/api_base/attributes/#{p}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
       return first_existing_partial(partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
     end
 
