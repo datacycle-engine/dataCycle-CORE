@@ -8,13 +8,15 @@
     :features:
       :container:
         :allowed_templates:
-          - Linktipps
-          - Quiz
           - Angebot
+          - Artikel
           - Biografie
           - Interview
+          - Linktipps
+          - Quiz
           - SocialMediaPosting
           - Rezept
+          - Zeitleiste
       :creatable:
         :allowed: true
     :properties:
