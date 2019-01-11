@@ -55,18 +55,6 @@ module DataCycleCore
           assert_equal(2, classification_hash.dig('ancestors').size)
           assert_equal(['Inhaltstypen', 'Text'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
 
-          # assert(data_hash.dig('releaseStatusId').present?)
-          # assert_equal(1, data_hash.dig('releaseStatusId').size)
-          # assert_equal('freigegeben', data_hash.dig('releaseStatusId').first.dig('name'))
-          # assert_equal(1, data_hash.dig('releaseStatusId').first.dig('ancestors').size)
-          # assert_equal('Release-Stati', data_hash.dig('releaseStatusId').first.dig('ancestors').first.dig('name'))
-
-          assert(data_hash.dig('dataPool').present?)
-          assert_equal(1, data_hash.dig('dataPool').size)
-          assert_equal('Aktuelle Inhalte', data_hash.dig('dataPool').first.dig('name'))
-          assert_equal(1, data_hash.dig('dataPool').first.dig('ancestors').size)
-          assert_equal('Inhaltspools', data_hash.dig('dataPool').first.dig('ancestors').first.dig('name'))
-
           assert(json_data['meta'].present?)
           assert_equal(1, json_data.dig('meta', 'total'))
           assert_equal(1, json_data.dig('meta', 'pages'))
@@ -130,9 +118,9 @@ module DataCycleCore
           }
 
           # APIv2: release-stati has been removed
-          v1_classifications = json_data_search_old['contents'].first.dig('classifications').map { |item| item.dig('name') }.reject { |item| item == 'freigegeben' }.sort
+          v1_classifications = json_data_search_old['contents'].first.dig('classifications').map { |item| item.dig('name') }.reject { |item| item == 'freigegeben' || item == 'Aktuelle Inhalte' }.sort
           v2_classifications = data_hash
-            .select { |key, _value| ['classifications', 'dataPool'].include?(key) }
+            .select { |key, _value| ['classifications'].include?(key) }
             .map { |_key, value| value.is_a?(::Array) ? value.map { |item| item.dig('name') } : value.dig('name') }
             .flatten
             .sort
