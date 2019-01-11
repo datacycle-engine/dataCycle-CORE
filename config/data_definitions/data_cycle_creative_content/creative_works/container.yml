@@ -14,8 +14,8 @@
           - Interview
           - Linktipps
           - Quiz
-          - SocialMediaPosting
           - Rezept
+          - SocialMediaPosting
           - Zeitleiste
       :creatable:
         :allowed: true
