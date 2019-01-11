@@ -34,5 +34,11 @@ module DataCycleCore
       end
       self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
     end
+
+    private
+
+    def file_size_validation(_options)
+      errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) if file.size > options.dig(:file_size, :max).to_i
+    end
   end
 end

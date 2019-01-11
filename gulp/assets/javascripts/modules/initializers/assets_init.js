@@ -8,6 +8,7 @@ module.exports.initialize = function() {
   // Asset Selector
 
   var asset_selectors = [];
+  var files = [];
 
   function init(container = document) {
     $(container)
@@ -69,6 +70,24 @@ module.exports.initialize = function() {
     }
   };
 
+  let validate_file_size = function(validations, the_file, media_params) {
+    var messages = '';
+    var valid = true;
+    if (validations.max !== undefined && the_file.size > validations.max) {
+      valid = false;
+      messages += 'Datei zu groß (maximal ' + validations.max + ' byte)';
+    }
+    if (validations.min !== undefined && the_file.size < validations.min) {
+      valid = false;
+      messages += 'Datei zu klein (mindestens ' + validations.min + ' byte)';
+    }
+
+    return {
+      valid: valid,
+      message: valid ? undefined : messages
+    };
+  };
+
   let validate_format = function(validations, the_file, media_params) {
     var valid = validations.indexOf(the_file.name.split('.').pop()) !== -1;
 
@@ -82,7 +101,7 @@ module.exports.initialize = function() {
 
   let validate_dimensions = function(validations, the_file, media_params) {
     if (media_params !== undefined) {
-      var additional = reject(validations, [
+      var additional = object_helpers.reject(validations, [
         'landscape',
         'portrait',
         'exclude'
@@ -247,7 +266,6 @@ module.exports.initialize = function() {
   };
 
   let validate_and_render = function(
-    files,
     validations,
     the_file,
     media_params,
@@ -271,8 +289,194 @@ module.exports.initialize = function() {
     }
 
     render_file_field_html(target, the_file.name, html);
-    return files;
   };
+
+  function validate_file(
+    type_validations,
+    the_file,
+    target,
+    file_name,
+    chosen_validation = undefined
+  ) {
+    if (files.filter(f => f.name == the_file.name).length == 0)
+      files.push(the_file);
+    var media_html =
+      '<dl class="file-info"><dt>Format:</dt><dd>' +
+      the_file.type.split('/').pop() +
+      '</dd>, <dt>Größe:</dt><dd>' +
+      the_file.size.file_size(1) +
+      '</dd>';
+
+    var prepend_html =
+      '<span class="file-title" title="' +
+      the_file.name +
+      '">' +
+      the_file.name +
+      '</span>';
+    var append_html = '';
+
+    if (type_validations.length > 1) {
+      append_html += '<span class="type-selector">';
+      type_validations.forEach((value, index) => {
+        append_html +=
+          '<input type="radio" id="' +
+          file_name +
+          '_' +
+          value.class.replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_') +
+          '_selector" name="' +
+          file_name +
+          '_radio" value="' +
+          value.class +
+          '"' +
+          (value.class == chosen_validation.class ? ' checked="checked"' : '') +
+          '><label for="' +
+          file_name +
+          '_' +
+          value.class.replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_') +
+          '_selector">' +
+          value.translation +
+          '</label>';
+      });
+      append_html += '</span>';
+    }
+    var chosen_type_validation = chosen_validation || type_validations[0];
+
+    append_html +=
+      '<input type="hidden" class="asset-type" name="asset-type" id="' +
+      file_name +
+      '_asset_type" value="' +
+      chosen_type_validation.class +
+      '">';
+
+    append_html +=
+      '<span class="upload-progress"><span class="upload-progress-bar"></span></span>' +
+      '<a href="#" class="remove-file"><i aria-hidden="true" class="fa fa-times"></i></a>' +
+      '<span class="upload-number"></span>';
+
+    var the_file_url = URL.createObjectURL(the_file);
+
+    if (chosen_type_validation.class == 'DataCycleCore::Image') {
+      prepend_html += '<img src="' + the_file_url + '">';
+      var the_image = new Image();
+      the_image.onload = function() {
+        media_html +=
+          ', <dt>Abmessungen:</dt><dd>' +
+          the_image.naturalWidth +
+          'x' +
+          the_image.naturalHeight +
+          '</dt></dl>';
+        validate_and_render(
+          chosen_type_validation,
+          the_file,
+          {
+            width: the_image.naturalWidth,
+            height: the_image.naturalHeight
+          },
+          target,
+          prepend_html + media_html + append_html
+        );
+      };
+      the_image.onerror = function() {
+        media_html += '</dl>';
+        validate_and_render(
+          chosen_type_validation,
+          the_file,
+          undefined,
+          target,
+          prepend_html + media_html + append_html
+        );
+      };
+      the_image.src = the_file_url;
+    } else if (chosen_type_validation.class == 'DataCycleCore::Video') {
+      var the_video = document.createElement('video');
+      the_video.onloadedmetadata = function() {
+        window.URL.revokeObjectURL(this.src);
+        media_html +=
+          ', <dt>Abmessungen:</dt><dd>' +
+          the_video.videoWidth +
+          'x' +
+          the_video.videoHeight +
+          '</dd>, <dt>Dauer:</dt><dd>' +
+          duration_helpers.seconds_to_human_time(the_video.duration) +
+          '</dd></dl>';
+        validate_and_render(
+          chosen_type_validation,
+          the_file,
+          {
+            width: the_video.videoWidth,
+            height: the_video.videoHeight
+          },
+          target,
+          prepend_html + media_html + append_html
+        );
+      };
+      the_video.onerror = function() {
+        media_html += '</dl>';
+        validate_and_render(
+          chosen_type_validation,
+          the_file,
+          undefined,
+          target,
+          prepend_html + media_html + append_html
+        );
+      };
+      the_video.setAttribute('src', the_file_url);
+    } else if (chosen_type_validation.class == 'DataCycleCore::Pdf') {
+      media_html += '</dl>';
+      validate_and_render(
+        chosen_type_validation,
+        the_file,
+        undefined,
+        target,
+        prepend_html + media_html + append_html
+      );
+    } else if (chosen_type_validation.class == 'DataCycleCore::DataCycleFile') {
+      media_html += '</dl>';
+      validate_and_render(
+        chosen_type_validation,
+        the_file,
+        undefined,
+        target,
+        prepend_html + media_html + append_html
+      );
+    } else if (chosen_type_validation.class == 'DataCycleCore::TextFile') {
+      media_html += '</dl>';
+      validate_and_render(
+        chosen_type_validation,
+        the_file,
+        undefined,
+        target,
+        prepend_html + media_html + append_html
+      );
+    } else {
+      media_html += '</dl>';
+      validate_and_render(
+        undefined,
+        the_file,
+        undefined,
+        target,
+        prepend_html + media_html + append_html
+      );
+    }
+
+    $(
+      '#content-upload-reveal .file-for-upload[data-file="' +
+        the_file.name +
+        '"] .type-selector input[type="radio"][name="' +
+        file_name +
+        '_radio"]'
+    ).change(e => {
+      validate_file(
+        type_validations,
+        the_file,
+        target,
+        file_name,
+        type_validations.find(v => {
+          return v.class == $(e.target).val();
+        })
+      );
+    });
+  }
 
   if ($('#content-upload-reveal').length) {
     $('#content-upload-reveal').on('closed.zf.reveal', event => {
@@ -284,8 +488,7 @@ module.exports.initialize = function() {
         .parent('.reveal-overlay')
         .addClass('content-reveal-overlay');
     });
-    var files = [];
-    var validations = $('#content-upload-reveal').data('validations');
+    var validations = $('#content-upload-reveal').data('validations') || {};
 
     $('input[type="file"].upload-file').on('change', event => {
       if (event.target.files != undefined && event.target.files.length > 0) {
@@ -311,127 +514,25 @@ module.exports.initialize = function() {
 
           reader.onload = (function(the_file) {
             return function(e) {
-              var media_html =
-                '<dl class="file-info"><dt>Format:</dt><dd>' +
-                the_file.type.split('/').pop() +
-                '</dd>, <dt>Größe:</dt><dd>' +
-                the_file.size.file_size(1) +
-                '</dd>';
+              var type_validations = [];
+              var file_extension = the_file.name.split('.').pop();
+              var file_name = the_file.name
+                .split('.')
+                .shift()
+                .replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_');
 
-              var prepend_html =
-                '<span class="file-title" title="' +
-                the_file.name +
-                '">' +
-                the_file.name +
-                '</span>';
-              var append_html =
-                '<span class="upload-progress"><span class="upload-progress-bar"></span></span>' +
-                '<a href="#" class="remove-file"><i aria-hidden="true" class="fa fa-times"></i></a>' +
-                '<span class="upload-number"></span>';
-
-              var the_file_url = URL.createObjectURL(the_file);
-
-              if (the_file.type.match(/image.*/)) {
-                prepend_html += '<img src="' + the_file_url + '">';
-                var the_image = new Image();
-                the_image.onload = function() {
-                  media_html +=
-                    ', <dt>Abmessungen:</dt><dd>' +
-                    the_image.naturalWidth +
-                    'x' +
-                    the_image.naturalHeight +
-                    '</dt></dl>';
-                  files = validate_and_render(
-                    files,
-                    validations.image,
-                    the_file,
-                    {
-                      width: the_image.naturalWidth,
-                      height: the_image.naturalHeight
-                    },
-                    event.currentTarget,
-                    prepend_html + media_html + append_html
-                  );
-                };
-                the_image.onerror = function() {
-                  media_html += '</dl>';
-                  files = validate_and_render(
-                    files,
-                    validations.image,
-                    the_file,
-                    undefined,
-                    event.currentTarget,
-                    prepend_html + media_html + append_html
-                  );
-                };
-                the_image.src = the_file_url;
-              } else if (the_file.type.match(/video.*/)) {
-                var the_video = document.createElement('video');
-                the_video.onloadedmetadata = function() {
-                  window.URL.revokeObjectURL(this.src);
-                  media_html +=
-                    ', <dt>Abmessungen:</dt><dd>' +
-                    the_video.videoWidth +
-                    'x' +
-                    the_video.videoHeight +
-                    '</dd>, <dt>Dauer:</dt><dd>' +
-                    duration_helpers.seconds_to_human_time(the_video.duration) +
-                    '</dd></dl>';
-                  files = validate_and_render(
-                    files,
-                    validations.video,
-                    the_file,
-                    {
-                      width: the_video.videoWidth,
-                      height: the_video.videoHeight
-                    },
-                    event.currentTarget,
-                    prepend_html + media_html + append_html
-                  );
-                };
-                the_video.onerror = function() {
-                  media_html += '</dl>';
-                  files = validate_and_render(
-                    files,
-                    validations.video,
-                    the_file,
-                    undefined,
-                    event.currentTarget,
-                    prepend_html + media_html + append_html
-                  );
-                };
-                the_video.setAttribute('src', the_file_url);
-              } else if (the_file.type.match(/application.pdf/)) {
-                media_html += '</dl>';
-                files = validate_and_render(
-                  files,
-                  validations.pdf,
-                  the_file,
-                  undefined,
-                  event.currentTarget,
-                  prepend_html + media_html + append_html
-                );
-              } else if (the_file.type.match(/application.*/)) {
-                media_html += '</dl>';
-                files = validate_and_render(
-                  files,
-                  validations.text,
-                  the_file,
-                  undefined,
-                  event.currentTarget,
-                  prepend_html + media_html + append_html
-                );
-              } else {
-                media_html += '</dl>';
-                files = validate_and_render(
-                  files,
-                  undefined,
-                  the_file,
-                  undefined,
-                  event.currentTarget,
-                  prepend_html + media_html + append_html
-                );
+              for (const key in validations) {
+                if (validations[key].format.indexOf(file_extension) !== -1)
+                  type_validations.push(validations[key]);
               }
+
+              validate_file(
+                type_validations,
+                the_file,
+                event.currentTarget,
+                file_name,
+                type_validations[0]
+              );
             };
           })(new_files[i]);
 
@@ -467,8 +568,19 @@ module.exports.initialize = function() {
             .addClass('uploading')
             .find('.error')
             .remove();
+
+          $(file_element)
+            .find('.type-selector')
+            .hide();
+
           var data = new FormData();
           data.append('asset[file]', element);
+          data.append(
+            'asset[type]',
+            $(file_element)
+              .find('input[type="hidden"].asset-type')
+              .val()
+          );
 
           var startTime = new Date().getTime();
 

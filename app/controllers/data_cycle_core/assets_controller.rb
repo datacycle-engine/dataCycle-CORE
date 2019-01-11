@@ -8,17 +8,15 @@ module DataCycleCore
       authorize! :index, DataCycleCore::Asset
       @html_target = permitted_params[:html_target]
       @selected = permitted_params[:selected]
-      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(:type)
+      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(:updated_at)
       @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
       @assets = @assets.where.not(id: permitted_params[:locked_assets]) if permitted_params[:locked_assets].present?
     end
 
     def create
-      return if asset_params[:file].blank?
+      return if asset_params[:file].blank? || asset_params[:type].blank?
 
-      object_type = DataCycleCore.asset_objects.find do |object|
-        object.underscore.include?(asset_params[:file].content_type&.gsub('application/pdf', 'pdf')&.gsub('application', 'text_file')&.split('/')&.first&.underscore)
-      end
+      object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
       render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
 
@@ -68,7 +66,7 @@ module DataCycleCore
     private
 
     def asset_params
-      params.require(:asset).permit(:name, :file)
+      params.require(:asset).permit(:name, :file, :type)
     end
 
     def permitted_params

@@ -111,9 +111,11 @@ module DataCycleCore
       if value.is_a? Hash
         return_html = ''
         value.each do |k, v|
-          return_html += uploader_validation_to_text(v, parents + [k])
+          return_html += uploader_validation_to_text(v, parents + [k.to_s])
         end
         return_html
+      elsif parents[-2] == 'file_size'
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</li>"
       else
         "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
       end
@@ -121,11 +123,14 @@ module DataCycleCore
 
     def merge_uploader_white_list
       uploader_validations = DataCycleCore.uploader_validations.dup
+
       DataCycleCore.asset_objects.map { |a|
-        can?(:create, a.classify.constantize) ? a.classify.constantize.uploaders.values : uploader_validations.delete(a.demodulize.underscore.to_sym)
-      }.compact.flatten.uniq.each do |u|
-        (uploader_validations[u.name.demodulize.underscore.remove('_uploader').to_sym] ||= {}).merge!({
-          format: u.new.extension_white_list
+        can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : uploader_validations.delete(a.demodulize.underscore.to_sym)
+      }.compact.to_h.each do |k, v|
+        (uploader_validations[v.name.demodulize.underscore.remove('_uploader').to_sym] ||= {}).merge!({
+          format: v.new.extension_white_list,
+          class: k,
+          translation: t("uploader.type.#{v.name.demodulize.underscore.remove('_uploader')}", locale: DataCycleCore.ui_language)
         })
       end
       uploader_validations

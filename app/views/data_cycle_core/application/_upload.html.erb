@@ -30,7 +30,7 @@
       <li>
         <b><%= t("uploader.type.#{type}", locale: DataCycleCore.ui_language) %></b>
         <ul>
-          <%= uploader_validation_to_text(validation).html_safe %>
+          <%= uploader_validation_to_text(validation&.except(:translation, :class)).html_safe %>
         </ul>
       </li>
       <% end %>
