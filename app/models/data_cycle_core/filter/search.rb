@@ -216,13 +216,13 @@ module DataCycleCore
         ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
-            "searches.boost * (
+            "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
               2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))
               DESC NULLS LAST,
-              searches.updated_at DESC",
+              things.updated_at DESC",
             search_string: "%#{search_string}%",
             search: (search || '').squish
           ]
