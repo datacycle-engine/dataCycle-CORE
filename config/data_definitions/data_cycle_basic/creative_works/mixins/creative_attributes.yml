@@ -59,6 +59,15 @@
         :label: Ort
         :type: linked
         :template_name: POI
+      :url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :keywords:
         :label: Keywords
         :storage_location: translated_value
