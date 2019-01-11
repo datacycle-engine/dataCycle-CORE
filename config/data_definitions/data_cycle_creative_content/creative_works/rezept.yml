@@ -25,27 +25,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :link_name:
-        :label: Linktitel
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :name: name
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :recipe_instructions:
         :label: Fließtext
         :type: string

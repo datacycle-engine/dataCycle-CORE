@@ -23,70 +23,15 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :link_name:
-        :label: Linktitel
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :name: name
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :textblock:
-        :label: Textblock
-        :type: embedded
-        :template_name: Textblock
-      :price:
-        :label: Preis
-        :type: string
-        :storage_location: value
-      :service:
-        :label: Inklusivleistungen
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :offer_period:
-        :label: Angebotszeitraum
+        :label: Angebotdetails
         :type: embedded
         :template_name: Angebotszeitraum
         :api:
           :name: offers
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :website:
-        :label: Link
-        :type: embedded
-        :template_name: Website
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -116,6 +61,10 @@
       :id:
         :label: id
         :type: key
+      :price:
+        :label: Preis
+        :type: string
+        :storage_location: value
       :offer_period:
         :label: Zeitraum
         :type: object
