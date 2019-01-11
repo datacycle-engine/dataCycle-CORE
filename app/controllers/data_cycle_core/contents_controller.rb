@@ -241,18 +241,10 @@ module DataCycleCore
       respond_to(:js)
     end
 
-    def gpx
-      @object = DataCycleCore::Thing.find_by(id: params[:id])
-      authorize! :show, @object
-      send_data @object.create_gpx, filename: "#{@object.title.blank? ? 'unnamed_place' : @object.title.parameterize(separator: '_')}.gpx", type: 'gpx/xml'
-    end
-
     def validate
       @object = DataCycleCore::Thing.find_by(id: params[:id])
 
-      if @object.blank? && params[:template].present?
-        @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template])
-      end
+      @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template]) if @object.blank? && params[:template].present?
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 

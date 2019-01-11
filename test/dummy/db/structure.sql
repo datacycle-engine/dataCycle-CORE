@@ -8,20 +8,6 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
-
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -158,24 +144,6 @@ CREATE VIEW public.classification_alias_paths AS
 
 
 --
--- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    content_data_history_id uuid,
-    classification_id uuid,
-    tag boolean,
-    classification boolean,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    relation character varying
-);
-
-
---
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -207,6 +175,109 @@ CREATE TABLE public.classification_groups (
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone
 );
+
+
+--
+-- Name: classification_alias_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_statistics AS
+ WITH descendant_counts AS (
+         SELECT classification_aliases_1.id,
+            count(
+                CASE
+                    WHEN (exploded_classification_ancestors.ancestor_id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS descendant_count
+           FROM (public.classification_aliases classification_aliases_1
+             JOIN ( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id
+                   FROM public.classification_alias_paths) exploded_classification_ancestors ON ((exploded_classification_ancestors.ancestor_id = classification_aliases_1.id)))
+          GROUP BY classification_aliases_1.id
+        ), linked_content_counts AS (
+         SELECT classification_aliases_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases_1.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS linked_content_count
+           FROM (((public.classification_aliases classification_aliases_1
+             JOIN public.classification_alias_paths ON ((classification_aliases_1.id = classification_alias_paths.id)))
+             JOIN public.classification_groups ON ((classification_aliases_1.id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY classification_aliases_1.id
+        ), descendants_linked_content_counts AS (
+         SELECT exploded_classification_ancestors.ancestor_id AS id,
+            count(*) AS linked_content_count
+           FROM ((( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id,
+                    classification_alias_paths.id AS classification_alias_id
+                   FROM public.classification_alias_paths) exploded_classification_ancestors
+             JOIN public.classification_groups ON ((exploded_classification_ancestors.classification_alias_id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY exploded_classification_ancestors.ancestor_id
+        )
+ SELECT classification_aliases.id,
+    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
+    (COALESCE(linked_content_counts.linked_content_count, (0)::bigint) + COALESCE(descendants_linked_content_counts.linked_content_count, (0)::bigint)) AS linked_content_count
+   FROM (((public.classification_aliases
+     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_aliases.id)))
+     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_aliases.id)))
+     LEFT JOIN descendants_linked_content_counts ON ((descendants_linked_content_counts.id = classification_aliases.id)));
+
+
+--
+-- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_content_histories (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    content_data_history_id uuid,
+    classification_id uuid,
+    tag boolean,
+    classification boolean,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    relation character varying
+);
+
+
+--
+-- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_tree_label_statistics AS
+ WITH descendant_counts AS (
+         SELECT classification_tree_labels_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS descendant_count
+           FROM ((public.classification_tree_labels classification_tree_labels_1
+             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
+             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
+          GROUP BY classification_tree_labels_1.id
+        ), linked_content_counts AS (
+         SELECT classification_tree_labels_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS linked_content_count
+           FROM ((((public.classification_tree_labels classification_tree_labels_1
+             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
+             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
+             JOIN public.classification_groups ON ((classification_aliases.id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY classification_tree_labels_1.id
+        )
+ SELECT classification_tree_labels.id,
+    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
+    COALESCE(linked_content_counts.linked_content_count, (0)::bigint) AS linked_content_count
+   FROM ((public.classification_tree_labels
+     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_tree_labels.id)))
+     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_tree_labels.id)));
 
 
 --
@@ -367,7 +438,7 @@ CREATE TABLE public.things (
 
 CREATE VIEW public.content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing'::text AS content_type,
+    'DataCycleCore::Thing' AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -406,7 +477,6 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -450,6 +520,23 @@ CREATE TABLE public.external_systems (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
+
+
+--
+-- Name: primary_classification_groups; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.primary_classification_groups AS
+ SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
+    classification_groups.classification_id,
+    classification_groups.classification_alias_id,
+    classification_groups.external_source_id,
+    classification_groups.seen_at,
+    classification_groups.created_at,
+    classification_groups.updated_at,
+    classification_groups.deleted_at
+   FROM public.classification_groups
+  ORDER BY classification_groups.classification_id, classification_groups.created_at;
 
 
 --
@@ -1673,6 +1760,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181123113811'),
 ('20181126000001'),
 ('20181127142527'),
-('20181130130052');
+('20181130130052'),
+('20181229111741'),
+('20181231081526');
 
 

@@ -3,6 +3,7 @@
 combined = {}
 options.dig(:combined_attributes).each do |property|
   definition = content.properties_for(property)
+  next if definition.blank?
   (combined[definition.dig('api', 'transformation', 'name')] ||= []) << [property, definition]
 end
 

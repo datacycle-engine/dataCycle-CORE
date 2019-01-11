@@ -46,7 +46,7 @@ DataCycleCore.setup do |config|
     }
   )
 
-  if ENV['RAILS_ENV'] == 'test'
+  if Rails.env.test?
     config.features = config.features.deep_merge(
       releasable: {
         enabled: true

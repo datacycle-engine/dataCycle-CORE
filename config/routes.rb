@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 DataCycleCore::Engine.routes.draw do
-  devise_for :users, class_name: 'DataCycleCore::User', module: :devise
+  devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
+                     controllers: { passwords: 'data_cycle_core/passwords' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root

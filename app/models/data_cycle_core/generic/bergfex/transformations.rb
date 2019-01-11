@@ -67,7 +67,7 @@ module DataCycleCore
           .>> t(:reject_keys, ['value', 'max_value'])
           .>> t(:add_field, 'value', ->(s) { s.dig('openSlopesCount', 'text')&.to_i })
           .>> t(:add_field, 'max_value', ->(s) { s.dig('openSlopesCount', 'max')&.to_i })
-          .>> t(:nest, 'open_slopes_count', ['value', 'max_value'])
+          .>> t(:nest, 'count_open_slopes', ['value', 'max_value'])
           .>> t(:reject_keys, ['value', 'max_value'])
           .>> t(:add_field, 'length_nordic_classic', ->(s) { s.dig('lengthNordicClassic', 'text')&.to_f })
           .>> t(:add_field, 'length_nordic_skating', ->(s) { s.dig('lengthNordicSkating', 'text')&.to_f })
