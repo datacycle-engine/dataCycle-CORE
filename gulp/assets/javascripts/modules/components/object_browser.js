@@ -36,6 +36,7 @@ var ObjectBrowser = function(selector) {
   this.content_id = this.element.data('content-id');
   this.content_type = this.element.data('content-type');
   this.masonry;
+  this.requests = [];
 
   this.setup();
 };
@@ -589,53 +590,66 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
   }
   this.overlay.find('.items .loading').show();
   this.loading = true;
-  $.ajax({
-    url: this.url + '/show',
-    method: 'POST',
-    dataType: 'script',
-    data: JSON.stringify({
-      page: this.page,
-      per: this.overlay_per,
-      type: this.type,
-      locale: this.locale,
-      key: this.key,
-      definition: this.definition,
-      options: this.options,
-      search: this.search,
-      objects: this.chosen,
-      editable: this.editable,
-      excluded: this.excluded,
-      append: append
-    }),
-    contentType: 'application/json'
-  }).done(data => {
-    this.total = this.overlay.data('total');
-    this.overlay.find('.items .item .reveal.media-preview').each(function() {
-      if (
-        $(this)
-          .prop('id')
-          .indexOf('overlay_') == -1
-      )
-        $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-    this.loading = false;
-    if (
-      this.overlay.children('.items').children('.item').length < this.total &&
-      this.overlay
-        .children('.items')
-        .children('.item')
-        .last()
-        .offset().top -
-        this.overlay.children('.items').offset().top <
-        this.overlay
-          .children('.items')
-          .first()
-          .outerHeight()
-    ) {
-      this.page += 1;
-      this.loadObjects();
-    }
+  this.requests.forEach(request => {
+    request.abort();
+    this.requests = this.requests.filter(r => r != request);
   });
+  this.requests.push(
+    $.ajax({
+      url: this.url + '/show',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        search: this.search,
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        append: append
+      }),
+      contentType: 'application/json'
+    })
+      .done(data => {
+        this.total = this.overlay.data('total');
+        this.overlay
+          .find('.items .item .reveal.media-preview')
+          .each(function() {
+            if (
+              $(this)
+                .prop('id')
+                .indexOf('overlay_') == -1
+            )
+              $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          });
+        this.loading = false;
+        if (
+          this.overlay.children('.items').children('.item').length <
+            this.total &&
+          this.overlay
+            .children('.items')
+            .children('.item')
+            .last()
+            .offset().top -
+            this.overlay.children('.items').offset().top <
+            this.overlay
+              .children('.items')
+              .first()
+              .outerHeight()
+        ) {
+          this.page += 1;
+          this.loadObjects();
+        }
+      })
+      .always((data, text, jqXHR) => {
+        this.requests = this.requests.filter(r => r != jqXHR);
+      })
+  );
 };
 
 module.exports = ObjectBrowser;
