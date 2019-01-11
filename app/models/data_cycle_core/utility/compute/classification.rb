@@ -6,7 +6,7 @@ module DataCycleCore
       module Classification
         class << self
           def keywords(**args)
-            tags = args.dig(:computed_parameters).presence&.try(:flatten)
+            tags = args.dig(:computed_parameters).presence&.try(:flatten)&.reject(&:blank?)
             return if tags.blank?
             DataCycleCore::Classification.find(tags)&.map(&:name)&.join(',')
           end
