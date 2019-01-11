@@ -9,6 +9,10 @@ module DataCycleCore
         attr_reader :client_id, :client_secret, :refresh_token
 
         def initialize(client_id:, client_secret:, refresh_token:, **_options)
+          raise 'client_id cannot be blank' if client_id.blank?
+          raise 'client_secret cannot be blank' if client_secret.blank?
+          raise 'refresh_token cannot be blank' if refresh_token.blank?
+
           @client_id = client_id
           @client_secret = client_secret
           @refresh_token = refresh_token
@@ -77,6 +81,8 @@ module DataCycleCore
             req.params['languageCode'] = lang if lang.present?
           end
 
+          raise "Error connecting to '#{response.env.url.host}'" unless response.success?
+
           JSON.parse(response.body)
         end
 
@@ -88,6 +94,8 @@ module DataCycleCore
             req.params['grant_type'] = 'refresh_token'
             req.params['access_type'] = 'offline'
           end
+
+          raise "Error connecting to '#{response.env.url.host}'" unless response.success?
 
           data = JSON.parse(response.body)
 
