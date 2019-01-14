@@ -17,7 +17,7 @@ module DataCycleCore
             if template.key?('validations')
               template['validations'].each_key do |key|
                 if string_keywords.include?(key)
-                  method(key).call(data, template['validations'][key])
+                  method(key).call(data.to_s, template['validations'][key])
                 else
                   (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
                 end
@@ -35,12 +35,12 @@ module DataCycleCore
 
         def min(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if text_length < value.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length < value.to_i
         end
 
         def max(data, value)
           text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
-          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if text_length.to_i > value.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length.to_i > value.to_i
         end
 
         def pattern(data, expression)
