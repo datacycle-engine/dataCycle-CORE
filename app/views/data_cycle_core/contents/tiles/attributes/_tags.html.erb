@@ -1,7 +1,11 @@
 <div class="tags">
   <ul class="no-bullet no-format">
     <% item.display_classification_aliases.each do |classification_alias| %>
-      <li class="tag"><%= classification_alias.name %></li>
+      <li data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification"
+          aria-haspopup="true" class="tag"
+          title="<%= classification_tooltip(classification_alias) %>">
+        <%= classification_alias.name %>
+      </li>
     <% end %>
   </ul>
 </div>

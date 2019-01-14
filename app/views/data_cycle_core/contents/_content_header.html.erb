@@ -16,6 +16,25 @@
 
         <%= render 'header_properties', content: content %>
 
+        <% content.mapped_classification_aliases.group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
+            <div data-label="<%= tree.name %>" class="detail-type classification">
+                <span class="detail-label">
+                    <span class="icon tags"><i class="fa" aria-hidden="true"></i></span>
+                    <%= tree.name %>
+                </span>
+
+                <span class="detail-content tags">
+                    <% classification_aliases.uniq.each do |classification_alias| %>
+                        <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification"
+                              aria-haspopup="true" class="tag"
+                              title="<%= classification_tooltip(classification_alias) %>">
+                            <%= classification_alias.name %>
+                        </span>
+                    <% end %>
+                </span>
+            </div>
+        <% end %>
+
         <%= render 'validity_period', dataCycleObject: content %>
 
         <%= render_content_partial 'header_bottom', content: content %>

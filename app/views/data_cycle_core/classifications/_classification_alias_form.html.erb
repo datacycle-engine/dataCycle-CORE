@@ -33,7 +33,8 @@
   </div>
 
   <% if classification_alias.persisted? && can?(:map_classifications, classification_alias) %>
-    <%= hidden_field_tag 'classification_alias[classification_ids][]', classification_alias&.primary_classification_id, class: 'default_classification_mapping' %>
+    <%= hidden_field_tag 'classification_alias[classification_ids][]', classification_alias&.primary_classification_id,
+                         class: 'default_classification_mapping' %>
     <div class="v-select">
       <%= f.label :classification_ids %>
       <%= f.select(:classification_ids,
@@ -42,11 +43,11 @@
             c.name,
             c.id,
             {
-              title: c.ancestors.reverse.map(&:name).join(' > ')
+              title: c.primary_classification_alias.full_path
             }
           ]
         },
-        classification_alias.classifications.where.not(id: classification_alias&.primary_classification_id).map(&:id)),
+        classification_alias.additional_classifications.map(&:id)),
         {},
         { multiple: true }) %>
     </div>

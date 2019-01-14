@@ -151,7 +151,7 @@ module DataCycleCore
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
-        test 'insert embeddedObject within same table then add another quotation' do
+        test 'insert embeddedObject within same table then add another quotation and change order' do
           data_set = @data_set
           linked_id = @linked_objects.first
 
@@ -193,6 +193,19 @@ module DataCycleCore
           # check consistency of data in DB
           assert_equal(4, DataCycleCore::Thing.where(template: false).count)
           assert_equal(4, DataCycleCore::ContentContent.count)
+
+          data_hash['embedded_creative_work'].reverse!
+          expected_hash['embedded_creative_work'].reverse!
+          error = data_set.set_data_hash(data_hash: data_hash)
+          returned_data_hash = data_set.get_data_hash
+
+          assert error[:error].blank?
+          assert_equal(expected_hash.except('embedded_creative_work'), returned_data_hash.compact.except('embedded_creative_work', *DataCycleCore::TestPreparations.excepted_attributes))
+          assert_equal(2, returned_data_hash['embedded_creative_work'].count)
+
+          # check consistency of data in DB
+          assert_equal(4, DataCycleCore::Thing.where(template: false).count)
+          assert_equal(2, data_set.content_content_a.where(relation_a: 'embedded_creative_work').size)
         end
       end
     end

@@ -1,27 +1,26 @@
-   <!--<tr>
-    <td style="padding:0 0 4.5pt 0">
-    <p style="line-height:12pt"><span style="font-size:9.0pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;font-style: italic">Kennen Sie schon unsere neuesten Feature? Zum Beispiel ab sofort möglich: Dateneingabe via Gedankenübertragung! <a href="#" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline">Hier erfahren Sie mehr.</span></a></span></p>
-    </td>
-   </tr>
-   <tr>
-    <td style="padding:24pt 0 0 0">
-    <p style="line-height:12pt"><span style="font-size:9.0pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">Möchten Sie diese E-Mails nicht mehr erhalten? Klicken Sie auf <a href="#" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline">Abmelden</span></a> bzw. auf <a href="#" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline">Einstellungen</span></a> um Ihre Mail-Benachrichtungseinstellungen zu ändern.</span></p>
-    </td>
-   </tr>-->
-   <!--<tr>
-    <td style="padding:12pt 0 0 0">
-    <table border="0" cellspacing="0" cellpadding="0"
-     width="100%" style="width:100.0%;">
-     <tr>
-      <td style="padding:0">
-      <p><span style="font-size:9.0pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">© <%= Date.current.year %>
-      <a href="#" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline">Datenschutzrichtlinie</span></a> lesen</span></p>
-      </td>
-     </tr>
+<% content_for :head do %>
+  <style>
+    .footer table {
+      width: 100%;
+      padding: 24px 24px 24px 36px;
+      background: #b8b8b8;
+    }
+    .footer p, .footer span {
+      font-size: 12px;
+    }
+  </style>
+<% end %>
+
+<tr class="footer">
+  <td>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+      <tr>
+        <td>
+          <p>
+            © <%= Date.current.year %> <a href="//datacycle.at" target="_blank"><span>dataCycle GmbH</span></a>
+          </p>
+        </td>
+      </tr>
     </table>
-    </td>
-   </tr>-->
+  </td>
+</tr>
