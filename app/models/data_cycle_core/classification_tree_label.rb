@@ -75,17 +75,17 @@ module DataCycleCore
         classification_aliases.sort_by(&:full_path).each do |classification_alias|
           csv << Array.new(classification_alias.ancestors.count) + [classification_alias.name]
 
-          if include_contents
-            classification_alias.linked_contents.each do |content_relation|
-              content_relation.content_data.translations.each do |content_translation|
-                row = Array.new(classification_alias.ancestors.count + 1)
-                row += [
-                  content_relation.content_data.template_name,
-                  content_translation.locale,
-                  content_translation.name
-                ]
-                csv << row
-              end
+          next unless include_contents
+
+          classification_alias.classifications.map(&:classification_contents).flatten.each do |content_relation|
+            content_relation.content_data.translations.each do |content_translation|
+              row = Array.new(classification_alias.ancestors.count + 1)
+              row += [
+                content_relation.content_data.template_name,
+                content_translation.locale,
+                content_translation.name
+              ]
+              csv << row
             end
           end
         end
