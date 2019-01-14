@@ -27,7 +27,7 @@ module DataCycleCore
             files = core_template_path + content_table_name + '*.yml'
             file_names = Dir[files]
             file_names.each do |file_name|
-              data_templates = YAML.load(File.open(file_name.to_s))
+              data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
               # new_template_definitions = data_templates.map { |item| item[:data][:name] }
               data_templates.each_index do |index|
                 already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
@@ -35,9 +35,7 @@ module DataCycleCore
                 if already_exist_index.nil?
                   import_list[content_table_name.to_sym] += [new_template_data]
                 else
-                  if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
-                    collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name)] })
-                  end
+                  collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name)] }) if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
                   collisions[content_table_name.to_sym][new_template_data[:name]] += [{ file: file_name, position: index }]
                   import_list[content_table_name.to_sym][already_exist_index] = new_template_data
                 end
@@ -59,7 +57,7 @@ module DataCycleCore
       def self.import_content_templates(template_list:, content_table:, validation: true)
         errors = {}
         template_list.each do |template_location|
-          template = YAML.load(File.open(template_location[:file]))[template_location[:position]]
+          template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
           template[:data] = transform_schema(schema: template[:data].dup, content_table: content_table)
           error = {}
           error = validate(template) if validation
@@ -117,9 +115,7 @@ module DataCycleCore
       end
 
       def self.add_sorting(hash, sorting)
-        if hash[:type] == 'object' && hash.key?(:properties).present?
-          hash[:properties] = transform_properties(property_hash: hash[:properties])
-        end
+        hash[:properties] = transform_properties(property_hash: hash[:properties]) if hash[:type] == 'object' && hash.key?(:properties).present?
         return apply_sorting(hash, sorting), sorting + 1
       end
 
@@ -195,8 +191,8 @@ module DataCycleCore
                   errors: {
                     included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data).",
                     embedded_object: "type must be 'embedded'. either define a stored_filter, or a template_name",
-                    linked_object:   "type must be 'linked'. either define a stored_filter, or a template_name",
-                    asset_relation:  "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'file', 'pdf', 'audio'",
+                    linked_object: "type must be 'linked'. either define a stored_filter, or a template_name",
+                    asset_relation: "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'",
                     classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
@@ -274,8 +270,8 @@ module DataCycleCore
                   'audio',
                   'image',
                   'video',
-                  'file',
-                  'pdf'
+                  'pdf',
+                  'data_cycle_file'
                 ]
               )
           end

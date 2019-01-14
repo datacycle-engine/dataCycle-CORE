@@ -57,6 +57,11 @@ require 'carrierwave_backgrounder'
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
+# progress bar
+require 'ruby-progressbar'
+
+require 'premailer'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -74,7 +79,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio', 'DataCycleCore::DataCycleFile']
 
     mattr_accessor :file_uploader_whitelist
     self.file_uploader_whitelist = []
@@ -257,6 +262,8 @@ module DataCycleCore
       ).each do |c|
         require_dependency(c)
       end
+
+      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
     end
   end
 end

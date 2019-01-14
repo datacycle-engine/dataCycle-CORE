@@ -244,9 +244,7 @@ module DataCycleCore
     def validate
       @object = DataCycleCore::Thing.find_by(id: params[:id])
 
-      if @object.blank? && params[:template].present?
-        @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template])
-      end
+      @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template]) if @object.blank? && params[:template].present?
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 

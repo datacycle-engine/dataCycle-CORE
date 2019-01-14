@@ -13,11 +13,11 @@ module DataCycleCore
       def content_includes
         reflect(
           @query.includes(
-            :display_classification_aliases,
             :translations,
             :watch_lists,
             :external_source,
-            :parent
+            :parent,
+            display_classification_aliases: :classification_alias_path
           )
         )
       end
