@@ -171,6 +171,8 @@ module DataCycleCore
     end
 
     def download
+      params.permit(:classification_tree_label_id, :include_contents)
+
       object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
 
       respond_to do |format|
