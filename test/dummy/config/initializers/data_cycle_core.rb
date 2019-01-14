@@ -12,7 +12,7 @@ DataCycleCore.setup do |config|
   Rails.application.config.active_record.belongs_to_required_by_default = true
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
 
-  config.template_path = Rails.root.join('config', 'data_definitions').freeze
+  # config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
@@ -29,6 +29,9 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
     ].freeze
   end
 
@@ -69,6 +72,7 @@ DataCycleCore.setup do |config|
       }
     )
   end
+
   config.webhooks = ['Local-Text-File']
   config.file_uploader_whitelist = [
     'mp4',
