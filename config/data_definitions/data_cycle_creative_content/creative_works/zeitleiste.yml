@@ -78,8 +78,7 @@
           :edit:
             :type: daterange
         :api:
-          :transformation:
-            :method: unwrap
+          :partial: time_interval
         :properties:
           :valid_from:
             :label: Zeitraum
