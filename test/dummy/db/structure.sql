@@ -7,11 +7,8 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
-<<<<<<< HEAD
-=======
 SET search_path = public, pg_catalog;
 
->>>>>>> feature/search_tweak
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -151,13 +148,8 @@ CREATE VIEW classification_alias_paths AS
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE TABLE public.classification_contents (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-=======
 CREATE TABLE classification_contents (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
->>>>>>> feature/search_tweak
     content_data_id uuid,
     classification_id uuid,
     tag boolean,
@@ -174,13 +166,8 @@ CREATE TABLE classification_contents (
 -- Name: classification_groups; Type: TABLE; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE TABLE public.classification_groups (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-=======
 CREATE TABLE classification_groups (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
->>>>>>> feature/search_tweak
     classification_id uuid,
     classification_alias_id uuid,
     external_source_id uuid,
@@ -195,11 +182,7 @@ CREATE TABLE classification_groups (
 -- Name: classification_alias_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE VIEW public.classification_alias_statistics AS
-=======
 CREATE VIEW classification_alias_statistics AS
->>>>>>> feature/search_tweak
  WITH descendant_counts AS (
          SELECT classification_aliases_1.id,
             count(
@@ -207,15 +190,9 @@ CREATE VIEW classification_alias_statistics AS
                     WHEN (exploded_classification_ancestors.ancestor_id IS NOT NULL) THEN 1
                     ELSE NULL::integer
                 END) AS descendant_count
-<<<<<<< HEAD
-           FROM (public.classification_aliases classification_aliases_1
-             JOIN ( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id
-                   FROM public.classification_alias_paths) exploded_classification_ancestors ON ((exploded_classification_ancestors.ancestor_id = classification_aliases_1.id)))
-=======
            FROM (classification_aliases classification_aliases_1
              JOIN ( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id
                    FROM classification_alias_paths) exploded_classification_ancestors ON ((exploded_classification_ancestors.ancestor_id = classification_aliases_1.id)))
->>>>>>> feature/search_tweak
           GROUP BY classification_aliases_1.id
         ), linked_content_counts AS (
          SELECT classification_aliases_1.id,
@@ -224,42 +201,25 @@ CREATE VIEW classification_alias_statistics AS
                     WHEN (classification_aliases_1.id IS NOT NULL) THEN 1
                     ELSE NULL::integer
                 END) AS linked_content_count
-<<<<<<< HEAD
-           FROM (((public.classification_aliases classification_aliases_1
-             JOIN public.classification_alias_paths ON ((classification_aliases_1.id = classification_alias_paths.id)))
-             JOIN public.classification_groups ON ((classification_aliases_1.id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-=======
            FROM (((classification_aliases classification_aliases_1
              JOIN classification_alias_paths ON ((classification_aliases_1.id = classification_alias_paths.id)))
              JOIN classification_groups ON ((classification_aliases_1.id = classification_groups.classification_alias_id)))
              JOIN classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
->>>>>>> feature/search_tweak
           GROUP BY classification_aliases_1.id
         ), descendants_linked_content_counts AS (
          SELECT exploded_classification_ancestors.ancestor_id AS id,
             count(*) AS linked_content_count
            FROM ((( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id,
                     classification_alias_paths.id AS classification_alias_id
-<<<<<<< HEAD
-                   FROM public.classification_alias_paths) exploded_classification_ancestors
-             JOIN public.classification_groups ON ((exploded_classification_ancestors.classification_alias_id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-=======
                    FROM classification_alias_paths) exploded_classification_ancestors
              JOIN classification_groups ON ((exploded_classification_ancestors.classification_alias_id = classification_groups.classification_alias_id)))
              JOIN classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
->>>>>>> feature/search_tweak
           GROUP BY exploded_classification_ancestors.ancestor_id
         )
  SELECT classification_aliases.id,
     COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
     (COALESCE(linked_content_counts.linked_content_count, (0)::bigint) + COALESCE(descendants_linked_content_counts.linked_content_count, (0)::bigint)) AS linked_content_count
-<<<<<<< HEAD
-   FROM (((public.classification_aliases
-=======
    FROM (((classification_aliases
->>>>>>> feature/search_tweak
      LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_aliases.id)))
      LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_aliases.id)))
      LEFT JOIN descendants_linked_content_counts ON ((descendants_linked_content_counts.id = classification_aliases.id)));
@@ -269,13 +229,8 @@ CREATE VIEW classification_alias_statistics AS
 -- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-=======
 CREATE TABLE classification_content_histories (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
->>>>>>> feature/search_tweak
     content_data_history_id uuid,
     classification_id uuid,
     tag boolean,
@@ -292,11 +247,7 @@ CREATE TABLE classification_content_histories (
 -- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE VIEW public.classification_tree_label_statistics AS
-=======
 CREATE VIEW classification_tree_label_statistics AS
->>>>>>> feature/search_tweak
  WITH descendant_counts AS (
          SELECT classification_tree_labels_1.id,
             count(
@@ -304,15 +255,9 @@ CREATE VIEW classification_tree_label_statistics AS
                     WHEN (classification_aliases.id IS NOT NULL) THEN 1
                     ELSE NULL::integer
                 END) AS descendant_count
-<<<<<<< HEAD
-           FROM ((public.classification_tree_labels classification_tree_labels_1
-             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
-             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
-=======
            FROM ((classification_tree_labels classification_tree_labels_1
              JOIN classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
              JOIN classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
->>>>>>> feature/search_tweak
           GROUP BY classification_tree_labels_1.id
         ), linked_content_counts AS (
          SELECT classification_tree_labels_1.id,
@@ -321,29 +266,17 @@ CREATE VIEW classification_tree_label_statistics AS
                     WHEN (classification_aliases.id IS NOT NULL) THEN 1
                     ELSE NULL::integer
                 END) AS linked_content_count
-<<<<<<< HEAD
-           FROM ((((public.classification_tree_labels classification_tree_labels_1
-             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
-             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
-             JOIN public.classification_groups ON ((classification_aliases.id = classification_groups.classification_alias_id)))
-             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
-=======
            FROM ((((classification_tree_labels classification_tree_labels_1
              JOIN classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
              JOIN classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
              JOIN classification_groups ON ((classification_aliases.id = classification_groups.classification_alias_id)))
              JOIN classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
->>>>>>> feature/search_tweak
           GROUP BY classification_tree_labels_1.id
         )
  SELECT classification_tree_labels.id,
     COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
     COALESCE(linked_content_counts.linked_content_count, (0)::bigint) AS linked_content_count
-<<<<<<< HEAD
-   FROM ((public.classification_tree_labels
-=======
    FROM ((classification_tree_labels
->>>>>>> feature/search_tweak
      LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_tree_labels.id)))
      LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_tree_labels.id)));
 
@@ -546,11 +479,7 @@ CREATE TABLE delayed_jobs (
 -- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE SEQUENCE public.delayed_jobs_id_seq
-=======
 CREATE SEQUENCE delayed_jobs_id_seq
->>>>>>> feature/search_tweak
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -600,11 +529,7 @@ CREATE TABLE external_systems (
 -- Name: primary_classification_groups; Type: VIEW; Schema: public; Owner: -
 --
 
-<<<<<<< HEAD
-CREATE VIEW public.primary_classification_groups AS
-=======
 CREATE VIEW primary_classification_groups AS
->>>>>>> feature/search_tweak
  SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
     classification_groups.classification_id,
     classification_groups.classification_alias_id,
@@ -613,11 +538,7 @@ CREATE VIEW primary_classification_groups AS
     classification_groups.created_at,
     classification_groups.updated_at,
     classification_groups.deleted_at
-<<<<<<< HEAD
-   FROM public.classification_groups
-=======
    FROM classification_groups
->>>>>>> feature/search_tweak
   ORDER BY classification_groups.classification_id, classification_groups.created_at;
 
 
@@ -878,6 +799,14 @@ CREATE TABLE watch_lists (
 --
 
 ALTER TABLE ONLY delayed_jobs ALTER COLUMN id SET DEFAULT nextval('delayed_jobs_id_seq'::regclass);
+
+
+--
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
 
 
 --
@@ -1859,12 +1788,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181127142527'),
 ('20181130130052'),
 ('20181229111741'),
-<<<<<<< HEAD
-('20181231081526');
-=======
 ('20181231081526'),
 ('20190107074405'),
-('20190108154224');
->>>>>>> feature/search_tweak
+('20190108154224'),
+('20190110151543');
 
 
