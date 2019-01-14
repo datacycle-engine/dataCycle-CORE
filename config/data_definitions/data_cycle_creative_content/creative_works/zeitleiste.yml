@@ -30,6 +30,8 @@
         :label: Eintrag
         :type: embedded
         :template_name: Zeitleiste-Eintrag
+        :api:
+          :name: hasPart
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -126,7 +128,7 @@
       :content_location:
         :label: Ort
         :type: linked
-        :template_name: Örtlichkeit
+        :template_name: POI
       :data_type:
         :label: Inhaltstype
         :type: classification

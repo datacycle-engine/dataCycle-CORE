@@ -30,6 +30,8 @@
         :label: Frage
         :type: embedded
         :template_name: Frage
+        :api:
+          :name: hasPart
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -1,18 +1,18 @@
 - Inhaltstypen:
   - $$Text:
-    - $$Quiz
-    - $$Angebot
     - $$Biografie
     - $$Interview
-    - $$Social Media Posting
+    - $$Quiz
     - $$Rezept
-# hidden
+    - $$Social Media Posting
   - $$Zeitleiste
 # embedded
-  - $$Angebotszeitraum
-  - $$Website
   - $$Zeitleiste-Eintrag
   - $$Frage
   - $$Antwort
 # container
   - $$Container
+
+- Rezept-Gänge:
+
+- Rezept-Kategorien:

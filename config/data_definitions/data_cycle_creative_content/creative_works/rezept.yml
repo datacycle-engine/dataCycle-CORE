@@ -67,10 +67,14 @@
         :label: 'Gang'
         :type: classification
         :tree_label: 'Rezept-Gänge'
+        :api:
+          :disabled: true
       :recipe_category:
         :label: 'Kategorie'
         :type: classification
         :tree_label: 'Rezept-Kategorien'
+        :api:
+          :partial: string
       :recipe_ingredient:
         :label: Zutaten
         :type: string
@@ -81,6 +85,20 @@
             :type: text_editor
             :options:
               :data-size: full
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+            :1: recipe_course
+        :ui:
+          :show:
+            :disabled: true
       :data_type:
         :label: Inhaltstype
         :type: classification
