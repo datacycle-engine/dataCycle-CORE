@@ -43,7 +43,17 @@ module DataCycleCore
         end
 
         def self.process_person(utility_object, raw_data, config, external_key)
-          return if raw_data&.values_at('name', 'givenName', 'familyName').blank?
+          return if raw_data&.values_at('name', 'givenName', 'familyName')&.compact.blank?
+
+          if raw_data&.dig('worksFor').present?
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['worksFor'],
+              { template: 'Organization' },
+              Digest::SHA1.hexdigest(raw_data.dig('worksFor', 'name'))
+            )
+          end
+
           template = config&.dig(:template) || 'Person'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
@@ -52,7 +62,7 @@ module DataCycleCore
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
               DataCycleCore::Generic::MediaArchive::Transformations
-                .media_archive_to_person
+                .media_archive_to_person(utility_object.external_source.id)
                 .call(raw_data)
             ).merge(
               external_key: external_key

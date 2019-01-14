@@ -78,10 +78,11 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.media_archive_to_person
+        def self.media_archive_to_person(external_source_id)
           t(:stringify_keys)
           .>> t(:underscore_keys)
           .>> t(:reject_keys, ['id'])
+          .>> t(:add_link, 'works_for', DataCycleCore::Thing, external_source_id, ->(s) { Digest::SHA1.hexdigest(s.dig('works_for', 'name')) }, ->(s) { s&.dig('works_for', 'name').present? })
           .>> t(:strip_all)
           .>> t(:compact)
         end
