@@ -8,6 +8,20 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA public;
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -438,7 +452,7 @@ CREATE TABLE public.things (
 
 CREATE VIEW public.content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing' AS content_type,
+    'DataCycleCore::Thing'::text AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -477,6 +491,7 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -1057,6 +1072,13 @@ ALTER TABLE ONLY public.watch_lists
 --
 
 CREATE INDEX all_text_idx ON public.searches USING gin (all_text public.gin_trgm_ops);
+
+
+--
+-- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
 
 
 --
@@ -1762,6 +1784,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181127142527'),
 ('20181130130052'),
 ('20181229111741'),
-('20181231081526');
+('20181231081526'),
+('20190107074405');
 
 

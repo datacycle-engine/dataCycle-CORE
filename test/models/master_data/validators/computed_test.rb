@@ -22,6 +22,9 @@ describe DataCycleCore::MasterData::Validators::Computed do
           'parameters' => {
             '0' => 'whatEver'
           }
+        },
+        'validations' => {
+          'required' => true
         }
       }
     end
@@ -41,10 +44,10 @@ describe DataCycleCore::MasterData::Validators::Computed do
       assert_equal(0, validator.error[:warning].size)
     end
 
-    it 'warns when no data is given' do
+    it 'errors out when string is nil and required true' do
       validator = subject.new(nil, template_hash)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
     end
   end
 end

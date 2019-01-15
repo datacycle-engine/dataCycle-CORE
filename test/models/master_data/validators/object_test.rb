@@ -28,7 +28,7 @@ describe DataCycleCore::MasterData::Validators::Object do
     let(:daterange_hash) do
       {
         'validity_period' => {
-          'label' =>  'Gültigkeitszeitraum',
+          'label' => 'Gültigkeitszeitraum',
           'type' => 'object',
           'storage_location' => 'value',
           'validations' => {
@@ -102,7 +102,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       data_hash = { 'greeting' => nil, 'anzahl' => nil }
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(2, validator.error[:warning].size)
+      assert_equal(1, validator.error[:warning].size)
     end
 
     it 'successfully validates daterange with proper template and varying test-data' do
