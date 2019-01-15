@@ -27,7 +27,8 @@ describe DataCycleCore::MasterData::Validators::String do
           'min' => 20,
           'max' => 40,
           'pattern' => '/[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/',
-          'format' => 'uuid'
+          'format' => 'uuid',
+          'required' => true
         }
       }
     end
@@ -47,10 +48,10 @@ describe DataCycleCore::MasterData::Validators::String do
       assert_equal(0, validator.error[:warning].size)
     end
 
-    it 'warns when no data is given' do
-      validator = subject.new(nil, template_hash)
-      assert_equal(0, validator.error[:error].size)
-      assert_equal(1, validator.error[:warning].size)
+    it 'errors out when string is nil and required true' do
+      validator = subject.new(nil, complex_template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
     end
 
     it 'works when complex format restrictions are satisfied' do

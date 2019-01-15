@@ -55,10 +55,14 @@ module DataCycleCore
                 link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
               end
             end
-            can :edit, DataCycleCore::DataAttribute
+            can :edit, DataCycleCore::DataAttribute do |a|
+              link.item.watch_list_data_hashes.pluck(:hashable_id).include?(a.content&.id)
+            end
           elsif link.is_valid?
             can [:update, :import], link.item_type.constantize, id: link.item_id
-            can :edit, DataCycleCore::DataAttribute
+            can :edit, DataCycleCore::DataAttribute do |a|
+              link.item_id == a.content&.id
+            end
           end
         end
 
