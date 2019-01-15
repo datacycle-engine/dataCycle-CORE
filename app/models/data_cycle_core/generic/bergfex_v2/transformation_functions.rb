@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Generic
-    module Bergfex
+    module BergfexV2
       module TransformationFunctions
         extend Transproc::Registry
         import Transproc::HashTransformations
@@ -44,7 +44,7 @@ module DataCycleCore
 
             data_hash[attribute] = [
               {
-                'remark' => data_hash.dig(operations, 'operationRemarks', '#cdata-section'),
+                'description' => data_hash.dig(operations, 'operationRemarks', '#cdata-section'),
                 'day_of_week' => opening_hours_days,
                 'time' => [
                   {

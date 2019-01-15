@@ -1,0 +1,98 @@
+---
+name: BergfexV2
+credentials:
+  end_point: /export/
+  host: https://content.bergfex.at
+  partner: kaernten.at
+default_options:
+  locales: [de,en]
+config:
+  download_config:
+    lakes:
+      sorting: 1
+      source_type: lakes
+      endpoint: DataCycleCore::Generic::BergfexV2::Endpoint
+      download_strategy: DataCycleCore::Generic::BergfexV2::Download
+    snow_conditions:
+      sorting: 2
+      source_type: snow_conditions
+      endpoint: DataCycleCore::Generic::BergfexV2::Endpoint
+      download_strategy: DataCycleCore::Generic::BergfexV2::Download
+    snow_resorts:
+      sorting: 3
+      source_type: snow_resorts
+      endpoint: DataCycleCore::Generic::BergfexV2::Endpoint
+      download_strategy: DataCycleCore::Generic::BergfexV2::Download
+    snow_reports:
+      sorting: 4
+      source_type: snow_reports
+      endpoint: DataCycleCore::Generic::BergfexV2::Endpoint
+      download_strategy: DataCycleCore::Generic::BergfexV2::Download
+  import_config:
+    lakes:
+      sorting: 1
+      source_type: lakes
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportLakes
+      locales: [de]
+    bergfex_status_icon:
+      sorting: 2
+      source_type: snow_reports
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: "Bergfex - Status - Icon"
+      tag_id_path: 'bergfexStatusIcon.id'
+      tag_name_path: 'bergfexStatusIcon.text'
+      external_id_prefix: 'Bergfex - Status - Icon -'
+      locales: [de]
+    condition_avalanche_warning_level:
+      sorting: 3
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - Lawinenwarnlevel"
+      source_filter:
+        'dump.de.id': { '$gte': '301', '$lte': '399' }
+      locales: [de]
+    condition_nordic_classic:
+      sorting: 4
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - NordicClassic - Meldung"
+      source_filter:
+        'dump.de.id': { '$gte': '501', '$lte': '599' }
+      locales: [de]
+    condition_weather:
+      sorting: 5
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - Wetter - Meldung"
+      source_filter:
+        'dump.de.id': { '$gte': '601', '$lte': '699' }
+      locales: [de]
+    condition_run_to_valley:
+      sorting: 6
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - Talfahrt - Meldung"
+      source_filter:
+        'dump.de.id': { '$gte': '701', '$lte': '799' }
+      locales: [de]
+    condition_slopes:
+      sorting: 7
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - Pisten - Meldung"
+      source_filter:
+        'dump.de.id': { '$gte': '801', '$lte': '899' }
+      locales: [de]
+    condition_snow:
+      sorting: 8
+      source_type: snow_conditions
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowConditions
+      tree_label: "Bergfex - Schnee - Meldung"
+      source_filter:
+        'dump.de.id': { '$gte': '901', '$lte': '999' }
+      locales: [de]
+    snow_resorts:
+      sorting: 9
+      mode: full
+      source_type: snow_resorts
+      import_strategy: DataCycleCore::Generic::BergfexV2::ImportSnowResorts
