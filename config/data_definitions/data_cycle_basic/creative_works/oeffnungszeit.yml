@@ -30,19 +30,13 @@
             :type: datetime
             :storage_location: value
             :validations:
-              :format: date_time
+              :format: date
             :ui:
               :edit:
                 :type: date
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-            :editor:
-              :type: date
-              :options:
-                :data-type: datepicker
-                :data-validate: daterange
-                :placeholder: tt.mm.jjjj
           :valid_through:
             :label: gültig bis
             :type: datetime

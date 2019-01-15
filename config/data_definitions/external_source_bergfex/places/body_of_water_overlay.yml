@@ -20,13 +20,13 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-#      :tourism_region:
-#        :label: Tourismus-Region
-#        :type: classification
-#        :tree_label: Tourismus-Regionen
-#        :ui:
-#          :show:
-#            :content_area: header
+      :tourism_region:
+        :label: Tourismus-Region
+        :type: classification
+        :tree_label: Tourismus-Regionen
+        :ui:
+          :show:
+            :content_area: header
       :data_type:
         :label: Inhaltstype
         :type: classification
