@@ -31,37 +31,85 @@ module DataCycleCore
         comment = options&.dig(:comment)
         @logger.info('processing  ', id)
 
-        normalize_hash, transformation_hash = self.class.preprocess_data(template_hash, data)
-        return data, [] if transformation_hash.blank? || normalize_hash.blank?
+        normalize_hash = self.class.preprocess_data(template_hash, data)
+        return data, [] if normalize_hash.blank?
 
         report = @endpoint.normalize(id, self.class.reduce_data(normalize_hash.deep_dup), comment)
 
-        # splits = report['actionList'].find_all { |item| item['taskType'] == 'SPLIT' }
-        # @logger.info('splits', splits) if splits.size > 1
-
-        updated_hash, diffs = self.class.postprocess_data(data, report, transformation_hash, template_hash)
+        updated_hash, diffs = self.class.postprocess_data(data, report, template_hash)
         @logger.info('transforming', diffs) if diffs.present?
         return updated_hash, diffs
       end
 
       class << self
-        def preprocess_data(template_hash, data_hash)
-          normalize_hash = normalizable_data(nil, template_hash.dig('properties'), data_hash)
-          return normalize_hash, create_transformation(normalize_hash)
+        def nomalization_transfromation
+          { 'name' =>
+              [{ 'id' => 'EVENTNAME', 'type' => 'EVENTNAME' },
+               { 'id' => 'EVENTPLACE', 'type' => 'EVENTPLACE' },
+               { 'id' => 'COMPANY', 'type' => 'COMPANY' }],
+            'latitude' =>
+              [{ 'id' => 'LATITUDE', 'type' => 'LATITUDE' }],
+            'longitude' =>
+              [{ 'id' => 'LONGITUDE', 'type' => 'LONGITUDE' }],
+            'event_period/start_date' =>
+              [{ 'id' => 'EVENTSTART', 'type' => 'DATETIME' }],
+            'event_period/end_date' =>
+              [{ 'id' => 'EVENTEND', 'type' => 'DATETIME' }],
+            'honorific_prefix' =>
+              [{ 'id' => 'DEGREE', 'type' => 'DEGREE' }],
+            'given_name' =>
+              [{ 'id' => 'FORENAME', 'type' => 'FORENAME' }],
+            'family_name' =>
+              [{ 'id' => 'SURNAME', 'type' => 'SURNAME' }],
+            'address/street_address' =>
+              [{ 'id' => 'STREET', 'type' => 'STREET' }],
+            'address/address_locality' =>
+              [{ 'id' => 'CITY', 'type' => 'CITY' }],
+            'address/postal_code' =>
+              [{ 'id' => 'ZIP', 'type' => 'ZIP' }],
+            'address/address_country' =>
+              [{ 'id' => 'COUNTRY', 'type' => 'COUNTRY' }],
+            'contact_info/email' =>
+              [{ 'id' => 'EMAIL', 'type' => 'EMAIL' }] }
         end
 
-        def postprocess_data(data, report, transformation_hash, template_hash)
+        def back_transformation
+          { 'EVENTNAME' =>  'name',
+            'EVENTPLACE' => 'name',
+            'LATITUDE' =>   'latitude',
+            'LONGITUDE' =>  'longitude',
+            'EVENTSTART' => 'event_period/start_date',
+            'EVENTEND' =>   'event_period/end_data',
+            'DEGREE' =>     'honorific_prefix',
+            'FORENAME' =>   'given_name',
+            'SURNAME' =>    'family_name',
+            'COMPANY' =>    'name',
+            'STREET' =>     'address/street_address',
+            'CITY' =>       'address/address_locality',
+            'ZIP' =>        'address/postal_code',
+            'COUNTRY' =>    'address/address_country',
+            'EMAIL' =>      'contact_info/email' }
+        end
+
+        def preprocess_data(template_hash, data_hash)
+          normalize_hash = normalizable_data(nil, template_hash.dig('properties'), data_hash)
+          # return normalize_hash, create_transformation(normalize_hash)
+          normalize_hash
+        end
+
+        def postprocess_data(data, report, template_hash)
           cleaned_report = merge_street_streetnr(report)
-          normalized_data = back_transform(cleaned_report.dig('entry', 'fields'), transformation_hash)
+          normalized_data = back_transform(cleaned_report.dig('entry', 'fields'))
+          # normalized_data = cleaned_report.dig('entry', 'fields').deep_dup
           converted_data = convert_data_types(normalized_data, template_hash)
           updated_data = update_data(data, converted_data)
-          diffs = generate_diffs(report, transformation_hash)
+          diffs = generate_diffs(report)
           return updated_data, diffs
         end
 
-        def generate_diffs(report, transformation_hash)
+        def generate_diffs(report)
           Normalizer::ActionParser.parse(report)
-            .map { |key, value| { transformation_hash[key] || key => value } }
+            .map { |key, value| { back_transformation[key] || key => value } }
             .reduce({}, :merge)
             .reduce({}) { |hash, item| update_path(hash, item[0], item[1]) }
         end
@@ -88,12 +136,10 @@ module DataCycleCore
 
         def reduce_data(data_list)
           data_list.map do |item|
-            if item['type'] == 'DATETIME2'
-              item.update({ 'id' => 'DATETIME2', 'type' => 'DATETIME' })
-            else
-              item.update({ 'id' => item['type'] })
-            end
-            item
+            item.update({
+              'id' => nomalization_transfromation.dig(item['id']).select { |trans| trans.dig('type') == item['type'] }.first.dig('id'),
+              'content' => item.dig('content').to_s
+            })
           end
         end
 
@@ -111,6 +157,7 @@ module DataCycleCore
         #     ]
         #   }
         # later
+
         def merge_street_streetnr(report)
           fields_list = report&.dig('entry', 'fields')
           return report if fields_list.blank?
@@ -150,14 +197,8 @@ module DataCycleCore
           report
         end
 
-        def create_transformation(normalize_hash)
-          normalize_hash.map { |item|
-            { item.dig('type') => item.dig('id') }
-          }.reduce({}, :merge)
-        end
-
-        def back_transform(data, transformation)
-          data.map { |item| item.update('id' => transformation[item.dig('type')]) }
+        def back_transform(data)
+          data.map { |item| item.update('id' => back_transformation[item.dig('id')]) }
         end
 
         def convert_data_types(data, template)

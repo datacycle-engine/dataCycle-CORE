@@ -67,7 +67,7 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
-            :normalize: datetime2
+            :normalize: datetime
       :description:
         :label: Beschreibung
         :type: string

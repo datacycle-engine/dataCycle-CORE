@@ -39,36 +39,35 @@ module DataCycleCore
         #     { 'type' => 'CITY', 'content' => 'Villach' },
         #     { 'type' => 'FORENAME', 'content' => 'Martin' },
         #     { 'type' => 'SURNAME', 'content' => 'Oehzelt' },
-        #     { 'type' => 'EMAIL', 'content' => 'oehzelt@test.at' }
-        #   ]
+        #     { 'type' => 'EMAIL', 'content' => 'oehzelt@test.
         # end
 
-        # def test_data
-        #   {
-        #     'id' => '123',
-        #     'comment' => 'Any text comment, if required or helpful',
-        #     'fields' => [
-        #       { 'id' => 'SEX', 'type' => 'SEX', 'content' => 'male' },
-        #       { 'id' => 'DEGREE', 'type' => 'DEGREE', 'content' => 'Dipl Ing' },
-        #       { 'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Karin' },
-        #       { 'id' => 'SURNAME', 'type' => 'SURNAME', 'content' => 'Smith' },
-        #       { 'id' => 'COMPANY', 'type' => 'COMPANY', 'content' => 'Hofer AG' },
-        #       { 'id' => 'STREET', 'type' => 'STREET', 'content' => 'Landstr.' },
-        #       { 'id' => 'STREETNR', 'type' => 'STREETNR', 'content' => '12f' },
-        #       { 'id' => 'CITY', 'type' => 'CITY', 'content' => 'Klagenfurt' },
-        #       { 'id' => 'ZIP', 'type' => 'ZIP', 'content' => '9020' },
-        #       { 'id' => 'COUNTRY', 'type' => 'COUNTRY', 'content' => 'Aut' },
-        #       { 'id' => 'BIRTHDATE', 'type' => 'BIRTHDATE', 'content' => '13/06/2018' },
-        #       { 'id' => 'EMAIL', 'type' => 'EMAIL', 'content' => 'me_AT_internet.com' },
-        #       { 'id' => 'EVENTNAME', 'type' => 'EVENTNAME', 'content' => 'Wörthersee Businesslauf' },
-        #       { 'id' => 'DATETIME', 'type' => 'DATETIME', 'content' => 'heute' },
-        #       { 'id' => 'DATETIME2', 'type' => 'DATETIME', 'content' => '30.10.2019, 15=>48' },
-        #       { 'id' => 'PLACE', 'type' => 'PLACE', 'content' => 'Konzerthaus Großer Saal' },
-        #       { 'id' => 'LATITUDE', 'type' => 'LATITUDE', 'content' => '48.210033' },
-        #       { 'id' => 'LONGITUDE', 'type' => 'LONGITUDE', 'content' => '16.363449' }
-        #     ]
-        #   }
-        # end
+        def test_data
+          {
+            'id' => '123',
+            'comment' => 'Any text comment, if required or helpful',
+            'fields' => [
+              { 'id' => 'SEX',        'type' => 'SEX',        'content' => 'male' },
+              { 'id' => 'DEGREE',     'type' => 'DEGREE',     'content' => 'Dipl Ing' },
+              { 'id' => 'FORENAME',   'type' => 'FORENAME',   'content' => 'Karin' },
+              { 'id' => 'SURNAME',    'type' => 'SURNAME',    'content' => 'Smith' },
+              { 'id' => 'COMPANY',    'type' => 'COMPANY',    'content' => 'Hofer AG' },
+              { 'id' => 'STREET',     'type' => 'STREET',     'content' => 'Landstr.' },
+              { 'id' => 'STREETNR',   'type' => 'STREETNR',   'content' => '12f' },
+              { 'id' => 'CITY',       'type' => 'CITY',       'content' => 'Klagenfurt' },
+              { 'id' => 'ZIP',        'type' => 'ZIP',        'content' => '9020' },
+              { 'id' => 'COUNTRY',    'type' => 'COUNTRY',    'content' => 'Aut' },
+              { 'id' => 'BIRTHDATE',  'type' => 'BIRTHDATE',  'content' => '13/06/2018' },
+              { 'id' => 'EMAIL',      'type' => 'EMAIL',      'content' => 'me_AT_internet.com' },
+              { 'id' => 'EVENTNAME',  'type' => 'EVENTNAME',  'content' => 'Wörthersee Businesslauf' },
+              { 'id' => 'EVENTSTART', 'type' => 'DATETIME',   'content' => '01/01/2019' },
+              { 'id' => 'EVENTEND',   'type' => 'DATETIME',   'content' => '30/10/2019' },
+              { 'id' => 'EVENTPLACE', 'type' => 'PLACE',      'content' => 'Konzerthaus Großer Saal' },
+              { 'id' => 'LATITUDE',   'type' => 'LATITUDE',   'content' => 48.210033 },
+              { 'id' => 'LONGITUDE',  'type' => 'LONGITUDE',  'content' => 16.363449 }
+            ]
+          }
+        end
       end
     end
   end
