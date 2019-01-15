@@ -45,7 +45,7 @@ module DataCycleCore
         def nomalization_transfromation
           { 'name' =>
               [{ 'id' => 'EVENTNAME', 'type' => 'EVENTNAME' },
-               { 'id' => 'EVENTPLACE', 'type' => 'EVENTPLACE' },
+               { 'id' => 'EVENTPLACE', 'type' => 'PLACE' },
                { 'id' => 'COMPANY', 'type' => 'COMPANY' }],
             'latitude' =>
               [{ 'id' => 'LATITUDE', 'type' => 'LATITUDE' }],

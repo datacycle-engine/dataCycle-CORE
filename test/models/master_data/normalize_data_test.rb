@@ -155,18 +155,6 @@ describe DataCycleCore::MasterData::NormalizeData do
       ]
     end
 
-    let(:transformation_hash) do
-      {
-        'FORENAME' => 'given_name',
-        'SURNAME' => 'family_name',
-        'ZIP' => 'address/postal_code',
-        'STREET' => 'address/street_address',
-        'COUNTRY' => 'address/address_country',
-        'CITY' => 'address/address_locality',
-        'EMAIL' => 'contact_info/email'
-      }
-    end
-
     let(:back_transformed_data) do
       [
         { 'id' => 'address/street_address', 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' },
@@ -327,14 +315,9 @@ describe DataCycleCore::MasterData::NormalizeData do
       subject.normalizable_data(nil, person_template.dig('properties'), data_hash).must_equal normalizable_data
     end
 
-    it 'produces a valid transformation_hash' do
-      subject.create_transformation(normalizable_data).must_equal transformation_hash
-    end
-
     it 'does the preprocessing of the data correctly' do
-      norm_hash, trans_hash = subject.preprocess_data(person_template, data_hash)
+      norm_hash = subject.preprocess_data(person_template, data_hash)
       norm_hash.must_equal normalizable_data
-      trans_hash.must_equal transformation_hash
     end
 
     it 'merges correctly street and street_nr' do
@@ -345,7 +328,8 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'back_transforms normalized_data to original ids and schema' do
-      subject.back_transform(merged_fields, transformation_hash).must_equal back_transformed_data
+      back_trans = subject.back_transform(merged_fields)
+      back_trans.must_equal back_transformed_data
     end
 
     it 'correctly updates data according to normalized action_list' do
@@ -353,7 +337,7 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'does post_processing correctly' do
-      updated_data, diffs = subject.postprocess_data(data_hash, normalize_report, transformation_hash, person_template)
+      updated_data, diffs = subject.postprocess_data(data_hash, normalize_report, person_template)
       diffs.must_equal diff_hash
       updated_data.must_equal returned_data
     end
