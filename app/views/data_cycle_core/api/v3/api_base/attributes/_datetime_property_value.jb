@@ -1,0 +1,22 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+property_header = render "data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key: key, definition: definition
+
+if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
+  translated_values = []
+  content.translations.each do |translation|
+    I18n.with_locale(translation.locale) do
+      translated_values[translation.locale] = content.send(key)
+    end
+  end
+end
+
+if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'name').present?
+  json[definition.dig('api', 'transformation', 'name')] = { 'value' => translated_values || value }.merge(property_header)
+else
+  json = { 'value' => translated_values || value }.merge(property_header)
+end
+
+json

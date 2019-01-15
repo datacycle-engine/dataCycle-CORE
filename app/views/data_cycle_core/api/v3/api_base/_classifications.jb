@@ -5,8 +5,8 @@ classification = classification_aliases
   .as_json(
     only: [:id, :name, :description, :created_at, :updated_at, :deleted_at],
     include: { ancestors: { only: [:id, :name, :description, :created_at, :updated_at] } }
-  ).map { |item| item.merge('ancestors' => item.dig('ancestors')&.map(&:compact)) }.map(&:compact)
+  )&.map { |item| item.merge('ancestors' => item.dig('ancestors')&.map { |ancestor| ancestor.compact.transform_keys { |key| key.camelize(:lower) } }) }&.map { |item| item.compact.transform_keys { |key| key.camelize(:lower) } }
 
 {
-  key.to_sym => classification.compact
+  key.to_sym => classification
 }

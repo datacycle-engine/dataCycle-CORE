@@ -19,6 +19,6 @@ if data.present?
       json[key_new].push render 'content_header', content: item, options: options.merge({ header_type: :linked })
     end
   end
-  json
 
 end
+json
