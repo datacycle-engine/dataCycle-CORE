@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+# json.cache!("#{classification_alias.class}_#{classification_alias.id}_#{classification_alias.updated_at}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
+classification = classification_aliases
+  .as_json(
+    only: [:id, :name, :description, :created_at, :updated_at, :deleted_at],
+    include: {ancestors: {only: [:id, :name, :description, :created_at, :updated_at,]}}
+  ).map { |item| item.merge('ancestors' => item.dig('ancestors')&.map(&:compact)) }.map(&:compact)
+
+{
+  key.to_sym => classification.compact
+}

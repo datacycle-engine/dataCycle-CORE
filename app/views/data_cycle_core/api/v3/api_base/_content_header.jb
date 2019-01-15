@@ -1,0 +1,37 @@
+# frozen_string_literal: true
+
+default_options = {
+  header_type: :full
+}
+
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+json = {}
+
+unless options[:header_type] == :overlay
+  json.merge! render 'content_context', content: content
+  json['@id'] = send("api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
+  json['identifier'] = content.id
+  json['url'] = send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
+
+end
+
+if options[:header_type] == :full
+  json['dateCreated'] = content.created_at
+  json['dateModified'] = content.updated_at
+
+  json['datePublished'] = l(content.validity_period.valid_from.to_date, locale: :en) unless content.try(:validity_period).try(:valid_from).nil?
+  json['expires'] = l(content.validity_period.valid_until.to_date, locale: :en) unless content.try(:validity_period).try(:valid_until).nil?
+
+  if @mode_parameters.include?('compact')
+    classifications = content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+  else
+    classifications = DataCycleCore.internal_classification_attributes.map { |classification|
+      content.send(classification)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq if content.respond_to?(classification)
+    }.compact.flatten
+  end
+
+  json.merge! render 'classifications', classification_aliases: classifications, key: 'classifications'
+end
+
+json

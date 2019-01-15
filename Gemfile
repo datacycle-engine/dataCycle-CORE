@@ -38,6 +38,8 @@ group :development, :test, :review do
 
   gem 'simplecov', require: false
 
+  gem 'jb'
+
   # activate for performance profiling
   # performance profiling
   # gem 'rack-mini-profiler'

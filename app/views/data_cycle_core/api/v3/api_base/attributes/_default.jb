@@ -1,0 +1,25 @@
+# frozen_string_literal: true
+
+json = {}
+# render "data_cycle_core/api/v#{@api_version}/api_base/attribute", key: key, definition: definition, value: value, options: options, content: content do
+
+key_new = definition.dig('api', 'name') || key
+
+if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
+  translated_values = []
+  content.translations.each do |translation|
+    I18n.with_locale(translation.locale) do
+      translated_values[translation.locale] = content.send(key)
+    end
+  end
+end
+
+if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'name').present?
+  json[definition.dig('api', 'transformation', 'name')] = {}
+  json[definition.dig('api', 'transformation', 'name')]['@type'] = definition.dig('api', 'transformation', 'type') if definition.dig('api', 'transformation', 'type').present?
+  json[definition.dig('api', 'transformation', 'name')] = {key_new.camelize(:lower) => translated_values || value}
+else
+  json[key_new.camelize(:lower)] = translated_values || value
+end
+
+json

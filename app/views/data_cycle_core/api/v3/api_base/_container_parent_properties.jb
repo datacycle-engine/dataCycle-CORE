@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+json ||= {}
+if content&.parent && content&.parent&.content_type?('container') && options.dig(:disable_parent).blank?
+  json['isPartOf'] = render 'content_details', content: content.parent, options: options.merge({ disable_children: true })
+end
+
+json

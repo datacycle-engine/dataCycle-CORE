@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+default_options = {
+  hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
+  combined_attributes: content.combined_property_names
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+json ||= {}
+json.merge! render 'content_header', content: content, options: options
+
+json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
+#
+if content.translations.size > 1 && @include_parameters.include?('translations')
+  json['inLanguage'] = content.translations.map(&:locale)
+else
+  json['inLanguage'] = content.translations.map(&:locale).include?(@language.to_sym) ? @language : content.translations&.first&.locale
+end
+#
+json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
+#
+json.merge! render 'content_properties', content: content, options: options
+#
+# json.partial! 'overlay_properties', content: content, options: options
+#
+json.merge! render 'combined_properties', content: content, options: options
+
+json

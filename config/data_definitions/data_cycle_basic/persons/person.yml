@@ -25,12 +25,12 @@
         :label: "Titel nachgestellt"
         :type: string
         :storage_location: translated_value
-      :contact_info:
-        :type: mixin
-        :name: contact_info
       :postal_address:
         :type: mixin
         :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
       :job_title:
         :label: Position
         :type: string

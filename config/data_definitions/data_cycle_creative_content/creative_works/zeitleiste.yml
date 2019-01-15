@@ -63,7 +63,6 @@
         :label: Titel
         :type: string
         :storage_location: column
-        :search: true
         :validations:
           :min: 1
       :temporal_coverage:
