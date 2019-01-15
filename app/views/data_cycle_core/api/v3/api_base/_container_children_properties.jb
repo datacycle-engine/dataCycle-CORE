@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 json ||= {}
 if options.dig(:disable_children).blank?
   related_objects = DataCycleCore::Thing

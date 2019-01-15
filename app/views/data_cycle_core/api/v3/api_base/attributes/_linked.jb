@@ -4,7 +4,6 @@ json ||= {}
 # render "data_cycle_core/api/v#{@api_version}/api_base/attribute", key: key, definition: definition, value: value, options: options, content: content do
 data = content.send(key).includes(:translations, :classifications)
 
-
 if data.present?
 
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
@@ -23,4 +22,3 @@ if data.present?
   json
 
 end
-

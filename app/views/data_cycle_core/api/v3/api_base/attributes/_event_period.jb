@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+
 json ||= {}
 if value.to_h.present?
   value.to_h.each do |d|

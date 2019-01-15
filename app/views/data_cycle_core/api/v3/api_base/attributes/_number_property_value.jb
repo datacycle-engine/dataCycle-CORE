@@ -13,11 +13,10 @@ if content.translations.size > 1 && content.translatable_property_names.include?
   end
 end
 
-
 if definition.dig('api', 'transformation', 'method') == 'nest' && definition.dig('api', 'transformation', 'name').present?
-  json[definition.dig('api', 'transformation', 'name')] = {'value' => translated_values || value}.merge(property_header)
+  json[definition.dig('api', 'transformation', 'name')] = { 'value' => translated_values || value }.merge(property_header)
 else
-  json = {'value' => translated_values || value}.merge(property_header)
+  json = { 'value' => translated_values || value }.merge(property_header)
 end
 
 json
