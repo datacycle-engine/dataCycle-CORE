@@ -173,6 +173,8 @@ module DataCycleCore
       end
 
       def count_distinct
+        return @query.except(:order, :limit, :offset).count unless @joined_search
+        return @query.except(:order, :limit, :offset).count if @locale.presence&.size == 1
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
