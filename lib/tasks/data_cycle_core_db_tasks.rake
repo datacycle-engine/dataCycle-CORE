@@ -124,6 +124,7 @@ namespace :data_cycle_core do
           end
         end
         unless cmd.nil?
+          Rake::Task['data_cycle_core:db:clear_connections'].invoke
           Rake::Task['db:drop'].invoke
           Rake::Task['db:create'].invoke
           puts cmd
