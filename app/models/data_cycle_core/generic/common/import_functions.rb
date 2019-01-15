@@ -17,7 +17,12 @@ module DataCycleCore
         end
 
         def self.create_or_update_content(utility_object:, template:, data:, local: false)
+          if utility_object.logging
+            utility_object.logging.info(data, nil)
+          end
+
           return nil if data.except('external_key', 'locale').blank?
+
           if local
             content = DataCycleCore::Thing.new
           else
