@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class EventsController < ::DataCycleCore::Api::V3::ContentsController
+      class EventsController < ContentsController
       end
     end
   end

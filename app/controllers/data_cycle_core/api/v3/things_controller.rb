@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class ThingsController < ::DataCycleCore::Api::V3::ContentsController
+      class ThingsController < ContentsController
       end
     end
   end

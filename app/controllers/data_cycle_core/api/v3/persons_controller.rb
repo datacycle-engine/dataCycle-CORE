@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class PersonsController < ::DataCycleCore::Api::V3::ContentsController
+      class PersonsController < ContentsController
       end
     end
   end
