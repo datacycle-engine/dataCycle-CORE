@@ -126,6 +126,7 @@ de:
     change_api_access: API Freigabe ändern
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
+    warning: Achtung!
 
   tile_links:
     details: zur Detailansicht
@@ -198,6 +199,7 @@ de:
     searching: suche
     next: Weiter
     back: Zurück
+    add_files: Dateien hinzufügen
 
   validation:
     errors:
@@ -369,6 +371,9 @@ de:
       data_cycle_core/video:
         one: Video
         other: Videos
+      data_cycle_core/data_cycle_file:
+        one: Datei
+        other: Dateien
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
@@ -528,8 +533,7 @@ de:
       file_size:
         max: 'Maximale Dateigröße: %{data}'
 
-    close_warning_html: '<h4>Achtung!</h4>
-                          <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+    close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
                           Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
     continue_in_new_tab: In neuem Tab weiterarbeiten
 

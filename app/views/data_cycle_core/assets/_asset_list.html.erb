@@ -1,8 +1,11 @@
 <ul id="<%= local_assigns[:key].present? ? "#{sanitize_to_id(key)}_asset_list" : 'single_asset_list' %>" class="asset-list no-bullet <%= local_assigns[:class] %>" data-asset-types="<%= local_assigns[:asset_types] %>" data-selected="<%= local_assigns[:selected] %>">
-  <% assets.presence&.each do |asset| %>
-    <li class="<%= 'active' if local_assigns[:selected] == asset.id %>" data-id="<%= asset.id %>">
-      <a href="#" class="asset-deselect" title="<%= t('actions.delete', locale: DataCycleCore.ui_language) %>"><i class="fa fa-times" aria-hidden="true"></i></a>
-      <%= render_asset_viewer(key: nil, definition: nil, value: asset) %>
-    </li>
+  <% assets.presence&.group_by(&:type)&.each do |key, value| %>
+    <h4 class="list-title"><%= key.constantize.model_name.human(count: value.size, locale: DataCycleCore.ui_language) %></h4>
+    <% value.presence&.each do |asset| %>
+      <li class="<%= 'active' if local_assigns[:selected] == asset.id %>" data-id="<%= asset.id %>">
+        <a href="#" class="asset-deselect" title="<%= t('actions.delete', locale: DataCycleCore.ui_language) %>"><i class="fa fa-times" aria-hidden="true"></i></a>
+        <%= render_asset_viewer(key: nil, definition: nil, value: asset) %>
+      </li>
+    <% end %>
   <% end %>
 </ul>

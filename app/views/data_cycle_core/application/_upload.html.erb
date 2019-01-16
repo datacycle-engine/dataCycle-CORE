@@ -1,57 +1,59 @@
 <% uploader_validations = merge_uploader_white_list %>
 
-<div class="reveal"
+<div class="reveal full"
   id="content-upload-reveal"
   data-reveal
   data-validations="<%= uploader_validations.to_json %>"
-  data-multiple-opened="true">
-  <h2><%= t('data_cycle_core.upload') %></h2>
+  data-multiple-opened="true" data-v-offset="0">
+  <div class="uploader-flex">
+    <h2><%= t('data_cycle_core.upload') %></h2>
 
-  <div class="callout warning" data-closable>
-    <%= t('uploader.close_warning_html', locale: DataCycleCore.ui_language) %>
-    <%= link_to nil, target: :_blank do %>
-    <i class="fa fa-external-link" aria-hidden="true"></i> <%=
-    t('uploader.continue_in_new_tab', locale: DataCycleCore.ui_language) %> <%
-    end %>
-    <button class="close-button"
-      aria-label="Dismiss alert"
-      type="button"
-      data-close>
-      <span aria-hidden="true">&times;</span>
-    </button>
-  </div>
+    <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+      <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>
+        <a href="#" class="accordion-title"><%= t('common.warning', locale: DataCycleCore.ui_language) %></a>
+        <div class="accordion-content" data-tab-content>
+          <%= t('uploader.close_warning_html', locale: DataCycleCore.ui_language) %>
 
-  <div class="callout primary upload-restrictions" data-closable>
-    <h4>
-      <%= t('uploader.restrictions', locale: DataCycleCore.ui_language) %>
-    </h4>
-    <ul class="no-bullet">
-      <% uploader_validations.each do |type, validation| %>
-      <li>
-        <b><%= t("uploader.type.#{type}", locale: DataCycleCore.ui_language) %></b>
-        <ul>
-          <%= uploader_validation_to_text(validation&.except(:translation, :class)).html_safe %>
-        </ul>
+          <%= link_to nil, target: :_blank do %>
+            <i class="fa fa-external-link" aria-hidden="true"></i>
+            <%= t('uploader.continue_in_new_tab', locale: DataCycleCore.ui_language) %>
+          <% end %>
+        </div>
       </li>
-      <% end %>
+      <li class="upload-restrictions accordion-item is-active callout primary" data-accordion-item>
+        <a href="#" class="accordion-title"><%= t('uploader.restrictions', locale: DataCycleCore.ui_language) %></a>
+        <div class="accordion-content" data-tab-content>
+          <ul class="no-bullet">
+            <% uploader_validations.each do |type, validation| %>
+            <li>
+              <b><%= t("uploader.type.#{type}", locale: DataCycleCore.ui_language) %></b>
+              <ul>
+                <%= uploader_validation_to_text(validation&.except(:translation, :class)).html_safe %>
+              </ul>
+            </li>
+            <% end %>
+          </ul>
+        </div>
+      </li>
     </ul>
 
-    <button class="close-button"
-      aria-label="Dismiss alert"
-      type="button"
-      data-close>
-      <span aria-hidden="true">&times;</span>
-    </button>
+    <%= form_tag(assets_path, multipart: true, id: 'content-upload-form') do %>
+      <%= file_field_tag 'files',
+        multiple: true,
+        accept: uploader_validations.values.map { |v| v[:format] }.flatten.compact.uniq.presence&.map{ |e| ".#{e}" }&.join(', '),
+        class: 'upload-file' %>
+      <div class="upload-buttons">
+        <%= label_tag 'files', class: 'button' do %>
+          <%= tag.i(class: 'fa fa-plus') %>
+          <%= t('actions.add_files', locale: DataCycleCore.ui_language) %>
+        <% end %>
+        <%= button_tag class: 'button' do %>
+          <%= tag.i(class: 'fa fa-upload') %>
+          <%= t('actions.upload', locale: DataCycleCore.ui_language) %>
+        <% end %>
+      </div>
+    <% end %>
   </div>
-
-  <%= form_tag(assets_path, multipart: true, id: 'content-upload-form') do %>
-    <%= file_field_tag 'files',
-      multiple: true,
-      accept: uploader_validations.values.map { |v| v[:format] }.flatten.compact.uniq.presence&.map{ |e| ".#{e}" }&.join(', '),
-      class: 'upload-file' %>
-    <%= label_tag 'files', content_tag(:i, nil, class: 'fa fa-plus'), class: 'button' %>
-    <%= button_tag t('actions.upload', locale: DataCycleCore.ui_language), class: 'button' %>
-  <% end %>
   <button class="close-button"
     data-close
     aria-label="Close modal"
