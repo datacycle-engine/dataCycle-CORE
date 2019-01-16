@@ -29,7 +29,6 @@ module DataCycleCore
           index
         end
 
-        # TODO: refactor
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
