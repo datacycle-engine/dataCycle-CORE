@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::GoogleBusiness::TransformationFunctions[*args]
         end
 
-        def self.location_to_place(external_source_id)
+        def self.location_to_place(_external_source_id)
           t(:stringify_keys)
           .>> t(:rename_keys, 'name' => 'external_key')
           .>> t(:rename_keys, 'locationName' => 'name')
