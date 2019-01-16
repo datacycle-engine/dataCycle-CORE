@@ -93,6 +93,9 @@
       :google:
         :type: mixin
         :name: google
+      :google_business:
+        :type: mixin
+        :name: google_business
       :data_type:
         :label: Inhaltstype
         :type: classification
