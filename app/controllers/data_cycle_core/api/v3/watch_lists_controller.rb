@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class WatchListsController < ContentsController
+      class WatchListsController < ::DataCycleCore::Api::V3::ContentsController
         before_action :prepare_url_parameters
         def index
           if permitted_params[:user_email].present?

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class OrganizationsController < ContentsController
+      class OrganizationsController < ::DataCycleCore::Api::V3::ContentsController
       end
     end
   end

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class ClassificationTreesController < ApiBaseController
+      class ClassificationTreesController < ::DataCycleCore::Api::V3::ApiBaseController
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze

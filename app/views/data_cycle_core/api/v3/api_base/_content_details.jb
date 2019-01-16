@@ -16,9 +16,9 @@ else
 end
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 json.merge! render 'content_properties', content: content, options: options
-#
-# json.partial! 'overlay_properties', content: content, options: options
-#
+
+json.merge! render 'overlay_properties', content: content, options: options
+
 json.merge! render 'combined_properties', content: content, options: options
 
 json

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class StoredFiltersController < ContentsController
+      class StoredFiltersController < ::DataCycleCore::Api::V3::ContentsController
         def show
           index
         end

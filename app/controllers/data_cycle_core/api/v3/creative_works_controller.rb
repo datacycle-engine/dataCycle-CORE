@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class CreativeWorksController < ContentsController
+      class CreativeWorksController < ::DataCycleCore::Api::V3::ContentsController
       end
     end
   end

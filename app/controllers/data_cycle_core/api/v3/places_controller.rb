@@ -3,7 +3,7 @@
 module DataCycleCore
   module Api
     module V3
-      class PlacesController < ContentsController
+      class PlacesController < ::DataCycleCore::Api::V3::ContentsController
       end
     end
   end
