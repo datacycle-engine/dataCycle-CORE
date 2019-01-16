@@ -1,12 +1,25 @@
 # frozen_string_literal: true
 
-# json.cache!("#{classification_alias.class}_#{classification_alias.id}_#{classification_alias.updated_at}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
-classification = classification_aliases
-  .as_json(
-    only: [:id, :name, :description, :created_at, :updated_at, :deleted_at],
-    include: { ancestors: { only: [:id, :name, :description, :created_at, :updated_at] } }
-  )&.map { |item| item.merge('ancestors' => item.dig('ancestors')&.map { |ancestor| ancestor.compact.transform_keys { |key| key.camelize(:lower) } }) }&.map { |item| item.compact.transform_keys { |key| key.camelize(:lower) } }
+classifications = classification_aliases.map do |item|
+  {
+    id: item.id,
+    name: item.name,
+    description: item.description,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+    deletedAt: item.deleted_at,
+    ancestors: item.ancestors.map do |ancestor|
+      {
+        id: ancestor.id,
+        name: ancestor.name,
+        createdAt: ancestor.created_at,
+        updatedAt: ancestor.updated_at,
+        deletedAt: ancestor.deleted_at
+      }.compact
+    end
+  }.compact
+end
 
 {
-  key.to_sym => classification
+  key.to_sym => classifications
 }
