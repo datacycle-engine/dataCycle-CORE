@@ -21,7 +21,9 @@
         :label: "Anrede / Titel"
         :type: string
         :storage_location: translated_value
-        :normalize: degree
+        :normalize:
+          :id: degree
+          :type: degree
       :contact_info:
         :type: mixin
         :name: contact_info

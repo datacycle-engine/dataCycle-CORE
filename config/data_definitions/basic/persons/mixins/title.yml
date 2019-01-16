@@ -13,7 +13,9 @@
         :ui:
           :show:
             :disabled: true
-        :normalize: forename
+        :normalize:
+          :id: forename
+          :type: forename
       :family_name:
         :label: Nachname
         :type: string
@@ -26,4 +28,6 @@
             :disabled: true
         :api:
           :minimal: true
-        :normalize: surname
+        :normalize:
+          :id: surname
+          :type: surname

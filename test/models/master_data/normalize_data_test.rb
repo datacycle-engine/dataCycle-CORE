@@ -86,8 +86,8 @@ describe DataCycleCore::MasterData::NormalizeData do
           'id' => { 'type' => 'key', 'label' => 'id' },
           'image' => { 'type' => 'linked', 'label' => 'Bilder', 'template_name' => 'Bild' },
           'honorific_prefix' => { 'type' => 'string', 'label' => 'Anrede / Titel', 'storage_location' => 'translated_value' },
-          'given_name' => { 'type' => 'string', 'label' => 'Vorname', 'normalize' => 'forename', 'storage_location' => 'column' },
-          'family_name' => { 'type' => 'string', 'label' => 'Nachname', 'normalize' => 'surname', 'storage_location' => 'column' },
+          'given_name' => { 'type' => 'string', 'label' => 'Vorname', 'normalize' => { 'id' => 'forename', 'type' => 'forename' }, 'storage_location' => 'column' },
+          'family_name' => { 'type' => 'string', 'label' => 'Nachname', 'normalize' => { 'id' => 'surname', 'type' => 'surname' }, 'storage_location' => 'column' },
           'gender' => { 'type' => 'classification', 'label' => 'Geschlecht', 'tree_label' => 'Geschlecht' },
           'job_title' => { 'type' => 'string', 'label' => 'Position', 'storage_location' => 'translated_value' },
           'address' => {
@@ -95,10 +95,10 @@ describe DataCycleCore::MasterData::NormalizeData do
             'label' => 'Adresse',
             'storage_location' => 'value',
             'properties' => {
-              'postal_code' => { 'type' => 'string', 'label' => 'PLZ', 'normalize' => 'zip', 'storage_location' => 'value' },
-              'street_address' => { 'type' => 'string', 'label' => 'Straße', 'normalize' => 'street', 'storage_location' => 'value' },
-              'address_country' => { 'type' => 'string', 'label' => 'Land', 'normalize' => 'country', 'storage_location' => 'value' },
-              'address_locality' => { 'type' => 'string', 'label' => 'Ort', 'normalize' => 'city', 'storage_location' => 'value' }
+              'postal_code' => { 'type' => 'string', 'label' => 'PLZ', 'normalize' => { 'id' => 'zip', 'type' => 'zip' }, 'storage_location' => 'value' },
+              'street_address' => { 'type' => 'string', 'label' => 'Straße', 'normalize' => { 'id' => 'street', 'type' => 'street' }, 'storage_location' => 'value' },
+              'address_country' => { 'type' => 'string', 'label' => 'Land', 'normalize' => { 'id' => 'country', 'type' => 'country' }, 'storage_location' => 'value' },
+              'address_locality' => { 'type' => 'string', 'label' => 'Ort', 'normalize' => { 'id' => 'city', 'type' => 'city' }, 'storage_location' => 'value' }
             }
           },
           'data_type' => { 'type' => 'classification', 'label' => 'Inhaltstype', 'tree_label' => 'Inhaltstypen', 'default_value' => 'Person' },
@@ -109,7 +109,7 @@ describe DataCycleCore::MasterData::NormalizeData do
             'storage_location' => 'translated_value',
             'properties' => {
               'url' => { 'type' => 'string', 'label' => 'Web', 'storage_location' => 'translated_value' },
-              'email' => { 'type' => 'string', 'label' => 'E-Mail', 'normalize' => 'email', 'storage_location' => 'translated_value' },
+              'email' => { 'type' => 'string', 'label' => 'E-Mail', 'normalize' => { 'id' => 'email', 'type' => 'email' }, 'storage_location' => 'translated_value' },
               'telephone' => { 'type' => 'string', 'label' => 'Telefonnummer', 'storage_location' => 'translated_value' },
               'fax_number' => { 'type' => 'string', 'label' => 'Fax', 'storage_location' => 'translated_value' }
             }
@@ -143,27 +143,39 @@ describe DataCycleCore::MasterData::NormalizeData do
       }
     end
 
-    let(:normalizable_data) do
+    let(:normalizable_hash) do
       [
-        { 'id' => 'given_name',               'type' => 'FORENAME', 'content' => 'Martin'             },
-        { 'id' => 'family_name',              'type' => 'SURNAME',  'content' => 'Oehzelt'            },
-        { 'id' => 'address/postal_code',      'type' => 'ZIP',      'content' => ''                   },
-        { 'id' => 'address/street_address',   'type' => 'STREET',   'content' => 'Ossiacher Zeile 30' },
-        { 'id' => 'address/address_country',  'type' => 'COUNTRY',  'content' => 'Österreich'         },
-        { 'id' => 'address/address_locality', 'type' => 'CITY',     'content' => 'Villach'            },
-        { 'id' => 'contact_info/email',       'type' => 'EMAIL',    'content' => 'oehzelt@test.at'    }
+        { 'data_hash_path' => 'given_name',               'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Martin'             },
+        { 'data_hash_path' => 'family_name',              'id' => 'SURNAME',  'type' => 'SURNAME',  'content' => 'Oehzelt'            },
+        { 'data_hash_path' => 'address/postal_code',      'id' => 'ZIP',      'type' => 'ZIP',      'content' => ''                   },
+        { 'data_hash_path' => 'address/street_address',   'id' => 'STREET',   'type' => 'STREET',   'content' => 'Ossiacher Zeile 30' },
+        { 'data_hash_path' => 'address/address_country',  'id' => 'COUNTRY',  'type' => 'COUNTRY',  'content' => 'Österreich'         },
+        { 'data_hash_path' => 'address/address_locality', 'id' => 'CITY',     'type' => 'CITY',     'content' => 'Villach'            },
+        { 'data_hash_path' => 'contact_info/email',       'id' => 'EMAIL',    'type' => 'EMAIL',    'content' => 'oehzelt@test.at'    }
       ]
     end
 
-    let(:back_transformed_data) do
+    let(:transformation_hash) do
       [
-        { 'id' => 'address/street_address', 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' },
-        { 'id' => 'address/address_country', 'type' => 'COUNTRY', 'content' => 'AT' },
-        { 'id' => 'address/address_locality', 'type' => 'CITY', 'content' => 'Villach' },
-        { 'id' => 'given_name', 'type' => 'FORENAME', 'content' => 'Martin' },
-        { 'id' => 'family_name', 'type' => 'SURNAME', 'content' => 'Oehzelt' },
-        { 'id' => 'contact_info/email', 'type' => 'EMAIL', 'content' => 'oehzelt@test.at' },
-        { 'id' => nil, 'type' => 'SEX', 'content' => 'M' }
+        { 'data_hash_path' => 'given_name',               'id' => 'FORENAME', 'type' => 'FORENAME' },
+        { 'data_hash_path' => 'family_name',              'id' => 'SURNAME',  'type' => 'SURNAME'  },
+        { 'data_hash_path' => 'address/postal_code',      'id' => 'ZIP',      'type' => 'ZIP'      },
+        { 'data_hash_path' => 'address/street_address',   'id' => 'STREET',   'type' => 'STREET'   },
+        { 'data_hash_path' => 'address/address_country',  'id' => 'COUNTRY',  'type' => 'COUNTRY'  },
+        { 'data_hash_path' => 'address/address_locality', 'id' => 'CITY',     'type' => 'CITY'     },
+        { 'data_hash_path' => 'contact_info/email',       'id' => 'EMAIL',    'type' => 'EMAIL'    }
+      ]
+    end
+
+    let(:normalizable_data) do
+      [
+        { 'id' => 'FORENAME', 'type' => 'FORENAME', 'content' => 'Martin'             },
+        { 'id' => 'SURNAME',  'type' => 'SURNAME',  'content' => 'Oehzelt'            },
+        { 'id' => 'ZIP',      'type' => 'ZIP',      'content' => ''                   },
+        { 'id' => 'STREET',   'type' => 'STREET',   'content' => 'Ossiacher Zeile 30' },
+        { 'id' => 'COUNTRY',  'type' => 'COUNTRY',  'content' => 'Österreich'         },
+        { 'id' => 'CITY',     'type' => 'CITY',     'content' => 'Villach'            },
+        { 'id' => 'EMAIL',    'type' => 'EMAIL',    'content' => 'oehzelt@test.at'    }
       ]
     end
 
@@ -278,6 +290,18 @@ describe DataCycleCore::MasterData::NormalizeData do
       ]
     end
 
+    let(:back_transformed_data) do
+      [
+        { 'id' => 'address/street_address', 'type' => 'STREET', 'content' => 'Ossiacher Zeile 30' },
+        { 'id' => 'address/address_country', 'type' => 'COUNTRY', 'content' => 'AT' },
+        { 'id' => 'address/address_locality', 'type' => 'CITY', 'content' => 'Villach' },
+        { 'id' => 'given_name', 'type' => 'FORENAME', 'content' => 'Martin' },
+        { 'id' => 'family_name', 'type' => 'SURNAME', 'content' => 'Oehzelt' },
+        { 'id' => 'contact_info/email', 'type' => 'EMAIL', 'content' => 'oehzelt@test.at' },
+        { 'id' => nil, 'type' => 'SEX', 'content' => 'M' }
+      ]
+    end
+
     let(:diff_hash) do
       {
         'address' => {
@@ -312,12 +336,13 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'grabs correctly all normalizable data attributs' do
-      subject.normalizable_data(nil, person_template.dig('properties'), data_hash).must_equal normalizable_data
+      subject.normalizable_data(nil, person_template.dig('properties'), data_hash).must_equal normalizable_hash
     end
 
     it 'does the preprocessing of the data correctly' do
-      norm_hash = subject.preprocess_data(person_template, data_hash)
+      norm_hash, transformation = subject.preprocess_data(person_template, data_hash)
       norm_hash.must_equal normalizable_data
+      transformation.must_equal transformation_hash
     end
 
     it 'merges correctly street and street_nr' do
@@ -328,7 +353,7 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'back_transforms normalized_data to original ids and schema' do
-      back_trans = subject.back_transform(merged_fields)
+      back_trans = subject.back_transform(merged_fields, transformation_hash)
       back_trans.must_equal back_transformed_data
     end
 
@@ -337,7 +362,7 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'does post_processing correctly' do
-      updated_data, diffs = subject.postprocess_data(data_hash, normalize_report, person_template)
+      updated_data, diffs = subject.postprocess_data(data_hash, transformation_hash, normalize_report, person_template)
       diffs.must_equal diff_hash
       updated_data.must_equal returned_data
     end

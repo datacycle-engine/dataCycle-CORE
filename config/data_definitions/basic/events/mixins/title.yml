@@ -15,4 +15,6 @@
             :disabled: true
         :api:
           :minimal: true
-        :normalize: eventname
+        :normalize:
+          :id: eventname
+          :type: eventname

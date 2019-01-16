@@ -10,7 +10,9 @@
         :search: true
         :validations:
           :min: 1
-        :normalize: forename
+        :normalize:
+          :id: forename
+          :type: forename
         :ui:
           :show:
             :disabled: true
@@ -21,7 +23,9 @@
         :search: true
         :validations:
           :min: 1
-        :normalize: surname
+        :normalize:
+          :id: surname
+          :type: surname
         :ui:
           :show:
             :disabled: true

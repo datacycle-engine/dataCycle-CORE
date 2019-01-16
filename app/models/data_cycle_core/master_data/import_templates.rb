@@ -287,30 +287,56 @@ module DataCycleCore
           end
           optional(:tree_label) { str? }
           optional(:stored_filter) { array? }
-          optional(:normalize) do
-            str? &
-              included_in?(
-                [
-                  'sex',
-                  'degree',
-                  'forename',
-                  'surname',
-                  'company',
-                  'street',
-                  'streetnr',
-                  'city',
-                  'zip',
-                  'country',
-                  'birthdate',
-                  'email',
-                  'eventname',
-                  'datetime',
-                  'datetime2',
-                  'place',
-                  'longitude',
-                  'latitude'
-                ]
-              )
+          optional(:normalize).schema do
+            required(:id) do
+              str? &
+                included_in?(
+                  [
+                    'sex',
+                    'degree',
+                    'forename',
+                    'surname',
+                    'company',
+                    'street',
+                    'streetnr',
+                    'city',
+                    'zip',
+                    'country',
+                    'birthdate',
+                    'email',
+                    'eventname',
+                    'eventstart',
+                    'eventend',
+                    'eventplace',
+                    'longitude',
+                    'latitude'
+                  ]
+                )
+            end
+            required(:type) do
+              str? &
+                included_in?(
+                  [
+                    'sex',
+                    'degree',
+                    'forename',
+                    'surname',
+                    'company',
+                    'street',
+                    'streetnr',
+                    'city',
+                    'zip',
+                    'country',
+                    'birthdate',
+                    'email',
+                    'eventname',
+                    'datetime',
+                    'place',
+                    'longitude',
+                    'latitude'
+                  ]
+                )
+            end
           end
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
