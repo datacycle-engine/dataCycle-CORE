@@ -54,7 +54,8 @@ module DataCycleCore
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo'],
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo',
+                'google_business_primary_category', 'google_business_additional_categories'],
         person: []
       }.freeze
 
