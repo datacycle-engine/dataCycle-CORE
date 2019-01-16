@@ -8,7 +8,7 @@ module DataCycleCore
       authorize! :index, DataCycleCore::Asset
       @html_target = permitted_params[:html_target]
       @selected = permitted_params[:selected]
-      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(:updated_at)
+      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(updated_at: :desc)
       @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
       @assets = @assets.where.not(id: permitted_params[:locked_assets].compact) if permitted_params[:locked_assets].present?
     end
