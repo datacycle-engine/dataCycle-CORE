@@ -9,15 +9,13 @@ module DataCycleCore
     def show
       authorize! :show, :object_browser
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        @language = [permitted_params.fetch(:locale, current_user.default_locale)]
-
         @definition = permitted_params.fetch(:definition, nil)
+        template_name = @definition.fetch(:template_name, nil)
+        stored_filter = @definition.fetch(:stored_filter, nil)
+        @language = Array(@definition.dig(:linked_language)&.remove('same').presence || permitted_params.fetch(:locale, current_user.default_locale))
 
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language
-
-        template_name = @definition.fetch(:template_name, nil)
-        stored_filter = @definition.fetch(:stored_filter, nil)
 
         @template = DataCycleCore::Thing.find_by(template: true, template_name: template_name)
 
@@ -50,7 +48,7 @@ module DataCycleCore
         @per = permitted_params[:per] if permitted_params[:per].present?
         @per ||= DEFAULT_PER
 
-        @total = query.count
+        @total = query.count_distinct
         @pages = @total.fdiv(@per.to_i).ceil
 
         if permitted_params[:page].present?
@@ -59,8 +57,7 @@ module DataCycleCore
         end
         @page ||= 1
 
-        @results = query.page(@page).per(@per).includes(:translations)
-
+        @results = query.distinct_by_content_id(order_string).content_includes.page(@page).per(@per)
         respond_to(:js)
       end
     end

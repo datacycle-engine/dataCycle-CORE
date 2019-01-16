@@ -22,7 +22,7 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name)
-        DataCycleCore::Thing
+        relation_contents = DataCycleCore::Thing
           .joins(:content_content_b_history)
           .where({
             content_content_histories: {
@@ -31,12 +31,12 @@ module DataCycleCore
               content_b_history_type: 'DataCycleCore::Thing'
             }
           })
-          .joins(:translations).where(thing_translations: { locale: I18n.locale })
-          .order('content_content_histories.order_a ASC')
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) unless schema&.dig('properties', relation_name, 'linked_language') == 'all'
+        relation_contents.order('content_content_histories.order_a ASC')
       end
 
       def load_embedded_objects(relation_name)
-        DataCycleCore::Thing::History
+        relation_contents = DataCycleCore::Thing::History
           .joins(:content_content_b_history)
           .where({
             content_content_histories: {
@@ -45,8 +45,8 @@ module DataCycleCore
               content_b_history_type: 'DataCycleCore::Thing::History'
             }
           })
-          .joins(:translations).where(thing_history_translations: { locale: I18n.locale })
-          .order('content_content_histories.order_a ASC')
+        relation_contents = relation_contents.joins(:translations).where(thing_history_translations: { locale: I18n.locale }) unless schema&.dig('properties', relation_name, 'linked_language') == 'all'
+        relation_contents.order('content_content_histories.order_a ASC')
       end
 
       def load_classifications(relation_name)

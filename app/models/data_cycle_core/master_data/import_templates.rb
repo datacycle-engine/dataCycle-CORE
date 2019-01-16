@@ -170,6 +170,10 @@ module DataCycleCore
               true
             end
 
+            def valid_linked_language?(value)
+              value.in?(['all', 'same'])
+            end
+
             def valid_compute_config?(value)
               return false unless value.is_a?(Hash)
               module_name = valid_computed_module?(value.dig(:module))
@@ -196,7 +200,8 @@ module DataCycleCore
                     classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
-                    valid_compute_config?: 'module and method combination not found.'
+                    valid_compute_config?: 'module and method combination not found.',
+                    valid_linked_language?: 'must be all or same.'
                   }
                 }
               )
@@ -277,6 +282,7 @@ module DataCycleCore
           end
           optional(:tree_label) { str? }
           optional(:stored_filter) { array? }
+          optional(:linked_language) { str? & valid_linked_language? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (

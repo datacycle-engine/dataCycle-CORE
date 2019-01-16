@@ -7,7 +7,13 @@ module DataCycleCore
 
       def initialize(locale = ['de'], query = nil)
         @locale = locale
-        @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
+        if locale.nil?
+          @joined_search = false
+          @query = query || DataCycleCore::Thing
+        else
+          @joined_search = true
+          @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
+        end
       end
 
       def content_includes
@@ -25,6 +31,11 @@ module DataCycleCore
       def fulltext_search(name)
         return self if name.blank?
 
+        unless @joined_search
+          @query = @query.joins(:searches)
+          @joined_search = true
+        end
+
         reflect(
           @query.where(
             search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
@@ -33,15 +44,15 @@ module DataCycleCore
         )
       end
 
-      def only_frontend_valid
-        reflect(
-          @query.where(search[:schema_type].not_eq(quoted('Place')))
-        )
-      end
+      # def only_frontend_valid
+      #   reflect(
+      #     @query.where(search[:schema_type].not_eq(quoted('Place')))
+      #   )
+      # end
 
       def in_validity_period(current_date = Time.zone.now)
         reflect(
-          @query.where(in_range(search[:validity_period], cast_tstz(current_date)))
+          @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
         )
       end
 
@@ -146,14 +157,24 @@ module DataCycleCore
       def distinct_by_content_id(order_string = nil)
         return self if @locale.presence&.size == 1
 
-        reflect(
-          DataCycleCore::Thing.joins(:searches)
-            .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
-            .order(order_string)
-        )
+        if @locale.nil?
+          reflect(
+            DataCycleCore::Thing
+              .where(id: @query.select('DISTINCT ON (things.id) things.id').except(:order, :limit, :offset))
+              .order(order_string)
+          )
+        else
+          reflect(
+            DataCycleCore::Thing.joins(:searches)
+              .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
+              .order(order_string)
+          )
+        end
       end
 
       def count_distinct
+        return @query.except(:order, :limit, :offset).count unless @joined_search
+        return @query.except(:order, :limit, :offset).count if @locale.presence&.size == 1
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
@@ -191,19 +212,19 @@ module DataCycleCore
       end
 
       def self.get_order_by_query_string(search)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'searches.boost DESC, searches.updated_at DESC') if search.blank?
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.boost DESC, things.updated_at DESC') if search.blank?
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
-            "searches.boost * (
+            "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
               2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))
               DESC NULLS LAST,
-              searches.updated_at DESC",
+              things.updated_at DESC",
             search_string: "%#{search_string}%",
             search: (search || '').squish
           ]
