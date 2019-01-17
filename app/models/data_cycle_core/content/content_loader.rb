@@ -27,15 +27,16 @@ module DataCycleCore
       end
 
       def load_relation(relation_name)
-        DataCycleCore::Thing
-          .joins(:translations, :content_content_b)
-          .where(thing_translations: { locale: I18n.locale })
+        relation_contents = DataCycleCore::Thing
+          .joins(:content_content_b)
           .where({
             content_contents: {
               content_a_id: id,
               relation_a: relation_name
             }
-          }).order('content_contents.order_a ASC')
+          })
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same'
+        relation_contents.order('content_contents.order_a ASC')
       end
 
       def load_classifications(relation_name)

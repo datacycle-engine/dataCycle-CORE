@@ -21,7 +21,7 @@ module DataCycleCore
       @total = @contents.count_distinct
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @stored_filter = save_filter if params[:stored_filter].blank?
-      @total_pages = (@total.to_f / 25).ceil
+      @total_pages = @total.fdiv(25).ceil
     end
 
     def settings

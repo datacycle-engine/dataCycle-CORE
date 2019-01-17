@@ -17,7 +17,7 @@
             <% end %>
 
             <div class="buttons">
-                <% if content.try(:translated_locales)&.many? && @language&.many? %>
+                <% if content.try(:translated_locales)&.many? %>
                     <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: DataCycleCore.ui_language)}&.join("<br>") %>"></i>
                 <% end %>
 

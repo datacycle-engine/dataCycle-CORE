@@ -79,7 +79,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
+    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio', 'DataCycleCore::DataCycleFile']
 
     mattr_accessor :file_uploader_whitelist
     self.file_uploader_whitelist = []
@@ -196,6 +196,9 @@ module DataCycleCore
       latitude: 47.41520280002081,
       zoom: 7
     }
+
+    mattr_accessor :content_warnings
+    self.content_warnings = {}
   end
 
   def self.setup
