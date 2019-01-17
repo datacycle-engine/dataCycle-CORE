@@ -15,6 +15,12 @@ module DataCycleCore
         end
       end
 
+      def exclude_templates_embedded
+        reflect(
+          @query.where("template = ? AND schema ->> 'content_type' != ?", false, 'embedded')
+        )
+      end
+
       def content_includes
         reflect(
           @query.includes(

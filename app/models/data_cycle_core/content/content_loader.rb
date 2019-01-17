@@ -35,7 +35,7 @@ module DataCycleCore
               relation_a: relation_name
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) unless schema&.dig('properties', relation_name, 'linked_language') == 'all'
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same'
         relation_contents.order('content_contents.order_a ASC')
       end
 

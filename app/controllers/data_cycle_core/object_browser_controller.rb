@@ -12,7 +12,7 @@ module DataCycleCore
         @definition = permitted_params.fetch(:definition, nil)
         template_name = @definition.fetch(:template_name, nil)
         stored_filter = @definition.fetch(:stored_filter, nil)
-        @language = Array(@definition.dig(:linked_language)&.remove('same').presence || permitted_params.fetch(:locale, current_user.default_locale))
+        @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale, current_user.default_locale) : 'all')
 
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language
