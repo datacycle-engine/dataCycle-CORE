@@ -25,7 +25,7 @@ module DataCycleCore
 
       def get_validity_range(validity_hash)
         from, to = get_validity_values(validity_hash)
-        ((from.try(:in_time_zone) || -Float::INFINITY)..(to.try(:in_time_zone) || Float::INFINITY))
+        ((from.try(:in_time_zone) || Time::LONG_AGO)..(to.try(:in_time_zone) || Float::INFINITY))
       end
 
       def get_validity_values(validity_hash)

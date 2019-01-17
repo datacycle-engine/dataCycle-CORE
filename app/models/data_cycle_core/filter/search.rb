@@ -5,13 +5,12 @@ module DataCycleCore
     class Search < QueryBuilder
       include DataCycleCore::Filter::Common::Configurable
 
-      def initialize(locale = ['de'], query = nil)
+      def initialize(locale = ['de'], query = nil, joined_search = false)
         @locale = locale
+        @joined_search = joined_search
         if locale.nil?
-          @joined_search = false
           @query = query || DataCycleCore::Thing
         else
-          @joined_search = true
           @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
         end
       end
@@ -31,10 +30,8 @@ module DataCycleCore
       def fulltext_search(name)
         return self if name.blank?
 
-        unless @joined_search
-          @query = @query.joins(:searches)
-          @joined_search = true
-        end
+        @query = @query.joins(:searches)
+        @joined_search = true
 
         reflect(
           @query.where(
@@ -43,12 +40,6 @@ module DataCycleCore
           )
         )
       end
-
-      # def only_frontend_valid
-      #   reflect(
-      #     @query.where(search[:schema_type].not_eq(quoted('Place')))
-      #   )
-      # end
 
       def in_validity_period(current_date = Time.zone.now)
         reflect(
@@ -155,26 +146,17 @@ module DataCycleCore
       end
 
       def distinct_by_content_id(order_string = nil)
-        return self if @locale.presence&.size == 1
+        return self unless (@joined_search && @locale.blank?) || @locale&.many?
 
-        if @locale.nil?
-          reflect(
-            DataCycleCore::Thing
-              .where(id: @query.select('DISTINCT ON (things.id) things.id').except(:order, :limit, :offset))
-              .order(order_string)
-          )
-        else
-          reflect(
-            DataCycleCore::Thing.joins(:searches)
-              .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
-              .order(order_string)
-          )
-        end
+        reflect(
+          DataCycleCore::Thing.joins(:searches)
+            .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
+            .order(order_string)
+        )
       end
 
       def count_distinct
-        return @query.except(:order, :limit, :offset).count unless @joined_search
-        return @query.except(:order, :limit, :offset).count if @locale.presence&.size == 1
+        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
