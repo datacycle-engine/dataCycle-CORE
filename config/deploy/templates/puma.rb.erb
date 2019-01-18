@@ -11,7 +11,7 @@ state_path "<%= fetch(:puma_state) %>"
 stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
 <% threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
-threads '<%= threads_count %>,<%= threads_count %>'
+threads <%= threads_count %>,<%= threads_count %>
 
 <%= puma_plugins %>
 
