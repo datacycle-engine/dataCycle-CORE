@@ -16,6 +16,7 @@
         :storage_location: column
         :api:
           :minimal: true
+          :name: headline
       :text:
         :label: Text
         :type: string
