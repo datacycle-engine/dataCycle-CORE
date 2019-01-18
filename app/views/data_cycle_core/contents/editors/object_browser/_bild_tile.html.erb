@@ -1,45 +1,32 @@
 <% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
-    <div class="media thumbnail item <%= 'has-restrictions' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= 'expired-item' unless object.try(:is_valid?) %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="<%= "background-image: url(#{object.thumbnail_url})" if object.try(:thumbnail_url).present? %>" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
+    <div class="media thumbnail item <%= 'has-restrictions' if object.try(:restrictions)&.include?('gesperrt') %> <%= 'hard-warnings' if object.hard_content_warnings? %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="<%= "background-image: url(#{object.thumbnail_url})" if object.try(:thumbnail_url).present? %>" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
+        <% render_locale = I18n.locale %>
+        <% I18n.with_locale(object.first_available_locale) do %>
+            <%= hidden_field_tag key, object.id %>
 
-        <%= hidden_field_tag key, object.id %>
+            <% if object.try(:title) %>
+              <div class="description"><%= object.title %> (<%= I18n.locale.to_s %>)</div>
+            <% end %>
 
-        <% if object.try(:restrictions).try(:include?, 'gesperrt') %>
-            <span data-tooltip aria-haspopup="true" class="has-tip warning" tabindex="1" title="Einschränkungen: <%= object.try(:restrictions) %>"><i class="fa fa-exclamation-triangle" aria-hidden="true"></i></span>
-        <% end %>
+            <% if editable ||= false %>
+                <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
+                <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
+            <% end %>
 
-        <% unless object.is_valid? %>
-            <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
-        <% end %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, locale: render_locale %>
 
-        <% if object.try(:title) %>
-            <div class="description"><%= object.try(:title) %></div>
-        <% end %>
-
-        <% if editable ||= false %>
-            <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-            <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
-        <% end %>
-
-        <div class="width-content reveal media-preview" id="media_reveal_<%= object.id %>" data-reveal>
-            <button class="close-button" data-close aria-label="Close modal" type="button">
-                <span aria-hidden="true">&times;</span>
-            </button>
-            <span class="preview-title">
-      <%= object.try(:title) %>
-    </span>
-            <div class="image">
-                <img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" />
-            </div>
-            <div class="description">
-
+            <div class="width-content reveal media-preview" id="media_reveal_<%= object.id %>" data-reveal>
+                <button class="close-button" data-close aria-label="Close modal" type="button">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+                <%= tag.span "#{object.title} (#{I18n.locale.to_s})", class: 'preview-title' if object.try(:title).present? %>
+                <div class="image">
+                    <img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" />
+                </div>
+                <div class="description">
                 <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
-
-                <% unless object.try(:restrictions).blank? %>
-                    <strong>Einschränkungen:</strong> <%== '<i class="fa fa-exclamation-triangle" aria-hidden="true"></i>' if object.try(:restrictions).try(:include?, 'gesperrt') %> <%= object.try(:restrictions) %> <br /><br />
-                <% end %>
-
-            <%= link_to t('tile_links.details', locale: DataCycleCore.ui_language), thing_path(object), target: :_blank %>
-
+                <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, text: true, locale: render_locale %>
+                <%= link_to t('tile_links.details', locale: DataCycleCore.ui_language), thing_path(object), target: :_blank %>
                 <% if can?(:download, object) && object.try(:content_url).present? %>
                     | <%= link_to t('tile_links.full_size', locale: DataCycleCore.ui_language), object.try(:content_url), target: :_blank %>
                 <% end %>
@@ -47,8 +34,9 @@
                 <% if object.try(:url).present? %>
                     | <%= link_to t('tile_links.media_archive', locale: DataCycleCore.ui_language), object.url, target: :_blank %>
                 <% end %>
+                </div>
             </div>
-        </div>
+        <% end %>
     </div>
 <% else %>
     <%= render 'data_cycle_core/contents/editors/object_browser/asset_default_tile', local_assigns %>

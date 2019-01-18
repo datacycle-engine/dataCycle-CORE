@@ -321,7 +321,15 @@
     margin-top: 0.5rem;
 
     .fa-exclamation-triangle {
-      color: #ffae00;
+      color: $warning-color;
+      text-shadow: 0 0 1px;
+      &.alert {
+        color: $alert-color;
+      }
+    }
+
+    .validity_period {
+      margin-bottom: 1rem;
     }
   }
 }
@@ -1569,4 +1577,12 @@ select {
 
 .upload-restrictions {
   font-size: 0.9rem;
+}
+
+.fa {
+  transition: text-shadow ease-in-out 0.25s, color ease-in-out 0.25s;
+}
+
+.has-tip {
+  border: none;
 }

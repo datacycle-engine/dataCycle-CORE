@@ -127,6 +127,7 @@ de:
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
     warning: Achtung!
+    warnings: Warnungen
 
   tile_links:
     details: zur Detailansicht
@@ -503,6 +504,27 @@ de:
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
 
+    warning:
+      common:
+        invalid: Gültigkeitszeitraum überschritten
+        translation_missing: Keine Übersetzung vorhanden
+
+  media_archive:
+    allowed_html: '<h4>Einschränkungen</h4>
+                  <ul class="no-bullet">
+                    <li><b>Bild:</b>
+                      <ul>
+                        <li>Formate: %{image_types}</li>
+                        <li>Abmessungen: %{image_dimensions}</li>
+                      </ul>
+                    </li>
+                    <li><b>Video:</b>
+                      <ul>
+                        <li>Formate: %{video_types}</li>
+                        <li>Codecs: h264 (audio: mp3/aac)</li>
+                      </ul>
+                    </li>
+                  </ul>'
   uploader:
     restrictions: 'Einschränkungen'
     type:

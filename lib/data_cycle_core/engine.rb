@@ -197,6 +197,9 @@ module DataCycleCore
       latitude: 47.41520280002081,
       zoom: 7
     }
+
+    mattr_accessor :content_warnings
+    self.content_warnings = {}
   end
 
   def self.setup
