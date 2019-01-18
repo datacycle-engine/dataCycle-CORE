@@ -104,6 +104,7 @@ module DataCycleCore
       end
 
       def set_internal_data
+        self.content_type = schema&.dig('content_type')
         self.boost = schema&.dig('boost') || 1.0
         validity_hash = metadata.nil? ? nil : metadata['validity_period']
         self.validity_range = get_validity_range(validity_hash)

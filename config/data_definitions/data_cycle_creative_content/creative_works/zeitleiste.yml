@@ -64,7 +64,7 @@
         :type: string
         :storage_location: column
         :validations:
-          :min: 1
+          :required: true
       :temporal_coverage:
         :label: Zeitraum
         :type: object
