@@ -6,7 +6,7 @@ module DataCycleCore
 
     def get_filtered_results(query = nil)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
-      @language ||= params.fetch(:language, [current_user.default_locale])
+      @language ||= Array(params.fetch(:language, [current_user.default_locale]))
 
       @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
 
@@ -19,8 +19,8 @@ module DataCycleCore
         )
       end
 
-      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing.joins(:searches)] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params)
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       # add default filters for user role if any exist
       @filters = current_user.default_filter(@filters)

@@ -34,11 +34,12 @@ module DataCycleCore
           .>> t(:reject_keys, ['season'])
           .>> t(:add_field, 'opens', ->(s) { s.dig('openinghours', 'from', 'text') || '' })
           .>> t(:add_field, 'closes', ->(s) { s.dig('openinghours', 'to', 'text') || '' })
-          .>> t(:nest, 'season', ['valid_from', 'valid_through'])
-          .>> t(:nest, 'opening_data', ['season', 'opens', 'closes'])
+          .>> t(:nest, 'validity', ['valid_from', 'valid_through'])
+          .>> t(:nest, 'time', ['opens', 'closes'])
+          .>> t(:nest, 'opening_data', ['validity', ['time']])
           .>> t(:add_field, 'opening_hours_specification', ->(s) { [s.dig('opening_data')] })
           .>> t(:add_field, 'url', ->(s) { s.dig('link', 'text') })
-          .>> t(:reject_keys, ['season', 'link'])
+          .>> t(:reject_keys, ['validity', 'time', 'link'])
           .>> t(:strip_all)
         end
 

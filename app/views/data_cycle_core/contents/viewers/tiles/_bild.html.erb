@@ -1,103 +1,89 @@
-<% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
-    <a data-open="media-reveal-<%= content.id %>">
-        <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.thumbnail_url})" if content.try(:thumbnail_url).present? %>">
-            <div class="show-for-print">
+<% render_locale = I18n.locale %>
+<% I18n.with_locale(content.first_available_locale) do %>
+  <% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
+      <a data-open="media-reveal-<%= content.id %>">
+          <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.thumbnail_url})" if content.try(:thumbnail_url).present? %>">
+              <div class="show-for-print">
                 <img src="<%= content.thumbnail_url %>" />
-            </div>
-            <% unless content.is_valid? %>
-              <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
-            <% end %>
-            <% if content.title.present? %>
-                <div class="description">
-                    <%= content.title %>
-                    <div class="show-for-print">
-                        <br />(ID: <%= content.id %>)
-                    </div>
-                </div>
-            <% end %>
-            <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-                <span data-tooltip aria-haspopup="true" class="has-tip warning" data-click-open="false" tabindex="1"
-                      title="Einschränkungen: <%= content.restrictions %>">
-                    <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                </span>
-            <% end %>
-        </div>
-    </a>
+              </div>
+              <% if content.title.present? %>
+                  <div class="description">
+                      <%= content.title %> (<%= I18n.locale.to_s %>)
+                      <div class="show-for-print">
+                          <br />(ID: <%= content.id %>)
+                      </div>
+                  </div>
+              <% end %>
+              <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, locale: render_locale %>
+          </div>
+      </a>
 
-    <div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal>
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        <span class="preview-title"><%= content.title %></span>
-        <div class="image">
-            <img class="lazyload" data-src="<%= content.thumbnail_url %>" />
-        </div>
-        <div class="description">
+      <div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal>
+          <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+          </button>
+          <%= tag.span "#{content.title} (#{I18n.locale.to_s})", class: 'preview-title' if content.try(:title).present? %>
+          <div class="image">
+              <img class="lazyload" data-src="<%= content.thumbnail_url %>" />
+          </div>
+          <div class="description">
+              <%= render 'validity_period', dataCycleObject: content %>
+              <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, text: true, locale: render_locale %>
 
-            <%= render 'validity_period', dataCycleObject: content %>
+              <%= link_to content, target: '_blank' do %>
+                  zur Detailansicht
+              <% end %> |
+              <% if can?(:download, content) %>
+              <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
+              <% end %>
 
-            <% if !content.try(:restrictions).nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
-                <strong>Einschränkungen: </strong>
-                <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-                  <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-                <% end %>
-                <%= content.restrictions.try(:html_safe) %><br /><br />
-            <% end %>
+              <% unless content.url.nil? && content.url.blank? %>
+                  <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
+              <% end %>
+          </div>
+      </div>
+  <% else %>
+      <a data-open="media-reveal-<%= content.id %>">
+          <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.asset.first.thumbnail_url})" if content.try(:asset)&.first&.thumbnail_url? %>">
+              <% if content.try(:asset)&.first&.thumbnail_url? %>
+                  <div class="show-for-print">
+                      <img src="<%= content.asset.first.thumbnail_url %>" />
+                  </div>
+              <% end %>
+              <% if content.title.present? %>
+                  <div class="description">
+                      <%= content.title %> (<%= I18n.locale.to_s %>)
+                      <div class="show-for-print">
+                          <br />(ID: <%= content.id %>)
+                      </div>
+                  </div>
+              <% end %>
+              <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, locale: render_locale %>
+          </div>
+      </a>
 
-            <%= link_to content, target: '_blank' do %>
-                zur Detailansicht
-            <% end %> |
-            <% if can?(:download, content) %>
-            <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
-            <% end %>
+      <div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal>
+          <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+          </button>
+          <%= tag.span "#{content.title} (#{I18n.locale.to_s})", class: 'preview-title' if content.try(:title).present? %>
+          <% if content.try(:asset)&.first&.thumbnail_url? %>
+              <div class="image">
+                  <img class="lazyload" data-src="<%= content.asset.first.thumbnail_url %>" />
+              </div>
+          <% end %>
+          <div class="description">
 
-            <% unless content.url.nil? && content.url.blank? %>
-                <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
-            <% end %>
-        </div>
-    </div>
-<% else %>
-    <a data-open="media-reveal-<%= content.id %>">
-        <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.asset.first.thumbnail_url})" if content.try(:asset)&.first&.thumbnail_url? %>">
-            <% if content.try(:asset)&.first&.thumbnail_url? %>
-                <div class="show-for-print">
-                    <img src="<%= content.asset.first.thumbnail_url %>" />
-                </div>
-            <% end %>
-            <% unless content.is_valid? %>
-                <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
-            <% end %>
-            <% if content.title.present? %>
-                <div class="description">
-                    <%= content.title %>
-                    <div class="show-for-print">
-                        <br />(ID: <%= content.id %>)
-                    </div>
-                </div>
-            <% end %>
-        </div>
-    </a>
+              <%= render 'validity_period', dataCycleObject: content %>
+              <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, text: true, locale: render_locale %>
 
-    <div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal>
-        <button class="close-button" data-close aria-label="Close modal" type="button">
-            <span aria-hidden="true">&times;</span>
-        </button>
-        <span class="preview-title"><%= content.title %></span>
-        <% if content.try(:asset)&.first&.thumbnail_url? %>
-            <div class="image">
-                <img class="lazyload" data-src="<%= content.asset.first.thumbnail_url %>" />
-            </div>
-        <% end %>
-        <div class="description">
-
-            <%= render 'validity_period', dataCycleObject: content %>
-
-            <%= link_to content, target: '_blank' do %>
-                zur Detailansicht
-            <% end %>
-            <% if can?(:download, content) %>
-                | <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
-            <% end %>
-        </div>
-    </div>
+              <%= link_to content, target: '_blank' do %>
+                  zur Detailansicht
+              <% end %>
+              <% if can?(:download, content) %>
+                  | <%= link_to 'in voller Größe öffnen', content.content_url, target: '_blank' %> |
+              <% end %>
+          </div>
+      </div>
+  <% end %>
 <% end %>
