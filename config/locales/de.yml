@@ -124,6 +124,7 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     change_api_access: API Freigabe ändern
+    warnings: Warnungen
 
   tile_links:
     details: zur Detailansicht
@@ -483,6 +484,11 @@ de:
       containers: Container
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
+
+    warning:
+      common:
+        invalid: Gültigkeitszeitraum überschritten
+        translation_missing: Keine Übersetzung vorhanden
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>

@@ -2,6 +2,6 @@
   <% value.each do |v| %>
     <%= hidden_field_tag key + '[]', v.try(:id), multiple: true %>
   <% end %>
-<% else %>
+<% elsif !value.nil? %>
   <%= hidden_field_tag key, value %>
 <% end %>

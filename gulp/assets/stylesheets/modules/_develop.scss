@@ -321,7 +321,15 @@
     margin-top: 0.5rem;
 
     .fa-exclamation-triangle {
-      color: #ffae00;
+      color: $warning-color;
+      text-shadow: 0 0 1px;
+      &.alert {
+        color: $alert-color;
+      }
+    }
+
+    .validity_period {
+      margin-bottom: 1rem;
     }
   }
 }
@@ -1702,4 +1710,12 @@ select {
 .button-prime.sprinklr-disabled {
   cursor: not-allowed;
   background-color: $dark-gray;
+}
+
+.fa {
+  transition: text-shadow ease-in-out 0.25s, color ease-in-out 0.25s;
+}
+
+.has-tip {
+  border: none;
 }
