@@ -1,0 +1,152 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Translation
+    class Attributes < Module
+      def self.plugin(name)
+        include Plugins.load_plugin(name)
+      end
+
+      attr_reader :names
+      attr_reader :options
+      attr_reader :backend_class
+      attr_reader :backend_name
+
+      def initialize(*attribute_names, method: :accessor, backend: DataCycleCore::Translation::Translation.default_backend, **backend_options)
+        raise ArgumentError, 'method must be one of: reader, writer, accessor' unless [:reader, :writer, :accessor].include?(method)
+        @options = DataCycleCore::Translation::Translation.default_options.to_h.merge(backend_options)
+        @names = attribute_names.map(&:to_s).freeze
+        raise BackendRequired, 'Backend option required if DataCycleCore::Translation::Translation.config.default_backend is not set.' if backend.nil?
+        @backend_name = backend
+
+        attribute_names.each do |name|
+          define_backend(name)
+          define_reader(name) if [:accessor, :reader].include?(method)
+          define_writer(name) if [:accessor, :writer].include?(method)
+        end
+      end
+
+      def included(klass)
+        @backend_class = Backends.load_backend(backend_name)
+          .for(klass)
+          .with_options(options.merge(model_class: klass))
+
+        klass.include InstanceMethods
+        klass.extend ClassMethods
+
+        backend_class.setup_model(klass, names)
+
+        backend_class
+      end
+
+      def each(&block)
+        names.each(&block)
+      end
+
+      def inspect
+        "#<Attributes (#{backend_name}) @names=#{names.join(', ')}>"
+      end
+
+      private
+
+      def define_backend(attribute)
+        module_eval <<-EOM, __FILE__, __LINE__ + 1
+        def #{Backend.method_name(attribute)}
+          translation_backends[:#{attribute}]
+        end
+        EOM
+      end
+
+      def define_reader(attribute)
+        class_eval <<-EOM, __FILE__, __LINE__ + 1
+          def #{attribute}(**options)
+            return super() if options.delete(:super)
+            #{set_locale_from_options_inline}
+            translation_backends[:#{attribute}].read(locale, options)
+          end
+          def #{attribute}?(**options)
+            return super() if options.delete(:super)
+            #{set_locale_from_options_inline}
+            translation_backends[:#{attribute}].present?(locale, options)
+          end
+        EOM
+      end
+
+      def define_writer(attribute)
+        class_eval <<-EOM, __FILE__, __LINE__ + 1
+          def #{attribute}=(value, **options)
+            return super(value) if options.delete(:super)
+            #{set_locale_from_options_inline}
+            translation_backends[:#{attribute}].write(locale, value, options)
+          end
+        EOM
+      end
+
+      # This string is evaluated inline in order to optimize performance of
+      # getters and setters, avoiding extra steps where they are unneeded.
+      def set_locale_from_options_inline
+        <<-EOL
+          if options[:locale]
+            #{'DataCycleCore::Translation::Translation.enforce_available_locales!(options[:locale])' if I18n.enforce_available_locales}
+            locale = options[:locale].to_sym
+            options[:locale] &&= !!locale
+          else
+            locale = I18n.locale
+          end
+        EOL
+      end
+
+      module InstanceMethods
+        def translation_backends
+          @translation_backends ||= ::Hash.new do |hash, name|
+            next hash[name.to_sym] if String === name
+            hash[name] = self.class.translation_backend_class(name).new(self, name.to_s)
+          end
+        end
+
+        def initialize_dup(other)
+          @trnaslation_backends = nil
+          super
+        end
+      end
+
+      module ClassMethods
+        def translation_modules
+          ancestors.grep(Attributes)
+        end
+
+        def translation_attributes
+          translation_modules.map(&:names).flatten.uniq
+        end
+
+        def translation_attribute?(name)
+          translation_attributes.include?(name.to_s)
+        end
+
+        alias translated_attribute_names translation_attributes
+
+        def translation_backend_class(name)
+          @backends ||= BackendsCache.new(self)
+          @backends[name.to_sym]
+        end
+
+        class BackendsCache < ::Hash
+          def initialize(klass)
+            # Preload backend mapping
+            klass.translation_modules.each do |mod|
+              mod.names.each { |name| self[name.to_sym] = mod.backend_class }
+            end
+
+            super() do |hash, name|
+              raise KeyError, "No backend for: #{name}." unless (mod = klass.translation_modules.find { |m| m.names.include? name.to_s })
+              hash[name] = mod.backend_class
+            end
+          end
+        end
+        private_constant :BackendsCache
+      end
+    end
+
+    class BackendRequired < ArgumentError; end
+  end
+end

@@ -7,19 +7,7 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
---
--- Name: public; Type: SCHEMA; Schema: -; Owner: -
---
-
-CREATE SCHEMA public;
-
-
---
--- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
---
-
-COMMENT ON SCHEMA public IS 'standard public schema';
-
+SET search_path = public, pg_catalog;
 
 SET default_tablespace = '';
 
@@ -80,7 +68,7 @@ CREATE TABLE assets (
 
 CREATE TABLE classification_aliases (
     id uuid DEFAULT gen_random_uuid() NOT NULL,
-    name character varying,
+    internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -88,7 +76,9 @@ CREATE TABLE classification_aliases (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
-    description character varying
+    description character varying,
+    name_i18n jsonb,
+    description_i18n jsonb
 );
 
 
@@ -135,7 +125,7 @@ CREATE VIEW classification_alias_paths AS
          SELECT classification_aliases.id,
             ARRAY[]::uuid[] AS ancestor_ids,
             ARRAY[classification_aliases.id] AS full_path_ids,
-            ARRAY[classification_aliases.name, classification_tree_labels.name] AS full_path_names
+            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names
            FROM ((classification_trees
              JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
              JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
@@ -144,7 +134,7 @@ CREATE VIEW classification_alias_paths AS
          SELECT classification_aliases.id,
             (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
             (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
-            (classification_aliases.name || classification_alias_paths_1.full_path_names) AS full_path_names
+            (classification_aliases.internal_name || classification_alias_paths_1.full_path_names) AS full_path_names
            FROM ((classification_trees
              JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
              JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
@@ -453,7 +443,7 @@ CREATE TABLE things (
 
 CREATE VIEW content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing'::text AS content_type,
+    'DataCycleCore::Thing' AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -491,8 +481,7 @@ CREATE TABLE delayed_jobs (
 -- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE public.delayed_jobs_id_seq
-    AS integer
+CREATE SEQUENCE delayed_jobs_id_seq
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -815,6 +804,14 @@ ALTER TABLE ONLY delayed_jobs ALTER COLUMN id SET DEFAULT nextval('delayed_jobs_
 
 
 --
+-- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY ar_internal_metadata
+    ADD CONSTRAINT ar_internal_metadata_pkey PRIMARY KEY (key);
+
+
+--
 -- Name: asset_contents asset_contents_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1073,7 +1070,7 @@ CREATE INDEX all_text_idx ON searches USING gin (all_text gin_trgm_ops);
 -- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
+CREATE UNIQUE INDEX by_content_relation_a ON content_contents USING btree (content_a_id, relation_a, content_b_id);
 
 
 --
@@ -1647,7 +1644,7 @@ CREATE INDEX index_watch_lists_on_user_id ON watch_lists USING btree (user_id);
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX name_idx ON classification_aliases USING gin (name gin_trgm_ops);
+CREATE INDEX name_idx ON classification_aliases USING gin (internal_name gin_trgm_ops);
 
 
 --
@@ -1794,6 +1791,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181130130052'),
 ('20181229111741'),
 ('20181231081526'),
-('20190107074405');
+('20190107074405'),
+('20190108154224'),
+('20190110151543'),
+('20190118145915');
 
 

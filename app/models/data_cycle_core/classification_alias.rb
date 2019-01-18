@@ -22,6 +22,9 @@ module DataCycleCore
       end
     end
 
+    extend DataCycleCore::Translation::Translation
+    translates_new :name, :description, column_suffix: '_i18n'
+
     attr_accessor :content_template
 
     acts_as_paranoid
