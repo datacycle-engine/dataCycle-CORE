@@ -444,7 +444,8 @@ CREATE TABLE public.things (
     email character varying,
     is_part_of uuid,
     validity_range tstzrange,
-    boost numeric
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -685,7 +686,8 @@ CREATE TABLE public.thing_histories (
     email character varying,
     is_part_of uuid,
     validity_range tstzrange,
-    boost numeric
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -1506,10 +1508,10 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 
 
 --
--- Name: index_things_on_boost; Type: INDEX; Schema: public; Owner: -
+-- Name: index_things_on_boost_updated_at; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_boost ON public.things USING btree (boost DESC NULLS LAST);
+CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boost, updated_at);
 
 
 --
@@ -1517,6 +1519,13 @@ CREATE INDEX index_things_on_boost ON public.things USING btree (boost DESC NULL
 --
 
 CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema ->> 'content_type'::text)));
+
+
+--
+-- Name: index_things_on_content_type_template; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_content_type_template ON public.things USING btree (content_type, template);
 
 
 --
@@ -1813,6 +1822,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190107074405'),
 ('20190108154224'),
 ('20190110151543'),
-('20190117135807');
+('20190117135807'),
+('20190118113621');
 
 
