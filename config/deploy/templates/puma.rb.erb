@@ -1,17 +1,17 @@
 #!/usr/bin/env puma
 
 directory '<%= current_path %>'
-rackup "<%=fetch(:puma_rackup)%>"
+rackup "<%= fetch(:puma_rackup) %>"
 environment '<%= fetch(:puma_env) %>'
 <% if fetch(:puma_tag) %>
-tag '<%= fetch(:puma_tag)%>'
+tag '<%= fetch(:puma_tag) %>'
 <% end %>
-pidfile "<%=fetch(:puma_pid)%>"
-state_path "<%=fetch(:puma_state)%>"
-stdout_redirect '<%=fetch(:puma_access_log)%>', '<%=fetch(:puma_error_log)%>', true
+pidfile "<%= fetch(:puma_pid) %>"
+state_path "<%= fetch(:puma_state) %>"
+stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
-
-threads <%=fetch(:puma_threads).join(',')%>
+<% threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
+threads '<%= threads_count %>,<%= threads_count %>'
 
 <%= puma_plugins %>
 
@@ -19,7 +19,7 @@ threads <%=fetch(:puma_threads).join(',')%>
 <% if fetch(:puma_control_app) %>
 activate_control_app "<%= fetch(:puma_default_control_app) %>"
 <% end %>
-workers <%= puma_workers %>
+workers <%= Integer(ENV.fetch("WEB_CONCURRENCY", fetch(:puma_env).to_s == 'production' ? 0 : 1)) %>
 <% if fetch(:puma_worker_timeout) %>
 worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
 <% end %>
@@ -28,23 +28,18 @@ worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
 daemonize
 <% end %>
 
-restart_command '<%= fetch(:puma_restart_command) %>'
+restart_command '<%= fetch(:puma_restart_command, 'bundle exec puma') %>'
 
-<% if puma_preload_app? %>
 preload_app!
-<% else %>
-prune_bundler
-<% end %>
 
 on_restart do
   puts 'Refreshing Gemfile'
   ENV["BUNDLE_GEMFILE"] = "<%= fetch(:bundle_gemfile, "#{current_path}/Gemfile") %>"
 end
 
-<% if puma_preload_app? and fetch(:puma_init_active_record) %>
 before_fork do
   ActiveRecord::Base.connection_pool.disconnect!
-  <% if fetch(:puma_worker_killer) && fetch(:puma_env) != :production %>
+  <% if fetch(:puma_worker_killer, true) && fetch(:puma_env).to_s != 'production' %>
   require 'puma_worker_killer'
 
   PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours
@@ -56,4 +51,3 @@ on_worker_boot do
     ActiveRecord::Base.establish_connection
   end
 end
-<% end %>

@@ -19,9 +19,7 @@ module DataCycleCore
 
         def self.location(data_hash)
           if data_hash['longitude'].present? && data_hash['latitude'].present?
-            unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
-              location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f)
-            end
+            location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
           end
           location ||= nil
           data_hash.nil? ? { 'location' => location } : data_hash.merge({ 'location' => location })
@@ -99,8 +97,8 @@ module DataCycleCore
         end
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
-          return data_hash if key_function.call(data_hash).blank?
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
+          return data_hash if key_function.call(data_hash).blank?
           data_hash.merge(
             {
               attribute => [

@@ -36,6 +36,7 @@ var ObjectBrowser = function(selector) {
   this.content_id = this.element.data('content-id');
   this.content_type = this.element.data('content-type');
   this.masonry;
+  this.requests = [];
 
   this.setup();
 };
@@ -103,7 +104,7 @@ ObjectBrowser.prototype.setup = function() {
       self.loadDetails($(this).data('id'));
     }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
-      self.addObject($(this).data('id'), $(this).clone(true), event);
+      self.addObject($(this).data('id'), $(this).clone(), event);
     } else {
       self.removeObject($(this).data('id'), event);
     }
@@ -239,7 +240,7 @@ ObjectBrowser.prototype.setup = function() {
         });
       this.addObject(
         data.id,
-        this.overlay.find('[data-id=' + data.id + ']').clone(true),
+        this.overlay.find('[data-id=' + data.id + ']').clone(),
         event
       );
     }.bind(this)
@@ -344,6 +345,17 @@ ObjectBrowser.prototype.setChosen = function() {
           );
         $(this).foundation();
       });
+
+    this.element
+      .children('.media-thumbs')
+      .children('.object-thumbs')
+      .children('.item')
+      .find('[data-tooltip]')
+      .each(function() {
+        $(this)
+          .attr('title', $(this).data('title'))
+          .foundation();
+      });
   }
 };
 
@@ -354,6 +366,13 @@ ObjectBrowser.prototype.addObject = function(id, element, event) {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
+      $(element)
+        .find('[data-tooltip]')
+        .each(function() {
+          $(this)
+            .attr('title', $(this).data('title'))
+            .foundation();
+        });
       this.overlay
         .children('.items')
         .find('.item[data-id=' + id + ']')
@@ -452,9 +471,13 @@ ObjectBrowser.prototype.resetOverlay = function() {
 ObjectBrowser.prototype.setPreselected = function() {
   this.overlay
     .find('.chosen-items-container')
-    .html(
-      this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true)
-    );
+    .html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone())
+    .find('[data-tooltip]')
+    .each(function() {
+      $(this)
+        .attr('title', $(this).data('title'))
+        .foundation();
+    });
 
   this.chosen = $.map(
     this.element.find('> .media-thumbs > .object-thumbs > .item'),
@@ -567,53 +590,66 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
   }
   this.overlay.find('.items .loading').show();
   this.loading = true;
-  $.ajax({
-    url: this.url + '/show',
-    method: 'POST',
-    dataType: 'script',
-    data: JSON.stringify({
-      page: this.page,
-      per: this.overlay_per,
-      type: this.type,
-      locale: this.locale,
-      key: this.key,
-      definition: this.definition,
-      options: this.options,
-      search: this.search,
-      objects: this.chosen,
-      editable: this.editable,
-      excluded: this.excluded,
-      append: append
-    }),
-    contentType: 'application/json'
-  }).done(data => {
-    this.total = this.overlay.data('total');
-    this.overlay.find('.items .item .reveal.media-preview').each(function() {
-      if (
-        $(this)
-          .prop('id')
-          .indexOf('overlay_') == -1
-      )
-        $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-    this.loading = false;
-    if (
-      this.overlay.children('.items').children('.item').length < this.total &&
-      this.overlay
-        .children('.items')
-        .children('.item')
-        .last()
-        .offset().top -
-        this.overlay.children('.items').offset().top <
-        this.overlay
-          .children('.items')
-          .first()
-          .outerHeight()
-    ) {
-      this.page += 1;
-      this.loadObjects();
-    }
+  this.requests.forEach(request => {
+    request.abort();
+    this.requests = this.requests.filter(r => r != request);
   });
+  this.requests.push(
+    $.ajax({
+      url: this.url + '/show',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        search: this.search,
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        append: append
+      }),
+      contentType: 'application/json'
+    })
+      .done(data => {
+        this.total = this.overlay.data('total');
+        this.overlay
+          .find('.items .item .reveal.media-preview')
+          .each(function() {
+            if (
+              $(this)
+                .prop('id')
+                .indexOf('overlay_') == -1
+            )
+              $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          });
+        this.loading = false;
+        if (
+          this.overlay.children('.items').children('.item').length <
+            this.total &&
+          this.overlay
+            .children('.items')
+            .children('.item')
+            .last()
+            .offset().top -
+            this.overlay.children('.items').offset().top <
+            this.overlay
+              .children('.items')
+              .first()
+              .outerHeight()
+        ) {
+          this.page += 1;
+          this.loadObjects();
+        }
+      })
+      .always((data, text, jqXHR) => {
+        this.requests = this.requests.filter(r => r != jqXHR);
+      })
+  );
 };
 
 module.exports = ObjectBrowser;

@@ -1,51 +1,35 @@
-<a data-open="media-reveal-<%= content.id %>">
-    <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.image})" if content.try(:image).present? %>">
-        <% unless content.is_valid? %>
-          <span class="expired-item-overlay"><%= t('common.expired_content', locale: DataCycleCore.ui_language) %></span>
-        <% end %>
-
-        <% unless content.title.blank? %>
-            <div class="description">
-                <%= content.title %>
-            </div>
-        <% end %>
-
-        <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-            <span data-tooltip aria-haspopup="true" class="has-tip warning" data-click-open="false" tabindex="1"
-                  title="Einschränkungen: <%= content.restrictions %>">
-                <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
-            </span>
-        <% end %>
-    </div>
-</a>
-
-<div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal data-reset-on-close="true">
-    <button class="close-button" data-close aria-label="Close modal" type="button">
-        <span aria-hidden="true">&times;</span>
-    </button>
-    <span class="preview-title"><%= content.title %></span>
-    <div class="video">
-        <video class="lazyload" data-poster="<%= content.try(:image) %>" controls="controls" controlsList="nodownload" preload="none">
-          <source src="<%= content.try(:content_url) %>" type="video/mp4">
-          Your browser does not support the video tag
-        </video>
-    </div>
-    <div class="description">
-
-        <!-- todo: check only for empty string -->
-        <% if !content.try(:restrictions).nil? && !content.restrictions.blank? && content.restrictions != 'Keine Einschränkung;' %>
-            <strong>Einschränkungen: </strong>
-            <% if content.try(:restrictions).try(:include?, 'gesperrt') %>
-              <i class="fa fa-exclamation-triangle" aria-hidden="true"></i>
+<% render_locale = I18n.locale %>
+<% I18n.with_locale(content.first_available_locale) do %>
+    <a data-open="media-reveal-<%= content.id %>">
+        <div class="thumbnail <%= local_assigns[:class] %>" style="<%= "background-image: url(#{content.image})" if content.try(:image).present? %>">
+            <% unless content.title.blank? %>
+                <div class="description">
+                    <%= content.title %> (<%= I18n.locale.to_s %>)
+                </div>
             <% end %>
-            <%= content.restrictions.try(:html_safe) %><br /><br />
-        <% end %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, locale: render_locale %>
+        </div>
+    </a>
 
-        <%= link_to content, target: '_blank' do %>
-            zur Detailansicht
-        <% end %> |
-        <% unless content.url.nil? && content.url.blank? %>
-            <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
-        <% end %>
+    <div class="width-content reveal media-preview" id="media-reveal-<%= content.id %>" data-reveal data-reset-on-close="true">
+        <button class="close-button" data-close aria-label="Close modal" type="button">
+            <span aria-hidden="true">&times;</span>
+        </button>
+        <%= tag.span "#{content.title} (#{I18n.locale.to_s})", class: 'preview-title' if content.try(:title).present? %>
+        <div class="video">
+            <video class="lazyload" data-poster="<%= content.try(:image) %>" controls="controls" controlsList="nodownload" preload="none">
+              <source src="<%= content.try(:content_url) %>" type="video/mp4">
+              Your browser does not support the video tag
+            </video>
+        </div>
+        <div class="description">
+            <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, text: true, locale: render_locale %>
+            <%= link_to content, target: '_blank' do %>
+                zur Detailansicht
+            <% end %> |
+            <% unless content.url.nil? && content.url.blank? %>
+                <a href="<%= content.url %>" target="_blank">im Medienarchiv öffnen</a>
+            <% end %>
+        </div>
     </div>
-</div>
+<% end %>

@@ -27,7 +27,7 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :api:
           :name: headline
       :validity_period:
