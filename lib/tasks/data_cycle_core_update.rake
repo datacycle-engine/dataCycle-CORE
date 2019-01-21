@@ -129,7 +129,9 @@ namespace :data_cycle_core do
 
       update_history_sql = <<-EOS
         UPDATE thing_histories
-        SET schema = '#{template.schema.to_json}'
+        SET schema = '#{template.schema.to_json}',
+        boost = #{template.schema.dig('boost') || 'NULL'},
+        content_type = '#{template.schema.dig('content_type')}'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
