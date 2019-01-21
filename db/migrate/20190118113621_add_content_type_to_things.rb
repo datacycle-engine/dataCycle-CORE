@@ -13,14 +13,14 @@ class AddContentTypeToThings < ActiveRecord::Migration[5.1]
     execute <<-SQL
       DROP INDEX IF EXISTS index_things_on_boost;
       CREATE INDEX IF NOT EXISTS index_things_on_boost_updated_at ON things (boost, updated_at);
-      CREATE INDEX IF NOT EXISTS index_things_on_content_type_template ON things (content_type, template);
+      CREATE INDEX IF NOT EXISTS index_things_on_template_content_type ON things (template, content_type);
     SQL
   end
 
   def down
     execute <<-SQL
       DROP INDEX IF EXISTS index_things_on_boost_updated_at;
-      DROP INDEX IF EXISTS index_things_on_content_type_template;
+      DROP INDEX IF EXISTS index_things_on_template_content_type;
       CREATE INDEX IF NOT EXISTS index_things_on_boost ON things (boost DESC NULLS LAST);
     SQL
     remove_column :things, :content_type
