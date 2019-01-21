@@ -11,7 +11,7 @@ state_path "<%= fetch(:puma_state) %>"
 stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
 <% threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
-threads '<%= threads_count %>,<%= threads_count %>'
+threads <%= threads_count %>,<%= threads_count %>
 
 <%= puma_plugins %>
 
@@ -28,14 +28,10 @@ worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
 daemonize
 <% end %>
 
-restart_command '<%= fetch(:puma_restart_command, 'bundle exec puma') %>'
-
+<% if fetch(:puma_restart_command) %>
+restart_command '<%= fetch(:puma_restart_command) %>'
+<% end %>
 preload_app!
-
-on_restart do
-  puts 'Refreshing Gemfile'
-  ENV["BUNDLE_GEMFILE"] = "<%= fetch(:bundle_gemfile, "#{current_path}/Gemfile") %>"
-end
 
 before_fork do
   ActiveRecord::Base.connection_pool.disconnect!
