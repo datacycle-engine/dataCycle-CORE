@@ -111,6 +111,8 @@ namespace :data_cycle_core do
         UPDATE things
         SET
           schema = '#{template.schema.to_json}',
+          boost = #{template.schema.dig('boost') || 'NULL'},
+          content_type = '#{template.schema.dig('content_type')}',
           updated_at = updated_at + INTERVAL '1 sec'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
