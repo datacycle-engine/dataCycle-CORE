@@ -37,7 +37,7 @@ module DataCycleCore
 
           data_hash = json_data.dig('data').first
           assert_equal('http://schema.org', data_hash.dig('@context'))
-          assert_equal('CreativeWork', data_hash.dig('@type'))
+          assert_equal('Article', data_hash.dig('@type'))
           assert_equal('Artikel', data_hash.dig('contentType'))
           assert(data_hash.dig('@id').present?)
           assert_equal(@content.id, data_hash.dig('identifier'))
