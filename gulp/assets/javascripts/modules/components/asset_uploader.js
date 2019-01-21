@@ -8,6 +8,7 @@ var AssetUploader = function(reveal) {
   this.file_field = this.reveal.find('input[type="file"].upload-file');
   this.upload_form = this.reveal.find('#content-upload-form');
   this.ajax_requests = [];
+  this.autocomplete_requests = {};
   this.files = [];
 
   this.init();
@@ -19,6 +20,7 @@ AssetUploader.prototype.init = function() {
   this.file_field.on('change', this.validateFiles.bind(this));
   this.reveal.on('click', 'a.remove-file', this.removeFile.bind(this));
   this.upload_form.on('submit', this.uploadFile.bind(this));
+  this.upload_form.on('input', '.file-title', this.checkFileName.bind(this));
 
   // prevent leaving Site while uploading!
   $(window).on('beforeunload', event => {
@@ -53,6 +55,44 @@ AssetUploader.prototype.prepareFileForUpload = function(element) {
     .hide();
 };
 
+AssetUploader.prototype.checkFileName = function(event) {
+  var key = $(event.target).prop('title');
+
+  if (this.autocomplete_requests[key] === undefined)
+    this.autocomplete_requests[key] = [];
+
+  this.autocomplete_requests[key].forEach(request => {
+    request.abort();
+    this.autocomplete_requests[key] = this.autocomplete_requests[key].filter(
+      r => r != request
+    );
+  });
+
+  this.autocomplete_requests[key].push(
+    $.ajax({
+      url: '/files/assets/find',
+      method: 'GET',
+      data: {
+        q: $(event.target).val()
+      },
+      dataType: 'json',
+      contentType: 'application/json'
+    }).done(data => {
+      if (data != null) {
+        $(event.target).after(
+          '<i class="fa fa-exclamation-triangle file-override" aria-hidden="true"  title="Es existiert bereits eine Datei mit demselben Namen, diese wird überschrieben!" data-id="' +
+            data.id +
+            '"></i>'
+        );
+      } else {
+        $(event.target)
+          .siblings('.file-override')
+          .remove();
+      }
+    })
+  );
+};
+
 AssetUploader.prototype.uploadFile = function(event) {
   event.preventDefault();
 
@@ -80,12 +120,21 @@ AssetUploader.prototype.uploadFile = function(event) {
           .val()
       );
 
+      var url = $(event.currentTarget).attr('action');
+      var type = 'POST';
+      var override = $(file_element).find('.file-override');
+
+      if (override.length) {
+        url += '/' + override.data('id');
+        type = 'PATCH';
+      }
+
       var startTime = new Date().getTime();
 
       this.ajax_requests.push(
         $.ajax({
-          url: $(event.currentTarget).attr('action'),
-          type: 'POST',
+          url: url,
+          type: type,
           enctype: 'multipart/form-data',
           data: data,
           dataType: 'json',
@@ -455,6 +504,7 @@ AssetUploader.prototype.renderFileField = function(file_options) {
   }
 
   this.fileFieldEvents(file_options);
+  file_options.file_field.find('input.file-title').trigger('input');
 };
 
 AssetUploader.prototype.fileFieldEvents = function(file_options) {

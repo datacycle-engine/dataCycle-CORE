@@ -224,6 +224,16 @@ ul.asset-list {
       }
     }
 
+    .file-override {
+      cursor: help;
+      position: absolute;
+      right: 2.5rem;
+      top: 1rem;
+      color: $warning-color;
+      font-size: 1.2rem;
+      text-shadow: 0 0 1px;
+    }
+
     .file-info {
       display: block;
       font-style: italic;

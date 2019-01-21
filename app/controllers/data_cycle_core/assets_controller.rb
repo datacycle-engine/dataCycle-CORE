@@ -33,53 +33,39 @@ module DataCycleCore
     end
 
     def update
-      if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
-        @asset = object_type.constantize.find(permitted_params[:id])
+      return if asset_params[:file].blank?
 
-        authorize! :update, @asset
+      @asset = DataCycleCore::Asset.find(params[:id])
 
-        @asset.update(asset_params)
-      end
+      authorize! :update, @asset
 
-      respond_to do |format|
-        format.js { render :create }
+      if @asset.update(asset_params)
+        render json: @asset
+      else
+        render(json: { error: @asset.errors.full_messages.join(', ') })
       end
     end
 
-    def new_asset_object
-      object_type = DataCycleCore.asset_objects.find { |object| object == "DataCycleCore::#{additional_params[:definition]['asset_type'].to_s.try(:camelcase)}" }
-      @asset = object_type.constantize.new(asset_params)
-      @asset.creator_id = current_user.try(:id)
-      @asset.save
-      @object = [@asset]
-      respond_to(:js)
-    end
+    def find
+      authorize! :show, DataCycleCore::DataCycleFile
 
-    def remove_asset_object
-      additional_params
+      @duplicate = DataCycleCore::DataCycleFile.accessible_by(current_ability, :update).find_by('type = ? AND name ILIKE ?', 'DataCycleCore::DataCycleFile', find_params[:q])
 
-      @object = []
-      respond_to(:js)
+      render json: @duplicate&.attributes
     end
 
     private
 
     def asset_params
-      params.require(:asset).permit(:name, :file, :type)
+      params.require(:asset).permit(:id, :name, :file, :type)
     end
 
     def permitted_params
       params.permit(:id, :type, :html_target, :selected, locked_assets: [], types: [])
     end
 
-    def additional_params
-      @additional_params = {
-        asset_object_id: params['asset']['asset_object_id'],
-        key: params['asset']['key'],
-        definition: JSON.parse(params['asset']['definition']),
-        options: JSON.parse(params['asset']['options'])
-      }
+    def find_params
+      params.permit(:q)
     end
   end
 end
