@@ -8,7 +8,10 @@ module DataCycleCore
       attr_accessor :accessor_method
       attr_accessor :query_method
       attr_reader :default_options
-      delegate :plugin, to: :attributes_class
+
+      def plugin(plugin_name)
+        attributes_class.send(:plugin, plugin_name)
+      end
 
       def plugins(*names)
         names.each(&method(:plugin))
@@ -28,7 +31,7 @@ module DataCycleCore
       def initialize
         @accessor_method = :translates
         @query_method = :i18n
-        @default_accessor_locales = -> { Translation.available_locales }
+        @default_accessor_locales = -> { DataCycleCore::Translation::Translation.available_locales }
         @default_options = Options[{
           cache:     true,
           presence:  true,
@@ -37,7 +40,7 @@ module DataCycleCore
       end
 
       def attributes_class
-        @attributes_class ||= Class.new(Attributes)
+        @attributes_class ||= Class.new(DataCycleCore::Translation::Attributes)
       end
 
       class ReservedOptionKey < RuntimeError; end

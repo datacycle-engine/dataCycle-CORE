@@ -5,8 +5,8 @@ module DataCycleCore
     module Backends
       class << self
         def load_backend(backend)
-          return backend if Module == backend
-          Translation.get_class_from_key(self, backend)
+          return backend if Module === backend
+          DataCycleCore::Translation::Translation.get_class_from_key(self, backend)
         end
       end
     end

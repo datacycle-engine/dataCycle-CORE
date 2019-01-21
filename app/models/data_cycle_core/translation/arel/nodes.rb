@@ -10,6 +10,23 @@ module DataCycleCore
         ::Arel::Visitors::ToSql.class_eval do
           alias_method :visit_Translation_Arel_Nodes_Grouping, :visit_Arel_Nodes_Grouping
         end
+
+        [
+          'JsonbDashArrow',
+          'JsonbDashDoubleArrow',
+          'JsonbQuestion'
+        ].each do |name|
+          const_set name, (Class.new(Binary) do
+            include ::Arel::Predications
+            include ::Arel::OrderPredications
+            include ::Arel::AliasPredication
+            include DataCycleCore::Translation::Arel::TranslationExpressions
+
+            def lower
+              super self
+            end
+          end)
+        end
       end
     end
   end

@@ -3,8 +3,8 @@
 module DataCycleCore
   module Translation
     class Attributes < Module
-      def self.plugin(name)
-        include Plugins.load_plugin(name)
+      def self.plugin(plugin_name)
+        include DataCycleCore::Translation::Plugins.load_plugin(plugin_name)
       end
 
       attr_reader :names
@@ -98,9 +98,9 @@ module DataCycleCore
 
       module InstanceMethods
         def translation_backends
-          @translation_backends ||= ::Hash.new do |hash, name|
-            next hash[name.to_sym] if String === name
-            hash[name] = self.class.translation_backend_class(name).new(self, name.to_s)
+          @translation_backends ||= ::Hash.new do |hash, backend_name|
+            next hash[backend_name.to_sym] if backend_name.is_a?(::String)
+            hash[backend_name] = self.class.translation_backend_class(backend_name).new(self, backend_name.to_s)
           end
         end
 
@@ -119,26 +119,26 @@ module DataCycleCore
           translation_modules.map(&:names).flatten.uniq
         end
 
-        def translation_attribute?(name)
-          translation_attributes.include?(name.to_s)
+        def translation_attribute?(attribute_name)
+          translation_attributes.include?(attribute_name.to_s)
         end
 
         alias translated_attribute_names translation_attributes
 
-        def translation_backend_class(name)
+        def translation_backend_class(backend_name)
           @backends ||= BackendsCache.new(self)
-          @backends[name.to_sym]
+          @backends[backend_name.to_sym]
         end
 
         class BackendsCache < ::Hash
           def initialize(klass)
             # Preload backend mapping
             klass.translation_modules.each do |mod|
-              mod.names.each { |name| self[name.to_sym] = mod.backend_class }
+              mod.names.each { |attribute_name| self[attribute_name.to_sym] = mod.backend_class }
             end
 
-            super() do |hash, name|
-              raise KeyError, "No backend for: #{name}." unless (mod = klass.translation_modules.find { |m| m.names.include? name.to_s })
+            super() do |hash, attribute_name|
+              raise KeyError, "No backend for: #{attribute_name}." unless (mod = klass.translation_modules.find { |m| m.attribute_names.include? attribute_name.to_s })
               hash[name] = mod.backend_class
             end
           end

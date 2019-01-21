@@ -76,9 +76,9 @@ CREATE TABLE classification_aliases (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
-    description character varying,
-    name_i18n jsonb,
-    description_i18n jsonb
+    internal_description character varying,
+    name_i18n jsonb DEFAULT '{}'::jsonb,
+    description_i18n jsonb DEFAULT '{}'::jsonb
 );
 
 

@@ -5,7 +5,8 @@ module DataCycleCore
     module Plugins
       class << self
         def load_plugin(plugin)
-          Translation.get_class_from_key(self, plugin)
+          # puts "**** DataCycleCore::Translation::Plugins.load_plugin(#{plugin})"
+          DataCycleCore::Translation::Translation.get_class_from_key(self, plugin)
         end
       end
     end

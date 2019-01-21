@@ -77,20 +77,21 @@ module DataCycleCore
           end
         end
 
-        def option_reader(name)
+        def option_reader(attribute_name)
           module_eval <<-EOM, __FILE__, __LINE__ + 1
-            def self.#{name}
-              options[:#{name}]
+            def self.#{attribute_name}
+              options[:#{attribute_name}]
             end
-            def #{name}
-              self.class.options[:#{name}]
+            def #{attribute_name}
+              self.class.options[:#{attribute_name}]
             end
           EOM
         end
 
         def for(model_class)
           raise ArgumentError, "#{namespace.last} backend can only be used by ActiveRecord models" unless model_class < ::ActiveRecord::Base
-          DataCycleCore::Translation::Backends::Jsonb # only one backend supported for now
+          # DataCycleCore::Translation::Backends::Jsonb # only one backend supported for now
+          self
         end
 
         def apply_plugin(_)
