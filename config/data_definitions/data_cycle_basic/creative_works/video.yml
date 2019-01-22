@@ -33,20 +33,35 @@
             :options:
               :data-size: basic
       :content_url:
-        :label: Bild URL
-        :type: string
+        :label: Video URL
         :storage_location: value
-        :validations:
-          :format: url
-      :thumbnail_url:
-        :label: Thumbnail URL
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :api:
+          :minimal: true
         :ui:
           :show:
-            :type: image
+            :disabled: true
+      :thumbnail_url:
+        :label: Teaserbild
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :partial: preview_image
+        :api:
+          :minimal: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -55,64 +70,117 @@
           :format: url
         :api:
           :name: sameAs
-      :image:
-        :label: Teaserbild
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-        :ui:
-          :show:
-            :type: preview_image
-      :youtube_url:
-        :label: YouTube URL
-        :type: string
-        :storage_location: value
-        :validations:
-          :format: url
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-        :search: true
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: Örtlichkeit
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: video
+        :api:
+          :disabled: true
       :width:
         :label: Breite
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: width
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
       :file_format:
         :label: Dateiformat
-        :type: string
         :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
       :duration:
-        :label: Länge
-        :type: string
+        :label: Dauer
         :storage_location: value
-      :director:
-        :label: "Regie"
-        :type: linked
-        :template_name: Person
-      :contributor:
-        :label: "Kamera"
-        :type: linked
-        :template_name: Person
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: duration
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
+        :api:
+          :partial: duration
+          :format:
+            :append: S
+            :prepend: PT
+      :video_frame_size:
+        :label: Auslösung
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: frame_size
+          :parameters:
+            :0: asset
+      :video_quality:
+        :label: Qualität
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: quality
+          :parameters:
+            :0: asset
       :data_type:
         :label: Inhaltstype
         :type: classification

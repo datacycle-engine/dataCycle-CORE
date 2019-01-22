@@ -1,0 +1,83 @@
+---
+- :data:
+    :name: creative_attributes
+    :type: mixin
+    :properties:
+      :alternative_headline:
+        :label: Subüberschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :link_name:
+        :label: Linktitel
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :api:
+          :name: name
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :author:
+        :label: Autor
+        :type: linked
+        :template_name: Person
+        :validations:
+          :max: 1
+      :about:
+        :label: About
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: POI
+      :url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true

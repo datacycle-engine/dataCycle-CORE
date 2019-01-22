@@ -18,6 +18,7 @@ services:
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
     - POSTGRES_PORT=5432
+    - POSTGRES_VERSION=11
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna
@@ -54,14 +55,14 @@ services:
       - 'redis:/data'
     ports:
     - '6380:6379'
-  redis-commander:
-    image: rediscommander/redis-commander:latest
-    build: .
-    restart: always
-    environment:
-    - REDIS_HOSTS=local:redis:6379
-    ports:
-    - 8087:8081
+#  redis-commander:
+#    image: rediscommander/redis-commander:latest
+#    build: .
+#    restart: always
+#    environment:
+#    - REDIS_HOSTS=local:redis:6379
+#    ports:
+#    - 8087:8081
 #  chrome:
 #    image: selenium/standalone-chrome-debug
 #    volumes:

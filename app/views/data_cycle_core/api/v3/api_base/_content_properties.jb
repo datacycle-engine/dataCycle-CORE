@@ -1,0 +1,29 @@
+# frozen_string_literal: true
+
+unless content.schema.nil?
+  json ||= {}
+  context ||= false
+
+  json.merge! render 'content_context', content: content if context
+
+  ordered_validation_properties(validation: content.schema).each do |key, prop|
+    next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('api', 'minimal')) || prop.dig('api', 'disabled')
+
+    value = content.try(key.to_sym)
+    next if value.blank?
+
+    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
+      if json.dig(prop.dig('api', 'transformation', 'name')).present?
+        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
+      else
+        json[prop.dig('api', 'transformation', 'name')] = render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
+      end
+      json[prop.dig('api', 'transformation', 'name')]['@type'] = prop.dig('api', 'transformation', 'type') if prop.dig('api', 'transformation', 'type').present?
+    else
+      json.merge! render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
+    end
+  end
+
+end
+
+json

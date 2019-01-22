@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+json ||= {}
+key_name = definition.dig('api', 'name') || key
+
+json['@type'] = definition.dig('api', 'type') if definition.dig('api', 'type').present?
+json['identifier'] = key_name.camelize(:lower)
+json['name'] = definition.dig('label')
+json['unitCode'] = definition.dig('api', 'unit_code') if definition.dig('api', 'unit_code').present?
+json['unitText'] = definition.dig('api', 'unit_text') if definition.dig('api', 'unit_text').present?
+
+json
