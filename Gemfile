@@ -24,6 +24,8 @@ gem 'axlsx_rails'
 
 gem 'dotenv-rails'
 
+gem 'jb'
+
 group :development, :test, :review do
   gem 'listen'
   gem 'spring'
@@ -38,7 +40,7 @@ group :development, :test, :review do
 
   gem 'simplecov', require: false
 
-  gem 'jb'
+  # gem 'jb'
 
   # activate for performance profiling
   # performance profiling
