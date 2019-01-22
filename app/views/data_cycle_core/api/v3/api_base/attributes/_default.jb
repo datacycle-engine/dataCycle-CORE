@@ -5,7 +5,7 @@
 key_new = definition.dig('api', 'name') || key
 
 if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
-  translated_values = []
+  translated_values = {}
   content.translations.each do |translation|
     I18n.with_locale(translation.locale) do
       translated_values[translation.locale] = content.send(key)
@@ -13,6 +13,4 @@ if content.translations.size > 1 && content.translatable_property_names.include?
   end
 end
 
-
-{key_new.camelize(:lower) => translated_values || value}
-
+{ key_new.camelize(:lower) => translated_values || value }

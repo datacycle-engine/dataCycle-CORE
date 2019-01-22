@@ -129,9 +129,13 @@ module DataCycleCore
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)
 
-                excepted_params = ['@id']
+                excepted_params = ['@id', 'author', 'about', 'image', 'contentLocation']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
+                assert_equal(api_v3_json.dig('author').first.except(*excepted_params), api_v2_json.dig('author').first.except(*excepted_params))
+                assert_equal(api_v3_json.dig('about').first.except(*excepted_params), api_v2_json.dig('about').first.except(*excepted_params))
+                assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
+                assert_equal(api_v3_json.dig('contentLocation').first.except(*excepted_params), api_v2_json.dig('contentLocation').first.except(*excepted_params))
               end
             end
           end

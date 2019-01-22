@@ -10,10 +10,10 @@ if content.translations.size > 1 && content.translatable_property_names.include?
   translated_properties = {}
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
     o_key_name = o_definition.dig('api', 'name') || o_key
-    translated_properties[o_key_name.camelize(:lower)] = []
+    translated_properties[o_key_name.camelize(:lower)] = {}
     content.translations.each do |translation|
       I18n.with_locale(translation.locale) do
-        translated_properties[o_key_name.camelize(:lower)].push({ translation.locale => content.try(key)&.try(o_key) })
+        translated_properties[o_key_name.camelize(:lower)][translation.locale] = content.try(key)&.try(o_key)
       end
     end
   end
@@ -26,11 +26,13 @@ else
   end
 end
 
-if definition.dig('api', 'transformation', 'method') == 'unwrap'
-  json.merge! translated_properties || non_translated_properties
+object_properties = translated_properties || non_translated_properties
+object_properties = { '@type' => definition.dig('api', 'type') }.merge(object_properties) if definition.dig('api', 'type').present?
+
+if definition.dig('api', 'transformation', 'method') == 'unwrap' || definition.dig('api', 'transformation', 'method') == 'merge_object'
+  json.merge! object_properties
 else
-  json[key_name] = translated_properties || non_translated_properties
-  json[key_name]['@type'] =  definition.dig('api', 'type') if definition.dig('api', 'type').present?
+  json[key_name] = object_properties
 end
 
 json

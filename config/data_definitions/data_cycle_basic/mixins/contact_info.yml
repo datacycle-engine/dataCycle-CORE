@@ -10,39 +10,22 @@
         :storage_location: translated_value
         :api:
           :transformation:
-            :method: unwrap
+            :method: merge_object
+            :name: address
         :properties:
           :telephone:
             :label: Telefonnummer
             :type: string
             :storage_location: translated_value
-            :api:
-              :transformation:
-                :method: nest
-                :name: address
           :fax_number:
             :label: Fax
             :type: string
             :storage_location: translated_value
-            :api:
-              :transformation:
-                :method: nest
-                :name: address
           :email:
             :label: E-Mail
             :type: string
             :storage_location: translated_value
-            :api:
-              :transformation:
-                :method: nest
-                :name: address
-#            :validations:
-#              :format: email
           :url:
             :label: Web
             :type: string
             :storage_location: translated_value
-            :api:
-              :transformation:
-                :method: nest
-                :name: address

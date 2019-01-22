@@ -20,12 +20,13 @@ module DataCycleCore
                 @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
                 organization_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'api_organization')
+                organization_data_hash[:image] = [@image.id]
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: organization_data_hash)
 
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
-              test 'json of stored person exists and is correct' do
+              test 'json of stored content exists and is correct' do
                 get api_v3_thing_path(@content)
 
                 assert_response(:success)
@@ -67,9 +68,7 @@ module DataCycleCore
 
                 postal_address = @content.address.to_h.transform_keys { |key| key.camelize(:lower) }
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
-                address = {
-                  '@type' => 'PostalAddress'
-                }.merge(postal_address).merge(contact_info)
+                address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
 
                 assert_equal(address, json_data.dig('address'))
 
@@ -108,9 +107,10 @@ module DataCycleCore
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)
 
-                excepted_params = ['@id']
+                excepted_params = ['@id', 'image']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
+                assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
               end
             end
           end

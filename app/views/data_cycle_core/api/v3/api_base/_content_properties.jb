@@ -12,11 +12,11 @@ unless content.schema.nil?
     value = content.try(key.to_sym)
     next if value.blank?
 
-    if prop.dig('api', 'transformation', 'method') == 'nest' && prop.dig('api', 'transformation', 'name').present?
+    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
       if json.dig(prop.dig('api', 'transformation', 'name')).present?
-        json.dig(prop.dig('api', 'transformation', 'name')).merge! (render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content)))
+        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
       else
-        json.merge! ({prop.dig('api', 'transformation', 'name') => render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))})
+        json[prop.dig('api', 'transformation', 'name')] = render(*(render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content))
       end
       json[prop.dig('api', 'transformation', 'name')]['@type'] = prop.dig('api', 'transformation', 'type') if prop.dig('api', 'transformation', 'type').present?
     else

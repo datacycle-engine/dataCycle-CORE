@@ -12,4 +12,3 @@ if content.translations.size > 1 && content.translatable_property_names.include?
 end
 
 { 'value' => translated_values || value }.merge(property_header)
-
