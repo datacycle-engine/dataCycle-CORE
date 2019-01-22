@@ -35,3 +35,6 @@
             :content_area: header
         :api:
           :partial: country_code
+          :transformation:
+            :method: nest
+            :name: address

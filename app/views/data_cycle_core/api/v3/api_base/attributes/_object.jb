@@ -6,9 +6,6 @@ json ||= {}
 
 key_name = definition.dig('api', 'name') || key
 
-# optional
-# json.set! '@type', definition.dig('api', 'type') if definition.dig('api', 'type').present?
-
 if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
   translated_properties = {}
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
@@ -33,7 +30,7 @@ if definition.dig('api', 'transformation', 'method') == 'unwrap'
   json.merge! translated_properties || non_translated_properties
 else
   json[key_name] = translated_properties || non_translated_properties
+  json[key_name]['@type'] =  definition.dig('api', 'type') if definition.dig('api', 'type').present?
 end
 
 json
-# end

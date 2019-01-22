@@ -9,6 +9,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         json.set! o_key_name.camelize(:lower) do
           content.translations.each do |translation|
             I18n.with_locale(translation.locale) do
+              # raise nil.inspect
               json.set! translation.locale, content.try(key)&.try(o_key)
             end
           end
