@@ -37,9 +37,9 @@ module DataCycleCore
       data_set_person.set_data_hash(data_hash: person_hash, prevent_history: true)
       person_id = data_set_person.id
 
-      data_type_zitat_id = DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-        .where('classification_tree_labels.name = ?', 'Inhaltstypen')
-        .where('classification_aliases.name = ?', 'Zitat').first.id
+      data_type_zitat_id = DataCycleCore::ClassificationAlias
+        .for_tree('Inhaltstypen').with_name('Zitat')
+        .map(&:classifications).flatten.map(&:id).first
 
       # create a Örtlichkeit
       data_set_place1 = DataCycleCore::TestPreparations.data_set_object('Örtlichkeit')
