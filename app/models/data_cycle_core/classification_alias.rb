@@ -23,7 +23,8 @@ module DataCycleCore
     end
 
     extend DataCycleCore::Translation::Translation
-    translates_new :name, :description, column_suffix: '_i18n'
+    translates :name, :description, column_suffix: '_i18n'
+    default_scope { i18n }
 
     attr_accessor :content_template
 

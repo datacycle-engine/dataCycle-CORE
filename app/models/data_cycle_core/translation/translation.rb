@@ -17,24 +17,6 @@ module DataCycleCore
           model_class.include(DataCycleCore::Translation::ActiveRecord)
         end
 
-        # def locale
-        #   read_locale || I18n.locale
-        # end
-        #
-        # def locale=(locale)
-        #   set_locale(locale)
-        # end
-        #
-        # def with_locale(locale)
-        #   previous_locale = read_locale
-        #   begin
-        #     set_locale(locale)
-        #     yield(locale)
-        #   ensure
-        #     set_locale(previous_locale)
-        #   end
-        # end
-
         def storage
           RequestStore.store
         end
@@ -45,7 +27,6 @@ module DataCycleCore
 
         [:accessor_method, :query_method, :default_backend, :default_options, :plugins, :default_accessor_locales].each do |method_name|
           define_method method_name do
-            # puts "*** define method #{method_name} (config.public_send(#{method_name}) for #{self}"
             config.public_send(method_name)
           end
         end
@@ -55,7 +36,6 @@ module DataCycleCore
         end
 
         def get_class_from_key(parent_class, key)
-          # puts "***** get_class_from_key(#{parent_class}, #{key})"
           klass_name = key.to_s.gsub(/(^|_)(.)/) { |x| x[-1..-1].upcase }
           parent_class.const_get(klass_name)
         end
@@ -80,17 +60,6 @@ module DataCycleCore
         def available_locales
           I18n.available_locales
         end
-
-        # protected
-        #
-        # def read_locale
-        #   storage[:translation_locale]
-        # end
-        #
-        # def set_locale(locale)
-        #   locale = locale.to_sym if locale
-        #   storage[:translation_locale] = locale
-        # end
       end
 
       module ClassMethods

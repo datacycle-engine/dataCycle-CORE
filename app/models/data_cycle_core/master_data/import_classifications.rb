@@ -58,19 +58,13 @@ module DataCycleCore
       end
 
       def self.save_data(data, parent, internal, description)
-        if parent.nil?
-          find_alias = DataCycleCore::ClassificationAlias
-            .joins(:classification_tree)
-            .where('classification_trees.classification_tree_label_id = ?', @label_id)
-            .where('classification_aliases.name = ?', data)
-            .where('classification_trees.parent_classification_alias_id is NULL')
-        else
-          find_alias = DataCycleCore::ClassificationAlias
-            .joins(:classification_tree)
-            .where('classification_trees.classification_tree_label_id = ?', @label_id)
-            .where('classification_aliases.name = ?', data)
-            .where('classification_trees.parent_classification_alias_id = ?', parent)
-        end
+        find_alias = DataCycleCore::ClassificationAlias
+          .joins(:classification_tree)
+          .where(
+            classification_aliases: { name: data },
+            classification_trees: { classification_tree_label_id: @label_id, parent_classification_alias_id: parent }
+          )
+
         if find_alias.count.positive?
           updated_data = find_alias.first
           updated_data.seen_at = Time.zone.now
@@ -101,8 +95,7 @@ module DataCycleCore
       def self.upsert_classification(data, classification_alias_id, description)
         find_classification = DataCycleCore::Classification
           .joins(classification_groups: [:classification_alias])
-          .where('classification_aliases.id = ? ', classification_alias_id)
-          .where('classification_aliases.name = ? ', data)
+          .where(classification_aliases: { id: classification_alias_id })
         if find_classification.count < 1
           classification = DataCycleCore::Classification.create(name: data, external_source_id: nil, description: description) do |item|
             item.seen_at = Time.zone.now

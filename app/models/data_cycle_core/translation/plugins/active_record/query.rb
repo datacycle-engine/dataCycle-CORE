@@ -106,7 +106,11 @@ module DataCycleCore
             end
 
             def where(opts = :chain, *rest)
-              opts == :chain ? WhereChain.new(spawn) : super
+              if opts == :chain
+                WhereChain.new(spawn)
+              else
+                super
+              end
             end
 
             def order(opts, *rest)
@@ -184,11 +188,23 @@ module DataCycleCore
                   predicates = []
 
                   query_map = scope.translation_modules.inject(IDENTITY) do |qm, mod|
-                    i18n_keys = mod.names & keys
+                    hash_keys = nil
+                    i18n_keys = nil
+                    if keys.include?(scope.table_name.to_s)
+                      hash_keys = opts.dig(scope.table_name).keys.map(&:to_s)
+                    end
+
+                    if hash_keys.blank?
+                      i18n_keys = mod.names & keys
+                    else
+                      i18n_keys = mod.names & hash_keys
+                    end
                     next qm if i18n_keys.empty?
 
                     mod_predicates = i18n_keys.map do |key|
-                      build_predicate(scope.backend_node(key.to_sym, locale), opts.delete(key))
+                      value = hash_keys.blank? ? opts.delete(key) : opts[scope.table_name].delete(key)
+                      opts.delete(scope.table_name) if opts[scope.table_name] == {}
+                      build_predicate(scope.backend_node(key.to_sym, locale), value)
                     end
                     invert_predicates!(mod_predicates) if invert
                     predicates += mod_predicates
