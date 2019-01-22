@@ -7,7 +7,7 @@ if data.present?
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
   json[key_new] = []
   data.each do |item|
-    json[key_new].push render 'content_details', content: item
+    json[key_new].push render 'content_details', content: item, options: {header_type: :embedded_to_linked}
   end
 end
 
