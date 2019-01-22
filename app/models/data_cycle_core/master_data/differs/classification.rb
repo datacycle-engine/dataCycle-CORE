@@ -16,13 +16,19 @@ module DataCycleCore
 
         def add_default_value(a, template)
           return [] if a.present? || template&.dig('default_value').blank?
-          default_value_id = DataCycleCore::Classification
-            .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-            .where(classification_tree_labels: { name: template.dig('tree_label') })
-            .where(classification_aliases: { name: template.dig('default_value') })
-            .first!
-            .id
-          [default_value_id]
+          DataCycleCore::ClassificationAlias
+            .for_tree(template.dig('tree_label'))
+            .with_name(template.dig('default_value'))
+            .map(&:classifications)
+            .flatten
+            .map(&:id)
+          # default_value_id = DataCycleCore::Classification
+          #   .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
+          #   .where(classification_tree_labels: { name: template.dig('tree_label') })
+          #   .where(classification_aliases: { name: template.dig('default_value') })
+          #   .first!
+          #   .id
+          # [default_value_id]
         end
       end
     end

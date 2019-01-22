@@ -301,7 +301,7 @@ module DataCycleCore
         ids ||= []
         if is_blank?(ids)
           if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value).id
+            classification_id = load_default_classification(tree_label, default_value)
             ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(

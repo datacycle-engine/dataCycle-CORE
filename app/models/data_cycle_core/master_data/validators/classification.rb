@@ -9,7 +9,6 @@ module DataCycleCore
         end
 
         def validate(data, template)
-          byebug
           if blank?(data)
             check_reference_array(data, template)
           elsif data.is_a?(::Array)
