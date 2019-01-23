@@ -63,8 +63,10 @@ module DataCycleCore
                 assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
 
                 # validity period
+                # TODO: (move to generic tests)
 
                 # classifications
+                # TODO: (move to generic tests)
                 assert(json_data.dig('classifications').present?)
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first

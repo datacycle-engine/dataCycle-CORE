@@ -1,0 +1,20 @@
+[
+  {
+    "validity": {
+      "valid_from": "2019-10-10",
+      "valid_through": "2019-10-17"
+    },
+    "day_of_week": [],
+    "time": [
+      {
+        "opens": "10:00",
+        "closes": "11:00"
+      },
+      {
+        "opens": "13:00",
+        "closes": "14:00"
+      }
+    ],
+    "description": "Description - Test"
+  }
+]

@@ -1,0 +1,36 @@
+[
+  {
+    "@context": "http://schema.org",
+    "@type": "OpeningHoursSpecification",
+    "contentType": "Öffnungszeit",
+    "validFrom": "2019-10-10T00:00:00.000+02:00",
+    "validThrough": "2019-10-17T00:00:00.000+02:00",
+    "dayOfWeek": [
+      "https://schema.org/Monday",
+      "https://schema.org/Tuesday",
+      "https://schema.org/Wednesday",
+      "https://schema.org/Thursday",
+      "https://schema.org/Friday"
+    ],
+    "description": "Description - Test",
+    "opens": "10:00",
+    "closes": "11:00"
+  },
+  {
+    "@context": "http://schema.org",
+    "@type": "OpeningHoursSpecification",
+    "contentType": "Öffnungszeit",
+    "validFrom": "2019-10-10T00:00:00.000+02:00",
+    "validThrough": "2019-10-17T00:00:00.000+02:00",
+    "dayOfWeek": [
+      "https://schema.org/Monday",
+      "https://schema.org/Tuesday",
+      "https://schema.org/Wednesday",
+      "https://schema.org/Thursday",
+      "https://schema.org/Friday"
+    ],
+    "description": "Description - Test",
+    "opens": "13:00",
+    "closes": "14:00"
+  }
+]

@@ -21,7 +21,9 @@ module DataCycleCore
 
                 person_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'api_person')
                 gender_classification = DataCycleCore::Classification.find_by(name: 'Männlich')
+                country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
                 person_data_hash[:gender] = [gender_classification.id]
+                person_data_hash[:country_code] = [country_classification.id]
                 person_data_hash[:image] = [@image.id]
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash)
 
@@ -46,8 +48,10 @@ module DataCycleCore
                 assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
 
                 # validity period
+                # TODO: (move to generic tests)
 
                 # classifications
+                # TODO: (move to generic tests)
                 assert(json_data.dig('classifications').present?)
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first
@@ -74,9 +78,8 @@ module DataCycleCore
 
                 postal_address = @content.address.to_h.transform_keys { |key| key.camelize(:lower) }
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
-                address = {
-                  '@type' => 'PostalAddress'
-                }.merge(postal_address).merge(contact_info)
+                address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
+                address['addressCountry'] = 'AT'
 
                 assert_equal(address, json_data.dig('address'))
 

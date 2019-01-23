@@ -20,15 +20,24 @@ module DataCycleCore
                 @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
                 place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
+                country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
+                place_data_hash[:country_code] = [country_classification.id]
                 place_data_hash[:image] = @image.id
                 place_data_hash[:primary_image] = @image.id
                 place_data_hash[:logo] = @image.id
+
+                opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'])&.map(&:id)
+                opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
+                opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
+
+                place_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
 
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
-              test 'json of stored person exists and is correct' do
+              # TODO: Add tests for overlay, openingHoursSpecification
+              test 'json of stored item exists and is correct' do
                 get api_v3_thing_path(@content)
 
                 assert_response(:success)
@@ -77,16 +86,12 @@ module DataCycleCore
                 }
                 assert_equal(geo, json_data.dig('geo'))
 
-                # add CountryCode Classification
-
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
-
                 postal_address = @content.address.to_h.transform_keys { |key| key.camelize(:lower) }
                 contact_info = @content.contact_info.to_h.transform_keys { |key| key.camelize(:lower) }
-                address = {
-                  '@type' => 'PostalAddress'
-                }.merge(postal_address).merge(contact_info)
+                address = { '@type' => 'PostalAddress' }.merge(postal_address).merge(contact_info)
+                address['addressCountry'] = 'AT'
 
                 assert_equal(address, json_data.dig('address'))
 
@@ -94,6 +99,40 @@ module DataCycleCore
                 assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
                 assert_equal(@content.primary_image.first.id, json_data.dig('photo').first.dig('identifier'))
                 assert_equal(@content.logo.first.id, json_data.dig('logo').first.dig('identifier'))
+
+                # Validate OpeningHoursSpecification
+                expected_opening_hours_specification_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification_result')
+
+                assert_equal(expected_opening_hours_specification_hash, json_data.dig('openingHoursSpecification'))
+              end
+
+              test 'testing PlaceOverlay' do
+                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
+                image_data_hash['name'] = 'Another Image'
+                overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
+
+                data_hash = {
+                  'overlay' => [{
+                    'name' => 'overlay_name',
+                    'description' => '<p>overlay_description</p>',
+                    'image' => [overlay_image.id]
+                  }]
+                }
+                I18n.with_locale(:de) do
+                  @content.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+                end
+                @content.reload
+
+                get api_v3_thing_path(@content)
+
+                assert_response(:success)
+                assert_equal('application/json', response.content_type)
+                json_data = JSON.parse(response.body)
+
+                # content data
+                assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
+                assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
+                assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
               end
 
               test 'stored item can be found via different endpoints' do
@@ -127,7 +166,8 @@ module DataCycleCore
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)
 
-                excepted_params = ['@id', 'image', 'photo', 'logo']
+                # openingHoursSpecification has been changed in APIv3
+                excepted_params = ['@id', 'image', 'photo', 'logo', 'openingHoursSpecification']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
