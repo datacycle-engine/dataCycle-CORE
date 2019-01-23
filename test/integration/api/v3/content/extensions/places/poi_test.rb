@@ -71,6 +71,9 @@ module DataCycleCore
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
                 assert_equal(@content.description, json_data.dig('description'))
+                assert_equal(@content.potentialAction.name, json_data.dig('potentialAction', 'name'))
+                assert_equal(@content.potentialAction.url, json_data.dig('potentialAction', 'url'))
+                byebug
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: additionalProperty

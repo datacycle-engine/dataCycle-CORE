@@ -16,5 +16,9 @@
   "text": "<p>Text</p>",
   "latitude": 1,
   "longitude": 10,
-  "elevation": 11.7
+  "elevation": 11.7,
+  "potentialAction": {
+    "name": "Action - Test",
+    "url": "url - Test"
+  }
 }
