@@ -14,11 +14,11 @@ module DataCycleCore
           end
 
           def frame_size(**args)
-            # TODO: implement
+            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def quality(**args)
-            # TODO: implement
+            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def duration(**args)

@@ -1,0 +1,11 @@
+{
+  "name": "Headline",
+  "description": "Description",
+  "text": "Text",
+  "url": "http://www.myurl.com",
+  "same_as": "http://www.sameas.com",
+  "event_period": {
+    "start_date": "2019-10-10",
+    "end_date": "2019-10-10"
+  }
+}
