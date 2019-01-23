@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Arel
       class Visitor < ::Arel::Visitors::Visitor
         INNER_JOIN = ::Arel::Nodes::InnerJoin

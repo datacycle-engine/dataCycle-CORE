@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Backends
       module ActiveRecord
         def self.included(backend_class)
-          backend_class.include(DataCycleCore::Translation::Backend)
+          backend_class.include(DataCycleCore::Translations::Backend)
           backend_class.extend(ClassMethods)
         end
 

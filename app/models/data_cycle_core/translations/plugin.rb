@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Plugin
       def initialize_hook(&block)
         define_method :initialize do |*names, **options|

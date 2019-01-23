@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     class Attributes < Module
       def self.plugin(plugin_name)
-        include DataCycleCore::Translation::Plugins.load_plugin(plugin_name)
+        include DataCycleCore::Translations::Plugins.load_plugin(plugin_name)
       end
 
       attr_reader :names
@@ -12,11 +12,11 @@ module DataCycleCore
       attr_reader :backend_class
       attr_reader :backend_name
 
-      def initialize(*attribute_names, method: :accessor, backend: DataCycleCore::Translation::Translation.default_backend, **backend_options)
+      def initialize(*attribute_names, method: :accessor, backend: DataCycleCore::Translations::Translation.default_backend, **backend_options)
         raise ArgumentError, 'method must be one of: reader, writer, accessor' unless [:reader, :writer, :accessor].include?(method)
-        @options = DataCycleCore::Translation::Translation.default_options.to_h.merge(backend_options)
+        @options = DataCycleCore::Translations::Translation.default_options.to_h.merge(backend_options)
         @names = attribute_names.map(&:to_s).freeze
-        raise BackendRequired, 'Backend option required if DataCycleCore::Translation::Translation.config.default_backend is not set.' if backend.nil?
+        raise BackendRequired, 'Backend option required if DataCycleCore::Translations::Translation.config.default_backend is not set.' if backend.nil?
         @backend_name = backend
 
         attribute_names.each do |name|
@@ -87,7 +87,7 @@ module DataCycleCore
       def set_locale_from_options_inline
         <<-EOL
           if options[:locale]
-            #{'DataCycleCore::Translation::Translation.enforce_available_locales!(options[:locale])' if I18n.enforce_available_locales}
+            #{'DataCycleCore::Translations::Translation.enforce_available_locales!(options[:locale])' if I18n.enforce_available_locales}
             locale = options[:locale].to_sym
             options[:locale] &&= !!locale
           else

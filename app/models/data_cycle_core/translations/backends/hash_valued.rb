@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Backends
       module HashValued
         def read(locale, _options = nil)

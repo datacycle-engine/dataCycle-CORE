@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Arel
       class Attribute < ::Arel::Attributes::Attribute
         include TranslationExpressions

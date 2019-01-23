@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Arel
       module TranslationExpressions
         include ::Arel::Expressions

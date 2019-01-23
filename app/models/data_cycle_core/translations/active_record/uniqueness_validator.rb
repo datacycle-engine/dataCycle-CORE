@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module ActiveRecord
       class UniquenessValidator < ::ActiveRecord::Validations::UniquenessValidator
         def validate_each(record, attribute, value)

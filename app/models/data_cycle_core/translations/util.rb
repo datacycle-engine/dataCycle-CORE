@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Util
       VALID_CONSTANT_NAME_REGEXP = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/
 

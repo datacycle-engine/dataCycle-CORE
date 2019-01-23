@@ -22,7 +22,7 @@ module DataCycleCore
       end
     end
 
-    extend DataCycleCore::Translation::Translation
+    extend DataCycleCore::Translations::Translation
     translates :name, :description, column_suffix: '_i18n'
     default_scope { i18n }
     before_save :set_internal_data

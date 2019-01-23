@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Backends
       class PgHash
-        include DataCycleCore::Translation::Backends::ActiveRecord
-        include DataCycleCore::Translation::Backends::HashValued
+        include DataCycleCore::Translations::Backends::ActiveRecord
+        include DataCycleCore::Translations::Backends::HashValued
 
         def each_locale
           super { |l| yield l.to_sym }

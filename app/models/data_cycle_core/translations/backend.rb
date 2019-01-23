@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Backend
       include Enumerable
 
@@ -90,7 +90,7 @@ module DataCycleCore
 
         def for(model_class)
           raise ArgumentError, "#{namespace.last} backend can only be used by ActiveRecord models" unless model_class < ::ActiveRecord::Base
-          # DataCycleCore::Translation::Backends::Jsonb # only one backend supported for now
+          # DataCycleCore::Translations::Backends::Jsonb # only one backend supported for now
           self
         end
 

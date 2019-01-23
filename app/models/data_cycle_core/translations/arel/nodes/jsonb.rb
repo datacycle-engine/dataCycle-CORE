@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Arel
       module Nodes
         class Jsonb < JsonbDashDoubleArrow
@@ -31,15 +31,15 @@ module DataCycleCore
       end
 
       module Visitors
-        def visit_DataCycleCore_Translation_Arel_Nodes_JsonbDashArrow(o, a) # rubocop:disable Naming/MethodName
+        def visit_DataCycleCore_Translations_Arel_Nodes_JsonbDashArrow(o, a) # rubocop:disable Naming/MethodName
           json_infix(o, a, '->')
         end
 
-        def visit_DataCycleCore_Translation_Arel_Nodes_JsonbDashDoubleArrow(o, a) # rubocop:disable Naming/MethodName
+        def visit_DataCycleCore_Translations_Arel_Nodes_JsonbDashDoubleArrow(o, a) # rubocop:disable Naming/MethodName
           json_infix(o, a, '->>')
         end
 
-        def visit_DataCycleCore_Translation_Arel_Nodes_JsonbQuestion(o, a) # rubocop:disable Naming/MethodName
+        def visit_DataCycleCore_Translations_Arel_Nodes_JsonbQuestion(o, a) # rubocop:disable Naming/MethodName
           json_infix(o, a, '?')
         end
 

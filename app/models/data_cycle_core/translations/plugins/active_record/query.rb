@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Plugins
       # Adds a scope which enables querying on translated attributes using +where+ and
       # +not+ as if they were normal attributes. Under the hood, this plugin uses the
@@ -14,17 +14,17 @@ module DataCycleCore
         module Query
           class << self
             def apply(names, model_class, backend_class)
-              # puts "*** DataCycleCore::Translation::Plugins::ActiveRecord::Query.apply(#{names}, #{model_class}, #{backend_class})"
+              # puts "*** DataCycleCore::Translations::Plugins::ActiveRecord::Query.apply(#{names}, #{model_class}, #{backend_class})"
               model_class.class_eval do
                 extend QueryMethod
                 extend FindByMethods.new(*names)
-                singleton_class.send :alias_method, DataCycleCore::Translation::Translation.query_method, :__translation_query_scope__
+                singleton_class.send :alias_method, DataCycleCore::Translations::Translation.query_method, :__translation_query_scope__
               end
               backend_class.include self
             end
 
             def attribute_alias(attribute, locale = I18n.locale)
-              format('__translation_%<attribute>s_%<locale>s__', { attribute: attribute, locale: DataCycleCore::Translation::Translation.normalize_locale(locale) })
+              format('__translation_%<attribute>s_%<locale>s__', { attribute: attribute, locale: DataCycleCore::Translations::Translation.normalize_locale(locale) })
             end
           end
 
@@ -145,7 +145,7 @@ module DataCycleCore
                   keys[index] = backend_node(key)
                   if method_name == 'select'
                     keys[index] = keys[index]
-                      .as(DataCycleCore::Translation::Plugins::ActiveRecord::Query.attribute_alias(key.to_s))
+                      .as(DataCycleCore::Translations::Plugins::ActiveRecord::Query.attribute_alias(key.to_s))
                   end
                   @klass.translation_backend_class(key).apply_scope(query, backend_node(key))
                 end

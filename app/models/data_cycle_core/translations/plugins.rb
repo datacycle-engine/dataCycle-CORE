@@ -1,11 +1,11 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Plugins
       class << self
         def load_plugin(plugin)
-          DataCycleCore::Translation::Translation.get_class_from_key(self, plugin)
+          DataCycleCore::Translations::Translation.get_class_from_key(self, plugin)
         end
       end
     end

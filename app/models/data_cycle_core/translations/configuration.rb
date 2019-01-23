@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     class Configuration
       RESERVED_OPTION_KEYS = [:backend, :model_class].freeze
 
@@ -31,7 +31,7 @@ module DataCycleCore
       def initialize
         @accessor_method = :translates
         @query_method = :i18n
-        @default_accessor_locales = -> { DataCycleCore::Translation::Translation.available_locales }
+        @default_accessor_locales = -> { DataCycleCore::Translations::Translation.available_locales }
         @default_options = Options[{
           cache:     true,
           presence:  true,
@@ -40,7 +40,7 @@ module DataCycleCore
       end
 
       def attributes_class
-        @attributes_class ||= Class.new(DataCycleCore::Translation::Attributes)
+        @attributes_class ||= Class.new(DataCycleCore::Translations::Attributes)
       end
 
       class ReservedOptionKey < RuntimeError; end

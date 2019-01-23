@@ -1,7 +1,7 @@
 # frozen-string-literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Arel
       module Nodes
         class Binary < ::Arel::Nodes::Binary; end
@@ -20,7 +20,7 @@ module DataCycleCore
             include ::Arel::Predications
             include ::Arel::OrderPredications
             include ::Arel::AliasPredication
-            include DataCycleCore::Translation::Arel::TranslationExpressions
+            include DataCycleCore::Translations::Arel::TranslationExpressions
 
             def lower
               super self

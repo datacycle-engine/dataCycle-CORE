@@ -1,20 +1,20 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Translation
+  module Translations
     module Translation
       class << self
         def extended(model_class)
           return if model_class.respond_to? :translation_accessor
 
-          model_class.extend DataCycleCore::Translation::Translates
+          model_class.extend DataCycleCore::Translations::Translates
           model_class.extend ClassMethods
 
-          if (translates = DataCycleCore::Translation::Translation.config.accessor_method)
+          if (translates = DataCycleCore::Translations::Translation.config.accessor_method)
             model_class.singleton_class.send(:alias_method, translates, :translation_accessor)
           end
 
-          model_class.include(DataCycleCore::Translation::ActiveRecord)
+          model_class.include(DataCycleCore::Translations::ActiveRecord)
         end
 
         def storage
@@ -22,7 +22,7 @@ module DataCycleCore
         end
 
         def config
-          @config ||= DataCycleCore::Translation::Configuration.new
+          @config ||= DataCycleCore::Translations::Configuration.new
         end
 
         [:accessor_method, :query_method, :default_backend, :default_options, :plugins, :default_accessor_locales].each do |method_name|
@@ -53,9 +53,9 @@ module DataCycleCore
           end
         end
 
-        def enforce_available_locales!(locale)
-          raise Translation::InvalidLocale, locale unless locale.nil? || available_locales.include?(locale.to_sym)
-        end
+        # def enforce_available_locales!(locale)
+        #   raise Translation::InvalidLocale, locale unless locale.nil? || available_locales.include?(locale.to_sym)
+        # end
 
         def available_locales
           I18n.available_locales
