@@ -15,16 +15,16 @@
   - $$Person
   - $$Veranstaltung
 # embedded
-  - $$Zitat
   - $$Veranstaltungstermin
   - $$Öffnungszeit
+  - $$Öffnungszeit - Simple
+  - $$Öffnungszeit - Zeitspanne
   - $$Overlay
   - $$Publikations-Plan
-  - $$Textblock
 
 - Geschlecht:
-  - Männlich
-  - Weiblich
+  - Männlich | Male
+  - Weiblich | Female
 
 - Wochentage:
   - Montag
@@ -43,10 +43,6 @@
   - Web
   - Print
   - Social Media
-
-- Geschlecht:
-  - Männlich
-  - Weiblich
 
 - POI - Kategorien:
 

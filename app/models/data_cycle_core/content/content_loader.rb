@@ -23,10 +23,10 @@ module DataCycleCore
       end
 
       def load_embedded_objects(relation_name)
-        load_relation(relation_name)
+        load_relation(relation_name, true)
       end
 
-      def load_relation(relation_name)
+      def load_relation(relation_name, same_language = false)
         relation_contents = DataCycleCore::Thing
           .joins(:content_content_b)
           .where({
@@ -35,7 +35,7 @@ module DataCycleCore
               relation_a: relation_name
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) unless schema&.dig('properties', relation_name, 'linked_language') == 'all'
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same' || same_language
         relation_contents.order('content_contents.order_a ASC')
       end
 

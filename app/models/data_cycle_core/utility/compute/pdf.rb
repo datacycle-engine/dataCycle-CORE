@@ -5,16 +5,16 @@ module DataCycleCore
     module Compute
       module Pdf
         class << self
-          def width(pdf)
+          def width(**args)
             # TODO: implement
           end
 
-          def height(pdf)
+          def height(**args)
             # TODO: implement
           end
 
-          def thumbnail_url(pdf)
-            DataCycleCore::Pdf.find_by(id: pdf)&.file&.thumb_preview&.url
+          def thumbnail_url(**args)
+            DataCycleCore::Pdf.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def exif_value(pdf_id, path)

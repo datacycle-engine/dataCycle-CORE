@@ -8,6 +8,8 @@
     :features:
       :overlay:
         :allowed: true
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -87,7 +89,7 @@
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :template_name: Öffnungszeit - Erweitert
+        :template_name: Öffnungszeit
       :url:
         :label: Link
         :type: string

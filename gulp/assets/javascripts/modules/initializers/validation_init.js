@@ -269,6 +269,8 @@ module.exports.initialize = function() {
       );
     }
 
+    if (!items.length) return;
+
     let form_data = items.serializeArray();
     let uuid = $(form)
       .find('input#uuid')

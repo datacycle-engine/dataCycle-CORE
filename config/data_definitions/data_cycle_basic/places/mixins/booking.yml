@@ -26,3 +26,9 @@
         :external: true
         :validations:
           :format: url
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty

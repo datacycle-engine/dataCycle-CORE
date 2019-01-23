@@ -60,6 +60,28 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :another:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :primary_image:
         :label: Hauptbild
         :type: linked

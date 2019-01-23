@@ -38,17 +38,35 @@
             :options:
               :data-size: basic
       :content_url:
-        :label: Bild URL
-        :type: string
+        :label: Video URL
         :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :disabled: true
       :thumbnail_url:
-        :label: Thumbnail URL
-        :type: string
+        :label: Teaserbild
         :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :partial: preview_image
+        :api:
+          :minimal: true
       :url:
         :label: Inhalt URL
         :type: string
@@ -57,56 +75,102 @@
           :format: url
         :api:
           :name: sameAs
-      :image:
-        :label: Teaserbild
-        :type: string
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: video
+        :api:
+          :disabled: true
+      :width:
+        :label: Breite
         :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: width
+          :parameters:
+            :0: asset
         :ui:
           :show:
-            :type: preview_image
+            :options:
+              :data-unit: px
+      :height:
+        :label: Höhe
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
+      :content_size:
+        :label: Dateigröße
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
+      :file_format:
+        :label: Dateiformat
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
+      :duration:
+        :label: Dauer
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Video
+          :method: duration
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: sec
+      :video_frame_size:
+        :label: Auslösung
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: frame_size
+          :parameters:
+            :0: asset
+      :video_quality:
+        :label: Qualität
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Video
+          :method: quality
+          :parameters:
+            :0: asset
       :youtube_url:
         :label: YouTube URL
         :type: string
         :storage_location: value
         :validations:
           :format: url
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-        :search: true
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: Örtlichkeit
-      :width:
-        :label: Breite
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :height:
-        :label: Höhe
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :content_size:
-        :label: Dateigröße
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :file_format:
-        :label: Dateiformat
-        :type: string
-        :storage_location: value
-      :duration:
-        :label: Länge
-        :type: string
-        :storage_location: value
       :director:
         :label: Regie
         :type: linked

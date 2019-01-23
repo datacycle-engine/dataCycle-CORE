@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+json = {
+  data: @watch_lists.map do |l|
+    {
+      id: l.id,
+      name: l.name,
+      url: api_v3_collection_url(l),
+      item_count: l.watch_list_data_hashes.count
+    }
+  end
+}
+
+json.merge! render 'pagination_links',
+                   objects: @watch_lists,
+                   object_url: ->(params) { api_v3_collections_url(params) }
+
+json

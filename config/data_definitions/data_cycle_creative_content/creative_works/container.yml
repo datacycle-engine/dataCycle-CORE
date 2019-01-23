@@ -8,13 +8,14 @@
     :features:
       :container:
         :allowed_templates:
-          - Linktipps
-          - Quiz
           - Angebot
+          - Artikel
           - Biografie
           - Interview
-          - SocialMediaPosting
+          - Quiz
           - Rezept
+          - SocialMediaPosting
+          - Zeitleiste
       :creatable:
         :allowed: true
     :properties:
@@ -27,7 +28,7 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :api:
           :name: headline
       :validity_period:

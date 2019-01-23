@@ -32,3 +32,5 @@
         :features:
           :life_cycle:
             :allowed: true
+        :api:
+          :disabled: true

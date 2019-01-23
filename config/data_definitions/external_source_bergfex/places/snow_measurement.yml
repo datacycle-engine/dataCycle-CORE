@@ -1,8 +1,8 @@
 ---
 - :data:
-    :name: Schneebericht
+    :name: Schneehöhe - Messpunkt
     :type: object
-    :schema_type: CreativeWork
+    :schema_type: Place
     :content_type: embedded
     :properties:
       :id:
@@ -14,24 +14,28 @@
         :storage_location: column
         :api:
           :minimal: true
-          :name: headline
       :elevation:
-        :label: Seehöhe
+        :label: Meereshöhe (m)
         :type: number
-        :storage_location: value
+        :storage_location: column
         :validations:
           :format: float
-        :ui:
-          :edit:
-            :options:
-              :data-unit: m
-          :show:
-            :options:
-              :data-unit: m
+        :api:
+          :transformation:
+            :method: nest
+            :name: geo
+            :type: GeoCoordinates
+          :minimal: true
       :depth_of_snow:
         :label: Schneehöhe
         :type: number
         :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
         :validations:
           :format: float
         :ui:
@@ -45,6 +49,12 @@
         :label: Neuschnee
         :type: number
         :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
         :validations:
           :format: float
         :ui:
@@ -54,16 +64,26 @@
           :show:
             :options:
               :data-unit: cm
+      :identifier:
+        :label: Identifier
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
       :condition_weather:
         :label: "Wetter - Meldung"
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
-        :external: true
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Schneebericht"
+        :default_value: "Schneehöhe - Messpunkt"
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -71,7 +71,7 @@ module DataCycleCore
 
       def set_computed_values
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
         end
       end
 
@@ -104,6 +104,7 @@ module DataCycleCore
       end
 
       def set_internal_data
+        self.content_type = schema&.dig('content_type')
         self.boost = schema&.dig('boost') || 1.0
         validity_hash = metadata.nil? ? nil : metadata['validity_period']
         self.validity_range = get_validity_range(validity_hash)

@@ -20,7 +20,7 @@ module DataCycleCore
       end
 
       query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params)
+      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       # add default filters for user role if any exist
       @filters = current_user.default_filter(@filters)
