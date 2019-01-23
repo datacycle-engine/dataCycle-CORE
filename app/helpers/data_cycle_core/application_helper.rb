@@ -122,16 +122,17 @@ module DataCycleCore
     end
 
     def merge_uploader_white_list
-      uploader_validations = DataCycleCore.uploader_validations.dup
+      uploader_validations = {}
 
       DataCycleCore.asset_objects.map { |a|
-        can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : uploader_validations.delete(a.demodulize.underscore.to_sym)
+        can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : nil
       }.compact.to_h.each do |k, v|
-        (uploader_validations[v.name.demodulize.underscore.remove('_uploader').to_sym] ||= {}).merge!({
+        uploader_validations[k.demodulize.underscore.to_sym] = {
           format: v.new.extension_white_list,
           class: k,
-          translation: t("uploader.type.#{v.name.demodulize.underscore.remove('_uploader')}", locale: DataCycleCore.ui_language)
-        })
+          translation: k.classify.constantize.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t("uploader.description.#{k.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        }.merge(DataCycleCore.uploader_validations[k.demodulize.underscore.to_sym])
       end
       uploader_validations
     end

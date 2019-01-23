@@ -34,8 +34,7 @@ module.exports.initialize = function() {
       } else {
         $('.reveal-blur').removeClass('show');
       }
-      if ($(event.currentTarget).data('overlay') === false)
-        window.scrollTo(0, scroll_top.pop());
+      if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
     }
   });
 };

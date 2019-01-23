@@ -8,6 +8,22 @@
   <div class="uploader-flex">
     <h2><%= t('data_cycle_core.upload') %></h2>
 
+    <a class="asset-selector-button" data-open="asset-selector-default">
+      <i class="fa fa-files-o" aria-hidden="true"></i>
+      <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
+    </a>
+    <div class="full reveal asset-selector-reveal" id="asset-selector-default" data-reveal data-multiple-opened="true" data-v-offset="0">
+      <div class="asset-list-container">
+        <h3><%= t('common.my_assets', locale: DataCycleCore.ui_language) %></h3>
+        <div class="scrollable-asset-list">
+          <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'default', asset_types: DataCycleCore.asset_objects %>
+        </div>
+      </div>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
+    </div>
+
     <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
       <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>
         <a href="#" class="accordion-title"><%= t('common.warning', locale: DataCycleCore.ui_language) %></a>
@@ -26,9 +42,10 @@
           <ul class="no-bullet">
             <% uploader_validations.each do |type, validation| %>
             <li>
-              <b><%= t("uploader.type.#{type}", locale: DataCycleCore.ui_language) %></b>
+              <b><%= "data_cycle_core/#{type}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></b>
+              <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: validation[:translation_description] if validation[:translation_description].present? %>
               <ul>
-                <%= uploader_validation_to_text(validation&.except(:translation, :class)).html_safe %>
+                <%= uploader_validation_to_text(validation&.except(:translation, :translation_description, :class)).html_safe %>
               </ul>
             </li>
             <% end %>

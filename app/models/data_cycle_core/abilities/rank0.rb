@@ -5,7 +5,7 @@ module DataCycleCore
     class Rank0 < DataCycleCore::Ability
       def initialize(user, session = {})
         can [:show, :find], :object_browser
-        can :index, DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
+        can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
           if attribute.definition.dig('ui', 'edit', 'readonly')

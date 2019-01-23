@@ -33,14 +33,29 @@
     <% end %>
 
     <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
-    <div class="form-element">
-      <div class="v-select white with-upload">
-        <%= f.collection_select :asset_id, DataCycleCore::TextFile.accessible_by(current_ability).where(content_type: 'application/pdf'), :id, :name, { label: false, prompt: true }, { class: 'single-select select', data: { placeholder: '' }, include_blank: true } %>
 
-        <% if can?(:edit, DataCycleCore::TextFile) %>
-          <a class="button upload-button" title="<%= "#{DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language)} #{t('actions.upload')}" %>" data-open="data-link-file-upload-overlay"><i class="fa fa-upload" aria-hidden="true"></i></a>
-        <% end %>
+    <%= f.hidden_field :asset_id %>
+
+    <%= render 'data_cycle_core/assets/asset_list', assets: Array(data_link.text_file), class: 'editable' %>
+
+    <a class="button asset-selector-button data-link-asset" data-open="asset-selector-data-link-<%= data_link.id %>"><%= t('common.select_asset', data: DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></a>
+
+    <div class="full reveal asset-selector-reveal" id="asset-selector-data-link-<%= data_link.id %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= "#{data_link.id}_" if data_link.id.present? %>data_link_asset_id">
+      <div class="asset-list-container">
+        <a class="content-upload-link" data-open="content-upload-reveal">
+          <i class="fa fa-upload" aria-hidden="true"></i>
+          <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
+        </a>
+
+        <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>
+        <div class="scrollable-asset-list">
+          <%= render 'data_cycle_core/assets/asset_list', class: 'selectable timestamps', key: "#{"#{data_link.id}_" if data_link.id.present?}data_link_asset_id", assets: nil, asset_types: ['DataCycleCore::TextFile'] %>
+        </div>
+        <a class="select-asset-link button" disabled="disabled"><%= t('common.select_asset', data: DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></a>
       </div>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
 
     <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>

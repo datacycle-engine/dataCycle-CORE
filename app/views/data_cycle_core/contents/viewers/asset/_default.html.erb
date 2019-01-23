@@ -11,6 +11,10 @@
           <%= render 'data_cycle_core/shared/icon', icon_type: asset.class.name.demodulize.underscore %>
           <%= asset.model_name.human(locale: DataCycleCore.ui_language) %> (<%= number_to_human_size(asset.file_size) %>)
         </span>
+        <span class="asset-upload-date">
+          <%= t('actions.uploaded', locale: DataCycleCore.ui_language) %>: <%= l(asset.updated_at, locale: DataCycleCore.ui_language, format: :short) %>
+        </span>
+
         <%= tag.span asset.name, class: 'asset-title' if asset.name.present? %>
 
         <div class="thumb hide-for-print">

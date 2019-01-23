@@ -126,6 +126,7 @@ de:
     change_api_access: API Freigabe ändern
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
+    my_assets: Meine Dateien
     warning: Achtung!
     warnings: Warnungen
 
@@ -201,6 +202,8 @@ de:
     next: Weiter
     back: Zurück
     add_files: Dateien hinzufügen
+    delete_file: Datei wirklich löschen?
+    uploaded: hochgeladen
 
   validation:
     errors:
@@ -361,8 +364,8 @@ de:
         one: Asset
         other: Assets
       data_cycle_core/text_file:
-        one: Textdokument
-        other: Textdokumente
+        one: Textdokument (Externer Link)
+        other: Textdokumente (Externer Link)
       data_cycle_core/pdf:
         one: Pdf
         other: Pdfs
@@ -527,12 +530,6 @@ de:
                   </ul>'
   uploader:
     restrictions: 'Einschränkungen'
-    type:
-      file: Ergänzendes Dokument
-      image: Bild
-      video: Video
-      pdf: Pdf
-      text: Externer Link - Info
     validation:
       format: 'Erlaubte Formate: %{data}'
       dimensions:

@@ -9,13 +9,16 @@ module.exports.initialize = function() {
   // Asset Selector
 
   var asset_selectors = [];
-  var files = [];
 
   function init(container = document) {
     $(container)
       .find('.asset-selector-button')
       .each((index, element) => {
-        asset_selectors.push(new AssetSelector(element, asset_selectors));
+        if ($(element).hasClass('data-link-asset')) {
+          new AssetSelector(element, asset_selectors);
+        } else {
+          asset_selectors.push(new AssetSelector(element, asset_selectors));
+        }
       });
   }
 
@@ -40,10 +43,18 @@ module.exports.initialize = function() {
             .data('open')
         );
       });
+
+      asset_selectors.forEach(selector => {
+        selector.asset_selectors = asset_selectors;
+      });
     }
   });
 
   if ($('#content-upload-reveal').length) {
     var uploader = new AssetUploader($('#content-upload-reveal'));
   }
+
+  $('#content-upload-reveal, .asset-selector-reveal').on('open.zf.reveal', event => {
+    $(event.target).appendTo('body');
+  });
 };

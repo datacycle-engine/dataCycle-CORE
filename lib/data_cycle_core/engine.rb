@@ -79,7 +79,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio', 'DataCycleCore::DataCycleFile']
+    self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
 
     # mattr_accessor :content_tables
     # self.content_tables = ['things']
@@ -182,14 +182,7 @@ module DataCycleCore
     self.allowed_content_api_classifications = []
 
     mattr_accessor :uploader_validations
-    self.uploader_validations = {
-      text: {
-        format: ['pdf'],
-        file_size: {
-          max: 5.megabytes
-        }
-      }
-    }
+    self.uploader_validations = {}
 
     mattr_accessor :default_map_position
     self.default_map_position = {

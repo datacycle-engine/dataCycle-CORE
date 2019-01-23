@@ -1,5 +1,5 @@
 <% objects = value.presence&.includes(:translations) %>
-<% objects = Array(objects).concat(new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a) if changes_by_mode(options.dig(:item_diff), '+').present? %>
+<% objects = Array(objects) + new_relations(options.dig(:item_diff), 'things').includes(:translations).to_a.concat if changes_by_mode(options.dig(:item_diff), '+').present? %>
 
 <% objects.presence&.each_with_index do |object, index| %>
 

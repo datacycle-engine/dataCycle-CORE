@@ -50,7 +50,7 @@ module DataCycleCore
       self&.user_groups&.map(&:name)&.include?(group_name)
     end
 
-    def sibling_ids
+    def include_groups_user_ids
       user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
 

@@ -4,8 +4,11 @@
   }
 }
 
-.asset h4.list-title {
-  display: none;
+.asset,
+.data-link-reveal {
+  h4.list-title {
+    display: none;
+  }
 }
 
 .asset-list-container {
@@ -32,6 +35,14 @@ ul.asset-list {
   h4.list-title {
     width: 100%;
   }
+  .asset-upload-date {
+    display: none;
+    font-size: 0.9rem;
+    font-style: italic;
+  }
+  .asset-type {
+    font-size: 0.9rem;
+  }
   li {
     position: relative;
     display: block;
@@ -43,7 +54,8 @@ ul.asset-list {
     margin: 0.5rem;
     box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
 
-    .asset-deselect {
+    .asset-deselect,
+    .asset-destroy {
       display: none;
       position: relative;
       float: right;
@@ -52,15 +64,17 @@ ul.asset-list {
       margin-left: 5px;
       color: $alert-color;
     }
+
     .inner > span {
       display: block;
       &.asset-title {
-        font-size: 1.2rem;
+        font-size: 1rem;
         line-height: 1.5;
         font-weight: 200;
       }
       &.asset-file-link {
         float: right;
+        margin-left: 0.5rem;
       }
     }
     .inner > .thumb {
@@ -71,6 +85,19 @@ ul.asset-list {
       }
     }
     transition: all 0.1s ease-in-out;
+  }
+
+  &.selectable,
+  &.timestamps {
+    .asset-destroy {
+      display: inline-block;
+    }
+  }
+
+  &.timestamps {
+    .asset-upload-date {
+      display: block;
+    }
   }
 
   &.editable {
@@ -104,10 +131,13 @@ ul.asset-list {
 
 // File Upload Reveal
 #content-upload-reveal {
-  z-index: 1008;
-
   #files {
     display: none;
+  }
+  .asset-selector-button {
+    position: absolute;
+    right: 3rem;
+    top: 0.8rem;
   }
 
   .button {
@@ -164,7 +194,7 @@ ul.asset-list {
   .file-for-upload {
     position: relative;
     display: block;
-    padding: 0.5rem 4rem 0.5rem 4rem;
+    padding: 0.2rem 4rem 0.5rem 4rem;
     min-height: 4rem;
     border: 1px solid lighten($dark-gray, 10%);
     background-color: lighten($light-gray, 5%);
@@ -174,13 +204,19 @@ ul.asset-list {
       margin-bottom: 1rem;
     }
 
-    img {
+    .file-thumb {
       position: absolute;
-      top: 0.9rem;
+      top: 0.5rem;
       left: 0.5rem;
-      max-width: 3rem;
-      max-height: 2rem;
-      display: inline-block;
+      width: 3rem;
+      height: calc(100% - 1rem);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      .fa {
+        font-size: 2.5rem;
+      }
     }
 
     .upload-number {
@@ -190,12 +226,16 @@ ul.asset-list {
       top: 0.5rem;
       text-align: right;
       font-size: 0.9rem;
+      align-items: center;
+      justify-content: center;
+      height: calc(100% - 1rem);
     }
 
     .remove-file {
       display: block;
       position: absolute;
-      right: 1rem;
+      right: 0.5rem;
+      line-height: 1;
       top: 0.5rem;
       color: $alert-color;
     }
@@ -208,14 +248,16 @@ ul.asset-list {
       text-overflow: ellipsis;
       max-width: 100%;
       font-weight: 200;
-      font-size: 1.2rem;
+      font-size: 1rem;
       line-height: 1.5;
       margin: 0;
       background-color: transparent;
       border: 1px solid transparent;
       box-shadow: none;
       height: auto;
-      padding: 0.2rem 0.4rem;
+      padding: 0 0.1rem;
+      margin-left: -0.1rem;
+
       &:hover:not([disabled]),
       &:focus:not([disabled]) {
         background-color: $white;
@@ -228,7 +270,7 @@ ul.asset-list {
       cursor: help;
       position: absolute;
       right: 2.5rem;
-      top: 1rem;
+      top: 0.5rem;
       color: $warning-color;
       font-size: 1.2rem;
       text-shadow: 0 0 1px;
@@ -236,10 +278,8 @@ ul.asset-list {
 
     .file-info {
       display: block;
-      font-style: italic;
       font-size: 0.9rem;
       margin: 0;
-      padding: 0 0.5rem;
 
       dt,
       dd {
@@ -253,10 +293,24 @@ ul.asset-list {
 
     .type-selector {
       display: block;
-      padding: 0.5rem;
-      input {
-        margin: 0;
+      font-size: 0.9rem;
+
+      label {
+        display: inline-block;
+        margin-right: 1rem;
+        cursor: pointer;
+        input {
+          margin: 0 0.3rem 0 0;
+          cursor: pointer;
+        }
       }
+    }
+
+    .file-title-restore {
+      position: absolute;
+      top: 0.55rem;
+      right: 4.5rem;
+      cursor: pointer;
     }
 
     .upload-progress {
@@ -279,7 +333,7 @@ ul.asset-list {
     .error {
       display: block;
       color: $alert-color;
-      padding: 0 0.5rem;
+      font-size: 0.9rem;
     }
 
     &.uploading {
@@ -300,7 +354,7 @@ ul.asset-list {
       background-color: lighten($success-color, 35%);
 
       .upload-number {
-        display: block;
+        display: flex;
         right: auto;
         top: 0.5rem;
         left: 0.5rem;
@@ -311,7 +365,7 @@ ul.asset-list {
         }
       }
 
-      > img {
+      > .file-thumb {
         opacity: 0.1;
       }
     }

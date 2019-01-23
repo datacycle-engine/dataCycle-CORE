@@ -53,9 +53,7 @@ DataCycleCore::Engine.routes.draw do
   resources :classification_tree_labels, only: :show
 
   scope('files') do
-    resources :assets, only: [:index, :show, :new, :create, :update, :destroy] do
-      post 'new_asset_object', on: :collection
-      delete 'remove_asset_object', on: :member
+    resources :assets, only: [:index, :show, :create, :update, :destroy] do
       get :find, on: :collection
     end
   end

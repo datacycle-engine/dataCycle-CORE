@@ -5,7 +5,6 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      authorize! :index, DataCycleCore::Asset
       @html_target = permitted_params[:html_target]
       @selected = permitted_params[:selected]
       @assets = DataCycleCore::Asset.accessible_by(current_ability).order(updated_at: :desc)
@@ -47,11 +46,19 @@ module DataCycleCore
     end
 
     def find
-      authorize! :show, DataCycleCore::DataCycleFile
+      authorize! :show, DataCycleCore::TextFile
 
-      @duplicate = DataCycleCore::DataCycleFile.accessible_by(current_ability, :update).find_by('type = ? AND name ILIKE ?', 'DataCycleCore::DataCycleFile', find_params[:q])
+      @duplicate = DataCycleCore::TextFile.accessible_by(current_ability, :update).find_by('type = ? AND name ILIKE ?', 'DataCycleCore::TextFile', find_params[:q])
 
       render json: @duplicate&.attributes
+    end
+
+    def destroy
+      @asset = DataCycleCore::Asset.find(params[:id])
+
+      authorize! :destroy, @asset
+
+      @asset.destroy
     end
 
     private

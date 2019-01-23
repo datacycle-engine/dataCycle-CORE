@@ -14,26 +14,13 @@ var AssetSelector = function(button, asset_selectors) {
 
 AssetSelector.prototype.init = function() {
   this.reveal.on('open.zf.reveal', this.loadAssets.bind(this));
-
   this.asset_list.on('click', 'li', this.clickOnAsset.bind(this));
-
-  this.reveal.on(
-    'click',
-    '.select-asset-link:not([disabled])',
-    this.selectAssets.bind(this)
-  );
-
-  this.selected_asset_list.on(
-    'click',
-    '.asset-deselect',
-    this.deselect.bind(this)
-  );
+  this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
+  this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
 };
 
 AssetSelector.prototype.loadAssets = function(event) {
-  this.asset_list.html(
-    '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>'
-  );
+  this.asset_list.html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
 
   this.select_button.attr('disabled', true);
 
@@ -46,10 +33,7 @@ AssetSelector.prototype.loadAssets = function(event) {
       selected: this.selected_asset_id,
       locked_assets: this.asset_selectors
         .filter(selector => {
-          return (
-            selector.button.data('open') != this.button.data('open') &&
-            selector.selected_asset_id != ''
-          );
+          return selector.button.data('open') != this.button.data('open') && selector.selected_asset_id != '';
         })
         .map(selector => selector.selected_asset_id)
     },
@@ -59,7 +43,10 @@ AssetSelector.prototype.loadAssets = function(event) {
 };
 
 AssetSelector.prototype.clickOnAsset = function(event) {
-  if ($(event.target).closest('.asset-file-link-tag').length == 0) {
+  if (
+    $(event.target).closest('.asset-file-link-tag').length == 0 &&
+    $(event.target).closest('.asset-destroy').length == 0
+  ) {
     if ($(event.currentTarget).hasClass('active')) {
       $(event.currentTarget)
         .removeClass('active')
@@ -71,9 +58,7 @@ AssetSelector.prototype.clickOnAsset = function(event) {
         .addClass('active')
         .siblings('li')
         .removeClass('active');
-      this.select_button
-        .attr('disabled', false)
-        .data('value', $(event.currentTarget).data('id'));
+      this.select_button.attr('disabled', false).data('value', $(event.currentTarget).data('id'));
     }
   }
 };
