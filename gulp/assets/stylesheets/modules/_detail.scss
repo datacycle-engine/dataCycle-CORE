@@ -205,25 +205,6 @@
             }
           }
 
-          &.asset {
-            .inner {
-              padding: 0.5rem;
-
-              span {
-                display: block;
-
-                &.asset-type {
-                  font-size: 0.9rem;
-                  opacity: 0.7;
-                }
-              }
-
-              .thumb {
-                margin-top: 1rem;
-              }
-            }
-          }
-
           &.media {
             .media-thumbs {
               display: flex;

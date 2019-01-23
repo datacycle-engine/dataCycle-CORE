@@ -1,45 +1,45 @@
 // app.js - Data cylce Core
-var $ = require("jquery");
-var jquery_to_json = require("jquery-serializejson");
-var jqueryujs = require("jquery-ujs");
-var foundation = require("foundation-sites");
-var lazysizes = require("lazysizes");
-var lazysizes_unveilhooks = require("lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js");
-var callout_helpers = require("./modules/helpers/callout_helpers");
-var array_helpers = require("./modules/helpers/array_helpers");
-var number_helpers = require("./modules/helpers/number_helpers");
-var string_helpers = require("./modules/helpers/string_helpers");
+var $ = require('jquery');
+var jquery_to_json = require('jquery-serializejson');
+var jqueryujs = require('jquery-ujs');
+var foundation = require('foundation-sites');
+var lazysizes = require('lazysizes');
+var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
+var callout_helpers = require('./modules/helpers/callout_helpers');
+var array_helpers = require('./modules/helpers/array_helpers');
+var number_helpers = require('./modules/helpers/number_helpers');
+var string_helpers = require('./modules/helpers/string_helpers');
 
 var initializers = [];
-initializers.push(require("./modules/initializers/masonry_init"));
-initializers.push(require("./modules/initializers/quill_init"));
-initializers.push(require("./modules/initializers/filter_init"));
-initializers.push(require("./modules/initializers/blur_init"));
-initializers.push(require("./modules/initializers/detailheader_init"));
-initializers.push(require("./modules/initializers/focus_init"));
-initializers.push(require("./modules/initializers/flash_init"));
-initializers.push(require("./modules/initializers/validation_init"));
-initializers.push(require("./modules/initializers/counter_init"));
-initializers.push(require("./modules/initializers/date_picker_init"));
-initializers.push(require("./modules/initializers/slider_init"));
-initializers.push(require("./modules/initializers/split_contents_init"));
-initializers.push(require("./modules/initializers/map_init"));
-initializers.push(require("./modules/initializers/classifications"));
-initializers.push(require("./modules/initializers/classification_select_init"));
-initializers.push(require("./modules/initializers/lazyloading_init"));
-initializers.push(require("./modules/initializers/datalist_init"));
-initializers.push(require("./modules/initializers/object_browser_init"));
-initializers.push(require("./modules/initializers/embedded_objects_init"));
-initializers.push(require("./modules/initializers/iframe_init"));
-initializers.push(require("./modules/initializers/assets_init"));
-initializers.push(require("./modules/initializers/rails_confirmation_init"));
-initializers.push(require("./modules/initializers/publication_init"));
-initializers.push(require("./modules/initializers/stored_filters_init"));
-initializers.push(require("./modules/initializers/dropdown_pane_init"));
-initializers.push(require("./modules/initializers/file_upload_init"));
-initializers.push(require("./modules/initializers/htmldiff_init"));
-initializers.push(require("./modules/initializers/remote_render_init"));
-initializers.push(require("./modules/initializers/new_contents_init"));
+initializers.push(require('./modules/initializers/masonry_init'));
+initializers.push(require('./modules/initializers/quill_init'));
+initializers.push(require('./modules/initializers/filter_init'));
+initializers.push(require('./modules/initializers/blur_init'));
+initializers.push(require('./modules/initializers/detailheader_init'));
+initializers.push(require('./modules/initializers/focus_init'));
+initializers.push(require('./modules/initializers/flash_init'));
+initializers.push(require('./modules/initializers/validation_init'));
+initializers.push(require('./modules/initializers/counter_init'));
+initializers.push(require('./modules/initializers/date_picker_init'));
+initializers.push(require('./modules/initializers/slider_init'));
+initializers.push(require('./modules/initializers/split_contents_init'));
+initializers.push(require('./modules/initializers/map_init'));
+initializers.push(require('./modules/initializers/classifications'));
+initializers.push(require('./modules/initializers/classification_select_init'));
+initializers.push(require('./modules/initializers/lazyloading_init'));
+initializers.push(require('./modules/initializers/datalist_init'));
+initializers.push(require('./modules/initializers/object_browser_init'));
+initializers.push(require('./modules/initializers/embedded_objects_init'));
+initializers.push(require('./modules/initializers/iframe_init'));
+initializers.push(require('./modules/initializers/assets_init'));
+initializers.push(require('./modules/initializers/rails_confirmation_init'));
+initializers.push(require('./modules/initializers/publication_init'));
+initializers.push(require('./modules/initializers/stored_filters_init'));
+initializers.push(require('./modules/initializers/dropdown_pane_init'));
+initializers.push(require('./modules/initializers/file_upload_init'));
+initializers.push(require('./modules/initializers/htmldiff_init'));
+initializers.push(require('./modules/initializers/remote_render_init'));
+initializers.push(require('./modules/initializers/new_contents_init'));
 
 $(function() {
   initializers.forEach(element => {
@@ -51,45 +51,46 @@ $(function() {
   });
 
   // Initialize Foundation
+  Foundation.Tooltip.defaults.clickOpen = false;
   $(document).foundation();
 
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
-  if ($(".home-container").length) {
-    $(".home-container").appendTo("body");
+  if ($('.home-container').length) {
+    $('.home-container').appendTo('body');
     setTimeout(function() {
-      $(".home-container").addClass("show");
+      $('.home-container').addClass('show');
     }, 500);
-    $("body").addClass("login-page");
+    $('body').addClass('login-page');
   }
 
   // FIXME: move to OEW with event triggers working
-  if ($("#import-content-form").length) {
-    $("#import-content-form form").on("submit", event => {
+  if ($('#import-content-form').length) {
+    $('#import-content-form form').on('submit', event => {
       event.preventDefault();
 
       let url = $(event.currentTarget)
-        .find("input#cms_url")
+        .find('input#cms_url')
         .val();
 
       if (url != undefined && url.length > 0) {
         $(event.currentTarget)
-          .siblings(".loading")
+          .siblings('.loading')
           .fadeIn(100);
         $.ajax({
           url: url,
-          dataType: "html"
+          dataType: 'html'
         })
           .done(data => {
             $(event.currentTarget)
-              .siblings(".loading")
+              .siblings('.loading')
               .fadeOut(100);
-            if ($(data).filter("#cdb-item-definition").length > 0) {
+            if ($(data).filter('#cdb-item-definition').length > 0) {
               $(event.currentTarget)
-                .find("input#cms_url")
-                .val("");
+                .find('input#cms_url')
+                .val('');
               let contents = JSON.parse(
                 $(data)
-                  .filter("#cdb-item-definition")
+                  .filter('#cdb-item-definition')
                   .first()
                   .html()
               );
@@ -97,9 +98,9 @@ $(function() {
               if (contents !== undefined) {
                 if (contents.title !== undefined) {
                   $('[data-label="Meta-Titel"] > input[type=text]').trigger(
-                    "import-data",
+                    'import-data',
                     {
-                      label: "Meta-Titel",
+                      label: 'Meta-Titel',
                       value: contents.title
                     }
                   );
@@ -108,8 +109,8 @@ $(function() {
                 if (contents.description !== undefined) {
                   $(
                     '[data-label="Meta-Description"] > .editor-block > .quill-editor'
-                  ).trigger("import-data", {
-                    label: "Meta-Description",
+                  ).trigger('import-data', {
+                    label: 'Meta-Description',
                     value: contents.description
                   });
                 }
@@ -138,32 +139,32 @@ $(function() {
                   let image_ids = contents.images.map(i => i.external_key);
                   let label = $('.linked[data-label="Bilder"]')
                     .first()
-                    .data("label");
+                    .data('label');
 
                   $('.linked[data-label="Bilder"]')
-                    .children(".object-browser")
-                    .trigger("import-data", {
+                    .children('.object-browser')
+                    .trigger('import-data', {
                       label: label,
                       external_ids: image_ids
                     });
-                  callout_helpers.show("Bilder importiert.", "success");
+                  callout_helpers.show('Bilder importiert.', 'success');
                 } else {
-                  callout_helpers.show("Keine Bilder gefunden.", "alert");
+                  callout_helpers.show('Keine Bilder gefunden.', 'alert');
                 }
               } else {
-                callout_helpers.show("Keine Daten gefunden.", "alert");
+                callout_helpers.show('Keine Daten gefunden.', 'alert');
               }
             } else {
-              callout_helpers.show("Keine Daten gefunden.", "alert");
+              callout_helpers.show('Keine Daten gefunden.', 'alert');
             }
           })
           .fail(() => {
             $(event.currentTarget)
-              .siblings(".loading")
+              .siblings('.loading')
               .fadeOut(100);
             callout_helpers.show(
-              "Fehler beim Importieren von URL: " + url,
-              "alert"
+              'Fehler beim Importieren von URL: ' + url,
+              'alert'
             );
           });
       }

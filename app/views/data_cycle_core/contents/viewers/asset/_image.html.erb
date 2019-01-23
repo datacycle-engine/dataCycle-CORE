@@ -1,23 +1,15 @@
-<% image ||= value.first %>
+<% image ||= value %>
 
 <% unless image.nil? %>
-    <div class="inner">
-        <div class="thumb">
-            <% if image.thumbnail_url? %>
-                <a href="<%= image.file.url %>" target="_blank">
-                    <img src="<%= image.thumbnail_url %>" />
-                </a>
-            <% else %>
-                <div class="placeholder">
-                    <i class="fa fa-picture-o" aria-hidden="true"></i>
-                    <span><%= t('actions.processing_asset', locale: DataCycleCore.ui_language) %></span>
-                </div>
-            <% end %>
-
-            <%= tag.span image.name, class: 'asset-title' if image.name.present? %>
-            <span class="asset-type">
-              <%= image.content_type %> (<%= number_to_human_size(image.file_size) %>)
-            </span>
+  <% content_for :asset_thumb do %>
+    <% if image.thumbnail_url? %>
+        <img src="<%= image.thumbnail_url %>" />
+    <% else %>
+        <div class="placeholder">
+            <i class="fa fa-picture-o" aria-hidden="true"></i>
+            <span><%= t('actions.processing_asset', locale: DataCycleCore.ui_language) %></span>
         </div>
-    </div>
+    <% end %>
+  <% end %>
+  <%= render 'data_cycle_core/contents/viewers/asset/default', local_assigns %>
 <% end %>

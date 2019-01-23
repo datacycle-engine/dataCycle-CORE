@@ -459,6 +459,7 @@ ul.backend-treeview-list {
               .tag {
                 color: $black;
                 background-color: lighten($light-gray, 5%);
+                border: none;
               }
 
               ul {

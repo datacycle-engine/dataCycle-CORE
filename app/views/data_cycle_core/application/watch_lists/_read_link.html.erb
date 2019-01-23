@@ -1,10 +1,8 @@
 <li>
     <span class="watch-list-item">
         <span class="watchlist-name">
-        <%= link_to watch_list_path(watch_list), class: 'watchlist-link' do %>
-            <% if watch_list.watch_list_user_groups.size.positive? %>
-                <i class="fa fa-users"></i>
-            <% end %>
+        <%= link_to watch_list_path(watch_list), class: 'watchlist-link', title: watch_list.name do %>
+            <%= tag.i class: 'fa fa-users' if watch_list.watch_list_user_groups.size.positive? %>
             <%= watch_list.name %>
         <% end %>
         </span>

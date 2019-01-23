@@ -75,9 +75,13 @@ DataCycleCore.setup do |config|
   end
 
   config.webhooks = ['Local-Text-File']
-  config.file_uploader_whitelist = [
-    'mp4',
-    'png',
-    'jpg'
-  ]
+  config.uploader_validations = {
+    file: {
+      format: [
+        'mp4',
+        'png',
+        'jpg'
+      ]
+    }
+  }
 end

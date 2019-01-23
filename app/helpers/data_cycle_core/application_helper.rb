@@ -107,6 +107,36 @@ module DataCycleCore
       feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
     end
 
+    def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
+      if value.is_a? Hash
+        return_html = ''
+        value.each do |k, v|
+          return_html += uploader_validation_to_text(v, parents + [k.to_s])
+        end
+        return_html
+      elsif parents[-2] == 'file_size'
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</li>"
+      else
+        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
+      end
+    end
+
+    def merge_uploader_white_list
+      uploader_validations = {}
+
+      DataCycleCore.asset_objects.map { |a|
+        can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : nil
+      }.compact.to_h.each do |k, v|
+        uploader_validations[k.demodulize.underscore.to_sym] = {
+          format: v.new.extension_white_list,
+          class: k,
+          translation: k.classify.constantize.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t("uploader.description.#{k.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        }.merge(DataCycleCore.uploader_validations[k.demodulize.underscore.to_sym] || {})
+      end
+      uploader_validations
+    end
+
     def render_content_partial(partial, parameters)
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
       content_parameter = parameters[:content].schema['schema_type'].underscore
@@ -211,8 +241,9 @@ module DataCycleCore
     end
 
     def render_asset_viewer(key:, value:, definition:, parameters: {}, content: nil)
+      value = value.first if value.is_a?(ActiveRecord::Relation) || value.is_a?(Array)
       partials = [
-        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        value.try(:type)&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
