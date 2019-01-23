@@ -132,7 +132,7 @@ module DataCycleCore
           class: k,
           translation: k.classify.constantize.model_name.human(count: 1, locale: DataCycleCore.ui_language),
           translation_description: t("uploader.description.#{k.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
-        }.merge(DataCycleCore.uploader_validations[k.demodulize.underscore.to_sym])
+        }.merge(DataCycleCore.uploader_validations[k.demodulize.underscore.to_sym] || {})
       end
       uploader_validations
     end

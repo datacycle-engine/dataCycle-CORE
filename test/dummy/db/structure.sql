@@ -1403,6 +1403,13 @@ CREATE INDEX index_searches_on_words ON public.searches USING gin (words);
 
 
 --
+-- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
+
+
+--
 -- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1821,6 +1828,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181231081526'),
 ('20190107074405'),
 ('20190108154224'),
+('20190110092936'),
 ('20190110151543'),
 ('20190117135807'),
 ('20190118113621');

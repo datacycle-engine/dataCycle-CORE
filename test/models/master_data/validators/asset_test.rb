@@ -9,9 +9,8 @@ describe DataCycleCore::MasterData::Validators::Asset do
     DataCycleCore::MasterData::Validators::Asset
   end
 
-  def upload_file
-    file_name = 'test_rgb.jpg'
-    File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
+  def upload_file(path_to_file)
+    File.join(DataCycleCore::TestPreparations::ASSETS_PATH, path_to_file)
   end
 
   describe 'validate data' do
@@ -19,7 +18,7 @@ describe DataCycleCore::MasterData::Validators::Asset do
       {
         'label' => 'Local-Asset',
         'type' => 'asset',
-        'asset_type' => 'asset'
+        'asset_type' => 'text_file'
       }
     end
     let(:template_image_hash) do
@@ -34,9 +33,10 @@ describe DataCycleCore::MasterData::Validators::Asset do
       {
         'label' => 'Local-Asset',
         'type' => 'asset',
-        'asset_type' => 'asset',
+        'asset_type' => 'text_file',
         'validations' => {
-          'unknown' => 1
+          'required' => true,
+          'invalid_validation' => 1
         }
       }
     end
@@ -46,9 +46,9 @@ describe DataCycleCore::MasterData::Validators::Asset do
     end
 
     let(:asset1) do
-      asset = DataCycleCore::Asset.new(
+      asset = DataCycleCore::TextFile.new(
         id: '00000000-0000-0000-0000-000000000000',
-        file: File.open(upload_file)
+        file: File.open(upload_file('pdf/test.pdf'))
       )
       asset.save
       asset
@@ -57,14 +57,14 @@ describe DataCycleCore::MasterData::Validators::Asset do
     let(:image1) do
       image = DataCycleCore::Image.new(
         id: '00000000-0000-0000-0000-000000000001',
-        file: File.open(upload_file)
+        file: File.open(upload_file('images/test_rgb.jpg'))
       )
       image.save
       image
     end
 
     after do
-      DataCycleCore::Asset.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
+      DataCycleCore::TextFile.find_by(id: '00000000-0000-0000-0000-000000000000')&.destroy
       DataCycleCore::Image.find_by(id: '00000000-0000-0000-0000-000000000001')&.destroy
     end
 
@@ -76,11 +76,11 @@ describe DataCycleCore::MasterData::Validators::Asset do
       assert_equal(no_error_hash, subject.new([image1.id], template_image_hash).error)
     end
 
-    it 'produces a warning if no uuid given' do
-      data_cases = [nil, '', [''], 1]
+    it 'produces an error if no uuid given' do
+      data_cases = [nil, '', ['']]
       data_cases.each do |case_item|
-        validator = subject.new(case_item, template_hash) # byebug
-        assert_equal(0, validator.error[:error].size)
+        validator = subject.new(case_item, template_hash_length_w_error) # byebug
+        assert_equal(1, validator.error[:error].size)
         assert_equal(1, validator.error[:warning].size)
       end
     end
