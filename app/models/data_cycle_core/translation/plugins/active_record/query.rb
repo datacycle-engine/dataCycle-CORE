@@ -65,7 +65,7 @@ module DataCycleCore
               @__backends = []
             end
 
-            def method_missing(m, *)
+            def method_missing(m, *) # rubocop:disable Style/MissingRespondToMissing
               if @model_class.translation_attribute?(m)
                 @__backends |= [@model_class.translation_backend_class(m)]
                 @model_class.translation_backend_class(m).build_node(m, @locale)

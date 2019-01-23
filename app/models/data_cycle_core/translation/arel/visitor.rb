@@ -28,31 +28,32 @@ module DataCycleCore
         end
         alias visit_Array visit_collection
 
-        def visit_Arel_Nodes_Unary(object)
+        # naming dictated by Arel
+        def visit_Arel_Nodes_Unary(object) # rubocop:disable Naming/MethodName
           visit(object.expr)
         end
 
-        def visit_Arel_Nodes_Binary(object)
+        def visit_Arel_Nodes_Binary(object) # rubocop:disable Naming/MethodName
           visit_collection([object.left, object.right])
         end
 
-        def visit_Arel_Nodes_Function(object)
+        def visit_Arel_Nodes_Function(object) # rubocop:disable Naming/MethodName
           visit_collection(object.expressions)
         end
 
-        def visit_Arel_Nodes_Case(object)
+        def visit_Arel_Nodes_Case(object) # rubocop:disable Naming/MethodName
           visit_collection([object.case, object.conditions, object.default])
         end
 
-        def visit_Arel_Nodes_And(object)
+        def visit_Arel_Nodes_And(object) # rubocop:disable Naming/MethodName
           visit_Array(object.children)
         end
 
-        def visit_Arel_Nodes_Node(object)
+        def visit_Arel_Nodes_Node(object) # rubocop:disable Naming/MethodName
           visit_default(object)
         end
 
-        def visit_Arel_Attributes_Attribute(object)
+        def visit_Arel_Attributes_Attribute(object) # rubocop:disable Naming/MethodName
           visit_default(object)
         end
 

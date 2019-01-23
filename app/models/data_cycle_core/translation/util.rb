@@ -11,7 +11,7 @@ module DataCycleCore
 
       def camelize(str)
         call_or_yield str do
-          str.to_s.sub(/^[a-z\d]*/) { $&.capitalize }.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }.gsub('/', '::')
+          str.to_s.sub(/^[a-z\d]*/) { $&.capitalize }.gsub(/(?:_|(\/))([a-z\d]*)/) { "#{$1}#{$2.capitalize}" }.gsub('/', '::') # rubocop:disable Style/RegexpLiteral, Style/PerlBackrefs
         end
       end
 
@@ -54,7 +54,7 @@ module DataCycleCore
 
       def blank?(object)
         return true if object.nil?
-        object.respond_to?(:empty?) ? !!object.empty? : !object
+        object.respond_to?(:empty?) ? !!object.empty? : !object # rubocop:disable Style/DoubleNegation
       end
 
       def presence(object)
@@ -73,7 +73,7 @@ module DataCycleCore
         end
       end
 
-      extend self
+      extend self # rubocop:disable Style/ModuleFunction
     end
   end
 end

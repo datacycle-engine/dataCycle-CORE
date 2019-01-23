@@ -157,9 +157,7 @@ module DataCycleCore
             'Sat' => 'Samstag',
             'Sun' => 'Sonntag'
           }
-          DataCycleCore::ClassificationAlias
-            .for_tree('Wochentage').with_name(day_hash[day])
-            .map(&:classifications).flatten.map(&:id).first
+          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentag', day_hash[day])
         end
 
         def self.document_filter(document_classes: [], document_types: [])

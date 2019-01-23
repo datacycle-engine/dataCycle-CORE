@@ -11,9 +11,9 @@ module DataCycleCore
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:id])
           @classification_trees = @classification_tree_label.classification_trees
             .where(parent_classification_alias: nil)
-            .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
+            .where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications })
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-            .order('classification_aliases.name')
+            .order('classification_aliases.internal_name')
             .page(params[:tree_page])
 
           @tree_page = @classification_trees.current_page
@@ -35,9 +35,9 @@ module DataCycleCore
           if permitted_params[:classification_tree_id].present?
             @classification_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_tree_id])
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
-              .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
+              .where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications })
               .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-              .order('classification_aliases.name')
+              .order('classification_aliases.internal_name')
               .page(params[:tree_page])
 
             @order_string = 'searches.boost DESC, searches.data_type ASC, searches.headline ASC'

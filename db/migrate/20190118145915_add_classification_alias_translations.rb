@@ -5,6 +5,6 @@ class AddClassificationAliasTranslations < ActiveRecord::Migration[5.1]
     add_column :classification_aliases, :name_i18n, :jsonb, default: {}
     add_column :classification_aliases, :description_i18n, :jsonb, default: {}
     rename_column :classification_aliases, :name, :internal_name
-    rename_column :classification_aliases, :description, :internal_description
+    rename_column :classification_aliases, :description, :internal_description # just to keep the old data available
   end
 end

@@ -18,7 +18,7 @@ module DataCycleCore
             raise NotImplementedError
           end
 
-          def apply_scope(relation, _predicate, _locale = I18n.locale, invert: false)
+          def apply_scope(relation, _predicate, _locale = I18n.locale, invert: false) # rubocop:disable Lint/UnusedMethodArgument
             relation
           end
 
