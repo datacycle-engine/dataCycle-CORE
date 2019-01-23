@@ -79,6 +79,8 @@
         :template_name: Örtlichkeit
         :validations:
           :max: 1
+        :api:
+          :name: location
       :data_type:
         :label: Inhaltstype
         :type: classification

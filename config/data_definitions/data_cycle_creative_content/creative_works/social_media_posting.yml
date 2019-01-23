@@ -25,33 +25,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :url:
-        :label: Link
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :validations:
-          :format: url
-        :api:
-          :name: sameAs
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: Örtlichkeit
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -58,6 +58,12 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -65,11 +71,15 @@
         :validations:
           :max: 1
         :api:
+          :name: image
           :minimal: true
       :image:
         :label: Bilder
         :type: linked
         :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
       :logo:
         :label: Logo
         :type: linked

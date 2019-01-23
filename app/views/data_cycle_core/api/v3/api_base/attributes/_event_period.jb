@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+json ||= {}
+if value.to_h.present?
+  value.to_h.each do |d|
+    json[d[0].camelize(:lower)] = d[1]
+  end
+end
+json

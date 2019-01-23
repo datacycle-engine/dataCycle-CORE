@@ -53,7 +53,7 @@
           :show:
             :disabled: true
       :thumbnail_url:
-        :label: Thumbnail URL
+        :label: Teaserbild
         :storage_location: value
         :type: computed
         :compute:
@@ -64,9 +64,17 @@
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
@@ -87,6 +95,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -101,6 +117,16 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
         :storage_location: value
@@ -135,6 +161,11 @@
           :show:
             :options:
               :data-unit: sec
+        :api:
+          :partial: duration
+          :format:
+            :append: S
+            :prepend: PT
       :video_frame_size:
         :label: Auslösung
         :storage_location: value

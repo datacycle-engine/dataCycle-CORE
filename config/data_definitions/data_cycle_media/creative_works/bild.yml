@@ -47,11 +47,11 @@
           :method: content_url
           :parameters:
             :0: asset
-        :api:
-          :minimal: true
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :storage_location: value
@@ -64,9 +64,17 @@
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
@@ -87,6 +95,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -101,6 +117,16 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
         :storage_location: value
@@ -121,6 +147,9 @@
           :method: file_format
           :parameters:
             :0: asset
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification

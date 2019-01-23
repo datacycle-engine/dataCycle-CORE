@@ -118,16 +118,29 @@ DataCycleCore::Engine.routes.draw do
       namespace :v2 do
         type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
         get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
-        # get 'endpoints/:id(/:type)', to: 'contents#index', constraints: {type: type_regexp}, as: 'stored_filter'
-        # resources :stored_filters, only: [:show], path: :endpoints do
-        #   resources(*['organizations', 'persons', 'events', 'places', 'creative_works', 'things'].map(&:to_sym), only: [:index], path: ':type', controller: :things)
-        # end
 
-        # TODO: check if additional parameter is necessary, to achieve old results especially for index!!
         resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
-        # type_regexp = Regexp.new(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym).join('|'))
-        # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index], controller: :things, constraints: {type: type_regexp})
-        # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:show], controller: :things, constraints: {type: type_regexp})
+
+        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+
+        resources :classification_trees, only: [:index, :show] do
+          get :classifications, on: :member
+        end
+
+        resources :collections, only: [:index, :show], controller: :watch_lists
+
+        resources :external_sources, only: [] do
+          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
+          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
+          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+        end
+      end
+      namespace :v3 do
+        type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+        get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+
+        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
 
         get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
         get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'

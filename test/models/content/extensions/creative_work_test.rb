@@ -962,12 +962,12 @@ module DataCycleCore
       content = DataCycleCore::TestPreparations.data_set_object('Artikel')
       content.save!
       content.set_data_hash(data_hash: test_hash, prevent_history: true)
-      assert_equal(test_hash.except('image'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.except('image', 'keywords'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(test_hash['image'], content.image.pluck(:id))
 
       test_hash['description'] = 'only change description'
       content.set_data_hash(data_hash: { 'description' => test_hash['description'] }, partial_update: true, prevent_history: true)
-      assert_equal(test_hash.except('image'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
+      assert_equal(test_hash.except('image', 'keywords'), content.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
       assert_equal(test_hash['image'], content.image.pluck(:id))
     end
   end
