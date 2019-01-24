@@ -14,7 +14,7 @@
     button_title: t('actions.create_from_existing', locale: DataCycleCore.ui_language),
     render_params: to_query_params({ new_template: content }).to_json if can?(:create, content, 'duplicate') && content.content_type?('entity') && !content.translatable? %>
 
-  <% if can?(:move_content, content) && @parents.present? && content.parent.present? %>
+  <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>
       <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay' }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-folder" aria-hidden="true"></i>
       <% end %>
