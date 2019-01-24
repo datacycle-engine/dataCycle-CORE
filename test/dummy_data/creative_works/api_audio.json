@@ -1,0 +1,9 @@
+{
+  "name": "Headline",
+  "description": "Description",
+  "content_url": "https://content.url.com",
+  "url": "https://url.com",
+  "content_size": 500,
+  "file_format": "audio/mp3",
+  "duration": 150
+}

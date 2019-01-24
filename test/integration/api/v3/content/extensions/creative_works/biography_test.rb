@@ -9,7 +9,7 @@ module DataCycleCore
       module Content
         module Extensions
           module CreativeWorks
-            class Article < ActionDispatch::IntegrationTest
+            class Biography < ActionDispatch::IntegrationTest
               include Devise::Test::IntegrationHelpers
               include Engine.routes.url_helpers
 
@@ -48,7 +48,7 @@ module DataCycleCore
                 }
                 creative_work_data_hash[:validity_period] = validity_period
 
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
+                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Biografie', data_hash: creative_work_data_hash)
 
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
@@ -62,8 +62,8 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Article', json_data.dig('@type'))
-                assert_equal('Artikel', json_data.dig('contentType'))
+                assert_equal('CreativeWork', json_data.dig('@type'))
+                assert_equal('Biografie', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
@@ -81,7 +81,7 @@ module DataCycleCore
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Artikel', classification_hash.dig('name'))
+                assert_equal('Biografie', classification_hash.dig('name'))
                 assert_equal(2, classification_hash.dig('ancestors').size)
                 assert_equal(['Inhaltstypen', 'Text'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
 
@@ -114,19 +114,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Biografie' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Biografie' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Biografie' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 

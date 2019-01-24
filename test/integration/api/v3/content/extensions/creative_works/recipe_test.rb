@@ -9,7 +9,7 @@ module DataCycleCore
       module Content
         module Extensions
           module CreativeWorks
-            class Article < ActionDispatch::IntegrationTest
+            class Recipe < ActionDispatch::IntegrationTest
               include Devise::Test::IntegrationHelpers
               include Engine.routes.url_helpers
 
@@ -33,13 +33,17 @@ module DataCycleCore
                 place_data_hash[:image] = @image.id
                 @place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
+                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_recipe')
                 creative_work_data_hash[:author] = @person.id
                 creative_work_data_hash[:about] = @organization.id
                 creative_work_data_hash[:image] = @image.id
                 creative_work_data_hash[:content_location] = @place.id
                 tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
                 creative_work_data_hash[:tags] = [tag_classification.id]
+                recipe_category = DataCycleCore::Classification.find_by(name: 'Rezept-Kategorie 1')
+                creative_work_data_hash[:recipe_category] = [recipe_category.id]
+                recipe_course = DataCycleCore::Classification.find_by(name: 'Rezept-Gang 1')
+                creative_work_data_hash[:recipe_course] = [recipe_course.id]
 
                 # validity_period
                 validity_period = {
@@ -48,7 +52,7 @@ module DataCycleCore
                 }
                 creative_work_data_hash[:validity_period] = validity_period
 
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
+                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Rezept', data_hash: creative_work_data_hash)
 
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
@@ -62,8 +66,8 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Article', json_data.dig('@type'))
-                assert_equal('Artikel', json_data.dig('contentType'))
+                assert_equal('Recipe', json_data.dig('@type'))
+                assert_equal('Rezept', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
@@ -81,7 +85,7 @@ module DataCycleCore
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Artikel', classification_hash.dig('name'))
+                assert_equal('Rezept', classification_hash.dig('name'))
                 assert_equal(2, classification_hash.dig('ancestors').size)
                 assert_equal(['Inhaltstypen', 'Text'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
 
@@ -106,27 +110,34 @@ module DataCycleCore
                 # TODO: (move to Transformations tests)
                 # API: Transformation: Classification.keywords
                 assert_equal(@content.tags.first.name, json_data.dig('tags').first.dig('name'))
-                assert_equal(@content.tags.first.name, json_data.dig('keywords'))
+                assert_equal([@content.tags.first.name, @content.recipe_course.first.name].join(','), json_data.dig('keywords'))
                 assert_equal(@content.keywords, json_data.dig('keywords'))
+                assert_equal(@content.recipe_category.first.name, json_data.dig('recipeCategory'))
+
+                # recipe attributes
+                assert_equal(@content.recipe_instructions, json_data.dig('recipeInstructions'))
+                assert_equal(@content.recipe_yield, json_data.dig('recipeYield'))
+                assert_equal(@content.recipe_ingredient, json_data.dig('recipeIngredient'))
+                assert_equal("PT#{@content.total_time}M", json_data.dig('totalTime'))
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Rezept' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Rezept' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Rezept' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 

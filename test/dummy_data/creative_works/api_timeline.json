@@ -1,0 +1,18 @@
+{
+  "name": "Headline",
+  "alternative_headline": "Alternative Headline",
+  "description": "Description",
+  "link_name": "LinkName",
+  "text": "Text",
+  "url": "http://www.myurl.com",
+  "timeline_item": [
+    {
+      "name": "TimelineItem Headline",
+      "description": "TimelineItem Description",
+      "temporal_coverage": {
+        "valid_from": "2019-01-01",
+        "valid_until": "2019-01-01"
+      }
+    }
+  ]
+}

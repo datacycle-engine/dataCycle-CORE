@@ -9,7 +9,7 @@ module DataCycleCore
       module Content
         module Extensions
           module CreativeWorks
-            class Article < ActionDispatch::IntegrationTest
+            class Timeline < ActionDispatch::IntegrationTest
               include Devise::Test::IntegrationHelpers
               include Engine.routes.url_helpers
 
@@ -33,7 +33,7 @@ module DataCycleCore
                 place_data_hash[:image] = @image.id
                 @place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
+                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_timeline')
                 creative_work_data_hash[:author] = @person.id
                 creative_work_data_hash[:about] = @organization.id
                 creative_work_data_hash[:image] = @image.id
@@ -48,7 +48,7 @@ module DataCycleCore
                 }
                 creative_work_data_hash[:validity_period] = validity_period
 
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
+                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Zeitleiste', data_hash: creative_work_data_hash)
 
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
@@ -62,8 +62,8 @@ module DataCycleCore
 
                 # validate header
                 assert_equal('http://schema.org', json_data.dig('@context'))
-                assert_equal('Article', json_data.dig('@type'))
-                assert_equal('Artikel', json_data.dig('contentType'))
+                assert_equal('CreativeWork', json_data.dig('@type'))
+                assert_equal('Zeitleiste', json_data.dig('contentType'))
                 assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
@@ -81,9 +81,9 @@ module DataCycleCore
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first
                 assert_equal(['id', 'name', 'createdAt', 'updatedAt', 'ancestors'].sort, classification_hash.keys.sort)
-                assert_equal('Artikel', classification_hash.dig('name'))
-                assert_equal(2, classification_hash.dig('ancestors').size)
-                assert_equal(['Inhaltstypen', 'Text'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
+                assert_equal('Zeitleiste', classification_hash.dig('name'))
+                assert_equal(1, classification_hash.dig('ancestors').size)
+                assert_equal(['Inhaltstypen'], classification_hash.dig('ancestors').map { |item| item.dig('name') }.sort)
 
                 # language
                 assert_equal('de', json_data.dig('inLanguage'))
@@ -108,25 +108,38 @@ module DataCycleCore
                 assert_equal(@content.tags.first.name, json_data.dig('tags').first.dig('name'))
                 assert_equal(@content.tags.first.name, json_data.dig('keywords'))
                 assert_equal(@content.keywords, json_data.dig('keywords'))
+
+                # timeline item
+                timeline_items = @content.timeline_item.map do |timeline_item|
+                  {
+                    '@context' => 'http://schema.org',
+                    '@type' => 'CreativeWork',
+                    'contentType' => 'Zeitleiste-Eintrag',
+                    'name' => timeline_item.name,
+                    'description' => timeline_item.description,
+                    'temporalCoverage' => [timeline_item.temporal_coverage.valid_from, timeline_item.temporal_coverage.valid_until].map(&:iso8601).join('/')
+                  }
+                end
+                assert_equal(timeline_items, json_data.dig('hasPart'))
               end
 
               test 'stored item can be found via different endpoints' do
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Zeitleiste' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Zeitleiste' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Zeitleiste' }.first
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 

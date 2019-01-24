@@ -6,11 +6,11 @@ module DataCycleCore
       module Pdf
         class << self
           def width(**args)
-            # TODO: implement
+            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def height(**args)
-            # TODO: implement
+            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def thumbnail_url(**args)
