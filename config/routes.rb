@@ -111,10 +111,8 @@ DataCycleCore::Engine.routes.draw do
         get 'contents/search', to: 'contents#search'
         get 'contents/deleted', to: 'contents#deleted'
 
-        resources :external_sources, only: [] do
-          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
-          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
-          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+        scope 'external_sources/:external_source_id' do
+          resource :things, only: [:show, :create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
         end
       end
       namespace :v2 do
@@ -140,10 +138,8 @@ DataCycleCore::Engine.routes.draw do
 
         resources :collections, only: [:index, :show], controller: :watch_lists
 
-        resources :external_sources, only: [] do
-          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
-          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
-          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+        scope 'external_sources/:external_source_id' do
+          resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
         end
       end
     end
