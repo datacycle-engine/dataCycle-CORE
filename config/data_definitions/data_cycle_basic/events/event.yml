@@ -18,7 +18,6 @@
         :label: Overlay
         :type: embedded
         :template_name: EventOverlay
-        :external: true
         :validations:
           :max: 1
       :title:
@@ -90,6 +89,13 @@
         :storage_location: translated_value
         :validations:
           :format: url
+        :api:
+          :name: link
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :image:
         :label: Bilder
         :type: linked

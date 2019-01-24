@@ -6,6 +6,26 @@
   "same_as": "http://www.sameas.com",
   "event_period": {
     "start_date": "2019-10-10",
-    "end_date": "2019-10-10"
-  }
+    "end_date": "2019-10-30"
+  },
+  "sub_event": [
+    {
+      "name": "Headline Sub-Event",
+      "description": "Description Sub-Event",
+      "url": "http://www.url-subevent.com",
+      "event_period": {
+        "start_date": "2019-10-10",
+        "end_date": "2019-10-15"
+      }
+    },
+    {
+      "name": "Headline Sub-Event",
+      "description": "Description Sub-Event",
+      "url": "http://www.url-subevent.com",
+      "event_period": {
+        "start_date": "2019-10-20",
+        "end_date": "2019-10-25"
+      }
+    }
+  ]
 }
