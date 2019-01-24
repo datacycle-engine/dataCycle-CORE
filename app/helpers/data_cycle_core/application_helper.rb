@@ -23,16 +23,7 @@ module DataCycleCore
       capture do
         flash.each do |key, value|
           alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-          concat alert_box(value, alert_class, closable)
-        end
-      end
-    end
-
-    def display_flash_messages_resource(closable: true)
-      capture do
-        resource.errors.messages.each do |value|
-          text_string = "#{value[0]} #{value[1][0]}"
-          concat alert_box(text_string, :alert, closable)
+          concat alert_box(value.html_safe, alert_class, closable)
         end
       end
     end
