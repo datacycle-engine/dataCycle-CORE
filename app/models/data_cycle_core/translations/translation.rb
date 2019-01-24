@@ -53,10 +53,6 @@ module DataCycleCore
           end
         end
 
-        # def enforce_available_locales!(locale)
-        #   raise Translation::InvalidLocale, locale unless locale.nil? || available_locales.include?(locale.to_sym)
-        # end
-
         def available_locales
           I18n.available_locales
         end

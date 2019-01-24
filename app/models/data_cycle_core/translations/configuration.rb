@@ -31,12 +31,14 @@ module DataCycleCore
       def initialize
         @accessor_method = :translates
         @query_method = :i18n
+        @default_backend = :jsonb
         @default_accessor_locales = -> { DataCycleCore::Translations::Translation.available_locales }
         @default_options = Options[{
           cache:     true,
           presence:  true,
           query:     true
         }]
+        plugins(:query)
       end
 
       def attributes_class
