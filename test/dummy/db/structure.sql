@@ -1529,6 +1529,13 @@ CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema
 
 
 --
+-- Name: index_things_on_content_type_template; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_content_type_template ON public.things USING btree (content_type, template);
+
+
+--
 -- Name: index_things_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1554,13 +1561,6 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 --
 
 CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema ->> 'schema_type'::text)));
-
-
---
--- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
 
 
 --
