@@ -13,7 +13,7 @@
 
 * Strukturierte Kreativdaten auf Basis von [schema.org](https://schema.org/)
   * [ImageObject](https://schema.org/ImageObject) für Fotos bzw. Bilder mit Verknüpfungen zu Fotografen und Rechteinhabern
-  * [VideoObject](https://schema.org/VideoObject) für Videos mit Verknüpfungen Regiseur, Kameramann, ...
+  * [VideoObject](https://schema.org/VideoObject) für Videos mit Verknüpfungen Regisseur, Kameramann, ...
   * [AudioObject](https://schema.org/AudioObject) für Audio-Dateien mit Verknüpfungen zu Erstellern, Sprechern, ...
   * [Article](https://schema.org/Article) für allgemeine Artikel
   * [Recipe](https://schema.org/Recipe) für Kochrezepte
@@ -94,7 +94,7 @@
   * Filtern / Suchen von Inhalten innerhalb von Inhaltscontainern
   * Erstellen von eingeschränkten Inhaltstypen innerhalb von Inhaltscontainern
 * Erstellen von Inhaltssammlungen
-  * Hinzufügen von beliebigen, unterschiedliche Inhalten zu einer einzigen Sammlung
+  * Hinzufügen von beliebigen, unterschiedlichen Inhalten zu einer einzigen Sammlung
   * Erstellen von beliebig vielen Inhaltssammlungen pro Benutzer
   * Teilen von Inhaltssammlungen mit anderen Benutzern über Benutzergruppen
   * Freigeben von Inhaltssammlungen für externe Benutzer
