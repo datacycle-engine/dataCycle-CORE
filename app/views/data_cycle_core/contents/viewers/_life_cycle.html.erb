@@ -13,7 +13,6 @@
           title: t('actions.move_to', data: stage_name, locale: DataCycleCore.ui_language),
           data: {
             tooltip: true,
-            click_open: false,
             confirm: local_assigns.dig(:confirm, stage_name.to_sym)
           }) do %>
           <%= stage_name %>

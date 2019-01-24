@@ -19,9 +19,9 @@
       &.classification_trees
       &.includes(
         :parent_classification_alias, sub_classification_alias: [
-          :classifications, sub_classification_alias: [
-            :classifications, sub_classification_alias: [
-              :classifications, :sub_classification_alias
+          :classifications, :classification_alias_path, sub_classification_alias: [
+            :classifications, :classification_alias_path, sub_classification_alias: [
+              :classifications, :classification_alias_path, :sub_classification_alias
             ]
           ]
         ]

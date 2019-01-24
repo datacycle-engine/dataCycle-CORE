@@ -4,16 +4,23 @@ module DataCycleCore
   class Asset < ApplicationRecord
     attribute :type, :string, default: name
     belongs_to :creator, class_name: 'DataCycleCore::User'
-    mount_uploader :file, FileUploader
+    mount_uploader :file, DataCycleFileUploader
     before_create :update_asset_attributes
     process_in_background :file
     validates :file, presence: true
     validates_integrity_of :file
+    validate :custom_validators
 
     include AssetHelpers
 
     has_many :asset_contents, dependent: :destroy
     has_many :things, through: :asset_contents, source: 'content_data', source_type: 'DataCycleCore::Thing'
+
+    def custom_validators
+      DataCycleCore.uploader_validations.dig(file.class.name.demodulize.underscore.remove('_uploader').to_sym)&.except(:format)&.presence&.each do |validator, options|
+        try("#{validator}_validation", options)
+      end
+    end
 
     def update_asset_attributes
       return if file.blank?
@@ -26,6 +33,12 @@ module DataCycleCore
         self.metadata = nil
       end
       self.duplicate_check = file.duplicate_check if file.respond_to?(:duplicate_check)
+    end
+
+    private
+
+    def file_size_validation(_options)
+      errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) if file.size > options.dig(:file_size, :max).to_i
     end
   end
 end

@@ -5,74 +5,74 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      authorize! :index, DataCycleCore::Asset
-      @assets = DataCycleCore::Asset.all
+      @html_target = permitted_params[:html_target]
+      @selected = permitted_params[:selected]
+      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(updated_at: :desc)
+      @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
+      @assets = @assets.where.not(id: permitted_params[:locked_assets].compact) if permitted_params[:locked_assets].present?
     end
 
     def create
-      if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
+      return if asset_params[:file].blank? || asset_params[:type].blank?
 
-        authorize! :create, object_type.constantize
+      object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
-        @asset = object_type.constantize.new(asset_params)
-        @asset.name = @asset.file.identifier if asset_params[:name].blank?
-        @asset.creator_id = current_user.try(:id)
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if object_type.blank?
 
-        @asset.save
+      authorize! :create, object_type.constantize
+
+      @asset = object_type.constantize.new(asset_params)
+      @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
+      @asset.creator_id = current_user.try(:id)
+      if @asset.save
+        render json: @asset
+      else
+        render(json: { error: @asset.errors.full_messages.join(', ') })
       end
-
-      respond_to(:js)
     end
 
     def update
-      if asset_params[:file].present?
-        object_type = DataCycleCore.asset_objects.find { |object| object == permitted_params[:type] }
-        @asset = object_type.constantize.find(permitted_params[:id])
+      return if asset_params[:file].blank?
 
-        authorize! :update, @asset
+      @asset = DataCycleCore::Asset.find(params[:id])
 
-        @asset.update(asset_params)
-      end
+      authorize! :update, @asset
 
-      respond_to do |format|
-        format.js { render :create }
+      if @asset.update(asset_params)
+        render json: @asset
+      else
+        render(json: { error: @asset.errors.full_messages.join(', ') })
       end
     end
 
-    def new_asset_object
-      object_type = DataCycleCore.asset_objects.find { |object| object == "DataCycleCore::#{additional_params[:definition]['asset_type'].to_s.try(:camelcase)}" }
-      @asset = object_type.constantize.new(asset_params)
-      @asset.creator_id = current_user.try(:id)
-      @asset.save
-      @object = [@asset]
-      respond_to(:js)
+    def find
+      authorize! :show, DataCycleCore::TextFile
+
+      @duplicate = DataCycleCore::TextFile.accessible_by(current_ability, :update).find_by('type = ? AND name ILIKE ?', 'DataCycleCore::TextFile', find_params[:q])
+
+      render json: @duplicate&.attributes
     end
 
-    def remove_asset_object
-      additional_params
+    def destroy
+      @asset = DataCycleCore::Asset.find(params[:id])
 
-      @object = []
-      respond_to(:js)
+      authorize! :destroy, @asset
+
+      @asset.destroy
     end
 
     private
 
     def asset_params
-      params.require(:asset).permit(:name, :file)
+      params.require(:asset).permit(:id, :name, :file, :type)
     end
 
     def permitted_params
-      params.permit(:id, :type)
+      params.permit(:id, :type, :html_target, :selected, locked_assets: [], types: [])
     end
 
-    def additional_params
-      @additional_params = {
-        asset_object_id: params['asset']['asset_object_id'],
-        key: params['asset']['key'],
-        definition: JSON.parse(params['asset']['definition']),
-        options: JSON.parse(params['asset']['options'])
-      }
+    def find_params
+      params.permit(:q)
     end
   end
 end

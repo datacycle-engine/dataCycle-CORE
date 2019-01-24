@@ -691,7 +691,7 @@ select {
 .send-link {
   button[type='submit'] {
     &.button {
-      padding: 0.85em 1em;
+      padding: 0.85rem 1rem;
     }
   }
 }
@@ -897,7 +897,6 @@ video {
 .reveal {
   min-width: 600px;
   width: fit-content;
-  max-height: 100vh;
   overflow-y: visible;
 }
 
@@ -1439,142 +1438,6 @@ select {
   }
 }
 
-// File Upload Reveal
-#content-upload-reveal {
-  z-index: 1008;
-
-  #files {
-    display: none;
-  }
-
-  .button {
-    margin: 2rem 0 0 0;
-  }
-
-  .file-for-upload {
-    position: relative;
-    display: block;
-    padding: 0.5rem 4rem 0.5rem 4rem;
-    margin-bottom: 1rem;
-    min-height: 4rem;
-    border: 1px solid lighten($dark-gray, 10%);
-    background-color: lighten($light-gray, 5%);
-    transition: background-color 0.25s ease-in-out;
-
-    img {
-      position: absolute;
-      top: 0.9rem;
-      left: 0.5rem;
-      max-width: 3rem;
-      max-height: 2rem;
-      display: inline-block;
-    }
-
-    .upload-number {
-      display: none;
-      position: absolute;
-      right: 0.5rem;
-      top: 0.5rem;
-      text-align: right;
-      font-size: 0.9rem;
-    }
-
-    .remove-file {
-      display: block;
-      position: absolute;
-      right: 1rem;
-      top: 0.5rem;
-    }
-
-    .file-title {
-      display: inline-block;
-      vertical-align: top;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      max-width: 100%;
-      font-weight: bold;
-      font-size: 0.9rem;
-    }
-
-    .file-info {
-      display: block;
-      font-style: italic;
-      font-size: 0.9rem;
-      margin: 0;
-
-      dt,
-      dd {
-        display: inline;
-      }
-
-      dd {
-        margin-left: 0.3rem;
-      }
-    }
-
-    .upload-progress {
-      display: none;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 0.5rem;
-      width: 100%;
-      background: $light-gray;
-
-      .upload-progress-bar {
-        display: block;
-        height: 100%;
-        width: 0;
-        background: $primary-color;
-      }
-    }
-
-    .error {
-      display: block;
-      color: $alert-color;
-    }
-
-    &.uploading {
-      .remove-file {
-        display: none;
-      }
-
-      .upload-number {
-        display: block;
-      }
-
-      .upload-progress {
-        display: inline-block;
-      }
-    }
-
-    &.finished {
-      background-color: lighten($success-color, 35%);
-
-      .upload-number {
-        display: block;
-        right: auto;
-        top: 0.5rem;
-        left: 0.5rem;
-        color: $success-color;
-
-        .fa {
-          font-size: 3rem;
-        }
-      }
-
-      > img {
-        opacity: 0.1;
-      }
-    }
-
-    &.error {
-      height: auto;
-    }
-  }
-}
-
 .reveal-overlay.content-reveal-overlay {
   z-index: 1007;
 }
@@ -1710,6 +1573,10 @@ select {
 .button-prime.sprinklr-disabled {
   cursor: not-allowed;
   background-color: $dark-gray;
+}
+
+.upload-restrictions {
+  font-size: 0.9rem;
 }
 
 .fa {

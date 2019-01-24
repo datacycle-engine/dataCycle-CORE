@@ -1,4 +1,4 @@
-<%  if (c_type = @classification_tree || @classification_tree_label) && params[:tree_page].present? %>
+<% if (c_type = @classification_tree || @classification_tree_label) && params[:tree_page].present? %>
   $('#<%= c_type.id %> > ul.children > li.load-more-link').hide();
 
   $('#<%= c_type.id %> > ul.children').append('<%= escape_javascript(render 'classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees, content_counts: @content_count) %>');
@@ -8,7 +8,7 @@
 
   var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
 
-  contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  contents.appendTo('#<%= @classification_tree.id %> > ul.contents').foundation();
   <% if @contents.present? %>
       $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
   <% end %>
@@ -18,7 +18,7 @@
 
   var contents = $('<%= escape_javascript(render 'contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
 
-  contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
+  contents.appendTo('#<%= @classification_tree.id %> > ul.contents').foundation();
   <% if @contents.present? %>
       $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
   <% end %>

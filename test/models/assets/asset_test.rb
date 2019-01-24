@@ -6,12 +6,12 @@ module DataCycleCore
   module Assets
     class AssetTest < ActiveSupport::TestCase
       def setup
-        @asset_temp = DataCycleCore::Asset.count
+        @asset_temp = DataCycleCore::Image.count
       end
 
       def upload_asset(file_name)
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
-        @asset = DataCycleCore::Asset.new(file: File.open(file_path))
+        @asset = DataCycleCore::Image.new(file: File.open(file_path))
         @asset.save
 
         assert(@asset.persisted?)
@@ -22,11 +22,11 @@ module DataCycleCore
 
       def validate_asset(file_name)
         # check consistency of data in DB
-        assert_equal(1, DataCycleCore::Asset.count)
+        assert_equal(1, DataCycleCore::Image.count)
         # check asset data
         assert(@asset.file_size.positive?)
         assert_equal(file_name, @asset.name)
-        assert_equal('DataCycleCore::Asset', @asset.type)
+        assert_equal('DataCycleCore::Image', @asset.type)
       end
 
       test 'upload asset: Image: rgb/jpg' do
@@ -39,7 +39,7 @@ module DataCycleCore
       end
 
       test 'save without uploading a file' do
-        @asset = DataCycleCore::Asset.new
+        @asset = DataCycleCore::Image.new
         @asset.save
 
         assert_not(@asset.persisted?)
