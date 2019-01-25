@@ -47,8 +47,7 @@ module DataCycleCore
           classification_string = [
             display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
             display_classification_aliases.pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
-          ].join(' ')
-          classification_string = '' if classification_string.nil?
+          ].compact.join(' ')
           all_text = [headline, classification_string, full_text].join(' ')
           # TODO: remove hardcoded metadata
           validity_hash = metadata.nil? ? nil : metadata['validity_period']
