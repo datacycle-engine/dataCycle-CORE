@@ -115,6 +115,9 @@ module DataCycleCore
     def merge_uploader_white_list
       uploader_validations = {}
 
+      #  Query to select all Templates with assets
+      # DataCycleCore::Thing.select("*, property_name.value ->> 'asset_type'").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value->> 'type' = ?", true, 'asset')
+
       DataCycleCore.asset_objects.map { |a|
         can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : nil
       }.compact.to_h.each do |k, v|
