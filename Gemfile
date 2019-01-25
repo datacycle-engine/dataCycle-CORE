@@ -53,4 +53,6 @@ group :development, :test, :review do
   #
   # for API benchmark testing
   # gem 'rails_api_benchmark'
+  # gem 'pronto', '~> 0.9.5'
+  # gem 'pronto-rubocop', '~> 0.9.1', require: false
 end
