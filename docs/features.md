@@ -174,10 +174,10 @@
   * Möglichkeit zum Mehrfachupload
   * Vorschaufunktion bei unterstützten Dateiformaten
   * Einschränken des Uploads von neuen Mediendateien auf Basis von verschiedenen Meta-Attributen
-    * Dateityp (z.B. JPG, JPEG, PNG, GIF bei Bilddateien)
-    * Kodierungsverfahren (z.B. H.264 bei Videos)
-    * Größe von Bildern (z.B. mindestens 1280x720 Pixel)
-    * Dateigröße
+     * Dateityp (z.B. JPG, JPEG, PNG, GIF bei Bilddateien)
+     * Kodierungsverfahren (z.B. H.264 bei Videos)
+     * Größe von Bildern (z.B. mindestens 1280x720 Pixel)
+     * Dateigröße
 
 * Konvertieren von hochgeladenen Mediendateien in fest definierte Formate (z.B. für Thumbnails)
 
