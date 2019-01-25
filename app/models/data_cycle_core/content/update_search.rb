@@ -44,7 +44,10 @@ module DataCycleCore
           headline = try('send', 'title')
           headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
           headline = '' if headline.nil?
-          classification_string = display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''")
+          classification_string = [
+            display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+            display_classification_aliases.pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+          ].join(' ')
           classification_string = '' if classification_string.nil?
           all_text = [headline, classification_string, full_text].join(' ')
           # TODO: remove hardcoded metadata
