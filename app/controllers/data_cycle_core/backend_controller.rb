@@ -17,7 +17,7 @@ module DataCycleCore
     }
 
     def index
-      @contents = get_filtered_results(@query)
+      @contents = get_filtered_results(@query, true)
       @total = @contents.count_distinct
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @stored_filter = save_filter if params[:stored_filter].blank?
