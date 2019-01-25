@@ -4,7 +4,7 @@ module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
-    def get_filtered_results(query = nil)
+    def get_filtered_results(query = nil, user_filter = false)
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
       @language ||= Array(params.fetch(:language, [current_user.default_locale]))
 
@@ -23,7 +23,7 @@ module DataCycleCore
       query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       # add default filters for user role if any exist
-      @filters = current_user.default_filter(@filters)
+      @filters = current_user.default_filter(@filters) if user_filter
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])

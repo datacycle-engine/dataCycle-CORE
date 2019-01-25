@@ -1088,6 +1088,13 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 
 
 --
+-- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
+
+
+--
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
