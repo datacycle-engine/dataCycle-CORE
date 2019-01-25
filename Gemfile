@@ -50,4 +50,7 @@ group :development, :test, :review do
   # For call-stack profiling flamegraphs
   # gem 'flamegraph'
   # gem 'stackprof'
+  #
+  # for API benchmark testing
+  # gem 'rails_api_benchmark'
 end
