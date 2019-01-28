@@ -41,9 +41,7 @@ namespace :data_cycle_core do
 
           puts "Subscriptions with changes: #{subcribed_with_changes.size}"
 
-          if subcribed_with_changes.size.positive?
-            user.send_notification subcribed_with_changes
-          end
+          user.send_notification subcribed_with_changes if subcribed_with_changes.size.positive?
         end
       end
     end

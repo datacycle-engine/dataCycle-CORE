@@ -125,9 +125,9 @@ Gem::Specification.new do |s|
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'fasterer'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.63.1'
-  s.add_development_dependency 'fasterer'
   # s.add_development_dependency 'capybara'
   # s.add_development_dependency 'selenium-webdriver'
   # s.add_development_dependency 'chromedriver-helper'

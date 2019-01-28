@@ -42,11 +42,11 @@ module DataCycleCore
       }
 
       diff_hash = {
-        'name' =>    ['~', 'Dies ist ein Test!', 'change headline'],
+        'name' => ['~', 'Dies ist ein Test!', 'change headline'],
         'description' => ['~', 'wtf is going on???', 'change description']
       }
       diff_hash_t = {
-        'name' =>    ['~', 'change headline', 'Dies ist ein Test!'],
+        'name' => ['~', 'change headline', 'Dies ist ein Test!'],
         'description' => ['~', 'change description', 'wtf is going on???']
       }
 

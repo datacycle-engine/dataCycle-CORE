@@ -23,8 +23,8 @@ Bundler/OrderedGems:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-Lint/SplatKeywordArguments:
-  Enabled: false
+#Lint/SplatKeywordArguments:
+#  Enabled: false
 
 Layout/IndentHash:
   EnforcedStyle: consistent

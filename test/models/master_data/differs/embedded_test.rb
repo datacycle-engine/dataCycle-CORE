@@ -51,7 +51,7 @@ describe DataCycleCore::MasterData::Differs::Embedded do
       template = {
         'label' => 'Bilder',
         'type' => 'embedded',
-        'template_name' =>  'Bild'
+        'template_name' => 'Bild'
       }
       uuid = '00000000-0000-0000-0000-000000000000'
       uuid2 = '11111111-1111-1111-1111-111111111111'

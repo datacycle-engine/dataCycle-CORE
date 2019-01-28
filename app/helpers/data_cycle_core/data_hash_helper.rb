@@ -24,9 +24,7 @@ module DataCycleCore
           next if prop[1].dig('ui', 'show', 'content_area') != content_area
         end
 
-        if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
-          ordered_properties[prop[1]['sorting'].to_i] = prop
-        end
+        ordered_properties[prop[1]['sorting'].to_i] = prop if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
       end
 
       Hash[ordered_properties.sort.map { |_, v| v }]

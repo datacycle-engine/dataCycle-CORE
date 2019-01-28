@@ -6,9 +6,7 @@ module DataCycleCore
       class EventsController < DataCycleCore::Api::V1::ContentsController
         def index
           query = DataCycleCore::Thing.includes(:translations, :classifications).with_schema_type('Event').with_content_type('entity')
-          if permitted_params&.dig(:q)
-            query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language, DataCycleCore.ui_language))
-          end
+          query = query.search(permitted_params&.dig(:q), permitted_params.fetch(:language, DataCycleCore.ui_language)) if permitted_params&.dig(:q)
 
           if permitted_params&.dig(:filter, :from)
             query = query.from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
@@ -16,9 +14,7 @@ module DataCycleCore
             query = query.from_time(Time.zone.now)
           end
 
-          if permitted_params&.dig(:filter, :to)
-            query = query.to_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)))
-          end
+          query = query.to_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to)
 
           if permitted_params&.dig(:filter, :classifications)
             permitted_params.dig(:filter, :classifications).map { |classifications|
