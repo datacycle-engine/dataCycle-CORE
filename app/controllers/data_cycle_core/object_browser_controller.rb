@@ -9,10 +9,10 @@ module DataCycleCore
     def show
       authorize! :show, :object_browser
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
-        @definition = permitted_params.fetch(:definition, nil)
-        template_name = @definition.fetch(:template_name, nil)
-        stored_filter = @definition.fetch(:stored_filter, nil)
-        @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale, current_user.default_locale) : 'all')
+        @definition = permitted_params.dig(:definition)
+        template_name = @definition.dig(:template_name)
+        stored_filter = @definition.dig(:stored_filter)
+        @language = Array(@definition.dig(:linked_language) == 'same' ? permitted_params.fetch(:locale) {current_user.default_locale} : 'all')
 
         filter = DataCycleCore::StoredFilter.new
         filter.language = @language

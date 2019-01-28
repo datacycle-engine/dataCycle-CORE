@@ -51,7 +51,7 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          @language = permitted_params.fetch(:language, current_user.default_locale)
+          @language = permitted_params.fetch(:language) {current_user.default_locale}
 
           if permitted_params[:deleted_since]
             deleted_contents = deleted_contents.where(
