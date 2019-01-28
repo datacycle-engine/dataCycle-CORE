@@ -1,0 +1,13 @@
+---
+name: OutdoorActive
+credentials:
+  request_url: 'http://localhost:3010'
+config:
+  push_config:
+    endpoint: DataCycleCore::Export::OutdoorActive::Endpoint
+    create:
+      strategy: DataCycleCore::Export::OutdoorActive::Create
+    update:
+      strategy: DataCycleCore::Export::OutdoorActive::Update
+    delete:
+      strategy: DataCycleCore::Export::OutdoorActive::Delete
