@@ -114,19 +114,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Interview' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('contentType') == 'Interview' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Interview' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('contentType') == 'Interview' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('contentType') == 'Interview' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('contentType') == 'Interview' }
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 

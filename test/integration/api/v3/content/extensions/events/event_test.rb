@@ -72,7 +72,7 @@ module DataCycleCore
                 assert_equal(@content.name, json_data.dig('name'))
                 assert_equal(@content.description, json_data.dig('description'))
                 assert_equal(@content.url, json_data.dig('sameAs'))
-                assert_equal(@content.same_as, json_data.dig('additionalProperty').select { |item| item.dig('identifier') == 'link' }.first.dig('value'))
+                assert_equal(@content.same_as, json_data.dig('additionalProperty').detect { |item| item.dig('identifier') == 'link' }.dig('value'))
 
                 # TODO: check image rendering via minimal or linked
                 assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
@@ -143,13 +143,13 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Event' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Event' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_events_path)

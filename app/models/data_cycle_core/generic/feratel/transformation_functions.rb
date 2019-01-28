@@ -50,9 +50,9 @@ module DataCycleCore
           return data.map { |v| unwrap_description(v, description_types) } if data.is_a?(Array)
 
           description_types.map { |description_type|
-            description_text = Array.wrap(data.dig('Descriptions', 'Description')).select { |h|
+            description_text = Array.wrap(data.dig('Descriptions', 'Description')).detect { |h|
               h['Type'] == description_type
-            }.first.try(:[], 'text')
+            }.try(:[], 'text')
 
             { description_type => description_text }
           }.reduce(data.reject { |k, _| k == 'Descriptions' }, &:merge)
@@ -65,9 +65,9 @@ module DataCycleCore
             if k == 'Addresses'
               [
                 'Address',
-                [v['Address']].flatten.select { |h|
+                [v['Address']].flatten.detect { |h|
                   h['Type'] == address_type
-                }.first
+                }
               ]
             elsif v.is_a?(Array)
               [k, v.map do |item|

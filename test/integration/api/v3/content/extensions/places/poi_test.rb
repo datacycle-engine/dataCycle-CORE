@@ -76,7 +76,7 @@ module DataCycleCore
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: additionalProperty
-                assert_equal(@content.text, json_data.dig('additionalProperty').select { |item| item.dig('identifier') == 'text' }.first.dig('value'))
+                assert_equal(@content.text, json_data.dig('additionalProperty').detect { |item| item.dig('identifier') == 'text' }.dig('value'))
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: address
@@ -141,13 +141,13 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'TouristAttraction' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'TouristAttraction' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'TouristAttraction' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_places_path)

@@ -93,7 +93,7 @@ module DataCycleCore
           assert_equal 12, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
 
-          test_classification = json_data['data'].select { |a| a['name'] == 'Tags' }.first['id']
+          test_classification = json_data['data'].detect { |a| a['name'] == 'Tags' }['id']
 
           get api_v2_classification_tree_path(id: test_classification)
           assert_response :success
