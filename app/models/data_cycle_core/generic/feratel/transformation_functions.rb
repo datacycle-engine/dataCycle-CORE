@@ -65,9 +65,9 @@ module DataCycleCore
             if k == 'Addresses'
               [
                 'Address',
-                [v['Address']].flatten.detect { |h|
+                [v['Address']].flatten.detect do |h|
                   h['Type'] == address_type
-                }
+                end
               ]
             elsif v.is_a?(Array)
               [k, v.map do |item|
