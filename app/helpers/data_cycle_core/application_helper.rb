@@ -113,13 +113,17 @@ module DataCycleCore
     end
 
     def merge_uploader_white_list(asset_type: nil)
-      uploader_validations = {
-        text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
-          class: 'DataCycleCore::TextFile',
-          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
-        })
-      }
+      uploader_validations = {}
+
+      if can?(:create, DataCycleCore::DataLink)
+        uploader_validations = {
+          text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
+            class: 'DataCycleCore::TextFile',
+            translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+            translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+          })
+        }
+      end
 
       return uploader_validations if asset_type == 'text_file'
 
@@ -131,7 +135,7 @@ module DataCycleCore
       end
 
       templates.each do |t|
-        next unless t.content_type?('embedded') ? t.parent_templates&.flatten&.any? { |pt| can?(:create, pt) } : can?(:create, t)
+        next unless t.content_type?('embedded') ? t.parent_templates&.flatten&.any? { |pt| pt.creatable?('asset') } : t.creatable?('asset')
 
         uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
 
