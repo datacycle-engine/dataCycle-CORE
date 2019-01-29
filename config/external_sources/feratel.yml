@@ -7,6 +7,8 @@ credentials:
   range_id: 4dac9143-899b-4938-ae23-53941e7c76ad
   sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
   db_code: KTN
+default_options:
+  history: true
 config:
   download_config:
     initial_locations:
