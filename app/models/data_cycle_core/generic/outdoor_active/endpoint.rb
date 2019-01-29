@@ -105,6 +105,7 @@ module DataCycleCore
             req.params['lang'] = lang
             req.params['fallback'] = false
           end
+          sleep 0.1
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
           JSON.parse(response.body)
         end

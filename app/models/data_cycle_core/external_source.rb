@@ -33,6 +33,7 @@ module DataCycleCore
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
       full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
     end
+    alias single_download download_single
 
     def download_config
       config&.dig('download_config')&.symbolize_keys
@@ -61,6 +62,7 @@ module DataCycleCore
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?
       full_options.dig(:import, :import_strategy).constantize.import_data(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
     end
+    alias single_import import_single
 
     def import_one(name, external_key, options = {})
       raise 'no external key given' if external_key.blank?
