@@ -112,21 +112,37 @@ module DataCycleCore
       end
     end
 
-    def merge_uploader_white_list
-      uploader_validations = {}
+    def merge_uploader_white_list(asset_type: nil)
+      uploader_validations = {
+        text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
+          class: 'DataCycleCore::TextFile',
+          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+        })
+      }
 
-      #  Query to select all Templates with assets
-      # DataCycleCore::Thing.select("*, property_name.value ->> 'asset_type'").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value->> 'type' = ?", true, 'asset')
+      return uploader_validations if asset_type == 'text_file'
 
-      DataCycleCore.asset_objects.map { |a|
-        can?(:create, a.classify.constantize) ? [a, a.classify.constantize.uploaders.values.first] : nil
-      }.compact.to_h.each do |k, v|
-        uploader_validations[k.demodulize.underscore.to_sym] = {
-          format: v.new.extension_white_list,
-          class: k,
-          translation: k.classify.constantize.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t("uploader.description.#{k.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
-        }.merge(DataCycleCore.uploader_validations[k.demodulize.underscore.to_sym] || {})
+      if asset_type.present?
+        uploader_validations.delete(:text_file)
+        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'asset_type' = ?", true, asset_type)
+      else
+        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value->> 'type' = ? OR things.template_name IN(?))", true, 'asset', DataCycleCore.features.dig(:external_media_archive, :enabled) ? ['Bild', 'Video'] : nil)
+      end
+
+      templates.each do |t|
+        next unless t.content_type?('embedded') ? t.parent_templates&.flatten&.any? { |pt| can?(:create, pt) } : can?(:create, t)
+
+        uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
+
+        next if uploader_model.nil?
+
+        uploader_validations[uploader_model.name.demodulize.underscore.to_sym] = {
+          format: uploader_model.uploaders[:file].new&.extension_white_list || [],
+          class: uploader_model.name,
+          translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        }.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
       end
       uploader_validations
     end

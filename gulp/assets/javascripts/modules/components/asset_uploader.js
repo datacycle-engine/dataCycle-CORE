@@ -6,7 +6,8 @@ var AssetUploader = function(reveal) {
   this.reveal = $(reveal);
   this.validations = this.reveal.data('validations');
   this.file_field = this.reveal.find('input[type="file"].upload-file');
-  this.upload_form = this.reveal.find('#content-upload-form');
+  this.upload_form = this.reveal.find('.content-upload-form');
+  this.upload_button = this.upload_form.find('.asset-upload-button');
   this.ajax_requests = [];
   this.autocomplete_requests = {};
   this.files = [];
@@ -19,7 +20,7 @@ AssetUploader.prototype.init = function() {
   this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
   this.file_field.on('change', this.validateFiles.bind(this));
   this.reveal.on('click', 'a.remove-file', this.removeFile.bind(this));
-  this.upload_form.on('submit', this.uploadFile.bind(this));
+  this.upload_button.on('click', this.uploadFile.bind(this));
   this.upload_form.on('input', '.file-title', this.checkFileName.bind(this));
 
   // prevent leaving Site while uploading!
@@ -114,7 +115,7 @@ AssetUploader.prototype.uploadFile = function(event) {
   event.preventDefault();
 
   if (this.files.length > 0) {
-    this.upload_form.find('.button, #files').attr('disabled', true);
+    this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', true);
 
     this.files.forEach(element => {
       var file_element = this.reveal.find('.file-for-upload[data-file="' + element.name + '"]');
@@ -134,7 +135,7 @@ AssetUploader.prototype.uploadFile = function(event) {
           .val()
       );
 
-      var url = $(event.currentTarget).attr('action');
+      var url = this.upload_form.data('url');
       var type = 'POST';
       var override = $(file_element).find('.file-override');
 
@@ -215,10 +216,10 @@ AssetUploader.prototype.uploadFile = function(event) {
 AssetUploader.prototype.checkRequests = function() {
   $.when.apply(undefined, this.ajax_requests).then(
     () => {
-      this.upload_form.find('.button, #files').attr('disabled', false);
+      this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', false);
     },
     () => {
-      this.upload_form.find('.button, #files').attr('disabled', false);
+      this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', false);
     }
   );
 };
@@ -282,11 +283,11 @@ AssetUploader.prototype.validateFiles = function(event) {
 
 AssetUploader.prototype.filePrependHTML = function(file_options) {
   return (
-    '<input type="text" class="file-title" title="' +
+    '<label class="file-title-label"><i class="fa fa-pencil" aria-hidden="true"></i><input type="text" class="file-title" title="' +
     file_options.file.name +
     '" value="' +
     (file_options.updated_name !== undefined ? file_options.updated_name : file_options.file.name) +
-    '">'
+    '"></label>'
   );
 };
 

@@ -188,7 +188,7 @@ de:
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
     update: Aktualisieren
-    upload: hochladen
+    upload: Dateien hochladen
     become: 'Als %{data} einloggen'
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
@@ -489,7 +489,7 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
-    upload: Medien hochladen
+    upload: neue Medien hochladen
 
     documentation:
       root: Dokumentation

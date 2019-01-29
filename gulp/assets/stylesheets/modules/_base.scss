@@ -48,6 +48,7 @@ button,
 .button {
   font-weight: normal;
   cursor: pointer;
+  line-height: 1.3;
 }
 
 .button.success {
@@ -498,8 +499,7 @@ button,
     }
 
     .input input,
-    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor)
-      input,
+    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
     .single_date input,
     .number input {

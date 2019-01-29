@@ -24,8 +24,16 @@
     overflow-y: auto;
     flex: 1;
   }
-  .select-asset-link {
-    margin: 0;
+  .buttons {
+    display: flex;
+    .button,
+    button {
+      flex: 1;
+      margin: 0;
+      &:not(:last-child) {
+        margin-right: 1rem;
+      }
+    }
   }
 }
 
@@ -130,37 +138,37 @@ ul.asset-list {
 }
 
 // File Upload Reveal
-#content-upload-reveal {
-  #files {
+.asset-upload-reveal {
+  .upload-file {
     display: none;
-  }
-  .asset-selector-button {
-    position: absolute;
-    right: 3rem;
-    top: 0.8rem;
   }
 
   .button {
-    margin: 2rem 0 0 0;
+    margin: 0;
   }
 
   .uploader-flex {
     display: flex;
     flex-flow: column;
     height: calc(100vh - 6rem);
-    #content-upload-form {
+    .content-upload-form {
       overflow-y: auto;
-      .upload-buttons {
+      .buttons {
         position: absolute;
+        display: flex;
         bottom: 0;
         left: 0;
         width: 100%;
         padding: 1rem;
         background-color: white;
         text-align: right;
-        label,
+        .button,
         button {
           margin: 0;
+          flex: 1;
+          &:not(:last-child) {
+            margin-right: 1rem;
+          }
         }
       }
     }
@@ -217,6 +225,9 @@ ul.asset-list {
       .fa {
         font-size: 2.5rem;
       }
+      img {
+        max-height: 100%;
+      }
     }
 
     .upload-number {
@@ -240,6 +251,20 @@ ul.asset-list {
       color: $alert-color;
     }
 
+    .file-title-label {
+      position: relative;
+      padding-left: 1.2rem;
+      .fa-pencil {
+        position: absolute;
+        top: 0;
+        left: 0;
+        vertical-align: middle;
+        width: 1.2rem;
+        line-height: 1.5;
+        cursor: pointer;
+        color: $primary-color;
+      }
+    }
     .file-title {
       display: inline-block;
       vertical-align: top;
@@ -255,8 +280,7 @@ ul.asset-list {
       border: 1px solid transparent;
       box-shadow: none;
       height: auto;
-      padding: 0 0.1rem;
-      margin-left: -0.1rem;
+      padding: 0 0.2rem;
 
       &:hover:not([disabled]),
       &:focus:not([disabled]) {
@@ -308,9 +332,13 @@ ul.asset-list {
 
     .file-title-restore {
       position: absolute;
-      top: 0.5rem;
-      right: 4.5rem;
+      top: 0;
+      right: 0;
+      vertical-align: middle;
+      width: 1.2rem;
+      line-height: 1.5;
       cursor: pointer;
+      color: $primary-color;
     }
 
     .upload-progress {

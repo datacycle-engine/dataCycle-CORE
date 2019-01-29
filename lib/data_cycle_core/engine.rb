@@ -147,7 +147,11 @@ module DataCycleCore
         enabled: true
       },
       external_media_archive: {
-        enabled: false
+        enabled: false,
+        template_mapping: {
+          bild: 'image',
+          video: 'video'
+        }
       }
     }
 

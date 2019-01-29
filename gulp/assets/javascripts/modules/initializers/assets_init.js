@@ -9,6 +9,7 @@ module.exports.initialize = function() {
   // Asset Selector
 
   var asset_selectors = [];
+  var asset_uploaders = [];
 
   function init(container = document) {
     $(container)
@@ -19,6 +20,14 @@ module.exports.initialize = function() {
         } else {
           asset_selectors.push(new AssetSelector(element, asset_selectors));
         }
+      });
+
+    $('.asset-upload-reveal')
+      .filter((index, element) => {
+        return asset_uploaders.map(element => element.reveal.prop('id')).indexOf(element.id) === -1;
+      })
+      .each((index, element) => {
+        asset_uploaders.push(new AssetUploader(element));
       });
   }
 
@@ -50,11 +59,7 @@ module.exports.initialize = function() {
     }
   });
 
-  if ($('#content-upload-reveal').length) {
-    var uploader = new AssetUploader($('#content-upload-reveal'));
-  }
-
-  $('#content-upload-reveal, .asset-selector-reveal').on('open.zf.reveal', event => {
+  $('.asset-upload-reveal, .asset-selector-reveal').on('open.zf.reveal', event => {
     $(event.target).appendTo('body');
   });
 };
