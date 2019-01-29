@@ -13,6 +13,11 @@ module DataCycleCore
           content = DataCycleCore::Thing.find(permitted_params.dig(:ids))
 
           xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, content)
+
+          external_data = content.external_system_data(external_system)
+          external_data.delete('job_id')
+          content.add_external_system_data(external_system, external_data)
+
           render xml: xml_content
         end
 

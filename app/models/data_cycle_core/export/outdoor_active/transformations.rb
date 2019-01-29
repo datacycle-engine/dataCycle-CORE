@@ -5,8 +5,8 @@ module DataCycleCore
     module OutdoorActive
       module Transformations
         def self.to_xml(external_system, content)
-          @source = external_system.credentials.dig('source')
-          @owner =  external_system.credentials.dig('owner')
+          @source = external_system.credentials.dig('xml', 'source')
+          @owner =  external_system.credentials.dig('xml', 'owner')
 
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
@@ -16,6 +16,7 @@ module DataCycleCore
                 xml.owner @owner
                 xml.author 'DataCycle'
                 xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
+                outdoor_active_categories(content, xml)
                 outdoor_active_contact(content, xml)
                 outdoor_active_descriptons(content, xml)
                 outdoor_active_images(content, xml)
@@ -98,6 +99,19 @@ module DataCycleCore
           license_string = "#{(image.copyright_holder.present? ? image.copyright_holder&.first&.title : '')}#{(image.copyright_year.present? ? ', ' + image.copyright_year.to_s : '')}"
           return if license_string.blank?
           xml.license license_string
+        end
+
+        def self.outdoor_active_categories(content, xml)
+          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_categories(content)
+          if categories.count == 1
+            xml.category categories.first.external_key.split(':').last
+          else
+            xml.categories do
+              categories.each do |category|
+                xml.category category.external_key.split(':').last
+              end
+            end
+          end
         end
       end
     end

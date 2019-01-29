@@ -74,7 +74,7 @@ DataCycleCore.setup do |config|
     )
   end
 
-  config.webhooks = ['Local-Text-File']
+  config.webhooks = ['Local-Text-File', 'OutdoorActive']
   config.uploader_validations = {
     file: {
       format: [
