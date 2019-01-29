@@ -338,8 +338,7 @@
   position: absolute;
   top: -5rem;
   left: 1rem;
-  box-shadow: 0 0 0 3px map-get($foundation-palette, alert),
-    0 0 8px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 0 0 3px map-get($foundation-palette, alert), 0 0 8px rgba(0, 0, 0, 0.4);
   background-color: lighten(map-get($foundation-palette, alert), 46%);
   padding: 1rem;
   color: $black;
@@ -406,8 +405,7 @@
     bottom: -18px;
     color: lighten(map-get($foundation-palette, alert), 46%);
     transform: scaleX(3) rotate(180deg);
-    text-shadow: 0 -3px 0 map-get($foundation-palette, alert),
-      0 -1px 1px rgba(0, 0, 0, 0.4);
+    text-shadow: 0 -3px 0 map-get($foundation-palette, alert), 0 -1px 1px rgba(0, 0, 0, 0.4);
     position: absolute;
     left: 30px;
     width: 2rem;
@@ -590,12 +588,7 @@ select {
       &.fixed {
         padding: 1rem;
         top: 0rem;
-        background: linear-gradient(
-          to bottom,
-          white 0%,
-          white 30%,
-          rgba(255, 255, 255, 0) 100%
-        );
+        background: linear-gradient(to bottom, white 0%, white 30%, rgba(255, 255, 255, 0) 100%);
         z-index: 2;
         width: 49%;
       }
@@ -1106,9 +1099,7 @@ ul.translated-locales {
       }
     }
 
-    .select2-container--default
-      .select2-selection--multiple
-      .select2-selection__choice {
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
       border-radius: 5px;
       padding: 0 1rem 0 0.3rem;
       background-color: rgba($primary-color, 0.5);
@@ -1563,9 +1554,7 @@ select {
   vertical-align: sub;
 }
 
-.select2-container--default
-  .select2-selection--multiple
-  .select2-selection__choice__remove {
+.select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
   float: right;
   padding-left: 5px;
 }
@@ -1585,4 +1574,21 @@ select {
 
 .has-tip {
   border: none;
+}
+
+.external-connection-tooltip {
+  > span {
+    display: block;
+    &:not(:first-child) {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid rgba($light-gray, 0.5);
+    }
+  }
+}
+
+.external-connections {
+  border-bottom: dotted 1px;
+  font-weight: normal;
+  margin-top: 0.5rem;
 }

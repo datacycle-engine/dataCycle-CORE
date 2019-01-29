@@ -1,4 +1,11 @@
-<%= render 'external_source', local_assigns if content.external_source %>
+<%= tag.span tag.i(class: 'fa fa-external-link', aria_hidden: true) + ' ' + t('common.external_connections', locale: DataCycleCore.ui_language, count: (Array(content.external_source) + content.external_systems).size),
+  class: 'external-connections',
+  title: render('external_connections', content: content),
+  data: {
+    tooltip: true,
+    allow_html: true,
+    template_classes: 'external-connection-tooltip'
+  } if content.external_source || content.external_systems.present? %>
 
 <div class="edit">
   <%= yield :buttons %>

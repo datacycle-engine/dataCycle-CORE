@@ -129,6 +129,9 @@ de:
     my_assets: Meine Dateien
     warning: Achtung!
     warnings: Warnungen
+    external_connections:
+      one: Externe Verknüpfung
+      other: Externe Verknüpfungen
 
   tile_links:
     details: zur Detailansicht
@@ -360,6 +363,9 @@ de:
       data_cycle_core/external_source:
         one: Externe Quelle
         other: Externe Quellen
+      data_cycle_core/external_system:
+        one: Externe Verknüpfung
+        other: Externe Verknüpfungen
       data_cycle_core/asset:
         one: Asset
         other: Assets
@@ -421,6 +427,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        external_key: Externe Id
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -454,6 +461,8 @@ de:
       data_cycle_core/asset:
         name: Name
         file: Datei
+      data_cycle_core/external_source:
+        name: Name
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"

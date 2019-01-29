@@ -1,1 +1,7 @@
-<i class="fa fa-external-link external-source" data-tooltip title="Externe Datenquelle: <%= item.external_source.try(:name) %> <%= "(ID: #{item.external_key})" unless item.external_key.blank? %>" aria-hidden="true"></i>
+<%= tag.i class: 'fa fa-external-link external-source',
+  title: render('data_cycle_core/contents/external_connections', content: content),
+  aria_hidden: true,
+  data: {
+    tooltip: true,
+    allow_html: true
+  } %>

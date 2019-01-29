@@ -21,7 +21,7 @@
                     <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: DataCycleCore.ui_language)}&.join("<br>") %>"></i>
                 <% end %>
 
-                <%= render 'data_cycle_core/contents/tiles/attributes/external', item: content if content.try(:external_source) %>
+                <%= render 'data_cycle_core/contents/tiles/attributes/external', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
 
                 <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && content.class != DataCycleCore::WatchList %>
                     <%= render 'watch_lists', content: content %>
