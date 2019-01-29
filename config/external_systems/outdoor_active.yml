@@ -2,6 +2,8 @@
 name: OutdoorActive
 credentials:
   request_url: 'http://localhost:3010'
+  source: 'dataCycle'
+  owner: 'dataCycleKW'
 config:
   push_config:
     endpoint: DataCycleCore::Export::OutdoorActive::Endpoint

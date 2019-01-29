@@ -8,16 +8,19 @@ module DataCycleCore
           external_system = DataCycleCore::ExternalSystem.find(permitted_params.dig(:external_system_id))
           raise unless external_system.name == 'OutdoorActive'
 
+          @source = external_system.credentials.dig('source')
+          @owner =  external_system.credentials.dig('owner')
+
           # TODO: check if external_system_data exits, otherwise raise
 
           content = DataCycleCore::Thing.find(permitted_params.dig(:ids))
-          # raise nil.inspect
+          
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
-              xml.source 'datacyclecms'
-              xml.owner 'dataycle'
+              xml.source @source
+              xml.owner @owner
               xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
-                xml.owner 'outdoor_active_owner'
+                xml.owner @owner
                 xml.author 'DataCycle'
                 xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                 outdoor_active_contact(content, xml)
@@ -58,7 +61,7 @@ module DataCycleCore
         end
 
         def outdoor_active_descriptons(content, xml)
-          # TODO: missing:
+          # TODO: missing Outdoor Active atttributes:
           # parking
           # getting_there
           # businessHours
@@ -70,7 +73,7 @@ module DataCycleCore
                 xml.description('lang' => translation.locale) do
                   xml.title content.name
                   xml.abstract ActionView::Base.full_sanitizer.sanitize(content.description) if content.description.present?
-                  xml.text ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
+                  xml.text_ ActionView::Base.full_sanitizer.sanitize(content.text) if content.text.present?
                 end
               end
             end
@@ -81,8 +84,6 @@ module DataCycleCore
         def outdoor_active_images(content, xml)
           # TODO: missing:
           # point
-          # author
-          # license
 
           image_attributes = [:primary_image, :image, :logo]
 
@@ -98,10 +99,19 @@ module DataCycleCore
                       end
                     end
                   end
+                  xml.author image.try(:author)&.first&.name if image.try(:author).present?
+                  image_license(image, xml)
+                  xml.source @source
                 end
               end
             end
           end
+        end
+
+        def image_license(image, xml)
+          license_string = "#{(image.copyright_holder.present? ? image.copyright_holder&.first&.title : '')}#{(image.copyright_year.present? ? ', ' + image.copyright_year.to_s : '')}"
+          return if license_string.blank?
+          xml.license license_string
         end
       end
     end
