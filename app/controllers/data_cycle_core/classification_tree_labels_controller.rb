@@ -40,7 +40,7 @@ module DataCycleCore
               .order('classification_aliases.internal_name')
               .page(params[:tree_page])
 
-            @order_string = 'searches.boost DESC, searches.data_type ASC, searches.headline ASC'
+            @order_string = 'things.boost DESC, things.template_name ASC'
             @contents = get_filtered_results
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
               .distinct_by_content_id(@order_string)

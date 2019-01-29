@@ -1,7 +1,7 @@
 <li id="<%= classification_tree.id %>">
   <span class="inner-item">
     <%= link_to params.permit(language: [], f: [:c, :t, :n, :m, v: []]).merge({ classification_tree_id: classification_tree.id }), data: {remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"}, class: 'tree-link' do %>
-      <%= classification_tree.sub_classification_alias.try(:name) %>
+      <%= classification_tree.sub_classification_alias.try(:internal_name) %>
       <% if content_counts[classification_tree.id].positive? %>
         <span class="children-count">(<%= content_counts[classification_tree.id] %>)</span>
       <% end %>
