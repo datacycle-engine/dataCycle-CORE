@@ -44,7 +44,7 @@
 
                       <% objects.presence&.each do |a| %>
                           <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification" aria-haspopup="true" class="tag <%= changes_class(publication_changes, a.primary_classification.id) %>" title="<%= ["<b>#{a.full_path}</b>", a.description].reject(&:blank?).join("<br /><br />") %>">
-                              <%= a.name %>
+                              <%= a.internal_name %>
                           </span>
                       <% end %>
                   </span>

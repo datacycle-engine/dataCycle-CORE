@@ -51,7 +51,7 @@
       <% else %>
           <% available_items = classification_items&.map { |c|
             [
-              c.sub_classification_alias.try(:name),
+              c.sub_classification_alias.try(:internal_name),
               c.sub_classification_alias&.primary_classification.try(:id),
               {
                 title: [

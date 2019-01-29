@@ -9,7 +9,7 @@
   <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
 
   <ul class="no-bullet">
-    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :name) do |cb| %>
+    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :internal_name) do |cb| %>
       <li class="checkbox-wrap">
         <%= cb.check_box value: cb.value, checked: value&.ids&.include?(cb.value) %>
         <% if cb.object.try(:description).present? %>

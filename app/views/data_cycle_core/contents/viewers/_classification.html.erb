@@ -8,7 +8,7 @@
             <span data-tooltip data-allow-html="true" data-tooltip-class="tooltip classification"
                   aria-haspopup="true" class="tag <%= changes_class(options.dig(:item_diff), a.primary_classification.id) %>"
                   title="<%= classification_tooltip(a) %>">
-                <%= a.name %>
+                <%= a.internal_name %>
             </span>
         <% end %>
     </span>
