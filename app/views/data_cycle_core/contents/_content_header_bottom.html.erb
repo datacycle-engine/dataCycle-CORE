@@ -1,4 +1,11 @@
-<%= render 'external_source', local_assigns if content.external_source %>
+<%= tag.span tag.i(class: 'fa fa-external-link', aria_hidden: true) + ' ' + t('common.external_connections', locale: DataCycleCore.ui_language, count: (Array(content.external_source) + content.external_systems).size),
+  class: 'external-connections',
+  title: render('external_connections', content: content),
+  data: {
+    tooltip: true,
+    allow_html: true,
+    template_classes: 'external-connection-tooltip'
+  } if content.external_source || content.external_systems.present? %>
 
 <div class="edit">
   <%= yield :buttons %>
@@ -15,7 +22,7 @@
     render_params: to_query_params({ new_template: content }).to_json if can?(:create, content, 'duplicate') && content.content_type?('entity') && !content.translatable? %>
 
   <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>
-      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay' }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+      <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
           <i class="fa fa-folder" aria-hidden="true"></i>
       <% end %>
       <%= render 'move_to_container_overlay', content: content %>

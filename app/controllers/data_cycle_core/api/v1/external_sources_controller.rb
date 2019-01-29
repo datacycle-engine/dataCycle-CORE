@@ -5,11 +5,11 @@ module DataCycleCore
     module V1
       class ExternalSourcesController < Api::V1::ApiBaseController
         def show
-          content = DataCycleCore::Thing.find_by(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
+          @content = DataCycleCore::Thing.find_by(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
 
-          raise ActiveRecord::RecordNotFound if content.nil?
+          raise ActiveRecord::RecordNotFound if @content.nil?
 
-          redirect_to thing_path(content)
+          redirect_to thing_path(@content)
         end
 
         def update

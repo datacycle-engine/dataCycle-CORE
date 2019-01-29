@@ -129,6 +129,9 @@ de:
     my_assets: Meine Dateien
     warning: Achtung!
     warnings: Warnungen
+    external_connections:
+      one: Externe Verknüpfung
+      other: Externe Verknüpfungen
 
   tile_links:
     details: zur Detailansicht
@@ -188,7 +191,7 @@ de:
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
     update: Aktualisieren
-    upload: hochladen
+    upload: Dateien hochladen
     become: 'Als %{data} einloggen'
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
@@ -360,6 +363,9 @@ de:
       data_cycle_core/external_source:
         one: Externe Quelle
         other: Externe Quellen
+      data_cycle_core/external_system:
+        one: Externe Synchronisierung
+        other: Externe Synchronisierungen
       data_cycle_core/asset:
         one: Asset
         other: Assets
@@ -421,6 +427,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        external_key: Externe Id
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -454,6 +461,8 @@ de:
       data_cycle_core/asset:
         name: Name
         file: Datei
+      data_cycle_core/external_source:
+        name: Name
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
@@ -489,7 +498,7 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
-    upload: Medien hochladen
+    upload: neue Medien hochladen
 
     documentation:
       root: Dokumentation

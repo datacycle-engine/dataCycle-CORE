@@ -1,29 +1,12 @@
-<% uploader_validations = merge_uploader_white_list %>
+<% uploader_validations = merge_uploader_white_list(asset_type: local_assigns[:asset_type]) %>
 
-<div class="reveal full"
-  id="content-upload-reveal"
+<div class="reveal full asset-upload-reveal"
+  id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
   data-validations="<%= uploader_validations.to_json %>"
   data-multiple-opened="true" data-v-offset="0">
   <div class="uploader-flex">
     <h2><%= t('data_cycle_core.upload') %></h2>
-
-    <a class="asset-selector-button" data-open="asset-selector-default">
-      <i class="fa fa-files-o" aria-hidden="true"></i>
-      <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
-    </a>
-    <div class="full reveal asset-selector-reveal" id="asset-selector-default" data-reveal data-multiple-opened="true" data-v-offset="0">
-      <div class="asset-list-container">
-        <h3><%= t('common.my_assets', locale: DataCycleCore.ui_language) %></h3>
-        <div class="scrollable-asset-list">
-          <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'default', asset_types: DataCycleCore.asset_objects %>
-        </div>
-      </div>
-      <button class="close-button" data-close aria-label="Close modal" type="button">
-        <span aria-hidden="true">&times;</span>
-      </button>
-    </div>
-
     <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
       <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>
         <a href="#" class="accordion-title"><%= t('common.warning', locale: DataCycleCore.ui_language) %></a>
@@ -54,22 +37,40 @@
       </li>
     </ul>
 
-    <%= form_tag(assets_path, multipart: true, id: 'content-upload-form') do %>
-      <%= file_field_tag 'files',
+    <div id="content-upload-form-<%= local_assigns[:key] || 'default' %>" class="content-upload-form" data-url="<%= assets_path %>">
+      <%= file_field_tag "files-#{local_assigns[:key] || 'default'}",
         multiple: true,
         accept: uploader_validations.values.map { |v| v[:format] }.flatten.compact.uniq.presence&.map{ |e| ".#{e}" }&.join(', '),
         class: 'upload-file' %>
-      <div class="upload-buttons">
-        <%= label_tag 'files', class: 'button' do %>
+      <div class="buttons">
+        <%= label_tag "files-#{local_assigns[:key] || 'default'}", class: 'button asset-upload-label' do %>
           <%= tag.i(class: 'fa fa-plus') %>
           <%= t('actions.add_files', locale: DataCycleCore.ui_language) %>
         <% end %>
-        <%= button_tag class: 'button' do %>
+        <a class="button asset-upload-button">
           <%= tag.i(class: 'fa fa-upload') %>
           <%= t('actions.upload', locale: DataCycleCore.ui_language) %>
+        </a>
+
+        <% if local_assigns[:key].blank? %>
+          <a class="asset-selector-button button" data-open="asset-selector-default">
+            <i class="fa fa-files-o" aria-hidden="true"></i>
+            <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
+          </a>
+          <div class="full reveal asset-selector-reveal" id="asset-selector-default" data-reveal data-multiple-opened="true" data-v-offset="0">
+            <div class="asset-list-container">
+              <h3><%= t('common.my_assets', locale: DataCycleCore.ui_language) %></h3>
+              <div class="scrollable-asset-list">
+                <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'default', asset_types: DataCycleCore.asset_objects %>
+              </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
         <% end %>
       </div>
-    <% end %>
+    </div>
   </div>
   <button class="close-button"
     data-close

@@ -47,7 +47,7 @@ module DataCycleCore
       end
 
       def content_type?(*types)
-        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
+        types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
       def schema_type
@@ -299,6 +299,10 @@ module DataCycleCore
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+      end
+
+      def parent_templates
+        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
       end
     end
   end
