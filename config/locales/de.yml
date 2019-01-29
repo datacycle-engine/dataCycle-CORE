@@ -364,8 +364,8 @@ de:
         one: Externe Quelle
         other: Externe Quellen
       data_cycle_core/external_system:
-        one: Externe Verknüpfung
-        other: Externe Verknüpfungen
+        one: Externe Synchronisierung
+        other: Externe Synchronisierungen
       data_cycle_core/asset:
         one: Asset
         other: Assets

@@ -681,14 +681,6 @@ select {
   }
 }
 
-.send-link {
-  button[type='submit'] {
-    &.button {
-      padding: 0.85rem 1rem;
-    }
-  }
-}
-
 // Thumbnails in Grid Items
 .data-cycle-object {
   .inner {
@@ -979,10 +971,6 @@ a.email-link {
 .data-link-reveal {
   textarea {
     min-height: 10rem;
-  }
-
-  button[type='submit'].button {
-    padding: 0.85rem 1rem;
   }
 
   .selected-file {
@@ -1415,7 +1403,6 @@ select:-moz-focusring {
 
 .reveal {
   button[type='submit'].button {
-    padding: 0.85rem 1rem;
     margin: 0;
   }
 }

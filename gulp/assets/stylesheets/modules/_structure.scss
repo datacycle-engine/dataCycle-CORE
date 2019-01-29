@@ -218,6 +218,7 @@ button.button-prime {
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+  padding: 0;
 
   &.alert {
     background-color: map-get($foundation-palette, alert);
@@ -523,6 +524,7 @@ body.login-page {
     .close-button.medium {
       line-height: 3rem;
       color: white;
+      padding: 0;
     }
   }
 

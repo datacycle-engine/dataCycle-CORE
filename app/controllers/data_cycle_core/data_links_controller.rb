@@ -2,8 +2,8 @@
 
 module DataCycleCore
   class DataLinksController < ApplicationController
-    before_action :authenticate_user!, except: [:show, :find, :get_text_file] # from devise (authenticate)
-    load_and_authorize_resource except: [:show, :find, :get_text_file] # from cancancan (authorize)
+    before_action :authenticate_user!, except: [:show, :get_text_file] # from devise (authenticate)
+    load_and_authorize_resource except: [:show, :get_text_file] # from cancancan (authorize)
 
     def show
       link = DataCycleCore::DataLink.find_by(id: params[:id])
@@ -63,14 +63,6 @@ module DataCycleCore
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
-    def find
-      authorize! :create, DataCycleCore::DataLink
-
-      @duplicate = DataCycleCore::TextFile.find_by('name ILIKE ?', params[:q])
-
-      render json: @duplicate&.attributes&.merge(editable: can?(:edit, @duplicate))
-    end
-
     def get_text_file
       @data_link = DataCycleCore::DataLink.find(params[:id])
 
@@ -87,6 +79,7 @@ module DataCycleCore
     end
 
     def receiver_params
+      params.dig(:data_link, :receiver, :email)&.downcase!
       params.require(:data_link).require(:receiver).permit(:email, :given_name, :family_name)
     end
 

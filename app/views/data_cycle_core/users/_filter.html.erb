@@ -36,24 +36,26 @@
                       </ul>
                   </div>
                 </li>
-                <li class="filter" data-tree-label="user_groups">
-                  <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
-                  <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
-                  <div>
-                      <ul class="clearfix split-list">
-                        <% DataCycleCore::UserGroup.all.each do |item| %>
-                          <li>
-                              <input type="checkbox" name="user_groups[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @user_groups.presence&.ids&.include?(item.id) %> />
-                              <label for="<%= item.id %>">
-                                  <span class="title">
-                                      <span class="inner-title"><%= item.name %></span>
-                                  </span>
-                              </label>
-                          </li>
-                        <% end %>
-                      </ul>
-                  </div>
-                </li>
+                <% if DataCycleCore::UserGroup.any? %>
+                  <li class="filter" data-tree-label="user_groups">
+                    <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
+                    <span class="title"><%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></span>
+                    <div>
+                        <ul class="clearfix split-list">
+                          <% DataCycleCore::UserGroup.all.each do |item| %>
+                            <li>
+                                <input type="checkbox" name="user_groups[]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @user_groups.presence&.ids&.include?(item.id) %> />
+                                <label for="<%= item.id %>">
+                                    <span class="title">
+                                        <span class="inner-title"><%= item.name %></span>
+                                    </span>
+                                </label>
+                            </li>
+                          <% end %>
+                        </ul>
+                    </div>
+                  </li>
+                <% end %>
               </ul>
             </nav>
           </div>
