@@ -3,7 +3,7 @@
 classifications = classification_aliases.map do |item|
   {
     id: item.id,
-    name: item.name,
+    name: item.name || item.internal_name,
     description: item.description,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
@@ -11,7 +11,7 @@ classifications = classification_aliases.map do |item|
     ancestors: item.ancestors.map do |ancestor|
       {
         id: ancestor.id,
-        name: ancestor.name,
+        name: ancestor.name || ancestor.try(:internal_name),
         createdAt: ancestor.created_at,
         updatedAt: ancestor.updated_at,
         deletedAt: ancestor.deleted_at

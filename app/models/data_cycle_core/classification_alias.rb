@@ -77,13 +77,17 @@ module DataCycleCore
       where(name: names.flatten)
     end
 
+    def self.with_internal_name(*names)
+      where(internal_name: names.flatten)
+    end
+
     def self.without_name(*names)
       where.not(name: names.flatten)
     end
 
     def self.classification_for_tree_with_name(tree_name, *names)
       for_tree(tree_name)
-        .with_name(names)
+        .with_internal_name(names)
         .map(&:classifications)
         .flatten
         .map(&:id)

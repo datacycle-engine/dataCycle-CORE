@@ -12,7 +12,7 @@ unless @mode_parameters.include?('compact')
       {
         'identifier' => classification_alias.id,
         '@type' => 'Enumeration',
-        'name' => classification_alias.name
+        'name' => classification_alias.name || classification_alias.internal_name
       }
     end
     json.merge!(property_header)

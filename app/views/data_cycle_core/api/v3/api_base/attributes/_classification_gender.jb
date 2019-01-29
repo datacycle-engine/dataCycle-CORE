@@ -10,7 +10,7 @@ unless @mode_parameters.include?('compact')
       json[key_new] = classification_aliases.map do |classification_alias|
         {
           '@type' => definition.dig('api', 'type') || 'Enumeration',
-          'name' => classification_alias.description || classification_alias.name
+          'name' => classification_alias.description || classification_alias.name || classification_alias.internal_name
         }
       end
     else

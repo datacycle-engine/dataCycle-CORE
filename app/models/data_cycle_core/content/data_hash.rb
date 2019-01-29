@@ -133,6 +133,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
+          puts "value: #{value}, key: #{key}, tree_label: #{properties['tree_label']}, default_value: #{properties['default_value']}"
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])

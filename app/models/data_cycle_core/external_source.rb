@@ -87,5 +87,12 @@ module DataCycleCore
       }
       OpenStruct.new(Hash[Mongoid.client(id).collections.map { |item| [item.name, item] }])
     end
+
+    def reset
+      self.last_import = nil
+      self.last_download = nil
+      save!
+      reload
+    end
   end
 end

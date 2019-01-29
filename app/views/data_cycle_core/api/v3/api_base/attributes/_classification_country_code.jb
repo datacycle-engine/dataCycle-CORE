@@ -3,7 +3,7 @@
 json ||= {}
 classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
 if classification_aliases.present?
-  json = { addressCountry: classification_aliases.first.name }
+  json = { addressCountry: classification_aliases.first.name || classification_aliases.first.internal_name }
 end
 
 json
