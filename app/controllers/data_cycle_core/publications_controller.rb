@@ -26,7 +26,7 @@ module DataCycleCore
       @language ||= params.fetch(:language, [current_user.default_locale])
 
       query_params = @language.include?('all') ? [nil, DataCycleCore::Search.all] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params)
+      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       @filters.presence&.each do |filter|
         query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])

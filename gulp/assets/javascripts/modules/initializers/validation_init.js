@@ -7,9 +7,7 @@ module.exports.initialize = function() {
 
   let check_agbs_accepted = function() {
     if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
-      $(
-        '#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted'
-      ).remove();
+      $('#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted').remove();
       return true;
     } else if ($('#accept_agbs').length > 0) {
       $('#' + $('.submit-edit-form').data('toggle')).append(
@@ -44,11 +42,7 @@ module.exports.initialize = function() {
           }
         } else if (arguments[0] != undefined && arguments[0].error != undefined && Object.keys(arguments[0].error).length > 0) isValid = false;
 
-        if (
-          isValid &&
-          submit &&
-          $(form).find('.form-element .warning.counter').length
-        ) {
+        if (isValid && submit && $(form).find('.form-element .warning.counter').length) {
           var warnings = $('.form-element .warning.counter')
             .closest('.form-element')
             .map((index, elem) => {
@@ -57,9 +51,7 @@ module.exports.initialize = function() {
             .get()
             .join(', ');
           var confirmationModal = new ConfirmationModal(
-            'Es sind Warnungen vorhanden (' +
-              warnings +
-              ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+            'Es sind Warnungen vorhanden (' + warnings + ').<br>Soll der Inhalt trotzdem gespeichert werden?',
             'warning',
             true,
             () => {
@@ -98,11 +90,7 @@ module.exports.initialize = function() {
 
             if ($('.split-content.edit-content').length > 0) {
               container = $('.flex-box .edit-content');
-              first_error_offset =
-                error_container.offset().top -
-                container.offset().top +
-                container.scrollTop() -
-                50;
+              first_error_offset = error_container.offset().top - container.offset().top + container.scrollTop() - 50;
             } else {
               container = $('html, body');
               first_error_offset = error_container.offset().top - 100;
@@ -158,15 +146,9 @@ module.exports.initialize = function() {
       .first();
     let button_text = '';
 
-    if (
-      validation_container != null &&
-      $(validation_container).data('id') != undefined
-    )
+    if (validation_container != null && $(validation_container).data('id') != undefined)
       item_id = $(validation_container).data('id') + '_error';
-    else if (
-      validation_container != null &&
-      $(item_label).attr('for') != undefined
-    )
+    else if (validation_container != null && $(item_label).attr('for') != undefined)
       item_id = $(item_label).attr('for') + '_error';
 
     if ($('#' + item_id).length != 0) return '';
@@ -186,18 +168,8 @@ module.exports.initialize = function() {
             .attr('for')
             .search(new RegExp(key, 'i')) != -1)
       ) {
-        button_text +=
-          '<strong>' +
-          ($(item_label).html() || 'Error') +
-          ':</strong><br>' +
-          data.error[key] +
-          '<br>';
-        out +=
-          '<strong>' +
-          ($(item_label).html() || 'Error') +
-          ':</strong> ' +
-          data.error[key] +
-          '</br>';
+        button_text += '<strong>' + ($(item_label).html() || 'Error') + ':</strong><br>' + data.error[key] + '<br>';
+        out += '<strong>' + ($(item_label).html() || 'Error') + ':</strong> ' + data.error[key] + '</br>';
       }
     }
     out += '</span>';
@@ -212,9 +184,7 @@ module.exports.initialize = function() {
       $('#' + $('.submit-edit-form').data('toggle'))
         .find('#button_' + item_id)
         .remove();
-      $('#' + $('.submit-edit-form').data('toggle')).append(
-        button_text + '</span>'
-      );
+      $('#' + $('.submit-edit-form').data('toggle')).append(button_text + '</span>');
     }
     return out;
   };
@@ -224,24 +194,17 @@ module.exports.initialize = function() {
     let item_label = $(item)
       .find('label')
       .first();
-    if (item != null && $(item).data('id') != undefined)
-      item_id = $(item).data('id') + '_error';
-    else if (item != null && $(item_label).attr('for') != undefined)
-      item_id = $(item_label).attr('for') + '_error';
+    if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_error';
+    else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_error';
 
     if (item == null) {
       $('.submit-edit-form').removeClass('alert');
-      $(
-        '#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error'
-      ).remove();
+      $('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error').remove();
     } else {
       $('#' + $('.submit-edit-form').data('toggle'))
         .find('#button_' + item_id)
         .remove();
-      if (
-        $('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error')
-          .length == 0
-      ) {
+      if ($('#' + $('.submit-edit-form').data('toggle') + ' .tooltip-error').length == 0) {
         $('.submit-edit-form').removeClass('alert');
       }
     }
@@ -256,9 +219,7 @@ module.exports.initialize = function() {
 
     let items = [];
     if ($(validation_container).data('key') != undefined) {
-      items = $(validation_container).find(
-        '[name^="' + $(validation_container).data('key') + '"]'
-      );
+      items = $(validation_container).find('[name^="' + $(validation_container).data('key') + '"]');
     } else if ($(validation_container).children('label').length) {
       items = $(validation_container).find(
         '#' +
@@ -269,7 +230,15 @@ module.exports.initialize = function() {
       );
     }
 
+    if (!items.length) return;
+
     let form_data = items.serializeArray();
+    if (form_data.length == 0) {
+      form_data.push({
+        name: items.prop('name')
+      });
+    }
+
     let uuid = $(form)
       .find('input#uuid')
       .val();
@@ -301,9 +270,7 @@ module.exports.initialize = function() {
               .prop('id')
               .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
           ) {
-            $(validation_container).append(
-              render_error_msg(data, validation_container)
-            );
+            $(validation_container).append(render_error_msg(data, validation_container));
             $(validation_container).addClass('has-error');
           }
         } else {
@@ -341,13 +308,9 @@ module.exports.initialize = function() {
           catch_promises(element, false);
         });
 
-        $(element).on(
-          'remove-submit-button-errors',
-          '.validation-container',
-          event => {
-            remove_submit_button_errors($(event.currentTarget));
-          }
-        );
+        $(element).on('remove-submit-button-errors', '.validation-container', event => {
+          remove_submit_button_errors($(event.currentTarget));
+        });
 
         $(element).on('submit', event => {
           event.preventDefault();
@@ -386,31 +349,25 @@ module.exports.initialize = function() {
 
     // language redirect if changes present
     if ($('.edit-header #language-menu').length) {
-      $(document).on(
-        'click',
-        '.edit-header #language-menu .list-items li a',
-        event => {
-          update_editors();
-          var new_form_data = $('.edit-content-form').serializeArray();
-          if (form_data.length !== 0 && !form_data.equal_to(new_form_data)) {
-            event.preventDefault();
+      $(document).on('click', '.edit-header #language-menu .list-items li a', event => {
+        update_editors();
+        var new_form_data = $('.edit-content-form').serializeArray();
+        if (form_data.length !== 0 && !form_data.equal_to(new_form_data)) {
+          event.preventDefault();
 
-            var confirmationModal = new ConfirmationModal(
-              'Wollen Sie speichern und auf die neue Sprache wechseln?',
-              'success',
-              true,
-              function() {
-                $('.edit-content-form').append(
-                  '<input type="hidden" name="new_locale" value="' +
-                    $(event.target).data('locale') +
-                    '">'
-                );
-                $('.edit-content-form').trigger('submit');
-              }.bind(this)
-            );
-          }
+          var confirmationModal = new ConfirmationModal(
+            'Wollen Sie speichern und auf die neue Sprache wechseln?',
+            'success',
+            true,
+            function() {
+              $('.edit-content-form').append(
+                '<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">'
+              );
+              $('.edit-content-form').trigger('submit');
+            }.bind(this)
+          );
         }
-      );
+      });
     }
   }
 
@@ -422,10 +379,7 @@ module.exports.initialize = function() {
 
     if ($('#accept_agbs').length > 0) {
       $('#accept_agbs').on('change', function(event) {
-        $('button.submit-edit-form').toggleClass(
-          'alert',
-          !check_agbs_accepted()
-        );
+        $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
       });
     }
 
@@ -457,21 +411,13 @@ module.exports.initialize = function() {
     init_event_handlers('body');
   }
 
-  $(document).on(
-    'open.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      init_event_handlers(event.currentTarget);
-    }
-  );
+  $(document).on('open.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+    init_event_handlers(event.currentTarget);
+  });
 
-  $(document).on(
-    'closed.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      remove_event_handlers(event.currentTarget);
-    }
-  );
+  $(document).on('closed.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+    remove_event_handlers(event.currentTarget);
+  });
 
   $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
     $(event.currentTarget)

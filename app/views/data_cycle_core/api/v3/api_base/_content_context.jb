@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+{
+  '@context': 'http://schema.org',
+  '@type': content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize,
+  'contentType': content.template_name
+}

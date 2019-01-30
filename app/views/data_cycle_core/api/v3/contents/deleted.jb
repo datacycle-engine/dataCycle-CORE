@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+json = {
+  data: @contents.map do |item|
+    {
+      '@context': 'http://schema.org',
+      '@type': item.schema.dig('api', 'type') || item.try(:schema_type) || item.class.name.demodulize,
+      'contentType': item.template_name,
+      id: item.id,
+      'deleted_at': item.deleted_at
+    }
+  end
+}
+
+json.merge! render 'pagination_links',
+                   objects: @contents,
+                   object_url: (lambda do |params|
+                     File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+                   end)

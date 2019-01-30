@@ -80,9 +80,9 @@ describe DataCycleCore::MasterData::Differs::Embedded do
 
     it 'successfully handles relation objects' do
       uuid = DataCycleCore::Thing.find_by(template_name: 'Bild').id
-      uuid2 = DataCycleCore::Thing.find_by(template_name: 'Video').id
-      uuid3 = DataCycleCore::Thing.find_by(template_name: 'Zitat').id
-      uuids = DataCycleCore::Thing.where(template_name: ['Bild', 'Video', 'Zitat']).order(template_name: :asc)
+      uuid2 = DataCycleCore::Thing.find_by(template_name: 'PlaceOverlay').id
+      uuid3 = DataCycleCore::Thing.find_by(template_name: 'Video').id
+      uuids = DataCycleCore::Thing.where(template_name: ['Bild', 'Video', 'PlaceOverlay']).order(template_name: :asc)
       data_cases = [
         [[uuid2, uuid, uuid3], uuids, [['>', uuid2, 0, 1], ['<', uuid, 1, 0]]],
         [[uuid3, uuid2, uuid], uuids, [['>', uuid3, 0, 2], ['<', uuid, 2, 0]]]

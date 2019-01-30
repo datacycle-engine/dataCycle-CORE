@@ -5,8 +5,8 @@ module DataCycleCore
     module Compute
       module Audio
         class << self
-          def duration(audio)
-            meta_value(audio, ['audio_properties', 'length'])&.to_f
+          def duration(**args)
+            meta_value(args.dig(:computed_parameters)&.first, ['audio_properties', 'length'])&.to_f || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def meta_value(audio_id, path)

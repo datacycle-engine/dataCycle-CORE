@@ -1,0 +1,81 @@
+<% uploader_validations = merge_uploader_white_list(asset_type: local_assigns[:asset_type]) %>
+
+<div class="reveal full asset-upload-reveal"
+  id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
+  data-reveal
+  data-validations="<%= uploader_validations.to_json %>"
+  data-multiple-opened="true" data-v-offset="0">
+  <div class="uploader-flex">
+    <h2><%= t('data_cycle_core.upload') %></h2>
+    <ul class="accordion" data-accordion data-multi-expand="true" data-allow-all-closed="true">
+      <li class="upload-warning accordion-item is-active callout warning" data-accordion-item>
+        <a href="#" class="accordion-title"><%= t('common.warning', locale: DataCycleCore.ui_language) %></a>
+        <div class="accordion-content" data-tab-content>
+          <%= t('uploader.close_warning_html', locale: DataCycleCore.ui_language) %>
+
+          <%= link_to nil, target: :_blank do %>
+            <i class="fa fa-external-link" aria-hidden="true"></i>
+            <%= t('uploader.continue_in_new_tab', locale: DataCycleCore.ui_language) %>
+          <% end %>
+        </div>
+      </li>
+      <li class="upload-restrictions accordion-item is-active callout primary" data-accordion-item>
+        <a href="#" class="accordion-title"><%= t('uploader.restrictions', locale: DataCycleCore.ui_language) %></a>
+        <div class="accordion-content" data-tab-content>
+          <ul class="no-bullet">
+            <% uploader_validations.each do |type, validation| %>
+            <li>
+              <b><%= "data_cycle_core/#{type}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %></b>
+              <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: validation[:translation_description] if validation[:translation_description].present? %>
+              <ul>
+                <%= uploader_validation_to_text(validation&.except(:translation, :translation_description, :class)).html_safe %>
+              </ul>
+            </li>
+            <% end %>
+          </ul>
+        </div>
+      </li>
+    </ul>
+
+    <div id="content-upload-form-<%= local_assigns[:key] || 'default' %>" class="content-upload-form" data-url="<%= assets_path %>">
+      <%= file_field_tag "files-#{local_assigns[:key] || 'default'}",
+        multiple: true,
+        accept: uploader_validations.values.map { |v| v[:format] }.flatten.compact.uniq.presence&.map{ |e| ".#{e}" }&.join(', '),
+        class: 'upload-file' %>
+      <div class="buttons">
+        <%= label_tag "files-#{local_assigns[:key] || 'default'}", class: 'button asset-upload-label' do %>
+          <%= tag.i(class: 'fa fa-plus') %>
+          <%= t('actions.add_files', locale: DataCycleCore.ui_language) %>
+        <% end %>
+        <a class="button asset-upload-button">
+          <%= tag.i(class: 'fa fa-upload') %>
+          <%= t('actions.upload', locale: DataCycleCore.ui_language) %>
+        </a>
+
+        <% if local_assigns[:key].blank? %>
+          <a class="asset-selector-button button" data-open="asset-selector-default">
+            <i class="fa fa-files-o" aria-hidden="true"></i>
+            <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
+          </a>
+          <div class="full reveal asset-selector-reveal" id="asset-selector-default" data-reveal data-multiple-opened="true" data-v-offset="0">
+            <div class="asset-list-container">
+              <h3><%= t('common.my_assets', locale: DataCycleCore.ui_language) %></h3>
+              <div class="scrollable-asset-list">
+                <%= render 'data_cycle_core/assets/asset_list', class: 'timestamps', key: 'default', asset_types: DataCycleCore.asset_objects %>
+              </div>
+            </div>
+            <button class="close-button" data-close aria-label="Close modal" type="button">
+              <span aria-hidden="true">&times;</span>
+            </button>
+          </div>
+        <% end %>
+      </div>
+    </div>
+  </div>
+  <button class="close-button"
+    data-close
+    aria-label="Close modal"
+    type="button">
+    <span aria-hidden="true">&times;</span>
+  </button>
+</div>

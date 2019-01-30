@@ -2,18 +2,14 @@ var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Datalist
 module.exports.initialize = function() {
+  var field_requests = {};
+
   let default_success = function(input_field, list, data) {
     $(list).html('');
 
     data.forEach(element => {
-      if (
-        element != undefined &&
-        element.name != undefined &&
-        element.id != undefined
-      ) {
-        $(list).append(
-          '<option data-id="' + element.id + '" value="' + element.name + '">'
-        );
+      if (element != undefined && element.name != undefined && element.id != undefined) {
+        $(list).append('<option data-id="' + element.id + '" value="' + element.name + '">');
       }
     });
   };
@@ -27,15 +23,28 @@ module.exports.initialize = function() {
             element.family_name +
             '" data-givenname="' +
             element.given_name +
+            '" data-id="' +
+            element.id +
             '" value="' +
             element.email +
             '">'
         );
       }
     });
+    let form = $(input_field).closest('form');
 
     if (filter_ci(list, $(input_field).val()).length) {
       let user = filter_ci(list, $(input_field).val());
+      form.find('input[name="data_link[receiver][id]"]').remove();
+      form.append(
+        '<input type="hidden" id="' +
+          $(input_field)
+            .prop('id')
+            .replace('email', 'id') +
+          '" name="data_link[receiver][id]" value="' +
+          user.data('id') +
+          '">'
+      );
       $(input_field)
         .siblings('input[id$=given_name]')
         .first()
@@ -47,6 +56,7 @@ module.exports.initialize = function() {
         .val(user.data('familyname'))
         .prop('readonly', true);
     } else {
+      form.find('input[name="data_link[receiver][id]"]').remove();
       $(input_field)
         .siblings('input[id$=given_name]')
         .first()
@@ -65,25 +75,15 @@ module.exports.initialize = function() {
     if (filter_ci(list, $(input_field).val()).length) {
       let option_id = filter_ci(list, $(input_field).val()).data('id');
       form.find('input[name="stored_filter[id]"]').remove();
-      form.append(
-        '<input type="hidden" id="stored_filter_id" name="stored_filter[id]" value="' +
-          option_id +
-          '">'
-      );
-      form
-        .find('button[type="submit"]')
-        .text(form.find('button[type="submit"]').data('update'));
+      form.append('<input type="hidden" id="stored_filter_id" name="stored_filter[id]" value="' + option_id + '">');
+      form.find('button[type="submit"]').text(form.find('button[type="submit"]').data('update'));
       form.off('submit', append_stored_filter_data);
       form.off('submit', show_confirmation).on('submit', show_confirmation);
     } else {
       form.find('input[name="stored_filter[id]"]').remove();
-      form
-        .find('button[type="submit"]')
-        .text(form.find('button[type="submit"]').data('save'));
+      form.find('button[type="submit"]').text(form.find('button[type="submit"]').data('save'));
       form.off('submit', show_confirmation);
-      form
-        .off('submit', append_stored_filter_data)
-        .on('submit', append_stored_filter_data);
+      form.off('submit', append_stored_filter_data).on('submit', append_stored_filter_data);
     }
   };
 
@@ -142,19 +142,27 @@ module.exports.initialize = function() {
     let list = $(element).prop('list');
     let list_id = $(element).attr('list');
     $(list).html('');
+    let field_id = $(element).prop('id');
+    field_requests[field_id] = [];
 
     $(element).on('input', event => {
       event.preventDefault();
-      $.get(
-        '/' + list_id + '/search',
-        {
-          q: $(event.currentTarget).val()
-        },
-        data => {
-          if (eval('typeof ' + list_id + ' === "function"')) {
-            eval(list_id)(element, list, data);
-          } else default_success(element, list, data);
-        }
+      field_requests[field_id].forEach(request => {
+        request.abort();
+        field_requests[field_id] = field_requests[field_id].filter(r => r != request);
+      });
+      field_requests[field_id].push(
+        $.get(
+          '/' + list_id + '/search',
+          {
+            q: $(event.currentTarget).val()
+          },
+          data => {
+            if (eval('typeof ' + list_id + ' === "function"')) {
+              eval(list_id)(element, list, data);
+            } else default_success(element, list, data);
+          }
+        )
       );
     });
   });

@@ -16,6 +16,8 @@
             <% elsif item.try(:image).is_a?(ActiveRecord::Relation) && item.image.present? %>
                 <%= render 'data_cycle_core/contents/tiles/attributes/images', local_assigns %>
             <% end %>
+
+            <%#= render 'data_cycle_core/contents/tiles/attributes/warnings', content: item %>
         </div>
 
     <% end %>

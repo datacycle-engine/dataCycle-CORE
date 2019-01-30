@@ -34,21 +34,32 @@
               :data-size: basic
       :content_url:
         :label: Bild URL
-        :type: string
         :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :disabled: true
         :api:
           :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
-        :type: string
         :storage_location: value
-        :validations:
-          :format: url
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Image
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
         :ui:
           :show:
-            :type: preview_image
+            :partial: preview_image
         :api:
           :minimal: true
       :url:
@@ -63,42 +74,74 @@
         :label: Datei
         :type: asset
         :asset_type: image
-      :photographer:
-        :label: Fotograf
-        :type: string
-        :storage_location: value
-        :search: true
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-        :search: true
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: Örtlichkeit
+        :api:
+          :disabled: true
       :width:
         :label: Breite
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: width
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
-        :type: number
         :storage_location: value
-        :validations:
-          :format: integer
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
       :file_format:
         :label: Dateiformat
-        :type: string
         :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
       :tags:
         :type: mixin
         :name: tags

@@ -2,6 +2,7 @@
 - :data:
     :name: contact_info
     :type: mixin
+    # schema.org: APIv2 Breaking Change (transformations)
     :properties:
       :contact_info:
         :label: Kontakt
@@ -9,7 +10,8 @@
         :storage_location: translated_value
         :api:
           :transformation:
-            :method: unwrap
+            :method: merge_object
+            :name: address
         :properties:
           :telephone:
             :label: Telefonnummer
@@ -23,8 +25,6 @@
             :label: E-Mail
             :type: string
             :storage_location: translated_value
-#            :validations:
-#              :format: email
             :normalize:
               :id: email
               :type: email
@@ -32,7 +32,3 @@
             :label: Web
             :type: string
             :storage_location: translated_value
-            :api:
-              :name: website
-#            :validations:
-#              :format: url

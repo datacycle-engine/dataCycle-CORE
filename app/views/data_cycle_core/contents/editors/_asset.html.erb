@@ -6,17 +6,29 @@
       <%= render 'helper_text', local_assigns %>
     <% end %>
 
-    <div class="asset-object" id="<%= sanitize_to_id(key) %>"
-         data-language="<%= I18n.locale.to_s %>"
-         data-key="<%= key %>"
-         data-label="<%= definition['label'] %>"
-         data-definition="<%= definition.to_json %>"
-         data-options="<%= options.to_json %>"
-         data-max="1"
-         data-write="<%= can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
+    <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
+    <%= hidden_field_tag key, value&.id %>
+    <%= render 'data_cycle_core/assets/asset_list', assets: Array(value), class: 'editable' %>
 
-        <%= render_asset_editor(key: key, value: value, definition: definition, parameters: {options: options}, content: content) %>
-
+    <a class="button asset-selector-button" data-open="asset-selector-<%= sanitize_to_id(key) %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
+    <div class="full reveal asset-selector-reveal" id="asset-selector-<%= sanitize_to_id(key) %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= sanitize_to_id(key) %>">
+      <div class="asset-list-container">
+        <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>
+        <div class="scrollable-asset-list">
+          <%= render 'data_cycle_core/assets/asset_list', class: 'selectable', key: key, assets: nil, asset_types: DataCycleCore.asset_objects.select { |a| a.underscore.include?(definition['asset_type']) } %>
+        </div>
+        <div class="buttons">
+          <a class="asset-upload-link button" data-open="asset-upload-reveal-<%= sanitize_to_id(key) %>">
+            <i class="fa fa-upload" aria-hidden="true"></i>
+            <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
+          </a>
+          <%= render 'asset_upload', key: sanitize_to_id(key), asset_type: definition&.dig('asset_type') %>
+          <a class="select-asset-link button" disabled="disabled"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
+        </div>
+      </div>
+      <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+      </button>
     </div>
 
 <% end %>

@@ -5,16 +5,16 @@ module DataCycleCore
     module Compute
       module Image
         class << self
-          def width(image)
-            exif_value(image, ['geometry', 'width'])&.to_i
+          def width(**args)
+            exif_value(args.dig(:computed_parameters)&.first, ['geometry', 'width'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
-          def height(image)
-            exif_value(image, ['geometry', 'height'])&.to_i
+          def height(**args)
+            exif_value(args.dig(:computed_parameters)&.first, ['geometry', 'height'])&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
-          def thumbnail_url(image)
-            DataCycleCore::Image.find_by(id: image)&.file&.thumb_preview&.url
+          def thumbnail_url(**args)
+            DataCycleCore::Image.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
           end
 
           def exif_value(image_id, path)

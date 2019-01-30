@@ -13,7 +13,7 @@ module DataCycleCore
       end
 
       def get_validity(validity_hash)
-        from, to = get_validity_values validity_hash
+        from, to = get_validity_values(validity_hash)
         [
           '[',
           from.is_a?(DateTime) ? from.to_s(:long_usec) : '',
@@ -21,6 +21,11 @@ module DataCycleCore
           to.is_a?(DateTime) ? to.to_s(:long_usec) : '',
           ']'
         ].join('')
+      end
+
+      def get_validity_range(validity_hash)
+        from, to = get_validity_values(validity_hash)
+        ((from.try(:in_time_zone) || Time::LONG_AGO)..(to.try(:in_time_zone) || Float::INFINITY))
       end
 
       def get_validity_values(validity_hash)

@@ -13,7 +13,7 @@
         :type: string
         :storage_location: translated_value
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :edit:
             :type: text_editor

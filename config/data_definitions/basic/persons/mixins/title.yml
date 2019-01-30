@@ -9,7 +9,7 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :show:
             :disabled: true
@@ -22,7 +22,7 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :show:
             :disabled: true

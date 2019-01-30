@@ -124,6 +124,14 @@ de:
     create_new_content: Neuen Inhalt erstellen
     data_type: Inhaltstyp
     change_api_access: API Freigabe ändern
+    select_asset: '%{data} auswählen'
+    select_asset_title: Hochgeladene Dateien
+    my_assets: Meine Dateien
+    warning: Achtung!
+    warnings: Warnungen
+    external_connections:
+      one: Externe Verknüpfung
+      other: Externe Verknüpfungen
 
   tile_links:
     details: zur Detailansicht
@@ -183,7 +191,7 @@ de:
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
     update: Aktualisieren
-    upload: hochladen
+    upload: Dateien hochladen
     become: 'Als %{data} einloggen'
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
@@ -196,6 +204,9 @@ de:
     searching: suche
     next: Weiter
     back: Zurück
+    add_files: Dateien hinzufügen
+    delete_file: Datei wirklich löschen?
+    uploaded: hochgeladen
 
   validation:
     errors:
@@ -352,9 +363,27 @@ de:
       data_cycle_core/external_source:
         one: Externe Quelle
         other: Externe Quellen
+      data_cycle_core/external_system:
+        one: Externe Synchronisierung
+        other: Externe Synchronisierungen
       data_cycle_core/asset:
         one: Asset
         other: Assets
+      data_cycle_core/text_file:
+        one: Textdokument (Externer Link)
+        other: Textdokumente (Externer Link)
+      data_cycle_core/pdf:
+        one: Pdf
+        other: Pdfs
+      data_cycle_core/image:
+        one: Bild
+        other: Bilder
+      data_cycle_core/video:
+        one: Video
+        other: Videos
+      data_cycle_core/data_cycle_file:
+        one: Datei
+        other: Dateien
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
@@ -398,6 +427,7 @@ de:
         longitude: Längengrad
         latitude: Breitengrad
         elevation: Meereshöhe (m)
+        external_key: Externe Id
       data_cycle_core/person:
         given_name: Vorname
         family_name: Familienname
@@ -431,6 +461,8 @@ de:
       data_cycle_core/asset:
         name: Name
         file: Datei
+      data_cycle_core/external_source:
+        name: Name
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
@@ -466,7 +498,7 @@ de:
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
-    upload: Medien hochladen
+    upload: neue Medien hochladen
 
     documentation:
       root: Dokumentation
@@ -484,6 +516,11 @@ de:
       entities: Inhalte
       embeddeds: Eingebettete Inhalte
 
+    warning:
+      common:
+        invalid: Gültigkeitszeitraum überschritten
+        translation_missing: Keine Übersetzung vorhanden
+
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
                   <ul class="no-bullet">
@@ -500,8 +537,31 @@ de:
                       </ul>
                     </li>
                   </ul>'
-    close_warning_html: '<h4>Achtung!</h4>
-                          <p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
+  uploader:
+    restrictions: 'Einschränkungen'
+    validation:
+      format: 'Erlaubte Formate: %{data}'
+      dimensions:
+        exclude:
+          format: 'Folgende Formate sind in jeder Größe erlaubt: %{data}'
+        landscape:
+          min:
+            width: 'Minimale Breite für Medien im Querformat: %{data}px'
+            height: 'Minimale Höhe für Medien im Querformat: %{data}px'
+        portrait:
+          min:
+            width: 'Minimale Breite für Medien im Hochformat: %{data}px'
+            height: 'Minimale Höhe für Medien im Hochformat: %{data}px'
+        logo:
+          max:
+            height: 'Maximale Höhe für Logos: %{data}px'
+      codec:
+        video: 'Erlaubte Video-Codecs: %{data}'
+        audio: 'Erlaubte Audio-Codecs: %{data}'
+      file_size:
+        max: 'Maximale Dateigröße: %{data}'
+
+    close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
                           Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
     continue_in_new_tab: In neuem Tab weiterarbeiten
 

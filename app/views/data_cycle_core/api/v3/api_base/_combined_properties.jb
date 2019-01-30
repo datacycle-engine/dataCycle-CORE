@@ -1,0 +1,17 @@
+# frozen_string_literal: true
+
+json ||= {}
+combined = {}
+options.dig(:combined_attributes).each do |property|
+  definition = content.properties_for(property)
+  next if definition.blank?
+  (combined[definition.dig('api', 'transformation', 'name')] ||= []) << [property, definition]
+end
+
+combined.each do |combined_key, combined_value|
+  json[combined_key] = combined_value.map do |key, definition|
+    render(*(render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: options }, content: content)) if content.try(key.to_sym).present?
+  end&.compact
+end
+
+json

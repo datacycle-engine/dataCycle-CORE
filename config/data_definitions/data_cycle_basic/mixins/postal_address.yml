@@ -38,3 +38,15 @@
             :normalize:
               :id: country
               :type: country
+      :country_code:
+        :label: Ländercode
+        :type: classification
+        :tree_label: Ländercodes
+        :ui:
+          :show:
+            :content_area: header
+        :api:
+          :partial: country_code
+          :transformation:
+            :method: nest
+            :name: address

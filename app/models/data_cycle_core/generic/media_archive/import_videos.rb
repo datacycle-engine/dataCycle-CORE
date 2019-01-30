@@ -18,6 +18,21 @@ module DataCycleCore
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
+          I18n.with_locale('de') do
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['contributor'],
+              options.dig(:import, :transformations, :contributor),
+              "MedienArchive - Person - #{raw_data.dig('contributor', 'id')}"
+            )
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['director'],
+              options.dig(:import, :transformations, :director),
+              "MedienArchive - Person - #{raw_data.dig('director', 'id')}"
+            )
+          end
+
           I18n.with_locale(locale) do
             ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'file_format_videos'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
@@ -27,21 +42,10 @@ module DataCycleCore
                 options: { import: utility_object.external_source.config.dig('import_config', tag_name)&.deep_symbolize_keys }
               )
             end
-
             DataCycleCore::Generic::MediaArchive::Processing.process_place(
               utility_object,
               raw_data,
               options.dig(:import, :transformations, :place)
-            )
-            DataCycleCore::Generic::MediaArchive::Processing.process_director(
-              utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :director)
-            )
-            DataCycleCore::Generic::MediaArchive::Processing.process_contributor(
-              utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :contributor)
             )
             DataCycleCore::Generic::MediaArchive::Processing.process_video(
               utility_object,

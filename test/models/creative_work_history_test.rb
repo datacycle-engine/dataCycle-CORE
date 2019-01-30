@@ -12,8 +12,8 @@ module DataCycleCore
       data_set.save!
       data_hash = { 'name' => 'Dies ist ein Test!' }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
-      save_time = Time.zone.now
       data_set.save
+      save_time = Time.zone.now
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.compact)
       assert_equal(0, error[:error].count)

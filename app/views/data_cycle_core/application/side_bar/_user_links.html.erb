@@ -26,5 +26,13 @@
       <% end %>
     </div>
   <% end %>
+  <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
+    <div class="row columns">
+      <a class="asset-selector-button-second" data-open="asset-selector-default">
+        <span class="icon"><i class="fa fa-files-o" aria-hidden="true"></i></span>
+        <span class="title"><%= t('common.my_assets', locale: DataCycleCore.ui_language) %></span>
+      </a>
+    </div>
+  <% end %>
   <%= yield :additional_user_links %>
 </div>

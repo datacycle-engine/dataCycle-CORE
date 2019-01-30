@@ -13,17 +13,18 @@ module DataCycleCore
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
 
+    # TODO: add embedded test
     test 'create Artikel' do
       name = "test_artikel_#{Time.now.getutc.to_i}"
       post things_path, params: {
         thing: {
           datahash: {
-            name: name,
-            quotation: [
-              {
-                text: "test_zitat_#{Time.now.getutc.to_i}"
-              }
-            ]
+            name: name
+            # quotation: [
+            #   {
+            #     text: "test_zitat_#{Time.now.getutc.to_i}"
+            #   }
+            # ]
           }
         },
         table: 'things',
@@ -36,7 +37,7 @@ module DataCycleCore
       content = DataCycleCore::Thing.find_by(name: name)
 
       assert_redirected_to edit_thing_path(content)
-      assert_equal 1, content.quotation.size
+      # assert_equal 1, content.quotation.size
       assert_equal I18n.t(:created, scope: [:controllers, :success], data: content.template_name, locale: DataCycleCore.ui_language), flash[:notice]
     end
 
@@ -114,17 +115,17 @@ module DataCycleCore
 
     test 'load more contents - show' do
       linked_pois = []
-      quotations = []
+      # quotations = []
       11.times do |i|
         linked_pois.push(DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: "TestPOI_#{i}" }))
-        quotations.push({
-          text: "TestQuotation_#{i}"
-        })
+        # quotations.push({
+        #   text: "TestQuotation_#{i}"
+        # })
       end
 
       valid = @content.set_data_hash(data_hash: {
-        content_location: linked_pois.map(&:id),
-        quotation: quotations
+        content_location: linked_pois.map(&:id)
+        # quotation: quotations
       }.deep_stringify_keys, partial_update: true)
 
       assert valid[:error].blank?
@@ -153,29 +154,29 @@ module DataCycleCore
       assert response.body.exclude?('load-more-linked-contents')
       assert response.body.include?(linked_pois[10].name)
 
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'quotation'),
-        key: 'quotation',
-        load_more_action: 'show',
-        locale: 'de',
-        page: 2
-      }, headers: {
-        referer: thing_path(@content)
-      }
-      assert response.body.include?('load-more-linked-contents')
-      assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
+      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      #   definition: @content.schema.dig('properties', 'quotation'),
+      #   key: 'quotation',
+      #   load_more_action: 'show',
+      #   locale: 'de',
+      #   page: 2
+      # }, headers: {
+      #   referer: thing_path(@content)
+      # }
+      # assert response.body.include?('load-more-linked-contents')
+      # assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
 
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'quotation'),
-        key: 'quotation',
-        load_more_action: 'show',
-        locale: 'de',
-        page: 3
-      }, headers: {
-        referer: thing_path(@content)
-      }
-      assert response.body.exclude?('load-more-linked-contents')
-      assert(response.body.include?(quotations.dig(10, :text)))
+      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      #   definition: @content.schema.dig('properties', 'quotation'),
+      #   key: 'quotation',
+      #   load_more_action: 'show',
+      #   locale: 'de',
+      #   page: 3
+      # }, headers: {
+      #   referer: thing_path(@content)
+      # }
+      # assert response.body.exclude?('load-more-linked-contents')
+      # assert(response.body.include?(quotations.dig(10, :text)))
 
       get load_more_linked_objects_thing_path(@content), xhr: true, params: {
         definition: @content.schema.dig('properties', 'content_location'),
@@ -209,35 +210,35 @@ module DataCycleCore
       assert response.body.exclude?('load-more-linked-contents')
       assert response.body.include?(linked_pois[10].name)
 
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'quotation'),
-        complete_key: 'thing[datahash][quotation]',
-        content_id: @content.id,
-        content_type: 'things',
-        editable: true,
-        key: 'quotation',
-        load_more_action: 'embedded_object',
-        page: 2
-      }, headers: {
-        referer: edit_thing_path(@content)
-      }
-      assert response.body.include?('load-more-linked-contents')
-      assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
-
-      get load_more_linked_objects_thing_path(@content), xhr: true, params: {
-        definition: @content.schema.dig('properties', 'quotation'),
-        complete_key: 'thing[datahash][quotation]',
-        content_id: @content.id,
-        content_type: 'things',
-        editable: true,
-        key: 'quotation',
-        load_more_action: 'embedded_object',
-        page: 3
-      }, headers: {
-        referer: edit_thing_path(@content)
-      }
-      assert response.body.exclude?('load-more-linked-contents')
-      assert(response.body.include?(quotations.dig(10, :text)))
+      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      #   definition: @content.schema.dig('properties', 'quotation'),
+      #   complete_key: 'thing[datahash][quotation]',
+      #   content_id: @content.id,
+      #   content_type: 'things',
+      #   editable: true,
+      #   key: 'quotation',
+      #   load_more_action: 'embedded_object',
+      #   page: 2
+      # }, headers: {
+      #   referer: edit_thing_path(@content)
+      # }
+      # assert response.body.include?('load-more-linked-contents')
+      # assert(quotations[5..9].all? { |s| response.body.include?(s[:text]) })
+      #
+      # get load_more_linked_objects_thing_path(@content), xhr: true, params: {
+      #   definition: @content.schema.dig('properties', 'quotation'),
+      #   complete_key: 'thing[datahash][quotation]',
+      #   content_id: @content.id,
+      #   content_type: 'things',
+      #   editable: true,
+      #   key: 'quotation',
+      #   load_more_action: 'embedded_object',
+      #   page: 3
+      # }, headers: {
+      #   referer: edit_thing_path(@content)
+      # }
+      # assert response.body.exclude?('load-more-linked-contents')
+      # assert(response.body.include?(quotations.dig(10, :text)))
     end
   end
 end

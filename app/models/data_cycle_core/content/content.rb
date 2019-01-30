@@ -27,6 +27,7 @@ module DataCycleCore
       include DestroyContent
       include DataHashUtility
       include Extensions::Content
+      include Extensions::ContentWarnings
 
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
@@ -46,7 +47,7 @@ module DataCycleCore
       end
 
       def content_type?(*types)
-        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
+        types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
       def schema_type
@@ -300,6 +301,10 @@ module DataCycleCore
 
       def convert_to_string(type, value)
         DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
+      end
+
+      def parent_templates
+        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
       end
     end
   end

@@ -7,7 +7,19 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
-SET search_path = public, pg_catalog;
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA public;
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
 
 SET default_tablespace = '';
 
@@ -429,7 +441,10 @@ CREATE TABLE things (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    is_part_of uuid
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -439,7 +454,7 @@ CREATE TABLE things (
 
 CREATE VIEW content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing' AS content_type,
+    'DataCycleCore::Thing'::text AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -477,7 +492,8 @@ CREATE TABLE delayed_jobs (
 -- Name: delayed_jobs_id_seq; Type: SEQUENCE; Schema: public; Owner: -
 --
 
-CREATE SEQUENCE delayed_jobs_id_seq
+CREATE SEQUENCE public.delayed_jobs_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -667,7 +683,10 @@ CREATE TABLE thing_histories (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    is_part_of uuid
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -1056,7 +1075,14 @@ CREATE INDEX all_text_idx ON searches USING gin (all_text gin_trgm_ops);
 -- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX by_content_relation_a ON content_contents USING btree (content_a_id, relation_a, content_b_id);
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
+
+
+--
+-- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
 
 
 --
@@ -1375,6 +1401,13 @@ CREATE INDEX index_searches_on_words ON searches USING gin (words);
 
 
 --
+-- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
+
+
+--
 -- Name: index_stored_filters_on_user_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1480,6 +1513,13 @@ CREATE INDEX index_thing_translations_on_thing_id ON thing_translations USING bt
 
 
 --
+-- Name: index_things_on_boost_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boost, updated_at);
+
+
+--
 -- Name: index_things_on_content_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1505,6 +1545,20 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON thing
 --
 
 CREATE UNIQUE INDEX index_things_on_id ON things USING btree (id);
+
+
+--
+-- Name: index_things_on_schema_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema ->> 'schema_type'::text)));
+
+
+--
+-- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
 
 
 --
@@ -1561,6 +1615,13 @@ CREATE UNIQUE INDEX index_users_on_id ON users USING btree (id);
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON users USING btree (reset_password_token);
+
+
+--
+-- Name: index_validity_range; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_validity_range ON public.things USING gist (validity_range);
 
 
 --
@@ -1763,6 +1824,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181130130052'),
 ('20181229111741'),
 ('20181231081526'),
-('20190107074405');
+('20190107074405'),
+('20190108154224'),
+('20190110092936'),
+('20190110151543'),
+('20190117135807'),
+('20190118113621');
 
 

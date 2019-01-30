@@ -16,6 +16,7 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
+      before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
@@ -70,7 +71,7 @@ module DataCycleCore
 
       def set_computed_values
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
         end
       end
 
@@ -100,6 +101,13 @@ module DataCycleCore
 
       def validate?(validation_hash)
         validation_hash&.dig(:error).blank?
+      end
+
+      def set_internal_data
+        self.content_type = schema&.dig('content_type')
+        self.boost = schema&.dig('boost') || 1.0
+        validity_hash = metadata.nil? ? nil : metadata['validity_period']
+        self.validity_range = get_validity_range(validity_hash)
       end
 
       private

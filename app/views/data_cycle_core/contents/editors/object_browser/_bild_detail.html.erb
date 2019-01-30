@@ -1,6 +1,9 @@
-<% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
-    <h5>Details</h5>
-    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
+<% I18n.with_locale(object.first_available_locale) do %>
+    <h5>Details (<%= I18n.locale %>)</h5>
+    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({content: object}) %>
+    <%
+        thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+    %>
 
     <% unless object.title.blank? %>
         <dl>
@@ -10,13 +13,16 @@
     <% end %>
     <% unless object.schema.nil? %>
         <dl>
-            <% unless object.try(:thumbnail_url).nil? %>
-                <dd><img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" /></dd>
+            <% if thumbnail_url.present? %>
+                <dd><img class="lazyload" data-src="<%= thumbnail_url %>" /></dd>
             <% end %>
 
-            <% unless object.try(:url).nil? %>
+            <% if object.try(:url).present? %>
                 <dt>Datei Url: </dt>
                 <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
+            <% elsif object.try(:content_url).present? %>
+                <dt>Datei Url: </dt>
+                <dd><%= link_to object.try(:content_url), object.try(:content_url), target: :_blank %></dd>
             <% end %>
 
             <% unless object.try(:file_format).nil? %>
@@ -58,6 +64,4 @@
 
         </dl>
     <% end %>
-<% else %>
-    <%= render 'data_cycle_core/contents/editors/object_browser/asset_default_detail', local_assigns %>
 <% end %>

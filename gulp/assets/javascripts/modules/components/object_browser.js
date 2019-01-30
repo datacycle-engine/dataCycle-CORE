@@ -36,6 +36,7 @@ var ObjectBrowser = function(selector) {
   this.content_id = this.element.data('content-id');
   this.content_type = this.element.data('content-type');
   this.masonry;
+  this.requests = [];
 
   this.setup();
 };
@@ -43,19 +44,13 @@ var ObjectBrowser = function(selector) {
 ObjectBrowser.prototype.setup = function() {
   var self = this;
 
-  this.sortable = new Sortable(
-    this.element.find('> .media-thumbs > .object-thumbs')[0],
-    {
-      handle: '.draggable-handle',
-      draggable: '.item'
-    }
-  );
+  this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs')[0], {
+    handle: '.draggable-handle',
+    draggable: '.item'
+  });
 
   this.ids = this.ids.diff(
-    $.map(
-      this.element.find('> .media-thumbs > .object-thumbs > .item'),
-      (val, i) => $(val).data('id')
-    )
+    $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
   );
 
   // initialize all eventhandlers
@@ -85,15 +80,13 @@ ObjectBrowser.prototype.setup = function() {
     self.loadObjects(false);
   });
 
-  this.overlay
-    .find('.chosen-items-container')
-    .on('click', '.item', function(event) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      if (self.selected != $(this).data('id')) {
-        self.loadDetails($(this).data('id'));
-      }
-    });
+  this.overlay.find('.chosen-items-container').on('click', '.item', function(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+    if (self.selected != $(this).data('id')) {
+      self.loadDetails($(this).data('id'));
+    }
+  });
 
   this.overlay.children('.items').on('click', '.item', function(event) {
     event.preventDefault();
@@ -103,7 +96,7 @@ ObjectBrowser.prototype.setup = function() {
       self.loadDetails($(this).data('id'));
     }
     if (self.chosen.indexOf($(this).data('id')) == -1) {
-      self.addObject($(this).data('id'), $(this).clone(true), event);
+      self.addObject($(this).data('id'), $(this).clone(), event);
     } else {
       self.removeObject($(this).data('id'), event);
     }
@@ -113,9 +106,7 @@ ObjectBrowser.prototype.setup = function() {
     event.preventDefault();
     event.stopPropagation();
     if (self.min != 0 && self.chosen.length <= self.min) {
-      var confirmationModal = new ConfirmationModal(
-        'Mindestanzahl: ' + self.min
-      );
+      var confirmationModal = new ConfirmationModal('Mindestanzahl: ' + self.min);
     } else {
       self.chosen = self.chosen.diff(
         $(this)
@@ -151,18 +142,16 @@ ObjectBrowser.prototype.setup = function() {
     }
   });
 
-  this.overlay
-    .find('.chosen-items-container')
-    .on('click', '.delete-thumbnail', function(event) {
-      event.preventDefault();
-      event.stopPropagation();
-      self.removeObject(
-        $(this)
-          .parent()
-          .data('id'),
-        event
-      );
-    });
+  this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    self.removeObject(
+      $(this)
+        .parent()
+        .data('id'),
+      event
+    );
+  });
 
   this.overlay.find('.buttons .save-object-browser').on(
     'click',
@@ -176,11 +165,9 @@ ObjectBrowser.prototype.setup = function() {
   this.element.on('update-chosen', (event, data) => {
     this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
 
-    $(
-      $.map(data.chosen, id =>
-        this.element.children('input:hidden[value="' + id + '"]')
-      )
-    ).each((index, elem) => $(elem).remove());
+    $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
+      $(elem).remove()
+    );
 
     this.updateChosenCounter();
     this.overlay.find('.items .item .reveal.media-preview').each(function() {
@@ -192,11 +179,9 @@ ObjectBrowser.prototype.setup = function() {
         $(this).prop('id', 'overlay_' + $(this).prop('id'));
     });
 
-    this.element
-      .find('.object-thumbs .item .reveal.media-preview')
-      .each((index, element) => {
-        $(element).foundation();
-      });
+    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+      $(element).foundation();
+    });
   });
 
   this.element.on('import-data', (event, data) => {
@@ -204,24 +189,13 @@ ObjectBrowser.prototype.setup = function() {
     if (data.external_ids != undefined) new_items = data.external_ids;
     else if (data.ids != undefined)
       new_items = data.ids.diff(
-        $.map(
-          this.element.find('> .media-thumbs > .object-thumbs > .item'),
-          (val, i) => $(val).data('id')
-        )
+        $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
       );
 
-    if (
-      new_items.length > 0 &&
-      (this.chosen.length + new_items.length <= this.max || this.max == 0)
-    ) {
+    if (new_items.length > 0 && (this.chosen.length + new_items.length <= this.max || this.max == 0)) {
       this.findObjects(new_items, data.external_ids != undefined);
-    } else if (
-      this.max != 0 &&
-      this.chosen.length + new_items.length > this.max
-    ) {
-      var confirmationModal = new ConfirmationModal(
-        'Maximalanzahl: ' + self.max
-      );
+    } else if (this.max != 0 && this.chosen.length + new_items.length > this.max) {
+      var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + self.max);
     }
   });
 
@@ -237,11 +211,7 @@ ObjectBrowser.prototype.setup = function() {
         .scrollIntoView({
           behavior: 'smooth'
         });
-      this.addObject(
-        data.id,
-        this.overlay.find('[data-id=' + data.id + ']').clone(true),
-        event
-      );
+      this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
     }.bind(this)
   );
 
@@ -344,6 +314,17 @@ ObjectBrowser.prototype.setChosen = function() {
           );
         $(this).foundation();
       });
+
+    this.element
+      .children('.media-thumbs')
+      .children('.object-thumbs')
+      .children('.item')
+      .find('[data-tooltip]')
+      .each(function() {
+        $(this)
+          .attr('title', $(this).data('title'))
+          .foundation();
+      });
   }
 };
 
@@ -354,6 +335,13 @@ ObjectBrowser.prototype.addObject = function(id, element, event) {
     if (this.chosen.indexOf(id) === -1) {
       this.chosen.push(id);
       this.overlay.find('.chosen-items-container').append(element);
+      $(element)
+        .find('[data-tooltip]')
+        .each(function() {
+          $(this)
+            .attr('title', $(this).data('title'))
+            .foundation();
+        });
       this.overlay
         .children('.items')
         .find('.item[data-id=' + id + ']')
@@ -380,22 +368,15 @@ ObjectBrowser.prototype.removeObject = function(id, event) {
 
 ObjectBrowser.prototype.updateChosenCounter = function() {
   var html = '';
-  if (this.chosen.length > 1)
-    html = '<strong>' + this.chosen.length + '</strong> Elemente auswählen';
-  else if (this.chosen.length == 1)
-    html = '<strong>' + this.chosen.length + '</strong> Element auswählen';
+  if (this.chosen.length > 1) html = '<strong>' + this.chosen.length + '</strong> Elemente auswählen';
+  else if (this.chosen.length == 1) html = '<strong>' + this.chosen.length + '</strong> Element auswählen';
   else html = 'Keine Elemente auswählen';
   this.overlay.find('.chosen-counter').html(html);
 };
 
 ObjectBrowser.prototype.loadMore = function(loaded_ids) {
   $.ajax({
-    url:
-      '/' +
-      this.content_type +
-      '/' +
-      this.content_id +
-      '/load_more_linked_objects',
+    url: '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
     method: 'GET',
     dataType: 'script',
     data: {
@@ -452,14 +433,15 @@ ObjectBrowser.prototype.resetOverlay = function() {
 ObjectBrowser.prototype.setPreselected = function() {
   this.overlay
     .find('.chosen-items-container')
-    .html(
-      this.element.find('> .media-thumbs > .object-thumbs > .item').clone(true)
-    );
+    .html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone())
+    .find('[data-tooltip]')
+    .each(function() {
+      $(this)
+        .attr('title', $(this).data('title'))
+        .foundation();
+    });
 
-  this.chosen = $.map(
-    this.element.find('> .media-thumbs > .object-thumbs > .item'),
-    (val, i) => $(val).data('id')
-  );
+  this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 };
 
 ObjectBrowser.prototype.openOverlay = function(ev) {
@@ -485,15 +467,9 @@ ObjectBrowser.prototype.openOverlay = function(ev) {
     this.overlay.foundation('close');
   });
 
-  $(window).on(
-    'message.object_browser onmessage.object_browser',
-    this.import.bind(this)
-  );
+  $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
 
-  let loaded = $.map(
-    this.element.find('> .media-thumbs > .object-thumbs > .item'),
-    (val, i) => $(val).data('id')
-  );
+  let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
 
   if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
   else this.loadObjects(false);
@@ -507,15 +483,12 @@ ObjectBrowser.prototype.closeOverlay = function(ev) {
   $('.breadcrumb ul li:last-child').html(text);
   $('.breadcrumb ul li').off('click');
   $(window).off('message.object_browser onmessage.object_browser');
-  $('#content-upload-reveal').off('closed.zf.reveal');
+  $('#asset-upload-reveal-default').off('closed.zf.reveal');
 };
 
 // import media from media_archive reveal
 ObjectBrowser.prototype.import = function(event) {
-  if (
-    event.originalEvent.data.action !== undefined &&
-    event.originalEvent.data.action == 'import'
-  ) {
+  if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
     var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
     $.ajax({
       type: 'POST',
@@ -537,16 +510,14 @@ ObjectBrowser.prototype.import = function(event) {
     })
       .done(
         function(data) {
-          this.overlay
-            .find('.items .item .reveal.media-preview')
-            .each(function() {
-              if (
-                $(this)
-                  .prop('id')
-                  .indexOf('overlay_') == -1
-              )
-                $(this).prop('id', 'overlay_' + $(this).prop('id'));
-            });
+          this.overlay.find('.items .item .reveal.media-preview').each(function() {
+            if (
+              $(this)
+                .prop('id')
+                .indexOf('overlay_') == -1
+            )
+              $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          });
         }.bind(this)
       )
       .always(() => {
@@ -561,59 +532,67 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
     this.overlay.children('.items').scrollTop(0);
     this.overlay
       .children('.items')
-      .html(
-        '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>'
-      );
+      .html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
   }
   this.overlay.find('.items .loading').show();
   this.loading = true;
-  $.ajax({
-    url: this.url + '/show',
-    method: 'POST',
-    dataType: 'script',
-    data: JSON.stringify({
-      page: this.page,
-      per: this.overlay_per,
-      type: this.type,
-      locale: this.locale,
-      key: this.key,
-      definition: this.definition,
-      options: this.options,
-      search: this.search,
-      objects: this.chosen,
-      editable: this.editable,
-      excluded: this.excluded,
-      append: append
-    }),
-    contentType: 'application/json'
-  }).done(data => {
-    this.total = this.overlay.data('total');
-    this.overlay.find('.items .item .reveal.media-preview').each(function() {
-      if (
-        $(this)
-          .prop('id')
-          .indexOf('overlay_') == -1
-      )
-        $(this).prop('id', 'overlay_' + $(this).prop('id'));
-    });
-    this.loading = false;
-    if (
-      this.overlay.children('.items').children('.item').length < this.total &&
-      this.overlay
-        .children('.items')
-        .children('.item')
-        .last()
-        .offset().top -
-        this.overlay.children('.items').offset().top <
-        this.overlay
-          .children('.items')
-          .first()
-          .outerHeight()
-    ) {
-      this.page += 1;
-      this.loadObjects();
-    }
+  this.requests.forEach(request => {
+    request.abort();
+    this.requests = this.requests.filter(r => r != request);
   });
+  this.requests.push(
+    $.ajax({
+      url: this.url + '/show',
+      method: 'POST',
+      dataType: 'script',
+      data: JSON.stringify({
+        page: this.page,
+        per: this.overlay_per,
+        type: this.type,
+        locale: this.locale,
+        key: this.key,
+        definition: this.definition,
+        options: this.options,
+        search: this.search,
+        objects: this.chosen,
+        editable: this.editable,
+        excluded: this.excluded,
+        append: append
+      }),
+      contentType: 'application/json'
+    })
+      .done(data => {
+        this.total = this.overlay.data('total');
+        this.overlay.find('.items .item .reveal.media-preview').each(function() {
+          if (
+            $(this)
+              .prop('id')
+              .indexOf('overlay_') == -1
+          )
+            $(this).prop('id', 'overlay_' + $(this).prop('id'));
+        });
+        this.loading = false;
+        if (
+          this.overlay.children('.items').children('.item').length < this.total &&
+          this.overlay
+            .children('.items')
+            .children('.item')
+            .last()
+            .offset().top -
+            this.overlay.children('.items').offset().top <
+            this.overlay
+              .children('.items')
+              .first()
+              .outerHeight()
+        ) {
+          this.page += 1;
+          this.loadObjects();
+        }
+      })
+      .always((data, text, jqXHR) => {
+        this.requests = this.requests.filter(r => r != jqXHR);
+      })
+  );
 };
 
 module.exports = ObjectBrowser;
