@@ -6,6 +6,7 @@ credentials:
     owner: 'dataCycleKW'
   host: 'http://web:3000'
   key: 'datacycle'
+  external_source: 'OutdoorActive Kärnten'
 config:
   push_config:
     endpoint: DataCycleCore::Export::OutdoorActive::Endpoint
