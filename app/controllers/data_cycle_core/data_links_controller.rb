@@ -25,14 +25,18 @@ module DataCycleCore
     end
 
     def create
-      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language)) && return unless receiver_params[:email].match?(Devise.email_regexp)
+      redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :success], locale: DataCycleCore.ui_language)) && return unless receiver_params[:email].match?(Devise.email_regexp) || receiver_params[:id].present?
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :email_exists, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless DataCycleCore::DataLink.joins(:receiver).where(item_type: create_link_params[:item_type], item_id: create_link_params[:item_id], users: { email: receiver_params[:email] }).empty?
 
       @data_link = DataCycleCore::DataLink.new(create_link_params)
-      @data_link.creator = current_user if current_user.present?
+      @data_link.creator = current_user
 
-      @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create!(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
+      if receiver_params[:id].present?
+        @receiver = DataCycleCore::User.find_by(id: receiver_params[:id])
+      else
+        @receiver = DataCycleCore::User.where(email: receiver_params[:email]).first_or_create!(receiver_params.merge(password: SecureRandom.hex, role: DataCycleCore::Role.find_by(rank: 0)))
+      end
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :invalid_mail, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return if @receiver.blank?
 
@@ -80,7 +84,7 @@ module DataCycleCore
 
     def receiver_params
       params.dig(:data_link, :receiver, :email)&.downcase!
-      params.require(:data_link).require(:receiver).permit(:email, :given_name, :family_name)
+      params.require(:data_link).require(:receiver).permit(:id, :email, :given_name, :family_name)
     end
 
     def split_params

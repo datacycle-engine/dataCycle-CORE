@@ -9,6 +9,7 @@
     <%= f.hidden_field 'item_type', value: content.class.name %>
     <%= f.hidden_field 'item_id', value: content.id %>
     <%= f.fields_for :receiver, data_link.receiver || DataCycleCore::User.new do |r| %>
+      <%= r.hidden_field :id %>
       <%= r.label :email, DataCycleCore::User.human_attribute_name("email", locale: DataCycleCore.ui_language) %>
       <% if data_link.receiver.nil? %>
         <%= r.text_field :email, required: true, readonly: data_link.id.nil? ? false : true, label: false, list: "users", class: "ajax-datalist users", autocomplete: :off %>
