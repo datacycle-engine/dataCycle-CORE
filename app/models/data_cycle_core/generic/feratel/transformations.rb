@@ -77,8 +77,10 @@ module DataCycleCore
           .>> t(:flatten_texts)
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
-          .>> t(:unwrap_description, ['InfrastructureLong', 'InfrastructureShort'])
-          .>> t(:add_field, 'description', ->(v) { v&.dig('InfrastructureLong') || v&.dig('InfrastructureShort') })
+          .>> t(:unwrap_description, ['InfrastructureLong', 'InfrastructureShort', 'InfrastructurePriceInfo'])
+          .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
+          .>> t(:add_field, 'text', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
+          .>> t(:add_field, 'price_range', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
           .>> t(:unwrap_address, 'InfrastructureExternal')
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(
