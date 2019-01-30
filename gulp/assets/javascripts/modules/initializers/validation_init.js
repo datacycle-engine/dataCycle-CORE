@@ -332,12 +332,9 @@ module.exports.initialize = function() {
   };
 
   // check if data changed and confirm leaving the page
-  if ($('.edit-content-form').length > 0) {
-    var form_data = [];
-    $(window).on('load', event => {
-      update_editors();
-      form_data = $('.edit-content-form').serializeArray();
-    });
+  if ($('.edit-content-form').length) {
+    update_editors();
+    var form_data = $('.edit-content-form').serializeArray();
 
     $(window).on('beforeunload', function() {
       update_editors();
@@ -373,11 +370,11 @@ module.exports.initialize = function() {
 
   // Validation
 
-  if ($('.validation-form').length > 0) {
+  if ($('.validation-form').length) {
     // disable button if agbs not accepted
     $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
 
-    if ($('#accept_agbs').length > 0) {
+    if ($('#accept_agbs').length) {
       $('#accept_agbs').on('change', function(event) {
         $('button.submit-edit-form').toggleClass('alert', !check_agbs_accepted());
       });
@@ -393,7 +390,7 @@ module.exports.initialize = function() {
 
       remove_submit_button_errors();
 
-      if ($(form).find('input#finalize:checked').length > 0) {
+      if ($(form).find('input#finalize:checked').length) {
         var confirmationModal = new ConfirmationModal(
           'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
           'success',

@@ -302,7 +302,7 @@ module DataCycleCore
       end
 
       def parent_templates
-        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }.flatten
       end
     end
   end
