@@ -36,7 +36,6 @@ initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/publication_init'));
 initializers.push(require('./modules/initializers/stored_filters_init'));
 initializers.push(require('./modules/initializers/dropdown_pane_init'));
-initializers.push(require('./modules/initializers/file_upload_init'));
 initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
@@ -97,19 +96,14 @@ $(function() {
 
               if (contents !== undefined) {
                 if (contents.title !== undefined) {
-                  $('[data-label="Meta-Titel"] > input[type=text]').trigger(
-                    'import-data',
-                    {
-                      label: 'Meta-Titel',
-                      value: contents.title
-                    }
-                  );
+                  $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
+                    label: 'Meta-Titel',
+                    value: contents.title
+                  });
                 }
 
                 if (contents.description !== undefined) {
-                  $(
-                    '[data-label="Meta-Description"] > .editor-block > .quill-editor'
-                  ).trigger('import-data', {
+                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
                     label: 'Meta-Description',
                     value: contents.description
                   });
@@ -132,10 +126,7 @@ $(function() {
                 //   callout_helpers.show('Keine Märkte gefunden.', 'alert');
                 // }
 
-                if (
-                  contents.images !== undefined &&
-                  contents.images.length > 0
-                ) {
+                if (contents.images !== undefined && contents.images.length > 0) {
                   let image_ids = contents.images.map(i => i.external_key);
                   let label = $('.linked[data-label="Bilder"]')
                     .first()
@@ -162,10 +153,7 @@ $(function() {
             $(event.currentTarget)
               .siblings('.loading')
               .fadeOut(100);
-            callout_helpers.show(
-              'Fehler beim Importieren von URL: ' + url,
-              'alert'
-            );
+            callout_helpers.show('Fehler beim Importieren von URL: ' + url, 'alert');
           });
       }
     });
