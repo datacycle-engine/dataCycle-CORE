@@ -16,7 +16,7 @@ module DataCycleCore
                 xml.owner @owner
                 xml.author 'DataCycle'
                 xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
-                outdoor_active_categories(content, xml)
+                outdoor_active_categories(content, xml, external_system)
                 outdoor_active_contact(content, xml)
                 outdoor_active_descriptons(content, xml)
                 outdoor_active_images(content, xml)
@@ -96,13 +96,13 @@ module DataCycleCore
         end
 
         def self.image_license(image, xml)
-          license_string = "#{(image.copyright_holder.present? ? image.copyright_holder&.first&.title : '')}#{(image.copyright_year.present? ? ', ' + image.copyright_year.to_s : '')}"
+          license_string = "#{(image.try(:copyright_holder).present? ? image.copyright_holder&.first&.title : '')}#{(image.try(:copyright_holder).present? ? ', ' + image.copyright_year.to_s : '')}"
           return if license_string.blank?
           xml.license license_string
         end
 
-        def self.outdoor_active_categories(content, xml)
-          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_categories(content)
+        def self.outdoor_active_categories(content, xml, external_system)
+          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_categories(content, external_system)
           if categories.count == 1
             xml.category categories.first.external_key.split(':').last
           else

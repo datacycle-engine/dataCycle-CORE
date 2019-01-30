@@ -11,7 +11,7 @@ module DataCycleCore
           Functions.delete(utility_object: utility_object, data: data)
         end
 
-        def self.filter(_data)
+        def self.filter(_data, _external_system)
           false
         end
       end

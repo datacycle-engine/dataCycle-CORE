@@ -35,8 +35,8 @@ module DataCycleCore
           # webhook.perform
         end
 
-        def self.outdoor_active_categories(data)
-          external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive')&.id
+        def self.outdoor_active_categories(data, external_system)
+          external_source_id = DataCycleCore::ExternalSource.find_by(name: external_system.credentials.dig('external_source'))&.id
           data.classifications.includes(:classification_aliases)
             .map(&:classification_aliases).flatten.uniq
             &.select { |c| c.external_source_id == external_source_id }
