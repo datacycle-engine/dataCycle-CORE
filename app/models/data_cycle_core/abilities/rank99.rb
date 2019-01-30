@@ -9,6 +9,7 @@ module DataCycleCore
         can :become, DataCycleCore::User
         can :destroy, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
+        can :edit, DataCycleCore::DataAttribute
       end
     end
   end
