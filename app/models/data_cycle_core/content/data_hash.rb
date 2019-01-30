@@ -133,8 +133,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          puts "value: #{value}, key: #{key}, tree_label: #{properties['tree_label']}, default_value: #{properties['default_value']}"
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'computed'
@@ -298,7 +297,8 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated)
+        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids)

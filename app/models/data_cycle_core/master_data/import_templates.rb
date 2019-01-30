@@ -283,6 +283,8 @@ module DataCycleCore
           optional(:tree_label) { str? }
           optional(:stored_filter) { array? }
           optional(:linked_language) { str? & valid_linked_language? }
+          optional(:external) { bool? }
+          optional(:not_translated) { bool? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (
