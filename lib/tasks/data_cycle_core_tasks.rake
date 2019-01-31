@@ -332,12 +332,11 @@ namespace :data_cycle_core do
 
   namespace :refactor do
     desc 'import and update all templates'
-    task :import_update_all_templates, [:prefix] => [:environment] do |_, args|
+    task import_update_all_templates: :environment do
       temp = Time.zone.now
-      args[:prefix] ||= ''
 
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, args[:prefix])
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(false)
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
