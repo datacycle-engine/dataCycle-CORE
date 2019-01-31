@@ -1088,13 +1088,6 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 
 
 --
--- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
-
-
---
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1246,6 +1239,13 @@ CREATE INDEX index_classification_contents_on_classification_id ON public.classi
 --
 
 CREATE INDEX index_classification_contents_on_content_data_id ON public.classification_contents USING btree (content_data_id);
+
+
+--
+-- Name: index_classification_contents_on_unique_constraint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_contents_on_unique_constraint ON public.classification_contents USING btree (content_data_id, classification_id, relation);
 
 
 --
@@ -1838,6 +1838,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190110092936'),
 ('20190110151543'),
 ('20190117135807'),
-('20190118113621');
+('20190118113621'),
+('20190129083607');
 
 
