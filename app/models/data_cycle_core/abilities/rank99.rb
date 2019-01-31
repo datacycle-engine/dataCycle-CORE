@@ -10,6 +10,7 @@ module DataCycleCore
         can :destroy, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
         can :edit, DataCycleCore::DataAttribute
+        can :show_admin_panel, DataCycleCore::Thing
       end
     end
   end
