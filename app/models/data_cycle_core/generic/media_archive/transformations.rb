@@ -73,7 +73,7 @@ module DataCycleCore
           .>> t(:rename_keys, 'address' => 'street_address')
           .>> t(:nest, 'address', ['street_address'])
           .>> t(:map_value, 'name', ->(s) { s.try :[], I18n.locale.to_s })
-          .>> t(:add_field, 'external_key', ->(s) { "#{s['contentType']}-#{template}: #{s['url'].split('/').last}" })
+          .>> t(:add_field, 'external_key', ->(s) { "-#{template}: #{s['url'].split('/').last}" })
           .>> t(:location)
           .>> t(:compact)
           .>> t(:strip_all)
