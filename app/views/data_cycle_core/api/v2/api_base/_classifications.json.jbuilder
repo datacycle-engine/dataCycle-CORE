@@ -3,7 +3,7 @@
 # definition ||= nil
 json.set! key do
   json.array!(classification_aliases) do |classification_alias|
-    json.cache!("#{classification_alias.class}_#{classification_alias.id}_#{classification_alias.updated_at}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
+    json.cache!("#{classification_alias.class}_#{classification_alias.id}_#{@language}_#{classification_alias.updated_at}_#{@mode_parameters.join('_')}", expires_in: 10.minutes) do
       json.id classification_alias.id
       # if definition.present?
       #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
