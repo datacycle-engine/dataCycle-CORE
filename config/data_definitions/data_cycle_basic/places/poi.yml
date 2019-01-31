@@ -43,6 +43,16 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :price_range:
+        :label: Preis-Info
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
