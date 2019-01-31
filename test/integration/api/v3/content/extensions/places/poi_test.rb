@@ -26,7 +26,7 @@ module DataCycleCore
                 place_data_hash[:primary_image] = @image.id
                 place_data_hash[:logo] = @image.id
 
-                opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag'])&.map(&:id)
+                opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
                 opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
                 opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
 
