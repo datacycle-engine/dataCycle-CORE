@@ -1,9 +1,10 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
 var quill_helpers = require('./../helpers/quill_helpers');
+var DataCycleCore = {};
 
 // Add Validation to Form Elements
 module.exports.initialize = function() {
-  var promises = [];
+  DataCycleCore.promises = [];
 
   let check_agbs_accepted = function() {
     if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
@@ -17,17 +18,11 @@ module.exports.initialize = function() {
     } else return true;
   };
 
-  let update_editors = function() {
-    $('.quill-editor').each((index, elem) => {
-      quill_helpers.update_value(elem);
-    });
-  };
-
   let catch_promises = function(form, submit) {
     $.when
-      .apply(undefined, promises)
+      .apply(undefined, DataCycleCore.promises)
       .then(function() {
-        promises = [];
+        DataCycleCore.promises = [];
 
         var isValid = true;
         if (Array.isArray(arguments[0])) {
@@ -255,7 +250,7 @@ module.exports.initialize = function() {
 
     let url = '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
 
-    promises.push(
+    DataCycleCore.promises.push(
       $.ajax({
         type: 'POST',
         url: url,
@@ -281,13 +276,13 @@ module.exports.initialize = function() {
   };
 
   let submit_thing_form = function(form) {
-    update_editors();
+    quill_helpers.update_editors();
     disable_form(form);
 
     $('#validation_errors').html('');
 
     var items = [];
-    promises = [];
+    DataCycleCore.promises = [];
 
     $(form)
       .find('.validation-container')
@@ -303,7 +298,7 @@ module.exports.initialize = function() {
       .find('.validation-form')
       .each((index, element) => {
         $(element).on('change', '.validation-container', event => {
-          promises = [];
+          DataCycleCore.promises = [];
           validate_item(element, event.currentTarget);
           catch_promises(element, false);
         });
@@ -333,23 +328,25 @@ module.exports.initialize = function() {
 
   // check if data changed and confirm leaving the page
   if ($('.edit-content-form').length) {
-    update_editors();
-    var form_data = $('.edit-content-form').serializeArray();
+    quill_helpers.update_editors();
+    DataCycleCore.form_data = $('.edit-content-form').serializeArray();
 
     $(window).on('beforeunload', function() {
-      update_editors();
-      var new_form_data = $('.edit-content-form').serializeArray();
+      quill_helpers.update_editors();
+      DataCycleCore.new_form_data = $('.edit-content-form').serializeArray();
 
-      if (form_data.length !== 0 && !form_data.equal_to(new_form_data))
+      // return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
+
+      if (DataCycleCore.form_data.length !== 0 && !DataCycleCore.form_data.equal_to(DataCycleCore.new_form_data))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
 
     // language redirect if changes present
     if ($('.edit-header #language-menu').length) {
       $(document).on('click', '.edit-header #language-menu .list-items li a', event => {
-        update_editors();
-        var new_form_data = $('.edit-content-form').serializeArray();
-        if (form_data.length !== 0 && !form_data.equal_to(new_form_data)) {
+        quill_helpers.update_editors();
+        DataCycleCore.new_form_data = $('.edit-content-form').serializeArray();
+        if (DataCycleCore.form_data.length !== 0 && !DataCycleCore.form_data.equal_to(DataCycleCore.new_form_data)) {
           event.preventDefault();
 
           var confirmationModal = new ConfirmationModal(
