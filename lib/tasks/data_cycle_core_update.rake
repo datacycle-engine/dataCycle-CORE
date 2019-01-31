@@ -172,6 +172,17 @@ namespace :data_cycle_core do
         puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
       end
     end
+
+    namespace :configs do
+      desc 'import and update all classifications, external_sources, external_systems and templates'
+      task :update_all, [:prefix] => :environment do |_, args|
+        args[:prefix] ||= ''
+        Rake::Task["#{args[:prefix]}data_cycle_core:update:import_classifications"].invoke
+        Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_source_configs"].invoke
+        Rake::Task["#{args[:prefix]}data_cycle_core:update:import_external_system_configs"].invoke
+        Rake::Task["#{args[:prefix]}data_cycle_core:refactor:import_update_all_templates"].invoke(args[:prefix])
+      end
+    end
   end
 
   private

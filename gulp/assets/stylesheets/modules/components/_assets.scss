@@ -49,6 +49,16 @@ ul.asset-list {
     font-style: italic;
   }
   .asset-type {
+    .asset-checkbox {
+      display: none;
+      color: white;
+      font-size: 1.1rem;
+      line-height: 0.9rem;
+      border: 1px solid rgba($dark-gray, 0.5);
+      background-color: white;
+      border-radius: 5px;
+      margin-right: 0.2rem;
+    }
     font-size: 0.9rem;
   }
   li {
@@ -119,8 +129,18 @@ ul.asset-list {
   &.selectable {
     li {
       cursor: pointer;
+      .asset-type {
+        .asset-checkbox {
+          display: inline;
+        }
+      }
 
       &.active {
+        .asset-type {
+          .asset-checkbox {
+            color: $black;
+          }
+        }
         border-color: $primary-color;
         background-color: $primary-color;
         box-shadow: 0 0 0 1px rgba($primary-color, 1);

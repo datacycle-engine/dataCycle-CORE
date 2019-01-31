@@ -254,7 +254,10 @@ AssetUploader.prototype.validateFiles = function(event) {
     reader.onload = (function(the_file) {
       return function(e) {
         var type_validations = [];
-        var file_extension = the_file.name.split('.').pop();
+        var file_extension = the_file.name
+          .split('.')
+          .pop()
+          .toLowerCase();
         var file_name = the_file.name
           .split('.')
           .shift()

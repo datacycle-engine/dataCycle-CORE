@@ -135,7 +135,7 @@ module DataCycleCore
       end
 
       templates.each do |t|
-        next unless t.content_type?('embedded') ? t.parent_templates&.flatten&.any? { |pt| pt.creatable?('asset') } : t.creatable?('asset')
+        next unless t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset')
 
         uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
 

@@ -18,7 +18,6 @@ initializers.push(require('./modules/initializers/blur_init'));
 initializers.push(require('./modules/initializers/detailheader_init'));
 initializers.push(require('./modules/initializers/focus_init'));
 initializers.push(require('./modules/initializers/flash_init'));
-initializers.push(require('./modules/initializers/validation_init'));
 initializers.push(require('./modules/initializers/counter_init'));
 initializers.push(require('./modules/initializers/date_picker_init'));
 initializers.push(require('./modules/initializers/slider_init'));
@@ -39,6 +38,9 @@ initializers.push(require('./modules/initializers/dropdown_pane_init'));
 initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
+
+// keep validations last to ensure everything is intialized before saving form values
+initializers.push(require('./modules/initializers/validation_init'));
 
 $(function() {
   initializers.forEach(element => {
