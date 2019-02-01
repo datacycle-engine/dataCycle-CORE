@@ -1088,13 +1088,6 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 
 
 --
--- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
-
-
---
 -- Name: by_ctl_esi; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1246,6 +1239,13 @@ CREATE INDEX index_classification_contents_on_classification_id ON public.classi
 --
 
 CREATE INDEX index_classification_contents_on_content_data_id ON public.classification_contents USING btree (content_data_id);
+
+
+--
+-- Name: index_classification_contents_on_unique_constraint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_contents_on_unique_constraint ON public.classification_contents USING btree (content_data_id, classification_id, relation);
 
 
 --
@@ -1536,6 +1536,13 @@ CREATE INDEX index_things_on_content_type ON public.things USING btree (((schema
 
 
 --
+-- Name: index_things_on_content_type_template; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_content_type_template ON public.things USING btree (content_type, template);
+
+
+--
 -- Name: index_things_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1561,13 +1568,6 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 --
 
 CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema ->> 'schema_type'::text)));
-
-
---
--- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
 
 
 --
@@ -1838,6 +1838,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190110092936'),
 ('20190110151543'),
 ('20190117135807'),
-('20190118113621');
+('20190118113621'),
+('20190129083607');
 
 

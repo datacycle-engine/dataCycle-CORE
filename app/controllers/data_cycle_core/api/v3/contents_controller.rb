@@ -102,16 +102,12 @@ module DataCycleCore
             query = query.event_from_time(Time.zone.now)
           end
 
-          if permitted_params&.dig(:filter, :to).present?
-            query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)))
-          end
+          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
           query
         end
 
         def apply_place_query_filters(query)
-          if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
-            query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
-          end
+          query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f)) if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
           query
         end
 

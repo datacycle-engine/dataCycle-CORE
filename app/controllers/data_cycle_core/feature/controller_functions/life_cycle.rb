@@ -8,9 +8,7 @@ module DataCycleCore
 
         included do
           DataCycleCore::Engine.routes.append do
-            unless has_named_route?(:update_life_cycle_thing)
-              patch '/things/:id/update_life_cycle', action: :update_life_cycle, controller: 'things', as: 'update_life_cycle_thing'
-            end
+            patch '/things/:id/update_life_cycle', action: :update_life_cycle, controller: 'things', as: 'update_life_cycle_thing' unless has_named_route?(:update_life_cycle_thing)
           end
           Rails.application.reload_routes!
         end

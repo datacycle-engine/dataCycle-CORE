@@ -38,6 +38,7 @@ initializers.push(require('./modules/initializers/dropdown_pane_init'));
 initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
+initializers.push(require('./modules/initializers/admin_panel_init'));
 
 // keep validations last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/validation_init'));

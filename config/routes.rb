@@ -131,6 +131,10 @@ DataCycleCore::Engine.routes.draw do
         scope 'external_sources/:external_source_id' do
           resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
         end
+
+        scope 'external_systems/:external_system_id' do
+          resource :external_systems, only: [:show], controller: :external_systems, path: ':ids'
+        end
       end
       namespace :v3 do
         type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
