@@ -12,7 +12,6 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          external_system = DataCycleCore::ExternalSystem.find_by(name: external_system)
           job_id = data.external_system_data(external_system)&.dig('job_id')
           (
           data.template_name == 'POI' &&
