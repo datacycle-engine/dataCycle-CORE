@@ -63,11 +63,46 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Names', 'Translation', 'text') })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
-          .>> t(:rename_keys, { 'Id' => 'external_key', 'Width' => 'width', 'Height' => 'height', 'Size' => 'content_size', 'Extension' => 'file_format' })
+          .>> t(:rename_keys, { 'Id' => 'external_key', 'Width' => 'width', 'Height' => 'height', 'Size' => 'content_size', 'Extension' => 'file_format', 'Copyright' => 'caption' })
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom', 'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
+          .>> t(:strip_all)
+        end
+
+        def self.feratel_event_location_to_place
+          t(:stringify_keys)
+          .>> t(:add_field, 'name', ->(s) { s.dig('Company', 'text') })
+          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_field, 'street_address', ->(s) { s.dig('AddressLine1', 'text') })
+          .>> t(:add_field, 'postal_code', ->(s) { s.dig('Country', 'text') })
+          .>> t(:add_field, 'address_locality', ->(s) { s.dig('ZipCode', 'text') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('Town', 'text') })
+          .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+          .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
+          .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
+          .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
+          .>> t(:location)
+          .>> t(:reject_keys, ['Type', 'ChangeDate', 'Company', 'AddressLine1', 'Country', 'ZipCode', 'Town'])
+          .>> t(:reject_keys, ['Type', 'ChangeDate', 'Company', 'AddressLine1', 'Country', 'ZipCode', 'Town'])
+          .>> t(:strip_all)
+        end
+
+        def self.feratel_to_event(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:unwrap, 'Details')
+          .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
+          .>> t(:unwrap_description, ['EventHeader'])
+          .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
+          .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
+                document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('Addresses', 'Address')&.detect { |item| item.dig('Type') == 'Venue' }&.dig('Id') })
+          .>> t(:add_field, 'event_schedule', ->(s) { load_event_schedules(s) })
+          .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate'])
           .>> t(:strip_all)
         end
 
@@ -170,6 +205,29 @@ module DataCycleCore
               &.select { |d| document_classes.include?(d['Class']) && document_types.include?(d['Type']) }
               &.sort_by { |item| item['Order'].to_i }
               &.map { |item| item&.dig('Id') } || []
+          end
+        end
+
+        def self.load_event_schedules(data)
+          available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
+          available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
+          duration = event_duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text'))
+
+          byebug
+        end
+
+        def self.event_duration(type, value)
+          case type
+            when 'None'
+              nil
+            when 'Day'
+              value.to_f * 24 * 60
+            when 'Hour'
+              value.to_f * 60
+            when 'Minute'
+              value.to_f
+            else
+              raise "Unkown duration type '#{type}'"
           end
         end
       end

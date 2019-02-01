@@ -24,6 +24,34 @@ module DataCycleCore
           )
         end
 
+        def self.process_event_location(utility_object, raw_data, config)
+          template = config&.dig(:template) || 'Örtlichkeit'
+
+          address = raw_data.dig('Addresses', 'Address')&.select do |d|
+            d['Type'] == 'Venue'
+          end&.first&.merge(raw_data.dig('Details', 'Position'))
+
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: address,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_event_location_to_place,
+            default: { template: template },
+            config: config
+          )
+        end
+
+        def self.process_event(utility_object, raw_data, config)
+          test = DataCycleCore::Generic::Feratel::Transformations.feratel_to_event(utility_object.external_source.id).call(raw_data)
+          byebug
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_event(utility_object.external_source.id),
+            default: { template: 'dataCycleEvent' },
+            config: config
+          )
+        end
+
         def self.process_accommodation(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
