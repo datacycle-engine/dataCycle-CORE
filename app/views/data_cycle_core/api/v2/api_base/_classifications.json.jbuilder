@@ -9,7 +9,7 @@ json.set! key do
       #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
       # end
       json.name classification_alias.name(locale: @language) || classification_alias.try(:internal_name)
-      json.description classification_alias.description(locale: @language) if classification_alias.description.present?
+      json.description classification_alias.description(locale: @language) if classification_alias.description(locale: @language).present?
       json.createdAt classification_alias.created_at
       json.updatedAt classification_alias.updated_at
       json.deletedAt classification_alias.deleted_at if classification_alias.deleted_at
