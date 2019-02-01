@@ -8,8 +8,8 @@ json.set! key do
       # if definition.present?
       #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
       # end
-      json.name classification_alias.name || classification_alias.try(:internal_name)
-      json.description classification_alias.description if classification_alias.description.present?
+      json.name classification_alias.name(locale: @language) || classification_alias.try(:internal_name)
+      json.description classification_alias.description(locale: @language) if classification_alias.description.present?
       json.createdAt classification_alias.created_at
       json.updatedAt classification_alias.updated_at
       json.deletedAt classification_alias.deleted_at if classification_alias.deleted_at
@@ -20,7 +20,7 @@ json.set! key do
             # if definition.present?
             #   json.set! '@type', definition.dig('api', 'type') || 'Enumeration'
             # end
-            json.name ancestor.name || ancestor.try(:internal_name)
+            json.name ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)
             json.createdAt ancestor.created_at
             json.updatedAt ancestor.updated_at
             json.deletedAt classification_alias.deleted_at if classification_alias.deleted_at
