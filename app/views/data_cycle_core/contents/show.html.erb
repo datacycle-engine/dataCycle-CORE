@@ -39,6 +39,12 @@
             <a data-toggle="schema">
                 <i class="fa fa-code"></i>
             </a>
+            <a data-toggle="datahash">
+                <i class="fa fa-hashtag"></i>
+            </a>
+            <a data-toggle="json-api">
+                <i class="fa">json</i>
+            </a>
         </nav>
         <section id="admin-inner">
             <section id="schema" data-toggler=".expanded">
@@ -46,6 +52,35 @@
                     <button class="copy-to-admin-clipboard">COPY</button>
                 </section>
 <pre id="json"><code><%= JSON.pretty_generate(@content.schema) %></code></pre>
+            </section>
+            <section id="datahash" data-toggler=".expanded">
+                <section class="datahash-nav">
+                    <button class="copy-to-admin-clipboard">COPY</button>
+                </section>
+                <%
+                    admin_data_hash = {
+                        external_key: @content.external_key,
+                        external_source_id: @content.external_source_id,
+                        created_at: @content.created_at,
+                        created_by: @content.created_by,
+                        updated_at: @content.updated_at,
+                        updated_by: @content.updated_by,
+                    }.merge(@content.get_data_hash)
+                %>
+<pre id="json"><code><%= JSON.pretty_generate(admin_data_hash) %></code></pre>
+            </section>
+            <section id="json-api" data-toggler=".expanded">
+                <section class="json-api-nav">
+                    <button class="copy-to-admin-clipboard">COPY</button>
+                </section>
+                <%
+                    json_api_show = DataCycleCore::Api::V3::ContentsController.render(
+                        assigns: {content: @content, mode_parameters: [], language: 'de', include_parameters: []},
+                        template: 'data_cycle_core/api/v2/contents/show',
+                        layout: false
+                    )
+                %>
+                <pre id="json"><code><%= json_api_show %></code></pre>
             </section>
         </section>
     </section>
