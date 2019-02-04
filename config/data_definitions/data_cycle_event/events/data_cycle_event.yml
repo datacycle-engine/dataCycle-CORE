@@ -79,6 +79,9 @@
       :event_db:
         :type: mixin
         :name: event_db
+      :feratel_events:
+        :type: mixin
+        :name: feratel_events
       :v_ticket:
         :type: mixin
         :name: v_ticket

@@ -31,6 +31,8 @@ module DataCycleCore
             d['Type'] == 'Venue'
           end&.first&.merge(raw_data.dig('Details', 'Position'))
 
+          return if address.blank?
+
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: address,
@@ -41,8 +43,6 @@ module DataCycleCore
         end
 
         def self.process_event(utility_object, raw_data, config)
-          test = DataCycleCore::Generic::Feratel::Transformations.feratel_to_event(utility_object.external_source.id).call(raw_data)
-          byebug
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,

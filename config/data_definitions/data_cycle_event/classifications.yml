@@ -1,3 +1,11 @@
 - Inhaltstypen:
   - $$dataCycleEvent
   - $$dataCycleEventSchedule
+
+- Feratel - Veranstaltungstags:
+  - $$Top-Event
+  - $$Local
+  - $$Town
+  - $$Region
+  - $$Subregion
+  - $$Country

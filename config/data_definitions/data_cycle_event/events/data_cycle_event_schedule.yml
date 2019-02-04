@@ -43,6 +43,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
           :end_date:
             :label: Bis
             :type: datetime
@@ -55,6 +57,8 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
       :event_time:
         :label: Uhrzeit
         :type: object
