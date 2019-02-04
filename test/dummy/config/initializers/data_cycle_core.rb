@@ -53,7 +53,8 @@ DataCycleCore.setup do |config|
       },
       normalize: {
         enabled: true,
-        external_source: 'Econob Normalize'
+        external_source: 'Econob Normalize',
+        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
       }
     }
   )

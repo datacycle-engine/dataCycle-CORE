@@ -132,6 +132,7 @@ de:
     external_connections:
       one: Externe Verknüpfung
       other: Externe Verknüpfungen
+    normalize: Normalisieren
 
   tile_links:
     details: zur Detailansicht

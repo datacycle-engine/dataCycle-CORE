@@ -151,6 +151,7 @@ module DataCycleCore
         template_mapping: {
           bild: 'image',
           video: 'video'
+        }
       },
       normalize: {
         enabled: false
