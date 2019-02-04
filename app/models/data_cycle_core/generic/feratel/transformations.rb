@@ -104,7 +104,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_locations', ->(s) { s.dig('Addresses', 'Address').is_a?(Hash) ? [s.dig('Addresses', 'Address')] : s.dig('Addresses', 'Address') })
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_locations')&.detect { |item| item.dig('Type') == 'Venue' }&.dig('Id') })
           .>> t(:add_field, 'event_schedule', ->(s) { load_event_schedules(s) })
-          .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('isTopEvent') == 'true' ? 'Top-Event' : nil)]) })
+          .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate', 'Addresses', 'Documents', 'feratel_documents', 'Facilities', 'CustomAttributes', 'Location', 'Towns', 'Position'])
           .>> t(:strip_all)
