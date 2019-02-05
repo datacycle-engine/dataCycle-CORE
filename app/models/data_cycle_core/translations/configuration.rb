@@ -34,9 +34,9 @@ module DataCycleCore
         @default_backend = :jsonb
         @default_accessor_locales = -> { DataCycleCore::Translations::Translation.available_locales }
         @default_options = Options[{
-          cache:     true,
-          presence:  true,
-          query:     true
+          cache: true,
+          presence: true,
+          query: true
         }]
         plugins(:query)
       end
@@ -49,9 +49,7 @@ module DataCycleCore
 
       class Options < ::Hash
         def []=(key, _)
-          if RESERVED_OPTION_KEYS.include?(key)
-            raise Configuration::ReservedOptionKey, "Default options may not contain the following reserved key: #{key}"
-          end
+          raise Configuration::ReservedOptionKey, "Default options may not contain the following reserved key: #{key}" if RESERVED_OPTION_KEYS.include?(key)
           super
         end
       end

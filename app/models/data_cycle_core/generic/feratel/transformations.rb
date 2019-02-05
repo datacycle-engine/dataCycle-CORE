@@ -212,9 +212,7 @@ module DataCycleCore
 
         def self.load_feratel_event_tags(names)
           names.compact.map do |name|
-            DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-              .where('classification_tree_labels.name = ?', 'Feratel - Veranstaltungstags')
-              .where('classification_aliases.name = ?', name).first!.id
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Feratel - Veranstaltungstags', name)
           end
         end
 

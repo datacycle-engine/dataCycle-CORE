@@ -3,7 +3,7 @@
 module DataCycleCore
   module Translations
     module Util
-      VALID_CONSTANT_NAME_REGEXP = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/
+      VALID_CONSTANT_NAME_REGEXP = /\A(?:::)?([A-Z]\w*(?:::[A-Z]\w*)*)\z/.freeze
 
       def self.included(klass)
         klass.extend(self)
@@ -73,7 +73,7 @@ module DataCycleCore
         end
       end
 
-      extend self # rubocop:disable Style/ModuleFunction
+      extend self
     end
   end
 end

@@ -47,9 +47,7 @@ module DataCycleCore
 
         def normalize_locale_accessor(attribute, locale = I18n.locale)
           "#{attribute}_#{normalize_locale(locale)}".tap do |accessor|
-            unless CALL_COMPILABLE_REGEXP.match?(accessor)
-              raise ArgumentError, "#{accessor.inspect} is not a valid accessor"
-            end
+            raise ArgumentError, "#{accessor.inspect} is not a valid accessor" unless CALL_COMPILABLE_REGEXP.match?(accessor)
           end
         end
 

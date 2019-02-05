@@ -190,9 +190,7 @@ module DataCycleCore
                   query_map = scope.translation_modules.inject(IDENTITY) do |qm, mod|
                     hash_keys = nil
                     i18n_keys = nil
-                    if keys.include?(scope.table_name.to_s)
-                      hash_keys = opts.dig(scope.table_name).keys.map(&:to_s)
-                    end
+                    hash_keys = opts.dig(scope.table_name).keys.map(&:to_s) if keys.include?(scope.table_name.to_s)
 
                     if hash_keys.blank?
                       i18n_keys = mod.names & keys
