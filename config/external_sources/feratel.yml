@@ -225,3 +225,14 @@ config:
           template: Bild
         place:
           template: Unterkunft
+    events:
+      sorting: 22
+      source_type: events
+      import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
+      transformations:
+        image:
+          template: Bild
+        place:
+          template: Örtlichkeit
+        event:
+          template: Event

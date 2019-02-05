@@ -30,24 +30,5 @@
 <% end %>
 
 <% content_for :admin_panel do %>
-
-    <section id="admin-panel">
-        <nav id="admin-icons">
-            <a data-toggle="menuBar">
-                <i class="fa fa-user-secret"></i>
-            </a>
-            <a data-toggle="schema">
-                <i class="fa fa-code"></i>
-            </a>
-        </nav>
-        <section id="admin-inner">
-            <section id="schema" data-toggler=".expanded">
-                <section class="schema-nav">
-                    <button class="copy-to-admin-clipboard">COPY</button>
-                </section>
-<pre id="json"><code><%= JSON.pretty_generate(@content.schema) %></code></pre>
-            </section>
-        </section>
-    </section>
-
+    <%= render 'data_cycle_core/application/admin_panel/default', content: @content %>
 <% end %>
