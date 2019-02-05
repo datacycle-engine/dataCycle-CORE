@@ -129,7 +129,8 @@ module DataCycleCore
 
       if asset_type.present?
         uploader_validations.delete(:text_file)
-        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'asset_type' = ?", true, asset_type)
+
+        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
       else
         templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value->> 'type' = ? OR things.template_name IN(?))", true, 'asset', DataCycleCore.features.dig(:external_media_archive, :enabled) ? ['Bild', 'Video'] : nil)
       end

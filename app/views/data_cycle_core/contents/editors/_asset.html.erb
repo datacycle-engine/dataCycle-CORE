@@ -20,10 +20,12 @@
         <div class="buttons">
           <a class="asset-upload-link button" data-open="asset-upload-reveal-<%= sanitize_to_id(key) %>">
             <i class="fa fa-upload" aria-hidden="true"></i>
-            <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
+            1. <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
           </a>
           <%= render 'asset_upload', key: sanitize_to_id(key), asset_type: definition&.dig('asset_type') %>
-          <a class="select-asset-link button" disabled="disabled"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
+          <a class="select-asset-link button" disabled="disabled">
+            2. <%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %>
+          </a>
         </div>
       </div>
       <button class="close-button" data-close aria-label="Close modal" type="button">

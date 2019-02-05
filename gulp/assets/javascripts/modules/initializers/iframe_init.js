@@ -22,12 +22,12 @@ module.exports.initialize = function() {
           .foundation('close');
       });
     } else if (
-      $('#asset-upload-reveal-default').length &&
+      $('#' + $('.new-content-reveal:visible iframe').data('uploader-id')).length &&
       event.originalEvent.data.action !== undefined &&
       event.originalEvent.data.action == 'open-upload-form'
     ) {
       // open upload form triggered by media_archive
-      $('#asset-upload-reveal-default').foundation('open');
+      $('#' + $('.new-content-reveal:visible iframe').data('uploader-id')).foundation('open');
     } else if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'close_iframe') {
       // close reveal
       $('iframe:visible')

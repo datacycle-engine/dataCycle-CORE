@@ -11,7 +11,7 @@ module.exports.initialize = function() {
   var asset_selectors = [];
   var asset_uploaders = [];
 
-  function init(container = document) {
+  function init_selectors(container = document) {
     $(container)
       .find('.asset-selector-button')
       .each((index, element) => {
@@ -21,7 +21,9 @@ module.exports.initialize = function() {
           asset_selectors.push(new AssetSelector(element, asset_selectors));
         }
       });
+  }
 
+  function init_uploaders(container = document) {
     $('.asset-upload-reveal')
       .filter((index, element) => {
         return asset_uploaders.map(element => element.reveal.prop('id')).indexOf(element.id) === -1;
@@ -31,12 +33,14 @@ module.exports.initialize = function() {
       });
   }
 
-  init();
+  init_selectors();
+  init_uploaders();
 
   $(document).on('clone-added', '.content-object-item', event => {
     event.preventDefault();
     event.stopPropagation();
-    init(event.target);
+    init_selectors(event.target);
+    init_uploaders(event.target);
   });
 
   $(document).on('clone-removed', '.content-object-item', event => {
@@ -59,7 +63,11 @@ module.exports.initialize = function() {
     }
   });
 
-  $('.asset-upload-reveal, .asset-selector-reveal').on('open.zf.reveal', event => {
+  $(document).on('open.zf.reveal', '.asset-upload-reveal', event => {
+    init_uploaders(event.target);
+  });
+
+  $(document).on('open.zf.reveal', '.asset-upload-reveal, .asset-selector-reveal', event => {
     $(event.target).appendTo('body');
   });
 };
