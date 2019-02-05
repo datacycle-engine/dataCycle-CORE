@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: dataCycleEventSchedule
+    :name: EventSchedule
     :type: object
     :schema_type: Event
     :boost: 100.0
@@ -113,4 +113,4 @@
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "dataCycleEventSchedule"
+        :default_value: "EventSchedule"

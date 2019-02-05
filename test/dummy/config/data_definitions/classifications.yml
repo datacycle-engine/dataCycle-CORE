@@ -45,6 +45,7 @@
   - $$Textblock
   - $$Öffnungszeit - Erweitert
   - $$Öffnungszeit - Zeitspanne
+  - $$EventSchedule
 
 - Geschlecht:
   - Männlich | Male
@@ -58,6 +59,14 @@
   - Freitag
   - Samstag
   - Sonntag
+
+- Feratel - Veranstaltungstags:
+  - $$Top-Event
+  - $$Local
+  - $$Town
+  - $$Region
+  - $$Subregion
+  - $$Country
 
 - Tags:
   - Tag 1

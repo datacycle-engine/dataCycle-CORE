@@ -30,7 +30,10 @@ module DataCycleCore
         'event_period' => {
           'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),
           'end_date' => '2017-10-29 12:00'.to_datetime.to_s(:db)
-        }
+        },
+        'holiday_themes' => [],
+        'feratel_event_tags' => [],
+        'event_schedule' => []
       }
       returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)

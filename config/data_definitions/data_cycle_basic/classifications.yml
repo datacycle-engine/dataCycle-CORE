@@ -21,6 +21,7 @@
   - $$Öffnungszeit - Zeitspanne
   - $$Overlay
   - $$Publikations-Plan
+  - $$EventSchedule
 
 - Geschlecht:
   - Männlich | Male
@@ -45,6 +46,14 @@
   - Social Media
 
 - POI - Kategorien:
+
+- Feratel - Veranstaltungstags:
+  - $$Top-Event
+  - $$Local
+  - $$Town
+  - $$Region
+  - $$Subregion
+  - $$Country
 
 - Ländercodes:
   - AF | Afghanistan
