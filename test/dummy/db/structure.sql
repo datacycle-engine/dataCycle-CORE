@@ -1244,6 +1244,13 @@ CREATE INDEX index_classification_contents_on_content_data_id ON public.classifi
 
 
 --
+-- Name: index_classification_contents_on_unique_constraint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_contents_on_unique_constraint ON public.classification_contents USING btree (content_data_id, classification_id, relation);
+
+
+--
 -- Name: index_classification_groups_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1402,6 +1409,13 @@ CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
 --
 
 CREATE INDEX index_searches_on_words ON public.searches USING gin (words);
+
+
+--
+-- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
 
 
 --
@@ -1823,9 +1837,10 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181231081526'),
 ('20190107074405'),
 ('20190108154224'),
+('20190110092936'),
 ('20190110151543'),
 ('20190117135807'),
 ('20190118113621'),
-('20190118145915');
+('20190129083607');
 
 

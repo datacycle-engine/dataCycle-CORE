@@ -8,6 +8,8 @@
     :features:
       :creatable:
         :allowed: true
+        :scope:
+          - backend
       :translatable:
         :allowed: true
     :api:

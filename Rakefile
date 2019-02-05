@@ -8,6 +8,9 @@ end
 
 require 'rdoc/task'
 
+# api benchmark testing
+# require 'rails_api_benchmark/benchmark_tasks'
+
 RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title    = 'DataCycleCore'

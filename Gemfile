@@ -50,4 +50,9 @@ group :development, :test, :review do
   # For call-stack profiling flamegraphs
   # gem 'flamegraph'
   # gem 'stackprof'
+  #
+  # for API benchmark testing
+  # gem 'rails_api_benchmark'
+  # gem 'pronto', '~> 0.9.5'
+  # gem 'pronto-rubocop', '~> 0.9.1', require: false
 end

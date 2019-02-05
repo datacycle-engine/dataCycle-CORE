@@ -27,6 +27,7 @@ module DataCycleCore
             :translations,
             :watch_lists,
             :external_source,
+            :external_systems,
             :parent,
             display_classification_aliases: :classification_alias_path
           )

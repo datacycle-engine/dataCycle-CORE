@@ -11,7 +11,7 @@ module DataCycleCore
           Functions.update(utility_object: utility_object, data: data)
         end
 
-        def self.filter(data)
+        def self.filter(data, _external_system)
           ['Artikel'].include?(data.template_name)
         end
       end

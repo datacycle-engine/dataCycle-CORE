@@ -48,7 +48,7 @@
       :asset:
         :label: Datei
         :type: asset
-        :asset_type: asset
+        :asset_type: data_cycle_file
         :api:
           :disabled: true
       # schema.org: TEXT with KB/MB

@@ -172,7 +172,6 @@ module DataCycleCore
       data_hash.deep_stringify_keys!
 
       @content = DataCycleCore::Thing.find_by(data_hash.slice('name', 'given_name', 'family_name').merge(template_name: template_name))
-
       return @content if @content.present?
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
@@ -231,21 +230,6 @@ else
       Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )
-  # DataCycleCore::TestPreparations.load_templates(
-  #   [
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'basic'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'enhanced'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'media_archive'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'container'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
-  #     Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
-  #     Rails.root.join('..', 'data_types', 'attributes'),
-  #     Rails.root.join('..', 'data_types', 'models')
-  #   ]
-  # )
   DataCycleCore::TestPreparations.load_templates(
     [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),

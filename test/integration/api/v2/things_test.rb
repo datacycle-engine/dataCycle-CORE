@@ -118,12 +118,8 @@ module DataCycleCore
           }
 
           # APIv2: release-stati has been removed
-          v1_classifications = json_data_search_old['contents']
-            .first
-            .dig('classifications')
-            .map { |item| item.dig('name') }
-            .reject { |item| ['freigegeben', 'Aktuelle Inhalte'].include?(item) }
-            .sort
+          excluded_classifications = ['freigegeben', 'Aktuelle Inhalte']
+          v1_classifications = json_data_search_old['contents'].first.dig('classifications').map { |item| item.dig('name') }.reject { |item| excluded_classifications.include?(item) }.sort
           v2_classifications = data_hash
             .select { |key, _value| ['classifications'].include?(key) }
             .map { |_key, value| value.is_a?(::Array) ? value.map { |item| item.dig('name') } : value.dig('name') }

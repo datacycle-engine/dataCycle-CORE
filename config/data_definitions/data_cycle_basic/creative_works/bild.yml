@@ -17,8 +17,13 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
+      :alternative_headline:
         :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :caption:
+        :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
@@ -142,6 +147,30 @@
           :method: file_format
           :parameters:
             :0: asset
+      :author:
+        :label: Author
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Copyright - Inhaber
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
       :tags:
         :type: mixin
         :name: tags

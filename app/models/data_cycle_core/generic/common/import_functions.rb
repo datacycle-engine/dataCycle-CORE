@@ -70,9 +70,7 @@ module DataCycleCore
                   logging.phase_started("#{phase_name} #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
-                  if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                    source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import })
-                  end
+                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
                   durations = []
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|

@@ -40,6 +40,14 @@ module DataCycleCore
                 creative_work_data_hash[:content_location] = @place.id
                 tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
                 creative_work_data_hash[:tags] = [tag_classification.id]
+
+                # validity_period
+                validity_period = {
+                  'valid_from' => 10.days.ago,
+                  'valid_until' => 10.days.from_now
+                }
+                creative_work_data_hash[:validity_period] = validity_period
+
                 @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
 
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
@@ -63,8 +71,12 @@ module DataCycleCore
                 assert_equal(root_url[0...-1] + thing_path(@content), json_data.dig('url'))
 
                 # validity period
+                # TODO: (move to generic tests)
+                assert_equal(@content.validity_period.valid_from.to_date.as_json, json_data.dig('datePublished'))
+                assert_equal(@content.validity_period.valid_until.to_date.as_json, json_data.dig('expires'))
 
                 # classifications
+                # TODO: (move to generic tests)
                 assert(json_data.dig('classifications').present?)
                 assert_equal(1, json_data.dig('classifications').size)
                 classification_hash = json_data.dig('classifications').first
@@ -102,19 +114,19 @@ module DataCycleCore
                 get(api_v3_things_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_contents_search_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
                 get(api_v3_creative_works_path)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
-                json_data = JSON.parse(response.body).dig('data').select { |item| item.dig('@type') == 'Article' }.first
+                json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Article' }
                 assert_equal(@content.id, json_data.dig('identifier'))
               end
 

@@ -26,6 +26,7 @@ services:
     - APP_PROTOCOL=http
     - MAILHOG_HOST=mailhog
     - SSH_AUTH_SOCK=/ssh-agent
+    - "CORE_RAKE_PREFIX=app:"
     command:
     - ./docker/setup.sh
     volumes:

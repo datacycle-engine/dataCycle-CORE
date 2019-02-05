@@ -104,7 +104,7 @@ module DataCycleCore
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
           .>> t(:map_value, 'license', ->(s) { s.to_s if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
-          .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
+          .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
           .>> t(:strip_all)
         end
 

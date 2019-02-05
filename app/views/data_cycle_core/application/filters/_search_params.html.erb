@@ -5,7 +5,7 @@
   value: stored_search.language,
   buttons: false if stored_search.language.present? %>
 
-<% selected_classification_aliases = DataCycleCore::ClassificationAlias
+<% selected_classification_aliases = DataCycleCore::ClassificationAlias.includes(:classification_alias_path)
   .select(:id, :name)
   .where(id: stored_search.parameters
     .select { |f| f['t'] == 'classification_alias_ids' }

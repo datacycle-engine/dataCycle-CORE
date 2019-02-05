@@ -5,19 +5,11 @@ module DataCycleCore
     module Validators
       class Asset < BasicValidator
         def asset_keywords
-          []
+          ['required']
         end
 
         def validate(data, template)
-          if blank?(data)
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
-          elsif data.is_a?(::Array)
-            check_reference_array(data, template)
-          elsif data.is_a?(::String)
-            check_reference_array([data], template)
-          else
-            (@error[:warning][@template_key] ||= []) << I18n.t(:data_type, scope: [:validation, :warnings], data: data, locale: DataCycleCore.ui_language)
-          end
+          check_reference_array(Array(data), template)
           @error
         end
 
@@ -28,12 +20,14 @@ module DataCycleCore
           if template.key?('validations')
             template['validations'].each_key do |key|
               if asset_keywords.include?(key)
-                # method(key).call(data, template['validations'][key]) # no keywords
+                method(key).call(data, template['validations'][key]) # no keywords
               else
                 (@error[:warning][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'Asset reference List', locale: DataCycleCore.ui_language)
               end
             end
           end
+
+          return if blank?(data)
 
           # validate references themself
           data.each do |key|
@@ -61,6 +55,10 @@ module DataCycleCore
             return true if data.length == 1 && data[0].blank?
           end
           false
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
         end
       end
     end
