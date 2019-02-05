@@ -207,6 +207,7 @@ de:
     add_files: Dateien hinzufügen
     delete_file: Datei wirklich löschen?
     uploaded: hochgeladen
+    back_to_select: Zurück zur Auswahl
 
   validation:
     errors:

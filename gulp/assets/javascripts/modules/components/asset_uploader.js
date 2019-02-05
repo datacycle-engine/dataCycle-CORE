@@ -73,7 +73,8 @@ AssetUploader.prototype.checkFileName = function(event) {
 
   if (
     $(event.target)
-      .siblings('.asset-type')
+      .closest('.file-for-upload')
+      .find('.asset-type')
       .first()
       .val() != 'DataCycleCore::TextFile'
   )
@@ -96,13 +97,13 @@ AssetUploader.prototype.checkFileName = function(event) {
       dataType: 'json',
       contentType: 'application/json'
     }).done(data => {
-      if (data != null) {
+      if (data != null && !$(event.target).siblings('.file-override').length) {
         $(event.target).after(
           '<i class="fa fa-exclamation-triangle file-override" aria-hidden="true"  title="Es existiert bereits eine Datei mit demselben Namen, diese wird überschrieben!" data-id="' +
             data.id +
             '"></i>'
         );
-      } else {
+      } else if (data == null) {
         $(event.target)
           .siblings('.file-override')
           .remove();
