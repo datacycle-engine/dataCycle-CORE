@@ -2,6 +2,10 @@
   <% value.each do |v| %>
     <%= hidden_field_tag key + '[]', v.try(:id), multiple: true %>
   <% end %>
-<% else %>
+<% elsif value.is_a?(OpenStruct) %>
+  <% value.each_pair do |k, v| %>
+    <%= hidden_field_tag "#{key}[#{k.to_s.underscore_blanks}]", v %>
+  <% end %>
+<% elsif !value.nil? %>
   <%= hidden_field_tag key, value %>
 <% end %>
