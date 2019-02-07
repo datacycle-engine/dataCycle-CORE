@@ -104,9 +104,9 @@ module DataCycleCore
           elsif value.is_a?(::Array)
             value = value.reject(&:blank?).uniq
           elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
-            value = value.to_f
+            value = value.blank? ? nil : value.to_f
           elsif properties['type'] == 'number'
-            value = value.to_i
+            value = value.blank? ? nil : value.to_i
           end
 
           temp_datahash[key] = value
