@@ -9,7 +9,7 @@ namespace :review do
           execute :rake, 'db:create'
         rescue StandardError
           execute :rake, 'db:create'
-          invoke 'review:init_dev_db'
+          # invoke 'review:init_dev_db'
         end
       end
     end
