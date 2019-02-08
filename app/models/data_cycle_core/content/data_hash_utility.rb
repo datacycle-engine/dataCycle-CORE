@@ -3,6 +3,8 @@
 module DataCycleCore
   module Content
     module DataHashUtility
+      include DataCycleCore::NormalizeService
+
       # validate nil,"",[],{},[nil],[""] as blank.
       def is_blank?(data)
         return true if data.blank?
@@ -41,6 +43,10 @@ module DataCycleCore
         to = nil if to.present? && to > Time.zone.local(9999, 1, 1, 0, 0)
 
         [from, to]
+      end
+
+      def duplicate_contents(data_hash)
+        deep_reject(data_hash) { |k, _v| k == 'id' }
       end
     end
   end
