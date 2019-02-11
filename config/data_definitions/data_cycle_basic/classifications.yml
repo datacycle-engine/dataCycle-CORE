@@ -15,16 +15,17 @@
   - $$Person
   - $$Veranstaltung
 # embedded
-  - $$Zitat
   - $$Veranstaltungstermin
   - $$Öffnungszeit
+  - $$Öffnungszeit - Simple
+  - $$Öffnungszeit - Zeitspanne
   - $$Overlay
   - $$Publikations-Plan
-  - $$Textblock
+  - $$EventSchedule
 
 - Geschlecht:
-  - Männlich
-  - Weiblich
+  - Männlich | Male
+  - Weiblich | Female
 
 - Wochentage:
   - Montag
@@ -44,11 +45,15 @@
   - Print
   - Social Media
 
-- Geschlecht:
-  - Männlich
-  - Weiblich
-
 - POI - Kategorien:
+
+- Feratel - Veranstaltungstags:
+  - $$Top-Event
+  - $$Local
+  - $$Town
+  - $$Region
+  - $$Subregion
+  - $$Country
 
 - Ländercodes:
   - AF | Afghanistan

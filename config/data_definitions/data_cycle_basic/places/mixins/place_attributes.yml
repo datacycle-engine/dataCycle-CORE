@@ -1,0 +1,68 @@
+---
+- :data:
+    :name: place_attributes
+    :type: mixin
+    :properties:
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :text:
+        :label: Text
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :potentialAction:
+        :label: Buchungs-Url
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :type: Action
+        :properties:
+          :name:
+            :label: Name
+            :type: string
+            :storage_location: translated_value
+          :url:
+            :label: URL
+            :type: string
+            :storage_location: translated_value
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+        :api:
+          :name: image
+          :minimal: true
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true

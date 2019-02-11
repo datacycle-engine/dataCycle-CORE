@@ -4,7 +4,7 @@
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </i>
 
-  <% classification_aliases ||= DataCycleCore::ClassificationAlias
+  <% classification_aliases ||= DataCycleCore::ClassificationAlias.includes(:classification_alias_path)
     .where(id: value)
     .map { |c| [c.id, c] }.to_h %>
 

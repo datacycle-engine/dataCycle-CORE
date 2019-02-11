@@ -18,7 +18,6 @@
         :label: Overlay
         :type: embedded
         :template_name: EventOverlay
-        :external: true
         :validations:
           :max: 1
       :title:
@@ -31,7 +30,6 @@
         :label: Veranstaltungszeitraum
         :type: object
         :storage_location: value
-        :external: true
         :validations:
           :daterange:
             :from: start_date
@@ -107,6 +105,10 @@
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
+      :event_schedule:
+        :label: Event-Schedule
+        :type: embedded
+        :template_name: EventSchedule
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -124,6 +126,9 @@
       :v_ticket:
         :type: mixin
         :name: v_ticket
+      :feratel_events:
+        :type: mixin
+        :name: feratel_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

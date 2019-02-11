@@ -1,0 +1,36 @@
+# frozen_string_literal: true
+
+json ||= {}
+# render "data_cycle_core/api/v#{@api_version}/api_base/attribute", key: key, definition: definition, value: value, options: options, content: content do
+data = content.send(key).includes(:translations, :classifications)
+
+if data.present?
+
+  key_new = definition.dig('api', 'name') || key.camelize(:lower)
+
+  # v1
+  json[key_new] = []
+  data.each do |item|
+    if @include_parameters.include?('linked')
+
+      # json.cache!("#{item.class}_#{item.id}_#{item.first_available_locale(@language)}_#{item.updated_at}_#{@include_parameters.join('_')}_#{@mode_parameters.join('_')}", expires_in: 1.year + Random.rand(7.days)) do
+
+      json[key_new].push render 'content_details', content: item
+
+      # end
+
+    else
+      json[key_new].push render 'content_header', content: item, options: options.merge({ header_type: :linked })
+    end
+  end
+
+  # v2
+
+  # if @include_parameters.include?('linked')
+  #   json[key_new] = render partial: 'content_details', collection: data, as: 'content'
+  # else
+  #   json[key_new] = render partial: 'content_header', collection: data, as: 'content', locals: {options: options.merge({ header_type: :linked })}
+  # end
+
+end
+json

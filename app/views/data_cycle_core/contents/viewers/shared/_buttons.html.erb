@@ -1,17 +1,17 @@
 <div class="buttons">
   <% if content.translatable? && I18n.available_locales&.many? %>
-      <span data-tooltip data-allow-html="true" data-click-open="false" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
+      <span data-tooltip data-allow-html="true" title="<%= content.translated_locales.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
   <% end %>
 
-  <%= link_to gpx_thing_path(content), class: '', data: { tooltip: true, click_open: false }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
+  <%= link_to gpx_thing_path(content), class: '', data: { tooltip: true }, title: t('common.download_gpx', locale: DataCycleCore.ui_language) do %>
       <i class="fa fa-location-arrow" aria-hidden="true"></i>
   <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-  <%= link_to thing_path(content), data: { tooltip: true, click_open: false }, title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
+  <%= link_to thing_path(content), data: { tooltip: true }, title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
       <i class="fa fa-eye" aria-hidden="true"></i>
   <% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:show, content) %>
 
-  <%= link_to edit_thing_path(content, locale: I18n.locale), data: { tooltip: true, click_open: false }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
+  <%= link_to edit_thing_path(content, locale: I18n.locale), data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "edit-link" do %>
       <i class="fa fa-pencil" aria-hidden="true"></i>
   <% end if local_assigns[:definition] && definition['type'] == "linked" && @diff_source.nil? && can?(:update, content) %>
 </div>

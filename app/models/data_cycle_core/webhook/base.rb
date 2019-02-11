@@ -28,7 +28,7 @@ module DataCycleCore
         return unless webhook&.dig(:strategy)
 
         export_class = webhook.dig(:strategy).constantize
-        return [external_system, export_class] if export_class.filter(data)
+        return [external_system, export_class] if export_class.filter(data, external_system)
         nil
       end
 

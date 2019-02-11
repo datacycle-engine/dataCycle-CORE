@@ -22,6 +22,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
 
   else
     key_name = definition.dig('api', 'name') || key
+    key_name = definition.dig('api', 'transformation', 'name') if definition.dig('api', 'transformation', 'method') == 'merge_object'
     json.set! key_name.camelize(:lower) do
       json.set! '@type', definition.dig('api', 'type') if definition.dig('api', 'type').present?
       if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')

@@ -23,45 +23,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :text:
-        :label: Interview
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :person:
-        :label: Personen
-        :type: linked
-        :template_name: Person
-        :api:
-          :name: about
-      :quotation:
-        :label: Zitat
-        :type: embedded
-        :template_name: Zitat
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :data_type:
         :label: Inhaltstype
         :type: classification

@@ -1,14 +1,23 @@
 // QuillJS Helpermethods
 module.exports = {
-  update_value: (editor) => {
-    var hidden_field = $('#' + $(editor).attr('data-hidden-field-id'));
-    var text = ($(editor).find('.ql-editor').html() || '');
-    if (text == '<p><br></p>') text = '';
-    var changed = (hidden_field.val() != text);
+  update_editors: (container = document) => {
+    $(container)
+      .find('.quill-editor')
+      .addBack('.quill-editor')
+      .each((index, elem) => {
+        var hidden_field = $('#' + $(elem).attr('data-hidden-field-id'));
+        var text =
+          $(elem)
+            .find('.ql-editor')
+            .html() || '';
+        if (text == '<p><br></p>') text = '';
+        var changed = hidden_field.val() != text;
 
-    if (changed) {
-      $(hidden_field).val(text).trigger('change');
-    }
-    return changed;
+        if (changed) {
+          $(hidden_field)
+            .val(text)
+            .trigger('change');
+        }
+      });
   }
 };

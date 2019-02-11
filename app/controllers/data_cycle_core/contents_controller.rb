@@ -42,7 +42,7 @@ module DataCycleCore
             }
           )
 
-          @language ||= params.fetch(:language, ['all'])
+          @language ||= params.fetch(:language) { ['all'] }
           if @content.children.present?
             @contents = get_filtered_results
             @total = @contents.count_distinct
@@ -261,7 +261,7 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      @page = linked_object_params.fetch(:page, 1)
+      @page = linked_object_params.fetch(:page) { 1 }
 
       if linked_object_params[:load_more_type] == 'all'
         @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)

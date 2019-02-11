@@ -100,9 +100,7 @@ crumb :documentation do
   (0..path_segments.length - 1).each do |i|
     translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
 
-    if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
-      translation_key += '.root'
-    end
+    translation_key += '.root' if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
 
     link t(translation_key, locale: DataCycleCore.ui_language), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
   end
