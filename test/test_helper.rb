@@ -196,7 +196,7 @@ module DataCycleCore
     end
 
     def self.load_dummy_data_hash(model, name)
-      @dummy_data_hash.dig(model.to_sym, name.to_sym)
+      @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
 
     def self.data_set_object(template_name)
