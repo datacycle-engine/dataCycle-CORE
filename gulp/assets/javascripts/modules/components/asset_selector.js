@@ -6,7 +6,7 @@ var AssetSelector = function(button, asset_selectors) {
   this.select_button = this.reveal.find('.select-asset-link');
   this.hidden_field = $('#' + this.reveal.data('hidden-field-id'));
   this.selected_asset_list = this.hidden_field.siblings('.asset-list');
-  this.selected_asset_id = '';
+  this.selected_asset_id = this.hidden_field.attr('value');
   this.asset_selectors = asset_selectors;
 
   this.init();
