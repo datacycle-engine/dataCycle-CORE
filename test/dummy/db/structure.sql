@@ -66,8 +66,8 @@ CREATE TABLE assets (
 -- Name: classification_aliases; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE classification_aliases (
-    id uuid DEFAULT gen_random_uuid() NOT NULL,
+CREATE TABLE public.classification_aliases (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
@@ -126,16 +126,16 @@ CREATE VIEW classification_alias_paths AS
             ARRAY[]::uuid[] AS ancestor_ids,
             ARRAY[classification_aliases.id] AS full_path_ids,
             ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names
-           FROM ((classification_trees
-             JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
-             JOIN classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
+           FROM ((public.classification_trees
+             JOIN public.classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
+             JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
           WHERE (classification_trees.parent_classification_alias_id IS NULL)
         UNION ALL
          SELECT classification_aliases.id,
             (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
             (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
             (classification_aliases.internal_name || classification_alias_paths_1.full_path_names) AS full_path_names
-           FROM ((classification_trees
+           FROM ((public.classification_trees
              JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
              JOIN classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
         )
@@ -1524,6 +1524,13 @@ CREATE INDEX index_things_on_content_type ON things USING btree (((schema ->> 'c
 
 
 --
+-- Name: index_things_on_content_type_template; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_content_type_template ON public.things USING btree (content_type, template);
+
+
+--
 -- Name: index_things_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1549,13 +1556,6 @@ CREATE UNIQUE INDEX index_things_on_id ON things USING btree (id);
 --
 
 CREATE INDEX index_things_on_schema_type ON things USING btree (((schema ->> 'schema_type'::text)));
-
-
---
--- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_template_content_type ON things USING btree (template, content_type);
 
 
 --
@@ -1674,7 +1674,7 @@ CREATE INDEX index_watch_lists_on_user_id ON watch_lists USING btree (user_id);
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX name_idx ON classification_aliases USING gin (internal_name gin_trgm_ops);
+CREATE INDEX name_idx ON public.classification_aliases USING gin (internal_name public.gin_trgm_ops);
 
 
 --
@@ -1828,7 +1828,4 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190117135807'),
 ('20190118113621'),
 ('20190118145915'),
-('20190123084726'),
 ('20190129083607');
-
-

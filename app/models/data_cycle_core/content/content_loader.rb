@@ -50,12 +50,7 @@ module DataCycleCore
       end
 
       def load_default_classification(tree_label, alias_name)
-        DataCycleCore::Classification
-          .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where(
-            classification_tree_labels: { name: tree_label },
-            classification_aliases: { name: alias_name }
-          ).first!
+        DataCycleCore::ClassificationAlias.classification_for_tree_with_name(tree_label, alias_name)
       end
 
       def as_of(timestamp)

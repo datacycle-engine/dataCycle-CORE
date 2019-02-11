@@ -340,6 +340,8 @@ module DataCycleCore
                 )
             end
           end
+          optional(:external) { bool? }
+          optional(:not_translated) { bool? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (

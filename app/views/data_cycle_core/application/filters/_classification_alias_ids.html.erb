@@ -33,7 +33,7 @@
           value.blank? ? nil : options_for_select(
             value.map { |c|
               [
-                @selected_classification_aliases[c].try(:name),
+                @selected_classification_aliases[c].try(:internal_name),
                 c,
                 {
                   title: [
@@ -58,7 +58,7 @@
     <% else %>
         <% available_items = classification_items&.map { |c|
           [
-            c.sub_classification_alias.try(:name),
+            c.sub_classification_alias.try(:internal_name),
             c.sub_classification_alias.try(:id),
             {
               title: [
