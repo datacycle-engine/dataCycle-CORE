@@ -145,7 +145,7 @@ module DataCycleCore
         end
 
         def back_transform(data, transformation)
-          data.map { |item| item.update('id' => transformation.select { |entry| item['id'] == entry['id'] }.first&.dig('data_hash_path')) }
+          data.map { |item| item.update('id' => transformation.detect { |entry| item['id'] == entry['id'] }&.dig('data_hash_path')) }
         end
 
         def convert_data_types(data, template)
