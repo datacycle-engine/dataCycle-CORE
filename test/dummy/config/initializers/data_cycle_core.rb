@@ -47,6 +47,14 @@ DataCycleCore.setup do |config|
       },
       container: {
         enabled: false
+      },
+      external_media_archive: {
+        enabled: true
+      },
+      normalize: {
+        enabled: true,
+        external_source: 'Econob Normalize',
+        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
       }
     }
   )

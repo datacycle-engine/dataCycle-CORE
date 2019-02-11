@@ -79,6 +79,7 @@ module DataCycleCore
           Enumerator.new do |yielder|
             load_data(['pois'], lang)['data'].each do |poi_id_container|
               raw_data = load_data(['oois', poi_id_container['id']], lang)['poi'][0]
+              sleep(0.1)
               yielder << raw_data if raw_data.dig('meta', 'translation').include?(lang.to_s)
             end
           end
@@ -88,6 +89,7 @@ module DataCycleCore
           Enumerator.new do |yielder|
             load_data(['tours'], lang)['data'].each do |tour_id_container|
               raw_data = load_data(['oois', tour_id_container['id']], lang)['tour'][0]
+              sleep(0.1)
               yielder << raw_data if raw_data.dig('meta', 'translation').include?(lang.to_s)
             end
           end

@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
+var DataCycleNormalizer = require('./../components/normalizer');
 var quill_helpers = require('./../helpers/quill_helpers');
 var DataCycleCore = {};
 
@@ -114,6 +115,10 @@ module.exports.initialize = function() {
   };
 
   function disable_form(form) {
+    $(form)
+      .siblings('.edit-header')
+      .find('.normalize-content-button')
+      .attr('disabled', true);
     $.rails.disableFormElement(
       $(form)
         .siblings('.edit-header')
@@ -124,6 +129,10 @@ module.exports.initialize = function() {
   }
 
   function enable_form(form) {
+    $(form)
+      .siblings('.edit-header')
+      .find('.normalize-content-button')
+      .attr('disabled', false);
     $.rails.enableFormElement(
       $(form)
         .siblings('.edit-header')
@@ -362,6 +371,11 @@ module.exports.initialize = function() {
           );
         }
       });
+    }
+
+    // init Normalize Button for
+    if ($('.normalize-content-button').length) {
+      var normalizer = new DataCycleNormalizer($('.normalize-content-button'), $('.edit-content-form'));
     }
   }
 

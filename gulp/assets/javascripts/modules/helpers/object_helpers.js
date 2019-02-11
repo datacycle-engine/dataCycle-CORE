@@ -12,5 +12,15 @@ module.exports = {
         )
       )
       .reduce((res, o) => Object.assign(res, o), {});
+  },
+  renameKey: (obj, old_key, new_key) => {
+    if (old_key == new_key) {
+      return obj;
+    }
+    if (obj.hasOwnProperty(old_key)) {
+      obj[new_key] = obj[old_key];
+      delete obj[old_key];
+    }
+    return obj;
   }
 };

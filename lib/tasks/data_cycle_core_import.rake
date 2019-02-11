@@ -26,7 +26,7 @@ namespace :data_cycle_core do
       external_source.import(options)
     end
 
-    desc 'DEBUG: Only download data from given data source'
+    desc 'Only download data from given data source'
     task :download, [:external_source_id, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
@@ -40,7 +40,7 @@ namespace :data_cycle_core do
       external_source.download(options)
     end
 
-    desc 'DEBUG: Only import (without downloading) data from given data source'
+    desc 'Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
