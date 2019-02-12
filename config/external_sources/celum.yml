@@ -1,0 +1,30 @@
+---
+name: Celum
+credentials:
+  host: http://media.austrianwine.com/api/
+  user: admin
+  password: 'd9ZdhuxEdSPLJdk)av9RHyeh'
+default_options:
+  locales: [de]
+config:
+  download_config:
+    keywords:
+      sorting: 1
+      source_type: keywords
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::DownloadKeywords
+    keyword_catalogs:
+      sorting: 1
+      source_type: keyword_catalogs
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::DownloadKeywords
+    documents:
+      sorting: 10
+      source_type: documents
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::DownloadDocuments
+  import_config:
+    documents:
+      sorting: 10
+      source_type: documents
+      import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
