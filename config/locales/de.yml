@@ -102,7 +102,7 @@ de:
     height: Höhe
     width: Breite
     exclude: Ausnahme
-    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
+    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
     creator: Ersteller
     abo_changed_title:
       one: Ein abonnierter Inhalt wurde geändert

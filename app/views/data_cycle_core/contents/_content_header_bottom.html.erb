@@ -53,12 +53,11 @@
                 class:'button-prime small delete-content-link',
                 data: {
                     tooltip: true,
-                    confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{content.try(:children)&.any? ? t('common.children_present_html', languages: content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.join(', '), locale: DataCycleCore.ui_language) : '' }"
+                    confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
                 },
                 title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
         <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end if can? :destroy, content %>
-
 </div>
 
 <%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && content.try(:release_status_id).present? %>
