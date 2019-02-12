@@ -19,15 +19,6 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            # ['feratel_owners'].each do |name_tag|
-            #   DataCycleCore::Generic::Common::ImportTags.process_content(
-            #     utility_object: utility_object,
-            #     raw_data: raw_data,
-            #     locale: locale,
-            #     options: { import: utility_object.external_source.config.dig('import_config', name_tag).deep_symbolize_keys }
-            #   )
-            # end
-
             DataCycleCore::Generic::Feratel::Processing.process_image(
               utility_object,
               raw_data,

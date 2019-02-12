@@ -22,6 +22,11 @@ module DataCycleCore
       end
     end
 
+    extend DataCycleCore::Translations::Translation
+    translates :name, :description, column_suffix: '_i18n', backend: :jsonb
+    default_scope { i18n }
+    before_save :set_internal_data
+
     attr_accessor :content_template
 
     acts_as_paranoid
@@ -72,8 +77,21 @@ module DataCycleCore
       where(name: names.flatten)
     end
 
+    def self.with_internal_name(*names)
+      where(internal_name: names.flatten)
+    end
+
     def self.without_name(*names)
       where.not(name: names.flatten)
+    end
+
+    def self.classification_for_tree_with_name(tree_name, *names)
+      for_tree(tree_name)
+        .with_internal_name(names)
+        .map(&:classifications)
+        .flatten
+        .map(&:id)
+        .first
     end
 
     def self.with_descendants
@@ -86,7 +104,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR classification_aliases.description ILIKE :q", q: "%#{q}%")
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
     end
 
     def self.order_by_similarity(term)
@@ -149,8 +167,15 @@ module DataCycleCore
 
     private
 
+    def set_internal_data
+      return unless name_i18n_changed? # && internal_name.blank?
+      available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
+      return if available_translation.blank?
+      self.internal_name = name(locale: available_translation.first)
+    end
+
     def update_primary_classification
-      return unless saved_change_to_attribute?('name')
+      return unless saved_change_to_attribute?('internal_name')
 
       return if primary_classification.nil?
 

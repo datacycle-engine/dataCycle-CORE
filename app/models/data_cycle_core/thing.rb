@@ -18,6 +18,7 @@ module DataCycleCore
       attribute :content
       attribute :history_valid
       content_relations table_name: 'things', postfix: 'history'
+
       belongs_to :thing
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing

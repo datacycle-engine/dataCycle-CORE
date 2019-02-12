@@ -52,6 +52,9 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize:
+              :id: eventstart
+              :type: datetime
           :end_date:
             :label: Endzeitpunkt
             :type: datetime
@@ -64,6 +67,9 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize:
+              :id: eventend
+              :type: datetime
       :description:
         :label: Beschreibung
         :type: string

@@ -72,7 +72,7 @@ module DataCycleCore
         {
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
-          name: a.name,
+          name: a.internal_name,
           title: a.full_path,
           description: a.description,
           disabled: !a.assignable
@@ -137,10 +137,10 @@ module DataCycleCore
         format.js do
           if permitted_params[:classification_tree_label]
             @object = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label][:id])
-            @object.update_attributes!(permitted_params[:classification_tree_label])
+            @object.update!(permitted_params[:classification_tree_label])
           else
             @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
-            @object.update_attributes!(permitted_params[:classification_alias])
+            @object.update!(permitted_params[:classification_alias])
           end
         end
       end

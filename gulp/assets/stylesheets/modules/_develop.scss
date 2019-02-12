@@ -1519,7 +1519,7 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form) > .fa {
+[data-disable-with]:not(.submit-edit-form, .normalize-content-button) > .fa {
   font-size: inherit;
   line-height: inherit;
 }
@@ -1578,6 +1578,100 @@ select {
   border-bottom: dotted 1px;
   font-weight: normal;
   margin-top: 0.5rem;
+}
+
+// Normalizer Styles
+.normalize-content-button {
+  outline: none;
+  height: 3.5rem;
+  width: 3.5rem;
+  line-height: 3.5rem;
+  margin: 0;
+  padding: 0;
+  text-align: center;
+  opacity: 0.3;
+  .fa {
+    font-size: 1.5rem;
+  }
+  &:hover {
+    opacity: 1;
+  }
+  &:focus {
+    outline: none;
+  }
+  &.error {
+    color: $alert-color;
+  }
+}
+
+input.normalized {
+  &.new {
+    background-color: rgba($success-color, 0.3);
+    border: 1px solid $success-color;
+    &:hover {
+      box-shadow: 0 0 5px $success-color;
+    }
+    &:focus {
+      background-color: inherit;
+    }
+  }
+  &.remove {
+    background-color: rgba($alert-color, 0.2);
+    border: 1px solid $alert-color;
+    &:hover {
+      box-shadow: 0 0 5px $alert-color;
+    }
+    &:focus {
+      background-color: inherit;
+    }
+  }
+  &.change {
+    background-color: rgba($warning-color, 0.2);
+    border: 1px solid $warning-color;
+    &:hover {
+      box-shadow: 0 0 5px $warning-color;
+    }
+    &:focus {
+      background-color: inherit;
+    }
+  }
+}
+.change-selector-show-button {
+  cursor: pointer;
+}
+.change-selector {
+  display: none;
+  background-color: rgba($warning-color, 0.2);
+  border: 1px solid $warning-color;
+  border-bottom: none;
+  padding: 1rem;
+  .change-selector-title {
+    margin-bottom: 1rem;
+    display: block;
+  }
+  .change-selector-option {
+    display: block;
+    cursor: pointer;
+    &:not(:last-child) {
+      margin-bottom: 0.3rem;
+    }
+    > .change-selector-checkbox {
+      color: $white;
+      background-color: $white;
+      border: 1px solid rgba($dark-gray, 0.5);
+      border-radius: 5px;
+      margin-right: 0.3rem;
+    }
+    &.active {
+      > .change-selector-checkbox {
+        color: $black;
+      }
+    }
+  }
+  .buttons {
+    display: block;
+    text-align: right;
+  }
 }
 
 #admin-panel{

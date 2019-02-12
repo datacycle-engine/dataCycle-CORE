@@ -2,7 +2,7 @@
 
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de, :en]
+  I18n.available_locales = [:de, :en].freeze
 
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png', 'location.svg']
@@ -47,6 +47,14 @@ DataCycleCore.setup do |config|
       },
       container: {
         enabled: false
+      },
+      external_media_archive: {
+        enabled: true
+      },
+      normalize: {
+        enabled: true,
+        external_source: 'Econob Normalize',
+        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
       }
     }
   )
