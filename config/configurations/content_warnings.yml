@@ -1,0 +1,6 @@
+Common:
+  :invalid:
+    :active: true
+    :hard: true
+  :translation_missing:
+    :active: true

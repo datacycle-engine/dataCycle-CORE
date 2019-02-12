@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 default_options = {
-  hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content)
+  hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
+  combined_attributes: content.combined_property_names
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 
@@ -20,3 +21,5 @@ json.partial! 'container_children_properties', content: content, options: option
 json.content_partial! 'properties', content: content, options: options
 
 json.partial! 'overlay_properties', content: content, options: options
+
+json.partial! 'combined_properties', content: content, options: options

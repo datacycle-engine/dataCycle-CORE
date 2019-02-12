@@ -99,6 +99,12 @@ Gem::Specification.new do |s|
   # phash
   s.add_dependency 'pHash'
 
+  # progress bar
+  s.add_dependency 'ruby-progressbar'
+
+  # jb gem for APIv3
+  # s.add_dependency 'jb'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
@@ -114,11 +120,14 @@ Gem::Specification.new do |s|
   # Excel Generator
   s.add_dependency 'axlsx_rails'
 
+  # premailer
+  s.add_dependency 'premailer'
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'fasterer'
   s.add_development_dependency 'gemsurance'
-  s.add_development_dependency 'rubocop', '~> 0.56.0'
+  s.add_development_dependency 'rubocop', '~> 0.63.1'
   # s.add_development_dependency 'capybara'
   # s.add_development_dependency 'selenium-webdriver'
   # s.add_development_dependency 'chromedriver-helper'

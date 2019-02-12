@@ -1,6 +1,6 @@
 <% I18n.with_locale(item.first_available_locale(@language)) do %>
 
-    <%= link_to thing_path(item, watch_list_id: @watch_list), class: 'content-link' do %>
+    <%= link_to thing_path(item, watch_list_id: @watch_list, locale: I18n.locale), class: 'content-link' do %>
 
         <div class="inner">
             <%= render 'data_cycle_core/contents/tiles/attributes/type', local_assigns %>
@@ -16,6 +16,8 @@
             <% elsif item.try(:image).is_a?(ActiveRecord::Relation) && item.image.present? %>
                 <%= render 'data_cycle_core/contents/tiles/attributes/images', local_assigns %>
             <% end %>
+
+            <%#= render 'data_cycle_core/contents/tiles/attributes/warnings', content: item %>
         </div>
 
     <% end %>

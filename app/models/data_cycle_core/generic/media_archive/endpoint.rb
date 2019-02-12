@@ -4,11 +4,24 @@ module DataCycleCore
   module Generic
     module MediaArchive
       class Endpoint
-        def initialize(host: nil, end_point: nil, token: nil, **_options)
+        def initialize(host: nil, end_point: nil, token: nil, **options)
           @host = host
-          @end_point = end_point
+          @end_point = options&.dig(:options, :end_point) || end_point
           @token = token
           @per = 100
+        end
+
+        def tags(*)
+          first_page = load_data(page: 1)
+          total_items = first_page['count'].to_i
+          max_pages = total_items.fdiv(@per).ceil
+          Enumerator.new do |yielder|
+            (1..max_pages).each do |page|
+              load_data(page: page, per: @per)['Tags'].each do |tag|
+                yielder << tag
+              end
+            end
+          end
         end
 
         def images(_lang: :de)

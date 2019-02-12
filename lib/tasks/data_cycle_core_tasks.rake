@@ -41,9 +41,7 @@ namespace :data_cycle_core do
 
           puts "Subscriptions with changes: #{subcribed_with_changes.size}"
 
-          if subcribed_with_changes.size.positive?
-            user.send_notification subcribed_with_changes
-          end
+          user.send_notification subcribed_with_changes if subcribed_with_changes.size.positive?
         end
       end
     end
@@ -334,12 +332,11 @@ namespace :data_cycle_core do
 
   namespace :refactor do
     desc 'import and update all templates'
-    task :import_update_all_templates, [:prefix] => [:environment] do |_, args|
+    task import_update_all_templates: :environment do
       temp = Time.zone.now
-      args[:prefix] ||= ''
 
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, args[:prefix])
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(false)
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"

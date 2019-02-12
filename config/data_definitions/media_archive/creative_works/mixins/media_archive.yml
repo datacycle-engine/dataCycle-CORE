@@ -3,6 +3,17 @@
     :name: media_archive
     :type: mixin
     :properties:
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :external: true
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: boolean

@@ -1,0 +1,20 @@
+<%= t('common.are_you_sure', locale: DataCycleCore.ui_language) %>
+
+<% if classification_alias.statistics.linked_content_count.positive? %>
+  <span class='warning'>
+    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+    <%= t('data_cycle_core.classification_relations',
+          count: classification_alias.statistics.linked_content_count,
+          locale: DataCycleCore.ui_language) %>
+  </span>
+<% end %>
+
+<% if classification_alias.statistics.descendant_count.positive? %>
+  <span class='warning'>
+    <i class='fa fa-exclamation-triangle' aria-hidden='true'></i>
+    <%= t('data_cycle_core.child_classification_relations',
+          count: classification_alias.statistics.descendant_count,
+          data: t('data_cycle_core.this_classification', locale: DataCycleCore.ui_language),
+          locale: DataCycleCore.ui_language) %>
+  </span>
+<% end %>

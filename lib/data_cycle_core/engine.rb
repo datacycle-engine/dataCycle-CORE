@@ -57,6 +57,11 @@ require 'carrierwave_backgrounder'
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
+# progress bar
+require 'ruby-progressbar'
+
+require 'premailer'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -74,10 +79,7 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
-
-    mattr_accessor :file_uploader_whitelist
-    self.file_uploader_whitelist = []
+    self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
 
     # mattr_accessor :content_tables
     # self.content_tables = ['things']
@@ -86,7 +88,7 @@ module DataCycleCore
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan', 'Textblock']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -145,6 +147,16 @@ module DataCycleCore
         enabled: true
       },
       external_media_archive: {
+        enabled: false,
+        template_mapping: {
+          bild: 'image',
+          video: 'video'
+        }
+      },
+      normalize: {
+        enabled: false
+      },
+      duplicate_content: {
         enabled: false
       }
     }
@@ -179,11 +191,8 @@ module DataCycleCore
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
 
-    mattr_accessor :image_validations
-    self.image_validations = {}
-
-    mattr_accessor :video_validations
-    self.video_validations = {}
+    mattr_accessor :uploader_validations
+    self.uploader_validations = {}
 
     mattr_accessor :default_map_position
     self.default_map_position = {
@@ -191,6 +200,9 @@ module DataCycleCore
       latitude: 47.41520280002081,
       zoom: 7
     }
+
+    mattr_accessor :content_warnings
+    self.content_warnings = {}
   end
 
   def self.setup
@@ -257,6 +269,8 @@ module DataCycleCore
       ).each do |c|
         require_dependency(c)
       end
+
+      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
     end
   end
 end

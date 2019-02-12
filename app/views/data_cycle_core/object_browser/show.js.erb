@@ -10,4 +10,4 @@ $('#object_browser_<%= sanitize_to_id(params[:key]) %> .items .loading').hide();
   <% end %>
 <% end %>
 
-$('<%= @total.presence&.positive? ? j(yield(:rendered_items)) : ('<span class="no-results">' + t('common.no_results') + '</span>').html_safe %>').insertBefore('#object_browser_<%= sanitize_to_id(params[:key]) %> > .items > .loading');
+$('<%= @total.presence&.positive? ? j(yield(:rendered_items)) : ('<span class="no-results">' + t('common.no_results') + '</span>').html_safe %>').insertBefore('#object_browser_<%= sanitize_to_id(params[:key]) %> > .items > .loading').foundation();

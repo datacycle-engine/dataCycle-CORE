@@ -19,7 +19,7 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     let(:external_source_config) do
-      YAML.safe_load(File.open(external_source)).to_h
+      YAML.safe_load(File.open(external_source), [Symbol]).to_h
     end
 
     it 'has a config path defined' do

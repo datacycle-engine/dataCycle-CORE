@@ -26,7 +26,7 @@ namespace :data_cycle_core do
       external_source.import(options)
     end
 
-    desc 'DEBUG: Only download data from given data source'
+    desc 'Only download data from given data source'
     task :download, [:external_source_id, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: nil }.merge(args.to_h).map do |k, v|
         if k == :max_count && v
@@ -40,7 +40,7 @@ namespace :data_cycle_core do
       external_source.download(options)
     end
 
-    desc 'DEBUG: Only import (without downloading) data from given data source'
+    desc 'Only import (without downloading) data from given data source'
     task :import, [:external_source_id, :mode, :max_count] => [:environment] do |_, args|
       options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
         if k == :max_count
@@ -61,6 +61,57 @@ namespace :data_cycle_core do
       puts "importing from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       # puts 'Be aware that the data_set might not be updated if the data_hash detects that the old and the new data are the same!'
       external_source.import_one(options[:stage].to_sym, options[:external_key])
+    end
+
+    desc 'Download and import data from partial data source'
+    task :perform_partial, [:external_source_id, :download_names, :import_names, :mode, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      end]
+
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      options[:download_names].presence.split(',').each do |download_name|
+        external_source.download_single(download_name.squish.to_sym, options)
+      end
+      options[:import_names].presence.split(',').each do |import_name|
+        external_source.import_single(import_name.squish.to_sym, options)
+      end
+    end
+
+    desc 'download data from partial data source'
+    task :download_partial, [:external_source_id, :download_names, :mode, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      end]
+
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      options[:download_names].presence.split(',').each do |download_name|
+        external_source.download_single(download_name.squish.to_sym, options)
+      end
+    end
+
+    desc 'import data from partial data source'
+    task :import_partial, [:external_source_id, :import_names, :mode, :max_count] => [:environment] do |_, args|
+      options = Hash[{ max_count: FIXNUM_MAX }.merge(args.to_h).map do |k, v|
+        if k == :max_count
+          [k, v.to_i]
+        else
+          [k, v]
+        end
+      end]
+
+      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      options[:import_names].presence.split(',').each do |import_name|
+        external_source.import_single(import_name.squish.to_sym, options)
+      end
     end
   end
 end

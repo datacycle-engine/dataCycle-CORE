@@ -23,36 +23,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :about:
-        :label: Person
-        :type: linked
-        :template_name: Person
-        :validations:
-          :max: 1
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :data_type:
         :label: Inhaltstype
         :type: classification

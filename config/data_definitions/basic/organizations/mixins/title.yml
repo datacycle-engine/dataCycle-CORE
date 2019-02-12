@@ -9,10 +9,13 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :show:
             :disabled: true
         :api:
           :name: legal_name
           :minimal: true
+        :normalize:
+          :id: company
+          :type: company

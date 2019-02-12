@@ -12,6 +12,21 @@ module DataCycleCore
       end
     end
 
+    class Statistics < ApplicationRecord
+      self.table_name = 'classification_alias_statistics'
+
+      belongs_to :classification_alias, foreign_key: 'id'
+
+      def readonly?
+        true
+      end
+    end
+
+    extend DataCycleCore::Translations::Translation
+    translates :name, :description, column_suffix: '_i18n', backend: :jsonb
+    default_scope { i18n }
+    before_save :set_internal_data
+
     attr_accessor :content_template
 
     acts_as_paranoid
@@ -38,6 +53,15 @@ module DataCycleCore
              class_name: 'Path'
     has_many :descendants, through: :descendant_paths, source: :classification_alias
 
+    has_one :primary_classification_group, class_name: 'DataCycleCore::ClassificationGroup::PrimaryClassificationGroup' # rubocop:disable Rails/HasManyOrHasOneDependent
+    has_one :primary_classification, through: :primary_classification_group, source: :classification
+    has_many :additional_classification_groups, lambda {
+      where.not(id: DataCycleCore::ClassificationGroup::PrimaryClassificationGroup.all)
+    }, class_name: 'DataCycleCore::ClassificationGroup'
+    has_many :additional_classifications, through: :additional_classification_groups, source: :classification
+
+    has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
+
     after_update :update_primary_classification
 
     def self.for_tree(tree_name)
@@ -53,8 +77,21 @@ module DataCycleCore
       where(name: names.flatten)
     end
 
+    def self.with_internal_name(*names)
+      where(internal_name: names.flatten)
+    end
+
     def self.without_name(*names)
       where.not(name: names.flatten)
+    end
+
+    def self.classification_for_tree_with_name(tree_name, *names)
+      for_tree(tree_name)
+        .with_internal_name(names)
+        .map(&:classifications)
+        .flatten
+        .map(&:id)
+        .first
     end
 
     def self.with_descendants
@@ -67,7 +104,7 @@ module DataCycleCore
     end
 
     def self.search(q)
-      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR classification_aliases.description ILIKE :q", q: "%#{q}%")
+      joins(:classification_alias_path).where("ARRAY_TO_STRING(full_path_names, ' | ') ILIKE :q OR (classification_aliases.description_i18n ->> :locale) ILIKE :q", { locale: I18n.locale, q: "%#{q}%" })
     end
 
     def self.order_by_similarity(term)
@@ -81,10 +118,6 @@ module DataCycleCore
                                   "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
                                 }.join(' + ') + ' DESC')
       )
-    end
-
-    def primary_classification
-      classifications.min_by { |c| (created_at - c.created_at).abs }
     end
 
     def primary_classification_id
@@ -134,8 +167,18 @@ module DataCycleCore
 
     private
 
+    def set_internal_data
+      return unless name_i18n_changed? # && internal_name.blank?
+      available_translation = I18n.available_locales.drop_while { |locale| name(locale: locale).blank? }
+      return if available_translation.blank?
+      self.internal_name = name(locale: available_translation.first)
+    end
+
     def update_primary_classification
-      return unless saved_change_to_attribute?('name')
+      return unless saved_change_to_attribute?('internal_name')
+
+      return if primary_classification.nil?
+
       primary_classification.tap do |c|
         c.name = name
         c.save!

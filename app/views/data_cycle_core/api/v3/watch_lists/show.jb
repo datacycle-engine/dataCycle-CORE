@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+json = {
+  data: @watch_list.as_json(only: [:id, :name])
+}
+
+json[:data][:items] = @watch_list.watch_list_data_hashes.order(created_at: :desc).map do |item|
+  render 'content_details', content: item.hashable
+end
+
+json

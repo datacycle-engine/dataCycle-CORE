@@ -3,13 +3,13 @@
     <input type="checkbox" name="f[<%= index %>][v][]" value="<%= item.id %>" id="<%= item.id %>" <%= 'checked' if @selected_classifications.presence&.include?(item.id) %> />
     <label for="<%= item.id %>">
         <span class="title">
-            <span class="inner-title"><%= item.name %></span>
+            <span class="inner-title"><%= item.internal_name %></span>
         </span>
     </label>
 
-    <% if item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.present? %>
+    <% if item.sub_classification_alias.reject { |type| excluded_types.include?(type.internal_name) }.present? %>
         <ul class="sub-classifications">
-          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.reject { |type| excluded_types.include?(type.name) }.sort{|a,b| a.name <=> b.name}, as: :item, locals: { excluded_types: excluded_types, tree_label: tree_label, index: index } %>
+          <%= render partial: 'data_cycle_core/application/filters/classification_items', collection: item.sub_classification_alias.reject { |type| excluded_types.include?(type.internal_name) }.sort{|a,b| a.internal_name <=> b.internal_name}, as: :item, locals: { excluded_types: excluded_types, tree_label: tree_label, index: index } %>
         </ul>
     <% end %>
 </li>

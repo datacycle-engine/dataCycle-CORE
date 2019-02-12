@@ -12,9 +12,9 @@
         &.classification_trees
         &.includes(
           :parent_classification_alias, sub_classification_alias: [
-            :classifications, sub_classification_alias: [
-              :classifications, sub_classification_alias: [
-                :classifications, :sub_classification_alias
+            :classifications, :classification_alias_path, sub_classification_alias: [
+              :classifications, :classification_alias_path, sub_classification_alias: [
+                :classifications, :classification_alias_path, :sub_classification_alias
               ]
             ]
           ]
@@ -51,7 +51,7 @@
       <% else %>
           <% available_items = classification_items&.map { |c|
             [
-              c.sub_classification_alias.try(:name),
+              c.sub_classification_alias.try(:internal_name),
               c.sub_classification_alias&.primary_classification.try(:id),
               {
                 title: [

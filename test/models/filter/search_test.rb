@@ -70,17 +70,17 @@ module DataCycleCore
       assert_equal(3, items.count)
     end
 
-    test 'test method only_frontend_valid (excludes places)' do
-      articles = @things + 5
-      items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text']))
-      assert_equal(articles, items.count)
-      assert_equal(articles, items.only_frontend_valid.count)
-      items = DataCycleCore::Filter::Search.new(:de)
-        .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text', 'Örtlichkeit']))
-      assert_equal(articles + 1, items.count)
-      assert_equal(articles, items.only_frontend_valid.count)
-    end
+    # test 'test method only_frontend_valid (excludes places)' do
+    #   articles = @things + 5
+    #   items = DataCycleCore::Filter::Search.new(:de)
+    #     .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text']))
+    #   assert_equal(articles, items.count)
+    #   assert_equal(articles, items.only_frontend_valid.count)
+    #   items = DataCycleCore::Filter::Search.new(:de)
+    #     .classification_alias_ids(find_alias_ids('Inhaltstypen', ['Text', 'Örtlichkeit']))
+    #   assert_equal(articles + 1, items.count)
+    #   assert_equal(articles, items.only_frontend_valid.count)
+    # end
 
     test 'test query for external_source' do
       external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id

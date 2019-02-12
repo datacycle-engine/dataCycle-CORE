@@ -11,8 +11,9 @@
                                item.class.name.demodulize.underscore.dasherize,
                                item.schema_type&.underscore&.dasherize,
                                item.template_name.underscore.dasherize,
-                               changes_class(options.dig(:item_diff), item.id)
-                           ].join(' ') %>" data-id="<%= [item.id] %>">
+                               changes_class(options.dig(:item_diff), item.id),
+                               (item.hard_content_warnings? ? 'hard-warnings' : nil)
+                           ].compact.join(' ') %>" data-id="<%= [item.id] %>">
 
                 <%= render_first_existing_partial [
                                                       "data_cycle_core/contents/viewers/tiles/#{item.template_name.underscore_blanks}",

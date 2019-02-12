@@ -18,6 +18,7 @@ module DataCycleCore
       attribute :content
       attribute :history_valid
       content_relations table_name: 'things', postfix: 'history'
+
       belongs_to :thing
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
@@ -64,6 +65,14 @@ module DataCycleCore
             ON things.id = #{virtual_table_name}.content_data_id
         SQL
       )
+    end
+
+    def translated_locales
+      if translations.loaded?
+        translations.map(&:locale).sort
+      else
+        translations.translated_locales
+      end
     end
 
     # to cash also translated values (comming from gem Globalize)

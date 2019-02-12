@@ -5,9 +5,6 @@ module DataCycleCore
     class Rank10 < DataCycleCore::Ability
       def initialize(user, _session = {})
         can [:read, :create, :update, :destroy], DataCycleCore::UserGroup
-        can :index, DataCycleCore::TextFile, creator_id: user.sibling_ids
-        can [:create, :update], DataCycleCore::TextFile, creator_id: user.id
-
         can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
 
         # User Administraion

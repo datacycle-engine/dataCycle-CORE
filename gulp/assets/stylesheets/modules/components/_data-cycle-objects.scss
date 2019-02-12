@@ -141,7 +141,6 @@
 
   .content {
     display: block;
-    overflow: hidden;
     width: auto;
     height: auto;
     padding: 0.65rem;
@@ -152,10 +151,24 @@
     width: 300px;
     max-width: 450px;
 
+    &.hard-warnings {
+      box-shadow: 0 0 5px 1px $alert-color;
+      .content-warning {
+        color: $alert-color;
+      }
+    }
+
     &.bild,
     &.video {
       width: 205px;
       max-width: 205px;
+      &.hard-warnings {
+        box-shadow: none;
+
+        .thumbnail {
+          box-shadow: 0 0 5px 1px $alert-color;
+        }
+      }
     }
 
     > .name {
@@ -199,9 +212,9 @@
     }
   }
 
-  .content.creative-work.bild,
-  .content.creative-work.bild-filmcommission,
-  .content.creative-work.video {
+  .content.bild,
+  .content.bild-filmcommission,
+  .content.video {
     padding: 1px;
     margin: 0;
     box-shadow: 0 0 0 0;
@@ -282,6 +295,13 @@
       width: 300px;
       max-width: 450px;
 
+      &.hard-warnings {
+        box-shadow: 0 0 5px 1px $alert-color;
+        .content-warning {
+          color: $alert-color;
+        }
+      }
+
       .name {
         font-weight: 600;
       }
@@ -289,6 +309,11 @@
       .delete-thumbnail {
         position: relative;
         float: right;
+        margin-left: 5px;
+        text-shadow: 1px 1px 1px rgba($black, 0.3);
+        .fa {
+          font-size: 1.3rem;
+        }
       }
 
       &.thumbnail {
@@ -296,15 +321,10 @@
         width: 194px;
         max-width: 194px;
         height: 170px;
-        padding: 0;
+        padding: 5px 0;
         cursor: pointer;
         text-align: right;
         border: 0;
-
-        .delete-thumbnail {
-          position: absolute;
-          float: none;
-        }
 
         &:focus,
         &:hover {
@@ -354,9 +374,6 @@
   color: $dark-gray;
   padding: 0 0.2rem;
   cursor: pointer;
-  position: absolute;
-  right: 0;
-  top: 0;
 
   &:focus,
   &:hover {
@@ -482,6 +499,11 @@
           display: block;
           position: relative;
           float: right;
+          margin-left: 5px;
+          text-shadow: 1px 1px 1px rgba($black, 0.3);
+          .fa {
+            font-size: 1.3rem;
+          }
         }
 
         &.thumbnail {
@@ -493,9 +515,6 @@
           display: inline-block;
 
           .delete-thumbnail {
-            float: none;
-            position: absolute;
-            top: 0.2rem;
             right: 0.2rem;
             color: white;
             text-shadow: 1px 1px 1px rgba($black, 0.3);
@@ -552,10 +571,16 @@
 
   > .items {
     .media.item {
+      position: relative;
       &.active {
         border-color: $primary-color;
         background-color: $primary-color;
         box-shadow: 0 0 0 1px rgba($primary-color, 1);
+
+        &.hard-warnings {
+          box-shadow: 0 0 0 1px rgba($primary-color, 1),
+            0 0 5px 1px $alert-color;
+        }
 
         .person {
           color: white;
@@ -601,6 +626,13 @@
       transition: box-shadow 200ms ease-out;
       line-height: 1.5;
 
+      &.hard-warnings {
+        box-shadow: 0 0 5px $alert-color;
+        .content-warning {
+          color: $alert-color;
+        }
+      }
+
       .name {
         font-weight: 600;
       }
@@ -608,7 +640,8 @@
       cursor: pointer;
 
       &:hover,
-      &:focus {
+      &.active:hover,
+      &.active.hard-warnings:hover {
         box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
       }
 
@@ -757,19 +790,21 @@ span.single_error.object-browser-error {
   }
 }
 
-.thumbnail span.warning {
-  position: absolute;
+.content-warning {
   color: $warning-color;
-  bottom: 5px;
-  right: 5px;
   display: block;
   border-bottom: 0;
-  opacity: 0.5;
+  font-size: 1.5rem;
+  text-shadow: 0 0 2px;
+  float: right;
+  margin-left: 5px;
+}
 
-  &:focus,
-  &:hover {
-    opacity: 1;
-  }
+.thumbnail .content-warning {
+  position: absolute;
+  bottom: 5px;
+  right: 5px;
+  margin: 0;
 }
 
 /* Object Browser New Items */

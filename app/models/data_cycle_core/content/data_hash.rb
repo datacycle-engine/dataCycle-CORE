@@ -16,6 +16,7 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
+      before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
@@ -70,7 +71,7 @@ module DataCycleCore
 
       def set_computed_values
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
         end
       end
 
@@ -102,6 +103,13 @@ module DataCycleCore
         validation_hash&.dig(:error).blank?
       end
 
+      def set_internal_data
+        self.content_type = schema&.dig('content_type')
+        self.boost = schema&.dig('boost') || 1.0
+        validity_hash = metadata.nil? ? nil : metadata['validity_period']
+        self.validity_range = get_validity_range(validity_hash)
+      end
+
       private
 
       def notify_subscribers
@@ -125,7 +133,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'computed'
@@ -216,7 +224,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+        available_update_item_keys = send(field_name).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -225,12 +233,13 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              DataCycleCore::ContentContent.find_or_create_by!({
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
                 content_a_id: id,
                 relation_a: field_name,
-                order_a: index,
                 content_b_id: item['id']
               })
+              upsert_relation.order_a = index
+              upsert_relation.save
             end
 
             updated_item_keys << item['id']
@@ -288,12 +297,13 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated)
+        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids)
           if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value).id
+            classification_id = load_default_classification(tree_label, default_value)
             ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(
@@ -324,6 +334,8 @@ module DataCycleCore
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
+        asset_id = asset_id.is_a?(ActiveRecord::Relation) ? asset_id.first.id : asset_id
+
         if id.present?
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,

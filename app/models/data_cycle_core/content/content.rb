@@ -21,12 +21,13 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
-      include DataCycleCore::MasterData::DataConverter
+      # extend DataCycleCore::MasterData::DataConverter
       include ContentRelations
       extend  ContentFilters
       include DestroyContent
       include DataHashUtility
       include Extensions::Content
+      include Extensions::ContentWarnings
 
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
@@ -46,7 +47,7 @@ module DataCycleCore
       end
 
       def content_type?(*types)
-        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
+        types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
       def schema_type
@@ -68,8 +69,6 @@ module DataCycleCore
 
       def property_definitions
         schema&.dig('properties') || {}
-      rescue StandardError
-        {}
       end
 
       def property_names
@@ -131,6 +130,12 @@ module DataCycleCore
       def computed_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'computed'
+        }.keys
+      end
+
+      def combined_property_names
+        property_definitions.select { |_, definition|
+          definition.dig('api', 'transformation', 'method') == 'combine'
         }.keys
       end
 
@@ -197,10 +202,6 @@ module DataCycleCore
 
       def history?
         respond_to?('history_valid')
-      end
-
-      def as_of(_timestamp)
-        self
       end
 
       def collect_properties(definition = schema, parents = [])
@@ -292,6 +293,18 @@ module DataCycleCore
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+      end
+
+      def convert_to_type(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
+      end
+
+      def convert_to_string(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
+      end
+
+      def parent_templates
+        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }.flatten
       end
     end
   end

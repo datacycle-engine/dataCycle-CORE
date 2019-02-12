@@ -4,6 +4,16 @@ require 'csv'
 
 module DataCycleCore
   class ClassificationTreeLabel < ApplicationRecord
+    class Statistics < ApplicationRecord
+      self.table_name = 'classification_tree_label_statistics'
+
+      belongs_to :classification_tree_label, foreign_key: 'id', inverse_of: :statistics
+
+      def readonly?
+        true
+      end
+    end
+
     acts_as_paranoid
 
     belongs_to :external_source
@@ -14,6 +24,7 @@ module DataCycleCore
         joins(:classification_tree).where(classification_trees: { parent_classification_alias_id: nil })
       end
     end
+    has_one :statistics, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label # rubocop:disable Rails/HasManyOrHasOneDependent
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -29,12 +40,10 @@ module DataCycleCore
         if parent_classification_alias
           classification_alias = parent_classification_alias
             .sub_classification_alias
-            .where(name: attributes[:name], external_source: attributes[:external_source])
-            .first_or_initialize
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
         else
           classification_alias = classification_aliases.roots
-            .where(name: attributes[:name], external_source: attributes[:external_source])
-            .first_or_initialize
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
         end
 
         if classification_alias.new_record?
@@ -58,11 +67,25 @@ module DataCycleCore
       parent_classification_alias
     end
 
-    def to_csv
+    def to_csv(include_contents: false)
       CSV.generate do |csv|
         csv << [name]
-        classification_aliases.each do |classification_alias|
+        classification_aliases.sort_by(&:full_path).each do |classification_alias|
           csv << Array.new(classification_alias.ancestors.count) + [classification_alias.name]
+
+          next unless include_contents
+
+          classification_alias.classifications.map(&:classification_contents).flatten.each do |content_relation|
+            content_relation.content_data.translations.each do |content_translation|
+              row = Array.new(classification_alias.ancestors.count + 1)
+              row += [
+                content_relation.content_data.template_name,
+                content_translation.locale,
+                content_translation.name
+              ]
+              csv << row
+            end
+          end
         end
       end
     end

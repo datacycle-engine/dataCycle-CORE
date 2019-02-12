@@ -9,19 +9,25 @@
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :show:
             :disabled: true
+        :normalize:
+          :id: forename
+          :type: forename
       :family_name:
         :label: Nachname
         :type: string
         :storage_location: column
         :search: true
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :show:
             :disabled: true
         :api:
           :minimal: true
+        :normalize:
+          :id: surname
+          :type: surname

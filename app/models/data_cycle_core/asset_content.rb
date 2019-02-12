@@ -3,7 +3,7 @@
 module DataCycleCore
   class AssetContent < ApplicationRecord
     belongs_to :content_data, class_name: 'DataCycleCore::Thing'
-    belongs_to :asset
+    belongs_to :asset, dependent: :destroy
 
     class << self
       def with_content(content_id, content_type)

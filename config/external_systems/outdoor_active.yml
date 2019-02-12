@@ -1,0 +1,18 @@
+---
+name: OutdoorActive
+credentials:
+  xml:
+    source: 'dataCycle'
+    owner: 'dataCycleKW'
+  host: 'http://web:3000'
+  key: 'datacycle'
+  external_source: 'OutdoorActive Kärnten'
+config:
+  push_config:
+    endpoint: DataCycleCore::Export::OutdoorActive::Endpoint
+    create:
+      strategy: DataCycleCore::Export::OutdoorActive::Create
+    update:
+      strategy: DataCycleCore::Export::OutdoorActive::Update
+    delete:
+      strategy: DataCycleCore::Export::OutdoorActive::Delete

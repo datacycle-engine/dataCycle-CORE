@@ -19,6 +19,17 @@ body.documentation {
     margin-bottom: 1rem;
   }
 
+  li > p {
+    margin-bottom: 0;
+  }
+
+  li:last-child {
+    margin-bottom: 1rem;
+  }
+  li li li:last-child {
+    margin-bottom: 0;
+  }
+
   footer {
     background-image: url("logo.png");
     background-repeat: no-repeat;
