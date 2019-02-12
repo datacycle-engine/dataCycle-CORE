@@ -55,6 +55,9 @@ DataCycleCore.setup do |config|
         enabled: true,
         external_source: 'Econob Normalize',
         endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
+      },
+      duplicate_content: {
+        enabled: true
       }
     }
   )

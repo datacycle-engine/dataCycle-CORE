@@ -82,6 +82,7 @@ de:
     status: Status
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
+    duplicate_content: Inhalt duplizieren
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
     publications: Geplante Publikationen
     publications_calendar: Publikationskalender
@@ -185,6 +186,7 @@ de:
       other: "Suche zurücksetzen"
     filter: jetzt suchen
     move_to: "In %{data} verschieben"
+    duplicate_content: "duplizieren"
     read: lesen
     write: schreiben
     save_and_send: "Speichern und Senden"
@@ -290,6 +292,7 @@ de:
       become_user: 'Eingeloggt als %{data}.'
     info:
       not_modified: "%{data} wurde nicht geändert."
+      created_duplication: "%{data} wurde erfolgreich dupliziert."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
