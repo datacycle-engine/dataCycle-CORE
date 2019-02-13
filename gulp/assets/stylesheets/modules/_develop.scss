@@ -784,7 +784,7 @@ a.has-tip {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
     width: 96vw;
-    height: 87vh;
+    height: 85vh;
     max-width: 1200px;
   }
 
@@ -1416,8 +1416,8 @@ select {
   }
 }
 
-.reveal-overlay.content-reveal-overlay {
-  z-index: 1007;
+.reveal-overlay {
+  z-index: 1006;
 }
 
 .detail-type.geographic,
@@ -1580,7 +1580,7 @@ select {
   margin-top: 0.5rem;
 }
 
-#admin-panel{
+#admin-panel {
   color: darken($white, 15%);
   background-color: darken($black, 15%);
   position: fixed;
@@ -1588,32 +1588,32 @@ select {
   width: 100%;
   z-index: 999999;
   max-height: 100vh;
-  nav#admin-icons{
-    a{
+  nav#admin-icons {
+    a {
       padding: 1rem;
       border-right: 1px solid $primary-color;
       .fa {
         font-size: 1.3rem;
       }
       &:hover .fa {
-        color: darken($white,15%);
+        color: darken($white, 15%);
       }
     }
   }
-  section#admin-inner{
+  section#admin-inner {
     > section {
-      display:none;
+      display: none;
       padding: 1rem;
       border-top: 1px solid $primary-color;
-      &.expanded{
+      &.expanded {
         display: block;
       }
-      button{
+      button {
         background-color: none;
         border: 1px solid $primary-color;
         color: $primary-color;
       }
-      span.admin-clipboard-notice{
+      span.admin-clipboard-notice {
         position: absolute;
         right: 6rem;
         display: block;
@@ -1625,8 +1625,14 @@ select {
         line-height: 1.3;
         padding: 0.75rem 1rem;
       }
-      &#schema, &#datahash, &#json-api, &#related-content{
-        .schema-nav, .datahash-nav, .json-api-nav, .json-related-content{
+      &#schema,
+      &#datahash,
+      &#json-api,
+      &#related-content {
+        .schema-nav,
+        .datahash-nav,
+        .json-api-nav,
+        .json-related-content {
           padding-bottom: 1rem;
           text-align: right;
         }
@@ -1646,12 +1652,12 @@ select {
         ::-webkit-scrollbar-thumb:hover {
           background: $light-gray;
         }
-        pre{
+        pre {
           overflow: auto;
           display: block;
           width: 100%;
           max-height: calc(100vh - 9.3rem);
-          code{
+          code {
             height: auto;
             width: 100%;
             display: inline-block;
@@ -1662,7 +1668,6 @@ select {
           }
         }
       }
-
     }
   }
 }

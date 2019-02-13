@@ -59,9 +59,10 @@ module DataCycleCore
     end
 
     def new
-      @new_template = DataCycleCore::Thing.find_by(id: new_template_params[:source_id]) if new_template_params.present?
       @resolved_params = resolve_params(new_params)
-      @active_url = contents_new_path(resolve_params(new_params, false))
+      @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
+
+      return if @template.nil?
 
       respond_to :js
     end
@@ -349,26 +350,16 @@ module DataCycleCore
 
     def content_params(template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(template_name)
-      params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
+      params.require(:thing).permit(datahash: datahash)
     end
 
     def new_params
-      params.permit(:test, :content_id, :scope, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
+      params.transform_keys(&:underscore).permit(:template, :locale, :key, :search_param, :search_required, :scope, :prefix, parent: [:id, :class], content: [:id, :class])
     end
 
     def source_params
       if params[:source]
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
-      elsif params[:source_id] && params[:source_table]
-        params.permit(:source_id, :source_table)
-      else
-        {}
-      end
-    end
-
-    def new_template_params
-      if params[:new_template]
-        ActionController::Parameters.new(Hash[params[:new_template].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
       elsif params[:source_id] && params[:source_table]
         params.permit(:source_id, :source_table)
       else

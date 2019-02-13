@@ -1,12 +1,11 @@
 // Add Lazyloading + fixes
 module.exports.initialize = function() {
   // reposition reveal after it is loaded
-  $(document).on('lazyloaded form-rendered remote-partial-rendered', event => {
+  $(document).on('lazyloaded changed.dc.html', '*', event => {
     if ($(event.target).closest('.reveal:not(.object-browser-overlay)').length) {
       $(event.target)
         .closest('.reveal:not(.object-browser-overlay)')
         .foundation('open');
-      $(event.target).foundation();
     }
   });
 
@@ -20,16 +19,10 @@ module.exports.initialize = function() {
       .remove();
   });
 
-  $(document).on('closed.zf.reveal', '[data-reset-on-close="true"]', event => {
+  $(document).on('closed.zf.reveal', event => {
     $(event.target)
       .find('iframe')
       .removeClass('lazyloaded lazyloading')
       .addClass('lazyload');
   });
-
-  function rePosition(reveal) {
-    reveal.css({
-      top: ($(window).height() - reveal.outerHeight()) / 3
-    });
-  }
 };

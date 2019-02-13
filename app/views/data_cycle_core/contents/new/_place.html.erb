@@ -1,0 +1,23 @@
+<fieldset>
+  <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge(search_param: true) %>
+
+  <div class="form-element<%= ' validation-container' if template.schema.dig('properties', 'name', 'validations').present? %>">
+    <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][name]", "#{template.schema.dig('properties', 'name', 'label')}" %>
+    <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if template.schema.dig('properties', 'address', 'properties', 'street_address', 'validations').present? %>">
+    <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][address][street_address]", "#{template.schema.dig('properties', 'address', 'properties', 'street_address', 'label')}" %>
+    <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][address][street_address]", nil, class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if template.schema.dig('properties', 'address', 'properties', 'postal_code', 'validations').present? %>">
+    <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][address][postal_code]", "#{template.schema.dig('properties', 'address', 'properties', 'postal_code', 'label')}" %>
+    <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][address][postal_code]", nil, class: 'form-control' %>
+  </div>
+
+  <div class="form-element<%= ' validation-container' if template.schema.dig('properties', 'address', 'properties', 'address_locality', 'validations').present? %>">
+    <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][address][address_locality]", "#{template.schema.dig('properties', 'address', 'properties', 'address_locality', 'label')}" %>
+    <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][address][address_locality]", nil, class: 'form-control' %>
+  </div>
+</fieldset>

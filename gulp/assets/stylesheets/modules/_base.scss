@@ -845,7 +845,6 @@ body .v-select {
   margin: 0 auto;
 }
 
-.reveal-overlay,
 .reveal.without-overlay:not(.full) {
   background: none;
 }
@@ -925,23 +924,101 @@ body .v-select {
     margin-bottom: 1rem;
   }
 
-  .form_crumbs {
+  .form-crumbs {
     margin: 1rem 0;
     font-size: 0.9rem;
     font-style: italic;
-
-    .form-crumb-link {
-      &:not(:last-child)::after {
-        content: '\f105';
-        font-family: FontAwesome;
-        font-style: normal;
-        font-weight: normal;
-        margin: 0 0.3rem;
-      }
+    .fa {
+      margin: 0 0.3rem;
+      font-size: 0.8rem;
     }
   }
   .buttons .fa {
     font-size: 1rem;
+  }
+
+  .multi-step {
+    fieldset:not(.active) {
+      display: none;
+    }
+    .buttons {
+      .submit {
+        display: none;
+      }
+    }
+    fieldset {
+      &.active:first-of-type ~ .buttons {
+        .prev {
+          display: none;
+        }
+      }
+      &.active:last-of-type ~ .buttons {
+        .next {
+          display: none;
+        }
+      }
+      &.active:not(.iframe):last-of-type ~ .buttons {
+        .submit {
+          display: inline-block;
+        }
+      }
+      legend {
+        display: none;
+      }
+      .form-loading {
+        text-align: center;
+        line-height: 5.5rem;
+        .fa {
+          font-size: 2rem;
+          color: $light-gray;
+        }
+      }
+      .form-element {
+        .translated {
+          position: absolute;
+          right: 0.5rem;
+          top: 0;
+        }
+        input {
+          margin: 0;
+        }
+        margin-bottom: 1rem;
+        .editor-block {
+          box-shadow: inset 0 1px 2px rgba($black, 0.1);
+          border: 1px solid $medium-gray;
+        }
+        &.text_editor {
+          .translated {
+            top: 0.5rem;
+          }
+          label {
+            position: absolute;
+            top: 0.5rem;
+            left: 0.5rem;
+          }
+        }
+        &.linked {
+          .object-browser {
+            padding: 0.1rem;
+          }
+        }
+
+        .select2 {
+          padding: 0.5rem;
+          width: 100% !important;
+          background: $white;
+          box-shadow: inset 0 1px 2px rgba($black, 0.1);
+          border: 1px solid $medium-gray;
+        }
+        &.focus {
+          .editor-block,
+          .select2 {
+            border: 1px solid $dark-gray;
+            box-shadow: 0 0 5px $medium-gray;
+          }
+        }
+      }
+    }
   }
 }
 

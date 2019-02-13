@@ -368,6 +368,9 @@
       }
     }
   }
+  > .buttons {
+    text-align: left;
+  }
 }
 
 .delete-thumbnail {
@@ -406,7 +409,6 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
-  z-index: initial;
 
   .draggable-handle {
     display: none;
@@ -578,8 +580,7 @@
         box-shadow: 0 0 0 1px rgba($primary-color, 1);
 
         &.hard-warnings {
-          box-shadow: 0 0 0 1px rgba($primary-color, 1),
-            0 0 5px 1px $alert-color;
+          box-shadow: 0 0 0 1px rgba($primary-color, 1), 0 0 5px 1px $alert-color;
         }
 
         .person {

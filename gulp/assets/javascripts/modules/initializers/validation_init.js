@@ -58,7 +58,7 @@ module.exports.initialize = function() {
                 $(form).trigger('submit_without_redirect');
               } else {
                 $(window).off('beforeunload');
-                form.submit();
+                $(form).trigger('submit.rails');
               }
             },
             () => {
@@ -74,7 +74,7 @@ module.exports.initialize = function() {
             $(form).trigger('submit_without_redirect');
           } else {
             $(window).off('beforeunload');
-            form.submit();
+            $(form).trigger('submit.rails');
           }
         } else if (submit) {
           enable_form(form);
@@ -130,7 +130,7 @@ module.exports.initialize = function() {
         .find('.submit-edit-form')
         .first()
     );
-    $.rails.enableFormElements($(form));
+    if (!$(form).hasClass('disabled')) $.rails.enableFormElements($(form));
   }
 
   let render_error_msg = function(data, validation_container) {
@@ -240,7 +240,7 @@ module.exports.initialize = function() {
     let table = $(form)
       .find('input#table')
       .val();
-    let template = $(form).find('#template');
+    let template = $(form).find(':input[name="template"]');
     if (template.length) {
       form_data.push({
         name: 'template',
@@ -405,20 +405,7 @@ module.exports.initialize = function() {
     init_event_handlers('body');
   }
 
-  $(document).on('open.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
+  $(document).on('changed.dc.html', '*', event => {
     init_event_handlers(event.currentTarget);
-  });
-
-  $(document).on('closed.zf.reveal', '.new-content-reveal[data-reset-on-close]', event => {
-    remove_event_handlers(event.currentTarget);
-  });
-
-  $(document).on('closed.zf.reveal', '.new-content-reveal', event => {
-    $(event.currentTarget)
-      .find('.has-error')
-      .removeClass('has-error');
-    $(event.currentTarget)
-      .find('.single_error')
-      .remove();
   });
 };

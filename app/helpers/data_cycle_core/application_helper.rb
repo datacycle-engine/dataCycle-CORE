@@ -293,14 +293,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_new_form(new_template: nil, parameters: {})
+    def render_new_form(template: nil, parameters: {})
       partials = [
-        new_template&.template_name&.underscore_blanks,
-        new_template&.schema_type&.underscore_blanks,
+        template&.template_name&.underscore_blanks,
+        template&.schema_type&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ new_template: new_template }))
+      render_first_existing_partial(partials, parameters.merge({ template: template }))
     end
 
     private

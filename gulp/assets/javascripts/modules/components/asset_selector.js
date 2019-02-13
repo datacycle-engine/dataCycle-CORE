@@ -17,6 +17,7 @@ AssetSelector.prototype.init = function() {
   this.asset_list.on('click', 'li', this.clickOnAsset.bind(this));
   this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
   this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
+  this.button.closest('form').on('reset.dc.form', this.resetSelector.bind(this));
 };
 
 AssetSelector.prototype.loadAssets = function(event) {
@@ -67,7 +68,7 @@ AssetSelector.prototype.selectAssets = function(event) {
   event.preventDefault();
 
   this.selected_asset_id = this.select_button.data('value');
-  this.hidden_field.attr('value', this.selected_asset_id);
+  this.hidden_field.val(this.selected_asset_id);
   this.selected_asset_list.html(this.asset_list.find('li.active').clone());
   this.reveal.foundation('close');
 };
@@ -80,6 +81,11 @@ AssetSelector.prototype.deselect = function(event) {
   $(event.target)
     .closest('li')
     .remove();
+};
+
+AssetSelector.prototype.resetSelector = function(event) {
+  this.hidden_field.val('');
+  this.selected_asset_list.empty();
 };
 
 module.exports = AssetSelector;

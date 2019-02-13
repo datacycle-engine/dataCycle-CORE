@@ -2,7 +2,6 @@
 var $ = require('jquery');
 var jquery_to_json = require('jquery-serializejson');
 var jqueryujs = require('jquery-ujs');
-var foundation = require('foundation-sites');
 var lazysizes = require('lazysizes');
 var lazysizes_unveilhooks = require('lazysizes/plugins/unveilhooks/ls.unveilhooks.min.js');
 var callout_helpers = require('./modules/helpers/callout_helpers');
@@ -40,8 +39,9 @@ initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
 initializers.push(require('./modules/initializers/admin_panel_init'));
 
-// keep validations last to ensure everything is intialized before saving form values
+// keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/validation_init'));
+initializers.push(require('./modules/initializers/foundation_init'));
 
 $(function() {
   initializers.forEach(element => {
@@ -51,10 +51,6 @@ $(function() {
       console.log(err);
     }
   });
-
-  // Initialize Foundation
-  Foundation.Tooltip.defaults.clickOpen = false;
-  $(document).foundation();
 
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
   if ($('.home-container').length) {

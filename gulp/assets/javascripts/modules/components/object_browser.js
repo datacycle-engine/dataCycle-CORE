@@ -13,6 +13,7 @@ var ObjectBrowser = function(selector) {
   this.type = selector.data('type');
   this.locale = selector.data('locale');
   this.key = selector.data('key');
+  this.hidden_field_id = selector.data('hidden-field-id');
   this.object_id = selector.data('object-id');
   this.object_key = selector.data('object-key');
   this.definition = selector.data('definition');
@@ -35,7 +36,7 @@ var ObjectBrowser = function(selector) {
   this.sortable;
   this.content_id = this.element.data('content-id');
   this.content_type = this.element.data('content-type');
-  this.masonry;
+  this.prefix = selector.data('prefix');
   this.requests = [];
 
   this.setup();
@@ -199,36 +200,28 @@ ObjectBrowser.prototype.setup = function() {
     }
   });
 
-  this.overlay.on(
-    'import-complete',
-    function(event, data) {
-      if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
+  this.overlay.on('complete.dc.import', (event, data) => {
+    if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
 
-      this.overlay
-        .children('.items')
-        .find('[data-id=' + data.id + ']')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-      this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
-    }.bind(this)
-  );
+    this.overlay
+      .children('.items')
+      .find('[data-id=' + data.id + ']')
+      .get(0)
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
+    this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
+    $('#new_' + this.id + '.in-object-browser form').trigger('reset.dc.form');
+  });
 
   $(document).on(
-    'form-rendered remote-partial-rendered',
+    'changed.dc.html',
     '#new_' + this.id + '.in-object-browser .new-content-form',
-    this.initNewFormHandlers.bind(this)
-  );
-
-  $(document).on(
-    'open.zf.reveal',
-    '#new_' + this.id + '.in-object-browser[data-reset-on-close]',
     this.initNewFormHandlers.bind(this)
   );
 };
 
-ObjectBrowser.prototype.initNewFormHandlers = function() {
+ObjectBrowser.prototype.initNewFormHandlers = function(e) {
   $('#new_' + this.id + '.in-object-browser form')
     .off('submit_without_redirect')
     .on('submit_without_redirect', event => {
@@ -238,7 +231,7 @@ ObjectBrowser.prototype.initNewFormHandlers = function() {
       $.extend(form_data, {
         type: this.type,
         locale: this.locale,
-        overlay_id: '#object_browser_' + this.id,
+        overlay_id: '#object_browser_' + this.prefix + this.id,
         key: this.key,
         definition: this.definition,
         editable: this.editable,
@@ -261,13 +254,7 @@ ObjectBrowser.prototype.initNewFormHandlers = function() {
 ObjectBrowser.prototype.renderHiddenField = function() {
   this.element
     .find('> .media-thumbs > .object-thumbs')
-    .html(
-      '<input type="hidden" id="' +
-        this.key.replace(/\[/g, '_').replace(/\]/g, '') +
-        '_default" name="' +
-        this.key +
-        '[]">'
-    );
+    .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
 };
 
 ObjectBrowser.prototype.findObjects = function(ids, external) {
@@ -279,6 +266,7 @@ ObjectBrowser.prototype.findObjects = function(ids, external) {
       type: this.type,
       locale: this.locale,
       key: this.key,
+      prefix: this.prefix,
       definition: this.definition,
       options: this.options,
       ids: ids,
@@ -412,6 +400,7 @@ ObjectBrowser.prototype.loadDetails = function(id) {
       type: this.type,
       locale: this.locale,
       key: this.key,
+      prefix: this.prefix,
       definition: this.definition,
       options: this.options,
       class: this.class,
@@ -500,6 +489,7 @@ ObjectBrowser.prototype.import = function(event) {
         data: event.originalEvent.data.data,
         locale: this.locale,
         key: this.key,
+        prefix: this.prefix,
         editable: this.editable,
         definition: this.definition,
         options: this.options,
@@ -557,6 +547,7 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
         objects: this.chosen,
         editable: this.editable,
         excluded: this.excluded,
+        prefix: this.prefix,
         append: append
       }),
       contentType: 'application/json'

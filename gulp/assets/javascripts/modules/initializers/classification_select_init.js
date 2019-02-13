@@ -1,10 +1,7 @@
 // Classification Selctor in Edit Forms
 require('select2');
 require('select2/i18n/de');
-$.fn.select2.defaults.set(
-  'language',
-  $.fn.select2.amd.require('select2/i18n/de')
-);
+$.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function() {
@@ -31,9 +28,7 @@ module.exports.initialize = function() {
             }
 
             var term = query.term || '';
-            var result = data.title
-              ? select2_helpers.markMatch(data.title, term)
-              : null;
+            var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
             select2_helpers.removeTreeLabel(result, tree_label);
             select2_helpers.decorateResult(result);
 
@@ -70,10 +65,8 @@ module.exports.initialize = function() {
                 .$container.removeClass('select2-loading');
               return {
                 results: data.map(value => {
-                  if (alias_ids && value.classification_alias_id != undefined)
-                    value.id = value.classification_alias_id;
-                  else if (value.classification_id != undefined)
-                    value.id = value.classification_id;
+                  if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                  else if (value.classification_id != undefined) value.id = value.classification_id;
                   return value;
                 })
               };
@@ -103,9 +96,7 @@ module.exports.initialize = function() {
             var term = query.term || '';
             var text_value = title || data.text;
 
-            var result = text_value
-              ? select2_helpers.markMatch(text_value, term)
-              : null;
+            var result = text_value ? select2_helpers.markMatch(text_value, term) : null;
             select2_helpers.removeTreeLabel(result, tree_label);
             select2_helpers.decorateResult(result);
 
@@ -119,10 +110,7 @@ module.exports.initialize = function() {
             }
           },
           templateSelection: function(data) {
-            return select2_helpers.removeTreeLabelFromSelection(
-              data.text,
-              tree_label
-            );
+            return select2_helpers.removeTreeLabelFromSelection(data.text, tree_label);
           },
           matcher: function(params, data) {
             // If there are no search terms, return all of the data
@@ -139,9 +127,7 @@ module.exports.initialize = function() {
             // `data.text` is the text that is displayed for the data object
             if (
               data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
-              (data.title !== undefined &&
-                data.title.toLowerCase().indexOf(params.term.toLowerCase()) >
-                  -1)
+              (data.title !== undefined && data.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
             ) {
               return data;
             }
@@ -161,29 +147,9 @@ module.exports.initialize = function() {
       });
   }
 
-  $(document).on(
-    'open.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      init(event.target);
-    }
-  );
-
-  $(document).on(
-    'closed.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      removeHandlers(event.target);
-    }
-  );
-
-  $(document).on(
-    'clone-added',
-    '.content-object-item, .advanced-filter',
-    function() {
-      init(this);
-    }
-  );
+  $(document).on('changed.dc.html', '*', event => {
+    init(event.target);
+  });
 
   init(document);
 };

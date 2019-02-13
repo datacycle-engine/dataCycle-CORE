@@ -1,8 +1,11 @@
-<% if @new_template.present? %>
-  $('.new-content-reveal:visible .new-content-form').html('<%= j render_new_form(new_template: @new_template, parameters: @resolved_params) %>').trigger('form-rendered');
-<% else %>
-  $('.new-content-reveal:visible .new-content-form').html('<%= j render 'data_cycle_core/contents/new/new_stage', @resolved_params %>').trigger('form-rendered');
-<% end %>
+var html = $('<%= j render_new_form(template: @template, parameters: @resolved_params) %>');
+html.filter('fieldset').first().addClass('active');
+$('#<%= @resolved_params[:key] %> form.multi-step fieldset.content-fields').replaceWith(html);
+html.trigger('changed.dc.html');
+$.rails.enableFormElements($('#<%= @resolved_params[:key] %> form.multi-step'));
 
-$('.new-content-reveal:visible .new_content_form_title').html('<%= j yield :new_content_form_title %>');
-$('.new-content-reveal:visible .form_crumbs').html('<%= j yield :form_crumbs %>');
+<% if @resolved_params[:search_required] && @resolved_params[:search_param].blank? && !can?(:create_without_search, @template) %>
+  $('#<%= @resolved_params[:key] %> form.multi-step button[type="submit"]').attr('disabled', true);
+<% else %>
+  $('#<%= @resolved_params[:key] %> form.multi-step callout').remove();
+<% end %>

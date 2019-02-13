@@ -1,7 +1,7 @@
 <div class="media thumbnail item <%= 'hard-warnings' if object.hard_content_warnings? %> <%= 'active' if (objects ||= []).include?(object.id) %>" style="<%= "background-image: url(#{object.asset.first.thumbnail_url})" if object.try(:asset)&.first&.thumbnail_url? %>" data-open="media_reveal_<%= object.id %>" data-id="<%= object.id %>">
     <% render_locale = I18n.locale %>
     <% I18n.with_locale(object.first_available_locale) do %>
-      <%= hidden_field_tag key, object.id %>
+      <%= hidden_field_tag key, object.id, id: "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>
 
       <% if object.try(:title) %>
           <div class="description"><%= object.try(:title) %> (<%= I18n.locale.to_s %>)</div>

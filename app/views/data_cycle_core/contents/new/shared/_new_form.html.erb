@@ -1,0 +1,59 @@
+<%= form_with url: things_path,
+  local: !local_assigns[:object_browser],
+  html: {
+    class: 'validation-form multi-step',
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :prefix))
+  } do %>
+  <div class="form-crumbs"></div>
+
+  <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
+
+  <% if local_assigns[:template].present? %>
+    <%= hidden_field_tag :template, template.template_name, id: "#{local_assigns[:prefix]}template" %>
+    <%= render_new_form(template: template, parameters: local_assigns) %>
+  <% else %>
+    <fieldset class="active template">
+      <legend><%= t('actions.choose_type', locale: DataCycleCore.ui_language) %></legend>
+      <div class="form-element">
+        <%= label_tag "#{local_assigns[:prefix]}template", t('common.data_type', locale: DataCycleCore.ui_language) %>
+        <div class="v-select white">
+          <%= select_tag(
+            :template,
+            options_for_select(
+              new_content_select_options(
+                query_methods: local_assigns[:query_methods],
+                content: local_assigns[:content],
+                scope: local_assigns[:scope]
+              ).map { |t| [t("content_type.#{t&.template_name&.underscore_blanks}", default: t&.template_name, locale: DataCycleCore.ui_language), t.template_name] }
+            ),
+            {
+              class: 'single-select',
+              data: {
+                tree_label: 'Inhaltstypen',
+                allow_clear: false
+              },
+              id: "#{local_assigns[:prefix]}template"
+            }
+          ) %>
+        </div>
+      </div>
+    </fieldset>
+    <fieldset class="content-fields"></fieldset>
+  <% end %>
+
+  <div class="buttons">
+    <button class="button prev" data-disable-with="<%= t('actions.back', locale: DataCycleCore.ui_language) %>" type="button">
+      <%= t('actions.back', locale: DataCycleCore.ui_language) %>
+    </button>
+    <button class="button next" data-disable-with="<%= t('actions.next', locale: DataCycleCore.ui_language) %>" type="button">
+      <%= t('actions.next', locale: DataCycleCore.ui_language) %>
+    </button>
+    <%= button_tag t('submit', locale: DataCycleCore.ui_language),
+      type: :submit,
+      class: "button submit",
+      data: {
+        disable_with: "#{t('submit', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
+        } %>
+  </div>
+
+<% end %>

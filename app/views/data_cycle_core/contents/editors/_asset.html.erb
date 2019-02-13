@@ -1,28 +1,28 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-    <%= label_tag key do %>
+    <%= label_tag "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" do %>
       <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
       <%= definition['label'] %>
-      <%= render 'helper_text', local_assigns %>
+      <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
     <% end %>
 
     <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-    <%= hidden_field_tag key, value&.id %>
+    <%= hidden_field_tag key, value&.id, id: "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>
     <%= render 'data_cycle_core/assets/asset_list', assets: Array(value), class: 'editable' %>
 
-    <a class="button asset-selector-button" data-open="asset-selector-<%= sanitize_to_id(key) %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
-    <div class="full reveal asset-selector-reveal" id="asset-selector-<%= sanitize_to_id(key) %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= sanitize_to_id(key) %>">
+    <a class="button asset-selector-button" data-open="asset-selector-<%= "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
+    <div class="full reveal asset-selector-reveal" id="asset-selector-<%= "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>">
       <div class="asset-list-container">
         <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>
         <div class="scrollable-asset-list">
-          <%= render 'data_cycle_core/assets/asset_list', class: 'selectable', key: key, assets: nil, asset_types: DataCycleCore.asset_objects.select { |a| a.underscore.include?(definition['asset_type']) } %>
+          <%= render 'data_cycle_core/assets/asset_list', class: 'selectable', key: "#{local_assigns[:prefix]}#{sanitize_to_id(key)}", assets: nil, asset_types: DataCycleCore.asset_objects.select { |a| a.underscore.include?(definition['asset_type']) } %>
         </div>
         <div class="buttons">
-          <a class="asset-upload-link button" data-open="asset-upload-reveal-<%= sanitize_to_id(key) %>">
+          <a class="asset-upload-link button" data-open="asset-upload-reveal-<%= "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" %>">
             <i class="fa fa-upload" aria-hidden="true"></i>
             1. <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
           </a>
-          <%= render 'asset_upload', key: sanitize_to_id(key), asset_type: definition&.dig('asset_type') %>
+          <%= render 'asset_upload', key: "#{local_assigns[:prefix]}#{sanitize_to_id(key)}", asset_type: definition&.dig('asset_type') %>
           <a class="select-asset-link button" disabled="disabled">
             2. <%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %>
           </a>

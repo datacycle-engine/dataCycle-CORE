@@ -36,14 +36,12 @@ module.exports.initialize = function() {
   init_selectors();
   init_uploaders();
 
-  $(document).on('clone-added', '.content-object-item', event => {
-    event.preventDefault();
-    event.stopPropagation();
+  $(document).on('changed.dc.html', '*', event => {
     init_selectors(event.target);
     init_uploaders(event.target);
   });
 
-  $(document).on('clone-removed', '.content-object-item', event => {
+  $(document).on('removed.dc.clone', '*', event => {
     event.preventDefault();
     event.stopPropagation();
     if ($(event.target).find('.asset-selector-button').length) {
@@ -61,13 +59,5 @@ module.exports.initialize = function() {
         selector.asset_selectors = asset_selectors;
       });
     }
-  });
-
-  $(document).on('open.zf.reveal', '.asset-upload-reveal', event => {
-    init_uploaders(event.target);
-  });
-
-  $(document).on('open.zf.reveal', '.asset-upload-reveal, .asset-selector-reveal', event => {
-    $(event.target).appendTo('body');
   });
 };
