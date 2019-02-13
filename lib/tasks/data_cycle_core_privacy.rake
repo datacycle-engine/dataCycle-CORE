@@ -9,6 +9,7 @@ namespace :dc do
       DataCycleCore::User.all.each do |user|
         user.given_name = Faker::Name.first_name
         user.family_name = Faker::Name.last_name
+        user.email = "#{user.given_name}.#{user.family_name}@example.com".downcase
         user.save!
       end
     end
