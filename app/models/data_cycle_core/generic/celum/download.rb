@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Celum
-      module DownloadDocuments
+      module Download
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(
             download_object: utility_object,
@@ -14,11 +14,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id', '#cdata-section')
+          data.dig('id')
         end
 
         def self.data_name(data)
-          data.dig('name', '#cdata-section')
+          data.dig('name')
         end
       end
     end

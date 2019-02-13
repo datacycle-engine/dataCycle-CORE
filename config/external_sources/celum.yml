@@ -12,17 +12,32 @@ config:
       sorting: 1
       source_type: keywords
       endpoint: DataCycleCore::Generic::Celum::Endpoint
-      download_strategy: DataCycleCore::Generic::Celum::DownloadKeywords
+      download_strategy: DataCycleCore::Generic::Celum::DownloadVerbose
     keyword_catalogs:
-      sorting: 1
+      sorting: 2
       source_type: keyword_catalogs
       endpoint: DataCycleCore::Generic::Celum::Endpoint
-      download_strategy: DataCycleCore::Generic::Celum::DownloadKeywords
+      download_strategy: DataCycleCore::Generic::Celum::DownloadVerbose
+    users:
+      sorting: 3
+      source_type: users
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::Download
+    user_groups:
+      sorting: 4
+      source_type: user_groups
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::Download
+    folders:
+      sorting: 5
+      source_type: folders
+      endpoint: DataCycleCore::Generic::Celum::Endpoint
+      download_strategy: DataCycleCore::Generic::Celum::DownloadVerbose
     documents:
       sorting: 10
       source_type: documents
       endpoint: DataCycleCore::Generic::Celum::Endpoint
-      download_strategy: DataCycleCore::Generic::Celum::DownloadDocuments
+      download_strategy: DataCycleCore::Generic::Celum::DownloadVerbose
   import_config:
     documents:
       sorting: 10

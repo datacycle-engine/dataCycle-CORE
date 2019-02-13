@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Celum
-      module DownloadKeywords
+      module DownloadVerbose
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(
             download_object: utility_object,
@@ -14,11 +14,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data.dig('id')
+          data.dig('id', '#cdata-section')
         end
 
         def self.data_name(data)
-          data.dig('name')
+          data.dig('name', '#cdata-section')
         end
       end
     end

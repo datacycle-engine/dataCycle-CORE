@@ -11,7 +11,7 @@ module DataCycleCore
           @options = options
         end
 
-        def documents(lang: :de)
+        def documents(*)
           api_flags = [
             'includeCategories', 'includeDocumentInfo', 'includeKeyWords',
             'includeAssetCollections', 'includeLinks', 'includeImageProperties',
@@ -19,26 +19,95 @@ module DataCycleCore
           ]
 
           Enumerator.new do |yielder|
-            load_data(end_point: 'documents.api', command: 'getDocuments', flags: ['returnIds'], serializer: :index, options: {}).dig('documentIds', 'id').each do |item|
+            load_data(end_point: 'documents.api', command: 'getDocuments', flags: ['returnIds'], serializer: :to_hash, options: {}).dig('id').each do |item|
               data = load_data(end_point: 'documents.api', command: 'getDocument', flags: api_flags, serializer: :to_hash, options: { id: item['id'] })
               yielder << data
             end
           end
         end
 
-        def keywords(lang: :de)
+        def folders(*)
+          api_flags = [
+            'includeUserPermissions', 'includeAllPermissions', 'includeAllLanguages',
+            'includeKeyWords', 'includeDocumentInfo', 'includeCategories'
+          ]
+
+          Enumerator.new do |yielder|
+            [load_data(end_point: 'folders.api', command: 'getFolders', flags: [], serializer: :to_hash, options: {}).dig('folder')].flatten.each do |item|
+              tree_items = walk_folder_tree(item)
+              tree_items.each do |id|
+                data = load_data(end_point: 'folders.api', command: 'getFolder', flags: api_flags, serializer: :to_hash, options: { id: id })
+                yielder << data.dig('folder')
+              end
+            end
+          end
+        end
+
+        def walk_folder_tree(item)
+          folder_ids = []
+          # puts "id: #{item.dig('id', '#cdata-section')} / children: #{item.dig('nrOfChildren', '#cdata-section')}"
+          if item.dig('nrOfChildren', '#cdata-section').to_i.positive?
+            folder_ids << [item.dig('id', '#cdata-section')]
+            [load_data(end_point: 'folders.api', command: 'getFolders', flags: [], serializer: :to_hash, options: { id: item.dig('id', '#cdata-section') }).dig('folder')].flatten.each do |sub_item|
+              folder_ids << walk_folder_tree(sub_item)
+            end
+          else
+            folder_ids = [item.dig('id', '#cdata-section')]
+          end
+          # puts "folder_ids: [#{folder_ids.flatten}]"
+          folder_ids.flatten
+        end
+
+        def keywords(*)
+          api_flags = ['includeAdditionalLang', 'includeUserPermissions', 'includeAllPermissions']
+
+          Enumerator.new do |yielder|
+            [load_data(end_point: 'keywords.api', command: 'getKeywords', flags: [], serializer: :to_hash, options: {}).dig('keyword')].flatten.each do |item|
+              tree_items = walk_keyword_tree(item)
+              tree_items.each do |id|
+                yielder << load_data(end_point: 'keywords.api', command: 'getKeyword', flags: api_flags, serializer: :to_hash, options: { id: id })
+              end
+            end
+          end
+        end
+
+        def walk_keyword_tree(item)
+          folder_ids = []
+          # puts "id: #{item.dig('id', '#cdata-section')} / children: #{item.dig('nrOfChildren', '#cdata-section')}"
+          if item.dig('nrOfChildren', '#cdata-section').to_i.positive?
+            folder_ids << [item.dig('id', '#cdata-section')]
+            [load_data(end_point: 'keywords.api', command: 'getKeywords', flags: [], serializer: :to_hash, options: { id: item.dig('id', '#cdata-section') }).dig('keyword')].flatten.each do |sub_item|
+              folder_ids << walk_keyword_tree(sub_item)
+            end
+          else
+            folder_ids = [item.dig('id', '#cdata-section')]
+          end
+          # puts "folder_ids: [#{folder_ids.flatten}]"
+          folder_ids.flatten
+        end
+
+        def keyword_catalogs(*)
           api_flags = ['includeAdditionalLang']
           Enumerator.new do |yielder|
-            load_data(end_point: 'keywords.api', command: 'getKeywords', flags: api_flags, serializer: :simple, options: {}).dig('keywords', 'keyword').each do |item|
+            load_data(end_point: 'keywords.api', command: 'getKeywordCatalogs', flags: api_flags, serializer: :to_hash, options: {}).dig('keyword').each do |item|
               yielder << item
             end
           end
         end
 
-        def keyword_catalogs(lang: :de)
-          api_flags = ['includeAdditionalLang']
+        def users(*)
+          api_flags = []
           Enumerator.new do |yielder|
-            load_data(end_point: 'keywords.api', command: 'getKeywordCatalogs', flags: api_flags, serializer: :simple, options: {}).dig('keywords', 'keyword').each do |item|
+            load_data(end_point: 'users.api', command: 'getUsers', flags: api_flags, serializer: :simple, options: {}).dig('users', 'user').each do |item|
+              yielder << item
+            end
+          end
+        end
+
+        def user_groups(*)
+          api_flags = []
+          Enumerator.new do |yielder|
+            load_data(end_point: 'usergroups.api', command: 'getUserGroups', flags: api_flags, serializer: :simple, options: {}).dig('usergroups', 'usergroup').each do |item|
               yielder << item
             end
           end
@@ -46,7 +115,7 @@ module DataCycleCore
 
         def load_data(end_point:, command:, flags: [], serializer:, options: {})
           url = @url + end_point
-          puts "request: #{@url + end_point} ? command: #{command} & flags=[#{flags.join(', ')}] & options={#{options.map { |key, value| "#{key}=#{value}" }.join(', ')}}"
+          # puts "request: #{@url + end_point} ? command: #{command} & flags=[#{flags.join(', ')}] & options={#{options.map { |key, value| "#{key}=#{value}" }.join(', ')}}"
 
           response = Faraday.new.get do |req|
             req.url url
@@ -67,10 +136,8 @@ module DataCycleCore
           data_hash = Hash.from_xml(xml_data.to_xml)
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error_code: #{data_hash.dig('ims', 'error', 'code')} -> #{data_hash.dig('ims', 'error', 'exception', 'message')} from #{@url + end_point} ? command: #{command} & flags=[#{flags.join(', ')}] & options={#{options.map { |key, value| "#{key}=#{value}" }.join(', ')}}", response) if data_hash.dig('ims', 'error').present?
           case serializer
-          when :index
-            xml_data.children.first.to_hash
           when :to_hash
-            xml_data.to_hash
+            xml_data.children.first.to_hash
           when :simple
             data_hash
           end
