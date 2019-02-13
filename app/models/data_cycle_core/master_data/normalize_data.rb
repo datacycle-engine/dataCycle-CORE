@@ -9,7 +9,6 @@ module DataCycleCore
       def initialize(logger: nil, host: nil, end_point: nil, **options)
         if logger.blank?
           @logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
-          # @logger = Logger.new('normalize.log', true, false)
         else
           @logger = logger
         end
