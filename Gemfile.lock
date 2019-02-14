@@ -216,6 +216,8 @@ GEM
       dry-logic (~> 0.4, >= 0.4.0)
       dry-types (~> 0.13.1)
     erubi (1.8.0)
+    faker (1.9.3)
+      i18n (>= 0.7)
     faraday (0.15.4)
       multipart-post (>= 1.2, < 3)
     faraday_middleware (0.13.0)
@@ -464,6 +466,7 @@ DEPENDENCIES
   capistrano3-puma
   data_cycle_core!
   dotenv-rails
+  faker
   fasterer
   gemsurance
   jb
