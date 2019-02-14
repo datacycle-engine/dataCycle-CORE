@@ -363,6 +363,10 @@ button,
     }
   }
 
+  .translated + label {
+    left: 2.3rem;
+  }
+
   .focus {
     .ql-disabled {
       .ql-editor {
@@ -449,9 +453,10 @@ button,
 
     .translated {
       position: absolute;
-      z-index: 2;
-      right: 0.5rem;
-      margin-top: 0.5rem;
+      z-index: 12;
+      left: 1rem;
+      top: 0.7rem;
+      color: $dark-gray;
     }
 
     .validation-container {
@@ -466,6 +471,20 @@ button,
         margin-bottom: 2rem;
         padding-bottom: 2rem;
         border-bottom: 1px solid $light-gray;
+      }
+
+      &.object {
+        > .translated {
+          top: 1.5rem;
+          left: 1.5rem;
+          color: $black;
+        }
+        &:hover,
+        &:focus {
+          > .translated {
+            color: $black;
+          }
+        }
       }
 
       label {
@@ -484,7 +503,8 @@ button,
 
       &:focus,
       &:hover {
-        > label {
+        > label,
+        > .translated {
           color: $primary-color;
         }
       }
@@ -925,9 +945,17 @@ body .v-select {
   }
 
   .form-crumbs {
-    margin: 1rem 0;
+    margin: 0.5rem 0;
     font-size: 0.9rem;
     font-style: italic;
+    padding: 0.5rem 0;
+    border-top: 1px lighten($dark-gray, 20%) dashed;
+    border-bottom: 1px lighten($dark-gray, 20%) dashed;
+
+    .locale {
+      margin-left: 0.2rem;
+    }
+
     .fa {
       margin: 0 0.3rem;
       font-size: 0.8rem;
@@ -975,9 +1003,7 @@ body .v-select {
       }
       .form-element {
         .translated {
-          position: absolute;
-          right: 0.5rem;
-          top: 0;
+          display: none;
         }
         input {
           margin: 0;
@@ -986,15 +1012,13 @@ body .v-select {
         .editor-block {
           box-shadow: inset 0 1px 2px rgba($black, 0.1);
           border: 1px solid $medium-gray;
-        }
-        &.text_editor {
-          .translated {
-            top: 0.5rem;
+          .ql-editor {
+            padding-top: 2.5rem;
           }
-          label {
-            position: absolute;
-            top: 0.5rem;
-            left: 0.5rem;
+          .ql-toolbar {
+            .ql-formats:last-child {
+              margin-right: 0;
+            }
           }
         }
         &.linked {
@@ -1004,11 +1028,20 @@ body .v-select {
         }
 
         .select2 {
-          padding: 0.5rem;
+          padding: 0;
           width: 100% !important;
           background: $white;
           box-shadow: inset 0 1px 2px rgba($black, 0.1);
           border: 1px solid $medium-gray;
+          .select2-selection {
+            margin: 0.2rem 0.5rem;
+            &.select2-selection--multiple {
+              margin: 0.5rem;
+            }
+          }
+          .select2-search__field {
+            background: $white;
+          }
         }
         &.focus {
           .editor-block,

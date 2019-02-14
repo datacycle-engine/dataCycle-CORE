@@ -219,6 +219,14 @@ ObjectBrowser.prototype.setup = function() {
     '#new_' + this.id + '.in-object-browser .new-content-form',
     this.initNewFormHandlers.bind(this)
   );
+
+  this.element.on('changed.dc.locale', this.updateLocale.bind(this));
+};
+
+ObjectBrowser.prototype.updateLocale = function(e) {
+  e.stopPropagation();
+
+  this.locale = this.element.data('locale');
 };
 
 ObjectBrowser.prototype.initNewFormHandlers = function(e) {
@@ -231,7 +239,7 @@ ObjectBrowser.prototype.initNewFormHandlers = function(e) {
       $.extend(form_data, {
         type: this.type,
         locale: this.locale,
-        overlay_id: '#object_browser_' + this.prefix + this.id,
+        overlay_id: '#object_browser_' + this.id,
         key: this.key,
         definition: this.definition,
         editable: this.editable,

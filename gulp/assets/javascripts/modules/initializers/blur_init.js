@@ -29,11 +29,8 @@ module.exports.initialize = function() {
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
     if ($(event.target).hasClass('reveal')) {
-      if ($('.reveal:visible').not(event.currentTarget).length) {
-        $('body').addClass('is-reveal-open');
-      } else if ($(event.target).hasClass('object-browser-overlay')) {
-        $('.reveal-blur').removeClass('show');
-      }
+      if ($('.reveal:visible').not(event.currentTarget).length) $('body').addClass('is-reveal-open');
+      if ($(event.target).hasClass('object-browser-overlay')) $('.reveal-blur').removeClass('show');
       if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
     }
   });

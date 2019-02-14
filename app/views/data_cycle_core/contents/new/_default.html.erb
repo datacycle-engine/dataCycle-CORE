@@ -1,8 +1,11 @@
 <fieldset>
   <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
 
-  <div class="form-element<%= ' validation-container' if template.schema.dig('properties', 'name', 'validations').present? %>">
-    <%= label_tag "#{template.class.name.demodulize.underscore}[datahash][name]", "#{template.schema.dig('properties', 'name', 'label')}" %>
-    <%= text_field_tag "#{template.class.name.demodulize.underscore}[datahash][name]", local_assigns[:search_param], class: 'form-control', disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, template) %>
-  </div>
+  <%= render_attribute_editor key: 'thing[datahash][name]',
+                              definition: template.schema.dig('properties', 'name'),
+                              value: nil,
+                              content: template,
+                              parameters: {
+                                options: local_assigns[:options]
+                              } %>
 </fieldset>

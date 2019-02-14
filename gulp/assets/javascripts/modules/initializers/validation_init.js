@@ -80,6 +80,7 @@ module.exports.initialize = function() {
           enable_form(form);
 
           var first_error_offset, container;
+
           if ($(form).hasClass('edit-content-form')) {
             var error_container = $('.single_error').first();
 
@@ -98,6 +99,26 @@ module.exports.initialize = function() {
               500
             );
           }
+        }
+        if (
+          !isValid &&
+          $(form).hasClass('multi-step') &&
+          $(form)
+            .find('.single_error')
+            .first()
+            .is(':hidden')
+        ) {
+          $(form).trigger(
+            'goto.dc.multistep',
+            $(form)
+              .find('fieldset')
+              .index(
+                $(form)
+                  .find('.single_error')
+                  .first()
+                  .closest('fieldset')
+              )
+          );
         }
       })
       .fail(data => {
@@ -297,7 +318,7 @@ module.exports.initialize = function() {
     $(container)
       .find('.validation-form')
       .each((index, element) => {
-        $(element).on('change', '.validation-container', event => {
+        $(element).on('change validate.dc.formfield', '.validation-container', event => {
           DataCycleCore.promises = [];
           validate_item(element, event.currentTarget);
           catch_promises(element, false);

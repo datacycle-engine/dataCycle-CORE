@@ -902,6 +902,11 @@ span.single_error.object-browser-error {
         font-size: 1.2rem;
       }
     }
+    .translated + .content-object-item {
+      .embedded-header {
+        left: 2.5rem;
+      }
+    }
   }
 }
 

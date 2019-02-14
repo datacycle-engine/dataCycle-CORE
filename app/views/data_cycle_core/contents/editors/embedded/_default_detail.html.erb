@@ -23,7 +23,7 @@
 
                 <% validation_properties.each do |o_key, o_prop| %>
                     <% value = object.try(o_key.to_sym) %>
-                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('ui', 'edit', 'options') || {}), new_content: new_content, parent: object }, content: content %>
+                    <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: value, parameters: { options: (o_prop.dig('ui', 'edit', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), new_content: new_content, parent: object }, content: content %>
                 <% end %>
             </div>
 

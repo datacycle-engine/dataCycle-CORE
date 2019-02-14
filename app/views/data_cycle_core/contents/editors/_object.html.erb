@@ -8,7 +8,7 @@
         </span>
 
         <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
-          <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: {}, prefix: local_assigns[:prefix] } , content: content %>
+          <%= render_attribute_editor key: "#{key}[#{o_key}]", definition: o_definition, value: value.try(:[], o_key), parameters: { options: { prefix: local_assigns.dig(:options, :prefix) } } , content: content %>
         <% end %>
 
     </div>

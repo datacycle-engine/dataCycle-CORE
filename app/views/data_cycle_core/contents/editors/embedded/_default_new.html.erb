@@ -18,7 +18,7 @@
       <% end %>
 
       <% validation_properties.each do |o_key, o_prop| %>
-        <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: nil, parameters: { options: {}, parent: internal_template }, content: content %>
+        <%= render_attribute_editor key: "#{key}[#{index}][#{o_key}]", definition: o_prop, value: nil, parameters: { options: { prefix: local_assigns.dig(:options, :prefix) }, parent: internal_template }, content: content %>
       <% end %>
     </div>
   <% end %>

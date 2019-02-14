@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-  <%= label_tag "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" do %>
+  <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
@@ -9,7 +9,7 @@
   <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
 
   <ul class="no-bullet">
-    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :name, {}, { id: "#{local_assigns[:prefix]}#{sanitize_to_id(key)}" }) do |cb| %>
+    <%= collection_check_boxes(nil, key, classification_items, :primary_classification_id, :name, {}, { id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" }) do |cb| %>
       <li class="checkbox-wrap">
         <%= cb.check_box value: cb.value, checked: value&.ids&.include?(cb.value) %>
         <% if cb.object.try(:description).present? %>

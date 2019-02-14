@@ -9,13 +9,13 @@
   <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
 
   <% if local_assigns[:template].present? %>
-    <%= hidden_field_tag :template, template.template_name, id: "#{local_assigns[:prefix]}template" %>
+    <%= hidden_field_tag :template, template.template_name, id: "#{local_assigns.dig(:options, :prefix)}template" %>
     <%= render_new_form(template: template, parameters: local_assigns) %>
   <% else %>
     <fieldset class="active template">
       <legend><%= t('actions.choose_type', locale: DataCycleCore.ui_language) %></legend>
       <div class="form-element">
-        <%= label_tag "#{local_assigns[:prefix]}template", t('common.data_type', locale: DataCycleCore.ui_language) %>
+        <%= label_tag "#{local_assigns.dig(:options, :prefix)}template", t('common.data_type', locale: DataCycleCore.ui_language) %>
         <div class="v-select white">
           <%= select_tag(
             :template,
@@ -32,7 +32,7 @@
                 tree_label: 'Inhaltstypen',
                 allow_clear: false
               },
-              id: "#{local_assigns[:prefix]}template"
+              id: "#{local_assigns.dig(:options, :prefix)}template"
             }
           ) %>
         </div>
