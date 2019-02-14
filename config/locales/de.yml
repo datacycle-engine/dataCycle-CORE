@@ -386,6 +386,9 @@ de:
       data_cycle_core/video:
         one: Video
         other: Videos
+      data_cycle_core/audio:
+        one: Audiodatei
+        other: Audiodateien
       data_cycle_core/data_cycle_file:
         one: Datei
         other: Dateien

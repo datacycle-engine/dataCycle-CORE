@@ -19,7 +19,7 @@
                 },
                 title: t('common.duplicate_content', locale: DataCycleCore.ui_language),
                 'aria-haspopup': true do %>
-        <i class="fa fa-copy" aria-hidden="true"></i>
+        <i class="fa fa-clone" aria-hidden="true"></i>
     <% end if DataCycleCore::Feature::DuplicateContent.enabled? && can?(:create, content, 'duplicate') && content.content_type?('entity') %>
 
     <%= render 'new_content_button',

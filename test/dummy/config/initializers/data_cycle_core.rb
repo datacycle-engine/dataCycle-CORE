@@ -88,14 +88,4 @@ DataCycleCore.setup do |config|
   config.webhooks = ['Local-Text-File', 'OutdoorActive']
 
   config.webhooks = ['Local-Text-File'] if Rails.env.test?
-
-  config.uploader_validations = {
-    file: {
-      format: [
-        'mp4',
-        'png',
-        'jpg'
-      ]
-    }
-  }
 end
