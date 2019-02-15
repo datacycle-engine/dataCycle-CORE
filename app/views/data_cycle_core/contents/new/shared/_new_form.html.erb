@@ -2,17 +2,17 @@
   local: !local_assigns[:object_browser],
   html: {
     class: 'validation-form multi-step',
-    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :prefix))
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options))
   } do %>
-  <div class="form-crumbs"></div>
 
-  <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
+  <div class="form-crumbs"></div>
 
   <% if local_assigns[:template].present? %>
     <%= hidden_field_tag :template, template.template_name, id: "#{local_assigns.dig(:options, :prefix)}template" %>
     <%= render_new_form(template: template, parameters: local_assigns) %>
   <% else %>
     <fieldset class="active template">
+      <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
       <legend><%= t('actions.choose_type', locale: DataCycleCore.ui_language) %></legend>
       <div class="form-element">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}template", t('common.data_type', locale: DataCycleCore.ui_language) %>

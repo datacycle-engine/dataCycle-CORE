@@ -934,10 +934,6 @@ body .v-select {
 .new-content-reveal {
   .validation-container {
     position: relative;
-
-    span.single_error {
-      top: -2rem;
-    }
   }
 
   h3 {
@@ -1048,6 +1044,21 @@ body .v-select {
           .select2 {
             border: 1px solid $dark-gray;
             box-shadow: 0 0 5px $medium-gray;
+          }
+        }
+        &.daterange {
+          label,
+          .form-element {
+            margin: 0;
+            display: inline-block;
+          }
+        }
+        &.agbs {
+          li {
+            list-style-type: none;
+          }
+          .agb-link {
+            font-size: 1rem;
           }
         }
       }
@@ -1285,4 +1296,8 @@ a[data-toggle] {
 ul.no-format {
   margin: 0;
   line-height: initial;
+}
+
+label.has-tip {
+  font-weight: normal;
 }

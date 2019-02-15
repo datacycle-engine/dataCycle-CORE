@@ -354,7 +354,7 @@ module DataCycleCore
     end
 
     def new_params
-      params.transform_keys(&:underscore).permit(:template, :locale, :key, :search_param, :search_required, :scope, :prefix, parent: [:id, :class], content: [:id, :class])
+      params.transform_keys(&:underscore).permit(:template, :locale, :key, :search_param, :search_required, :scope, options: [:force_render, :prefix], parent: [:id, :class], content: [:id, :class])
     end
 
     def source_params

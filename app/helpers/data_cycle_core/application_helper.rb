@@ -164,7 +164,8 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
+    def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
+      parameters[:options] ||= {}
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
@@ -173,7 +174,7 @@ module DataCycleCore
         partials = [
           key.attribute_name_from_key,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore)}",
+          "#{definition['type'].underscore}_#{definition&.dig('ui', 'edit', 'type')&.underscore}",
           definition['type'].underscore.to_s
         ]
       end

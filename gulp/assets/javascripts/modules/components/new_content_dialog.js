@@ -28,7 +28,7 @@ NewContentDialog.prototype.initEventHandlers = function() {
 NewContentDialog.prototype.updateForm = function() {
   this.updateCrumbs();
   this.updateWarningLevel();
-  this.form.closest('.reveal').foundation('open');
+  // this.form.closest('.reveal').foundation('open');
 };
 
 NewContentDialog.prototype.next = function(event) {

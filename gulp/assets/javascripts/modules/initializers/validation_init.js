@@ -6,7 +6,7 @@ var DataCycleCore = {};
 module.exports.initialize = function() {
   DataCycleCore.promises = [];
 
-  let check_agbs_accepted = function() {
+  function check_agbs_accepted() {
     if ($('#accept_agbs').length > 0 && $('#accept_agbs').is(':checked')) {
       $('#' + $('.submit-edit-form').data('toggle') + ' #button_agbs_accepted').remove();
       return true;
@@ -16,7 +16,26 @@ module.exports.initialize = function() {
       );
       return false;
     } else return true;
-  };
+  }
+
+  function validate_agbs(form) {
+    let error = {
+      error: {},
+      warning: {}
+    };
+    let agbs = $(form).find(':checkbox[name="accept_agbs"]');
+    if (agbs.length && !agbs.prop('checked')) {
+      let validation_container = agbs.closest('.form-element');
+      validation_container
+        .append(render_error_msg({ error: { agbs: ['AGBs müssen akzeptiert werden!'] } }, validation_container))
+        .addClass('has-error');
+
+      error.error = {
+        agbs: ['AGBs müssen akzeptiert werden!']
+      };
+    }
+    return error;
+  }
 
   let catch_promises = function(form, submit) {
     $.when
@@ -58,7 +77,7 @@ module.exports.initialize = function() {
                 $(form).trigger('submit_without_redirect');
               } else {
                 $(window).off('beforeunload');
-                $(form).trigger('submit.rails');
+                // $(form).trigger('submit.rails');
               }
             },
             () => {
@@ -74,7 +93,7 @@ module.exports.initialize = function() {
             $(form).trigger('submit_without_redirect');
           } else {
             $(window).off('beforeunload');
-            $(form).trigger('submit.rails');
+            // $(form).trigger('submit.rails');
           }
         } else if (submit) {
           enable_form(form);
@@ -184,8 +203,8 @@ module.exports.initialize = function() {
             .attr('for')
             .search(new RegExp(key, 'i')) != -1)
       ) {
-        button_text += '<strong>' + ($(item_label).html() || 'Error') + ':</strong><br>' + data.error[key] + '<br>';
-        out += '<strong>' + ($(item_label).html() || 'Error') + ':</strong> ' + data.error[key] + '</br>';
+        button_text += '<strong>' + ($(item_label).html() || 'Fehler') + ':</strong><br>' + data.error[key] + '<br>';
+        out += '<strong>' + ($(item_label).html() || 'Fehler') + ':</strong> ' + data.error[key] + '</br>';
       }
     }
     out += '</span>';
@@ -232,6 +251,14 @@ module.exports.initialize = function() {
       .children('.single_error')
       .remove();
     $(validation_container).removeClass('has-error');
+
+    if ($(validation_container).hasClass('agbs')) {
+      DataCycleCore.promises.push(
+        new Promise((resolve, reject) => {
+          resolve([validate_agbs(form)]);
+        })
+      );
+    }
 
     let items = [];
     if ($(validation_container).data('key') != undefined) {
