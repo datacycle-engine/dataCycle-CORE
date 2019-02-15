@@ -78,10 +78,10 @@ module DataCycleCore
 
         datahash.each do |key, value|
           properties = template_hash['properties'][key]
-
+          type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
           if value.is_a?(::Hash)
 
-            if properties['type'] == 'embedded'
+            if type == 'embedded'
               object_properties = get_internal_template(properties['template_name'])
               temp_value = []
 
@@ -90,7 +90,7 @@ module DataCycleCore
               end
 
               value = temp_value
-            elsif properties['type'] == 'object'
+            elsif type == 'object'
               temp_value = {}
 
               value.each do |object_key, object_value|
@@ -103,9 +103,9 @@ module DataCycleCore
             end
           elsif value.is_a?(::Array)
             value = value.reject(&:blank?).uniq
-          elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
+          elsif type == 'number' && properties.dig('validations', 'format') == 'float'
             value = value.blank? ? nil : value.to_f
-          elsif properties['type'] == 'number'
+          elsif type == 'number'
             value = value.blank? ? nil : value.to_i
           end
 
