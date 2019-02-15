@@ -66,9 +66,7 @@ module DataCycleCore
         end
 
         def self.load_day_of_week(day)
-          DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-            .where('classification_tree_labels.name = ?', 'Wochentage')
-            .where('classification_aliases.name = ?', DAY_OF_WEEK_TRANSLATIONS[day]).first!.id
+          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentage', DAY_OF_WEEK_TRANSLATIONS[day])
         end
       end
     end

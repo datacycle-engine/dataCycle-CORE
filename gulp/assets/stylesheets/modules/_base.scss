@@ -48,6 +48,8 @@ button,
 .button {
   font-weight: normal;
   cursor: pointer;
+  line-height: 1.3;
+  padding: 0.75rem 1rem;
 }
 
 .button.success {
@@ -276,7 +278,7 @@ button,
   //.tags {
   .validity_period {
     text-align: left;
-    margin-top: 1rem;
+    margin-top: 0.5rem;
     color: $dark-gray;
 
     .date {
@@ -502,8 +504,7 @@ button,
     }
 
     .input input,
-    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor)
-      input,
+    .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
     .single_date input,
     .number input {
@@ -849,7 +850,7 @@ body .v-select {
 }
 
 .reveal-overlay,
-.reveal.without-overlay {
+.reveal.without-overlay:not(.full) {
   background: none;
 }
 
@@ -989,6 +990,9 @@ body.login-page {
 a[data-toggle] {
   display: inline-block;
   padding-bottom: 1rem;
+  &.has-tip {
+    padding-bottom: 0;
+  }
 }
 
 .dropdown-pane {
@@ -1082,6 +1086,7 @@ a[data-toggle] {
 
     li {
       text-align: left;
+      display: flex;
     }
 
     .center-text {
@@ -1092,11 +1097,23 @@ a[data-toggle] {
       color: $dark-gray;
     }
 
+    .email,
+    .buttons {
+      flex: auto;
+      white-space: nowrap;
+    }
+
+    .buttons {
+      text-align: right;
+      .has-tip {
+        border: none;
+      }
+    }
+
     .email {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      max-width: calc(100% - 3rem);
       display: inline-block;
       vertical-align: middle;
     }

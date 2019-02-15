@@ -1,0 +1,14 @@
+<% if content.external_source %>
+  <span class="external-source">
+    <b><%= DataCycleCore::ExternalSource.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></b><br>
+    <%= DataCycleCore::ExternalSource.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>: <%= content.external_source.name %><br>
+    <%= DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language) %>: <%= content.external_key %>
+  </span>
+<% end %>
+
+<% content.thing_external_systems.each do |external_relation| %>
+  <span class="external-system">
+    <b><%= DataCycleCore::ExternalSystem.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></b><br>
+    <%= DataCycleCore::ExternalSource.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>: <%= external_relation.external_system.name %>
+  </span>
+<% end %>

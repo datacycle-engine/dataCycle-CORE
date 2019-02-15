@@ -13,9 +13,9 @@ module DataCycleCore
       TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel 1' })
       TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel 2' })
 
-      TestPreparations.create_content(template_name: 'Angebot', data_hash: { name: 'TestAngebot 1' })
-      TestPreparations.create_content(template_name: 'Angebot', data_hash: { name: 'TestAngebot 2' })
-      TestPreparations.create_content(template_name: 'Angebot', data_hash: { name: 'TestAngebot 3' })
+      TestPreparations.create_content(template_name: 'Biografie', data_hash: { name: 'TestBiografie 1' })
+      TestPreparations.create_content(template_name: 'Biografie', data_hash: { name: 'TestBiografie 2' })
+      TestPreparations.create_content(template_name: 'Biografie', data_hash: { name: 'TestBiografie 3' })
 
       sign_in(User.find_by(email: 'tester@datacycle.at'))
     end
@@ -61,7 +61,7 @@ module DataCycleCore
         assert_not_includes text_sub_csv, [nil, nil, 'Artikel', 'de', "TestArtikel #{i}"]
       end
       [1, 3].each do |i|
-        assert_not_includes text_sub_csv, [nil, nil, 'Angebot', 'de', "TestAngebot #{i}"]
+        assert_not_includes text_sub_csv, [nil, nil, 'Biografie', 'de', "TestBiografie #{i}"]
       end
 
       article_sub_csv = extract_sub_tree(csv, [nil, nil, 'Artikel'])
@@ -69,9 +69,9 @@ module DataCycleCore
         assert_includes article_sub_csv, [nil, nil, nil, 'Artikel', 'de', "TestArtikel #{i}"]
       end
 
-      offer_sub_csv = extract_sub_tree(csv, [nil, nil, 'Angebot'])
+      offer_sub_csv = extract_sub_tree(csv, [nil, nil, 'Biografie'])
       [1, 2, 3].each do |i|
-        assert_includes offer_sub_csv, [nil, nil, nil, 'Angebot', 'de', "TestAngebot #{i}"]
+        assert_includes offer_sub_csv, [nil, nil, nil, 'Biografie', 'de', "TestBiografie #{i}"]
       end
     end
 

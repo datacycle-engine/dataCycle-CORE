@@ -3,8 +3,12 @@
 module DataCycleCore
   module Abilities
     class Rank0 < DataCycleCore::Ability
-      def initialize(_user, session = {})
+      def initialize(user, session = {})
         can [:show, :find], :object_browser
+        can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
+        can :create, DataCycleCore::Thing do |template, scope|
+          scope == 'asset' && template&.creatable?(scope)
+        end
 
         can :edit, DataCycleCore::DataAttribute do |attribute|
           if attribute.definition.dig('ui', 'edit', 'readonly')

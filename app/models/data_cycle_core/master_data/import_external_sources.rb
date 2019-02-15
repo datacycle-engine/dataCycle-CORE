@@ -17,7 +17,7 @@ module DataCycleCore
 
         file_names = default_file_names.merge(specific_file_names).values
         file_names.each do |file_name|
-          data = YAML.safe_load(File.open(file_name))
+          data = YAML.safe_load(File.open(file_name), [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
@@ -103,7 +103,11 @@ module DataCycleCore
             end
 
             def logger?(value)
-              temp = Class.new.instance_eval(value) rescue false
+              temp = begin
+                       Class.new.instance_eval(value)
+                     rescue StandardError
+                       false
+                     end
               temp == false ? temp : true
             end
 
@@ -140,7 +144,11 @@ module DataCycleCore
             end
 
             def logger?(value)
-              temp = Class.new.instance_eval(value) rescue false
+              temp = begin
+                       Class.new.instance_eval(value)
+                     rescue StandardError
+                       false
+                     end
               temp == false ? temp : true
             end
 

@@ -24,8 +24,8 @@
         }
         .submit {
           float: right;
-          margin-top: -10%;
-          margin-bottom: -10%;
+          margin-top: -7%;
+          margin-bottom: -7%;
           z-index: 100;
           i {
             display: inline-block;
@@ -126,8 +126,19 @@
       }
       &.buttons {
         a {
-          vertical-align: top;
-          padding: 0.1rem;
+          height: 100%;
+          text-align: center;
+          &.normalize-content-button {
+            height: 100%;
+            width: 3rem;
+            margin: 0;
+            padding: 0;
+            text-align: center;
+            .fa {
+              font-size: 1.5rem;
+              line-height: 3.5rem;
+            }
+          }
         }
       }
     }

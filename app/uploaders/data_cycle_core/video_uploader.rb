@@ -16,7 +16,7 @@ module DataCycleCore
     end
 
     def extension_white_list
-      ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
     end
 
     def create_thumb(width, height)

@@ -8,6 +8,8 @@
     :features:
       :translatable:
         :allowed: true
+      :creatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -15,12 +17,12 @@
       :title:
         :type: mixin
         :name: title
-      :contact_info:
-        :type: mixin
-        :name: contact_info
       :postal_address:
         :type: mixin
         :name: postal_address
+      :contact_info:
+        :type: mixin
+        :name: contact_info
       :description:
         :label: Text
         :type: string

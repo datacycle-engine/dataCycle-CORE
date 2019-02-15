@@ -25,27 +25,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :link_name:
-        :label: Linktitel
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :api:
-          :name: name
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :recipe_instructions:
         :label: Fließtext
         :type: string
@@ -85,10 +67,14 @@
         :label: 'Gang'
         :type: classification
         :tree_label: 'Rezept-Gänge'
+        :api:
+          :disabled: true
       :recipe_category:
         :label: 'Kategorie'
         :type: classification
         :tree_label: 'Rezept-Kategorien'
+        :api:
+          :partial: string
       :recipe_ingredient:
         :label: Zutaten
         :type: string
@@ -99,6 +85,20 @@
             :type: text_editor
             :options:
               :data-size: full
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+            :1: recipe_course
+        :ui:
+          :show:
+            :disabled: true
       :data_type:
         :label: Inhaltstype
         :type: classification

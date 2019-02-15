@@ -16,6 +16,11 @@
   }
 }
 
+.detail-header-functions .add-to-watchlist-link,
+.add-to-watchlist-link {
+  display: inline;
+}
+
 #main-menu {
   .watch-lists,
   .abos {
@@ -134,6 +139,7 @@
 
 .watchlist-name {
   .fa {
+    margin-right: 0.3rem;
     font-size: 1rem;
   }
 }

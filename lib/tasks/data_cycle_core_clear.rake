@@ -16,16 +16,8 @@ delete_secondary_data = <<-EOS
 EOS
 
 delete_contents = <<-EOS
-  DELETE FROM creative_works;
-  DELETE FROM creative_work_translations;
-  DELETE FROM events;
-  DELETE FROM event_translations;
-  DELETE FROM persons;
-  DELETE FROM person_translations;
-  DELETE FROM organizations;
-  DELETE FROM organization_translations;
-  DELETE FROM places;
-  DELETE FROM place_translations;
+  DELETE FROM things;
+  DELETE FROM thing_translations;
 
   DELETE FROM content_contents;
 
@@ -39,16 +31,8 @@ delete_assets = <<-EOS
 EOS
 
 delete_content_histories = <<-EOS
-  DELETE FROM creative_work_histories;
-  DELETE FROM creative_work_history_translations;
-  DELETE FROM event_histories;
-  DELETE FROM event_history_translations;
-  DELETE FROM person_histories;
-  DELETE FROM person_history_translations;
-  DELETE FROM organization_histories;
-  DELETE FROM organization_history_translations;
-  DELETE FROM place_histories;
-  DELETE FROM place_history_translations;
+  DELETE FROM thing_histories;
+  DELETE FROM thing_history_translations;
 
   DELETE FROM content_content_histories;
 

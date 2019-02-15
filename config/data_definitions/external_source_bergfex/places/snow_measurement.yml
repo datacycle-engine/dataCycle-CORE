@@ -64,6 +64,17 @@
           :show:
             :options:
               :data-unit: cm
+      :identifier:
+        :label: Identifier
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
       :condition_weather:
         :label: "Wetter - Meldung"
         :type: classification

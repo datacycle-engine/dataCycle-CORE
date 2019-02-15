@@ -1,7 +1,7 @@
 <div class="dropdown-pane no-bullet bottom <%= additional_classes if local_assigns[:additional_classes].present? %>" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
   <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
   <ul class="list-items">
-    <% content.histories.each do |item|%>
+    <% content.histories.includes(:translations).each do |item|%>
         <li class="<%= item == @diff_source ? 'active' : '' %>">
             <% if item.try(:updated_by_user).present? %>
                 <% person = item.updated_by_user %>

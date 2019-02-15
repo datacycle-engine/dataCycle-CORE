@@ -81,14 +81,13 @@ namespace :data_cycle_core do
     end
 
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
-    task :update_all_templates_sql, [:history, :prefix] => [:environment] do |_, args|
-      args[:prefix] ||= ''
+    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
       temp = Time.zone.now
       puts "#{'table_name'.ljust(15)} | #{'template_name'.ljust(25)} | #updated|of total | process time/s \r"
       puts '-' * 80 + " \r"
       DataCycleCore::Thing.where(template: true).each do |template_object|
-        Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
-        Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].reenable
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].reenable
       end
       puts '-' * 80 + " \r"
       puts "total time: #{format_time(Time.zone.now - temp, 6, 6, 's')} \r"
@@ -111,6 +110,8 @@ namespace :data_cycle_core do
         UPDATE things
         SET
           schema = '#{template.schema.to_json}',
+          boost = #{template.schema.dig('boost') || 'NULL'},
+          content_type = '#{template.schema.dig('content_type')}',
           updated_at = updated_at + INTERVAL '1 sec'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
@@ -127,7 +128,9 @@ namespace :data_cycle_core do
 
       update_history_sql = <<-EOS
         UPDATE thing_histories
-        SET schema = '#{template.schema.to_json}'
+        SET schema = '#{template.schema.to_json}',
+        boost = #{template.schema.dig('boost') || 'NULL'},
+        content_type = '#{template.schema.dig('content_type')}'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
@@ -166,6 +169,16 @@ namespace :data_cycle_core do
         end
 
         puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
+      end
+    end
+
+    namespace :configs do
+      desc 'import and update all classifications, external_sources, external_systems and templates'
+      task update_all: :environment do
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:refactor:import_update_all_templates"].invoke
       end
     end
   end

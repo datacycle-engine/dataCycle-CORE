@@ -38,18 +38,11 @@
       :contact_info:
         :type: mixin
         :name: contact_info
-      :description:
-        :label: Beschreibung
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :text:
-        :label: Text
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
+      :price_range:
+        :label: Preis-Info
         :type: string
         :storage_location: translated_value
         :search: true
@@ -58,28 +51,6 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :primary_image:
-        :label: Hauptbild
-        :type: linked
-        :template_name: Bild
-        :validations:
-          :max: 1
-        :api:
-          :name: image
-          :minimal: true
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-        :api:
-          :name: photo
-          :minimal: true
-      :logo:
-        :label: Logo
-        :type: linked
-        :template_name: Bild
-        :api:
-          :minimal: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

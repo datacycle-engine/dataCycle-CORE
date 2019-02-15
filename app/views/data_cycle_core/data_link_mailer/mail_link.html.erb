@@ -1,59 +1,60 @@
-  <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
-   <tr>
+<table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%">
+  <tr>
     <td style="background:white;padding:24pt;border-radius: 7px;box-shadow: 0px 5px 18px 2px rgba(0, 0, 0, 0.15);">
-    <table border="0" cellspacing="0" cellpadding="0"
-     width="100%" style="width:100%;">
-     <tr>
-      <td>
-        <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: DataCycleCore.ui_language) %></b></span>
-      </td>
-     </tr>
-     <tr>
-      <td width="100%" style="width:100%;padding:12pt 0 0 0;">
-      <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><strong><%= @user.full_name %></strong> hat den Inhalt
-      “<a href="<%= @url %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline; font-weight: bold;font-style: italic"><%= @title %></span></a>” mit Ihnen geteilt und bittet um
-      <% if @data_link.writable? %>
-      Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.
-      <% else %>
-      Ihr Feedback.
-      <% end %>
-      </span>
-      </td>
-     </tr>
+      <table border="0" cellspacing="0" cellpadding="0" width="100%" style="width:100%;">
+        <tr>
+          <td>
+            <span style="font-size:11.5pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><b><%= t('hello', locale: DataCycleCore.ui_language) %></b></span>
+          </td>
+        </tr>
+        <tr>
+          <td width="100%" style="width:100%;padding:12pt 0 0 0;">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><strong><%= @user.full_name %></strong> hat den Inhalt “<a href="<%= @url %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic"><%= @title %></span></a>” mit Ihnen geteilt und bittet um
+            <% if @data_link.writable? %>
+            Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.
+            <% else %>
+            Ihr Feedback.
+            <% end %>
+            </span>
+          </td>
+        </tr>
 
 <% if @data_link.comment.present? %>
-     <tr>
-      <td style="padding:12pt 0 3pt 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Kommentar</span></td>
-     </tr>
-      <tr>
-      <td style="padding:0">
-        <table border="1" cellspacing="0" cellpadding="20" width="100%" style="width:100%;border-color:#d6d6d6;" bordercolor="#d6d6d6"><tr><td>
-          <p><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= simple_format(@data_link.comment) %></span></p>
-        </td></tr></table>
-      </td>
-     </tr>
+        <tr>
+          <td style="padding:12pt 0 3pt 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Kommentar</span>
+          </td>
+        </tr>
+        <tr>
+          <td style="padding:0">
+            <table border="1" cellspacing="0" cellpadding="20" width="100%" style="width:100%;border-color:#d6d6d6;" bordercolor="#d6d6d6">
+              <tr>
+                <td>
+                  <p><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333"><%= simple_format(@data_link.comment) %></span></p>
+                </td>
+              </tr>
+            </table>
+          </td>
+        </tr>
 <% end %>
 
 <% if @data_link.text_file.present? %>
-      <tr>
-      <td style="padding:12pt 0 0 0">
-      <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>:</span>&nbsp;&nbsp;&nbsp;<a href="<%= get_text_file_data_link_url(@data_link) %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:
-      underline"><%= @data_link.text_file.name %></span></a>
-      </td>
-      </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999"><%= DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>:</span>&nbsp;&nbsp;&nbsp;<a href="<%= get_text_file_data_link_url(@data_link) %>" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline"><%= @data_link.text_file.name %></span></a>
+          </td>
+        </tr>
 <% end %>
 
-      <tr>
-      </tr>
-      <tr>
-        <td style="padding:12pt 0 0 0">
-          <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Berechtigung: </span> <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language) %>
-        </td>
-      </tr>
-      <tr>
-      </tr>
-      <tr><td style="padding:12pt 0 0 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Gültig</span>
+        <tr>
+        </tr>
+        <tr>
+          <td style="padding:12pt 0 0 0">
+            <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Berechtigung: </span> <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language) %>
+          </td>
+        </tr>
+        <tr>
+        </tr>
+        <tr><td style="padding:12pt 0 0 0"><span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">Gültig</span>
           <% if @data_link.valid_from.nil? && @data_link.valid_until.nil? %>
             unbeschränkt
           <% else %>
@@ -63,27 +64,48 @@
             <% if @data_link.valid_until.present? %>
               <span style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#999999">bis</span> <%= l(@data_link.valid_until.to_datetime, locale: DataCycleCore.ui_language) %>
             <% end %>
-          <% end %></td></tr>
-      <tr>
-    </table>
+          <% end %></td>
+        </tr>
+      </table>
     </td>
-   </tr>
+  </tr>
+  <tr>
     <td style="padding:24pt 0 0 0;">
-    <div align="center">
-
-      <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
-      <tr>
-        <td align="center">
-          <table border="0" cellspacing="0" cellpadding="0" align="center">
-            <tr>
-              <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 5px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INHALT <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
-            </tr>
-          </table>
-        </td>
-      </tr>
-    </table>
-
-    </div>
+      <div align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr>
+            <td align="center">
+              <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                  <td align="center" style="box-shadow: 0px 1px 1px 0px rgba(0, 0, 0, 0.5);border-radius: 5px;" bgcolor="#90c062"><a href="<%= @url %>" target="_blank" style="font-size:12pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:white;text-decoration:none;text-underline:none;border-radius: 3px; padding: 16px 0; border: 1px solid #90c062; display: inline-block;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;INHALT <%= DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language).upcase %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</a></td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
     </td>
-   </tr>
-  </table>
+  </tr>
+<% if t('data_cycle_core.data_links.notice', default: '', locale: DataCycleCore.ui_language).present? %>
+  <tr>
+    <td style="padding:24pt 0 0 0;">
+      <div align="center">
+        <table width="100%" border="0" cellspacing="0" cellpadding="0" align="center">
+          <tr>
+            <td align="center">
+              <table border="0" cellspacing="0" cellpadding="0" align="center">
+                <tr>
+                  <td align="center" style="box-shadow: 0px 3px 6px 1px rgba(0, 0, 0, 0.15);border-radius: 7px;padding:24pt;color:#333333;" bgcolor="#fff3d9">
+                    <span style="font-size:15pt;font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;">Hinweis</span><br><br>
+                    <%= t('data_cycle_core.data_links.notice', button_text: "INHALT #{DataCycleCore::DataLink.human_attribute_name("permissions_#{@data_link.permissions}".to_sym, locale: DataCycleCore.ui_language).upcase}", locale: DataCycleCore.ui_language) %>
+                  </td>
+                </tr>
+              </table>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </td>
+  </tr>
+<% end %>
+</table>

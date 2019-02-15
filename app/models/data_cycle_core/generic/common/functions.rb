@@ -39,7 +39,6 @@ module DataCycleCore
           else
             data_hash[attribute] = data_hash[attribute].map { |keyword|
               DataCycleCore::Classification.where(
-                name: keyword,
                 external_source_id: external_source_id,
                 external_key: external_prefix + keyword
               )&.first&.id
@@ -48,7 +47,7 @@ module DataCycleCore
           data_hash
         end
 
-        def self.category_key_to_ids(data_hash, attribute, data_list, name, external_source_id, external_prefix, key)
+        def self.category_key_to_ids(data_hash, attribute, data_list, _name, external_source_id, external_prefix, key)
           return data_hash if data_hash.blank? || data_list.blank?
 
           data_hash.merge(
@@ -59,31 +58,13 @@ module DataCycleCore
                     external_source_id: external_source_id,
                     external_key: external_prefix + item_data.dig(key)
                   }
-
-                  search_params.merge(name: item_data.dig(name)) if name.present?
-
                   DataCycleCore::Classification.find_by(search_params)&.id
                 end&.reject(&:nil?) || []
             }
           )
         end
 
-        def self.load_category(data_hash, attribute, name, external_source_id, external_key)
-          return data_hash if external_key.call(data_hash).blank? || name.call(data_hash).blank?
-          data_hash.merge(
-            {
-              attribute => [
-                DataCycleCore::Classification.find_by(
-                  name: name.call(data_hash),
-                  external_source_id: external_source_id,
-                  external_key: external_key.call(data_hash)
-                )&.id
-              ].compact.presence
-            }
-          )
-        end
-
-        def self.load_category_key(data_hash, attribute, external_source_id, external_key)
+        def self.load_category(data_hash, attribute, external_source_id, external_key)
           data_hash.merge(
             {
               attribute => [

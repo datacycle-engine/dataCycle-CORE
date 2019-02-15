@@ -71,7 +71,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :include, :mode, { filter: [:modified_since, :created_since, :deleted_since] }]
+          super + [:id, :include, :mode, :language, { filter: [:modified_since, :created_since, :deleted_since] }]
         end
       end
     end
