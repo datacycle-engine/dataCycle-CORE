@@ -39,7 +39,28 @@ config:
       endpoint: DataCycleCore::Generic::Celum::Endpoint
       download_strategy: DataCycleCore::Generic::Celum::DownloadVerbose
   import_config:
+    keywords:
+      sorting: 1
+      source_type: keywords
+      import_strategy: DataCycleCore::Generic::Celum::ImportKeywords
+      tree_label: Celum - Keywords
+      locales: [de]
+    # keyword_catalogs:
+    #   sorting: 2
+    #   source_type: keyword_catalogs
+    #   import_strategy: DataCycleCore::Generic::Celum::ImportKeywordCatalogs
+    #   tree_label: Celum - KeywordCatalogs
+    #   locales: [de]
+    folders:
+      sorting: 3
+      source_type: folders
+      import_strategy: DataCycleCore::Generic::Celum::ImportFolders
+      tree_label: Celum - Folders
+      locales: [de]
     documents:
       sorting: 10
       source_type: documents
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      transformations:
+        media_asset:
+          template: Bild

@@ -197,7 +197,7 @@ module DataCycleCore
 
                         logging.item_processed(
                           extracted_classification_data[:name],
-                          extracted_classification_data[:id],
+                          extracted_classification_data[:external_key],
                           item_count,
                           nil
                         )
