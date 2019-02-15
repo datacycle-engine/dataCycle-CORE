@@ -23,7 +23,7 @@ module DataCycleCore
       capture do
         flash.each do |key, value|
           alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-          concat alert_box(value.html_safe, alert_class, closable)
+          concat alert_box(value, alert_class, closable)
         end
       end
     end
@@ -320,11 +320,11 @@ module DataCycleCore
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
         if value.is_a?(String)
-          concat value.to_s
+          concat value.html_safe
         elsif value.is_a?(Hash)
           concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         else
-          concat value.to_s
+          concat value.html_safe.to_s
         end
         concat close_link if closable
       end
