@@ -54,7 +54,8 @@ module DataCycleCore
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
-                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code'],
+                'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
+                'google_business_primary_category', 'google_business_additional_categories'],
         person: []
       }.freeze
 
@@ -196,7 +197,7 @@ module DataCycleCore
     end
 
     def self.load_dummy_data_hash(model, name)
-      @dummy_data_hash.dig(model.to_sym, name.to_sym)
+      @dummy_data_hash.dig(model.to_sym, name.to_sym).dup
     end
 
     def self.data_set_object(template_name)

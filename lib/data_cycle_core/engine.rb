@@ -155,6 +155,9 @@ module DataCycleCore
       },
       normalize: {
         enabled: false
+      },
+      duplicate_content: {
+        enabled: false
       }
     }
 

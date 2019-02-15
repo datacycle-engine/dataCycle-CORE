@@ -4,7 +4,7 @@ module DataCycleCore
   module Export
     module OutdoorActive
       module Transformations
-        def self.to_xml(external_system, content)
+        def self.to_xml(external_system, contents)
           @source = external_system.credentials.dig('xml', 'source')
           @owner =  external_system.credentials.dig('xml', 'owner')
 
@@ -12,14 +12,16 @@ module DataCycleCore
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
               xml.source @source
               xml.owner @owner
-              xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
-                xml.owner @owner
-                xml.author 'DataCycle'
-                xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
-                outdoor_active_categories(content, xml, external_system)
-                outdoor_active_contact(content, xml)
-                outdoor_active_descriptons(content, xml)
-                outdoor_active_images(content, xml)
+              contents.each do |content|
+                xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
+                  xml.owner @owner
+                  xml.author 'DataCycle'
+                  xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
+                  outdoor_active_categories(content, xml, external_system)
+                  outdoor_active_contact(content, xml)
+                  outdoor_active_descriptons(content, xml)
+                  outdoor_active_images(content, xml)
+                end
               end
             end
           end

@@ -55,6 +55,9 @@ DataCycleCore.setup do |config|
         enabled: true,
         external_source: 'Econob Normalize',
         endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
+      },
+      duplicate_content: {
+        enabled: true
       }
     }
   )
@@ -85,14 +88,4 @@ DataCycleCore.setup do |config|
   config.webhooks = ['Local-Text-File', 'OutdoorActive']
 
   config.webhooks = ['Local-Text-File'] if Rails.env.test?
-
-  config.uploader_validations = {
-    file: {
-      format: [
-        'mp4',
-        'png',
-        'jpg'
-      ]
-    }
-  }
 end
