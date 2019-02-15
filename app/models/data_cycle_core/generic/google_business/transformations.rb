@@ -49,9 +49,7 @@ module DataCycleCore
           raw_data = { 'periods' => [] } if raw_data.nil?
 
           raw_data['periods'].map { |period|
-            if period['openDay'] != period['closeDay']
-              raise 'Converting opening hours does not support different open and close day'
-            end
+            raise 'Converting opening hours does not support different open and close day' if period['openDay'] != period['closeDay']
 
             {
               opens: period['openTime'],

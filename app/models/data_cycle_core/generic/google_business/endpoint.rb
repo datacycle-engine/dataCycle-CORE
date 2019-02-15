@@ -19,9 +19,7 @@ module DataCycleCore
         end
 
         def access_token
-          if @access_token.nil? || @access_token.expiration_time - 60.seconds <= Time.zone.now
-            refresh_access_token
-          end
+          refresh_access_token if @access_token.nil? || @access_token.expiration_time - 60.seconds <= Time.zone.now
 
           @access_token
         end
