@@ -43,8 +43,6 @@ module DataCycleCore
     end
 
     def remove_directory
-      puts ''
-      puts "************ #{Rails.root}/public/#{file.store_dir} ************ #{self.id}"
       return if self&.file&.store_dir.blank? || self&.file&.store_dir&.end_with?('/file/')
       FileUtils.remove_dir("#{Rails.root}/public/#{file.store_dir}", force: true) # deletes only EMPTY directories!
     end
