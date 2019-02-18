@@ -2,7 +2,7 @@
 
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de, :en]
+  I18n.available_locales = [:de, :en].freeze
 
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png', 'location.svg']
@@ -12,7 +12,7 @@ DataCycleCore.setup do |config|
   Rails.application.config.active_record.belongs_to_required_by_default = true
   Rails.application.config.session_store :cookie_store, key: '_dummy_session'
 
-  config.template_path = Rails.root.join('config', 'data_definitions').freeze
+  # config.template_path = Rails.root.join('config', 'data_definitions').freeze
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
@@ -27,7 +27,12 @@ DataCycleCore.setup do |config|
   else
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
     ].freeze
   end
 
@@ -42,6 +47,17 @@ DataCycleCore.setup do |config|
       },
       container: {
         enabled: false
+      },
+      external_media_archive: {
+        enabled: true
+      },
+      normalize: {
+        enabled: true,
+        external_source: 'Econob Normalize',
+        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
+      },
+      duplicate_content: {
+        enabled: true
       }
     }
   )
@@ -68,10 +84,8 @@ DataCycleCore.setup do |config|
       }
     )
   end
-  config.webhooks = ['Local-Text-File']
-  config.file_uploader_whitelist = [
-    'mp4',
-    'png',
-    'jpg'
-  ]
+
+  config.webhooks = ['Local-Text-File', 'OutdoorActive']
+
+  config.webhooks = ['Local-Text-File'] if Rails.env.test?
 end

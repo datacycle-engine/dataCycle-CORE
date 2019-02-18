@@ -8,9 +8,16 @@
         :type: classification
         :tree_label: OutdoorActive - FrontendTypes
         :external: true
+        :not_translated: true
         :ui:
           :show:
             :content_area: header
+#        :api:
+#          :partial: property_value
+#          :type: PropertyValue
+#          :transformation:
+#            :method: combine
+#            :name: additionalProperty
       :tour_categories:
         :label: OutdoorActive - Kategorie
         :type: classification
@@ -32,6 +39,7 @@
         :type: classification
         :tree_label: OutdoorActive - Tags
         :external: true
+        :not_translated: true
         :ui:
           :show:
             :content_area: header
@@ -48,6 +56,7 @@
         :type: classification
         :tree_label: OutdoorActive - Quellen
         :external: true
+        :not_translated: true
         :ui:
           :show:
             :content_area: header

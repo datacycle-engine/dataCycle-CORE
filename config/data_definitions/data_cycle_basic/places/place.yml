@@ -38,44 +38,9 @@
       :contact_info:
         :type: mixin
         :name: contact_info
-      :description:
-        :label: Beschreibung
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :text:
-        :label: Text
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :primary_image:
-        :label: Hauptbild
-        :type: linked
-        :template_name: Bild
-        :validations:
-          :max: 1
-        :api:
-          :minimal: true
-      :image:
-        :label: Bilder
-        :type: linked
-        :template_name: Bild
-      :logo:
-        :label: Logo
-        :type: linked
-        :template_name: Bild
-        :api:
-          :minimal: true
+      :place_attributes:
+        :type: mixin
+        :name: place_attributes
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -91,6 +56,9 @@
       :google:
         :type: mixin
         :name: google
+      :google_business:
+        :type: mixin
+        :name: google_business
       :data_type:
         :label: Inhaltstype
         :type: classification

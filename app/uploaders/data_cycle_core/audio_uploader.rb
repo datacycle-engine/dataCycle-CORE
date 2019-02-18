@@ -5,7 +5,7 @@ require 'taglib'
 module DataCycleCore
   class AudioUploader < CommonUploader
     def extension_white_list
-      ['mp3', 'ogg', 'wav', 'wma']
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['mp3', 'ogg', 'wav', 'wma']
     end
 
     def metadata

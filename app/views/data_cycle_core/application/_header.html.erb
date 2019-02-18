@@ -8,13 +8,14 @@
         </div>
         <div class="top-bar-right" id="main-menu">
             <ul class="menu">
-                <% if can?(:upload, :content) %>
+                <% uploader_validations = merge_uploader_white_list %>
+                <% if uploader_validations.except(:text_file).present? %>
                   <li>
-                    <%= link_to '#', class: 'content-upload-link', data: { open: 'content-upload-reveal' } do %>
+                    <a class="content-upload-link" data-open="asset-upload-reveal-default">
                       <i class="fa fa-upload" aria-hidden="true"></i>
                       <%= t('data_cycle_core.upload', locale: DataCycleCore.ui_language) %>
-                    <% end %>
-                    <%= render 'upload' %>
+                    </a>
+                    <%= render 'asset_upload', uploader_validations: uploader_validations %>
                   </li>
                 <% end %>
                 <li>

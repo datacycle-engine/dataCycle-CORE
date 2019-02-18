@@ -18,6 +18,7 @@ module DataCycleCore
 
         def self.create_or_update_content(utility_object:, template:, data:, local: false)
           return nil if data.except('external_key', 'locale').blank?
+
           if local
             content = DataCycleCore::Thing.new
           else
@@ -37,8 +38,20 @@ module DataCycleCore
             global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
 
+          global_data = global_attributes.merge(data)
+
+          if DataCycleCore::Feature::Normalize.enabled?
+            normalize_options = {
+              id: data['external_key'],
+              comment: utility_object.external_source.name
+            }
+            normalized_data, _diff = utility_object.normalizer.normalize(global_data, template.schema, normalize_options)
+          else
+            normalized_data = global_data
+          end
+
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -70,9 +83,7 @@ module DataCycleCore
                   logging.phase_started("#{phase_name} #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
-                  if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                    source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import })
-                  end
+                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
                   durations = []
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
@@ -162,40 +173,42 @@ module DataCycleCore
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               each_locale(utility_object.locales) do |locale|
-                phase_name = utility_object.source_type.collection_name
+                I18n.with_locale(locale) do
+                  phase_name = utility_object.source_type.collection_name
 
-                item_count = 0
+                  item_count = 0
 
-                begin
-                  logging.phase_started("#{phase_name}_#{locale}")
+                  begin
+                    logging.phase_started("#{phase_name}_#{locale}")
 
-                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
+                    utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                      raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
 
-                    while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
-                      item_count += 1
+                      while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
+                        item_count += 1
 
-                      extracted_classification_data = extract_data.call(options, raw_classification_data)
+                        extracted_classification_data = extract_data.call(options, raw_classification_data)
 
-                      import_classification(
-                        utility_object: utility_object,
-                        classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
-                        parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
-                      )
-                      raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                        import_classification(
+                          utility_object: utility_object,
+                          classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                          parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
+                        )
+                        raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
-                      logging.item_processed(
-                        extracted_classification_data[:name],
-                        extracted_classification_data[:id],
-                        item_count,
-                        nil
-                      )
+                        logging.item_processed(
+                          extracted_classification_data[:name],
+                          extracted_classification_data[:id],
+                          item_count,
+                          nil
+                        )
 
-                      break if options[:max_count] && item_count >= options[:max_count]
+                        break if options[:max_count] && item_count >= options[:max_count]
+                      end
                     end
+                  ensure
+                    logging.phase_finished("#{phase_name}_#{locale}", item_count)
                   end
-                ensure
-                  logging.phase_finished("#{phase_name}_#{locale}", item_count)
                 end
               end
             end

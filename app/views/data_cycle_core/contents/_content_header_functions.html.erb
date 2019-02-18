@@ -6,12 +6,12 @@
 
         <% if can?(:index, content) && content.parent.present? && content.try(:siblings).present? %>
           <li class="has-dropdown">
-            <%= render 'split_sources', contents: content.siblings.select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
+            <%= render 'split_sources', contents: content.siblings.includes(:translations).select{|s| s.template_name == content.template_name }, selected: @splitSource, url: compare_thing_path(content), title_text: t('common.compare_contents', locale: DataCycleCore.ui_language) %>
           </li>
         <% end %>
         <% if content.content_type?('container') && I18n.available_locales&.many? && content.try(:children).present? %>
           <li>
-            <span class="link" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
+            <span class="link" data-tooltip data-allow-html="true" title="<%= content.try(:children).presence&.map(&:translated_locales)&.flatten&.uniq&.map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }&.join("<br>") %>"><i class="fa fa-language" aria-hidden="true"></i></span>
           </li>
         <% end %>
         <% if can?(:index, DataCycleCore::DataLink) %>

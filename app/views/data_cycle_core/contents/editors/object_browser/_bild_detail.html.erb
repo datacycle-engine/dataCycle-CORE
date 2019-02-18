@@ -1,65 +1,67 @@
-<% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
-    <% I18n.with_locale(object.first_available_locale) do %>
-        <h5>Details (<%= I18n.locale %>)</h5>
-        <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
+<% I18n.with_locale(object.first_available_locale) do %>
+    <h5>Details (<%= I18n.locale %>)</h5>
+    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({content: object}) %>
+    <%
+        thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
+    %>
 
-        <% unless object.title.blank? %>
-            <dl>
-                <dt>Name: </dt>
-                <dd><%= object.title %></dd>
-            </dl>
-        <% end %>
-        <% unless object.schema.nil? %>
-            <dl>
-                <% unless object.try(:thumbnail_url).nil? %>
-                    <dd><img class="lazyload" data-src="<%= object.try(:thumbnail_url) %>" /></dd>
-                <% end %>
-
-                <% unless object.try(:url).nil? %>
-                    <dt>Datei Url: </dt>
-                    <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
-                <% end %>
-
-                <% unless object.try(:file_format).nil? %>
-                    <dt>Format: </dt>
-                    <dd><%= object.try(:file_format) %></dd>
-                <% end %>
-
-                <% unless object.try(:width).to_i.zero? || object.try(:height).to_i.zero? %>
-                    <dt>Abmessungen: </dt>
-                    <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
-                <% end %>
-
-                <% unless object.try(:content_size).nil? %>
-                    <dt>Dateigröße: </dt>
-                    <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
-                <% end %>
-
-                <% unless object.try(:license).nil? %>
-                    <dt>Lizenz: </dt>
-                    <dd><%= object.try(:license) %></dd>
-                <% end %>
-
-                <% unless object.try(:restrictions).nil? %>
-                    <dt>Einschränkungen: </dt>
-                    <dd><%= object.try(:restrictions) %></dd>
-                <% end %>
-
-                <% unless object.try(:date_created).nil? %>
-                    <dt>Erstellt: </dt>
-                    <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) if object.date_created.present? %></dd>
-                <% end %>
-
-                <% unless object.try(:date_modified).nil? %>
-                    <dt>Bearbeitet: </dt>
-                    <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) if object.date_modified.present? %></dd>
-                <% end %>
-
-                <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
-
-            </dl>
-        <% end %>
+    <% unless object.title.blank? %>
+        <dl>
+            <dt>Name: </dt>
+            <dd><%= object.title %></dd>
+        </dl>
     <% end %>
-<% else %>
-    <%= render 'data_cycle_core/contents/editors/object_browser/asset_default_detail', local_assigns %>
+    <% unless object.schema.nil? %>
+        <dl>
+            <% if thumbnail_url.present? %>
+                <dd><img class="lazyload" data-src="<%= thumbnail_url %>" /></dd>
+            <% end %>
+
+            <% if object.try(:url).present? %>
+                <dt>Datei Url: </dt>
+                <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
+            <% elsif object.try(:content_url).present? %>
+                <dt>Datei Url: </dt>
+                <dd><%= link_to object.try(:content_url), object.try(:content_url), target: :_blank %></dd>
+            <% end %>
+
+            <% unless object.try(:file_format).nil? %>
+                <dt>Format: </dt>
+                <dd><%= object.try(:file_format) %></dd>
+            <% end %>
+
+            <% unless object.try(:width).to_i.zero? || object.try(:height).to_i.zero? %>
+                <dt>Abmessungen: </dt>
+                <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
+            <% end %>
+
+            <% unless object.try(:content_size).nil? %>
+                <dt>Dateigröße: </dt>
+                <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
+            <% end %>
+
+            <% unless object.try(:license).nil? %>
+                <dt>Lizenz: </dt>
+                <dd><%= object.try(:license) %></dd>
+            <% end %>
+
+            <% unless object.try(:restrictions).nil? %>
+                <dt>Einschränkungen: </dt>
+                <dd><%= object.try(:restrictions) %></dd>
+            <% end %>
+
+            <% unless object.try(:date_created).nil? %>
+                <dt>Erstellt: </dt>
+                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) if object.date_created.present? %></dd>
+            <% end %>
+
+            <% unless object.try(:date_modified).nil? %>
+                <dt>Bearbeitet: </dt>
+                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) if object.date_modified.present? %></dd>
+            <% end %>
+
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+
+        </dl>
+    <% end %>
 <% end %>

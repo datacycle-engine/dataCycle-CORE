@@ -42,7 +42,7 @@ module DataCycleCore
             }
           )
 
-          @language ||= params.fetch(:language, ['all'])
+          @language ||= params.fetch(:language) { ['all'] }
           if @content.children.present?
             @contents = get_filtered_results
             @total = @contents.count_distinct
@@ -102,6 +102,7 @@ module DataCycleCore
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
         @split_schema = []
+        @split_source_params = source_params
 
         if @split_source.present?
           I18n.with_locale(@split_source.first_available_locale) do
@@ -261,7 +262,7 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      @page = linked_object_params.fetch(:page, 1)
+      @page = linked_object_params.fetch(:page) { 1 }
 
       if linked_object_params[:load_more_type] == 'all'
         @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)

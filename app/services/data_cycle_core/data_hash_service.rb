@@ -21,6 +21,21 @@ module DataCycleCore
       internal_template
     end
 
+    def self.create_duplicate(content: nil, current_user: nil)
+      return if content.blank? || !content.content_type?('entity')
+      new_content = DataCycleCore::Thing.find_by(template_name: content.template_name, template: true).dup
+      new_content.template = false
+
+      content.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          new_content.save!
+          new_content_datahash = content.duplicate_data_hash(content.get_data_hash)
+          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user)
+        end
+      end
+      new_content.reload
+    end
+
     def self.get_object_params(template_name)
       template = get_internal_template(template_name)
       datahash = get_params_from_hash(template.schema)

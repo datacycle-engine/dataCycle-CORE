@@ -55,6 +55,7 @@ module DataCycleCore
                 'expires' => 'valid_until',
                 'keywords' => 'keywords_medienarchive',
                 'keyword_ids' => 'keywords_medienarchive',
+                'image' => 'thumbnail_url',
                 'headline' => 'name')
           .>> t(:add_link, 'director', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('director', 'id')}" })
           .>> t(:add_link, 'contributor', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Person - #{s&.dig('contributor', 'id')}" })
@@ -72,7 +73,7 @@ module DataCycleCore
           .>> t(:rename_keys, 'address' => 'street_address')
           .>> t(:nest, 'address', ['street_address'])
           .>> t(:map_value, 'name', ->(s) { s.try :[], I18n.locale.to_s })
-          .>> t(:add_field, 'external_key', ->(s) { "#{s['contentType']}-#{template}: #{s['url'].split('/').last}" })
+          .>> t(:add_field, 'external_key', ->(s) { "-#{template}: #{s['url'].split('/').last}" })
           .>> t(:location)
           .>> t(:compact)
           .>> t(:strip_all)
