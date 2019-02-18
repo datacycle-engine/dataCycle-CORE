@@ -1,4 +1,4 @@
-<% uploader_validations = merge_uploader_white_list(asset_type: local_assigns[:asset_type]) %>
+<% uploader_validations ||= merge_uploader_white_list(asset_type: local_assigns[:asset_type]) %>
 
 <div class="reveal full asset-upload-reveal"
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"

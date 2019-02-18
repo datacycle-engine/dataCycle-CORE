@@ -9,6 +9,7 @@
       :creatable:
         :allowed: true
         :scope:
+          - asset
           - backend
       :translatable:
         :allowed: true

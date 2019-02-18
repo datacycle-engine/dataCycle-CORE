@@ -13,6 +13,10 @@ module DataCycleCore
         end
       end
     end
+
+    def except(value)
+      self - Array(value)
+    end
   end
 end
 

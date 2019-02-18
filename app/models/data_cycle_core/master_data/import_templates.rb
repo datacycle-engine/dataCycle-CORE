@@ -14,6 +14,12 @@ module DataCycleCore
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
 
+      def self.import_template_list(template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
+        import_hash.map { |_key, value| value }.reduce([], :+).map { |item| item[:name] }.uniq.sort
+      end
+
       def self.check_for_duplicates(template_paths, content_tables)
         import_list = {}
         collisions = {}
@@ -283,6 +289,59 @@ module DataCycleCore
           optional(:tree_label) { str? }
           optional(:stored_filter) { array? }
           optional(:linked_language) { str? & valid_linked_language? }
+          optional(:normalize).schema do
+            required(:id) do
+              str? &
+                included_in?(
+                  [
+                    'sex',
+                    'degree',
+                    'forename',
+                    'surname',
+                    'company',
+                    'street',
+                    'streetnr',
+                    'city',
+                    'zip',
+                    'country',
+                    'birthdate',
+                    'email',
+                    'eventname',
+                    'eventstart',
+                    'eventend',
+                    'eventplace',
+                    'longitude',
+                    'latitude'
+                  ]
+                )
+            end
+            required(:type) do
+              str? &
+                included_in?(
+                  [
+                    'sex',
+                    'degree',
+                    'forename',
+                    'surname',
+                    'company',
+                    'street',
+                    'streetnr',
+                    'city',
+                    'zip',
+                    'country',
+                    'birthdate',
+                    'email',
+                    'eventname',
+                    'datetime',
+                    'place',
+                    'longitude',
+                    'latitude'
+                  ]
+                )
+            end
+          end
+          optional(:external) { bool? }
+          optional(:not_translated) { bool? }
 
           rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
             properties.filled? > (

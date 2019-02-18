@@ -133,7 +133,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'computed'
@@ -297,12 +297,13 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated)
+        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids)
           if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value).id
+            classification_id = load_default_classification(tree_label, default_value)
             ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(
@@ -333,6 +334,8 @@ module DataCycleCore
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
+        asset_id = asset_id.is_a?(ActiveRecord::Relation) ? asset_id.first.id : asset_id
+
         if id.present?
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,

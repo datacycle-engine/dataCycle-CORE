@@ -13,13 +13,13 @@
         <% value.each do |ca_id| %>
           <label for="<%= ca_id %>">
             <a class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>">
-              <%= classification_aliases[ca_id].try(:name) %><i class="fa fa-times" aria-hidden="true"></i>
+              <%= classification_aliases[ca_id].try(:internal_name) %><i class="fa fa-times" aria-hidden="true"></i>
             </a>
           </label>
         <% end %>
     <% else %>
         <% value.each do |ca_id| %>
-          <span class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>"><%= classification_aliases[ca_id].try(:name) %></span>
+          <span class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>"><%= classification_aliases[ca_id].try(:internal_name) %></span>
         <% end %>
     <% end %>
   </span>

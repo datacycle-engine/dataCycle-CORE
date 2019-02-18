@@ -61,6 +61,14 @@ module DataCycleCore
       def mapped_classification_aliases
         classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
       end
+
+      def is_related?
+        content_content_b.exists?
+      end
+
+      def has_related?
+        content_content_a.exists?
+      end
     end
   end
 end

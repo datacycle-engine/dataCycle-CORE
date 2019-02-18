@@ -152,7 +152,7 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_topics', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Topics', 'Topic')]&.flatten&.map { |item| item&.dig('Id') } || [] })
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item')]&.flatten&.map { |item| item&.dig('Id') } || [] })
-          .>> t(:load_category_key, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
+          .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
         end
@@ -198,9 +198,7 @@ module DataCycleCore
             'Sat' => 'Samstag',
             'Sun' => 'Sonntag'
           }
-          DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-            .where('classification_tree_labels.name = ?', 'Wochentage')
-            .where('classification_aliases.name = ?', day_hash[day]).first!.id
+          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wochentag', day_hash[day])
         end
 
         def self.document_filter(document_classes: [], document_types: [])
@@ -214,9 +212,7 @@ module DataCycleCore
 
         def self.load_feratel_event_tags(names)
           names.compact.map do |name|
-            DataCycleCore::Classification.joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-              .where('classification_tree_labels.name = ?', 'Feratel - Veranstaltungstags')
-              .where('classification_aliases.name = ?', name).first!.id
+            DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Feratel - Veranstaltungstags', name)
           end
         end
 

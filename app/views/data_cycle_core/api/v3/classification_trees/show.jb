@@ -3,7 +3,7 @@
 json = {
   data: @classification_tree_label.as_json(
     only: [:id, :name]
-  ).merge('classifications' => classifications_api_v3_classification_tree_url(id: @classification_tree_label))
+  ).merge('classifications' => classifications_api_v3_classification_tree_url(id: @classification_tree_label, language: @language))
 }
 
 json

@@ -36,7 +36,7 @@ module DataCycleCore
         end
 
         def info(title, id)
-          id.blank? ? @log.info("INFO: #{title}") : @log.info("INFO: #{title} | #{id}")
+          id.blank? ? @log.info(title) : @log.info("#{title} | #{id}")
         end
 
         def debug(title, id, data)
