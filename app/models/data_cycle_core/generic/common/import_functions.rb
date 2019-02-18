@@ -12,11 +12,13 @@ module DataCycleCore
             data: merge_default_values(
               config,
               transformation.call(raw_data)
-            ).with_indifferent_access
+            ).with_indifferent_access,
+            local: false,
+            config: config
           )
         end
 
-        def self.create_or_update_content(utility_object:, template:, data:, local: false)
+        def self.create_or_update_content(utility_object:, template:, data:, local: false, config: {})
           return nil if data.except('external_key', 'locale').blank?
 
           if local
@@ -39,6 +41,17 @@ module DataCycleCore
           end
 
           global_data = global_attributes.merge(data)
+
+          if config&.dig(:asset_type).present?
+            content.asset&.map do |item|
+              item.remove_file!
+              item.destroy!
+            end
+
+            asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+            asset.save!
+            global_data['asset'] = asset.id
+          end
 
           if DataCycleCore::Feature::Normalize.enabled?
             normalize_options = {

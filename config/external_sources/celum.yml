@@ -57,10 +57,14 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportFolders
       tree_label: Celum - Folders
       locales: [de]
-    documents:
+    images:
       sorting: 10
       source_type: documents
+      source_filter:
+        'dump.de.assetType.#cdata-section': '1'
+        'dump.de.fileExtension.#cdata-section': 'jpg'
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      locales: [de]
       transformations:
-        media_asset:
-          template: Bild
+        images:
+          asset_type: DataCycleCore::Image

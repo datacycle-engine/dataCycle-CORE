@@ -19,11 +19,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Celum::Processing.process_documents(
-              utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :documents)
-            )
+            case options.dig(:import, :transformations, :images, :asset_type)
+            when 'DataCycleCore::Image'
+              DataCycleCore::Generic::Celum::Processing.process_images(
+                utility_object,
+                raw_data,
+                options.dig(:import, :transformations, :images)
+              )
+            end
           end
         end
       end
