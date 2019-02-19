@@ -23,6 +23,16 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_persons(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Celum::Transformations.user_to_person(utility_object.external_source.id),
+            default: { template: 'Person' },
+            config: config
+          )
+        end
       end
     end
   end
