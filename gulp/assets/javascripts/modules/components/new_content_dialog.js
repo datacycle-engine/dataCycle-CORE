@@ -28,27 +28,23 @@ NewContentDialog.prototype.initEventHandlers = function() {
 NewContentDialog.prototype.updateForm = function() {
   this.updateCrumbs();
   this.updateWarningLevel();
-  // this.form.closest('.reveal').foundation('open');
+  let active_fieldset = this.form.find('fieldset.active');
+  if (
+    (!active_fieldset.hasClass('iframe') && !active_fieldset.hasClass('no-search-warning')) ||
+    active_fieldset.hasClass('template')
+  )
+    this.form.find('.callout').show();
+  else this.form.find('.callout').hide();
 };
 
 NewContentDialog.prototype.next = function(event) {
   event.preventDefault();
-
   let active_fieldset = this.form.find('fieldset.active');
 
-  if (
-    active_fieldset.hasClass('template') &&
-    this.form.find(':input[name="template"]').val() != this.form.data('template')
-  ) {
-    this.renderContentForm();
-  }
-
-  this.form
-    .find('fieldset.active')
-    .removeClass('active')
-    .next('fieldset')
-    .addClass('active');
-  this.updateForm();
+  this.form.trigger(
+    'goto.dc.multistep',
+    this.form.find('fieldset').index(this.form.find('fieldset.active').next('fieldset'))
+  );
 
   if (this.form.hasClass('validation-form'))
     active_fieldset.find('.validation-container').trigger('validate.dc.formfield');
@@ -56,19 +52,29 @@ NewContentDialog.prototype.next = function(event) {
 
 NewContentDialog.prototype.prev = function(event) {
   event.preventDefault();
-  this.form
-    .find('fieldset.active')
-    .removeClass('active')
-    .prev('fieldset')
-    .addClass('active');
-  this.updateForm();
+
+  this.form.trigger(
+    'goto.dc.multistep',
+    this.form.find('fieldset').index(this.form.find('fieldset.active').prev('fieldset'))
+  );
 };
 
 NewContentDialog.prototype.goTo = function(event, data) {
   event.preventDefault();
+
+  if (
+    this.form.find('fieldset.active').hasClass('template') &&
+    this.form.find(':input[name="template"]').val() != this.form.data('template')
+  ) {
+    this.renderContentForm();
+  }
+
   let index = data !== undefined ? data : $(event.target).data('index');
   this.form.find('fieldset.active').removeClass('active');
   this.form.find('fieldset:eq(' + index + ')').addClass('active');
+
+  if (this.form.find('fieldset.active').hasClass('template') || this.form.find('fieldset.active').hasClass('iframe'))
+    this.form.closest('.reveal').foundation('open');
 
   this.updateForm();
 };
@@ -110,7 +116,11 @@ NewContentDialog.prototype.updateCrumbs = function() {
 };
 
 NewContentDialog.prototype.renderContentForm = function() {
-  this.form.find('fieldset:not(.template)').remove();
+  this.form.find('.callout').hide();
+  this.form
+    .find('fieldset:not(.template)')
+    .trigger('remove.dc.html')
+    .remove();
   this.form
     .find('.buttons')
     .before(

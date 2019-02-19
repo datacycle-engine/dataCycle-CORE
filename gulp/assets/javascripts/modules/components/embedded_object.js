@@ -112,7 +112,7 @@ EmbeddedObject.prototype.addEventHandlers = function() {
       .off('click')
       .on('click', event => {
         event.preventDefault();
-        $(element).trigger('removed.dc.clone');
+        $(element).trigger('remove.dc.html');
         let id = $(event.currentTarget)
           .closest('.content-object-item')
           .data('id');

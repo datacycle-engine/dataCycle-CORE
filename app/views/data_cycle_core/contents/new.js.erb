@@ -6,6 +6,9 @@ $.rails.enableFormElements($('#<%= @resolved_params[:key] %> form.multi-step'));
 
 <% if @resolved_params[:search_required] && @resolved_params[:search_param].blank? && !can?(:create_without_search, @template) %>
   $('#<%= @resolved_params[:key] %> form.multi-step button[type="submit"]').attr('disabled', true);
+  $('#<%= @resolved_params[:key] %> form.multi-step .callout').show();
 <% else %>
-  $('#<%= @resolved_params[:key] %> form.multi-step callout').remove();
+  html.filter('fieldset').addClass('no-search-warning');
+  $('#<%= @resolved_params[:key] %> form.multi-step button[type="submit"]').attr('disabled', false);
+  $('#<%= @resolved_params[:key] %> form.multi-step .callout').hide();
 <% end %>

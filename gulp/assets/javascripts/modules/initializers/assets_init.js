@@ -41,7 +41,7 @@ module.exports.initialize = function() {
     init_uploaders(event.target);
   });
 
-  $(document).on('removed.dc.clone', '*', event => {
+  $(document).on('remove.dc.html', '*', event => {
     event.preventDefault();
     event.stopPropagation();
     if ($(event.target).find('.asset-selector-button').length) {

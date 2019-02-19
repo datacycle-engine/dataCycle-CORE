@@ -8,11 +8,14 @@
   <div class="form-crumbs"></div>
 
   <% if local_assigns[:template].present? %>
+    <%= render 'data_cycle_core/contents/new/shared/search_warning' if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, template) %>
+
     <%= hidden_field_tag :template, template.template_name, id: "#{local_assigns.dig(:options, :prefix)}template" %>
     <%= render_new_form(template: template, parameters: local_assigns) %>
   <% else %>
+    <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
+
     <fieldset class="active template">
-      <%= render 'data_cycle_core/contents/new/shared/search_warning', warning: true if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:select_without_search, DataCycleCore::Thing) %>
       <legend><%= t('actions.choose_type', locale: DataCycleCore.ui_language) %></legend>
       <div class="form-element">
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}template", t('common.data_type', locale: DataCycleCore.ui_language) %>
@@ -51,6 +54,7 @@
     <%= button_tag t('submit', locale: DataCycleCore.ui_language),
       type: :submit,
       class: "button submit",
+      disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, local_assigns[:template]),
       data: {
         disable_with: "#{t('submit', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
         } %>

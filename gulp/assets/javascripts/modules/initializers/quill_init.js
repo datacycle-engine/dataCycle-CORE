@@ -187,13 +187,21 @@ module.exports.initialize = function() {
         width: 'calc(100% - ' + rest_width + 'px)'
       });
     $(element)
-      .siblings('label')
+      .siblings('.translated')
       .css('left', $(element).offset().left + 10);
+    if ($(element).siblings('.translated').length)
+      $(element)
+        .siblings('label')
+        .css('left', $(element).offset().left + 30);
+    else
+      $(element)
+        .siblings('label')
+        .css('left', $(element).offset().left + 10);
     $(element)
       .find('.ql-toolbar')
       .addClass(fixed_class);
     $(element)
-      .siblings('label')
+      .siblings('label, .translated')
       .addClass(fixed_class);
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
@@ -209,7 +217,7 @@ module.exports.initialize = function() {
       .removeClass(fixed_class)
       .removeAttr('style');
     $(element)
-      .siblings('label')
+      .siblings('label, .translated')
       .removeClass(fixed_class)
       .removeAttr('style');
     if ($(element).siblings('label[for*="textblock"]').length)

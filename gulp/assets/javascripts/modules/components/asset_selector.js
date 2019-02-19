@@ -32,15 +32,19 @@ AssetSelector.prototype.loadAssets = function(event) {
       html_target: this.asset_list.prop('id'),
       types: this.asset_list.data('asset-types'),
       selected: this.selected_asset_id,
-      locked_assets: this.asset_selectors
-        .filter(selector => {
-          return selector.button.data('open') != this.button.data('open') && selector.selected_asset_id != '';
-        })
-        .map(selector => selector.selected_asset_id)
+      locked_assets: this.uniqueLockedAssetIds()
     },
     dataType: 'script',
     contentType: 'application/json'
   });
+};
+
+AssetSelector.prototype.uniqueLockedAssetIds = function() {
+  return this.asset_selectors
+    .filter(selector => {
+      return selector.button.data('open') != this.button.data('open') && selector.selected_asset_id != undefined;
+    })
+    .map(selector => selector.selected_asset_id);
 };
 
 AssetSelector.prototype.clickOnAsset = function(event) {
@@ -77,7 +81,7 @@ AssetSelector.prototype.deselect = function(event) {
   event.preventDefault();
 
   this.hidden_field.removeAttr('value');
-  this.selected_asset_id = '';
+  this.selected_asset_id = undefined;
   $(event.target)
     .closest('li')
     .remove();

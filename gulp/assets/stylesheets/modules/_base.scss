@@ -114,7 +114,7 @@ button,
   &.fix-edit-bar {
     position: fixed;
     width: 100%;
-    z-index: 10000;
+    z-index: 1006;
     top: 0;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   }
@@ -366,6 +366,12 @@ button,
   .translated + label {
     left: 2.3rem;
   }
+  .translated + label.fixed-toolbar {
+    left: 2.3rem;
+  }
+  .translated + label.fixed-split-toolbar {
+    left: 53%;
+  }
 
   .focus {
     .ql-disabled {
@@ -457,6 +463,18 @@ button,
       left: 1rem;
       top: 0.7rem;
       color: $dark-gray;
+
+      &.fixed-toolbar {
+        position: fixed;
+        top: 62px;
+        z-index: 13;
+      }
+      &.fixed-split-toolbar {
+        position: fixed;
+        top: 182px;
+        left: 52%;
+        z-index: 13;
+      }
     }
 
     .validation-container {
@@ -585,6 +603,10 @@ button,
     right: 0;
     border: 0;
 
+    .ql-formats {
+      margin-right: 0;
+    }
+
     &.fixed-toolbar,
     &.fixed-split-toolbar {
       background: $light-gray;
@@ -631,13 +653,28 @@ button,
   }
 }
 
+.edit-header-functions {
+  .form-element.agbs {
+    .single_error {
+      top: auto;
+      bottom: -3.3rem;
+      &::before {
+        bottom: auto;
+        top: -1.2rem;
+        border-top: none;
+        border-bottom: 20px solid map-get($foundation-palette, alert);
+      }
+    }
+  }
+}
+
 span.single_error,
 .form-error {
   position: absolute;
   top: -3.3rem;
   right: 2rem;
   background-color: map-get($foundation-palette, alert);
-  padding: 0.5rem 1rem;
+  padding: 0.5rem 2rem 0.5rem 1rem;
   color: white;
   border-radius: 5px;
   white-space: nowrap;
@@ -645,7 +682,17 @@ span.single_error,
   -webkit-transition: all 0.4s ease;
   line-height: 1.5;
   text-align: left;
-  font-size: 1rem;
+  font-size: 0.9rem;
+  .close-error {
+    display: block;
+    width: 1.2rem;
+    position: absolute;
+    right: 0.5rem;
+    top: 0.5rem;
+    text-align: center;
+    line-height: 1.2;
+    cursor: pointer;
+  }
 }
 
 span.single_error:before,
@@ -1054,13 +1101,13 @@ body .v-select {
           }
         }
         &.agbs {
-          li {
-            list-style-type: none;
-          }
           .agb-link {
             font-size: 1rem;
           }
         }
+      }
+      li {
+        list-style-type: none;
       }
     }
   }
