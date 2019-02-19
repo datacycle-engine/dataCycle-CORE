@@ -3,10 +3,12 @@
 module DataCycleCore
   module MasterData
     module DataConverter
-      def convert_to_type(type, data)
+      def self.convert_to_type(type, data)
         case type
-        when 'key', 'number'
+        when 'key'
           data
+        when 'number'
+          data&.to_f
         when 'string'
           DataCycleCore::MasterData::DataConverter.string_to_string(data)
         when 'datetime'
@@ -18,10 +20,10 @@ module DataCycleCore
         end
       end
 
-      def convert_to_string(type, data)
+      def self.convert_to_string(type, data)
         case type
         when 'key', 'number'
-          data
+          data&.to_s
         when 'string'
           DataCycleCore::MasterData::DataConverter.string_to_string(data)
         when 'datetime'

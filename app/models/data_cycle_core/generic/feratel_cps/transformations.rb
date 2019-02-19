@@ -12,8 +12,8 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('NAME', 'text') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('ID', 'text') })
-          .>> t(:load_category, 'feratel_cps_type', ->(s) { s.dig('TYPNAME', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
-          .>> t(:load_category, 'feratel_cps_status', ->(s) { s.dig('STATUS', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
+          .>> t(:load_category, 'feratel_cps_type', external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
+          .>> t(:load_category, 'feratel_cps_status', external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
           .>> t(:reject_keys, ['GUID', 'ID', 'NAME', 'TYP', 'TYPKRZ', 'TYPNAME', 'STATUS', 'STATUSWERT'])
           .>> t(:strip_all)
         end
@@ -22,8 +22,8 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('NAME', 'text') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('ID', 'text') })
-          .>> t(:load_category, 'feratel_cps_type', ->(s) { s.dig('TYPNAME', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
-          .>> t(:load_category, 'feratel_cps_status', ->(s) { s.dig('STATUS', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
+          .>> t(:load_category, 'feratel_cps_type', external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
+          .>> t(:load_category, 'feratel_cps_status', external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
           .>> t(:reject_keys, ['GUID', 'ID', 'NAME', 'TYP', 'TYPKRZ', 'TYPNAME', 'STATUS', 'STATUSWERT'])
           .>> t(:strip_all)
         end
@@ -32,8 +32,8 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('NAME', 'text') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('ID', 'text') })
-          .>> t(:load_category, 'feratel_cps_type', ->(s) { s.dig('TYPNAME', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
-          .>> t(:load_category, 'feratel_cps_status', ->(s) { s.dig('STATUS', 'text') }, external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
+          .>> t(:load_category, 'feratel_cps_type', external_source_id, ->(s) { 'Feratel CPS - Typen - ' + s.dig('TYP', 'text') })
+          .>> t(:load_category, 'feratel_cps_status', external_source_id, ->(s) { 'Feratel CPS - Stati - ' + s.dig('STATUSWERT', 'text') })
           .>> t(:reject_keys, ['GUID', 'ID', 'NAME', 'TYP', 'TYPKRZ', 'TYPNAME', 'STATUS', 'STATUSWERT'])
           .>> t(:strip_all)
         end

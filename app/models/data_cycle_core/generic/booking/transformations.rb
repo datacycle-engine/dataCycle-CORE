@@ -23,7 +23,7 @@ module DataCycleCore
           .>> t(:add_field, 'longitude', ->(s) { s.dig('hotel_data', 'location', 'longitude')&.to_f })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('hotel_data', 'location', 'latitude')&.to_f })
           .>> t(:location)
-          .>> t(:load_category_key, 'booking_hotel_types', external_source_id, ->(s) { 'Booking.com - HotelTypes - ' + s&.dig('hotel_data', 'hotel_type_id').to_s })
+          .>> t(:load_category, 'booking_hotel_types', external_source_id, ->(s) { 'Booking.com - HotelTypes - ' + s&.dig('hotel_data', 'hotel_type_id').to_s })
           .>> t(:add_field, 'booking_hotel_facility_types', ->(s) { load_hotel_facilities(s&.dig('hotel_data', 'hotel_facilities'), external_source_id) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('hotel_data', 'hotel_photos')&.map { |item| item.dig('url_original').split('/').last } || [] })
           .>> t(:reject_keys, ['hotel_data'])

@@ -82,6 +82,7 @@ de:
     status: Status
     content_not_editable: Inhalt kann danach nicht mehr bearbeitet werden.
     download_gpx: Als GPX-Datei herunterladen
+    duplicate_content: Inhalt duplizieren
     no_search: Sie müssen eine Suche durchführen, bevor Sie einen neuen Inhalt erstellen können.
     publications: Geplante Publikationen
     publications_calendar: Publikationskalender
@@ -101,7 +102,7 @@ de:
     height: Höhe
     width: Breite
     exclude: Ausnahme
-    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte in den Sprachen (%{languages}), diese werden mitgelöscht!</p>"
+    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
     creator: Ersteller
     abo_changed_title:
       one: Ein abonnierter Inhalt wurde geändert
@@ -133,6 +134,7 @@ de:
       one: Externe Verknüpfung
       other: Externe Verknüpfungen
     create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
+    normalize: Normalisieren
 
   tile_links:
     details: zur Detailansicht
@@ -185,6 +187,7 @@ de:
       other: "Suche zurücksetzen"
     filter: jetzt suchen
     move_to: "In %{data} verschieben"
+    duplicate_content: "duplizieren"
     read: lesen
     write: schreiben
     save_and_send: "Speichern und Senden"
@@ -290,6 +293,7 @@ de:
       become_user: 'Eingeloggt als %{data}.'
     info:
       not_modified: "%{data} wurde nicht geändert."
+      created_duplication: "%{data} wurde erfolgreich dupliziert."
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
@@ -383,6 +387,9 @@ de:
       data_cycle_core/video:
         one: Video
         other: Videos
+      data_cycle_core/audio:
+        one: Audiodatei
+        other: Audiodateien
       data_cycle_core/data_cycle_file:
         one: Datei
         other: Dateien

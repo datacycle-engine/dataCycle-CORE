@@ -40,12 +40,10 @@ module DataCycleCore
         if parent_classification_alias
           classification_alias = parent_classification_alias
             .sub_classification_alias
-            .where(name: attributes[:name], external_source: attributes[:external_source])
-            .first_or_initialize
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
         else
           classification_alias = classification_aliases.roots
-            .where(name: attributes[:name], external_source: attributes[:external_source])
-            .first_or_initialize
+            .find_or_initialize_by(name: attributes[:name], external_source: attributes[:external_source])
         end
 
         if classification_alias.new_record?

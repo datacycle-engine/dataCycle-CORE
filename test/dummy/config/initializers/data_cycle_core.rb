@@ -2,7 +2,7 @@
 
 DataCycleCore.setup do |config|
   # general settings
-  I18n.available_locales = [:de, :en]
+  I18n.available_locales = [:de, :en].freeze
 
   # only required for DataCycleCore dummy app
   Rails.application.config.assets.precompile += ['logo.svg', 'logo.png', 'location.svg']
@@ -47,6 +47,17 @@ DataCycleCore.setup do |config|
       },
       container: {
         enabled: false
+      },
+      external_media_archive: {
+        enabled: true
+      },
+      normalize: {
+        enabled: true,
+        external_source: 'Econob Normalize',
+        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
+      },
+      duplicate_content: {
+        enabled: true
       }
     }
   )
@@ -77,14 +88,4 @@ DataCycleCore.setup do |config|
   config.webhooks = ['Local-Text-File', 'OutdoorActive']
 
   config.webhooks = ['Local-Text-File'] if Rails.env.test?
-
-  config.uploader_validations = {
-    file: {
-      format: [
-        'mp4',
-        'png',
-        'jpg'
-      ]
-    }
-  }
 end

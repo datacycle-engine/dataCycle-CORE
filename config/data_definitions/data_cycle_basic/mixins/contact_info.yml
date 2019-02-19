@@ -25,6 +25,9 @@
             :label: E-Mail
             :type: string
             :storage_location: translated_value
+            :normalize:
+              :id: email
+              :type: email
           :url:
             :label: Web
             :type: string

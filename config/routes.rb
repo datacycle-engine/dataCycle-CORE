@@ -39,6 +39,7 @@ DataCycleCore::Engine.routes.draw do
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
+      get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
       get :new_embedded_object, on: :member
@@ -75,6 +76,13 @@ DataCycleCore::Engine.routes.draw do
     delete :destroy, on: :collection
     get :search, on: :collection
     get :download, on: :collection
+  end
+
+  scope :admin do
+    resources :external_sources, only: [] do
+      get :authorize, on: :member
+      get :callback, on: :member
+    end
   end
 
   get  '/admin', to: 'dash_board#home'
@@ -132,9 +140,7 @@ DataCycleCore::Engine.routes.draw do
           resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
         end
 
-        scope 'external_systems/:external_system_id' do
-          resource :external_systems, only: [:show], controller: :external_systems, path: ':ids'
-        end
+        resources :external_systems, only: [:show], controller: :external_systems
       end
       namespace :v3 do
         type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))

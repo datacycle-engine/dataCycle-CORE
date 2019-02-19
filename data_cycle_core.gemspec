@@ -125,6 +125,7 @@ Gem::Specification.new do |s|
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'faker'
   s.add_development_dependency 'fasterer'
   s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.63.1'

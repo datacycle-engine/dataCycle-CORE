@@ -21,7 +21,7 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
-      include DataCycleCore::MasterData::DataConverter
+      # extend DataCycleCore::MasterData::DataConverter
       include ContentRelations
       extend  ContentFilters
       include DestroyContent
@@ -69,8 +69,6 @@ module DataCycleCore
 
       def property_definitions
         schema&.dig('properties') || {}
-      rescue StandardError
-        {}
       end
 
       def property_names
@@ -206,10 +204,6 @@ module DataCycleCore
         respond_to?('history_valid')
       end
 
-      def as_of(_timestamp)
-        self
-      end
-
       def collect_properties(definition = schema, parents = [])
         key_paths = []
         definition&.dig('properties')&.each do |k, v|
@@ -299,6 +293,14 @@ module DataCycleCore
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+      end
+
+      def convert_to_type(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
+      end
+
+      def convert_to_string(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
       end
 
       def parent_templates

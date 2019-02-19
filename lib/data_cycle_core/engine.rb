@@ -152,6 +152,12 @@ module DataCycleCore
           bild: 'image',
           video: 'video'
         }
+      },
+      normalize: {
+        enabled: false
+      },
+      duplicate_content: {
+        enabled: false
       }
     }
 

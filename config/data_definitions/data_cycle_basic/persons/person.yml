@@ -21,6 +21,9 @@
         :label: "Anrede / Titel"
         :type: string
         :storage_location: translated_value
+        :normalize:
+          :id: degree
+          :type: degree
       :honorific_suffix:
         :label: "Titel nachgestellt"
         :type: string

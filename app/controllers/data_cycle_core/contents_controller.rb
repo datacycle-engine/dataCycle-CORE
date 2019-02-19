@@ -103,6 +103,7 @@ module DataCycleCore
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
         @split_schema = []
+        @split_source_params = source_params
 
         if @split_source.present?
           I18n.with_locale(@split_source.first_available_locale) do
