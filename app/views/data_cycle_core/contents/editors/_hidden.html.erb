@@ -1,4 +1,6 @@
-<% if value.is_a?(ActiveRecord::Relation) %>
+<% if value.is_a?(ActiveRecord::Base) %>
+  <%= hidden_field_tag key, value.try(:id), multiple: true, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+<% elsif value.is_a?(ActiveRecord::Relation) %>
   <% value.each do |v| %>
     <%= hidden_field_tag key + '[]', v.try(:id), multiple: true, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <% end %>

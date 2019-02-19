@@ -344,8 +344,8 @@ module DataCycleCore
         end
 
         # delete old id
-        found_ids = load_asset_relation(relation_name).ids
-        to_delete = found_ids - [asset_id]
+        found_ids = load_asset_relation(relation_name)&.id
+        to_delete = Array(found_ids) - Array(asset_id)
         return if to_delete.empty?
         DataCycleCore::AssetContent
           .with_content(id, self.class.to_s)

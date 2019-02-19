@@ -25,6 +25,11 @@ module DataCycleCore
           [new_record, del_record].compact.presence
         end
 
+        def parse_uuid(a)
+          return if a.blank?
+          a.is_a?(ActiveRecord::Base) ? a&.id : a
+        end
+
         def parse_uuids(a)
           return [] if a.blank?
           data = a.is_a?(::String) ? [a] : a

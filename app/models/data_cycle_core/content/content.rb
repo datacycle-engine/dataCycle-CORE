@@ -292,7 +292,7 @@ module DataCycleCore
 
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_contents)
-          .where(asset_contents: { content_data_id: id, relation: relation_name })
+          .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
       def set_property_value(property_name, property_definition, value)
