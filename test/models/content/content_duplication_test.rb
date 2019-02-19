@@ -100,7 +100,7 @@ module DataCycleCore
         excepted_properties = ['id'] + content.asset_property_names + content.computed_property_names
 
         assert_equal(content.get_data_hash.except(*excepted_properties), new_content.get_data_hash.except(*excepted_properties))
-        assert_nil(new_content.asset.first)
+        assert_nil(new_content.asset)
         content.computed_property_names.each do |computed_property|
           assert_nil(new_content.send(computed_property.to_sym))
         end
