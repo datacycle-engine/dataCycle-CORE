@@ -134,7 +134,7 @@ module DataCycleCore
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
-                assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
+                assert_equal(overlay_image.id, json_data.dig('photo').first.dig('identifier'))
               end
 
               test 'stored item can be found via different endpoints' do
