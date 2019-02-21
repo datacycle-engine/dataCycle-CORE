@@ -34,10 +34,17 @@ module DataCycleCore
         linked_property_names.each do |name|
           load_linked_objects(name).each do |item|
             next if item.external_source.id.blank?
-            next if DataCycleCore::ContentContent.where(content_a_id: item.id).or(DataCycleCore::ContentContent.where(content_b_id: item.id)).pluck(:content_a_id).uniq.count > 1
+            next if number_of_unique_links(item.id) > 1
             item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
           end
         end
+      end
+
+      def number_of_unique_links(item_id)
+        (
+          DataCycleCore::ContentContent.where(content_a_id: item_id).pluck(:content_b_id) +
+          DataCycleCore::ContentContent.where(content_b_id: item_id).pluck(:content_a_id)
+        ).uniq.size
       end
     end
   end

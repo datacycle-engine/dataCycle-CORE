@@ -36,23 +36,12 @@ namespace :dc do
       index = 0
 
       has_no_relation.find_each do |data_item|
-        # progress_bar
-        if items_to_delete > 49
-          if (index % 500).zero?
-            fraction = (index / (items_to_delete / 100.0)).round(0)
-            fraction = 100 if fraction > 100
-            print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-          end
-        else
-          fraction = (((index * 1.0) / items_to_delete) * 100.0).round(0)
-          fraction = 100 if fraction > 100
-          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-        end
+        progress_bar(items_to_delete, index)
         index += 1
 
         data_item.destroy_content
       end
-      puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+      progress_bar(items_to_delete, items_to_delete)
 
       if index.positive? && initial_external_contents_count != external_contents.size
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:clean_up:external_source_data"].reenable
@@ -102,7 +91,7 @@ namespace :dc do
             }
           ).pluck(:id)
 
-          recheck = DataCycleCore::ContentContent.where(content_a: orphaned_items).or(DataCycleCore::ContentContent.where(content_b: orphaned_items)).count
+          recheck = DataCycleCore::ContentContent.where(content_a_id: orphaned_items).or(DataCycleCore::ContentContent.where(content_b_id: orphaned_items)).count
           puts "ERROR: recheck has found  --> #{recheck} <-- orphans still linked to content!!" if recheck.positive?
 
           dirty_data.push({ name: external_source[:name], id: external_source[:external_source_id], template: dependency }) if orphaned_items.size.positive?
@@ -182,28 +171,28 @@ namespace :dc do
         end
       end&.flatten&.uniq
     end
-
-    def progress_bar(total_items, index)
-      if total_items > 49
-        if (index % 100).zero?
-          fraction = (index / (total_items / 100.0)).round(0)
-          fraction = 100 if fraction > 100
-          print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-        end
-      else
-        fraction = (((index * 1.0) / total_items) * 100.0).round(0)
-        fraction = 100 if fraction > 100
-        print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-      end
-    end
-
-    def zsh?
-      ENV['SHELL'].split('/').last == 'zsh'
-    end
-
-    def error(msg)
-      puts msg
-      exit(-1)
-    end
   end
+end
+
+def progress_bar(total_items, index)
+  if total_items > 49
+    if (index % 100).zero?
+      fraction = (index / (total_items / 100.0)).round(0)
+      fraction = 100 if fraction > 100
+      print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+    end
+  else
+    fraction = (((index * 1.0) / total_items) * 100.0).round(0)
+    fraction = 100 if fraction > 100
+    print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+  end
+end
+
+def zsh?
+  ENV['SHELL'].split('/').last == 'zsh'
+end
+
+def error(msg)
+  puts msg
+  exit(-1)
 end
