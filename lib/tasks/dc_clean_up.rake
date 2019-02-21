@@ -129,7 +129,7 @@ namespace :dc do
       )
 
       items_to_delete = orphans.count
-      puts "Deleting #{items_to_delete} (template: #{template.template_name}) from #{external_source.name} --> #{Time.zone.now.strftime('%H:%M:%S.%3N')}\n"
+      puts "Deleting #{items_to_delete.to_s.rjust(6)} #{('(template: ' + template.template_name + ')').ljust(32)} from #{external_source.name.ljust(50)} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
 
       index = 0
       orphans.each do |orphan|
@@ -138,7 +138,6 @@ namespace :dc do
         orphan.destroy_content(save_history: false, destroy_linked: true)
       end
       progress_bar(items_to_delete, items_to_delete)
-      puts "\n"
     end
 
     def identify_external_source(item)
@@ -174,18 +173,16 @@ namespace :dc do
   end
 end
 
-def progress_bar(total_items, index)
-  if total_items > 49
-    if (index % 100).zero?
-      fraction = (index / (total_items / 100.0)).round(0)
-      fraction = 100 if fraction > 100
-      print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-    end
-  else
-    fraction = (((index * 1.0) / total_items) * 100.0).round(0)
-    fraction = 100 if fraction > 100
-    print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+def progress_bar(total_items, index, interval = nil)
+  if index >= total_items
+    print "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
+    return
   end
+  interval ||= [total_items / 100.0, 1.0].max.round(0)
+  return unless (index % interval).zero?
+  fraction = (((index * 1.0) / total_items) * 100.0).round(0)
+  fraction = 100 if fraction > 100
+  print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
 end
 
 def zsh?
