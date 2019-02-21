@@ -28,3 +28,12 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_locations:
+        :label: Feratel - Ort
+        :type: classification
+        :tree_label: Feratel - Orte
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
