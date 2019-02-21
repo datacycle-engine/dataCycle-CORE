@@ -42,7 +42,7 @@ module DataCycleCore
     end
 
     def change_by_mode(diff, mode)
-      return [] if diff[0] != mode
+      return [] if diff&.dig(0) != mode
       diff[1]
     end
 

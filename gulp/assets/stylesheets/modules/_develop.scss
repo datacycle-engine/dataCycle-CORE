@@ -1676,27 +1676,41 @@ input.normalized {
 
 #admin-panel {
   color: darken($white, 15%);
-  background-color: darken($black, 15%);
+  background-color: rgba(darken($black, 15%), 0.9);
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 1006;
+  z-index: 1000;
   max-height: 100vh;
-  nav#admin-icons {
-    a {
-      padding: 1rem;
-      border-right: 1px solid $primary-color;
-      .fa {
-        font-size: 1.3rem;
+  #admin-icons {
+    background: none;
+    border-top: 1px solid $primary-color;
+    .tabs-title {
+      &.is-active {
+        a {
+          background: none;
+          .fa {
+            color: darken($white, 15%);
+          }
+        }
       }
-      &:hover .fa {
-        color: darken($white, 15%);
+      a {
+        padding: 1rem;
+        border-right: 1px solid $primary-color;
+        .fa {
+          font-size: 1.3rem;
+        }
+        &:hover {
+          background: none;
+          .fa {
+            color: darken($white, 15%);
+          }
+        }
       }
     }
   }
   section#admin-inner {
     > section {
-      display: none;
       padding: 1rem;
       border-top: 1px solid $primary-color;
       &.expanded {
@@ -1727,8 +1741,12 @@ input.normalized {
         .datahash-nav,
         .json-api-nav,
         .json-related-content {
-          padding-bottom: 1rem;
+          padding: 0.5rem;
           text-align: right;
+          h5 {
+            float: left;
+            margin: 0.5rem 0;
+          }
         }
         /* Scrollbar styles */
         ::-webkit-scrollbar {

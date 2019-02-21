@@ -53,7 +53,7 @@
       border-radius: 50%;
     }
 
-    >.form-element {
+    > .form-element {
       background: $light-gray;
       display: flex;
       flex: 1;
@@ -117,8 +117,8 @@
   .accordion {
     background-color: inherit;
 
-    >.accordion-item {
-      >.accordion-title {
+    > .accordion-item {
+      > .accordion-title {
         padding: 0;
         border: none;
         font-size: inherit;
@@ -134,12 +134,12 @@
           background-color: inherit;
         }
 
-        >.title>.title-container>.icon>.fa::before {
+        > .title > .title-container > .icon > .fa::before {
           content: '\f107';
         }
       }
 
-      >.accordion-content {
+      > .accordion-content {
         padding: 0;
         border: none;
         background-color: inherit;
@@ -147,7 +147,7 @@
       }
 
       &.is-active {
-        >.accordion-title>.title>.title-container>.icon>.fa::before {
+        > .accordion-title > .title > .title-container > .icon > .fa::before {
           content: '\f106';
         }
       }
@@ -157,7 +157,7 @@
   ul {
     position: relative;
 
-    >li {
+    > li {
       position: relative;
 
       &.publication-year {
@@ -167,7 +167,7 @@
           margin-bottom: 4rem;
         }
 
-        >.accordion-title>.title {
+        > .accordion-title > .title {
           position: relative;
           display: block;
 
@@ -183,7 +183,7 @@
 
           &:before {
             position: absolute;
-            content: "";
+            content: '';
             height: 1px;
             border-bottom: 1px solid lighten($dark-gray, 10%);
             right: 0;
@@ -227,11 +227,11 @@
           margin-bottom: 3rem;
         }
 
-        >.accordion-title>.title {
+        > .accordion-title > .title {
           position: relative;
           display: block;
 
-          >.title-container {
+          > .title-container {
             font-weight: 600;
             margin-left: 1.2rem;
 
@@ -253,7 +253,7 @@
 
           &:before {
             position: absolute;
-            content: "";
+            content: '';
             height: 1px;
             border-bottom: 1px solid $medium-gray;
             right: 0;
@@ -292,8 +292,8 @@
             }
           }
 
-          >span,
-          >div {
+          > span,
+          > div {
             display: inline-block;
             flex: 1;
 
@@ -316,7 +316,7 @@
           }
         }
 
-        >div.title {
+        > div.title {
           a {
             color: $dark-gray;
             transition: color 0.2s;
@@ -330,7 +330,7 @@
           color: $dark-gray;
         }
 
-        >ul {
+        > ul {
           box-shadow: 0 1px 3px $dark-gray;
         }
       }

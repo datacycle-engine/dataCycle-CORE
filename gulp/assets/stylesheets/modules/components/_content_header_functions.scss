@@ -24,8 +24,8 @@
         }
         .submit {
           float: right;
-          margin-top: -7%;
-          margin-bottom: -7%;
+          margin-top: -0.75rem;
+          margin-bottom: -0.75rem;
           z-index: 100;
           i {
             display: inline-block;
@@ -115,6 +115,7 @@
     margin: 0;
     list-style: none;
     line-height: 3.5rem;
+    max-height: 3.5rem;
     &.no-bullet {
       margin: auto; // text-align: left;
     }

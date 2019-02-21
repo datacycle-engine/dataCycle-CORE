@@ -15,7 +15,8 @@ body.documentation {
     padding: 1rem;
   }
 
-  p, pre {
+  p,
+  pre {
     margin-bottom: 1rem;
   }
 
@@ -31,11 +32,11 @@ body.documentation {
   }
 
   footer {
-    background-image: url("logo.png");
+    background-image: url('logo.png');
     background-repeat: no-repeat;
     background-position: center;
     height: 7rem;
     margin: 1rem;
-    opacity: .33;
+    opacity: 0.33;
   }
 }

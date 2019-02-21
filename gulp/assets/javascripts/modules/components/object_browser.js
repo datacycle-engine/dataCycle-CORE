@@ -106,9 +106,7 @@ ObjectBrowser.prototype.setup = function() {
   this.element.on('click', '.delete-thumbnail', function(event) {
     event.preventDefault();
     event.stopPropagation();
-    if (self.min != 0 && self.chosen.length <= self.min) {
-      var confirmationModal = new ConfirmationModal('Mindestanzahl: ' + self.min);
-    } else {
+    if (self.validate('-', self.chosen.length - 1)) {
       self.chosen = self.chosen.diff(
         $(this)
           .parent()
@@ -154,14 +152,13 @@ ObjectBrowser.prototype.setup = function() {
     );
   });
 
-  this.overlay.find('.buttons .save-object-browser').on(
-    'click',
-    function(event) {
-      event.preventDefault();
+  this.overlay.find('.buttons .save-object-browser').on('click', event => {
+    event.preventDefault();
+    if (this.validate()) {
       this.setChosen();
       this.overlay.foundation('close');
-    }.bind(this)
-  );
+    }
+  });
 
   this.element.on('update-chosen', (event, data) => {
     this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
@@ -193,10 +190,8 @@ ObjectBrowser.prototype.setup = function() {
         $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
       );
 
-    if (new_items.length > 0 && (this.chosen.length + new_items.length <= this.max || this.max == 0)) {
+    if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
       this.findObjects(new_items, data.external_ids != undefined);
-    } else if (this.max != 0 && this.chosen.length + new_items.length > this.max) {
-      var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + self.max);
     }
   });
 
@@ -287,6 +282,17 @@ ObjectBrowser.prototype.findObjects = function(ids, external) {
   });
 };
 
+ObjectBrowser.prototype.validate = function(type = '~', new_length = this.chosen.length) {
+  if (type != '-' && this.max != 0 && new_length > this.max) {
+    new ConfirmationModal('Maximalanzahl: ' + this.max);
+    return false;
+  } else if (type != '+' && this.min != 0 && new_length < this.min) {
+    new ConfirmationModal('Mindestanzahl: ' + this.min);
+    return false;
+  }
+  return true;
+};
+
 ObjectBrowser.prototype.setChosen = function() {
   if (this.chosen.length == 0) this.renderHiddenField();
   else {
@@ -325,41 +331,33 @@ ObjectBrowser.prototype.setChosen = function() {
 };
 
 ObjectBrowser.prototype.addObject = function(id, element, event) {
-  if (this.max != 0 && this.chosen.length >= this.max) {
-    var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + this.max);
-  } else {
-    if (this.chosen.indexOf(id) === -1) {
-      this.chosen.push(id);
-      this.overlay.find('.chosen-items-container').append(element);
-      $(element)
-        .find('[data-tooltip]')
-        .each(function() {
-          $(this)
-            .attr('title', $(this).data('title'))
-            .foundation();
-        });
-      this.overlay
-        .children('.items')
-        .find('.item[data-id=' + id + ']')
-        .addClass('active');
-      this.updateChosenCounter();
-    }
+  if (this.chosen.indexOf(id) === -1) {
+    this.chosen.push(id);
+    this.overlay.find('.chosen-items-container').append(element);
+    $(element)
+      .find('[data-tooltip]')
+      .each(function() {
+        $(this)
+          .attr('title', $(this).data('title'))
+          .foundation();
+      });
+    this.overlay
+      .children('.items')
+      .find('.item[data-id=' + id + ']')
+      .addClass('active');
+    this.updateChosenCounter();
   }
 };
 
 ObjectBrowser.prototype.removeObject = function(id, event) {
-  if (this.min != 0 && this.chosen.length <= this.min) {
-    var confirmationModal = new ConfirmationModal('Mindestanzahl: ' + this.min);
-  } else {
-    this.chosen = this.chosen.diff(id);
-    this.element.children('input:hidden[value="' + id + '"]').remove();
-    this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
-    this.overlay
-      .children('.items')
-      .find('.item[data-id=' + id + ']')
-      .removeClass('active');
-    this.updateChosenCounter();
-  }
+  this.chosen = this.chosen.diff(id);
+  this.element.children('input:hidden[value="' + id + '"]').remove();
+  this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
+  this.overlay
+    .children('.items')
+    .find('.item[data-id=' + id + ']')
+    .removeClass('active');
+  this.updateChosenCounter();
 };
 
 ObjectBrowser.prototype.updateChosenCounter = function() {

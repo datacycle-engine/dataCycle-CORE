@@ -15,6 +15,7 @@ module DataCycleCore
           destroy
         end
         run_callbacks(:destroyed_data_hash) unless history?
+        self
       end
 
       def destroy_children
@@ -37,7 +38,7 @@ module DataCycleCore
           delete = true if history? || definition['type'] == 'asset'
           next unless delete
 
-          load_asset_relation(name).each(&:destroy)
+          load_asset_relation(name)&.destroy
         end
       end
     end

@@ -35,7 +35,7 @@ module DataCycleCore
           end
 
           I18n.with_locale(locale) do
-            ['tags_images', 'types_of_use_images', 'audiences_images', 'color_space_images', 'file_format_images'].each do |tag_name|
+            ['tags_images', 'types_of_use_images', 'audiences_images', 'suggested_audiences_images', 'color_space_images', 'file_format_images'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,

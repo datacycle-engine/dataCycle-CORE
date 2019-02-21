@@ -3,7 +3,7 @@
 
   <%= render_attribute_editor key: 'thing[datahash][name]',
                               definition: template.schema.dig('properties', 'name'),
-                              value: nil,
+                              value: local_assigns[:search_param],
                               content: template,
                               parameters: {
                                 options: local_assigns[:options]
