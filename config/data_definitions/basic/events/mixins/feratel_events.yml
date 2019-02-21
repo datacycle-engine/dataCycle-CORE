@@ -19,3 +19,12 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
