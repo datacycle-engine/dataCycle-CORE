@@ -48,6 +48,11 @@ module DataCycleCore
         assert_not(@pdf.valid?)
         assert_equal(@pdf.errors.size, 2)
       end
+
+      def teardown
+        @pdf.remove_file!
+        @pdf.destroy!
+      end
     end
   end
 end

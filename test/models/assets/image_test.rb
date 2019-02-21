@@ -81,6 +81,11 @@ module DataCycleCore
         assert_not(@image.valid?)
         assert_equal(@image.errors.size, 2)
       end
+
+      def teardown
+        @image.remove_file!
+        @image.destroy!
+      end
     end
   end
 end

@@ -334,7 +334,7 @@ module DataCycleCore
       end
 
       def set_asset_id(asset_id, relation_name, asset_type)
-        asset_id = asset_id.is_a?(ActiveRecord::Relation) ? asset_id.first.id : asset_id
+        asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
 
         if id.present?
           DataCycleCore::AssetContent.find_or_create_by(
