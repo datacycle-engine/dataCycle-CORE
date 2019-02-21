@@ -73,7 +73,7 @@ namespace :dc do
 
     desc 'Check all external_sources for orphaned data (does not modify the data)'
     task external_data_check: :environment do
-      puts "checking ExternalSources (#{DataCycleCore::ExternalSource.count})"
+      puts "checking ExternalSources (#{DataCycleCore::ExternalSource.count}) dependencies:"
       linked_data = DataCycleCore::ExternalSource.all.map { |item|
         name = identify_external_source(item)
         next if name.blank?
@@ -146,7 +146,7 @@ namespace :dc do
       orphans.each do |orphan|
         progress_bar(items_to_delete, index)
         index += 1
-        orphan.destroy_content(save_history: false, delete_linked: true)
+        orphan.destroy_content(save_history: false, destroy_linked: true)
       end
       progress_bar(items_to_delete, items_to_delete)
       puts "\n"

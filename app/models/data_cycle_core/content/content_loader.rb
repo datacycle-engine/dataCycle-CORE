@@ -69,14 +69,6 @@ module DataCycleCore
         ).order(history_table_translation[:history_valid])
         return_data.last
       end
-
-      def in_range(table_name, timestamp)
-        Arel::Nodes::InfixOperation.new(
-          '@>',
-          table_name[:history_valid],
-          Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-        )
-      end
     end
   end
 end

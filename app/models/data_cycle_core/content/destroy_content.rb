@@ -3,7 +3,7 @@
 module DataCycleCore
   module Content
     module DestroyContent
-      def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, delete_linked: false)
+      def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_linked: false)
         ActiveRecord::Base.transaction do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
           unless history? || !save_history
@@ -12,7 +12,7 @@ module DataCycleCore
             to_history(save_time: save_time, delete: true)
           end
           destroy_children
-          destroy_linked_data if external_source_id.present? && delete_linked
+          destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if external_source_id.present? && destroy_linked
           destroy
         end
         run_callbacks(:destroyed_data_hash) unless history?
@@ -30,12 +30,12 @@ module DataCycleCore
         end
       end
 
-      def destroy_linked_data
+      def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)
         linked_property_names.each do |name|
           load_linked_objects(name).each do |item|
             next if item.external_source.id.blank?
-            next if DataCycleCore::ContentContent.where(content_a: item.id).or(DataCycleCore::ContentContent.where(content_b: item.id)).count > 1
-            item.destroy_content
+            next if DataCycleCore::ContentContent.where(content_a_id: item.id).or(DataCycleCore::ContentContent.where(content_b_id: item.id)).pluck(:content_a_id).uniq.count > 1
+            item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
           end
         end
       end

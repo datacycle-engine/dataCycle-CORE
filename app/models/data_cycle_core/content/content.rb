@@ -21,7 +21,6 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
-      # extend DataCycleCore::MasterData::DataConverter
       include ContentRelations
       extend  ContentFilters
       include DestroyContent
@@ -304,7 +303,11 @@ module DataCycleCore
       end
 
       def parent_templates
-        DataCycleCore::Thing.from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name).map { |t| t.content_type == 'embedded' ? t.parent_templates : t }.flatten
+        DataCycleCore::Thing
+          .from("things, jsonb_each(schema -> 'properties') property_name")
+          .where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name)
+          .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+          .flatten
       end
     end
   end

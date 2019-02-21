@@ -67,11 +67,7 @@ module DataCycleCore
         return_data = self.class.joins(:translations)
           .where(content_table_id => send(content_table_id))
           .where(
-            Arel::Nodes::InfixOperation.new(
-              '@>',
-              history_table_translation[:history_valid],
-              Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-            )
+            in_range(history_table_translation, timestamp)
           ).order(history_table_translation[:history_valid])
         return_data.last
       end
