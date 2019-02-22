@@ -11,18 +11,17 @@ module DataCycleCore
             self.deleted_by = current_user&.id
             to_history(save_time: save_time, delete: true)
           end
-          destroy_children
-          destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if external_source_id.present? && destroy_linked
+          destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked)
+          destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
           destroy
         end
         run_callbacks(:destroyed_data_hash) unless history?
       end
 
-      def destroy_children
+      def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false)
         embedded_property_names.each do |name|
-          load_embedded_objects(name).each do |item|
-            item.destroy_children
-            item.destroy
+          load_embedded_objects(name, false).each do |item|
+            item.destroy_content(current_user: current_user, save_time: save_time, save_history: false, destroy_linked: destroy_linked)
           end
         end
         asset_property_names.each do |name|
@@ -33,7 +32,6 @@ module DataCycleCore
       def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)
         linked_property_names.each do |name|
           load_linked_objects(name).each do |item|
-            next if item.external_source.id.blank?
             next if number_of_unique_links(item.id) > 1
             item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
           end

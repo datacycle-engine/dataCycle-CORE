@@ -18,12 +18,12 @@ module DataCycleCore
         differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
       end
 
-      def load_linked_objects(relation_name)
-        load_relation(relation_name)
+      def load_linked_objects(relation_name, same_language = false)
+        load_relation(relation_name, same_language)
       end
 
-      def load_embedded_objects(relation_name)
-        load_relation(relation_name, true)
+      def load_embedded_objects(relation_name, same_language = true)
+        load_relation(relation_name, same_language)
       end
 
       def load_relation(relation_name, same_language = false)
