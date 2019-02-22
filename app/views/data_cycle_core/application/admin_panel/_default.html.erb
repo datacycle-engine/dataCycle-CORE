@@ -2,58 +2,31 @@
   <section id="admin-inner" data-tabs-content="admin-icons">
       <section id="schema" class="tabs-panel">
           <section class="schema-nav">
-              <h5>Schema</h5>
+              <h5><%= t('admin_panel.schema', locale: DataCycleCore.ui_language) %></h5>
               <button class="copy-to-admin-clipboard">COPY</button>
           </section>
-          <pre id="json"><code><%= JSON.pretty_generate(content.schema) %></code></pre>
+          <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
       </section>
       <section id="datahash" class="tabs-panel">
           <section class="datahash-nav">
-              <h5>Datahash</h5>
+              <h5><%= t('admin_panel.datahash', locale: DataCycleCore.ui_language) %></h5>
               <button class="copy-to-admin-clipboard">COPY</button>
           </section>
-          <%
-              admin_data_hash = {
-                  external_key: content.external_key,
-                  external_source_id: content.external_source_id,
-                  created_at: content.created_at,
-                  created_by: content.created_by,
-                  updated_at: content.updated_at,
-                  updated_by: content.updated_by,
-              }.merge(content.get_data_hash)
-          %>
-          <pre id="json"><code><%= JSON.pretty_generate(admin_data_hash) %></code></pre>
+          <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
       </section>
       <section id="json-api" class="tabs-panel">
           <section class="json-api-nav">
-              <h5>JSON API</h5>
+              <h5><%= t('admin_panel.api', locale: DataCycleCore.ui_language) %></h5>
               <button class="copy-to-admin-clipboard">COPY</button>
           </section>
-          <%
-              json_api_show = DataCycleCore::Api::V3::ContentsController.render(
-                  assigns: {content: content, mode_parameters: [], language: 'de', include_parameters: []},
-                  template: 'data_cycle_core/api/v2/contents/show',
-                  layout: false
-              )
-          %>
-          <pre id="json"><code><%= json_api_show %></code></pre>
+          <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
       </section>
       <section id="related-content" class="tabs-panel">
           <section class="json-api-nav">
-              <h5>Relationen</h5>
+              <h5><%= t('admin_panel.relations', locale: DataCycleCore.ui_language) %></h5>
               <button class="copy-to-admin-clipboard">COPY</button>
           </section>
-          <%
-              related_to = DataCycleCore::ContentContent.where(content_b_id: content).map do |to_item|
-                {
-                  id: to_item.content_a.id,
-                  template_name: to_item.content_a.template_name,
-                  name: to_item.content_a.name,
-                }
-              end
-
-          %>
-          <pre id="json"><code><%= JSON.pretty_generate(related_to) %></code></pre>
+          <pre id="admin_relations" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/relations" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
       </section>
   </section>
 

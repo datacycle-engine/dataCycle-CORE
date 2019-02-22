@@ -1,8 +1,10 @@
 // Add Lazyloading + fixes
 module.exports.initialize = function() {
   // reposition reveal after it is loaded
-  $(document).on('lazyloaded changed.dc.html', '*', event => {
+  $(document).on('changed.dc.html', '*', event => {
+    event.stopPropagation();
     if ($(event.target).closest('.reveal:not(.object-browser-overlay)').length) {
+      console.log($(event.target).closest('.reveal:not(.object-browser-overlay)'));
       $(event.target)
         .closest('.reveal:not(.object-browser-overlay)')
         .foundation('open');
@@ -17,6 +19,12 @@ module.exports.initialize = function() {
     $(event.target)
       .siblings('.loading-iframe')
       .remove();
+    if ($(event.target).hasClass('lazyloaded')) {
+      console.log('reposition');
+      $(event.target)
+        .closest('.reveal:not(.object-browser-overlay)')
+        .foundation('open');
+    }
   });
 
   $(document).on('closed.zf.reveal', event => {

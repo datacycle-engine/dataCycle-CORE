@@ -1700,7 +1700,8 @@ input.normalized {
         .fa {
           font-size: 1.3rem;
         }
-        &:hover {
+        &:hover,
+        &:focus {
           background: none;
           .fa {
             color: darken($white, 15%);

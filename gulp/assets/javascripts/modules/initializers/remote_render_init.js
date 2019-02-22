@@ -4,6 +4,15 @@ module.exports.initialize = function() {
     load_remote_partial(element);
   });
 
+  $(document).on('change.zf.tabs', event => {
+    $(event.target)
+      .siblings('[data-tabs-content]')
+      .find('.remote-render:visible')
+      .each((index, element) => {
+        load_remote_partial(element);
+      });
+  });
+
   $(document).on('open.zf.reveal', event => {
     $(event.target)
       .find('.remote-render:visible')

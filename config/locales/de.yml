@@ -41,6 +41,17 @@ de:
     user: Benutzer
     guest: Gast
 
+  new_step_title:
+    title: Titel
+    copyright: Copyright
+    agbs: AGBs
+
+  admin_panel:
+    schema: Schema
+    datahash: Datahash
+    api: JSON API
+    relations: Relationen
+
   notification:
     frequency:
       always: sofort bei Änderung

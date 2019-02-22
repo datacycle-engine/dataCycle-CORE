@@ -19,8 +19,12 @@ module.exports.initialize = function() {
         .find('.grid-item')
         .addClass('show');
 
-      $(window).on('load lazyloaded', function() {
+      $(window).on('load', event => {
         grid.layout();
+      });
+
+      $(window).on('lazyloaded', event => {
+        if ($(event.target).closest('.grid').length) grid.layout();
       });
     }
   }
