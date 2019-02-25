@@ -18,3 +18,19 @@
         :ui:
           :show:
             :content_area: header
+      :keywords_celum:
+        :label: Celum - Keywords
+        :type: classification
+        :tree_label: Celum - Keywords
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :folders_celum:
+        :label: Celum - Folders
+        :type: classification
+        :tree_label: Celum - Folders
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

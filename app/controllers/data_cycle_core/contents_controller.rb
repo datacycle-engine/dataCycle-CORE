@@ -164,7 +164,13 @@ module DataCycleCore
 
     def destroy
       @content = DataCycleCore::Thing.find(params[:id])
-      @content.destroy_content(current_user: current_user)
+
+      destroy_params = { current_user: current_user }
+      if @content.external_source_id.present?
+        destroy_params[:save_history] = false
+        destroy_params[:destroy_linked] = true
+      end
+      @content.destroy_content(destroy_params)
 
       flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 

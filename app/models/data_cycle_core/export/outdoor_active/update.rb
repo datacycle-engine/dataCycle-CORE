@@ -15,7 +15,7 @@ module DataCycleCore
           job_id = data.external_system_data(external_system)&.dig('job_id')
           (
             data.template_name == 'POI' &&
-            data.external_source.name == 'Feratel Kärnten' &&
+            data&.external_source&.name == 'Feratel Kärnten' &&
             Functions.outdoor_active_categories(data, external_system).size.positive? &&
             job_id.blank?
           )

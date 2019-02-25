@@ -18,12 +18,12 @@ module DataCycleCore
         differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
       end
 
-      def load_linked_objects(relation_name)
-        load_relation(relation_name)
+      def load_linked_objects(relation_name, same_language = false)
+        load_relation(relation_name, same_language)
       end
 
-      def load_embedded_objects(relation_name)
-        load_relation(relation_name, true)
+      def load_embedded_objects(relation_name, same_language = true)
+        load_relation(relation_name, same_language)
       end
 
       def load_relation(relation_name, same_language = false)
@@ -68,14 +68,6 @@ module DataCycleCore
           in_range(history_table_translation, timestamp)
         ).order(history_table_translation[:history_valid])
         return_data.last
-      end
-
-      def in_range(table_name, timestamp)
-        Arel::Nodes::InfixOperation.new(
-          '@>',
-          table_name[:history_valid],
-          Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-        )
       end
     end
   end

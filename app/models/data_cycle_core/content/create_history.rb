@@ -20,7 +20,6 @@ module DataCycleCore
         data_set_history.updated_at = save_time
         data_set_history.save(touch: false)
 
-        # cc classification_content to history
         classification_content.all.find_each do |item|
           classification_history = DataCycleCore::ClassificationContent::History.new
           classification_history.content_data_history_id = data_set_history.id
@@ -31,10 +30,8 @@ module DataCycleCore
           classification_history.save
         end
 
-        # cc embedded data from other content tables
         embedded_property_names.each do |content_name|
-          content_relation = send(content_name)
-          content_relation.each_with_index do |content_item, index|
+          load_embedded_objects(content_name, false).each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
@@ -48,8 +45,7 @@ module DataCycleCore
         end
 
         linked_property_names.each do |content_name|
-          content_relation = send(content_name)
-          content_relation.each_with_index do |content_item, index|
+          load_linked_objects(content_name).each_with_index do |content_item, index|
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
