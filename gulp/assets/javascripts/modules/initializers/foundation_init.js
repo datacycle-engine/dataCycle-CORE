@@ -10,11 +10,10 @@ module.exports.initialize = function() {
   });
 
   $(document).on('open.zf.reveal', '.reveal', event => {
-    if ($(event.target).parent('.reveal-overlay').length)
-      $(event.target)
-        .parent('.reveal-overlay')
-        .appendTo('body');
-    else $(event.target).appendTo('body');
+    $('.reveal:visible, .reveal-overlay:visible').css('z-index', '');
+    $(event.target)
+      .add($(event.target).parent('.reveal-overlay'))
+      .css('z-index', 1007);
   });
 
   $(document).on('remove', '*', event => {

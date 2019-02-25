@@ -23,7 +23,7 @@ module.exports.initialize = function() {
         grid.layout();
       });
 
-      $(window).on('lazyloaded', event => {
+      $(document).on('lazyloaded', '*', event => {
         if ($(event.target).closest('.grid').length) grid.layout();
       });
     }

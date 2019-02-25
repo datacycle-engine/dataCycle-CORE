@@ -1,5 +1,5 @@
 <% sources = [] %>
-<% content.children.each do |child| %>
+<% content.children.includes(:translations).each do |child| %>
   <% I18n.with_locale(child.first_available_locale) do %>
     <% sources.push(["#{child.title} (#{child.template_name}, #{I18n.locale})", "source_id=>#{child.id},source_table=>#{child.class.table_name}"]) %>
   <% end %>

@@ -22,15 +22,29 @@ module DataCycleCore
             DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
               raw_data['photographerOrganization'],
-              options.dig(:import, :transformations, :photographer_organization),
+              options.dig(:import, :transformations, :photographer_organization) || { template: 'Organization' },
               "MedienArchive - Photographer - #{raw_data.dig('photographerOrganization', 'id')}"
             )
 
             DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
               raw_data['photographerPerson'],
-              options.dig(:import, :transformations, :photographer_person),
+              options.dig(:import, :transformations, :photographer_person) || { template: 'Person' },
               "MedienArchive - Photographer - #{raw_data.dig('photographerPerson', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightPerson'],
+              options.dig(:import, :transformations, :copyright_person) || { template: 'Person' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightPerson', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightOrganization'],
+              options.dig(:import, :transformations, :copyright_organization) || { template: 'Organization' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightOrganization', 'id')}"
             )
           end
 

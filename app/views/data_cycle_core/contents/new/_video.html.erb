@@ -16,5 +16,73 @@
     <% end %>
   </fieldset>
 <% else %>
-    <%= render 'data_cycle_core/contents/new/default', local_assigns %>
+  <fieldset>
+    <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
+
+    <%= render_attribute_editor key: 'thing[datahash][asset]',
+                                definition: template.schema.dig('properties', 'asset'),
+                                value: [],
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+  </fieldset>
+
+  <fieldset>
+    <legend><%= t('new_step_title.title', locale: DataCycleCore.ui_language) %></legend>
+
+    <%= render_attribute_editor key: 'thing[datahash][name]',
+                                definition: template.schema.dig('properties', 'name'),
+                                value: local_assigns[:search_param],
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][caption]',
+                                definition: template.schema.dig('properties', 'caption'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][description]',
+                                definition: template.schema.dig('properties', 'description'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][tags]',
+                                definition: template.schema.dig('properties', 'tags'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+
+  </fieldset>
+
+  <fieldset>
+    <legend><%= t('new_step_title.copyright', locale: DataCycleCore.ui_language) %></legend>
+
+    <%= render_attribute_editor key: 'thing[datahash][validity_period]',
+                                definition: template.schema.dig('properties', 'validity_period'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+  </fieldset>
+
+  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+    <fieldset>
+      <legend><%= t('new_step_title.agbs', locale: DataCycleCore.ui_language) %></legend>
+      <%= render 'agbs', options: local_assigns[:options] %>
+    </fieldset>
+  <% end %>
 <% end %>
