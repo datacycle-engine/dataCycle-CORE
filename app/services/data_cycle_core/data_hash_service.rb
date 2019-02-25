@@ -26,11 +26,12 @@ module DataCycleCore
       new_content = DataCycleCore::Thing.find_by(template_name: content.template_name, template: true).dup
       new_content.template = false
 
-      content.available_locales.each_with_index do |locale, i|
+      content.available_locales.each do |locale|
         I18n.with_locale(locale) do
+          created = new_content.new_record?
           new_content.save!
           new_content_datahash = content.duplicate_data_hash(content.get_data_hash)
-          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: i.zero?)
+          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
         end
       end
       new_content.reload
