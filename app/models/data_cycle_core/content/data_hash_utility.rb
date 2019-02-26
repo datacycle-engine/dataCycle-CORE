@@ -48,6 +48,14 @@ module DataCycleCore
       def duplicate_data_hash(data_hash)
         deep_reject(data_hash) { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
       end
+
+      def in_range(table_name, timestamp)
+        Arel::Nodes::InfixOperation.new(
+          '@>',
+          table_name[:history_valid],
+          Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
+        )
+      end
     end
   end
 end

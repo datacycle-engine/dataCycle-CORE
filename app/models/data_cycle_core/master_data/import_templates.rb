@@ -89,6 +89,7 @@ module DataCycleCore
       end
 
       def self.transform_schema(content_table: nil, schema: {})
+        schema[:boost] = schema[:boost] || 1.0
         schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table)
         schema
       end

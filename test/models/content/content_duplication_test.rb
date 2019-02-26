@@ -187,6 +187,13 @@ module DataCycleCore
         # 3 embedded * 2 contents * 2 translations = 12 + embedded created in setup
         assert_equal(13, DataCycleCore::ContentContent.count)
       end
+
+      def teardown
+        return if @local_image&.file.blank?
+
+        @local_image.remove_file!
+        @local_image.destroy!
+      end
     end
   end
 end

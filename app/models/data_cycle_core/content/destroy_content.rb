@@ -3,42 +3,46 @@
 module DataCycleCore
   module Content
     module DestroyContent
-      def destroy_content(current_user: nil, save_time: Time.zone.now)
+      def destroy_content(current_user: nil, save_time: Time.zone.now, save_history: true, destroy_linked: false)
         ActiveRecord::Base.transaction do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
-          unless history?
+          unless history? || !save_history
             self.deleted_at = save_time
             self.deleted_by = current_user&.id
             to_history(save_time: save_time, delete: true)
           end
-          destroy_children
+          destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked)
+          destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
           destroy
         end
         run_callbacks(:destroyed_data_hash) unless history?
       end
 
-      def destroy_children
+      def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false)
         embedded_property_names.each do |name|
-          definition = property_definitions[name]
-
-          delete = false
-          delete = true if history? || definition['type'] == 'embedded'
-          next unless delete
-
-          load_embedded_objects(name).each do |item|
-            item.destroy_children
-            item.destroy
+          load_embedded_objects(name, false).each do |item|
+            item.destroy_content(current_user: current_user, save_time: save_time, save_history: false, destroy_linked: destroy_linked)
           end
         end
         asset_property_names.each do |name|
-          definition = property_definitions[name]
-
-          delete = false
-          delete = true if history? || definition['type'] == 'asset'
-          next unless delete
-
           load_asset_relation(name).each(&:destroy)
         end
+      end
+
+      def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)
+        linked_property_names.each do |name|
+          load_linked_objects(name).each do |item|
+            next if number_of_unique_links(item.id) > 1
+            item.destroy_content(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked)
+          end
+        end
+      end
+
+      def number_of_unique_links(item_id)
+        (
+          DataCycleCore::ContentContent.where(content_a_id: item_id).pluck(:content_b_id) +
+          DataCycleCore::ContentContent.where(content_b_id: item_id).pluck(:content_a_id)
+        ).uniq.size
       end
     end
   end

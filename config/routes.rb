@@ -158,7 +158,7 @@ DataCycleCore::Engine.routes.draw do
         resources :collections, only: [:index, :show], controller: :watch_lists
 
         scope 'external_sources/:external_source_id' do
-          resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+          resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
         end
       end
     end

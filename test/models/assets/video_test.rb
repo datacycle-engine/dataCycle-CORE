@@ -50,6 +50,11 @@ module DataCycleCore
         assert_not(@video.valid?)
         assert_equal(@video.errors.size, 2)
       end
+
+      def teardown
+        @video.remove_file!
+        @video.destroy!
+      end
     end
   end
 end
