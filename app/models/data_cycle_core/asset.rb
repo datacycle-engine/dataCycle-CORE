@@ -10,6 +10,7 @@ module DataCycleCore
     validates :file, presence: true
     validates_integrity_of :file
     validate :custom_validators
+    after_destroy :remove_directory
 
     include AssetHelpers
 
@@ -39,6 +40,11 @@ module DataCycleCore
 
     def file_size_validation(_options)
       errors.add :file, I18n.t('uploader.validation.file_size.max', data: ApplicationController.helpers.number_to_human_size(options.dig(:file_size, :max).to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) if file.size > options.dig(:file_size, :max).to_i
+    end
+
+    def remove_directory
+      return if self&.file&.store_dir.blank? || self&.file&.store_dir&.end_with?('/file/')
+      FileUtils.remove_dir("#{Rails.root}/public/#{file.store_dir}", force: true) # deletes only EMPTY directories!
     end
   end
 end

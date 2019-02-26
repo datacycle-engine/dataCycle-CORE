@@ -22,10 +22,28 @@
             :type: text_editor
             :options:
               :data-size: full
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+        :api:
+          :name: image
+          :minimal: true
       :image:
         :label: Bilder
         :type: linked
         :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded

@@ -19,6 +19,13 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Pdf.count)
         assert_equal(1, DataCycleCore::Video.count)
       end
+
+      def teardown
+        DataCycleCore::Asset.find_each do |asset|
+          asset.remove_file!
+          asset.destroy!
+        end
+      end
     end
   end
 end

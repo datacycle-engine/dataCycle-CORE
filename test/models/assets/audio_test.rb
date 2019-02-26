@@ -49,6 +49,11 @@ module DataCycleCore
         assert_not(@audio.valid?)
         assert_equal(@audio.errors.size, 2)
       end
+
+      def teardown
+        @audio.remove_file!
+        @audio.destroy!
+      end
     end
   end
 end
