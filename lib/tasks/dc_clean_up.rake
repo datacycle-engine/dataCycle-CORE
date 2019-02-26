@@ -212,7 +212,7 @@ namespace :dc do
       orphans.each do |orphan|
         progress_bar(items_to_delete, index)
         index += 1
-        orphan.destroy_content(save_history: false, destroy_linked: true)
+        orphan.destroy_content(save_history: false)
       end
       progress_bar(items_to_delete, items_to_delete)
     end
