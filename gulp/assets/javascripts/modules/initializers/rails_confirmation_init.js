@@ -9,11 +9,13 @@ module.exports.initialize = function() {
     $.rails.showConfirmationDialog(link);
     return false;
   };
+
   //User click confirm button
   $.rails.confirmed = function(link) {
     link.data('confirm', null);
     link.trigger('click.rails');
   };
+
   //Display the confirmation dialog
   $.rails.showConfirmationDialog = function(link) {
     var message = link.data('confirm');

@@ -12,91 +12,46 @@ var ConfirmationModal = function(
   this.cancelable = cancelable;
   this.text = text;
   this.html = '';
-  this.id =
-    Math.random()
-      .toString(36)
-      .substring(2, 15) +
-    Math.random()
-      .toString(36)
-      .substring(2, 15);
+  this.reveal;
+  this.confirmed = false;
+  this.overlay;
+
   this.setup();
 };
 
 ConfirmationModal.prototype.setup = function() {
-  // $('.confirmation-modal-overlay').remove();
   this.html =
-    '<div id="' + this.id + '" class="confirmation-modal-overlay" tabindex="-1"><div class="confirmation-modal">';
-  this.html += '<div class="confirmation-text">' + this.text + '</div>';
-  this.html += '<div class="confirmation-buttons">';
-  if (this.cancelable) this.html += '<a class="confirmation-cancel button" href="#" aria-label="Cancel" >Abbrechen</a>';
-  this.html +=
-    '<a href="#" class="confirmation-confirm button ' + this.buttonClass + '" aria-label="Confirm">Ok</a></div>';
-  this.html +=
-    '<button class="close-button" aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button>';
-  this.html += '</div></div>';
+    '<div class="reveal confirmation-modal" data-multiple-opened="true"><div class="confirmation-text">' +
+    this.text +
+    '</div><div class="confirmation-buttons">' +
+    (this.cancelable
+      ? '<a class="confirmation-cancel button" data-close href="#" aria-label="Cancel" >Abbrechen</a>'
+      : '') +
+    '<a href="#" class="confirmation-confirm button ' +
+    this.buttonClass +
+    '" aria-label="Confirm">Ok</a></div><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">×</span></button></div>';
 
-  $('body').addClass('no-overflow');
-  $(this.html)
-    .appendTo('body')
-    .focus()
-    .addClass('visible')
-    .one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', event =>
-      $(event.currentTarget).focus()
-    );
+  this.overlay = $(this.html).appendTo('body');
+  this.reveal = new Foundation.Reveal(this.overlay);
+  this.reveal.open();
   this.addEvents();
 };
 
 ConfirmationModal.prototype.addEvents = function() {
-  var self = this;
-  $('#' + this.id).on('click', event => {
-    if (event.target !== event.currentTarget) return;
-    this.cancel();
-  });
-  $('#' + this.id + ' .close-button, #' + this.id + ' .confirmation-cancel').on('click', this.cancel.bind(this));
-
-  $('#' + this.id + ' .confirmation-confirm').on('click', this.confirm.bind(this));
-  // TODO: refactor for multiple overlays
-  // $(document).on('keydown', function (event) {
-  //   event.preventDefault();
-  //   event.stopImmediatePropagation();
-  //   if (event.which == 13) self.confirm();
-  //   else if (event.which == 27) self.cancel();
-  // });
+  this.overlay.find('.confirmation-confirm').on('click', this.confirm.bind(this));
+  this.overlay.on('closed.zf.reveal', this.cancel.bind(this));
 };
 
 ConfirmationModal.prototype.cancel = function() {
-  this.close();
-  if (this.cancelCallback != null) this.cancelCallback();
+  this.overlay.parent('.reveal-overlay').remove();
+  if (!this.confirmed && this.cancelCallback != null) this.cancelCallback();
 };
 
 ConfirmationModal.prototype.confirm = function() {
-  this.close();
-  if (this.confirmationCallback != null) this.confirmationCallback();
-};
-
-ConfirmationModal.prototype.close = function() {
-  $(
-    '#' +
-      this.id +
-      ', #' +
-      this.id +
-      '.close-button, #' +
-      this.id +
-      '.confirmation-cancel, #' +
-      this.id +
-      '.confirmation-confirm'
-  ).off('click');
-  // $(document).off('keydown');
-
-  $('#' + this.id)
-    .removeClass('visible')
-    .one('webkitTransitionEnd otransitionend oTransitionEnd msTransitionEnd transitionend', event => {
-      $(event.currentTarget).remove();
-
-      if (!$('.confirmation-modal-overlay').length) {
-        $('body').removeClass('no-overflow');
-      }
-    });
+  let close = !this.confirmed;
+  this.confirmed = true;
+  this.reveal.close();
+  if (this.confirmationCallback != null && close) this.confirmationCallback();
 };
 
 module.exports = ConfirmationModal;

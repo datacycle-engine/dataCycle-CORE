@@ -79,7 +79,7 @@ module DataCycleCore
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil, default_value_function = nil)
           if (condition_function.present? && !condition_function.call(data_hash)) || key_function.call(data_hash).blank?
-            return data_hash if default_value_function.presence&.call(data_hash).blank?
+            return data_hash if default_value_function.presence&.call(data_hash).blank? || data_hash[attribute].present?
 
             data_hash.merge(
               {

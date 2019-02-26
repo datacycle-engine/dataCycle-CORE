@@ -1118,6 +1118,8 @@ body .v-select {
 }
 
 .reveal {
+  border: none;
+  box-shadow: 0 0 3px rgba($black, 0.3);
   .buttons {
     text-align: right;
   }
