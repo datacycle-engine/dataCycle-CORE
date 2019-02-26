@@ -29,7 +29,6 @@ module DataCycleCore
 
       def import_content(import_config:, data_name:, data:, locale:)
         return if import_config.blank? || data_name.blank? || data.blank? || locale.blank?
-
         full_options = (external_source.default_options || {}).symbolize_keys.merge({ import: import_config.dig(data_name).symbolize_keys.except(:sorting) })
         locales = full_options[:locales] || full_options[:import][:locales] || I18n.available_locales
         import_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: external_source, locales: locales))
