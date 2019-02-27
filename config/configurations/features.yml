@@ -56,3 +56,18 @@
 
 :duplicate_content:
   :enabled: false
+
+:image_optimizer:
+  :enabled: true
+  :config:
+    :pngout: false
+    :svgo: false
+    :advpng: false
+    :gifsicle:
+      :careful: true
+    :optipng:
+      :strip: false
+    :jpegtran:
+      :copy_chunks: true
+    :jpegoptim:
+      :strip: :comments

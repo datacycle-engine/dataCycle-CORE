@@ -141,9 +141,6 @@ module DataCycleCore
 
     mattr_accessor :content_warnings
     self.content_warnings = {}
-
-    mattr_accessor :image_optimizer_config
-    self.image_optimizer_config = {}
   end
 
   def self.setup
