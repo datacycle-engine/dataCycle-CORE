@@ -81,6 +81,24 @@ module DataCycleCore
           assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(3, DataCycleCore::ContentContent.count)
         end
+
+        test 'add a new embedded in one language to main' do
+          data_set = @data_set
+          I18n.with_locale(:en) do
+            embedded_en = data_set.embedded_creative_work.first
+            data_set.set_data_hash(data_hash: { 'name' => 'English2', 'embedded_creative_work' => [{ 'id' => embedded_en.id }, { 'name' => 'English2' }] }, prevent_history: true)
+          end
+
+          assert_equal([:de, :en], data_set.available_locales.sort)
+          assert_equal(3, data_set.load_embedded_objects('embedded_creative_work', false).size)
+          assert_equal(1, data_set.embedded_creative_work.size)
+          I18n.with_locale(:en) { assert_equal(2, data_set.embedded_creative_work.size) }
+
+          # check consistency of data in DB
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
+          assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(3, DataCycleCore::ContentContent.count)
+        end
       end
     end
   end
