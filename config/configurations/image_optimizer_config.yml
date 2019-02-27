@@ -1,0 +1,11 @@
+:pngout: false
+:svgo: false
+:advpng: false
+:gifsicle:
+  :careful: true
+:optipng:
+  :strip: false
+:jpegtran:
+  :copy_chunks: true
+:jpegoptim:
+  :strip: false

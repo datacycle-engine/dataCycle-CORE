@@ -62,6 +62,9 @@ require 'ruby-progressbar'
 
 require 'premailer'
 
+# Image Optimizer
+require 'image_optim'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -98,68 +101,7 @@ module DataCycleCore
 
     # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
-    self.features = {
-      publication_schedule: {
-        enabled: false
-      },
-      overlay: {
-        enabled: false,
-        attribute_keys: ['overlay']
-      },
-      releasable: {
-        enabled: false,
-        attribute_keys: [
-          'release_status_id',
-          'release_status_comment'
-        ],
-        classification_names: {
-          valid: 'freigegeben',
-          partner: 'beim Partner',
-          review: 'in Review',
-          archive: 'archiviert'
-        }
-      },
-      life_cycle: {
-        enabled: false
-      },
-      idea_collection: {
-        enabled: false
-      },
-      container: {
-        enabled: false
-      },
-      main_filter: {
-        enabled: true,
-        classification_alias_ids: ['Inhaltstypen'],
-        autoload_last_filter: false
-      },
-      advanced_filter: {
-        enabled: true,
-        classification_alias_ids: 'all',
-        external_source: true,
-        creator: true
-      },
-      geocode: {
-        enabled: false,
-        attribute_keys: []
-      },
-      gpx_converter: {
-        enabled: true
-      },
-      external_media_archive: {
-        enabled: false,
-        template_mapping: {
-          bild: 'image',
-          video: 'video'
-        }
-      },
-      normalize: {
-        enabled: false
-      },
-      duplicate_content: {
-        enabled: false
-      }
-    }
+    self.features = {}
 
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
@@ -195,14 +137,13 @@ module DataCycleCore
     self.uploader_validations = {}
 
     mattr_accessor :default_map_position
-    self.default_map_position = {
-      longitude: 14.128417968749998,
-      latitude: 47.41520280002081,
-      zoom: 7
-    }
+    self.default_map_position = {}
 
     mattr_accessor :content_warnings
     self.content_warnings = {}
+
+    mattr_accessor :image_optimizer_config
+    self.image_optimizer_config = {}
   end
 
   def self.setup

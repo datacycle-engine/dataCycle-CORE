@@ -86,6 +86,10 @@ Gem::Specification.new do |s|
   s.add_dependency 'streamio-ffmpeg'
   s.add_dependency 'taglib-ruby'
 
+  # Image Optimization
+  s.add_dependency 'image_optim'
+  s.add_dependency 'image_optim_pack'
+
   s.add_dependency 'globalize', '~> 5.1.0'
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
