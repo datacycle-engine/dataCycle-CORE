@@ -36,7 +36,7 @@ module DataCycleCore
           # delete embedded
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
-          error = data_set.set_data_hash(data_hash: data_hash)
+          error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
           data_set.save
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations

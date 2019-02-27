@@ -70,10 +70,6 @@ module DataCycleCore
         users: {}
       }
 
-    def self.dummy
-      @dummy_data_hash
-    end
-
     # only for local testing
     def self.cli_options
       options = {}

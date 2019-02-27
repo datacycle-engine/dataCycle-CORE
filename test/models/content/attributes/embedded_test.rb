@@ -80,7 +80,7 @@ module DataCycleCore
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
-        test 'insert multiple embedded(embedded includes linked from other table) then delete embedded' do
+        test 'insert multiple embedded(embedded includes linked) then delete embedded' do
           data_set = @data_set
           linked_id = @linked_objects.first
 
@@ -140,7 +140,7 @@ module DataCycleCore
           assert_equal(0, DataCycleCore::ContentContent.count)
         end
 
-        test 'insert embeddedObject within same table then add another quotation and change order' do
+        test 'insert embeddedObject, then add another quotation and change order' do
           data_set = @data_set
           linked_id = @linked_objects.first
 

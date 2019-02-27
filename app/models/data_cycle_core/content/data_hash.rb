@@ -129,7 +129,7 @@ module DataCycleCore
         when 'linked'
           set_linked(key, value)
         when 'embedded'
-          set_embedded(key, value, properties['template_name'])
+          set_embedded(key, value, properties['template_name'], properties['translated'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -202,9 +202,8 @@ module DataCycleCore
         end
 
         item_ids_to_delete = item_ids_before_update - item_ids_after_update
-
         return if item_ids_to_delete.size.zero?
-        # destroy relations
+
         DataCycleCore::ContentContent
           .where({
             content_a_id: id,
@@ -222,9 +221,9 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, name)
+      def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -257,15 +256,10 @@ module DataCycleCore
 
         potentially_delete = available_update_item_keys - updated_item_keys
         potentially_delete.each do |key|
+          # fully destroy all remaining embedded!
           item = DataCycleCore::Thing.find_by(id: key)
-          translations = item.translated_locales
-          if (translations - [I18n.locale]).empty?
-            item.destroy_children
-            item.destroy
-          else
-            # only destroy particular translation !
-            item.translation.destroy
-          end
+          item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
+          item.destroy
         end
       end
 
