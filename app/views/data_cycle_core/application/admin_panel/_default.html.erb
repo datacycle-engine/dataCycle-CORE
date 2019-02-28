@@ -41,16 +41,16 @@
                 <button class="copy-to-admin-clipboard">COPY</button>
             </section>
             <%
-                related_to = DataCycleCore::ContentContent.where(content_b_id: content).map do |to_item|
+                related = content.related_to.map do |to_item|
                   {
-                    id: to_item.content_a.id,
-                    template_name: to_item.content_a.template_name,
-                    name: to_item.content_a.name,
+                    id: to_item.id,
+                    template_name: to_item.template_name,
+                    name: to_item.name,
                   }
                 end
-
+                
             %>
-            <pre id="json"><code><%= JSON.pretty_generate(related_to) %></code></pre>
+            <pre id="json"><code><%= JSON.pretty_generate(related) %></code></pre>
         </section>
     </section>
 </section>
