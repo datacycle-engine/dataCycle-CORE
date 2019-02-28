@@ -10,7 +10,7 @@ module DataCycleCore
           @csv_file = options.dig(:options, :filename)
         end
 
-        def external_categories(lang: :de)
+        def csv_categories(lang: :de)
           Enumerator.new do |yielder|
             load_data(@csv_file, lang).each do |category_data|
               yielder << {
@@ -30,14 +30,13 @@ module DataCycleCore
 
           all_items = []
           parents = csv.values_at('parent')
-          parents.map(&:first).uniq.each do |value|
+          parents&.map(&:first)&.uniq&.compact&.each do |value|
             all_items << {
               'key' => Digest::MD5.new.update(value).hexdigest,
               'name' => value,
               'parent' => nil
             }
           end
-
           csv.each do |row|
             all_items << row.to_h
           end
