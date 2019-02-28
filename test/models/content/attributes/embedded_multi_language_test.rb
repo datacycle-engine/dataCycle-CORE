@@ -77,6 +77,38 @@ module DataCycleCore
           assert_equal(1, DataCycleCore::ContentContent.count)
         end
 
+        test 'add a new translation to main and a new embedded - old embedded deleted' do
+          data_set = @data_set_multi
+          I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
+
+          assert_equal([:de, :en, :fr], data_set.available_locales.sort)
+          I18n.with_locale(:de) do
+            assert_equal(1, data_set.embedded_creative_work.count) # default get data of any language
+            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count) # default get data of any language
+            assert_equal(0, data_set.load_relation('embedded_creative_work', true).count)
+          end
+          I18n.with_locale(:en) do
+            assert_equal(1, data_set.embedded_creative_work.count)
+            assert_equal(0, data_set.load_relation('embedded_creative_work', true).count)
+          end
+          I18n.with_locale(:fr) do
+            assert_equal(1, data_set.embedded_creative_work.count)
+            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count)
+            assert_equal(1, data_set.load_relation('embedded_creative_work', true).count)
+            assert_equal([:fr], data_set.embedded_creative_work.first.available_locales.sort)
+          end
+          I18n.with_locale(:xx) do
+            assert_equal(1, data_set.embedded_creative_work.count)
+            assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count)
+            assert_equal(0, data_set.load_relation('embedded_creative_work', true).count)
+          end
+
+          # check consistency of data in DB
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
+          assert_equal(1, DataCycleCore::ContentContent.count)
+        end
+
         test 'add a new embedded to main' do
           data_set = @data_set_multi
           I18n.with_locale(:en) do
@@ -86,8 +118,7 @@ module DataCycleCore
             )
           end
 
-          assert_equal(1, data_set.embedded_creative_work.count)
-          I18n.with_locale(:en) { assert_equal(2, data_set.embedded_creative_work.count) }
+          assert_equal(2, data_set.embedded_creative_work.count)
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-2').count)
@@ -104,8 +135,8 @@ module DataCycleCore
             )
           end
 
-          assert_equal(0, data_set.embedded_creative_work.count)
-          I18n.with_locale(:en) { assert_equal(1, data_set.embedded_creative_work.count) }
+          assert_equal(1, data_set.embedded_creative_work.count)
+          I18n.with_locale(:en) { assert_equal('English2', data_set.embedded_creative_work.first.name) }
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-2').count)

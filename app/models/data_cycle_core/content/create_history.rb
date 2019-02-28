@@ -31,7 +31,7 @@ module DataCycleCore
         end
 
         embedded_property_names.each do |content_name|
-          load_embedded_objects(content_name, false).each_with_index do |content_item, index|
+          load_embedded_objects(content_name).each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,

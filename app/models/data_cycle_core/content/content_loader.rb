@@ -19,14 +19,18 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name, same_language = false)
-        load_relation(relation_name, same_language)
+        language_flag = same_language
+        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties_for(relation_name).dig('linked_language').present?
+        load_relation(relation_name, language_flag)
       end
 
       def load_embedded_objects(relation_name, same_language = true)
-        load_relation(relation_name, same_language)
+        language_flag = same_language
+        language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
+        load_relation(relation_name, language_flag)
       end
 
-      def load_relation(relation_name, same_language = false)
+      def load_relation(relation_name, same_language)
         relation_contents = DataCycleCore::Thing
           .joins(:content_content_b)
           .where({
@@ -35,7 +39,7 @@ module DataCycleCore
               relation_a: relation_name
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same' || same_language
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
         relation_contents.order('content_contents.order_a ASC')
       end
 
