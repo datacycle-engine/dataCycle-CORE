@@ -27,6 +27,7 @@ module DataCycleCore
       def load_embedded_objects(relation_name, same_language = true)
         language_flag = same_language
         language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
+        language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
         load_relation(relation_name, language_flag)
       end
 
