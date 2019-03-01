@@ -1764,16 +1764,17 @@ input.normalized {
 /* Lists */
 section.related-objects {
   margin: 2rem 0 5rem 0;
-  ul.list {
+  ul {
     list-style: none;
     margin: 0;
     padding: 0;
     > li {
       box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
       transition: all ease-in-out 0.2s;
-      background: $white;
+      background: lighten($primary-color, 50%);
       -webkit-filter: blur(0);
       padding: 1rem;
+      margin-bottom: 1rem;
 
       &.expired-item {
         box-shadow: 0 1px 8px $alert-color;
@@ -1783,12 +1784,25 @@ section.related-objects {
           box-shadow: 0 1px 25px $alert-color;
         }
       }
-
+      > ul{
+        margin-top: 1rem;
+        li{
+          background: $white;
+        }
+        li:last-child{
+          margin-bottom: 0;
+        }
+      }
       .buttons {
         float: right;
         > * {
           margin-right: 0.5rem;
         }
+      }
+
+      a{
+        font-weight: normal;
+        color: $black;
       }
 
     }
