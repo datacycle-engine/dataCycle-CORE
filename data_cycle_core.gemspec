@@ -87,6 +87,8 @@ Gem::Specification.new do |s|
   s.add_dependency 'taglib-ruby'
 
   s.add_dependency 'globalize', '~> 5.1.0'
+  # s.add_dependency 'translate', path: 'vendor/gems/translate'
+
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'

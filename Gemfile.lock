@@ -59,6 +59,13 @@ PATH
       transproc (~> 1.0)
       whenever
 
+PATH
+  remote: vendor/gems/translations
+  specs:
+    translations (0.0.1)
+      i18n (>= 0.6.10, < 2)
+      request_store (~> 1.0)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -477,6 +484,7 @@ DEPENDENCIES
   simplecov
   spring
   spring-watcher-listen
+  translations!
   web-console
 
 RUBY VERSION
