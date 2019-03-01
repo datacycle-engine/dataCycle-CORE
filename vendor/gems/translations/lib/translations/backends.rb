@@ -4,7 +4,6 @@ module Translations
   module Backends
     class << self
       def load_backend(backend)
-        puts "in: Translations::Backends.load_backend(#{backend})"
         return backend if backend.is_a?(::Module)
         require "translations/backends/#{backend}"
         Translations.get_class_from_key(self, backend)

@@ -88,7 +88,6 @@ module Translations
       end
 
       def for(model_class)
-        puts "in: Translations::Backend.for(#{model_class})"
         raise ArgumentError, "#{namespace.last} backend can only be used by ActiveRecord models" unless model_class < ::ActiveRecord::Base
         # DataCycleCore::Translations::Backends::Jsonb # only one backend supported for now
         require 'translations/backends/jsonb'
