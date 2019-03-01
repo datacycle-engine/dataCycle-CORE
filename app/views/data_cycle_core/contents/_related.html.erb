@@ -1,8 +1,9 @@
 <%
     related_objects = content.related_to.uniq {|item| item.id}
+    if related_objects.count.positive?
 %>
 <section class="related-objects">
-    <h2>Related Items</h2>
+    <h2>Related Items (<%= related_objects.count %>)</h2>
 
     <ul class="list">
         <% related_objects.presence&.each do |item| %>
@@ -25,3 +26,4 @@
         <% end %>
     </ul>
 </section>
+<% end %>
