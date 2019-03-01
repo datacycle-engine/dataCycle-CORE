@@ -87,5 +87,5 @@ DataCycleCore.setup do |config|
 
   config.webhooks = ['Local-Text-File', 'OutdoorActive']
 
-  config.webhooks = ['Local-Text-File'] if Rails.env.test?
+  config.webhooks = ['Local-Text-File'] if Rails.env.test? || Rails.env.staging?
 end

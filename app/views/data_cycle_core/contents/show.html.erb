@@ -27,6 +27,7 @@
     <% end %>
 <% else %>
     <%= render_content_partial 'details', content: @content %>
+    <%= render 'related', content: @content, options: options ||= {} if can?(:show_related, @content) %>
 <% end %>
 
 <% content_for :admin_panel do %>

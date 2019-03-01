@@ -1,0 +1,9 @@
+<%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content %>
+<%= render 'data_cycle_core/contents/viewers/shared/buttons', content: content, definition: {'type' => 'linked'} %>
+
+<% I18n.with_locale(content.first_available_locale) do %>
+
+    <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content %>
+    <%= tag.span "#{content.title} (#{I18n.locale.to_s})", class: 'name' if content.try(:title).present? %>
+
+<% end %>

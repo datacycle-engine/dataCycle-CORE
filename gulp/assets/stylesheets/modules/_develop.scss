@@ -1760,3 +1760,37 @@ input.normalized {
     }
   }
 }
+
+/* Lists */
+section.related-objects {
+  margin: 2rem 0 5rem 0;
+  ul.list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    > li {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: all ease-in-out 0.2s;
+      background: $white;
+      -webkit-filter: blur(0);
+      padding: 1rem;
+
+      &.expired-item {
+        box-shadow: 0 1px 8px $alert-color;
+
+        &:hover,
+        &:focus {
+          box-shadow: 0 1px 25px $alert-color;
+        }
+      }
+
+      .buttons {
+        float: right;
+        > * {
+          margin-right: 0.5rem;
+        }
+      }
+
+    }
+  }
+}

@@ -1,0 +1,27 @@
+<%
+    related_objects = content.related_to.uniq {|item| item.id}
+%>
+<section class="related-objects">
+    <h2>Related Items</h2>
+
+    <ul class="list">
+        <% related_objects.presence&.each do |item| %>
+            <li class="<%= [
+                               'list-item',
+                               'content',
+                               item.class.name.demodulize.underscore.dasherize,
+                               item.schema_type&.underscore&.dasherize,
+                               item.template_name.underscore.dasherize,
+                               (item.hard_content_warnings? ? 'hard-warnings' : nil)
+                           ].compact.join(' ') %>" data-id="<%= [item.id] %>">
+
+                <%= render_first_existing_partial [
+                                                      "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
+                                                      "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
+                                                      'data_cycle_core/contents/viewers/lists/default'
+                                                  ], local_assigns.merge({content: item})
+                %>
+            </li>
+        <% end %>
+    </ul>
+</section>

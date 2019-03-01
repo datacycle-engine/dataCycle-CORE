@@ -9,9 +9,6 @@
         <a data-toggle="datahash">
             <i class="fa fa-hashtag"></i>
         </a>
-        <a data-toggle="related-content">
-            <i class="fa fa-sitemap"></i>
-        </a>
     </nav>
     <section id="admin-inner">
         <section id="schema" data-toggler=".expanded">
@@ -35,22 +32,6 @@
                 }.merge(content.get_data_hash)
             %>
 <pre id="json"><code><%= JSON.pretty_generate(admin_data_hash) %></code></pre>
-        </section>
-        <section id="related-content" data-toggler=".expanded">
-            <section class="json-api-nav">
-                <button class="copy-to-admin-clipboard">COPY</button>
-            </section>
-            <%
-                related = content.related_to.map do |to_item|
-                  {
-                    id: to_item.id,
-                    template_name: to_item.template_name,
-                    name: to_item.name,
-                  }
-                end
-                
-            %>
-            <pre id="json"><code><%= JSON.pretty_generate(related) %></code></pre>
         </section>
     </section>
 </section>
