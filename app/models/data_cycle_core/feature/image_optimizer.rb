@@ -14,7 +14,7 @@ module DataCycleCore
 
         def optimize?(version)
           version ||= :original
-          optimize_versions.blank? || optimize_versions.include?(version.to_s)
+          enabled? && (optimize_versions.blank? || optimize_versions.include?(version.to_s))
         end
 
         def version_regex

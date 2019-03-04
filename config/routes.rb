@@ -16,6 +16,11 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
 
+  get '/assets/:klass/:id/:version/:file', to: 'missing_asset#show', constraints: {
+    klass: /(image|audio|video|pdf|text_file)/,
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
+
   get '/schema', to: 'schema#index'
 
   get  '/info', to: 'frontend#info'
