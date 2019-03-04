@@ -5,7 +5,7 @@ module DataCycleCore
     belongs_to :content_data, class_name: 'DataCycleCore::Thing'
     belongs_to :asset, dependent: :destroy
 
-    after_create { asset.create_dynamic_versions }
+    after_create { asset&.create_dynamic_versions }
 
     class << self
       def with_content(content_id, content_type)
