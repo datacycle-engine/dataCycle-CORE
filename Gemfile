@@ -15,6 +15,7 @@ end
 gemspec
 
 gem 'translations', path: 'vendor/gems/translations'
+
 # NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
 gem 'rubyzip', '>= 1.2.1'
 gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'

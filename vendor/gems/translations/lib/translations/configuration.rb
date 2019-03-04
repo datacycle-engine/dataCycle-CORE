@@ -48,7 +48,9 @@ module Translations
 
     class Options < ::Hash
       def []=(key, _)
-        raise Configuration::ReservedOptionKey, "Default options may not contain the following reserved key: #{key}" if RESERVED_OPTION_KEYS.include?(key)
+        if RESERVED_OPTION_KEYS.include?(key)
+          raise Configuration::ReservedOptionKey, "Default options may not contain the following reserved key: #{key}" if RESERVED_OPTION_KEYS.include?(key)
+        end
         super
       end
     end
