@@ -13,6 +13,10 @@ module Translations
   require 'translations/plugin'
   require 'translations/plugins'
   require 'translations/translates'
+
+  require 'rails'
+  require 'active_record'
+  # require 'translations/active_model'
   require 'translations/active_record'
 
   class << self
@@ -57,14 +61,12 @@ module Translations
     end
     alias normalized_locale normalize_locale
 
-    def normalize_locale_accessor(attribute, locale = I18n.locale)
-      "#{attribute}_#{normalize_locale(locale)}".tap do |accessor|
-        raise ArgumentError, "#{accessor.inspect} is not a valid accessor" unless CALL_COMPILABLE_REGEXP.match?(accessor)
-      end
-    end
-
     def available_locales
       I18n.available_locales
+    end
+
+    def enforce_available_locales!(locale)
+      raise Translations::InvalidLocale, locale unless available_locales.include?(locale.to_sym)
     end
   end
 
@@ -74,5 +76,6 @@ module Translations
     end
   end
 
+  class InvalidLocale < I18n::InvalidLocale; end
   class NotImplementedError < StandardError; end
 end

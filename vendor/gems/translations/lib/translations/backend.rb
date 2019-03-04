@@ -87,10 +87,7 @@ module Translations
         EOM
       end
 
-      def for(model_class)
-        raise ArgumentError, "#{namespace.last} backend can only be used by ActiveRecord models" unless model_class < ::ActiveRecord::Base
-        # DataCycleCore::Translations::Backends::Jsonb # only one backend supported for now
-        require 'translations/backends/jsonb'
+      def for(_model_class)
         self
       end
 

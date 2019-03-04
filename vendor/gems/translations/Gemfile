@@ -7,7 +7,7 @@ gemspec
 group :development, :test do
   gem 'activerecord', '>= 5.0', '< 5.1'
   gem 'generator_spec', '~> 0.9.4'
-
+  gem 'awesome_print'
   gem 'allocation_stats' if ENV['TEST_PERFORMANCE']
 
   platforms :ruby do

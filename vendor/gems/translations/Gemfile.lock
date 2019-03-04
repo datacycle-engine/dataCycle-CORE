@@ -33,6 +33,7 @@ GEM
       minitest (~> 5.1)
       tzinfo (~> 1.1)
     arel (7.1.4)
+    awesome_print (1.8.0)
     benchmark-ips (2.7.2)
     builder (3.2.3)
     byebug (11.0.0)
@@ -135,6 +136,7 @@ PLATFORMS
 
 DEPENDENCIES
   activerecord (>= 5.0, < 5.1)
+  awesome_print
   benchmark-ips
   database_cleaner (~> 1.5, >= 1.5.3)
   generator_spec (~> 0.9.4)

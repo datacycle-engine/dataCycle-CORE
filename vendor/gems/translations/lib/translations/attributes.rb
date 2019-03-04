@@ -106,7 +106,7 @@ module Translations
       end
 
       def initialize_dup(other)
-        @trnaslation_backends = nil
+        @translation_backends = nil
         super
       end
     end
@@ -138,8 +138,9 @@ module Translations
             mod.names.each { |attribute_name| self[attribute_name.to_sym] = mod.backend_class }
           end
 
-          super() do |hash, attribute_name|
-            raise KeyError, "No backend for: #{attribute_name}." unless (mod = klass.translation_modules.find { |m| m.attribute_names.include? attribute_name.to_s })
+          super() do |hash, name|
+            mod = klass.translation_modules.find { |m| m.names.include? name.to_s }
+            raise KeyError, "No backend for: #{name}." if mod.blank?
             hash[name] = mod.backend_class
           end
         end
