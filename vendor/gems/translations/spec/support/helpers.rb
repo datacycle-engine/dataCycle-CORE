@@ -39,7 +39,7 @@ module Helpers
 
   module Backend
     def include_backend_examples(*args)
-      it_behaves_like 'Mobility backend', *args
+      it_behaves_like 'Translations backend', *args
     end
 
     def include_dup_examples(*args)

@@ -12,11 +12,6 @@ module Translations
 
             # don't really need this, but let's return something relevant
             ::ActiveRecord::Base.connection
-          when 'sequel'
-            adapter = config[driver]['adapter'].gsub(/^sqlite3$/, 'sqlite')
-            user = config[driver]['username']
-            database = config[driver]['database']
-            ::Sequel.connect(adapter: adapter, database: database, username: user)
           end
         end
 

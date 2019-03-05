@@ -43,7 +43,7 @@ unless orm == 'none'
   DatabaseCleaner.strategy = :transaction
 
   DB = Translations::Test::Database.connect(orm)
-  DB.extension :pg_json if db == 'postgres'
+  # DB.extension :pg_json if db == 'postgres'
   # for in-memory sqlite database
   Translations::Test::Database.auto_migrate
 

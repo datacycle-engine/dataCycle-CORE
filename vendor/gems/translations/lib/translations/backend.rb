@@ -16,7 +16,7 @@ module Translations
     end
 
     def each
-      each_locale { |locale| yield TranslationItem.new(self, locale) }
+      each_locale { |locale| yield Translation.new(self, locale) }
     end
 
     def locales
@@ -100,7 +100,7 @@ module Translations
       end
     end
 
-    TranslationItem = Struct.new(:backend, :locale) do
+    Translation = Struct.new(:backend, :locale) do
       def read(options = {})
         backend.read(locale, options)
       end

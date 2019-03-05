@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-module Mobility
+module Translations
   module Test
     parent_class = ::ActiveRecord::Migration[[::ActiveRecord::VERSION::MAJOR, ::ActiveRecord::VERSION::MINOR].join('.')]
     class Schema < parent_class

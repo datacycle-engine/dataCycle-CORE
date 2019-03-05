@@ -10,4 +10,4 @@ postgres:
 sqlite3:
   adapter: sqlite3
   database: ":memory:"
-encoding: utf8
+  encoding: utf8
