@@ -8,6 +8,7 @@ unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   SimpleCov.start 'rails' do
     # exclude cache folder for gitlab-ci
     add_filter '/cache/'
+    add_filter 'vendor'
   end
   SimpleCov.at_exit do
     puts "\n"
