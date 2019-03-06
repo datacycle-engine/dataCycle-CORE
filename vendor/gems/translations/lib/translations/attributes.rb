@@ -105,6 +105,11 @@ module Translations
         end
       end
 
+      def available_locales
+        raise NotImplementedError, 'available_locales is only available for :table backend' unless respond_to?(:translations)
+        translations.pluck(:locale)
+      end
+
       def initialize_dup(other)
         @translation_backends = nil
         super

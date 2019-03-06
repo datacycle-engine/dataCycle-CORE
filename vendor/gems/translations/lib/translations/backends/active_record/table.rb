@@ -149,6 +149,8 @@ module Translations
         end
 
         def translation_for(locale, _)
+          # puts "#{locale.class}"
+          # puts "translation_for(#{locale}) --> #{translations.in_locale(locale)}"
           translation = translations.in_locale(locale)
           translation ||= translations.build(locale: locale)
           translation
@@ -156,8 +158,7 @@ module Translations
 
         module TranslationsHasManyExtension
           def in_locale(locale)
-            locale = locale.to_s
-            find { |t| t.locale == locale }
+            find { |t| t.locale.to_s == locale.to_s }
           end
 
           def destroy_empty_translations(required_attributes)

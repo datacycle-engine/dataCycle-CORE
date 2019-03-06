@@ -22,9 +22,9 @@ module DataCycleCore
       end
     end
 
-    # extend ::Translations
-    # translates :name, :description, column_suffix: '_i18n', backend: :jsonb
-    # default_scope { i18n }
+    extend ::Translations
+    translates :name, :description, column_suffix: '_i18n', backend: :jsonb
+    default_scope { i18n }
     before_save :set_internal_data
 
     attr_accessor :content_template

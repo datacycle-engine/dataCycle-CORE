@@ -8,10 +8,12 @@ module Translations
       extend Translations::Backend::OrmDelegator
 
       def read(locale, options = {})
+        # puts "read(#{attribute}): translation_for(#{locale}, #{options})"
         translation_for(locale, options).send(attribute)
       end
 
       def write(locale, value, options = {})
+        # puts "write(#{attribute}): translation_for(#{locale}, #{value}, #{options})"
         translation_for(locale, options).send("#{attribute}=", value)
       end
 
@@ -50,6 +52,7 @@ module Translations
 
       module Cache
         def translation_for(locale, **options)
+          # puts "Cache: translation_for(#{locale}, #{options})"
           return super(locale, options) if options.delete(:cache) == false
           if cache.key?(locale)
             cache[locale]
