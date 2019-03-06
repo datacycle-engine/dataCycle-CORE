@@ -1,5 +1,7 @@
 # frozen_string_literal: true
 
+require 'translations/backend/orm_delegator'
+
 module Translations
   module Backend
     include Enumerable
@@ -64,7 +66,8 @@ module Translations
       end
 
       def setup_model(model_class, attribute_names)
-        return unless (setup_block = @setup_block)
+        setup_block = @setup_block
+        return unless setup_block
         model_class.class_exec(attribute_names, options, &setup_block)
       end
 

@@ -3,9 +3,9 @@
 require 'translations/arel/nodes'
 require 'translations/arel/visitor'
 
-module Translates
+module Translations
   module Arel
-    module TranslatesExpressions
+    module TranslationsExpressions
       include ::Arel::Expressions
 
       # @note This is necessary in order to ensure that when a translated
@@ -33,7 +33,7 @@ module Translates
     end
 
     class Attribute < ::Arel::Attributes::Attribute
-      include TranslatesExpressions
+      include TranslationsExpressions
 
       attr_reader :backend_class
       attr_reader :locale

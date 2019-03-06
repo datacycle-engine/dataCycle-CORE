@@ -22,11 +22,9 @@ require 'translations/backends/null'
 
 # Enable default plugins
 Translations.configure do |config|
-  config.plugins(:query)
-  # :cache,
+  config.plugins(:query, :cache, :attribute_methods)
   # :dirty,
-  # :presence,
-  # :default
+  # :presence
 end
 
 I18n.enforce_available_locales = true

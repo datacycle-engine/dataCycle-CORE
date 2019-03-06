@@ -273,7 +273,7 @@ shared_examples_for 'AR Model with translated scope' do |model_class_name, a1 = 
     end
 
     it 'orders records correctly with 2-key hash argument' do
-      skip "Not supported by #{backend_name}" if [:table, :key_value].include?(backend_name)
+      skip "Not supported by #{backend_name}" if [:table].include?(backend_name)
 
       added = model_class.create(a1 => 'foo2', a2 => 'foo2')
       expect(query_scope.order(a1 => :desc, a2 => :asc)).to eq([i[3], i[1], added, i[2], i[0]])

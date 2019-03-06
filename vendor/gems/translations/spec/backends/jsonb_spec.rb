@@ -2,8 +2,8 @@
 
 require 'spec_helper'
 
-describe 'Translations::Backends::Jsonb', orm: :active_record, db: :postgres do
-  require 'translations/backends/jsonb'
+describe 'Translations::Backends::ActiveRecord::Jsonb', orm: :active_record, db: :postgres do
+  require 'translations/backends/active_record/jsonb'
   extend Helpers::ActiveRecord
   before do
     stub_const 'JsonbPost', Class.new(::ActiveRecord::Base)
@@ -27,12 +27,12 @@ describe 'Translations::Backends::Jsonb', orm: :active_record, db: :postgres do
     before { JsonbPost.translates :title, :content, backend: :jsonb, **default_options }
     let(:post) { JsonbPost.new }
 
-    # include_accessor_examples 'JsonbPost'
-    # include_serialization_examples 'JsonbPost', column_affix: column_affix
+    include_accessor_examples 'JsonbPost'
+    include_serialization_examples 'JsonbPost', column_affix: column_affix
     include_querying_examples 'JsonbPost'
-    # include_validation_examples 'JsonbPost'
-    # include_dup_examples 'JsonbPost'
-    # include_cache_key_examples 'JsonbPost'
+    include_validation_examples 'JsonbPost'
+    include_dup_examples 'JsonbPost'
+    include_cache_key_examples 'JsonbPost'
 
     it 'uses existence operator instead of NULL match' do
       aggregate_failures do

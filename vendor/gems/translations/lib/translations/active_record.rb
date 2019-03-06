@@ -11,7 +11,7 @@ module Translations
       model_class.class_eval do
         unless const_defined?(:UniquenessValidator)
           const_set(:UniquenessValidator,
-                    Class.new(Translations::ActiveRecord::UniquenessValidator))
+                    Class.new(::Translations::ActiveRecord::UniquenessValidator))
         end
         delegate :translated_attribute_names, to: :class
       end

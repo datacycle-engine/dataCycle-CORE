@@ -144,7 +144,7 @@ module Translations
                 keys[index] = backend_node(key)
                 if method_name == 'select'
                   keys[index] = keys[index]
-                    .as(Translations::Plugins::ActiveRecord::Query.attribute_alias(key.to_s))
+                    .as(::Translations::Plugins::ActiveRecord::Query.attribute_alias(key.to_s))
                 end
                 @klass.translation_backend_class(key).apply_scope(query, backend_node(key))
               end
@@ -212,7 +212,6 @@ module Translations
                 return yield if query_map == IDENTITY
 
                 relation = opts.empty? ? scope : yield(opts)
-
                 query_map[relation.where(predicates.inject(&:and))]
               end
 

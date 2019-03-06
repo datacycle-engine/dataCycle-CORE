@@ -7,7 +7,7 @@ module Translations
         klass = record.class
 
         if (([*options[:scope]] + [attribute]).map(&:to_s) & klass.translation_attributes).present?
-          return id if value.blank?
+          return if value.blank?
           relation = klass.unscoped.__translation_query_scope__ do |m|
             node = m.__send__(attribute)
             options[:case_sensitive] == false ? node.lower.eq(value.downcase) : node.eq(value)

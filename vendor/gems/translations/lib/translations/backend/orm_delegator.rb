@@ -16,7 +16,7 @@ module Translations
       private
 
       def require_backend(backend)
-        orm_backend = "translations/backends/#{backend}"
+        orm_backend = "translations/backends/active_record/#{backend}"
         require orm_backend
       rescue LoadError => e
         raise unless e.message =~ /#{orm_backend}/
