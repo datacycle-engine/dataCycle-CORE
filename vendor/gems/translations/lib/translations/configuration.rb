@@ -18,19 +18,9 @@ module Translations
 
     attr_accessor :default_backend
 
-    def default_accessor_locales
-      if @default_accessor_locales.is_a?(Proc)
-        @default_accessor_locales.call
-      else
-        @default_accessor_locales
-      end
-    end
-    attr_writer :default_accessor_locales
-
     def initialize
       @accessor_method = :translates
       @query_method = :i18n
-      @default_accessor_locales = -> { Translations.available_locales }
       @default_options = Options[{
         cache: true,
         presence: true,

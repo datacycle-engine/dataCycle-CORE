@@ -24,10 +24,10 @@ module DataCycleCore
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
-    translates :name, :description, :content
-    attribute :name
-    attribute :description
-    attribute :content
+    extend ::Translations
+    translates :name, :description, :content, backend: :table
+    default_scope { i18n }
+
     content_relations table_name: table_name
 
     has_many :thing_external_systems, dependent: :destroy

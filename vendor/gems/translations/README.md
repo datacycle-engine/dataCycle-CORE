@@ -66,8 +66,20 @@ I18.with_locale(:de) { classification.name }
 classification.name_i18n
 #=> { 'de' => 'Benutzer', 'en' => 'User' }
 ```
+Presence methods are also supported:
+```
+I18n.locale = :de
+classification.name?
+#=> true
+classification.name = nil
+classification.name?
+#=> false
+I18n.with_locale(:en) { classification.name? }
+#=> true
+```
 
-### Testing:
+
+## Testing:
 basic tests:
 ```
 > bundle exec rspec
