@@ -79,12 +79,14 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        translated_columns = (self.class.to_s + '::Translation').constantize.column_names
+        @translatable_property_names ||= begin
+          translated_columns = (self.class.to_s + '::Translation').constantize.column_names
 
-        property_definitions.select { |property_name, definition|
-          definition['storage_location'] == 'translated_value' ||
-            (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
-        }.keys
+          property_definitions.select { |property_name, definition|
+            definition['storage_location'] == 'translated_value' ||
+              (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+          }.keys
+        end
       end
 
       def untranslatable_property_names

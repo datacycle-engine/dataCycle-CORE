@@ -25,11 +25,26 @@ module DataCycleCore
               options.dig(:import, :transformations, :contributor),
               "MedienArchive - Person - #{raw_data.dig('contributor', 'id')}"
             )
+
             DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
               raw_data['director'],
               options.dig(:import, :transformations, :director),
               "MedienArchive - Person - #{raw_data.dig('director', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightPerson'],
+              options.dig(:import, :transformations, :copyright_person) || { template: 'Person' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightPerson', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightOrganization'],
+              options.dig(:import, :transformations, :copyright_organization) || { template: 'Organization' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightOrganization', 'id')}"
             )
           end
 

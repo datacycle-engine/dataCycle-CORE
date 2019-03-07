@@ -10,6 +10,7 @@ let Validator = function(form_element) {
   this.initial_form_data = [];
   this.submit_form_data = [];
   this.requests = [];
+  this.query_count = 0;
   this.valid = true;
 
   this.addEventHandlers();
@@ -17,11 +18,12 @@ let Validator = function(form_element) {
 
 Validator.prototype.addEventHandlers = function() {
   this.form.on('change validate.dc.formfield', '.validation-container', this.validateSingle.bind(this));
+  this.form.on('validate.dc.form', '*', this.validateForm.bind(this));
   this.form.on('remove-submit-button-errors', '.validation-container', event =>
     this.removeSubmitButtonErrors($(event.currentTarget))
   );
 
-  this.submit_button.on('click', this.validateForm.bind(this));
+  this.submit_button.on('click', () => this.form.trigger('submit'));
   this.form.on('submit', this.validateForm.bind(this));
 
   if (this.form.hasClass('edit-content-form')) {
@@ -41,19 +43,19 @@ Validator.prototype.closeError = function(event) {
     .remove();
 };
 
-Validator.prototype.validateSingle = function(event) {
+Validator.prototype.validateSingle = function(event, data) {
   this.requests = [this.validateItem(event.currentTarget)];
-  this.resolveRequests();
+  this.resolveRequests(false, data);
 };
 
 Validator.prototype.finalizeUpdate = function() {};
 
 Validator.prototype.pageLeaveWarning = function() {
-  quill_helpers.update_editors();
+  quill_helpers.update_editors(this.form);
   this.initial_form_data = this.form.serializeArray();
 
   $(window).on('beforeunload', event => {
-    quill_helpers.update_editors();
+    quill_helpers.update_editors(this.form);
     this.submit_form_data = this.form.serializeArray();
 
     if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data))
@@ -63,7 +65,7 @@ Validator.prototype.pageLeaveWarning = function() {
   // language redirect if changes present
   if (this.language_menu.length) {
     this.language_menu.on('click', '.list-items li a', event => {
-      quill_helpers.update_editors();
+      quill_helpers.update_editors(this.form);
       this.submit_form_data = this.form.serializeArray();
       if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
         event.preventDefault();
@@ -108,13 +110,15 @@ Validator.prototype.disable = function() {
 };
 
 Validator.prototype.enable = function() {
-  $.rails.enableFormElement(
-    this.form
-      .siblings('.edit-header')
-      .find('.submit-edit-form')
-      .first()
-  );
-  $.rails.enableFormElements(this.form);
+  if (this.query_count == 0 && !this.form.hasClass('disabled')) {
+    $.rails.enableFormElement(
+      this.form
+        .siblings('.edit-header')
+        .find('.submit-edit-form')
+        .first()
+    );
+    $.rails.enableFormElements(this.form);
+  }
 };
 
 Validator.prototype.renderErrorMessage = function(data, validation_container) {
@@ -147,8 +151,8 @@ Validator.prototype.renderErrorMessage = function(data, validation_container) {
           .attr('for')
           .search(new RegExp(key, 'i')) != -1)
     ) {
-      button_text += '<strong>' + ($(item_label).html() || 'Fehler') + ':</strong><br>' + data.error[key] + '<br>';
-      out += '<strong>' + ($(item_label).html() || 'Fehler') + ':</strong> ' + data.error[key] + '</br>';
+      button_text += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong><br>' + data.error[key] + '<br>';
+      out += '<strong>' + ($(item_label).text() || 'Fehler') + ':</strong> ' + data.error[key] + '</br>';
     }
   }
   out += '<i class="fa fa-times close-error" aria-hidden="true"></i></span>';
@@ -224,7 +228,7 @@ Validator.prototype.validateItem = function(validation_container) {
   }
 
   let uuid = this.form.find(':input[name="uuid"]').val();
-  let table = this.form.find(':input[name="table"]').val();
+  let table = this.form.find(':input[name="table"]').val() || 'things';
   let url = '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
   let template = this.form.find(':input[name="template"]').val();
   if (template != undefined) {
@@ -258,23 +262,23 @@ Validator.prototype.validateItem = function(validation_container) {
   });
 };
 
-Validator.prototype.validateForm = function(event) {
+Validator.prototype.validateForm = function(event, data) {
   event.preventDefault();
   event.stopImmediatePropagation();
-  quill_helpers.update_editors();
+  quill_helpers.update_editors(event.target);
   this.removeSubmitButtonErrors();
   this.disable();
 
   this.requests = [];
 
-  this.form
-    .find('.validation-container')
+  $(event.target)
+    .find('.validation-container:visible')
     .add(this.agbs_check)
     .each((i, elem) => {
       this.requests.push(this.validateItem(elem));
     });
 
-  this.resolveRequests(true);
+  this.resolveRequests($(event.target).is(this.form), data);
 };
 
 Validator.prototype.submitWithWarnings = function(warnings) {
@@ -312,11 +316,14 @@ Validator.prototype.submitForm = function() {
   }
 };
 
-Validator.prototype.resolveRequests = function(submit = false) {
-  Promise.all(this.requests)
+Validator.prototype.resolveRequests = function(submit = false, event_data = undefined) {
+  this.query_count++;
+  let requests = this.requests.slice();
+  this.requests = [];
+  Promise.all(requests)
     .then(values => {
+      this.query_count--;
       this.valid = true;
-      this.requests = [];
       let error = this.form.find('.single_error').first();
 
       values.filter(Boolean).forEach(validation => {
@@ -324,17 +331,27 @@ Validator.prototype.resolveRequests = function(submit = false) {
       });
 
       if (this.valid && submit) {
+        this.query_count = 0;
         let warnings = this.form.find('.form-element .warning.counter');
         if (warnings.length) {
           this.submitWithWarnings(warnings);
         } else {
           this.submitForm();
         }
-      } else if (submit) {
-        this.enable();
+      } else if (!this.valid && submit) {
         if (this.form.hasClass('edit-content-form') && error !== undefined) {
           error.get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
+      }
+
+      if (!(this.valid && submit)) this.enable();
+
+      if (this.valid && event_data !== undefined && event_data.success_callback !== undefined) {
+        event_data.success_callback();
+      }
+
+      if (!this.valid && event_data !== undefined && event_data.error_callback !== undefined) {
+        event_data.error_callback();
       }
 
       // scroll to step in multi-step form
@@ -343,16 +360,15 @@ Validator.prototype.resolveRequests = function(submit = false) {
       }
     })
     .catch(error => {
-      if (error.statusCode) {
-        let button_text =
-          '<span id="button_server_error" class="tooltip-error">' +
-          '<strong>Fehler:</strong><br>' +
-          error.statusText +
-          '<br></span>';
-        this.enable();
-        this.submit_button.addClass('alert');
-        $('#' + this.submit_button.data('toggle')).append(button_text);
-      }
+      this.query_count--;
+      let button_text =
+        '<span id="button_server_error" class="tooltip-error">' +
+        '<strong>Fehler:</strong><br>' +
+        error.statusText +
+        '<br></span>';
+      this.enable();
+      this.submit_button.addClass('alert');
+      $('#' + this.submit_button.data('toggle')).append(button_text);
     });
 };
 

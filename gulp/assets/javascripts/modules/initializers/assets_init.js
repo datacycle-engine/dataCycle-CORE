@@ -11,7 +11,7 @@ module.exports.initialize = function() {
   var asset_selectors = [];
   var asset_uploaders = [];
 
-  function init_selectors(container = document) {
+  function init(container = document) {
     $(container)
       .find('.asset-selector-button')
       .each((index, element) => {
@@ -21,9 +21,6 @@ module.exports.initialize = function() {
           asset_selectors.push(new AssetSelector(element, asset_selectors));
         }
       });
-  }
-
-  function init_uploaders(container = document) {
     $('.asset-upload-reveal')
       .filter((index, element) => {
         return asset_uploaders.map(element => element.reveal.prop('id')).indexOf(element.id) === -1;
@@ -33,30 +30,26 @@ module.exports.initialize = function() {
       });
   }
 
-  init_selectors();
-  init_uploaders();
+  init();
 
   $(document).on('changed.dc.html', '*', event => {
-    init_selectors(event.target);
-    init_uploaders(event.target);
+    init(event.target);
   });
 
   $(document).on('remove.dc.html', '*', event => {
     event.preventDefault();
     event.stopPropagation();
-    if ($(event.target).find('.asset-selector-button').length) {
+    if ($(event.target).hasClass('asset-selector-reveal')) {
       asset_selectors = asset_selectors.filter(value => {
-        return (
-          value.button.data('open') !=
-          $(event.target)
-            .find('.asset-selector-button')
-            .first()
-            .data('open')
-        );
+        return value.reveal.id != $(event.target).id;
       });
 
       asset_selectors.forEach(selector => {
         selector.asset_selectors = asset_selectors;
+      });
+    } else if ($(event.target).hasClass('asset-upload-reveal')) {
+      asset_uploaders = asset_uploaders.filter(value => {
+        return value.reveal.id != $(event.target).id;
       });
     }
   });

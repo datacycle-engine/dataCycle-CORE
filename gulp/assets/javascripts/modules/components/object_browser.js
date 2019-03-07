@@ -103,41 +103,11 @@ ObjectBrowser.prototype.setup = function() {
     }
   });
 
-  this.element.on('click', '.delete-thumbnail', function(event) {
+  this.element.on('click', '.delete-thumbnail', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (self.validate('-', self.chosen.length - 1)) {
-      self.chosen = self.chosen.diff(
-        $(this)
-          .parent()
-          .data('id')
-      );
-      self.ids = self.ids.diff(
-        $(this)
-          .parent()
-          .data('id')
-      );
-      self.element
-        .children(
-          'input:hidden[value="' +
-            $(this)
-              .parent()
-              .data('id') +
-            '"]'
-        )
-        .remove();
-      $(
-        '.reveal-overlay > #media_reveal_' +
-          $(this)
-            .parent()
-            .data('id')
-      )
-        .parent('.reveal-overlay')
-        .remove();
-      $(this)
-        .parent()
-        .remove();
-      if (self.chosen.length == 0) self.renderHiddenField();
+    if (this.validate('-', this.chosen.length - 1)) {
+      this.removeThumbObject(event.target);
     }
   });
 
@@ -216,6 +186,7 @@ ObjectBrowser.prototype.setup = function() {
   );
 
   this.element.on('changed.dc.locale', this.updateLocale.bind(this));
+  this.element.closest('form').on('reset', this.reset.bind(this));
 };
 
 ObjectBrowser.prototype.updateLocale = function(e) {
@@ -252,6 +223,19 @@ ObjectBrowser.prototype.initNewFormHandlers = function(e) {
         contentType: 'application/json'
       });
     });
+};
+
+ObjectBrowser.prototype.removeThumbObject = function(element) {
+  let item = $(element).closest('.item');
+  let elem_id = item.data('id');
+  this.chosen = this.chosen.diff(elem_id);
+  this.ids = this.ids.diff(elem_id);
+  this.element.children('input:hidden[value="' + elem_id + '"]').remove();
+  $('.reveal-overlay > #media_reveal_' + elem_id)
+    .parent('.reveal-overlay')
+    .remove();
+  item.remove();
+  if (this.chosen.length == 0) this.renderHiddenField();
 };
 
 ObjectBrowser.prototype.renderHiddenField = function() {
@@ -423,6 +407,12 @@ ObjectBrowser.prototype.resetOverlay = function() {
   this.search = '';
   this.excluded = [];
   this.page = 1;
+};
+
+ObjectBrowser.prototype.reset = function(event) {
+  this.element.find('.media-thumbs .item').each((_, element) => {
+    this.removeThumbObject(element);
+  });
 };
 
 ObjectBrowser.prototype.setPreselected = function() {

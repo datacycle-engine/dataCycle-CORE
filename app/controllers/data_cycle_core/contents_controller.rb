@@ -250,16 +250,15 @@ module DataCycleCore
     end
 
     def validate
-      @object = DataCycleCore::Thing.find_by(id: params[:id])
-
-      @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template]) if @object.blank? && params[:template].present?
+      @object = DataCycleCore::Thing.where(id: params[:id]).or(DataCycleCore::Thing.where(template: true, template_name: params[:template])).first
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 
       authorize! :show, @object
 
       object_params = content_params(@object.template_name)
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
+      translation_values = object_params[:translations]&.values&.first || {}
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
       valid = @object.validate(datahash)
       render json: valid.to_json
     end
@@ -357,7 +356,8 @@ module DataCycleCore
 
     def content_params(template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(template_name)
-      params.require(:thing).permit(datahash: datahash)
+      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
+      params.require(:thing).permit(datahash: datahash, translations: translations)
     end
 
     def new_params

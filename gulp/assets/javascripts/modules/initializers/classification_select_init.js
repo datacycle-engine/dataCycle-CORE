@@ -73,6 +73,14 @@ module.exports.initialize = function() {
             }
           }
         });
+
+        $(this)
+          .closest('form')
+          .on('reset', event => {
+            $(this)
+              .val(null)
+              .trigger('change');
+          });
       });
 
     $(element)
@@ -136,6 +144,14 @@ module.exports.initialize = function() {
             return null;
           }
         });
+
+        $(this)
+          .closest('form')
+          .on('reset', event => {
+            $(this)
+              .val(null)
+              .trigger('change');
+          });
       });
   };
 

@@ -719,7 +719,7 @@ select {
 .reveal {
   .loading {
     text-align: center;
-    padding: 4rem 8rem;
+    padding: 1rem;
     display: block;
 
     .fa {
@@ -1781,6 +1781,27 @@ input.normalized {
           }
         }
       }
+    }
+  }
+}
+
+.translated-attribute-container {
+  .translated-attribute {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}
+.translated-attribute-locales {
+  position: absolute;
+  right: 3rem;
+  top: 0.5rem;
+  padding: 0.3rem 0;
+  .translated-attribute-locale {
+    &.active {
+      color: $black;
+      cursor: default;
     }
   }
 }

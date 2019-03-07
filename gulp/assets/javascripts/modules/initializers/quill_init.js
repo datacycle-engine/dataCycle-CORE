@@ -158,6 +158,13 @@ module.exports.initialize = function() {
         if (range == null) quill_helpers.update_editors(editor.container);
       });
 
+      $(editor.container)
+        .closest('form')
+        .on('reset', event => {
+          editor.setText('');
+          quill_helpers.update_editors(editor.container);
+        });
+
       $(editor.container).on('import-data', function(event, data) {
         if (editor.getText().trim().length > 1) {
           var confirmationModal = new ConfirmationModal(

@@ -1,7 +1,7 @@
 <%= form_with url: things_path,
   local: !local_assigns[:object_browser],
   html: {
-    class: 'validation-form multi-step',
+    class: "validation-form multi-step#{' disabled' if local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, local_assigns[:template])}",
     data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options))
   } do %>
 
@@ -45,18 +45,18 @@
   <% end %>
 
   <div class="buttons">
-    <button class="button prev" data-disable-with="<%= t('actions.back', locale: DataCycleCore.ui_language) %>" type="button">
+    <button class="button prev" type="button">
       <%= t('actions.back', locale: DataCycleCore.ui_language) %>
     </button>
-    <button class="button next" data-disable-with="<%= t('actions.next', locale: DataCycleCore.ui_language) %>" type="button">
+    <button class="button next" data-disable type="button">
       <%= t('actions.next', locale: DataCycleCore.ui_language) %>
     </button>
-    <%= button_tag t('submit', locale: DataCycleCore.ui_language),
+    <%= button_tag t('actions.save', locale: DataCycleCore.ui_language),
       type: :submit,
       class: "button submit",
       disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && !can?(:create_without_search, local_assigns[:template]),
       data: {
-        disable_with: "#{t('submit', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
+        disable_with: "#{t('actions.save', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
         } %>
   </div>
 

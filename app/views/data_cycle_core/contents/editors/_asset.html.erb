@@ -10,7 +10,7 @@
     <%= hidden_field_tag key, value&.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
     <%= render 'data_cycle_core/assets/asset_list', assets: Array(value), class: 'editable' %>
 
-    <a class="button asset-selector-button" data-open="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></a>
+    <button type="button" class="button asset-selector-button" data-disable data-open="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"><%= t('common.select_asset', data: definition['label'], locale: DataCycleCore.ui_language) %></button>
     <div class="full reveal asset-selector-reveal" id="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-hidden-field-id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>">
       <div class="asset-list-container">
         <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>

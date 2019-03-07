@@ -44,7 +44,7 @@ module DataCycleCore
     end
 
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
-      object = DataCycleCore::Thing.new(object_params)
+      object = DataCycleCore::Thing.new(object_params.except(:translations))
 
       template = get_internal_template(template_name)
       object.schema = template.schema
@@ -53,15 +53,25 @@ module DataCycleCore
       object.is_part_of = is_part_of if is_part_of.present?
       object.save
 
-      return nil if object_params[:datahash].nil?
+      return if object_params[:datahash].nil? && object_params[:translations].nil?
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
+      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? }
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(I18n.locale.to_s) || {}), object.schema)
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
+      translations&.each do |locale, locale_hash|
+        I18n.with_locale(locale) do
+          # object.save
+          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
+          return if valid[:error].present?
+        end
+      end
+
       valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
 
-      return nil if valid[:error].present?
+      return if valid[:error].present?
       object
     end
 

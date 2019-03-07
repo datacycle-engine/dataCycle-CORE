@@ -1,4 +1,4 @@
-<legend><%= t('actions.new', data: t("content_type.#{template&.template_name&.underscore_blanks}", default: template&.template_name, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %><%= tag.span("(#{locale})", class: 'locale') if local_assigns[:locale].present? %></legend>
+<legend><%= t('actions.new', data: t("content_type.#{template&.template_name&.underscore_blanks}", default: template&.template_name, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></legend>
 
 <%= hidden_field_tag :table, :things %>
 <%= hidden_field_tag :scope, local_assigns[:scope] %>

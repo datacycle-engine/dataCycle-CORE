@@ -23,6 +23,9 @@ NewContentDialog.prototype.initEventHandlers = function() {
   this.form.on('reset.dc.form', this.resetForm.bind(this));
   this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
   this.form.on('goto.dc.multistep', this.goTo.bind(this));
+  this.form.on('click', '.translated-attribute-locale', this.changeTranslation.bind(this));
+  this.form.on('selected.dc.asset', '.form-element', this.checkSelectedAsset.bind(this));
+  this.form.on('changed.dc.asset', '.form-element', this.updateThumbnail.bind(this));
 };
 
 NewContentDialog.prototype.updateForm = function() {
@@ -35,32 +38,89 @@ NewContentDialog.prototype.updateForm = function() {
   )
     this.form.find('.callout').show();
   else this.form.find('.callout').hide();
+
+  if (active_fieldset.hasClass('template')) $.rails.enableFormElements(this.form);
+  else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
+};
+
+NewContentDialog.prototype.checkSelectedAsset = function(event) {
+  event.stopPropagation();
+  if (!$(event.target).siblings('.form-element').length) this.next(event);
+};
+
+NewContentDialog.prototype.updateThumbnail = function(event, data) {
+  let form_thumbnail = this.form.find('> .form-thumbnail');
+  if (data !== undefined && data.thumb !== undefined && form_thumbnail.length) {
+    form_thumbnail.attr('src', data.thumb);
+  } else if (data !== undefined && data.thumb !== undefined) {
+    this.form.append('<img class="form-thumbnail" src="' + data.thumb + '">');
+  } else {
+    form_thumbnail.remove();
+  }
+};
+
+NewContentDialog.prototype.changeTranslation = function(event) {
+  event.preventDefault();
+  $(event.target)
+    .closest('.translated-attribute-locales')
+    .find('.translated-attribute-locale')
+    .removeClass('active');
+  $(event.target).addClass('active');
+
+  this.form.find('.translated-attribute.active').removeClass('active');
+  this.form
+    .find('.translated-attribute.' + $(event.target).data('locale'))
+    .addClass('active')
+    .trigger('render.dc.remote');
 };
 
 NewContentDialog.prototype.next = function(event) {
   event.preventDefault();
   let active_fieldset = this.form.find('fieldset.active');
 
-  this.form.trigger(
-    'goto.dc.multistep',
-    this.form.find('fieldset').index(this.form.find('fieldset.active').next('fieldset'))
-  );
-
-  if (this.form.hasClass('validation-form'))
-    active_fieldset.find('.validation-container').trigger('validate.dc.formfield');
+  if (this.form.hasClass('validation-form')) {
+    active_fieldset.trigger('validate.dc.form', {
+      success_callback: () => {
+        this.goTo(
+          undefined,
+          this.form.find('fieldset').index(
+            this.form
+              .find('fieldset.active')
+              .nextAll('fieldset')
+              .first()
+          )
+        );
+      }
+    });
+  } else {
+    this.goTo(
+      undefined,
+      this.form.find('fieldset').index(
+        this.form
+          .find('fieldset.active')
+          .nextAll('fieldset')
+          .first()
+      )
+    );
+  }
 };
 
 NewContentDialog.prototype.prev = function(event) {
   event.preventDefault();
 
-  this.form.trigger(
-    'goto.dc.multistep',
-    this.form.find('fieldset').index(this.form.find('fieldset.active').prev('fieldset'))
+  this.goTo(
+    undefined,
+    this.form.find('fieldset').index(
+      this.form
+        .find('fieldset.active')
+        .prevAll('fieldset')
+        .first()
+    )
   );
 };
 
 NewContentDialog.prototype.goTo = function(event, data) {
-  event.preventDefault();
+  if (event !== undefined) event.preventDefault();
 
   if (
     this.form.find('fieldset.active').hasClass('template') &&
@@ -71,10 +131,13 @@ NewContentDialog.prototype.goTo = function(event, data) {
 
   let index = data !== undefined ? data : $(event.target).data('index');
   this.form.find('fieldset.active').removeClass('active');
-  this.form.find('fieldset:eq(' + index + ')').addClass('active');
+  this.form
+    .find('fieldset:eq(' + index + ')')
+    .addClass('active')
+    .trigger('render.dc.remote');
 
   if (this.form.find('fieldset.active').hasClass('template') || this.form.find('fieldset.active').hasClass('iframe'))
-    this.form.closest('.reveal').foundation('open');
+    this.form.closest('.reveal:not(.full)').foundation('_updatePosition');
 
   this.updateForm();
 };
@@ -121,6 +184,7 @@ NewContentDialog.prototype.renderContentForm = function() {
     .find('fieldset:not(.template)')
     .trigger('remove.dc.html')
     .remove();
+  this.form.find('.translated-attribute-locales, .form-thumbnail').remove();
   this.form
     .find('.buttons')
     .before(
@@ -158,6 +222,7 @@ NewContentDialog.prototype.resetForm = function(event) {
   $.rails.enableFormElements(this.form);
   this.form.find('.single_error').remove();
   this.form[0].reset();
+  this.goTo(undefined, this.form.find('fieldset').index(this.form.find('fieldset').first()));
 };
 
 NewContentDialog.prototype.updateLocales = function(event) {

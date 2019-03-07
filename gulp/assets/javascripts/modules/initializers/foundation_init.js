@@ -6,10 +6,12 @@ module.exports.initialize = function() {
   $(document).foundation();
 
   $(document).on('changed.dc.html', '*', event => {
+    event.stopPropagation();
     $(event.target).foundation();
   });
 
   $(document).on('open.zf.reveal', '.reveal', event => {
+    event.stopPropagation();
     $('.reveal:visible, .reveal-overlay:visible').css('z-index', '');
     $(event.target)
       .add($(event.target).parent('.reveal-overlay'))
@@ -28,8 +30,8 @@ module.exports.initialize = function() {
       .each((i, elem) => {
         if ($('#' + $(elem).data('open')).parent('.reveal-overlay').length)
           $('#' + $(elem).data('open'))
-            .parent('.reveal-overlay')
             .trigger('remove.dc.html')
+            .parent('.reveal-overlay')
             .remove();
         else
           $('#' + $(elem).data('open'))
@@ -41,8 +43,8 @@ module.exports.initialize = function() {
       .each((i, elem) => {
         if ($('#' + $(elem).data('toggle')).parent('.reveal-overlay').length)
           $('#' + $(elem).data('toggle'))
-            .parent('.reveal-overlay')
             .trigger('remove.dc.html')
+            .parent('.reveal-overlay')
             .remove();
         else
           $('#' + $(elem).data('toggle'))

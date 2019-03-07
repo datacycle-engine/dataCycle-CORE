@@ -139,6 +139,7 @@ de:
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
+    select_assets: Dateien verknüpfen
     warning: Achtung!
     warnings: Warnungen
     external_connections:
@@ -146,6 +147,7 @@ de:
       other: Externe Verknüpfungen
     create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
     normalize: Normalisieren
+    required_field: Dieses Feld ist ein Pflichtfeld
 
   tile_links:
     details: zur Detailansicht
