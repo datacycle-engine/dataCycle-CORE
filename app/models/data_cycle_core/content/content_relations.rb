@@ -71,6 +71,15 @@ module DataCycleCore
       def has_related?
         content_content_a.exists?
       end
+
+      def related_to
+        content_a&.map(&:related_object)
+      end
+
+      def related_object
+        return self unless content_type?('embedded')
+        content_a&.first&.send(:related_object)
+      end
     end
   end
 end

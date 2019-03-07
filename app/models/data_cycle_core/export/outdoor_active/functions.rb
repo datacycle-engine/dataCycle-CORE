@@ -37,10 +37,13 @@ module DataCycleCore
 
         def self.outdoor_active_categories(data, external_system)
           external_source_id = DataCycleCore::ExternalSource.find_by(name: external_system.credentials.dig('external_source'))&.id
+
+          # OutdoorActive - System - Kategorien
           data.classifications.includes(:classification_aliases)
             .map(&:classification_aliases).flatten.uniq
-            &.select { |c| c.external_source_id == external_source_id }
-            &.map(&:primary_classification)
+            &.select do |c|
+              c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == 'OutdoorActive - System - Kategorien'
+            end&.map(&:primary_classification)
         end
       end
     end
