@@ -12,7 +12,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(0, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(0, DataCycleCore::Thing::Translation.count) # - cw_temp (empty translations from Globalize)
       assert_equal(0, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
@@ -66,7 +66,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(13, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(13, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(13, DataCycleCore::Thing::Translation.count) # - cw_temp (empty translations from Globalize)
       assert_equal(15, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Thing::History.count)
       assert_equal(1, DataCycleCore::Thing::History::Translation.count)
@@ -75,7 +75,7 @@ module DataCycleCore
       data_set.save
 
       assert_equal(13, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(13, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(13, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(15, DataCycleCore::ClassificationContent.count)
 
       assert_equal(14, DataCycleCore::Thing::History.count)
@@ -85,7 +85,7 @@ module DataCycleCore
       data_set.histories.each(&:destroy_content)
 
       assert_equal(13, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(13, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(13, DataCycleCore::Thing::Translation.count) # - cw_temp (empty translations from Globalize)
       assert_equal(15, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
@@ -102,7 +102,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(1, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(1, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(0, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(0, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
@@ -133,7 +133,7 @@ module DataCycleCore
 
       # check consistency of data in DB
       assert_equal(2, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(2, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
       assert_equal(1, DataCycleCore::Thing::History.count)
       assert_equal(1, DataCycleCore::Thing::History::Translation.count)
@@ -142,7 +142,7 @@ module DataCycleCore
       data_set.save
 
       assert_equal(2, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(2, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
 
       assert_equal(3, DataCycleCore::Thing::History.count)
@@ -155,7 +155,7 @@ module DataCycleCore
       end
 
       assert_equal(2, DataCycleCore::Thing.count - cw_temp)
-      assert_equal(2, DataCycleCore::Thing::Translation.count - cw_temp)
+      assert_equal(2, DataCycleCore::Thing::Translation.count)  # - cw_temp (empty translations from Globalize)
       assert_equal(4, DataCycleCore::ClassificationContent.count)
       assert_equal(0, DataCycleCore::Thing::History.count)
       assert_equal(0, DataCycleCore::Thing::History::Translation.count)
