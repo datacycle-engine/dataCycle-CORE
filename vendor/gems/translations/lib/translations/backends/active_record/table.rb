@@ -127,8 +127,7 @@ module Translations
             :translated_model,
             class_name: name,
             foreign_key: options[:foreign_key],
-            inverse_of: association_name,
-            touch: true
+            inverse_of: association_name
           )
 
           before_save do

@@ -12,8 +12,7 @@ module DataCycleCore
         attributes.except('id', 'created_at', 'updated_at').each do |key, value|
           data_set_history.send("#{key}=", value)
         end
-        lower_bound = updated_at
-        lower_bound = save_time if lower_bound > save_time
+        lower_bound = [updated_at, save_time].min
         data_set_history.history_valid = (lower_bound...save_time)
         data_set_history.deleted_at = save_time if delete
         data_set_history.created_at = save_time
@@ -33,31 +32,32 @@ module DataCycleCore
         embedded_property_names.each do |content_name|
           load_embedded_objects(content_name, false).each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
+            from = [new_content_history.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
               order_a: index,
               content_b_history_id: new_content_history.id,
               content_b_history_type: 'DataCycleCore::Thing::History',
-              history_valid: (new_content_history.updated_at...save_time)
+              history_valid: (from...save_time)
             })
           end
         end
 
         linked_property_names.each do |content_name|
           load_linked_objects(content_name).each_with_index do |content_item, index|
+            from = [content_item.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
               order_a: index,
               content_b_history_id: content_item.id,
               content_b_history_type: 'DataCycleCore::Thing',
-              history_valid: (content_item.updated_at...save_time)
+              history_valid: (from...save_time)
             })
           end
         end
 
-        data_set_history.save
         data_set_history
       end
     end

@@ -57,7 +57,7 @@ module DataCycleCore
         end
       end
 
-      query = query.select { |t| can?(:create, t, scope, { content: content }) }
+      query = query.each.select { |t| can?(:create, t, scope, { content: content }) }
       query = query.sort_by { |t| ordered_array.index(t.template_name).to_i } if ordered_array.present?
       query = query.first(limit.to_i) if limit.present?
       query.sort_by(&:template_name)

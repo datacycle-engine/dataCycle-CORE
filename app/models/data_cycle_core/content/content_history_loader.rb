@@ -4,7 +4,7 @@ module DataCycleCore
   module Content
     module ContentHistoryLoader
       def get_data_hash(timestamp = nil)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        # return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
         timestamp ||= history_valid.first + (history_valid.last - history_valid.first) / 2
         as_of(timestamp).try(:to_h, timestamp)
       end

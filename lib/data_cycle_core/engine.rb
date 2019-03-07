@@ -33,9 +33,6 @@ require 'faraday_middleware'
 # simple logger
 require 'logging'
 
-# i18n for db
-require 'globalize'
-
 # Breadcrumbs
 require 'gretel'
 

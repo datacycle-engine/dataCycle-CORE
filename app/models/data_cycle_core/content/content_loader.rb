@@ -4,7 +4,7 @@ module DataCycleCore
   module Content
     module ContentLoader
       def get_data_hash(timestamp = Time.zone.now)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        # return if changes.count.zero? # for new data-sets with pending data in it
         as_of(timestamp).try(:to_h, timestamp)
       end
 

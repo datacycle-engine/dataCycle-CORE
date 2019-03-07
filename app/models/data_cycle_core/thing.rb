@@ -6,20 +6,20 @@ module DataCycleCore
     include Content::Extensions::Thing
     include Content::ExternalData
 
-    class Translation < Globalize::ActiveRecord::Translation
-    end
-
     class History < Content::Content
       include Content::ContentHistoryLoader
 
-      translates :name, :description, :content, :history_valid
-      attribute :name
-      attribute :description
-      attribute :content
-      attribute :history_valid
+      extend ::Translations
+      translates :name, :description, :content, :history_valid, backend: :table
+      default_scope { i18n }
+
       content_relations table_name: 'things', postfix: 'history'
 
       belongs_to :thing
+
+      def self.class_name
+        'Thing' # TODO: check if this is really correct!!
+      end
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
@@ -68,16 +68,20 @@ module DataCycleCore
     end
 
     def translated_locales
-      if translations.loaded?
-        translations.map(&:locale).sort
-      else
-        translations.translated_locales
-      end
+      available_locales
+      # if translations.loaded?
+      #   translations.map(&:locale).sort
+      # else
+      #   translations.translated_locales
+      # end
     end
 
-    # to cash also translated values (comming from gem Globalize)
     def cache_key
-      super + '-' + Globalize.locale.to_s
+      [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
+    end
+
+    def self.class_name
+      'Thing'
     end
   end
 end

@@ -107,7 +107,18 @@ module Translations
 
       def available_locales
         raise NotImplementedError, 'available_locales is only available for :table backend' unless respond_to?(:translations)
-        translations.pluck(:locale)
+        translations.pluck(:locale).map(&:to_sym)
+      end
+      alias translated_locales available_locales
+
+      def attributes
+        super.merge(translated_attributes)
+      end
+
+      def translated_attributes
+        self.class.translation_attributes.inject({}) do |attributes, name|
+          attributes.merge(name.to_s => send(name))
+        end
       end
 
       def initialize_dup(other)
@@ -128,8 +139,6 @@ module Translations
       def translation_attribute?(attribute_name)
         translation_attributes.include?(attribute_name.to_s)
       end
-
-      alias translated_attribute_names translation_attributes
 
       def translation_backend_class(backend_name)
         @backends ||= BackendsCache.new(self)

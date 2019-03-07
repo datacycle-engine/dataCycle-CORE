@@ -7,7 +7,7 @@ module DataCycleCore
         return if destroy_locale && !available_locales.include?(I18n.locale)
         ActiveRecord::Base.transaction do
           children.each { |item| item.destroy_content(current_user: current_user, save_time: save_time) } if respond_to?(:children)
-          unless history? || !save_history
+          if save_history && !history?
             self.deleted_at = save_time
             self.deleted_by = current_user&.id
             to_history(save_time: save_time, delete: true)
@@ -60,8 +60,8 @@ module DataCycleCore
         if (item.available_locales - [locale]).blank?
           item.destroy
         else
-          item.translation.destroy
-          item.translations.reload # bug of Globalize (does not invalidate query cache)
+          item.translations.in_locale(locale).destroy
+          item.translations.reload
         end
       end
     end
