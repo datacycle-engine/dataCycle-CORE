@@ -216,7 +216,9 @@ AssetUploader.prototype.uploadFile = function(event) {
 };
 
 AssetUploader.prototype.checkRequests = function() {
-  $.when.apply(undefined, this.ajax_requests).then(
+  let running_requests = this.ajax_requests.slice();
+  this.ajax_requests = [];
+  $.when.apply(undefined, running_requests).then(
     () => {
       this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
     },
@@ -485,7 +487,7 @@ AssetUploader.prototype.validate = function(file_options) {
 };
 
 AssetUploader.prototype.updateUploadButton = function() {
-  if (this.files.length > 0) this.upload_button.attr('disabled', false);
+  if (this.files.length > 0 && this.ajax_requests.length == 0) this.upload_button.attr('disabled', false);
   else this.upload_button.attr('disabled', true);
 };
 

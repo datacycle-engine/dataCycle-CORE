@@ -8,10 +8,11 @@ module DataCycleCore
 
     version :thumb_preview do
       process create_thumb: [300, 300]
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        "#{version_name}_#{basename}.jpg"
+        "#{version_name}_#{basename}.png"
       end
     end
 

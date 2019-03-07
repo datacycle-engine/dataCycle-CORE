@@ -60,10 +60,5 @@ module DataCycleCore
         img
       end
     end
-
-    def optimize
-      return unless DataCycleCore::Feature::ImageOptimizer.optimize?(version_name)
-      ::ImageOptim.new(DataCycleCore::Feature::ImageOptimizer.config).optimize_image!(current_path)
-    end
   end
 end
