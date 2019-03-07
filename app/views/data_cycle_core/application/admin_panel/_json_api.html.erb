@@ -1,8 +1,11 @@
 <%
-    json_api_show = DataCycleCore::Api::V3::ContentsController.render(
-        assigns: {content: content, mode_parameters: [], language: 'de', include_parameters: []},
-        template: 'data_cycle_core/api/v2/contents/show',
-        layout: false
+    json_api_show = DataCycleCore::Api::V3::ContentsController.renderer.new(
+      http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+      https: Rails.application.config.force_ssl
+    ).render(
+      assigns: {content: content, mode_parameters: [], language: 'de', include_parameters: []},
+      template: 'data_cycle_core/api/v3/contents/show',
+      layout: false
     )
 %>
 
