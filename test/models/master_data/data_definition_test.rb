@@ -388,11 +388,19 @@ describe DataCycleCore::MasterData::ImportTemplates do
 
     it 'checks properties for valid types' do
       test_hash = simple_property_hash
-      available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'object', 'embedded', 'linked']
+      available_types = ['key', 'string', 'text', 'number', 'boolean', 'datetime', 'geographic', 'embedded', 'linked']
       available_types.each do |type_name|
         test_hash[:type] = type_name
         assert subject.validate_property.call(test_hash).success?
       end
+    end
+
+    it 'checks properties for type object' do
+      test_hash = simple_property_hash
+      test_hash[:type] = 'object'
+      test_hash[:storage_location] = 'value'
+      test_hash[:properties] = { id: { label: 'id', type: 'key' } }
+      assert subject.validate_property.call(test_hash).success?
     end
 
     it 'checks properties for storage_location is a string' do

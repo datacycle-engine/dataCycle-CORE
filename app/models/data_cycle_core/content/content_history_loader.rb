@@ -22,6 +22,8 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name, same_language = false)
+        language_flag = same_language
+        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties_for(relation_name).dig('linked_language').present?
         relation_contents = DataCycleCore::Thing
           .joins(:content_content_b_history)
           .where({
@@ -31,11 +33,13 @@ module DataCycleCore
               content_b_history_type: 'DataCycleCore::Thing'
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same' || same_language
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if language_flag
         relation_contents.order('content_content_histories.order_a ASC')
       end
 
       def load_embedded_objects(relation_name, same_language = true)
+        language_flag = same_language
+        language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
         relation_contents = DataCycleCore::Thing::History
           .joins(:content_content_b_history)
           .where({
@@ -45,7 +49,7 @@ module DataCycleCore
               content_b_history_type: 'DataCycleCore::Thing::History'
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_history_translations: { locale: I18n.locale }) if schema&.dig('properties', relation_name, 'linked_language') == 'same' || same_language
+        relation_contents = relation_contents.joins(:translations).where(thing_history_translations: { locale: I18n.locale }) if language_flag
         relation_contents.order('content_content_histories.order_a ASC')
       end
 

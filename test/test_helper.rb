@@ -201,9 +201,8 @@ module DataCycleCore
     end
 
     def self.data_set_object(template_name)
-      object = DataCycleCore::Thing
-      template = object.where(template: true, template_name: template_name).first
-      data_set = object.new
+      template = DataCycleCore::Thing.where(template: true, template_name: template_name).first
+      data_set = DataCycleCore::Thing.new
       data_set.schema = template.schema
       data_set.template_name = template.template_name
       data_set
