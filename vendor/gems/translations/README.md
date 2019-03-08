@@ -23,7 +23,8 @@ config.query_method    = :i18n
 
 Make sure the appropriate changes to the schema are made!
 
-For jsonb backend:
+### For `:json` backend:
+Configuration used for translatable DataCycleCore::ClassificationAlias:
 ```
 module DataCycleCore
   class ClassificationAlias < ApplicationRecord
@@ -76,6 +77,75 @@ classification.name?
 #=> false
 I18n.with_locale(:en) { classification.name? }
 #=> true
+```
+Additional query integration:
+
+specifying translated attributes as query parameters:
+```
+I18n.locale = :de
+DataCycleCore::ClassificationAlias.where(name: 'Benutzer').count
+#=> 1
+```
+Specifying query language:
+```
+DataCycleCore::ClassificationAlias.where(name: 'Benutzer', locale: :de).count
+#=> 1
+DataCycleCore::ClassificationAlias.where(name: 'Benutzer', locale: :en).count
+#=> 0
+DataCycleCore::ClassificationAlias.where(name: 'User', locale: :en).count
+#=> 1
+```
+Additionally: integragtion with methods `pluck`, `order` (and basic support for `select` and `group`)
+
+### For `:table` backend
+Configuration used for DataCyclecore::Thing
+```
+module DataCycleCore
+  class Thing < Content::DataHash
+    extend ::Translations
+    translates :name, :description, :content, backend: :table
+    default_scope { i18n }  
+  end
+end
+```
+Here `:name`, `:description` and `:content` are stored in a separate table called `thing_translations`.
+The translations table has to have the following columns:
+- id
+- thing_id (foreign_key to untranslated main table)
+- locale (a column to store the language code)
+- content columns (here: name, description and content)
+- rails timestamps
+
+For the `:table` backend the same accessor methods, as already shown for the `:jsonb` backend, are created.
+```
+I18n.locale = :de
+thing = DataCycleCore::Thing.new
+thing.name = 'Name'
+thing.description = 'Beschreibung'
+thing.save
+thing.name
+#=> 'Name'
+thing.description
+#=> 'Beschreibung'
+I18n.locale = :en
+thing.name = 'Title'
+thing.description = 'description'
+thing.save
+```
+
+Also the presence methods as well as the query integration are in place.
+```
+I18n.locale = :de
+thing.name?
+#=> true
+DataCycleCore::Thing.where(name: 'Name').count
+#=> 1
+DataCycleCore::ClassificationAlias.where(name: 'Name', locale: :de).count
+#=> 1
+DataCycleCore::ClassificationAlias.where(name: 'Name', locale: :en).count
+#=> 0
+DataCycleCore::ClassificationAlias.where(name: 'Title', locale: :en).count
+#=> 1
 ```
 
 
