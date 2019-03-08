@@ -927,7 +927,7 @@ video {
     text-align: left;
     font-size: 0.8rem;
     line-height: 1.2rem;
-    padding: 0 2rem 0.2rem 0;
+    padding-right: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -946,8 +946,8 @@ video {
 
     .history-link {
       position: absolute;
-      right: 0;
-      top: 0;
+      right: 0.2rem;
+      top: 0.2rem;
     }
   }
 }
@@ -1487,6 +1487,10 @@ select {
   }
 }
 
+.accept-agbs {
+  margin: 0;
+}
+
 .object-browser-overlay .detail-type.geographic {
   > .detail-label {
     display: none;
@@ -1538,7 +1542,10 @@ select {
 [type='checkbox'],
 [type='radio'] {
   display: inline-block;
-  vertical-align: sub;
+  vertical-align: middle;
+  & + label {
+    vertical-align: middle;
+  }
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
@@ -1829,12 +1836,12 @@ section.related-objects {
           box-shadow: 0 1px 25px $alert-color;
         }
       }
-      > ul{
+      > ul {
         margin-top: 1rem;
-        li{
+        li {
           background: $white;
         }
-        li:last-child{
+        li:last-child {
           margin-bottom: 0;
         }
       }
@@ -1845,11 +1852,10 @@ section.related-objects {
         }
       }
 
-      a{
+      a {
         font-weight: normal;
         color: $black;
       }
-
     }
   }
 }

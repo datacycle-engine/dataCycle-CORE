@@ -4,4 +4,3 @@ $('#<%= @html_target %>').find('.loading').remove();
 <% else %>
   $('#<%= @html_target %>').html('<%= t('common.contents', count: 0, locale: DataCycleCore.ui_language) %>').trigger('changed.dc.asset_list', { selected: '<%= @selected %>', last_asset_type: '', page: 1, total: 0 });
 <% end %>
-

@@ -411,6 +411,19 @@
   outline: none;
   padding: 0;
 
+  &.full-height {
+    margin: 0 !important;
+    .object-browser-header {
+      top: 1rem;
+    }
+    .items {
+      max-height: 100%;
+    }
+    .item-info {
+      height: 100%;
+    }
+  }
+
   .draggable-handle {
     display: none;
   }

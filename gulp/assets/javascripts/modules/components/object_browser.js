@@ -430,6 +430,7 @@ ObjectBrowser.prototype.setPreselected = function() {
 };
 
 ObjectBrowser.prototype.openOverlay = function(ev) {
+  if ($('.reveal:visible').not(this.overlay).length) this.overlay.addClass('full-height');
   this.resetOverlay();
   this.setPreselected();
   this.updateChosenCounter();
@@ -461,6 +462,7 @@ ObjectBrowser.prototype.openOverlay = function(ev) {
 };
 
 ObjectBrowser.prototype.closeOverlay = function(ev) {
+  this.overlay.removeClass('full-height');
   $('.breadcrumb ul li:last-child').remove();
   var text = $('.breadcrumb ul li:last-child a.close-object-browser').html();
   $('.breadcrumb ul li:last-child').html(text);

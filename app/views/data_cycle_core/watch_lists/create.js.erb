@@ -3,7 +3,7 @@ $('.add-watchlist').each(function () {
     hashable_type: $(this).parent('.watch-lists').data('content-type'),
     hashable_id: $(this).parent('.watch-lists').data('content-id')
   }
-  $(this).siblings('.list-items').append('<li><%= escape_javascript(render 'data_cycle_core/application/watch_lists/edit_link', content: nil, watch_list: @watch_list) %></li>');
+  $(this).siblings('.list-items').append('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/edit_link', content: nil, watch_list: @watch_list) %>');
 
   var item = $(this).siblings('.list-items').find('> li > .watch-list-item').last();
   item.prop('id', 'content-' + content.hashable_id + '-watch-list-' + '<%= @watch_list.id %>');

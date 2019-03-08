@@ -221,9 +221,11 @@ AssetUploader.prototype.checkRequests = function() {
   $.when.apply(undefined, running_requests).then(
     () => {
       this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.updateUploadButton();
     },
     () => {
       this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.updateUploadButton();
     }
   );
 };

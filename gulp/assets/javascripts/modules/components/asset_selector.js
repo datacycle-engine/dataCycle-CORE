@@ -119,6 +119,7 @@ AssetSelector.prototype.clickOnAsset = function(event) {
         .removeClass('active')
         .siblings('li')
         .removeClass('active');
+      this.selected_asset_id = '';
       this.select_button.attr('disabled', true).removeData('value');
     } else {
       $(event.currentTarget)
@@ -126,6 +127,7 @@ AssetSelector.prototype.clickOnAsset = function(event) {
         .siblings('li')
         .removeClass('active');
       this.select_button.attr('disabled', false).data('value', $(event.currentTarget).data('id'));
+      this.selected_asset_id = $(event.currentTarget).data('id');
     }
   }
 };
