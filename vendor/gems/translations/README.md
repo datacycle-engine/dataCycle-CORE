@@ -140,11 +140,11 @@ thing.name?
 #=> true
 DataCycleCore::Thing.where(name: 'Name').count
 #=> 1
-DataCycleCore::ClassificationAlias.where(name: 'Name', locale: :de).count
+DataCycleCore::Thing.where(name: 'Name', locale: :de).count
 #=> 1
-DataCycleCore::ClassificationAlias.where(name: 'Name', locale: :en).count
+DataCycleCore::Thing.where(name: 'Name', locale: :en).count
 #=> 0
-DataCycleCore::ClassificationAlias.where(name: 'Title', locale: :en).count
+DataCycleCore::Thing.where(name: 'Title', locale: :en).count
 #=> 1
 ```
 
