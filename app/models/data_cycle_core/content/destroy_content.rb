@@ -16,6 +16,7 @@ module DataCycleCore
           destroy
         end
         run_callbacks(:destroyed_data_hash) unless history?
+        self
       end
 
       def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false)
@@ -25,7 +26,7 @@ module DataCycleCore
           end
         end
         asset_property_names.each do |name|
-          load_asset_relation(name).each(&:destroy)
+          load_asset_relation(name)&.destroy
         end
       end
 

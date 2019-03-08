@@ -1,5 +1,5 @@
 // Word Counter Module
-var Counter = function (selector = '') {
+var Counter = function(selector = '') {
   this.parent_elem = $(selector);
   this.wrapper_elem = this.parent_elem.closest('.form-element').first();
 
@@ -10,39 +10,52 @@ var Counter = function (selector = '') {
   this.update();
 };
 
-Counter.prototype.setup = function () {
+Counter.prototype.setup = function() {
   var text = this.getText();
   if (text.length == 0) $(this.container).hide();
   this.addEventHandlers();
 };
 
-Counter.prototype.setContainer = function () {
+Counter.prototype.setContainer = function() {
   if (this.parent_elem.parent().find('.counter').length == 0) this.wrapper_elem.append('<div class="counter"></div>');
   return this.wrapper_elem.find('.counter')[0];
 };
 
-Counter.prototype.addEventHandlers = function () {
+Counter.prototype.addEventHandlers = function() {
+  this.parent_elem.closest('form').on('reset', this.resetCounter.bind(this));
   this.parent_elem.on('input', this.update.bind(this));
 };
 
-Counter.prototype.getText = function () {
+Counter.prototype.resetCounter = function() {
+  this.parent_elem.val('');
+  this.update();
+};
+
+Counter.prototype.getText = function() {
   return this.parent_elem.val();
 };
 
-Counter.prototype.countWords = function (text) {
-  return text.trim().replace(/\n/g, '').length > 0 ? text.trim().replace(/\n/g, '').split(/\s+/).length : 0;
+Counter.prototype.countWords = function(text) {
+  return text.trim().replace(/\n/g, '').length > 0
+    ? text
+        .trim()
+        .replace(/\n/g, '')
+        .split(/\s+/).length
+    : 0;
 };
 
-Counter.prototype.countChars = function (text) {
+Counter.prototype.countChars = function(text) {
   return text.trim().replace(/\n/g, '').length > 0 ? text.trim().replace(/\n/g, '').length : 0;
 };
 
-Counter.prototype.calculate = function () {
+Counter.prototype.calculate = function() {
   var text = this.getText();
   var length = this.countChars(text);
 
-  if (this.warnings !== undefined && this.warnings.max !== undefined && length > 0 && length > this.warnings.max) $(this.container).addClass('warning');
-  else if (this.warnings !== undefined && this.warnings.min && length > 0 && length < this.warnings.min) $(this.container).addClass('warning');
+  if (this.warnings !== undefined && this.warnings.max !== undefined && length > 0 && length > this.warnings.max)
+    $(this.container).addClass('warning');
+  else if (this.warnings !== undefined && this.warnings.min && length > 0 && length < this.warnings.min)
+    $(this.container).addClass('warning');
   else $(this.container).removeClass('warning');
 
   return {
@@ -51,12 +64,12 @@ Counter.prototype.calculate = function () {
   };
 };
 
-Counter.prototype.update = function () {
+Counter.prototype.update = function() {
   var length = this.calculate();
   var chars = length.chars;
   var words = length.words;
-  var char_label = "Zeichen";
-  var word_label = words == 1 ? "Wort" : "Wörter";
+  var char_label = 'Zeichen';
+  var word_label = words == 1 ? 'Wort' : 'Wörter';
 
   if (chars == 0) $(this.container).fadeOut('fast');
   else $(this.container).fadeIn('fast');

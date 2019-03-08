@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class PdfTest < ActiveSupport::TestCase
       def setup
+        DataCycleCore::PdfUploader.enable_processing = true
         @pdf_temp = DataCycleCore::Pdf.count
       end
 
@@ -52,6 +53,7 @@ module DataCycleCore
       def teardown
         @pdf.remove_file!
         @pdf.destroy!
+        DataCycleCore::PdfUploader.enable_processing = false
       end
     end
   end

@@ -19,7 +19,7 @@
                 <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
             <% end %>
 
-            <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}), new_content: new_content, parent: object }, content: content %>
+            <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), new_content: new_content, parent: object }, content: content %>
         </div>
     <% end %>
 <% end %>

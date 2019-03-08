@@ -6,19 +6,13 @@ module.exports.initialize = function() {
 
   init_counters($('#edit-form'));
 
-  $(document).on('open.zf.reveal', '[data-reset-on-close="true"]', event => {
-    init_counters(event.target);
-  });
-
-  $(document).on('clone-added', '.content-object-item', event => {
+  $(document).on('changed.dc.html', '*', event => {
     init_counters(event.target);
   });
 
   function init_counters(container) {
     $(container)
-      .find(
-        'input.form-control[type=text]:not(:disabled):not(.flatpickr-input)'
-      )
+      .find('input.form-control[type=text]:not(:disabled):not(.flatpickr-input)')
       .each((index, element) => {
         CounterArray[$(element).prop('id')] = new Counter(element);
       });

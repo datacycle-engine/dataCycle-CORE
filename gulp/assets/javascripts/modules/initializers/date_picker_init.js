@@ -114,7 +114,7 @@ module.exports.initialize = function() {
 
   init(document);
 
-  $(document).on('clone-added', '.content-object-item', function() {
-    init(this);
+  $(document).on('changed.dc.html', '*', event => {
+    init(event.target);
   });
 };

@@ -9,8 +9,8 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 (content.asset_property_names - options[:hidden_attributes]).each do |property|
   data = content.send(property)
 
-  next unless data.size.positive?
+  next if data.blank?
   json.set! property.pluralize.camelize(:lower) do
-    json.array! data, partial: 'asset', as: :asset
+    json.array! Array(data), partial: 'asset', as: :asset
   end
 end

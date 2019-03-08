@@ -79,12 +79,14 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        translated_columns = (self.class.to_s + '::Translation').constantize.column_names
+        @translatable_property_names ||= begin
+          translated_columns = (self.class.to_s + '::Translation').constantize.column_names
 
-        property_definitions.select { |property_name, definition|
-          definition['storage_location'] == 'translated_value' ||
-            (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
-        }.keys
+          property_definitions.select { |property_name, definition|
+            definition['storage_location'] == 'translated_value' ||
+              (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+          }.keys
+        end
       end
 
       def untranslatable_property_names
@@ -285,7 +287,7 @@ module DataCycleCore
 
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_contents)
-          .where(asset_contents: { content_data_id: id, relation: relation_name })
+          .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
       def set_property_value(property_name, property_definition, value)

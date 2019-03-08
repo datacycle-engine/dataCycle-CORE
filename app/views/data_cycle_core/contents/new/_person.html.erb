@@ -1,0 +1,19 @@
+<fieldset>
+  <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge(search_param: true) %>
+
+  <%= render_attribute_editor key: 'thing[datahash][given_name]',
+                              definition: template.schema.dig('properties', 'given_name'),
+                              value: nil,
+                              content: template,
+                              parameters: {
+                                options: local_assigns[:options]
+                              } %>
+
+  <%= render_attribute_editor key: 'thing[datahash][family_name]',
+                              definition: template.schema.dig('properties', 'family_name'),
+                              value: nil,
+                              content: template,
+                              parameters: {
+                                options: local_assigns[:options]
+                              } %>
+</fieldset>

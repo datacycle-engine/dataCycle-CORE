@@ -47,15 +47,15 @@
           <%= tag.i(class: 'fa fa-plus') %>
           1. <%= t('actions.add_files', locale: DataCycleCore.ui_language) %>
         <% end %>
-        <a class="button asset-upload-button">
+        <button type="button" class="button asset-upload-button" disabled="disabled">
           <%= tag.i(class: 'fa fa-upload') %>
           2. <%= t('actions.upload', locale: DataCycleCore.ui_language) %>
-        </a>
+        </button>
 
         <% if local_assigns[:key].blank? %>
           <a class="asset-selector-button button" data-open="asset-selector-default">
             <i class="fa fa-files-o" aria-hidden="true"></i>
-            3. <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
+            3. <%= t('common.select_assets', locale: DataCycleCore.ui_language) %>
           </a>
           <div class="full reveal asset-selector-reveal" id="asset-selector-default" data-reveal data-multiple-opened="true" data-v-offset="0">
             <div class="asset-list-container">
@@ -71,7 +71,7 @@
         <% else %>
           <button class="button" data-close aria-label="Close modal" type="button">
             <i class="fa fa-files-o" aria-hidden="true"></i>
-            3. <%= t('common.my_assets', locale: DataCycleCore.ui_language) %>
+            3. <%= t('common.select_assets', locale: DataCycleCore.ui_language) %>
           </button>
         <% end %>
       </div>

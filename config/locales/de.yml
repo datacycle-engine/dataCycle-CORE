@@ -41,6 +41,17 @@ de:
     user: Benutzer
     guest: Gast
 
+  new_step_title:
+    title: Titel
+    copyright: Copyright
+    agbs: AGBs
+
+  admin_panel:
+    schema: Schema
+    datahash: Datahash
+    api: JSON API
+    relations: Relationen
+
   notification:
     frequency:
       always: sofort bei Änderung
@@ -128,12 +139,15 @@ de:
     select_asset: '%{data} auswählen'
     select_asset_title: Hochgeladene Dateien
     my_assets: Meine Dateien
+    select_assets: Dateien verknüpfen
     warning: Achtung!
     warnings: Warnungen
     external_connections:
       one: Externe Verknüpfung
       other: Externe Verknüpfungen
+    create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
     normalize: Normalisieren
+    required_field: Dieses Feld ist ein Pflichtfeld
 
   tile_links:
     details: zur Detailansicht

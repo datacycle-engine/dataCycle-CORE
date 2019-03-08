@@ -13,6 +13,7 @@ var ObjectBrowser = function(selector) {
   this.type = selector.data('type');
   this.locale = selector.data('locale');
   this.key = selector.data('key');
+  this.hidden_field_id = selector.data('hidden-field-id');
   this.object_id = selector.data('object-id');
   this.object_key = selector.data('object-key');
   this.definition = selector.data('definition');
@@ -35,7 +36,7 @@ var ObjectBrowser = function(selector) {
   this.sortable;
   this.content_id = this.element.data('content-id');
   this.content_type = this.element.data('content-type');
-  this.masonry;
+  this.prefix = selector.data('prefix');
   this.requests = [];
 
   this.setup();
@@ -102,43 +103,11 @@ ObjectBrowser.prototype.setup = function() {
     }
   });
 
-  this.element.on('click', '.delete-thumbnail', function(event) {
+  this.element.on('click', '.delete-thumbnail', event => {
     event.preventDefault();
     event.stopPropagation();
-    if (self.min != 0 && self.chosen.length <= self.min) {
-      var confirmationModal = new ConfirmationModal('Mindestanzahl: ' + self.min);
-    } else {
-      self.chosen = self.chosen.diff(
-        $(this)
-          .parent()
-          .data('id')
-      );
-      self.ids = self.ids.diff(
-        $(this)
-          .parent()
-          .data('id')
-      );
-      self.element
-        .children(
-          'input:hidden[value="' +
-            $(this)
-              .parent()
-              .data('id') +
-            '"]'
-        )
-        .remove();
-      $(
-        '.reveal-overlay > #media_reveal_' +
-          $(this)
-            .parent()
-            .data('id')
-      )
-        .parent('.reveal-overlay')
-        .remove();
-      $(this)
-        .parent()
-        .remove();
-      if (self.chosen.length == 0) self.renderHiddenField();
+    if (this.validate('-', this.chosen.length - 1)) {
+      this.removeThumbObject(event.target);
     }
   });
 
@@ -153,14 +122,13 @@ ObjectBrowser.prototype.setup = function() {
     );
   });
 
-  this.overlay.find('.buttons .save-object-browser').on(
-    'click',
-    function(event) {
-      event.preventDefault();
+  this.overlay.find('.buttons .save-object-browser').on('click', event => {
+    event.preventDefault();
+    if (this.validate()) {
       this.setChosen();
       this.overlay.foundation('close');
-    }.bind(this)
-  );
+    }
+  });
 
   this.element.on('update-chosen', (event, data) => {
     this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
@@ -192,43 +160,42 @@ ObjectBrowser.prototype.setup = function() {
         $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
       );
 
-    if (new_items.length > 0 && (this.chosen.length + new_items.length <= this.max || this.max == 0)) {
+    if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
       this.findObjects(new_items, data.external_ids != undefined);
-    } else if (this.max != 0 && this.chosen.length + new_items.length > this.max) {
-      var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + self.max);
     }
   });
 
-  this.overlay.on(
-    'import-complete',
-    function(event, data) {
-      if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
+  this.overlay.on('complete.dc.import', (event, data) => {
+    if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
 
-      this.overlay
-        .children('.items')
-        .find('[data-id=' + data.id + ']')
-        .get(0)
-        .scrollIntoView({
-          behavior: 'smooth'
-        });
-      this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
-    }.bind(this)
-  );
+    this.overlay
+      .children('.items')
+      .find('[data-id=' + data.id + ']')
+      .get(0)
+      .scrollIntoView({
+        behavior: 'smooth'
+      });
+    this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
+    $('#new_' + this.id + '.in-object-browser form').trigger('reset.dc.form');
+  });
 
   $(document).on(
-    'form-rendered remote-partial-rendered',
+    'changed.dc.html',
     '#new_' + this.id + '.in-object-browser .new-content-form',
     this.initNewFormHandlers.bind(this)
   );
 
-  $(document).on(
-    'open.zf.reveal',
-    '#new_' + this.id + '.in-object-browser[data-reset-on-close]',
-    this.initNewFormHandlers.bind(this)
-  );
+  this.element.on('changed.dc.locale', this.updateLocale.bind(this));
+  this.element.closest('form').on('reset', this.reset.bind(this));
 };
 
-ObjectBrowser.prototype.initNewFormHandlers = function() {
+ObjectBrowser.prototype.updateLocale = function(e) {
+  e.stopPropagation();
+
+  this.locale = this.element.data('locale');
+};
+
+ObjectBrowser.prototype.initNewFormHandlers = function(e) {
   $('#new_' + this.id + '.in-object-browser form')
     .off('submit_without_redirect')
     .on('submit_without_redirect', event => {
@@ -258,16 +225,23 @@ ObjectBrowser.prototype.initNewFormHandlers = function() {
     });
 };
 
+ObjectBrowser.prototype.removeThumbObject = function(element) {
+  let item = $(element).closest('.item');
+  let elem_id = item.data('id');
+  this.chosen = this.chosen.diff(elem_id);
+  this.ids = this.ids.diff(elem_id);
+  this.element.children('input:hidden[value="' + elem_id + '"]').remove();
+  $('.reveal-overlay > #media_reveal_' + elem_id)
+    .parent('.reveal-overlay')
+    .remove();
+  item.remove();
+  if (this.chosen.length == 0) this.renderHiddenField();
+};
+
 ObjectBrowser.prototype.renderHiddenField = function() {
   this.element
     .find('> .media-thumbs > .object-thumbs')
-    .html(
-      '<input type="hidden" id="' +
-        this.key.replace(/\[/g, '_').replace(/\]/g, '') +
-        '_default" name="' +
-        this.key +
-        '[]">'
-    );
+    .html('<input type="hidden" id="' + this.hidden_field_id + '" name="' + this.key + '[]">');
 };
 
 ObjectBrowser.prototype.findObjects = function(ids, external) {
@@ -279,6 +253,7 @@ ObjectBrowser.prototype.findObjects = function(ids, external) {
       type: this.type,
       locale: this.locale,
       key: this.key,
+      prefix: this.prefix,
       definition: this.definition,
       options: this.options,
       ids: ids,
@@ -289,6 +264,17 @@ ObjectBrowser.prototype.findObjects = function(ids, external) {
     }),
     contentType: 'application/json'
   });
+};
+
+ObjectBrowser.prototype.validate = function(type = '~', new_length = this.chosen.length) {
+  if (type != '-' && this.max != 0 && new_length > this.max) {
+    new ConfirmationModal('Maximalanzahl: ' + this.max);
+    return false;
+  } else if (type != '+' && this.min != 0 && new_length < this.min) {
+    new ConfirmationModal('Mindestanzahl: ' + this.min);
+    return false;
+  }
+  return true;
 };
 
 ObjectBrowser.prototype.setChosen = function() {
@@ -329,41 +315,33 @@ ObjectBrowser.prototype.setChosen = function() {
 };
 
 ObjectBrowser.prototype.addObject = function(id, element, event) {
-  if (this.max != 0 && this.chosen.length >= this.max) {
-    var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + this.max);
-  } else {
-    if (this.chosen.indexOf(id) === -1) {
-      this.chosen.push(id);
-      this.overlay.find('.chosen-items-container').append(element);
-      $(element)
-        .find('[data-tooltip]')
-        .each(function() {
-          $(this)
-            .attr('title', $(this).data('title'))
-            .foundation();
-        });
-      this.overlay
-        .children('.items')
-        .find('.item[data-id=' + id + ']')
-        .addClass('active');
-      this.updateChosenCounter();
-    }
+  if (this.chosen.indexOf(id) === -1) {
+    this.chosen.push(id);
+    this.overlay.find('.chosen-items-container').append(element);
+    $(element)
+      .find('[data-tooltip]')
+      .each(function() {
+        $(this)
+          .attr('title', $(this).data('title'))
+          .foundation();
+      });
+    this.overlay
+      .children('.items')
+      .find('.item[data-id=' + id + ']')
+      .addClass('active');
+    this.updateChosenCounter();
   }
 };
 
 ObjectBrowser.prototype.removeObject = function(id, event) {
-  if (this.min != 0 && this.chosen.length <= this.min) {
-    var confirmationModal = new ConfirmationModal('Mindestanzahl: ' + this.min);
-  } else {
-    this.chosen = this.chosen.diff(id);
-    this.element.children('input:hidden[value="' + id + '"]').remove();
-    this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
-    this.overlay
-      .children('.items')
-      .find('.item[data-id=' + id + ']')
-      .removeClass('active');
-    this.updateChosenCounter();
-  }
+  this.chosen = this.chosen.diff(id);
+  this.element.children('input:hidden[value="' + id + '"]').remove();
+  this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
+  this.overlay
+    .children('.items')
+    .find('.item[data-id=' + id + ']')
+    .removeClass('active');
+  this.updateChosenCounter();
 };
 
 ObjectBrowser.prototype.updateChosenCounter = function() {
@@ -412,6 +390,7 @@ ObjectBrowser.prototype.loadDetails = function(id) {
       type: this.type,
       locale: this.locale,
       key: this.key,
+      prefix: this.prefix,
       definition: this.definition,
       options: this.options,
       class: this.class,
@@ -428,6 +407,12 @@ ObjectBrowser.prototype.resetOverlay = function() {
   this.search = '';
   this.excluded = [];
   this.page = 1;
+};
+
+ObjectBrowser.prototype.reset = function(event) {
+  this.element.find('.media-thumbs .item').each((_, element) => {
+    this.removeThumbObject(element);
+  });
 };
 
 ObjectBrowser.prototype.setPreselected = function() {
@@ -500,6 +485,7 @@ ObjectBrowser.prototype.import = function(event) {
         data: event.originalEvent.data.data,
         locale: this.locale,
         key: this.key,
+        prefix: this.prefix,
         editable: this.editable,
         definition: this.definition,
         options: this.options,
@@ -557,6 +543,7 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
         objects: this.chosen,
         editable: this.editable,
         excluded: this.excluded,
+        prefix: this.prefix,
         append: append
       }),
       contentType: 'application/json'

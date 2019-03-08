@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: definition, value: value, options: options, content: content do
-  asset = value.first
+  asset = value
   if asset.present?
     json.set! key.camelize(:lower) do
       json.set! 'id', asset.id
