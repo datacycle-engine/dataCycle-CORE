@@ -57,7 +57,6 @@ module DataCycleCore
         referer: edit_thing_path(@content)
       }
       assert response.body.include?('thing[datahash][name]')
-      assert response.body.include?(I18n.t('submit', locale: DataCycleCore.ui_language))
     end
   end
 end

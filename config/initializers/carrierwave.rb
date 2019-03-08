@@ -10,4 +10,5 @@ CarrierWave.configure do |config|
   # they will not be available for public (non-authenticated) downloading
   # config.root = Rails.root.join("private")
   config.asset_host = ActionController::Base.asset_host
+  config.enable_processing = false if Rails.env.test?
 end

@@ -6,7 +6,7 @@ module DataCycleCore
     process_in_background :file
 
     def dimensions_validation(options)
-      return if options.dig(:exclude, :format)&.include?(file.filename&.split('.')&.last)
+      return if options.dig(:exclude, :format)&.include?(file.filename&.split('.')&.last) || file&.file.nil?
 
       image = ::MiniMagick::Image.new(file.file.path)
 
