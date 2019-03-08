@@ -13,40 +13,92 @@ var AssetSelector = function(button, asset_selectors) {
     .attr('src');
   this.form_element = this.button.closest('.form-element');
   this.asset_selectors = asset_selectors;
+  this.page = 1;
+  this.loading = false;
+  this.requests = [];
+  this.total = 0;
+  this.per = 25;
+  this.last_asset_type = '';
 
   this.init();
 };
 
 AssetSelector.prototype.init = function() {
-  this.reveal.on('open.zf.reveal', this.loadAssets.bind(this));
+  this.reveal.on('open.zf.reveal', event => this.loadAssets(false));
   this.asset_list.on('click', 'li', this.clickOnAsset.bind(this));
   this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
   this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
   this.button.closest('form').on('reset.dc.form', this.resetSelector.bind(this));
   this.asset_list.on('changed.dc.asset_list', this.updateButtons.bind(this));
+  this.asset_list.parent().on('scroll', this.loadMoreOnScroll.bind(this));
 };
 
-AssetSelector.prototype.loadAssets = function(event) {
-  this.asset_list.html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-  this.select_button.attr('disabled', true);
+AssetSelector.prototype.loadMoreOnScroll = function(event) {
+  if (
+    this.asset_list[0].scrollHeight - this.asset_list.parent().scrollTop() - 200 <=
+      this.asset_list.parent().outerHeight() &&
+    !this.loading &&
+    this.asset_list.children('li').length < this.total
+  ) {
+    this.loadAssets();
+  }
+};
 
-  $.ajax({
-    url: '/files/assets',
-    method: 'GET',
-    data: {
-      html_target: this.asset_list.prop('id'),
-      types: this.asset_list.data('asset-types'),
-      selected: this.selected_asset_id,
-      locked_assets: this.uniqueLockedAssetIds()
-    },
-    dataType: 'script',
-    contentType: 'application/json'
+AssetSelector.prototype.loadAssets = function(append = true) {
+  let loader = '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>';
+  if (!append) {
+    this.page = 1;
+    this.asset_list.html(loader);
+  } else this.asset_list.append(loader);
+  this.select_button.attr('disabled', true);
+  this.loading = true;
+  this.requests.forEach(request => {
+    request.abort();
+    this.requests = this.requests.filter(r => r != request);
   });
+  this.requests.push(
+    $.ajax({
+      url: '/files/assets',
+      method: 'GET',
+      data: {
+        html_target: this.asset_list.prop('id'),
+        types: this.asset_list.data('asset-types'),
+        selected: this.selected_asset_id,
+        locked_assets: this.uniqueLockedAssetIds(),
+        page: this.page,
+        last_asset_type: this.last_asset_type,
+        append: append
+      },
+      dataType: 'script',
+      contentType: 'application/json'
+    }).always((data, text, jqXHR) => {
+      this.requests = this.requests.filter(r => r != jqXHR);
+    })
+  );
 };
 
 AssetSelector.prototype.updateButtons = function(event, data) {
-  if (data !== undefined && data.selected !== undefined && data.selected != '')
-    this.select_button.attr('disabled', false).data('value', data.selected);
+  if (data !== undefined) {
+    if (data.selected !== undefined && data.selected != '')
+      this.select_button.attr('disabled', false).data('value', data.selected);
+    if (data.total !== undefined) this.total = data.total;
+    if (data.page !== undefined) this.page = data.page + 1;
+    if (data.last_asset_type !== undefined) this.last_asset_type = data.last_asset_type;
+  }
+
+  if (
+    this.asset_list.children('li').length < this.total &&
+    this.asset_list
+      .children('li')
+      .last()
+      .offset().top -
+      this.asset_list.offset().top <
+      this.asset_list.parent().outerHeight()
+  ) {
+    this.loadAssets();
+  } else {
+    this.loading = false;
+  }
 };
 
 AssetSelector.prototype.uniqueLockedAssetIds = function() {

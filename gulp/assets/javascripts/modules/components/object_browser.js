@@ -458,8 +458,6 @@ ObjectBrowser.prototype.openOverlay = function(ev) {
 
   if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
   else this.loadObjects(false);
-
-  // this.loadObjects(false);
 };
 
 ObjectBrowser.prototype.closeOverlay = function(ev) {
