@@ -67,15 +67,6 @@ module DataCycleCore
       )
     end
 
-    def translated_locales
-      available_locales
-      # if translations.loaded?
-      #   translations.map(&:locale).sort
-      # else
-      #   translations.translated_locales
-      # end
-    end
-
     def cache_key
       [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
     end

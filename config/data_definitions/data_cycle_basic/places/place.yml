@@ -28,7 +28,7 @@
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :template_name: Öffnungszeit
+        :template_name: Öffnungszeit   
       :postal_address:
         :type: mixin
         :name: postal_address
