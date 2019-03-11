@@ -135,7 +135,7 @@ module DataCycleCore
 
       def self.check_not_translatable
         templates = []
-        DataCycleCore::Thing.where(template: true).each do |template|
+        DataCycleCore::Thing.where(template: true).find_each do |template|
           properties = template.schema['properties'].with_indifferent_access
           not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
           templates.push(template.template_name) if not_trans

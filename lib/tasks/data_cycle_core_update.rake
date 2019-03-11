@@ -47,7 +47,7 @@ namespace :data_cycle_core do
       errors.blank? ? puts('[done] ... looks good') : exit(-1)
       templates = DataCycleCore::MasterData::ImportTemplates.check_not_translatable
       puts "\nINFO: the following templates are not translatable:"
-      ap ({ not_translatable: templates } unless templates.blank?)
+      ap({ not_translatable: templates }) if templates.present?
     end
 
     desc 'delete history of a specific template_name'
