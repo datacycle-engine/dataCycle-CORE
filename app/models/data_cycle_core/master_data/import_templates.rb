@@ -133,6 +133,29 @@ module DataCycleCore
         hash
       end
 
+      def self.check_not_translatable
+        templates = []
+        DataCycleCore::Thing.where(template: true).each do |template|
+          properties = template.schema['properties'].with_indifferent_access
+          not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
+          templates.push(template.template_name) if not_trans
+        end
+        templates
+      end
+
+      def self.not_translatable?(properties)
+        translated_columns = DataCycleCore::Thing.new.translated_attributes
+        result = true
+        properties.each do |name, property|
+          next if property.dig(:type).in? [:key, :classification, :asset, :linked, :embedded]
+          return false if property[:storage_location] == 'translated_value'
+          return false if property[:storage_location] == 'column' && name.in?(translated_columns)
+          result = not_translatable?(property.dig(:properties)) if property.dig(:type) == :object
+          return false if result == false
+        end
+        true
+      end
+
       def self.validate(template)
         result_header = validate_header.call(template)
         errors = {}
