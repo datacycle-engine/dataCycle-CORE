@@ -135,6 +135,7 @@ module Translations
       def translation_attributes
         translation_modules.map(&:names).flatten.uniq
       end
+      alias translated_attribute_names translation_attributes
 
       def translation_attribute?(attribute_name)
         translation_attributes.include?(attribute_name.to_s)
@@ -143,6 +144,10 @@ module Translations
       def translation_backend_class(backend_name)
         @backends ||= BackendsCache.new(self)
         @backends[backend_name.to_sym]
+      end
+
+      def class_name
+        table_name[table_name_prefix.length..-(table_name_suffix.length + 1)].downcase.camelize.singularize # from Globalize
       end
 
       class BackendsCache < ::Hash
