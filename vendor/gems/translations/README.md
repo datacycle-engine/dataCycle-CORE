@@ -98,7 +98,7 @@ DataCycleCore::ClassificationAlias.where(name: 'User', locale: :en).count
 Additionally: integragtion with methods `pluck`, `order` (and basic support for `select` and `group`)
 
 ### For `:table` backend
-Configuration used for DataCyclecore::Thing
+Configuration used for DataCycleCore::Thing
 ```
 module DataCycleCore
   class Thing < Content::DataHash
