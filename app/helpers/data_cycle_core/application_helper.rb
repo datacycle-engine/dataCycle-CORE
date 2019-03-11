@@ -23,7 +23,7 @@ module DataCycleCore
       capture do
         flash.each do |key, value|
           alert_class = DEFAULT_KEY_MATCHING[key.to_sym]
-          concat alert_box(value.html_safe, alert_class, closable)
+          concat alert_box(value, alert_class, closable)
         end
       end
     end
@@ -164,7 +164,8 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
+    def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
+      parameters[:options] ||= {}
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
@@ -173,7 +174,7 @@ module DataCycleCore
         partials = [
           key.attribute_name_from_key,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore)}",
+          "#{definition['type'].underscore}_#{definition&.dig('ui', 'edit', 'type')&.underscore}",
           definition['type'].underscore.to_s
         ]
       end
@@ -293,14 +294,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_new_form(new_template: nil, parameters: {})
+    def render_new_form(template: nil, parameters: {})
       partials = [
-        new_template&.template_name&.underscore_blanks,
-        new_template&.schema_type&.underscore_blanks,
+        template&.template_name&.underscore_blanks,
+        template&.schema_type&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ new_template: new_template }))
+      render_first_existing_partial(partials, parameters.merge({ template: template }))
     end
 
     private
@@ -320,11 +321,11 @@ module DataCycleCore
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
         if value.is_a?(String)
-          concat value.to_s
+          concat value.html_safe
         elsif value.is_a?(Hash)
           concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         else
-          concat value.to_s
+          concat value.html_safe.to_s
         end
         concat close_link if closable
       end

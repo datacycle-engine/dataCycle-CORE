@@ -13,8 +13,7 @@
 <% templates.each do |template| %>
   <%= render 'data_cycle_core/application/new_contents/new_content_form', local_assigns.merge({
     key: template&.template_name&.underscore_blanks,
-    render_function: "render_new_form",
-    render_params: to_query_params({ new_template: template }).to_json
+    template: template
   }) %>
 
   <a class="option" href="#" data-open="new_<%= template&.template_name&.underscore_blanks %>">

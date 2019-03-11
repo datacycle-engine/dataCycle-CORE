@@ -32,6 +32,7 @@ AssetUploader.prototype.init = function() {
 AssetUploader.prototype.removeFile = function(event) {
   var target = $(event.currentTarget).parent();
   this.files = this.files.filter(f => f.name != target.data('file'));
+  this.updateUploadButton();
   target.remove();
 };
 
@@ -215,12 +216,16 @@ AssetUploader.prototype.uploadFile = function(event) {
 };
 
 AssetUploader.prototype.checkRequests = function() {
-  $.when.apply(undefined, this.ajax_requests).then(
+  let running_requests = this.ajax_requests.slice();
+  this.ajax_requests = [];
+  $.when.apply(undefined, running_requests).then(
     () => {
-      this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', false);
+      this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.updateUploadButton();
     },
     () => {
-      this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', false);
+      this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.updateUploadButton();
     }
   );
 };
@@ -230,7 +235,7 @@ AssetUploader.prototype.validateFiles = function(event) {
   var that = this;
   var new_files = event.target.files;
 
-  this.reveal.find('ul.accordion').foundation('up', this.reveal.find('ul.accordion .accordion-content'));
+  // this.reveal.find('ul.accordion').foundation('up', this.reveal.find('ul.accordion .accordion-content'));
 
   for (var i = 0; i < new_files.length; i++) {
     var reader = new FileReader();
@@ -483,6 +488,11 @@ AssetUploader.prototype.validate = function(file_options) {
   };
 };
 
+AssetUploader.prototype.updateUploadButton = function() {
+  if (this.files.length > 0 && this.ajax_requests.length == 0) this.upload_button.attr('disabled', false);
+  else this.upload_button.attr('disabled', true);
+};
+
 AssetUploader.prototype.renderFileField = function(file_options) {
   file_options.file_field = this.reveal.find('.file-for-upload[data-file="' + file_options.file.name + '"]');
 
@@ -495,6 +505,7 @@ AssetUploader.prototype.renderFileField = function(file_options) {
   file_options.file_field.html(file_options.html);
 
   this.fileFieldEvents(file_options);
+  this.updateUploadButton();
   file_options.file_field.find('input.file-title').trigger('input');
 };
 

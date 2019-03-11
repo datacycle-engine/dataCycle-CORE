@@ -1,0 +1,21 @@
+:publication_schedule:
+  :enabled: true
+  :classification_keys:
+    - output_channel
+
+:overlay:
+  :enabled: true
+
+:container:
+  :enabled: false
+
+:external_media_archive:
+  :enabled: false
+
+:normalize:
+  :enabled: true
+  :external_source: Econob Normalize
+  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
+
+:duplicate_content:
+  :enabled: true

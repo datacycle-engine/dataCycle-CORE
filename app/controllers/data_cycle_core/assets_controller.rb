@@ -7,9 +7,14 @@ module DataCycleCore
     def index
       @html_target = permitted_params[:html_target]
       @selected = permitted_params[:selected]
-      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(updated_at: :desc)
+      @append = permitted_params[:append] || false
+      @page = permitted_params[:page] || 1
+      @last_asset_type = permitted_params[:last_asset_type]
+      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(type: :asc, updated_at: :desc)
       @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
-      @assets = @assets.where.not(id: permitted_params[:locked_assets].compact) if permitted_params[:locked_assets].present?
+      @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
+      @assets = @assets.page(@page).per(25)
+      @total = @assets.total_count
     end
 
     def create
@@ -68,7 +73,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :type, :html_target, :selected, locked_assets: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :selected, locked_assets: [], types: [])
     end
 
     def find_params

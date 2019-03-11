@@ -25,16 +25,31 @@ module DataCycleCore
               options.dig(:import, :transformations, :contributor),
               "MedienArchive - Person - #{raw_data.dig('contributor', 'id')}"
             )
+
             DataCycleCore::Generic::MediaArchive::Processing.process_person(
               utility_object,
               raw_data['director'],
               options.dig(:import, :transformations, :director),
               "MedienArchive - Person - #{raw_data.dig('director', 'id')}"
             )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightPerson'],
+              options.dig(:import, :transformations, :copyright_person) || { template: 'Person' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightPerson', 'id')}"
+            )
+
+            DataCycleCore::Generic::MediaArchive::Processing.process_person(
+              utility_object,
+              raw_data['copyrightOrganization'],
+              options.dig(:import, :transformations, :copyright_organization) || { template: 'Organization' },
+              "MedienArchive - CopyrightHolder - #{raw_data.dig('copyrightOrganization', 'id')}"
+            )
           end
 
           I18n.with_locale(locale) do
-            ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'file_format_videos'].each do |tag_name|
+            ['tags_videos', 'types_of_use_videos', 'audiences_videos', 'suggested_audiences_videos', 'file_format_videos'].each do |tag_name|
               DataCycleCore::Generic::Common::ImportTags.process_content(
                 utility_object: utility_object,
                 raw_data: raw_data,

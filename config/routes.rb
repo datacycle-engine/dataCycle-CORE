@@ -16,6 +16,11 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
 
+  get '/assets/:klass/:id/:version/:file', to: 'missing_asset#show', constraints: {
+    klass: /(image|audio|video|pdf|text_file)/,
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
+
   get '/schema', to: 'schema#index'
 
   get  '/info', to: 'frontend#info'
@@ -32,7 +37,7 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :new, :create, :edit, :update, :destroy], controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
@@ -171,7 +176,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
-  post 'contents/new', to: 'contents#new'
+  # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 

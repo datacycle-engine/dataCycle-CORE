@@ -1,8 +1,7 @@
 var masonry = require('masonry-layout');
 
 // Masonry Config
-module.exports.initialize = function () {
-
+module.exports.initialize = function() {
   function init(element = document) {
     if ($(element).find('.grid').length) {
       var grid = new masonry('.grid', {
@@ -13,15 +12,22 @@ module.exports.initialize = function () {
         transitionDuration: 0
       });
 
-      $(element).find('.grid .grid-loading').removeClass("show");
-      $(element).find('.grid-item').addClass("show");
+      $(element)
+        .find('.grid .grid-loading')
+        .removeClass('show');
+      $(element)
+        .find('.grid-item')
+        .addClass('show');
 
-      $(window).on('load lazyloaded', function () {
+      $(window).on('load', event => {
         grid.layout();
       });
+
+      $(document).on('lazyloaded', '*', event => {
+        if ($(event.target).closest('.grid').length) grid.layout();
+      });
     }
-  };
+  }
 
   init();
-
 };

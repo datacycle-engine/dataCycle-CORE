@@ -16,11 +16,11 @@
   }
 
   .grid-sizer {
-    width: 98%
+    width: 98%;
   }
 
   .gutter-sizer {
-    width: 2%
+    width: 2%;
   }
 
   .grid-item {
@@ -37,11 +37,11 @@
       z-index: 1;
       line-height: 1;
 
-      >a {
+      > a {
         line-height: inherit;
       }
 
-      >i.fa {
+      > i.fa {
         color: $dark-gray;
         line-height: inherit;
 
@@ -50,14 +50,13 @@
         }
       }
 
-      >a.button-prime.small,
-      >button.button-prime.small {
+      > a.button-prime.small,
+      > button.button-prime.small {
         display: inline-block;
         height: 2rem;
         width: 2rem;
 
         &.has-tip {
-
           &:hover,
           &:focus {
             cursor: pointer;
@@ -71,7 +70,7 @@
       }
     }
 
-    .watch-lists-link>span {
+    .watch-lists-link > span {
       display: none;
     }
 
@@ -146,11 +145,11 @@
 
 .grid.small {
   .grid-sizer {
-    width: 49%
+    width: 49%;
   }
 
   .gutter-sizer {
-    width: 2%
+    width: 2%;
   }
 
   .grid-item {
@@ -165,7 +164,7 @@
         max-height: 150px;
       }
 
-      >.title {
+      > .title {
         font-size: 0.9rem;
         font-style: italic;
       }
@@ -242,11 +241,11 @@
 @include breakpoint(medium) {
   .grid {
     .grid-sizer {
-      width: 49%
+      width: 49%;
     }
 
     .gutter-sizer {
-      width: 2%
+      width: 2%;
     }
 
     .grid-item {
@@ -256,11 +255,11 @@
 
   .grid.small {
     .grid-sizer {
-      width: 23.3%
+      width: 23.3%;
     }
 
     .gutter-sizer {
-      width: 2%
+      width: 2%;
     }
 
     .grid-item {
@@ -272,11 +271,11 @@
 @include breakpoint(large) {
   .grid {
     .grid-sizer {
-      width: 32%
+      width: 32%;
     }
 
     .gutter-sizer {
-      width: 2%
+      width: 2%;
     }
 
     .grid-item {
@@ -288,11 +287,11 @@
 @include breakpoint(xlarge) {
   .grid {
     .grid-sizer {
-      width: 23.7%
+      width: 23.7%;
     }
 
     .gutter-sizer {
-      width: 1.5%
+      width: 1.5%;
     }
 
     .grid-item {
@@ -302,11 +301,11 @@
 
   .grid.small {
     .grid-sizer {
-      width: 15.3%
+      width: 15.3%;
     }
 
     .gutter-sizer {
-      width: 1.5%
+      width: 1.5%;
     }
 
     .grid-item {
@@ -318,11 +317,11 @@
 @include breakpoint(xxlarge) {
   .grid {
     .grid-sizer {
-      width: 19.2%
+      width: 19.2%;
     }
 
     .gutter-sizer {
-      width: 1%
+      width: 1%;
     }
 
     .grid-item {
@@ -332,11 +331,11 @@
 
   .grid.small {
     .grid-sizer {
-      width: 10.2%
+      width: 10.2%;
     }
 
     .gutter-sizer {
-      width: 1%
+      width: 1%;
     }
 
     .grid-item {

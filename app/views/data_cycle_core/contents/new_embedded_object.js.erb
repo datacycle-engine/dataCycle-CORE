@@ -4,4 +4,4 @@ $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j render_embedd
 
 $('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation();
 $('<%= j content_for :forms %>').appendTo('body').foundation();
-$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').trigger('clone-added');
+$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').trigger('changed.dc.html');

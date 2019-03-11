@@ -15,7 +15,7 @@ module DataCycleCore
               contents.each do |content|
                 xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
                   xml.owner @owner
-                  xml.author 'DataCycle'
+                  # xml.author 'DataCycle'
                   xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
                   outdoor_active_categories(content, xml, external_system)
                   outdoor_active_contact(content, xml)
@@ -38,7 +38,7 @@ module DataCycleCore
               xml.address do
                 xml.street content.address.try(:street_address)
                 xml.postalcode content.address.try(:postal_code)
-                xml.municipality content.address.try(:municipality)
+                xml.municipality content.address.try(:address_locality)
                 xml.number content.address.try(:number)
               end
             end

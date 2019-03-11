@@ -36,55 +36,6 @@ DataCycleCore.setup do |config|
     ].freeze
   end
 
-  config.features = config.features.deep_merge(
-    {
-      publication_schedule: {
-        enabled: true,
-        classification_keys: ['output_channel']
-      },
-      overlay: {
-        enabled: true
-      },
-      container: {
-        enabled: false
-      },
-      external_media_archive: {
-        enabled: true
-      },
-      normalize: {
-        enabled: true,
-        external_source: 'Econob Normalize',
-        endpoint: 'DataCycleCore::MasterData::Normalizer::Endpoint'
-      },
-      duplicate_content: {
-        enabled: true
-      }
-    }
-  )
-
-  if Rails.env.test?
-    config.features = config.features.deep_merge(
-      releasable: {
-        enabled: true
-      },
-      container: {
-        enabled: true
-      },
-      life_cycle: {
-        enabled: true,
-        attribute_keys: ['data_pool'],
-        tree_label: 'Inhaltspools',
-        ordered: ['Vorschläge', 'Recherche', 'Aktuelle Inhalte', 'Archiv']
-      },
-      idea_collection: {
-        enabled: true,
-        dependencies: ['life_cycle', 'container'],
-        template: 'Recherche',
-        life_cycle_stage: 'Recherche'
-      }
-    )
-  end
-
   config.webhooks = ['Local-Text-File', 'OutdoorActive']
 
   config.webhooks = ['Local-Text-File'] if Rails.env.test?
