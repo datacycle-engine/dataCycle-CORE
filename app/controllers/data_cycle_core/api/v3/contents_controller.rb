@@ -55,11 +55,7 @@ module DataCycleCore
 
         def apply_ordering(query)
           query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
-          if permitted_params[:q].blank?
-            query
-          else
-            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q]))
-          end
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
         end
 
         def build_search_query
