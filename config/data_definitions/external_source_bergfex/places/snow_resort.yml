@@ -168,6 +168,7 @@
         :label: Öffnungszeit
         :type: embedded
         :template_name: Öffnungszeit
+        :translated: true
       :addons:
         :label: Addons
         :type: embedded

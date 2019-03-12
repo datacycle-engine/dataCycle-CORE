@@ -90,6 +90,7 @@
         :label: Öffnungszeit
         :type: embedded
         :template_name: Öffnungszeit
+        :translated: true
       :url:
         :label: Link
         :type: string
