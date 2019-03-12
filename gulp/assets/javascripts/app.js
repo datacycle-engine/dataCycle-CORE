@@ -10,6 +10,7 @@ var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
 
 var initializers = [];
+initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));
 initializers.push(require('./modules/initializers/quill_init'));
 initializers.push(require('./modules/initializers/filter_init'));
@@ -30,7 +31,6 @@ initializers.push(require('./modules/initializers/object_browser_init'));
 initializers.push(require('./modules/initializers/embedded_objects_init'));
 initializers.push(require('./modules/initializers/iframe_init'));
 initializers.push(require('./modules/initializers/assets_init'));
-initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/publication_init'));
 initializers.push(require('./modules/initializers/stored_filters_init'));
 initializers.push(require('./modules/initializers/dropdown_pane_init'));

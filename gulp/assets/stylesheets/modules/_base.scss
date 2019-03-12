@@ -467,6 +467,7 @@ button,
       left: 1rem;
       top: 0.7rem;
       color: $dark-gray;
+      line-height: 1.5;
 
       &.fixed-toolbar {
         position: fixed;
@@ -1247,6 +1248,10 @@ a[data-toggle] {
       &:not(:last-child) {
         margin-bottom: 0.5rem;
       }
+      .delete-translation-link {
+        float: right;
+        color: $alert-color;
+      }
 
       .buttons {
         float: right;
@@ -1297,14 +1302,16 @@ a[data-toggle] {
     li {
       text-align: left;
       display: flex;
+      &.invalid {
+        color: $dark-gray;
+      }
+      &:nth-child(even).invalid {
+        color: darken($dark-gray, 10%);
+      }
     }
 
     .center-text {
       text-align: center;
-    }
-
-    .invalid {
-      color: $dark-gray;
     }
 
     .email,
