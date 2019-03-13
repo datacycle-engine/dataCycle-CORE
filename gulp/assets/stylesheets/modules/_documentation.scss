@@ -3,6 +3,10 @@ body.documentation {
     margin-bottom: 2rem;
   }
 
+  main {
+    min-height: calc(100vh - 19rem);
+  }
+
   h4 {
     font-size: 120%;
     font-weight: bold;

@@ -94,9 +94,10 @@ end
 
 # Documentation
 crumb :documentation do
-  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '#', authorized: false
+  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '/docs', authorized: true
 
-  path_segments = params['path'].split('/')
+  path_segments = (params['path'] || '').split('/')
+
   (0..path_segments.length - 1).each do |i|
     translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
 
