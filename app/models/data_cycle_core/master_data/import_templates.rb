@@ -138,14 +138,14 @@ module DataCycleCore
         return [] if not_translatable_list.blank?
 
         not_translated_occurances = []
-        DataCycleCore::Thing.where(template: true).each do |template|
+        DataCycleCore::Thing.where(template: true).find_each do |template|
           template.embedded_property_names.map { |item|
             { item => template.properties_for(item) }
           }.each do |properties|
             key = properties.keys.first
             next unless properties.dig(key, 'template_name').in?(not_translatable_list)
             next if properties.dig(key, 'translated') == true
-            not_translated_occurances.push({ template.template_name => key } )
+            not_translated_occurances.push({ template.template_name => key })
           end
         end
         not_translated_occurances
