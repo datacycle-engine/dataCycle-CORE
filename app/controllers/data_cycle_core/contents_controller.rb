@@ -112,16 +112,7 @@ module DataCycleCore
         end
       end
 
-      if params[:locale] &&
-         !@content.translated_locales.include?(params[:locale]&.to_sym) &&
-         I18n.available_locales.include?(params[:locale]&.to_sym) &&
-         @content.translatable?
-        I18n.with_locale(params[:locale]) do
-          @content.save
-        end
-      end
-
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
         redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
@@ -139,7 +130,7 @@ module DataCycleCore
 
     def update
       @content = DataCycleCore::Thing.find(params[:id])
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
         redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
         object_params = content_params(@content.template_name)
@@ -165,18 +156,23 @@ module DataCycleCore
     def destroy
       @content = DataCycleCore::Thing.find(params[:id])
 
-      destroy_params = { current_user: current_user }
-      if @content.external_source_id.present?
-        destroy_params[:save_history] = false
-        destroy_params[:destroy_linked] = true
+      I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
+        destroy_content_params = { current_user: current_user }
+        if @content.external_source_id.present?
+          destroy_content_params[:save_history] = false
+          destroy_content_params[:destroy_linked] = true
+        end
+
+        destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
+
+        @content.destroy_content(destroy_content_params)
+
+        flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: DataCycleCore.ui_language)
+
+        redirect_to(thing_path(@content, watch_list_params)) && return unless @content.destroyed?
+        redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+        redirect_to root_path
       end
-      @content.destroy_content(destroy_params)
-
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-
-      redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
-
-      redirect_to root_path
     end
 
     def compare
@@ -362,6 +358,10 @@ module DataCycleCore
 
     def new_params
       params.transform_keys(&:underscore).permit(:template, :locale, :key, :search_param, :search_required, :scope, options: [:force_render, :prefix], parent: [:id, :class], content: [:id, :class])
+    end
+
+    def destroy_params
+      params.permit(:locale)
     end
 
     def source_params

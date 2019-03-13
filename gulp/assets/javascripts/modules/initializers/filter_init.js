@@ -183,24 +183,24 @@ module.exports.initialize = function() {
 
     $('.filters .advanced-filters #add_advanced_filter').on('change', event => {
       event.preventDefault();
-      $(event.currentTarget).prop('disabled', true);
+      $(event.target).prop('disabled', true);
       $.ajax({
-        url: $(event.currentTarget).data('url'),
+        url: $(event.target).data('url'),
         method: 'GET',
         data: {
-          t: $(event.currentTarget).val(),
-          n: $(event.currentTarget)
+          t: $(event.target).val(),
+          n: $(event.target)
             .find(':selected')
             .data('name'),
-          m: $(event.currentTarget).data('method'),
-          index: $(event.currentTarget).data('index')
+          m: $(event.target).data('method'),
+          index: $(event.target).data('index')
         },
         dataType: 'script',
         contentType: 'application/json'
       }).always(() => {
-        $(event.currentTarget).prop('disabled', false);
+        $(event.target).prop('disabled', false);
       });
-      $(event.currentTarget).val('');
+      $(event.target).val('');
     });
 
     $('.filters .advanced-filters, .filters').on('click', '.remove-advanced-filter', event => {

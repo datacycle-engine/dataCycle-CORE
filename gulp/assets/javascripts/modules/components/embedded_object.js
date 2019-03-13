@@ -110,19 +110,27 @@ EmbeddedObject.prototype.addEventHandlers = function() {
     $(element)
       .children('.removeContentObject')
       .off('click')
-      .on('click', event => {
-        event.preventDefault();
-        $(element).trigger('remove.dc.html');
-        let id = $(event.currentTarget)
-          .closest('.content-object-item')
-          .data('id');
-        this.element.find('input:hidden[value="' + id + '"]').remove();
-        $(event.currentTarget)
-          .closest('.content-object-item')
-          .remove();
-        self.update();
-      });
+      .on('click', this.handleRemoveEvent.bind(this));
   });
+};
+
+EmbeddedObject.prototype.handleRemoveEvent = function(event) {
+  event.preventDefault();
+  let element = $(event.target).closest('.content-object-item');
+
+  if ($(event.target).data('confirm-delete') != undefined) {
+    new ConfirmationModal($(event.target).data('confirm-delete'), 'alert', true, () => {
+      this.removeObject(element);
+    });
+  } else this.removeObject(element);
+};
+
+EmbeddedObject.prototype.removeObject = function(element) {
+  element.trigger('remove.dc.html');
+  let id = element.data('id');
+  this.element.find('input:hidden[value="' + id + '"]').remove();
+  element.remove();
+  this.update();
 };
 
 EmbeddedObject.prototype.update = function() {

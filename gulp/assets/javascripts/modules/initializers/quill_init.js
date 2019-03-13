@@ -216,6 +216,21 @@ module.exports.initialize = function() {
         .find('> .embedded-header > input')
         .addClass(fixed_class)
         .css('left', $(element).offset().left + 10);
+
+    if (
+      $(element)
+        .parents('.content-object-item.textblock')
+        .find('> .embedded-header > .translated').length
+    )
+      $(element)
+        .parents('.content-object-item.textblock')
+        .find('> .embedded-header > .translated')
+        .addClass(fixed_class)
+        .css('left', $(element).offset().left + 10);
+    $(element)
+      .parents('.content-object-item.textblock')
+      .find('> .embedded-header > input')
+      .css('left', $(element).offset().left + 30);
   }
 
   let reset_editor_toolbar = function(element, fixed_class = '') {
@@ -230,7 +245,7 @@ module.exports.initialize = function() {
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
         .parents('.content-object-item.textblock')
-        .find('> .embedded-header > input')
+        .find('> .embedded-header > input, > .embedded-header > .translated')
         .removeClass(fixed_class)
         .removeAttr('style');
   };

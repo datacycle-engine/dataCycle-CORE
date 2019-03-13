@@ -42,7 +42,8 @@
               load_more_action: :embedded_object,
               editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
               content_id: content.id,
-              content_type: content.class.table_name
+              content_type: content.class.table_name,
+              locale: I18n.locale
             ),
             remote: true,
             id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",

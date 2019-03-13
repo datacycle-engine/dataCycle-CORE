@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     class ImportObject < GenericObject
-      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode, :history, :normalizer
+      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode, :history, :partial_update, :normalizer
       attr_writer :mode
 
       def initialize(**options)
@@ -24,6 +24,7 @@ module DataCycleCore
         @logging = init_logging(:import)
         @history = options.dig(:history) || false
         @mode = options.dig(:import, :mode)&.to_sym || options.dig(:mode)&.to_sym || :incremental
+        @partial_update = options.dig(:partial_update) || false
       end
     end
   end

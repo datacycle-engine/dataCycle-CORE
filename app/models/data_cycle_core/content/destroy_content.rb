@@ -15,22 +15,26 @@ module DataCycleCore
 
           destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
           destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
-          if destroy_locale
-            destroy_translation(self, I18n.locale)
+          if destroy_locale && available_locales.many?
+            destroy_translation(I18n.locale)
           else
             destroy
           end
         end
-        run_callbacks(:destroyed_data_hash) unless history?
+        if destroyed?
+          run_callbacks(:destroyed_data_hash) unless history?
+        else
+          run_callbacks(:saved_data_hash) unless history?
+        end
         self
       end
 
       def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false, destroy_locale: false)
         embedded_property_names.each do |name|
           load_embedded_objects(name, destroy_locale).each do |item|
-            if destroy_locale
+            if destroy_locale && item.available_locales.many?
               item.destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
-              destroy_translation(item, I18n.locale)
+              item.destroy_translation(I18n.locale)
             else
               item.destroy_content(current_user: current_user, save_time: save_time, save_history: false, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
             end
@@ -57,13 +61,9 @@ module DataCycleCore
         ).uniq.size
       end
 
-      def destroy_translation(item, locale)
-        if (item.available_locales - [locale]).blank?
-          item.destroy
-        else
-          item.translations.in_locale(locale).destroy
-          item.translations.reload
-        end
+      def destroy_translation(locale)
+        translations.in_locale(locale).destroy
+        translations.reload # bug of Globalize (does not invalidate query cache)
       end
     end
   end

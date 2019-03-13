@@ -1361,6 +1361,20 @@ select:-moz-focusring {
           float: none;
         }
 
+        .translated {
+          position: relative;
+          top: 0;
+          left: 0;
+          &.fixed-toolbar {
+            position: fixed;
+            top: 60px;
+          }
+          &.fixed-split-toolbar {
+            position: fixed;
+            top: 185px;
+          }
+        }
+
         input[name*='name'] {
           display: inline-block;
           background: transparent;
@@ -1388,6 +1402,9 @@ select:-moz-focusring {
 
       .text_editor {
         margin-bottom: 0;
+        .translated {
+          display: none;
+        }
 
         label {
           display: none;
@@ -1541,6 +1558,7 @@ select {
 }
 [type='checkbox'],
 [type='radio'] {
+  margin: 0;
   display: inline-block;
   vertical-align: middle;
   & + label {

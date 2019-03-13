@@ -14,7 +14,7 @@
       </span>
 
       <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, internal_template, :edit)) %>
-        <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
+        <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject' %>
       <% end %>
 
       <% validation_properties.each do |o_key, o_prop| %>
