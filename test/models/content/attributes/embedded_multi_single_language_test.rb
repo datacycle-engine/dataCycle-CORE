@@ -71,8 +71,10 @@ module DataCycleCore
 
         test 'add a new translation to main and a new embedded in the new language' do
           data_set = @data_set
-          I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
 
+          # correct ?
+          I18n.available_locales << :fr
+          I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
           assert_equal([:de, :en, :fr], data_set.available_locales.sort)
           assert_equal(3, data_set.load_relation('embedded_creative_work', false).size)
 
