@@ -17,7 +17,7 @@ DataCycleCore::Engine.routes.draw do
   get '/docs/*path', to: 'documentation#show'
   get '/docs', to: 'documentation#show'
 
-  get '/assets/:klass/:id/:version/:file', to: 'missing_asset#show', constraints: {
+  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
     klass: /(image|audio|video|pdf|text_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
   }
