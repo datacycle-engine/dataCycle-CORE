@@ -148,6 +148,7 @@ de:
     create_via_mediaarchive: '%{data} über Medienarchiv erstellen'
     normalize: Normalisieren
     required_field: Dieses Feld ist ein Pflichtfeld
+    preview: Vorschau
 
   tile_links:
     details: zur Detailansicht
