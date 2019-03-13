@@ -264,7 +264,7 @@ def progress_bar(total_items, index, interval = nil)
 end
 
 def zsh?
-  ENV['SHELL'].split('/').last == 'zsh'
+  ENV['SHELL']&.split('/')&.last == 'zsh'
 end
 
 def error(msg)
