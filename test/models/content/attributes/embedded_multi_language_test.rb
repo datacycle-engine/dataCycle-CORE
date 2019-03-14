@@ -66,7 +66,6 @@ module DataCycleCore
 
         test 'add a new translation to main and a new translation to embedded' do
           data_set = @data_set_multi
-          # correct ?
           I18n.available_locales << :fr
           I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'id' => @embedded_multi.id, 'name' => 'French' }] }, prevent_history: true) }
 
@@ -81,7 +80,6 @@ module DataCycleCore
 
         test 'add a new translation to main and a new embedded - old embedded deleted' do
           data_set = @data_set_multi
-          # correct ?
           I18n.available_locales << :fr
           I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
 
@@ -146,6 +144,10 @@ module DataCycleCore
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-2').count)
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(1, DataCycleCore::ContentContent.count)
+        end
+
+        def teardown
+          I18n.available_locales.delete(:fr)
         end
       end
     end

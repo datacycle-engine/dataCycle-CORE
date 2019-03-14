@@ -72,7 +72,6 @@ module DataCycleCore
         test 'add a new translation to main and a new embedded in the new language' do
           data_set = @data_set
 
-          # correct ?
           I18n.available_locales << :fr
           I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
           assert_equal([:de, :en, :fr], data_set.available_locales.sort)
@@ -100,6 +99,10 @@ module DataCycleCore
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
           assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Creative-Work-2').count)
           assert_equal(3, DataCycleCore::ContentContent.count)
+        end
+
+        def teardown
+          I18n.available_locales.delete(:fr)
         end
       end
     end
