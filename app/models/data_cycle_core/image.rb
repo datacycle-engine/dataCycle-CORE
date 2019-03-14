@@ -29,5 +29,13 @@ module DataCycleCore
         errors.add :file, I18n.t('uploader.validation.dimensions.portrait.max.height', data: options.dig(:portrait, :max, :height).to_i, locale: DataCycleCore.ui_language) if options.dig(:portrait, :max, :height).present? && image.height > options.dig(:portrait, :max, :height).to_i
       end
     end
+
+    def duplicate_candidates
+      @duplicate_candidates ||= begin
+        return [] if duplicate_check&.dig('phash').blank?
+
+        DataCycleCore::Image.includes(:things).where.not(asset_contents: { content_data_id: nil }).where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map(&:things).flatten
+      end
+    end
   end
 end

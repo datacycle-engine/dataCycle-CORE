@@ -323,14 +323,17 @@
     .fa-exclamation-triangle {
       color: $warning-color;
       text-shadow: 0 0 1px;
-      &.alert {
-        color: $alert-color;
-      }
     }
 
     .validity_period {
       margin-bottom: 1rem;
     }
+  }
+}
+
+.fa-exclamation-triangle {
+  &.alert {
+    color: $alert-color;
   }
 }
 

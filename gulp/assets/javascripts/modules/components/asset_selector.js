@@ -25,7 +25,7 @@ var AssetSelector = function(button, asset_selectors) {
 
 AssetSelector.prototype.init = function() {
   this.reveal.on('open.zf.reveal', event => this.loadAssets(false));
-  this.asset_list.on('click', 'li', this.clickOnAsset.bind(this));
+  this.asset_list.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
   this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
   this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
   this.button.closest('form').on('reset.dc.form', this.resetSelector.bind(this));
@@ -112,7 +112,8 @@ AssetSelector.prototype.uniqueLockedAssetIds = function() {
 AssetSelector.prototype.clickOnAsset = function(event) {
   if (
     $(event.target).closest('.asset-file-link-tag').length == 0 &&
-    $(event.target).closest('.asset-destroy').length == 0
+    $(event.target).closest('.asset-destroy').length == 0 &&
+    $(event.target).closest('.asset-duplicate-warning').length == 0
   ) {
     if ($(event.currentTarget).hasClass('active')) {
       $(event.currentTarget)
