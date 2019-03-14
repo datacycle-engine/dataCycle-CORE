@@ -23,6 +23,10 @@ module DataCycleCore
       end
     end
 
+    def duplicate_candidates
+      @duplicate_candidates ||= []
+    end
+
     def dynamic_version_definition(name)
       @dynamic_version_definition ||= Hash.new do |h, key|
         h[key.to_s] = asset_contents&.first&.asset_version_definition(key)

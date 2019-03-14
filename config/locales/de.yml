@@ -149,6 +149,8 @@ de:
     normalize: Normalisieren
     required_field: Dieses Feld ist ein Pflichtfeld
     preview: Vorschau
+    duplicates: Duplikate
+    duplicates_exist: '%{data} mögliche Duplikate'
 
   tile_links:
     details: zur Detailansicht

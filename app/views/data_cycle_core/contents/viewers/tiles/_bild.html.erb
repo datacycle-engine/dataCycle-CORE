@@ -29,7 +29,7 @@
             <img class="lazyload" data-src="<%= thumbnail_url %>" />
         </div>
         <div class="description">
-            <%= render 'validity_period', dataCycleObject: content %>
+            <%= render 'data_cycle_core/contents/validity_period', dataCycleObject: content %>
             <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: content, text: true, locale: render_locale %>
 
             <%= link_to content, target: '_blank' do %>
