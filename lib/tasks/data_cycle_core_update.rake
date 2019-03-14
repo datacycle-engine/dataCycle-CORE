@@ -45,7 +45,7 @@ namespace :data_cycle_core do
         ap errors
       end
       errors.blank? ? puts('[done] ... looks good') : exit(-1)
-      puts 'checking for usage of not translatable embedded'
+      puts "\nchecking for usage of not translatable embedded"
       templates = DataCycleCore::MasterData::ImportTemplates.find_not_translatable_embedded
       if templates.present?
         puts "\nERROR: the following templates use not translatable embedded:"

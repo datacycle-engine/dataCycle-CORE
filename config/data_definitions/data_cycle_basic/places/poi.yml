@@ -56,6 +56,9 @@
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
+      :outdoor_active_link:
+        :type: mixin
+        :name: outdoor_active_link        
       :outdoor_active_categories:
         :type: mixin
         :name: outdoor_active_categories

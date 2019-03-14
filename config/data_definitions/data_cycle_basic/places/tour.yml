@@ -55,6 +55,11 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :poi:
+        :label: POIS
+        :type: linked
+        :template_name: POI
+        :inverse_of: tour
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

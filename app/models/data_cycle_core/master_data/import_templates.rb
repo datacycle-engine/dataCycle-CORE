@@ -222,6 +222,10 @@ module DataCycleCore
               value.in?(['all', 'same'])
             end
 
+            def validate_link_direction?(value)
+              value.in?(['inverse'])
+            end
+
             def valid_compute_config?(value)
               return false unless value.is_a?(Hash)
               module_name = valid_computed_module?(value.dig(:module))
@@ -249,7 +253,8 @@ module DataCycleCore
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
                     valid_compute_config?: 'module and method combination not found.',
-                    valid_linked_language?: 'must be all or same.'
+                    valid_linked_language?: 'must be all or same.',
+                    validate_link_direction?: 'must be inverse if present.'
                   }
                 }
               )
@@ -312,6 +317,8 @@ module DataCycleCore
 
           # for type linked
           optional(:linked_language) { str? & valid_linked_language? }
+          optional(:inverse_of) { str? }
+          optional(:link_direction) { str? & validate_link_direction? }
           rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
             (type.eql?('linked') > template_name.filled?) |
               (type.eql?('linked') > stored_filter.filled?)

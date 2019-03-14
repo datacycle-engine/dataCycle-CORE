@@ -19,25 +19,39 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name, same_language = false)
+        properties = properties_for(relation_name)
+        relation_b = properties.dig('inverse_of')
         language_flag = same_language
-        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties_for(relation_name).dig('linked_language').present?
-        load_relation(relation_name, language_flag)
+        language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
+        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction'))
       end
 
       def load_embedded_objects(relation_name, same_language = true)
         language_flag = same_language
         language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
         language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
-        load_relation(relation_name, language_flag)
+        load_relation(relation_name, nil, language_flag)
       end
 
-      def load_relation(relation_name, same_language)
+      def load_relation(relation_a, relation_b, same_language, inverse = false)
+        if inverse
+          relation_name = :content_content_a
+          content_id_sym = :content_b_id
+          relation_a_name = relation_b
+          relation_b_name = relation_a
+        else
+          relation_name = :content_content_b
+          content_id_sym = :content_a_id
+          relation_a_name = relation_a
+          relation_b_name = relation_b
+        end
         relation_contents = DataCycleCore::Thing
-          .joins(:content_content_b)
+          .joins(relation_name)
           .where({
             content_contents: {
-              content_a_id: id,
-              relation_a: relation_name
+              content_id_sym => id,
+              relation_a: relation_a_name,
+              relation_b: relation_b_name
             }
           })
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language

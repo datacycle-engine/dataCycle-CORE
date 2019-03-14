@@ -127,7 +127,7 @@ module DataCycleCore
       def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked(key, value)
+          set_linked(key, value, properties)
         when 'embedded'
           set_embedded(key, value, properties['template_name'], properties['translated'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
@@ -187,7 +187,10 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked(field_name, input_data)
+      def set_linked(field_name, input_data, properties)
+        return if properties['link_direction'] == 'inverse' # deal with that later
+        relation_b = properties['inverse_of']
+
         item_ids_before_update = send(field_name).ids
         item_ids_after_update = parse_linked_ids(input_data)
 
@@ -195,7 +198,8 @@ module DataCycleCore
           update_relation = DataCycleCore::ContentContent.find_or_create_by({
             content_a_id: id,
             relation_a: field_name,
-            content_b_id: item_ids_after_update[index]
+            content_b_id: item_ids_after_update[index],
+            relation_b: relation_b
           })
           update_relation.order_a = index
           update_relation.save!
