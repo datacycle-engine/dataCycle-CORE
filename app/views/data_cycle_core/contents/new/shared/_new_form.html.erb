@@ -45,6 +45,9 @@
   <% end %>
 
   <div class="buttons">
+    <button class="button reset" data-disable type="button">
+      <%= t('actions.reset', count: 1, locale: DataCycleCore.ui_language) %>
+    </button>
     <button class="button prev" type="button">
       <%= t('actions.back', locale: DataCycleCore.ui_language) %>
     </button>
