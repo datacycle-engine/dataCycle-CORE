@@ -23,7 +23,7 @@ module DataCycleCore
         relation_b = properties.dig('inverse_of')
         language_flag = same_language
         language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction'))
+        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction') == 'inverse')
       end
 
       def load_embedded_objects(relation_name, same_language = true)

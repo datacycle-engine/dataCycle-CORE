@@ -188,7 +188,7 @@ module DataCycleCore
       end
 
       def set_linked(field_name, input_data, properties)
-        return if properties['link_direction'] == 'inverse' # deal with that later
+        return if properties['link_direction'] == 'inverse' # inverse direction is read_only
         relation_b = properties['inverse_of']
 
         item_ids_before_update = send(field_name).ids
@@ -198,10 +198,10 @@ module DataCycleCore
           update_relation = DataCycleCore::ContentContent.find_or_create_by({
             content_a_id: id,
             relation_a: field_name,
-            content_b_id: item_ids_after_update[index],
-            relation_b: relation_b
+            content_b_id: item_ids_after_update[index]
           })
           update_relation.order_a = index
+          update_relation.relation_b = relation_b
           update_relation.save!
         end
 

@@ -45,12 +45,15 @@ module DataCycleCore
         end
 
         linked_property_names.each do |content_name|
+          properties = properties_for(content_name)
+          next if properties.dig('link_direction') == 'inverse'
           load_linked_objects(content_name).each_with_index do |content_item, index|
             from = [content_item.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({
               content_a_history_id: data_set_history.id,
               relation_a: content_name,
               order_a: index,
+              relation_b: properties.dig('inverse_of'),
               content_b_history_id: content_item.id,
               content_b_history_type: 'DataCycleCore::Thing',
               history_valid: (from...save_time)
