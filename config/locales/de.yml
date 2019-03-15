@@ -150,7 +150,9 @@ de:
     required_field: Dieses Feld ist ein Pflichtfeld
     preview: Vorschau
     duplicates: Duplikate
-    duplicates_exist: '%{data} mögliche Duplikate'
+    duplicates_exist:
+      one: '%{data} mögliches Duplikat'
+      other: '%{data} mögliche Duplikate'
 
   tile_links:
     details: zur Detailansicht
