@@ -216,15 +216,15 @@ AssetUploader.prototype.uploadFile = function(event) {
 };
 
 AssetUploader.prototype.checkRequests = function() {
-  let running_requests = this.ajax_requests.slice();
-  this.ajax_requests = [];
-  $.when.apply(undefined, running_requests).then(
+  $.when.apply(undefined, this.ajax_requests).then(
     () => {
       this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.ajax_requests = [];
       this.updateUploadButton();
     },
     () => {
       this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
+      this.ajax_requests = [];
       this.updateUploadButton();
     }
   );
