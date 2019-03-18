@@ -195,6 +195,87 @@ module DataCycleCore
           assert_equal(1, DataCycleCore::Thing::History.count - setup_history)
           assert_equal(5, DataCycleCore::ContentContent::History.count)
         end
+
+        test 'delete one linked item and check history, no content_content_history created' do
+          data_set = @data_set
+          before = {
+            thing: DataCycleCore::Thing.count,
+            thing_history: DataCycleCore::Thing::History.count,
+            content_content: DataCycleCore::ContentContent.count,
+            content_content_history: DataCycleCore::ContentContent::History.count
+          }
+
+          assert_equal(@linked_objects.count, data_set.linked_creative_work.count)
+
+          linked_cw = data_set.linked_creative_work.first
+          linked_cw.destroy_content
+
+          assert_equal(4, data_set.linked_creative_work.count)
+          assert_equal(before[:thing] - 1, DataCycleCore::Thing.count)
+          assert_equal(before[:content_content] - 1, DataCycleCore::ContentContent.count)
+          assert_equal(before[:thing_history] + 1, DataCycleCore::Thing::History.count)
+          assert_equal(before[:content_content_history], DataCycleCore::ContentContent::History.count)
+        end
+
+        test 'delete main object, content_content_history created' do
+          data_set = @data_set
+          before = {
+            thing: DataCycleCore::Thing.count,
+            thing_history: DataCycleCore::Thing::History.count,
+            content_content: DataCycleCore::ContentContent.count,
+            content_content_history: DataCycleCore::ContentContent::History.count
+          }
+
+          data_set.destroy_content
+
+          assert_equal(before[:thing] - 1, DataCycleCore::Thing.count)
+          assert_equal(before[:content_content] - 5, DataCycleCore::ContentContent.count)
+          assert_equal(before[:thing_history] + 1, DataCycleCore::Thing::History.count)
+          assert_equal(before[:content_content_history] + 5, DataCycleCore::ContentContent::History.count)
+        end
+
+        test 'delete main object, check relation of history_item' do
+          data_set = @data_set
+          data_set.destroy_content
+
+          history_item = data_set.histories.first
+          assert_equal(5, history_item.linked_creative_work.count)
+        end
+
+        test 'delete main object, delete linked item' do
+          data_set = @data_set
+          before = data_counts
+
+          linked_item = data_set.linked_creative_work.first
+          data_set.destroy_content
+
+          main_item = data_set.histories.first
+          assert_equal(5, main_item.linked_creative_work.count)
+          assert_equal(5, DataCycleCore::ContentContent::History.count)
+
+          linked_item.destroy_content
+          linked_history = linked_item.histories.first
+          after_main_destroy = data_counts
+          assert_data(before, after_main_destroy, [-2, +2, -5, +5])
+          linked_history.destroy_content
+          after_linked_destroy = data_counts
+          assert_data(after_main_destroy, after_linked_destroy, [-1, +1, 0, -1]) # ContentContent::History disappears because referenced Thing does not exist any more
+        end
+
+        def data_counts
+          [
+            DataCycleCore::Thing.count,
+            DataCycleCore::Thing::History.count,
+            DataCycleCore::ContentContent.count,
+            DataCycleCore::ContentContent::History.count
+          ]
+        end
+
+        def assert_data(before, after, diff)
+          before.zip(after.zip(diff)).map(&:flatten).each do |item|
+            assert(item[0] - item [1], item[2])
+          end
+        end
       end
     end
   end
