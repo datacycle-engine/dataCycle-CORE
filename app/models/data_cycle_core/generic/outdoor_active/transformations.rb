@@ -57,7 +57,7 @@ module DataCycleCore
           .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
-          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'experience', 'landscape'])
+          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(
             :rename_keys,
@@ -72,7 +72,7 @@ module DataCycleCore
               'min' => 'duration',
               'condition' => 'condition_rating',
               'difficulty' => 'difficulty_rating',
-              'experience' => 'experience_rating',
+              'qualityOfExperience' => 'experience_rating',
               'landscape' => 'landscape_rating',
               'directions' => 'instructions',
               'gettingThere' => 'directions',
