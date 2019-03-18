@@ -166,6 +166,7 @@ module DataCycleCore
 
     def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
       parameters[:options] ||= {}
+      return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
