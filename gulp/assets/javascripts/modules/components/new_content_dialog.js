@@ -3,6 +3,7 @@ var NewContentDialog = function(form) {
   this.form = $(form);
   this.next_button = this.form.find('.next');
   this.prev_button = this.form.find('.prev');
+  this.reset_button = this.form.find('.button.reset');
   this.crumbs = this.form.find('.form-crumbs');
   this.id = this.form.closest('.new-content-form').attr('id');
   this.locale = this.form.find(':input[name="locale"]').val();
@@ -19,11 +20,15 @@ NewContentDialog.prototype.initEventHandlers = function() {
 
   this.next_button.on('click', this.next.bind(this));
   this.prev_button.on('click', this.prev.bind(this));
+  this.reset_button.on('click', this.resetForm.bind(this));
   this.form.on('click', '.form-crumb-link', this.goTo.bind(this));
   this.form.on('reset.dc.form', this.resetForm.bind(this));
   this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
   this.form.on('goto.dc.multistep', this.goTo.bind(this));
-  this.form.on('click', '.translated-attribute-locale', this.changeTranslation.bind(this));
+  this.form.on('click', '.translated-attribute-locale', event => {
+    event.preventDefault();
+    this.changeTranslation(event.target);
+  });
   this.form.on('selected.dc.asset', '.form-element', this.checkSelectedAsset.bind(this));
   this.form.on('changed.dc.asset', '.form-element', this.updateThumbnail.bind(this));
 };
@@ -59,17 +64,16 @@ NewContentDialog.prototype.updateThumbnail = function(event, data) {
   }
 };
 
-NewContentDialog.prototype.changeTranslation = function(event) {
-  event.preventDefault();
-  $(event.target)
+NewContentDialog.prototype.changeTranslation = function(target) {
+  $(target)
     .closest('.translated-attribute-locales')
     .find('.translated-attribute-locale')
     .removeClass('active');
-  $(event.target).addClass('active');
+  $(target).addClass('active');
 
   this.form.find('.translated-attribute.active').removeClass('active');
   this.form
-    .find('.translated-attribute.' + $(event.target).data('locale'))
+    .find('.translated-attribute.' + $(target).data('locale'))
     .addClass('active')
     .trigger('render.dc.remote');
 };
@@ -222,6 +226,7 @@ NewContentDialog.prototype.resetForm = function(event) {
   $.rails.enableFormElements(this.form);
   this.form.find('.single_error').remove();
   this.form[0].reset();
+  this.changeTranslation(this.form.find('.translated-attribute-locale[data-locale="' + this.locale + '"]'));
   this.goTo(undefined, this.form.find('fieldset').index(this.form.find('fieldset').first()));
 };
 

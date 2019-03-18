@@ -29,9 +29,16 @@ module DataCycleCore
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
-      utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales))
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
-      full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+      if credentials.is_a?(Hash)
+        utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credentials))
+        full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+      else
+        credentials.each do |credential|
+          utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credential))
+          full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+        end
+      end
     end
     alias single_download download_single
 

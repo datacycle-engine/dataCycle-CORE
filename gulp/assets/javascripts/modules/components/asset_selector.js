@@ -31,6 +31,7 @@ AssetSelector.prototype.init = function() {
   this.button.closest('form').on('reset.dc.form', this.resetSelector.bind(this));
   this.asset_list.on('changed.dc.asset_list', this.updateButtons.bind(this));
   this.asset_list.parent().on('scroll', this.loadMoreOnScroll.bind(this));
+  this.select_button.on('changed.dc.selected_asset', this.updateSelectButton.bind(this));
 };
 
 AssetSelector.prototype.loadMoreOnScroll = function(event) {
@@ -41,6 +42,13 @@ AssetSelector.prototype.loadMoreOnScroll = function(event) {
     this.asset_list.children('li').length < this.total
   ) {
     this.loadAssets();
+  }
+};
+
+AssetSelector.prototype.updateSelectButton = function(event, data) {
+  if (data !== undefined && this.selected_asset_id == data.selected_asset) {
+    this.select_button.attr('disabled', true).removeData('value');
+    this.resetSelector(event);
   }
 };
 
