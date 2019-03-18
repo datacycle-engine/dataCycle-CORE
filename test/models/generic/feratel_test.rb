@@ -19,7 +19,7 @@ module DataCycleCore
 
           full_options = (external_source.default_options || {}).symbolize_keys.merge({ download: download_config.dig(download_step).symbolize_keys.except(:sorting) })
           locales = full_options[:locales] || full_options[:download][:locales] || I18n.available_locales
-          download_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: external_source, locales: locales))
+          download_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: external_source, lo1cales: locales, credentials: external_source.credentials&.first))
           id_function = full_options.dig(:download, :download_strategy).constantize.method(:data_id).to_proc
           name_function = full_options.dig(:download, :download_strategy).constantize.method(:data_name).to_proc
 
@@ -40,7 +40,7 @@ module DataCycleCore
           max_count: 1,
           mode: 'full'
         }
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Feratel Kärnten')
+        external_source = DataCycleCore::ExternalSource.find_by(name: 'Feratel VCloud')
         download_from_local_json(external_source)
         external_source.import(options)
 

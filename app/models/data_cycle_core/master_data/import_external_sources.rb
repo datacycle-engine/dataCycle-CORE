@@ -67,11 +67,16 @@ module DataCycleCore
               end
             end
 
+            def credentials?(value)
+              value.is_a?(Array) || value.is_a?(Hash)
+            end
+
             def self.messages
               super.merge(
                 en: {
                   errors: {
-                    class?: 'the string given does not specify a valid ruby class.'
+                    class?: 'the string given does not specify a valid ruby class.',
+                    credentials?: 'must be either an Array or Hash.'
                   }
                 }
               )
@@ -79,7 +84,7 @@ module DataCycleCore
           end
 
           required(:name) { str? }
-          required(:credentials) { hash? }
+          required(:credentials) { credentials? }
           optional(:api_strategy) { str? & class? }
           optional(:default_options).schema do
             optional(:locales).each { str? }
