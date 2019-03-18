@@ -21,13 +21,6 @@
           </section>
           <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
       </section>
-      <section id="related-content" class="tabs-panel">
-          <section class="json-api-nav">
-              <h5><%= t('admin_panel.relations', locale: DataCycleCore.ui_language) %></h5>
-              <button class="copy-to-admin-clipboard">COPY</button>
-          </section>
-          <pre id="admin_relations" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/relations" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
-      </section>
   </section>
 
   <ul class="tabs" data-active-collapse="true" data-tabs id="admin-icons">
@@ -35,6 +28,5 @@
     <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
     <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
     <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
-    <li class="tabs-title"><a href="#related-content"><i class="fa fa-sitemap"></i></a></li>
   </ul>
 </section>

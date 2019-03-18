@@ -1,5 +1,0 @@
-<code><%= JSON.pretty_generate(content.content_a.map{ |c|
-  I18n.with_locale(c.first_available_locale){
-    c.as_json(only: [:id, :template_name, :name])
-  }
-}) %></code>
