@@ -22,18 +22,37 @@ module DataCycleCore
       end
 
       def load_linked_objects(relation_name, same_language = false)
+        properties = properties_for(relation_name)
+        relation_a = relation_name
+        relation_b = properties.dig('inverse_of')
         language_flag = same_language
-        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties_for(relation_name).dig('linked_language').present?
-        relation_contents = DataCycleCore::Thing
-          .joins(:content_content_b_history)
+        language_flag = properties_for(relation_name).dig('linked_language') == 'same' if properties.dig('linked_language').present?
+        if properties.dig('link_direction') == 'inverse'
+          result_object = DataCycleCore::Thing::History
+          relation_name = :content_content_a_history
+          content_id_sym = :content_b_history_id
+          relation_a_name = relation_b
+          relation_b_name = relation_a
+          translation_table = :thing_history_translations
+        else
+          result_object = DataCycleCore::Thing
+          relation_name = :content_content_b_history
+          content_id_sym = :content_a_history_id
+          relation_a_name = relation_a
+          relation_b_name = relation_b
+          translation_table = :thing_translations
+        end
+        relation_contents = result_object
+          .joins(relation_name)
           .where({
             content_content_histories: {
-              content_a_history_id: id,
-              relation_a: relation_name,
-              content_b_history_type: 'DataCycleCore::Thing'
+              content_id_sym => id,
+              relation_a: relation_a_name,
+              relation_b: relation_b_name,
+              content_b_history_type: result_object.to_s
             }
           })
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if language_flag
+        relation_contents = relation_contents.joins(:translations).where(translation_table => { locale: I18n.locale }) if language_flag
         relation_contents.order('content_content_histories.order_a ASC')
       end
 

@@ -48,7 +48,6 @@ module DataCycleCore
             self.updated_at = @save_time
             self.updated_by = @current_user&.id
 
-            # TODO: check if id is still valid
             if id.nil?
               self.created_at = @save_time
               self.created_by = @current_user&.id
@@ -64,7 +63,6 @@ module DataCycleCore
       end
 
       def set_last_updated_by
-        # TODO: check after #507: Benutzerinteraktionen mit Content soll von System und nicht mehr durch die Templates definiert werden.
         last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
         @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
       end

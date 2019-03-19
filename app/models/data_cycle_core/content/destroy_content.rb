@@ -17,14 +17,11 @@ module DataCycleCore
           destroy_linked_data(current_user: current_user, save_time: save_time, save_history: save_history, destroy_linked: destroy_linked) if destroy_linked
           if destroy_locale && available_locales.many?
             destroy_translation(I18n.locale)
+            run_callbacks(:saved_data_hash) unless history?
           else
             destroy
+            run_callbacks(:destroyed_data_hash) unless history?
           end
-        end
-        if destroyed?
-          run_callbacks(:destroyed_data_hash) unless history?
-        else
-          run_callbacks(:saved_data_hash) unless history?
         end
         self
       end
@@ -43,6 +40,14 @@ module DataCycleCore
         asset_property_names.each do |name|
           load_asset_relation(name)&.destroy
         end
+
+        # update update references from DataCycleCore::ContentContent::History to DataCycleCore::Thing
+        return if (destroy_locale && available_locales.many?) || history?
+        last_history_entry = histories.where.not(deleted_at: nil)&.first
+        return if last_history_entry.blank?
+        DataCycleCore::ContentContent::History
+          .where(content_b_history_id: id, content_b_history_type: self.class.to_s)
+          .update_all(content_b_history_id: last_history_entry.id, content_b_history_type: last_history_entry.class.to_s) # rubocop:disable Rails/SkipsModelValidations
       end
 
       def destroy_linked_data(current_user:, save_time:, save_history:, destroy_linked:)
