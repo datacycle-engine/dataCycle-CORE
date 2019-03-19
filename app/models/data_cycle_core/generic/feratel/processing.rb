@@ -26,16 +26,30 @@ module DataCycleCore
 
         def self.process_event_location(utility_object, raw_data, config)
           template = config&.dig(:template) || 'Örtlichkeit'
+          place_hash = {}
 
           address = raw_data.dig('Addresses', 'Address')&.select do |d|
             d['Type'] == 'Venue'
-          end&.first&.merge(raw_data.dig('Details', 'Position'))
+          end&.first
 
-          return if address.blank?
+          return if address.blank? && (!raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? || !raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?)
+
+          if address.present?
+            place_hash.merge!(address)
+          elsif raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? && raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?
+            if raw_data.dig('Details', 'Location', 'Translation', 'text').present?
+              place_hash['Id'] = "Location:#{raw_data.dig('Id')}"
+              place_hash['location_name'] = raw_data.dig('Details', 'Location', 'Translation', 'text')
+            end
+          end
+
+          return if place_hash.blank?
+
+          place_hash.merge!(raw_data.dig('Details', 'Position'))
 
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
-            raw_data: address,
+            raw_data: place_hash,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_event_location_to_place,
             default: { template: template },
             config: config
