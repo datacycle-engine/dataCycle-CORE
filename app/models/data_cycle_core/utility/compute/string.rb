@@ -13,6 +13,8 @@ module DataCycleCore
 
           def transform_string(definition, args)
             case definition.dig('type')
+            when 'external_source'
+              args.dig(:content)&.external_source&.default_options&.dig(definition.dig('name'))
             when 'I18n'
               definition.dig('type').constantize.send(definition.dig('name'))
             when 'content'
