@@ -55,6 +55,11 @@
         :template_name: Bild
         :api:
           :minimal: true
+      :schedule:
+        :label: Season
+        :type: embedded
+        :template_name: Schedule
+        :translated: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
