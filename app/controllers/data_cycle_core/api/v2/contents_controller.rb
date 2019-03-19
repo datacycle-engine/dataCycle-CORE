@@ -5,6 +5,8 @@ module DataCycleCore
     module V2
       class ContentsController < Api::V2::ApiBaseController
         include DataCycleCore::Filter
+        include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
+
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze

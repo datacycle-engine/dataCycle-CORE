@@ -137,7 +137,7 @@ module DataCycleCore
       def combined_property_names
         property_definitions.select { |_, definition|
           definition.dig('api', 'transformation', 'method') == 'combine'
-        }.keys
+        }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
       end
 
       def classification_property_names

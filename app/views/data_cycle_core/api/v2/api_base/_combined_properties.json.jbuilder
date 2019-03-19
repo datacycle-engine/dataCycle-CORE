@@ -29,18 +29,18 @@ combined.each do |combined_key, combined_value|
     # values must either be stored in value or translated_value
     if content.translations.size > 1 && concated_keys_translateable?(combined_value.dig('items').map(&:first), content) && @include_parameters.include?('translations')
       concated_translated_value = {}
-      combined_value['items'].each do |key, _|
+      combined_value['items'].each do |key, definition|
         content.translations.each do |translation|
           I18n.with_locale(translation.locale) do
-            (concated_translated_value[translation.locale] ||= []) << concat_string(key, content.send(key))
+            (concated_translated_value[translation.locale] ||= []) << concat_string((definition.dig('api', 'transformation', 'section_name') || key), content.send(key)).to_s
           end
         end
         json.set! combined_key, concated_translated_value
       end
     else
       concated_value = ''
-      combined_value['items'].each do |key, _|
-        concated_value << concat_string(key, content.try(key.to_sym))
+      combined_value['items'].each do |key, definition|
+        concated_value << concat_string((definition.dig('api', 'transformation', 'section_name') || key), content.try(key.to_sym)).to_s
       end
       json.set! combined_key, concated_value
     end
