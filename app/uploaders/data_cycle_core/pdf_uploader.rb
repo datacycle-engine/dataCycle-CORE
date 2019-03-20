@@ -9,6 +9,7 @@ module DataCycleCore
     # Create different versions of your uploaded files:
     version :thumb_preview do
       process :convert_to_png
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
@@ -21,6 +22,9 @@ module DataCycleCore
     end
 
     def convert_to_png
+      dirname = File.dirname(current_path)
+      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.png"
+
       MiniMagick::Tool::Convert.new do |convert|
         convert.density(288)
         convert.trim
@@ -29,9 +33,9 @@ module DataCycleCore
         convert.resize('25%')
         convert.colorspace('RGB')
         convert << "#{current_path}[0]"
-        convert << "#{root}/#{store_path}"
+        convert << thumb_path
       end
-      FileUtils.rm_f(current_path)
+      File.rename thumb_path, current_path
     end
 
     def metadata

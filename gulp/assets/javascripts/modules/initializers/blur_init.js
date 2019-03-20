@@ -19,7 +19,7 @@ module.exports.initialize = function() {
 
   var scroll_top = [];
 
-  $(document).on('open.zf.reveal', '.reveal', event => {
+  $(document).on('open.zf.reveal', '.reveal.object-browser-overlay', event => {
     $('.reveal-blur').addClass('show');
     if ($(event.currentTarget).data('overlay') === false) {
       scroll_top.push($(window).scrollTop());
@@ -29,11 +29,12 @@ module.exports.initialize = function() {
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
     if ($(event.target).hasClass('reveal')) {
-      if ($('.reveal:visible').not(event.currentTarget).length) {
-        $('body').addClass('is-reveal-open');
-      } else {
+      if ($('.reveal:visible').not(event.currentTarget).length) $('body').addClass('is-reveal-open');
+      if (
+        $(event.target).hasClass('object-browser-overlay') &&
+        !$('.reveal.object-browser-overlay:visible').not(event.target).length
+      )
         $('.reveal-blur').removeClass('show');
-      }
       if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
     }
   });

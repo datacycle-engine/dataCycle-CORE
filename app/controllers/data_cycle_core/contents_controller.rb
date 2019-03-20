@@ -59,9 +59,10 @@ module DataCycleCore
     end
 
     def new
-      @new_template = DataCycleCore::Thing.find_by(id: new_template_params[:source_id]) if new_template_params.present?
       @resolved_params = resolve_params(new_params)
-      @active_url = contents_new_path(resolve_params(new_params, false))
+      @template = DataCycleCore::Thing.find_by(template: true, template_name: @resolved_params[:template])
+
+      return if @template.nil?
 
       respond_to :js
     end
@@ -111,16 +112,7 @@ module DataCycleCore
         end
       end
 
-      if params[:locale] &&
-         !@content.translated_locales.include?(params[:locale]&.to_sym) &&
-         I18n.available_locales.include?(params[:locale]&.to_sym) &&
-         @content.translatable?
-        I18n.with_locale(params[:locale]) do
-          @content.save
-        end
-      end
-
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
         redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
@@ -138,7 +130,7 @@ module DataCycleCore
 
     def update
       @content = DataCycleCore::Thing.find(params[:id])
-      I18n.with_locale(@content.first_available_locale(params[:locale])) do
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
         redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
 
         object_params = content_params(@content.template_name)
@@ -164,18 +156,23 @@ module DataCycleCore
     def destroy
       @content = DataCycleCore::Thing.find(params[:id])
 
-      destroy_params = { current_user: current_user }
-      if @content.external_source_id.present?
-        destroy_params[:save_history] = false
-        destroy_params[:destroy_linked] = true
+      I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
+        destroy_content_params = { current_user: current_user }
+        if @content.external_source_id.present?
+          destroy_content_params[:save_history] = false
+          destroy_content_params[:destroy_linked] = true
+        end
+
+        destroy_content_params[:destroy_locale] = destroy_params[:locale].present?
+
+        @content.destroy_content(destroy_content_params)
+
+        flash[:success] = @content.destroyed? ? I18n.t(:destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language) : I18n.t(:destroyed_translation, scope: [:controllers, :success], data: @content.template_name, language: I18n.locale, locale: DataCycleCore.ui_language)
+
+        redirect_to(thing_path(@content, watch_list_params)) && return unless @content.destroyed?
+        redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
+        redirect_to root_path
       end
-      @content.destroy_content(destroy_params)
-
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
-
-      redirect_to(thing_path(@content.parent, watch_list_params)) && return if @content.try(:parent).present?
-
-      redirect_to root_path
     end
 
     def compare
@@ -249,16 +246,15 @@ module DataCycleCore
     end
 
     def validate
-      @object = DataCycleCore::Thing.find_by(id: params[:id])
-
-      @object = DataCycleCore::Thing.find_by(template: true, template_name: params[:template]) if @object.blank? && params[:template].present?
+      @object = DataCycleCore::Thing.where(id: params[:id]).or(DataCycleCore::Thing.where(template: true, template_name: params[:template])).first
 
       render json: { warning: { content: ['content/template not found'] } } && return if @object.blank?
 
       authorize! :show, @object
 
       object_params = content_params(@object.template_name)
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @object.schema)
+      translation_values = object_params[:translations]&.values&.first || {}
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
       valid = @object.validate(datahash)
       render json: valid.to_json
     end
@@ -356,26 +352,21 @@ module DataCycleCore
 
     def content_params(template_name)
       datahash = DataCycleCore::DataHashService.get_object_params(template_name)
-      params.require(controller_name.singularize.to_sym).permit(datahash: datahash)
+      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
+      params.require(:thing).permit(datahash: datahash, translations: translations)
     end
 
     def new_params
-      params.permit(:test, :content_id, :scope, :content_table, :parent, :content, :query_methods, :search_required, :search_param, :new_template, form_crumbs: [:title, :url], query_methods: [:method_name, :value, value: []], parent: {}, content: {})
+      params.transform_keys(&:underscore).permit(:template, :locale, :key, :search_param, :search_required, :scope, options: [:force_render, :prefix], parent: [:id, :class], content: [:id, :class])
+    end
+
+    def destroy_params
+      params.permit(:locale)
     end
 
     def source_params
       if params[:source]
         ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
-      elsif params[:source_id] && params[:source_table]
-        params.permit(:source_id, :source_table)
-      else
-        {}
-      end
-    end
-
-    def new_template_params
-      if params[:new_template]
-        ActionController::Parameters.new(Hash[params[:new_template].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
       elsif params[:source_id] && params[:source_table]
         params.permit(:source_id, :source_table)
       else

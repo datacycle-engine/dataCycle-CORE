@@ -1,9 +1,9 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options.merge('class' => 'object embedded_object'), content: content do %>
 
-    <%= label_tag(key, definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
+    <%= label_tag("#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}", definition['label']) if DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(content, key) %>
     <% objects = value.presence&.includes(:translations)&.page&.per(DataCycleCore.linked_objects_page_size) %>
 
-    <div class="embedded-object" id="<%= sanitize_to_id(key) %>"
+    <div class="embedded-object" id="<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>"
          data-locale="<%= I18n.locale.to_s %>"
          data-key="<%= key %>"
          data-label="<%= definition['label'] %>"
@@ -28,7 +28,7 @@
                 <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
             <% end %>
         <% else %>
-            <%= hidden_field_tag key + '[]', nil, id: "#{sanitize_to_id(key)}_default" %>
+            <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
         <% end %>
 
         <div class="buttons">
@@ -42,7 +42,8 @@
               load_more_action: :embedded_object,
               editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
               content_id: content.id,
-              content_type: content.class.table_name
+              content_type: content.class.table_name,
+              locale: I18n.locale
             ),
             remote: true,
             id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",
@@ -52,7 +53,7 @@
             } if objects.try(:total_pages)&.positive? && !objects&.last_page? %>
 
             <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
-                <button id="add_<%= sanitize_to_id(key) %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %>
+                <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button" class="button addContentObject" style="display: none;"><%= definition['label'] %>
                     hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
             <% end %>
         </div>

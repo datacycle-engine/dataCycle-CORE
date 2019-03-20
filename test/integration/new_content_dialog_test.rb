@@ -14,31 +14,18 @@ module DataCycleCore
     end
 
     test 'new content select' do
-      post contents_new_path, xhr: true, params: {
-        sope: 'backend'
-      }, headers: {
-        referer: root_path
-      }
-      assert response.body.include?('Container')
-
-      article_template = DataCycleCore::Thing.find_by(template_name: 'Artikel', template: true)
-      post contents_new_path, xhr: true, params: {
+      get new_thing_path, xhr: true, params: {
         sope: 'backend',
-        new_template: "source_id=>#{article_template.id},source_table=>things"
+        template: 'Artikel'
       }, headers: {
         referer: root_path
       }
       assert response.body.include?('thing[datahash][name]')
-      assert response.body.include?(I18n.t('submit', locale: DataCycleCore.ui_language))
     end
 
     test 'remote render' do
       post remote_render_path, xhr: true, params: {
-        content_for: [
-          'new_content_form_title',
-          'form_crumbs'
-        ],
-        partial: 'data_cycle_core/contents/new/new_stage',
+        partial: 'data_cycle_core/contents/new/shared/new_form',
         target: 'default_new_form',
         options: {
           scope: 'backend'
@@ -50,11 +37,7 @@ module DataCycleCore
 
       article_template = DataCycleCore::Thing.find_by(template_name: 'Artikel', template: true)
       post remote_render_path, xhr: true, params: {
-        content_for: [
-          'new_content_form_title',
-          'form_crumbs'
-        ],
-        partial: 'data_cycle_core/contents/new/new_stage',
+        partial: 'data_cycle_core/contents/new/shared/new_form',
         target: 'thing_datahash_content_location_new_form',
         options: {
           scope: 'backend',
@@ -64,20 +47,16 @@ module DataCycleCore
           },
           key: 'thing_datahash_content_location',
           locale: 'de',
-          object_browser: true
-        },
-        render_function: 'render_new_form',
-        render_params: {
-          new_template: {
-            class: article_template.class.name,
-            id: article_template.id
+          object_browser: true,
+          template: {
+            id: article_template&.id,
+            class: article_template&.class&.name
           }
         }
       }, headers: {
         referer: edit_thing_path(@content)
       }
       assert response.body.include?('thing[datahash][name]')
-      assert response.body.include?(I18n.t('submit', locale: DataCycleCore.ui_language))
     end
   end
 end

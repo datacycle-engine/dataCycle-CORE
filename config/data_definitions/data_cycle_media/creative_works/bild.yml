@@ -89,6 +89,21 @@
         :asset_type: image
         :api:
           :disabled: true
+        # :versions:
+        #   :thumb_large:
+        #     - remove_animation
+        #     -
+        #       - convert
+        #       - jpg
+        #     -
+        #       - resize_to_fit
+        #       -
+        #         - 1200
+        #         - 1200
+        #     -
+        #       - colorspace
+        #       - RGB
+        #     - optimize
       :width:
         :label: Breite
         :storage_location: value

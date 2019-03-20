@@ -100,7 +100,7 @@ module DataCycleCore
         excepted_properties = ['id'] + content.asset_property_names + content.computed_property_names
 
         assert_equal(content.get_data_hash.except(*excepted_properties), new_content.get_data_hash.except(*excepted_properties))
-        assert_nil(new_content.asset.first)
+        assert_nil(new_content.asset)
         content.computed_property_names.each do |computed_property|
           assert_nil(new_content.send(computed_property.to_sym))
         end
@@ -147,9 +147,10 @@ module DataCycleCore
 
         I18n.with_locale(:en) do
           assert_equal(content.get_data_hash.except(*excepted_properties), new_content.get_data_hash.except(*excepted_properties))
-          assert_nil(content.author.first.get_data_hash, new_content.author.first.get_data_hash)
-          assert_nil(content.image.first.get_data_hash, new_content.image.first.get_data_hash)
         end
+
+        assert_equal([:de], new_content.author.first.available_locales)
+        assert_equal([:de], new_content.image.first.available_locales)
       end
 
       test 'test duplication with embedded objects in multiple languages' do

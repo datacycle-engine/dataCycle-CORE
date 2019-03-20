@@ -33,18 +33,12 @@ EmbeddedObject.prototype.setup = function() {
     draggable: '.content-object-item.draggable_' + this.id
   });
 
-  if (
-    this.write &&
-    (this.max == 0 ||
-      this.element.children('.content-object-item').length < this.max)
-  )
+  if (this.write && (this.max == 0 || this.element.children('.content-object-item').length < this.max))
     $(this.element)
       .find('> .buttons > #add_' + this.id)
       .show();
 
-  this.element
-    .off('reinit-event-handlers')
-    .on('reinit-event-handlers', this.addEventHandlers.bind(this));
+  this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
 
   this.element.off('import-data').on(
     'import-data',
@@ -60,19 +54,12 @@ EmbeddedObject.prototype.setup = function() {
 
       if (
         this.write &&
-        (this.max == 0 ||
-          this.element.children('.content-object-item').length < this.max) &&
+        (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
         new_items.length > 0
       ) {
         this.renderEmbeddedObjects('render', new_items);
-      } else if (
-        this.write &&
-        this.max != 0 &&
-        ids.length + new_items.length > this.max
-      ) {
-        var confirmationModal = new ConfirmationModal(
-          'Maximalanzahl: ' + this.max
-        );
+      } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
+        var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + this.max);
       }
     }.bind(this)
   );
@@ -123,36 +110,38 @@ EmbeddedObject.prototype.addEventHandlers = function() {
     $(element)
       .children('.removeContentObject')
       .off('click')
-      .on('click', event => {
-        event.preventDefault();
-        $(element).trigger('clone-removed');
-        let id = $(event.currentTarget)
-          .closest('.content-object-item')
-          .data('id');
-        this.element.find('input:hidden[value="' + id + '"]').remove();
-        $(event.currentTarget)
-          .closest('.content-object-item')
-          .remove();
-        self.update();
-      });
+      .on('click', this.handleRemoveEvent.bind(this));
   });
+};
+
+EmbeddedObject.prototype.handleRemoveEvent = function(event) {
+  event.preventDefault();
+  let element = $(event.target).closest('.content-object-item');
+
+  if ($(event.target).data('confirm-delete') != undefined) {
+    new ConfirmationModal($(event.target).data('confirm-delete'), 'alert', true, () => {
+      this.removeObject(element);
+    });
+  } else this.removeObject(element);
+};
+
+EmbeddedObject.prototype.removeObject = function(element) {
+  element.trigger('remove.dc.html');
+  let id = element.data('id');
+  this.element.find('input:hidden[value="' + id + '"]').remove();
+  element.remove();
+  this.update();
 };
 
 EmbeddedObject.prototype.update = function() {
   var self = this;
-  if (
-    this.max != 0 &&
-    this.element.children('.content-object-item').length >= this.max
-  ) {
+  if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
     this.element.find('> .buttons > #add_' + this.id).hide();
   } else if (this.write) {
     this.element.find('> .buttons > #add_' + this.id).show();
   }
 
-  if (
-    this.min != 0 &&
-    this.element.children('.content-object-item').length <= this.min
-  ) {
+  if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
     this.element
       .children('.content-object-item')
       .children('.removeContentObject')
@@ -165,13 +154,7 @@ EmbeddedObject.prototype.update = function() {
   }
 
   if (this.element.children('.content-object-item').length == 0) {
-    this.element.append(
-      '<input type="hidden" value="" id="' +
-        this.id +
-        '_default" name="' +
-        this.key +
-        '[]">'
-    );
+    this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');
   } else {
     this.element.find('input[type=hidden]#' + this.id + '_default').remove();
   }

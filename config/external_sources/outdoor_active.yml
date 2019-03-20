@@ -111,17 +111,8 @@ config:
       tag_name_path: 'properties.property.text'
       external_id_prefix: 'TAG:'
       locales: [de]
-    tours:
-      sorting: 20
-      source_type: tours
-      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
-      transformations:
-        image:
-          template: Bild
-        tour:
-          template: Tour
     places:
-      sorting: 21
+      sorting: 20
       source_type: places
       import_strategy: DataCycleCore::Generic::OutdoorActive::ImportPlaces
       transformations:
@@ -129,3 +120,13 @@ config:
           template: Bild
         place:
           template: POI
+    tours:
+      sorting: 30
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::OutdoorActive::ImportTours
+      transformations:
+        image:
+          template: Bild
+        tour:
+          template: Tour
+      locales: [de]

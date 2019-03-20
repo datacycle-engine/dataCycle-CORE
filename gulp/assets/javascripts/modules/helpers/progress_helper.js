@@ -7,7 +7,13 @@ module.exports = {
     } else {
       var text = container.html();
       container.html('');
-      container.append('<span class="progresstitle">' + text + '</span><span class="progressbar"><span class="progressbar-meter style="width: ' + percentage + '%;"></span></span>');
+      container.append(
+        '<span class="progresstitle">' +
+          text +
+          '</span><span class="progressbar"><span class="progressbar-meter style="width: ' +
+          percentage +
+          '%;"></span></span>'
+      );
     }
 
     if (percentage >= 100) {

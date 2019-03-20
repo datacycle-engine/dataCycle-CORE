@@ -265,9 +265,7 @@ ul.backend-treeview-list {
         }
       }
 
-      .select2-container--default
-        .select2-selection--multiple
-        .select2-selection__choice {
+      .select2-container--default .select2-selection--multiple .select2-selection__choice {
         border-radius: 5px;
         padding: 0 1rem 0 0.3rem;
         background-color: rgba($primary-color, 0.5);

@@ -1,12 +1,26 @@
 ---
-name: Feratel Kärnten
+name: Feratel VCloud
 credentials:
-  pos_code: KAERNTEN
-  company_code: PI78XE567L
-  range_code: RG
-  range_id: 4dac9143-899b-4938-ae23-53941e7c76ad
-  sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
-  db_code: KTN
+  - pos_code: LECH
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: B44EB81C-D743-49BE-80B0-85755EF600D4
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+  - pos_code: MONTAFON
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: 6C23D36D-BE29-414F-B550-B79518686C5D
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+  - pos_code: BLUDENZ
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: 0be26b7e-e564-47cc-99ac-cce16e37d95b
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
+  - pos_code: KLEINWALS
+    company_code: D474CYC1E
+    range_code: RG
+    range_id: 8cdc270e-6019-4536-a13f-0f8d5a024170
+    sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
 default_options:
   history: true
 config:

@@ -15,6 +15,12 @@ DataCycleCore::Engine.routes.draw do
 
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
+  get '/docs', to: 'documentation#show'
+
+  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
+    klass: /(image|audio|video|pdf|text_file)/,
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
 
   get '/schema', to: 'schema#index'
 
@@ -32,7 +38,7 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :new, :create, :edit, :update, :destroy], controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
@@ -125,7 +131,9 @@ DataCycleCore::Engine.routes.draw do
         type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
         get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+          get :gpx, on: :member
+        end
 
         get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
         get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
@@ -146,7 +154,9 @@ DataCycleCore::Engine.routes.draw do
         type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
         get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+          get :gpx, on: :member
+        end
 
         get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
         get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
@@ -171,7 +181,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
-  post 'contents/new', to: 'contents#new'
+  # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 

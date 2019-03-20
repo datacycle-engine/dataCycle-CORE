@@ -145,7 +145,7 @@
     height: auto;
     padding: 0.65rem;
     margin: 0 1rem 1rem 0;
-    box-shadow: 0 0 0 1px rgba(157, 157, 157, 0.5);
+    box-shadow: 0 0 1px rgba($black, 0.8);
     transition: box-shadow 200ms ease-out;
     flex: auto;
     width: 300px;
@@ -289,7 +289,7 @@
       border-radius: 0;
       background-color: rgba(white, 0.5);
       border: 0;
-      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+      box-shadow: 0 0 1px rgba($black, 0.8);
       transition: box-shadow 200ms ease-out;
       line-height: 1.5;
       width: 300px;
@@ -355,6 +355,7 @@
           align-items: center;
           -ms-flex-pack: center;
           justify-content: center;
+          transition: opacity 0.25s;
         }
       }
 
@@ -367,6 +368,9 @@
         background-color: $primary-color;
       }
     }
+  }
+  > .buttons {
+    text-align: left;
   }
 }
 
@@ -406,7 +410,19 @@
   margin: 7.9rem 0 0 0 !important;
   outline: none;
   padding: 0;
-  z-index: initial;
+
+  &.full-height {
+    margin: 0 !important;
+    .object-browser-header {
+      top: 1rem;
+    }
+    .items {
+      max-height: 100%;
+    }
+    .item-info {
+      height: 100%;
+    }
+  }
 
   .draggable-handle {
     display: none;
@@ -575,11 +591,10 @@
       &.active {
         border-color: $primary-color;
         background-color: $primary-color;
-        box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        box-shadow: 0 0 1px rgba($primary-color, 1);
 
         &.hard-warnings {
-          box-shadow: 0 0 0 1px rgba($primary-color, 1),
-            0 0 5px 1px $alert-color;
+          box-shadow: 0 0 1px rgba($primary-color, 1), 0 0 5px $alert-color;
         }
 
         .person {
@@ -622,8 +637,8 @@
       border-radius: 0;
       background-color: rgba(white, 0.5);
       border: 0;
-      box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
-      transition: box-shadow 200ms ease-out;
+      box-shadow: 0 0 1px rgba($black, 0.8);
+      transition: box-shadow 0.1s;
       line-height: 1.5;
 
       &.hard-warnings {
@@ -899,6 +914,11 @@ span.single_error.object-browser-error {
         left: 1rem;
         top: 1rem;
         font-size: 1.2rem;
+      }
+    }
+    .translated + .content-object-item {
+      .embedded-header {
+        left: 2.5rem;
       }
     }
   }

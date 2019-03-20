@@ -6,11 +6,14 @@ module DataCycleCore
   class ImageUploader < CommonUploader
     include CarrierWave::MiniMagick
 
+    process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+
     version :thumb_preview do
       process :remove_animation
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
       process colorspace: 'RGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
       process :set_phash
 
       def full_filename(for_file)

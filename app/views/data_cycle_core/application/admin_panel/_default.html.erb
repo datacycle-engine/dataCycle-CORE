@@ -1,56 +1,32 @@
 <section id="admin-panel">
-    <nav id="admin-icons">
-        <a data-toggle="menuBar">
-            <i class="fa fa-user-secret"></i>
-        </a>
-        <a data-toggle="schema">
-            <i class="fa fa-code"></i>
-        </a>
-        <a data-toggle="datahash">
-            <i class="fa fa-hashtag"></i>
-        </a>
-        <a data-toggle="related-content">
-            <i class="fa fa-sitemap"></i>
-        </a>
-    </nav>
-    <section id="admin-inner">
-        <section id="schema" data-toggler=".expanded">
-            <section class="schema-nav">
-                <button class="copy-to-admin-clipboard">COPY</button>
-            </section>
-<pre id="json"><code><%= JSON.pretty_generate(content.schema) %></code></pre>
-        </section>
-        <section id="datahash" data-toggler=".expanded">
-            <section class="datahash-nav">
-                <button class="copy-to-admin-clipboard">COPY</button>
-            </section>
-            <%
-                admin_data_hash = {
-                    external_key: content.external_key,
-                    external_source_id: content.external_source_id,
-                    created_at: content.created_at,
-                    created_by: content.created_by,
-                    updated_at: content.updated_at,
-                    updated_by: content.updated_by,
-                }.merge(content.get_data_hash)
-            %>
-<pre id="json"><code><%= JSON.pretty_generate(admin_data_hash) %></code></pre>
-        </section>
-        <section id="related-content" data-toggler=".expanded">
-            <section class="json-api-nav">
-                <button class="copy-to-admin-clipboard">COPY</button>
-            </section>
-            <%
-                related_to = DataCycleCore::ContentContent.where(content_b_id: content).map do |to_item|
-                  {
-                    id: to_item.content_a.id,
-                    template_name: to_item.content_a.template_name,
-                    name: to_item.content_a.name,
-                  }
-                end
+  <section id="admin-inner" data-tabs-content="admin-icons">
+      <section id="schema" class="tabs-panel">
+          <section class="schema-nav">
+              <h5><%= t('admin_panel.schema', locale: DataCycleCore.ui_language) %></h5>
+              <button class="copy-to-admin-clipboard">COPY</button>
+          </section>
+          <pre id="admin_schema" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/schema" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      </section>
+      <section id="datahash" class="tabs-panel">
+          <section class="datahash-nav">
+              <h5><%= t('admin_panel.datahash', locale: DataCycleCore.ui_language) %></h5>
+              <button class="copy-to-admin-clipboard">COPY</button>
+          </section>
+          <pre id="admin_datahash" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/datahash" data-remote-options="<%= to_query_params(content: content, locale: I18n.locale).to_json %>"></pre>
+      </section>
+      <section id="json-api" class="tabs-panel">
+          <section class="json-api-nav">
+              <h5><%= t('admin_panel.api', locale: DataCycleCore.ui_language) %></h5>
+              <button class="copy-to-admin-clipboard">COPY</button>
+          </section>
+          <pre id="admin_api" class="remote-render" data-remote-path="data_cycle_core/application/admin_panel/json_api" data-remote-options="<%= to_query_params(content: content).to_json %>"></pre>
+      </section>
+  </section>
 
-            %>
-            <pre id="json"><code><%= JSON.pretty_generate(related_to) %></code></pre>
-        </section>
-    </section>
+  <ul class="tabs" data-active-collapse="true" data-tabs id="admin-icons">
+    <li class="tabs-title"><a href="#test"><i class="fa fa-user-secret"></i></a></li>
+    <li class="tabs-title"><a href="#schema"><i class="fa fa-code"></i></a></li>
+    <li class="tabs-title"><a href="#datahash"><i class="fa fa-hashtag"></i></a></li>
+    <li class="tabs-title"><a href="#json-api"><i class="fa">json</i></a></li>
+  </ul>
 </section>

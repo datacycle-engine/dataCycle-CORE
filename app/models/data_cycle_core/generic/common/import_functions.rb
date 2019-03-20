@@ -33,6 +33,9 @@ module DataCycleCore
           content.schema = template.schema
           content.template_name = template.template_name
           content.created_by = data['created_by']
+
+          credentials = utility_object&.external_source&.credentials&.is_a?(Hash) ? utility_object.external_source.credentials : utility_object.external_source.credentials&.first
+          content.webhook_source = credentials&.dig('external_system') || utility_object&.external_source&.name
           content.save!
 
           global_attributes = {}
@@ -64,7 +67,7 @@ module DataCycleCore
           end
 
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: utility_object.partial_update)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))

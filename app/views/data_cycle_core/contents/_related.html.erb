@@ -1,0 +1,47 @@
+<%
+    related_objects = content.related_to&.uniq {|item| item.id}
+    grouped_objects = related_objects&.group_by { |d| d[:template_name] }
+    if related_objects.count.positive?
+%>
+<section class="related-objects">
+    <h2>Related Items (<%= related_objects.count %>)</h2>
+
+    <ul class="list">
+        <% grouped_objects.presence&.each do |group| %>
+
+            <li class="grouped_by">
+                <span>
+                    <%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first, group_count: group.second.count %>
+                    <%#= group.first %>
+                </span>
+
+                <ul>
+                    <% group.second.presence&.each do |item| %>
+                    <li class="<%= [
+                                       'list-item',
+                                       'content',
+                                       item.class.name.demodulize.underscore.dasherize,
+                                       item.schema_type&.underscore&.dasherize,
+                                       item.template_name.underscore.dasherize,
+                                       (item.hard_content_warnings? ? 'hard-warnings' : nil)
+                                   ].compact.join(' ') %>" data-id="<%= [item.id] %>">
+
+                        <%= render_first_existing_partial [
+                                                              "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
+                                                              "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
+                                                              'data_cycle_core/contents/viewers/lists/default'
+                                                          ], local_assigns.merge({content: item})
+                        %>
+                    </li>
+                    <% end %>
+                </ul>
+
+
+            </li>
+
+
+
+        <% end %>
+    </ul>
+</section>
+<% end %>

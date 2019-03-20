@@ -4,6 +4,7 @@ module DataCycleCore
   module Abilities
     class Rank1 < DataCycleCore::Ability
       def initialize(user, _session = {})
+        can :create_duplicate, DataCycleCore::Asset
         can [:read, :settings, :advanced_filter], :backend
         can :update, DataCycleCore::User, id: user.id
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id

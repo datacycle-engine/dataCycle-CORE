@@ -1,14 +1,27 @@
 // Reveal Blur
-module.exports.initialize = function () {
-
-  $('.remote-render:visible').each((index, element) => {
+module.exports.initialize = function() {
+  $('.remote-render:visible').each((_, element) => {
     load_remote_partial(element);
   });
 
-  $(document).on('open.zf.reveal', event => {
-    $(event.target).find('.remote-render:visible').addBack('.remote-render:visible').each((index, element) => {
-      load_remote_partial(element);
-    });
+  $(document).on('change.zf.tabs', event => {
+    event.stopPropagation();
+    $(event.target)
+      .siblings('[data-tabs-content]')
+      .find('.remote-render:visible')
+      .each((_, element) => {
+        load_remote_partial(element);
+      });
+  });
+
+  $(document).on('open.zf.reveal render.dc.remote changed.dc.html', '*', event => {
+    event.stopPropagation();
+    $(event.target)
+      .find('.remote-render:visible')
+      .addBack('.remote-render:visible')
+      .each((_, element) => {
+        load_remote_partial(element);
+      });
   });
 
   function load_remote_partial(element) {
@@ -27,12 +40,9 @@ module.exports.initialize = function () {
       }),
       dataType: 'script',
       contentType: 'application/json'
-    }).done(data => {
-      $(element).toggleClass('remote-render remote-rendered');
     }).fail(data => {
       if (data.responseText !== undefined) $(element).html(data.responseText);
       else $(target + ':visible').html('Fehler beim Laden des Inhalts.');
     });
-  };
-
+  }
 };

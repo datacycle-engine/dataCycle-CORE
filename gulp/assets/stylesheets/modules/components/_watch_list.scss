@@ -31,7 +31,7 @@
     }
     li {
       .watch-list-item {
-        padding: 0 0 0.5rem 0;
+        padding: inherit;
         .watchlist-name {
           width: 100%;
           display: block;
@@ -68,6 +68,9 @@
     list-style: none;
   }
   li {
+    &:nth-child(even) .watch-list-item .check {
+      color: white;
+    }
     .watch-list-item {
       .check {
         position: absolute;
@@ -78,7 +81,7 @@
         }
       }
       width: 100%;
-      display: inline-block;
+      display: block;
       padding: 0 1.5rem 0 1.5rem;
       position: relative;
       line-height: 1.2rem;
