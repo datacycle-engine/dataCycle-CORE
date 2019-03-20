@@ -115,7 +115,7 @@ module Translations
 
           has_many(
             association_name,
-            class_name: translation_class.name, # rubocop:disable Rails/ReflectionClassName
+            class_name: translation_class.name,
             foreign_key: options[:foreign_key],
             dependent: :destroy,
             autosave: true,
