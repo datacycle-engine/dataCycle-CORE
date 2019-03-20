@@ -61,7 +61,7 @@ ul.asset-list {
     }
     font-size: 0.9rem;
   }
-  li {
+  > li {
     position: relative;
     display: block;
     flex: auto;
@@ -70,7 +70,8 @@ ul.asset-list {
     max-width: 300px;
     padding: 0.5rem;
     margin: 0.5rem;
-    box-shadow: 0 0 0 1px rgba($dark-gray, 0.5);
+    box-shadow: 0 0 1px rgba($black, 0.9);
+    transition: all 0.1s;
 
     .asset-deselect,
     .asset-destroy {
@@ -81,6 +82,18 @@ ul.asset-list {
       font-size: 1.2rem;
       margin-left: 5px;
       color: $alert-color;
+    }
+
+    &.locked {
+      .inner {
+        .asset-type,
+        .asset-upload-date,
+        .asset-title,
+        .thumb {
+          opacity: 0.5;
+          pointer-events: none;
+        }
+      }
     }
 
     .inner > span {
@@ -94,6 +107,49 @@ ul.asset-list {
         float: right;
         margin-left: 0.5rem;
       }
+      &.asset-duplicate-warning {
+        position: absolute;
+        right: 0.5rem;
+        bottom: 0;
+        > a[data-toggle] {
+          padding: 0;
+        }
+        > .dropdown-pane {
+          max-width: 250px;
+          right: -9px !important;
+          top: calc(100% + 1rem) !important;
+          &::before {
+            font-size: 22px;
+            width: 1.2rem;
+          }
+          &.align-top {
+            top: auto !important;
+            bottom: calc(100% + 1rem) !important;
+          }
+        }
+        ul.duplicates-list {
+          display: flex;
+          flex-flow: row wrap;
+          > li {
+            flex: auto;
+            width: 90px;
+            max-width: 100px;
+            margin: 0.1rem;
+            background: white;
+            > a {
+              > img {
+                box-shadow: 0 0 5px $dark-gray;
+                transition: box-shadow 0.3s;
+              }
+              &:hover {
+                > img {
+                  box-shadow: 0 0 7px $primary-color;
+                }
+              }
+            }
+          }
+        }
+      }
     }
     .inner > .thumb {
       margin-top: 0.5rem;
@@ -102,7 +158,6 @@ ul.asset-list {
         max-height: 300px;
       }
     }
-    transition: all 0.1s ease-in-out;
   }
 
   &.selectable,
@@ -127,7 +182,7 @@ ul.asset-list {
   }
 
   &.selectable {
-    li {
+    > li:not(.locked) {
       cursor: pointer;
       .asset-type {
         .asset-checkbox {
@@ -143,7 +198,7 @@ ul.asset-list {
         }
         border-color: $primary-color;
         background-color: $primary-color;
-        box-shadow: 0 0 0 1px rgba($primary-color, 1);
+        box-shadow: 0 0 1px rgba($primary-color, 1);
         color: $white;
         a {
           color: $white;
@@ -151,7 +206,7 @@ ul.asset-list {
       }
       &:hover,
       &:focus {
-        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+        box-shadow: 0 0 8px rgba($primary-color, 0.7);
       }
     }
   }

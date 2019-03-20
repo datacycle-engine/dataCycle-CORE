@@ -39,7 +39,11 @@ module DataCycleCore
     end
 
     def sanitized_path
-      sanitize(params['path']) if params.dig('path').present?
+      if params.dig('path').present?
+        sanitize(params['path'])
+      else
+        'overview'
+      end
     end
 
     def sanitized_file

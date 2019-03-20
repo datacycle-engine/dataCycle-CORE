@@ -115,6 +115,7 @@
         :label: Event-Schedule
         :type: embedded
         :template_name: EventSchedule
+        :translated: true
       :data_type:
         :label: Inhaltstype
         :type: classification

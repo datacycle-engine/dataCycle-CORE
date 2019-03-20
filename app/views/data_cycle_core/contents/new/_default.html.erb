@@ -1,0 +1,11 @@
+<fieldset>
+  <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
+
+  <%= render_attribute_editor key: 'thing[datahash][name]',
+                              definition: template.schema.dig('properties', 'name'),
+                              value: local_assigns[:search_param],
+                              content: template,
+                              parameters: {
+                                options: local_assigns[:options]
+                              } %>
+</fieldset>

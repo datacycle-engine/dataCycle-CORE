@@ -219,7 +219,7 @@ namespace :dc do
 
     def embedded
       embedded_hash = {}
-      DataCycleCore::Thing.where(template: true).select { |temp| temp.content_type == 'entity' }.map do |main_temp|
+      DataCycleCore::Thing.where(template: true).find_each.select { |temp| temp.content_type == 'entity' }.map do |main_temp|
         main_temp.embedded_property_names.map do |embedded_item|
           properties = main_temp.properties_for(embedded_item)
           if embedded_hash.key?(properties.dig('template_name'))
@@ -264,7 +264,7 @@ def progress_bar(total_items, index, interval = nil)
 end
 
 def zsh?
-  ENV['SHELL'].split('/').last == 'zsh'
+  ENV['SHELL']&.split('/')&.last == 'zsh'
 end
 
 def error(msg)

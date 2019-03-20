@@ -13,6 +13,7 @@ namespace :data_cycle_core do
         ap errors
       end
     end
+
     desc 'import all external_system configs'
     task import_external_system_configs: [:environment] do
       puts 'importing new external_system configs'
@@ -44,6 +45,15 @@ namespace :data_cycle_core do
         ap errors
       end
       errors.blank? ? puts('[done] ... looks good') : exit(-1)
+      puts "\nchecking for usage of not translatable embedded"
+      templates = DataCycleCore::MasterData::ImportTemplates.find_not_translatable_embedded
+      if templates.present?
+        puts "\nERROR: the following templates use not translatable embedded:"
+        ap templates
+        exit(-1)
+      else
+        puts('[done] ... looks good')
+      end
     end
 
     desc 'delete history of a specific template_name'

@@ -5,9 +5,7 @@
         <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
       </div>
       <ul>
-        <% if current_user.is_rank?(0) %>
-          <%= render 'agbs' %>
-        <% end %>
+        <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
         <%= yield :additional_functions %>
 

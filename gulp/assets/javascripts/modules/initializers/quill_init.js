@@ -29,7 +29,7 @@ Quill.register(Break);
 
 // Quill Config
 module.exports.initialize = function() {
-  let init = function(node) {
+  function init(node) {
     // set edit mode
     var mode = 'full';
     if ($(node).data('size') != undefined && $(node).data('size') != false) mode = $(node).data('size');
@@ -144,7 +144,7 @@ module.exports.initialize = function() {
     };
 
     try {
-      var editor = new Quill('#' + node.id, options);
+      var editor = new Quill(node, options);
 
       var length = editor.getLength();
       var text = editor.getText(length - 2, 2);
@@ -157,6 +157,13 @@ module.exports.initialize = function() {
       editor.on('selection-change', (range, oldRange, source) => {
         if (range == null) quill_helpers.update_editors(editor.container);
       });
+
+      $(editor.container)
+        .closest('form')
+        .on('reset', event => {
+          editor.setText('');
+          quill_helpers.update_editors(editor.container);
+        });
 
       $(editor.container).on('import-data', function(event, data) {
         if (editor.getText().trim().length > 1) {
@@ -175,9 +182,9 @@ module.exports.initialize = function() {
     } catch (err) {
       console.log(err);
     }
-  };
+  }
 
-  let position_editor_toolbar = function(element, fixed_class = '') {
+  function position_editor_toolbar(element, fixed_class = '') {
     var right = $(window).width() - ($(element).offset().left + $(element).width());
     var rest_width = right + $(element).offset().left;
     $(element)
@@ -187,13 +194,21 @@ module.exports.initialize = function() {
         width: 'calc(100% - ' + rest_width + 'px)'
       });
     $(element)
-      .siblings('label')
+      .siblings('.translated')
       .css('left', $(element).offset().left + 10);
+    if ($(element).siblings('.translated').length)
+      $(element)
+        .siblings('label')
+        .css('left', $(element).offset().left + 30);
+    else
+      $(element)
+        .siblings('label')
+        .css('left', $(element).offset().left + 10);
     $(element)
       .find('.ql-toolbar')
       .addClass(fixed_class);
     $(element)
-      .siblings('label')
+      .siblings('label, .translated')
       .addClass(fixed_class);
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
@@ -201,7 +216,22 @@ module.exports.initialize = function() {
         .find('> .embedded-header > input')
         .addClass(fixed_class)
         .css('left', $(element).offset().left + 10);
-  };
+
+    if (
+      $(element)
+        .parents('.content-object-item.textblock')
+        .find('> .embedded-header > .translated').length
+    )
+      $(element)
+        .parents('.content-object-item.textblock')
+        .find('> .embedded-header > .translated')
+        .addClass(fixed_class)
+        .css('left', $(element).offset().left + 10);
+    $(element)
+      .parents('.content-object-item.textblock')
+      .find('> .embedded-header > input')
+      .css('left', $(element).offset().left + 30);
+  }
 
   let reset_editor_toolbar = function(element, fixed_class = '') {
     $(element)
@@ -209,13 +239,13 @@ module.exports.initialize = function() {
       .removeClass(fixed_class)
       .removeAttr('style');
     $(element)
-      .siblings('label')
+      .siblings('label, .translated')
       .removeClass(fixed_class)
       .removeAttr('style');
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
         .parents('.content-object-item.textblock')
-        .find('> .embedded-header > input')
+        .find('> .embedded-header > input, > .embedded-header > .translated')
         .removeClass(fixed_class)
         .removeAttr('style');
   };
@@ -248,23 +278,23 @@ module.exports.initialize = function() {
 
   Quill.register('modules/counter', Counter);
 
-  $(document).on('clone-added', '.content-object-item', function() {
+  $(document).on('changed.dc.html', '*', event => {
     if (
-      $(this)
+      $(event.target)
         .find('.quill-editor')
         .html() != undefined
     ) {
-      $(this)
+      $(event.target)
         .find('.quill-editor')
-        .each(function() {
-          init(this);
+        .each((i, elem) => {
+          init(elem);
         });
     }
   });
 
   if ($('.quill-editor').html() != undefined) {
-    $('.quill-editor').each(function() {
-      init(this);
+    $('.quill-editor').each((i, elem) => {
+      init(elem);
     });
   }
 };

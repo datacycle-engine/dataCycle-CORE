@@ -191,7 +191,7 @@ module DataCycleCore
           .merge(
             DataCycleCore::ClassificationAlias
               .for_tree(tree_name)
-              .with_name(aliases)
+              .with_internal_name(aliases)
               .with_descendants
           )
 

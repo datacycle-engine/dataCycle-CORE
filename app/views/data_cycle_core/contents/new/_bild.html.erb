@@ -1,0 +1,105 @@
+<% if DataCycleCore.features.dig(:external_media_archive, :enabled) %>
+  <% external_system = DataCycleCore::ExternalSystem.find_by(name: 'Medienarchiv') %>
+  <fieldset class="<%= 'iframe' if external_system.present? %>">
+    <legend><%= t('common.create_via_mediaarchive', data: 'Bild', locale: DataCycleCore.ui_language) %></legend>
+
+    <% if external_system.present? %>
+      <%= render 'asset_upload', key: local_assigns[:key] || 'iframe_image', asset_type: 'image' %>
+
+      <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= external_system.credentials.dig('host') %>/admin/media/import_iframe?type=Image&token=<%= external_system.credentials.dig('token') %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>" data-uploader-id="asset-upload-reveal-<%= local_assigns[:key] || 'iframe_image' %>">
+        <p>Formular konnte nicht geladen werden</p>
+      </iframe>
+    <% else %>
+      <div class="callout alert">
+        <h4>Fehler!</h4>
+        <p>Verbindung zum Medienarchiv nicht möglich.</p>
+      </div>
+    <% end %>
+  </fieldset>
+<% else %>
+  <fieldset>
+    <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
+
+    <%= render_attribute_editor key: 'thing[datahash][asset]',
+                                definition: template.schema.dig('properties', 'asset'),
+                                value: [],
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+  </fieldset>
+
+  <fieldset>
+    <legend><%= t('new_step_title.title', locale: DataCycleCore.ui_language) %></legend>
+
+    <%= render_attribute_editor key: 'thing[datahash][name]',
+                                definition: template.schema.dig('properties', 'name'),
+                                value: local_assigns[:search_param],
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][caption]',
+                                definition: template.schema.dig('properties', 'caption'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][description]',
+                                definition: template.schema.dig('properties', 'description'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][tags]',
+                                definition: template.schema.dig('properties', 'tags'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+
+  </fieldset>
+
+  <fieldset>
+    <legend><%= t('new_step_title.copyright', locale: DataCycleCore.ui_language) %></legend>
+
+    <%= render_attribute_editor key: 'thing[datahash][copyright_holder]',
+                                definition: template.schema.dig('properties', 'copyright_holder'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][author]',
+                                definition: template.schema.dig('properties', 'author'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+
+    <%= render_attribute_editor key: 'thing[datahash][validity_period]',
+                                definition: template.schema.dig('properties', 'validity_period'),
+                                value: nil,
+                                content: template,
+                                parameters: {
+                                  options: local_assigns[:options]
+                                } %>
+  </fieldset>
+
+  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+    <fieldset>
+      <legend><%= t('new_step_title.agbs', locale: DataCycleCore.ui_language) %></legend>
+      <%= render 'agbs', options: local_assigns[:options] %>
+    </fieldset>
+  <% end %>
+<% end %>

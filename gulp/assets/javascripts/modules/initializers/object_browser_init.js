@@ -1,20 +1,19 @@
 var ObjectBrowser = require('./../components/object_browser');
 
 // Word Counter
-module.exports.initialize = function () {
-
+module.exports.initialize = function() {
   var object_browsers = [];
 
-  $('.edit-content-form .object-browser').each(function () {
-    object_browsers.push(new ObjectBrowser($(this)));
+  $('.edit-content-form .object-browser').each((i, elem) => {
+    object_browsers.push(new ObjectBrowser($(elem)));
   });
 
-  $(document).on('clone-added', '.content-object-item', function (event) {
-    event.preventDefault();
+  $(document).on('changed.dc.html', '*', event => {
     event.stopPropagation();
-    $(this).find('.object-browser').each(function () {
-      object_browsers.push(new ObjectBrowser($(this)));
-    });
+    $(event.target)
+      .find('.object-browser')
+      .each((i, elem) => {
+        object_browsers.push(new ObjectBrowser($(elem)));
+      });
   });
-
 };

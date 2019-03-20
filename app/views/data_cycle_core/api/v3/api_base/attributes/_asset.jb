@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-asset = value.first
+asset = value
 if asset.present?
   json[key.camelize(:lower)] = {
     id: asset.id,

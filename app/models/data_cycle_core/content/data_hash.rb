@@ -48,7 +48,6 @@ module DataCycleCore
             self.updated_at = @save_time
             self.updated_by = @current_user&.id
 
-            # TODO: check if id is still valid
             if id.nil?
               self.created_at = @save_time
               self.created_by = @current_user&.id
@@ -64,7 +63,6 @@ module DataCycleCore
       end
 
       def set_last_updated_by
-        # TODO: check after #507: Benutzerinteraktionen mit Content soll von System und nicht mehr durch die Templates definiert werden.
         last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
         @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
       end
@@ -127,9 +125,9 @@ module DataCycleCore
       def storage_cases_set(key, value, properties)
         case properties['type']
         when 'linked'
-          set_linked(key, value)
+          set_linked(key, value, properties)
         when 'embedded'
-          set_embedded(key, value, properties['template_name'])
+          set_embedded(key, value, properties['template_name'], properties['translated'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
@@ -187,7 +185,10 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked(field_name, input_data)
+      def set_linked(field_name, input_data, properties)
+        return if properties['link_direction'] == 'inverse' # inverse direction is read_only
+        relation_b = properties['inverse_of']
+
         item_ids_before_update = send(field_name).ids
         item_ids_after_update = parse_linked_ids(input_data)
 
@@ -198,13 +199,13 @@ module DataCycleCore
             content_b_id: item_ids_after_update[index]
           })
           update_relation.order_a = index
+          update_relation.relation_b = relation_b
           update_relation.save!
         end
 
         item_ids_to_delete = item_ids_before_update - item_ids_after_update
-
         return if item_ids_to_delete.size.zero?
-        # destroy relations
+
         DataCycleCore::ContentContent
           .where({
             content_a_id: id,
@@ -222,9 +223,9 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, name)
+      def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -257,15 +258,10 @@ module DataCycleCore
 
         potentially_delete = available_update_item_keys - updated_item_keys
         potentially_delete.each do |key|
+          # fully destroy all remaining embedded!
           item = DataCycleCore::Thing.find_by(id: key)
-          translations = item.translated_locales
-          if (translations - [I18n.locale]).empty?
-            item.destroy_children
-            item.destroy
-          else
-            # only destroy particular translation !
-            item.translation.destroy
-          end
+          item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
+          item.destroy
         end
       end
 
@@ -347,8 +343,8 @@ module DataCycleCore
         end
 
         # delete old id
-        found_ids = load_asset_relation(relation_name).ids
-        to_delete = found_ids - [asset_id]
+        found_ids = load_asset_relation(relation_name)&.id
+        to_delete = Array(found_ids) - Array(asset_id)
         return if to_delete.empty?
         DataCycleCore::AssetContent
           .with_content(id, self.class.to_s)

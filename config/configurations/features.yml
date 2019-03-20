@@ -1,0 +1,73 @@
+:publication_schedule:
+  :enabled: false
+
+:overlay:
+  :enabled: false
+  :attribute_keys:
+    - overlay
+
+:releasable:
+  :enabled: false
+  :attribute_keys:
+    - release_status_id
+    - release_status_comment
+  :classification_names:
+    :valid: freigegeben
+    :partner: beim Partner
+    :review: in Review
+    :archive: archiviert
+
+:life_cycle:
+  :enabled: false
+
+:idea_collection:
+  :enabled: false
+
+:container:
+  :enabled: false
+
+:main_filter:
+  :enabled: true
+  :classification_alias_ids:
+    - Inhaltstypen
+  :autoload_last_filter: false
+
+:advanced_filter:
+  :enabled: true
+  :classification_alias_ids: all
+  :external_source: true
+  :creator: true
+
+:geocode:
+  :enabled: false
+  :attribute_keys:
+
+:gpx_converter:
+  :enabled: true
+
+:external_media_archive:
+  :enabled: false
+  :template_mapping:
+    :bild: image
+    :video: video
+
+:normalize:
+  :enabled: false
+
+:duplicate_content:
+  :enabled: false
+
+:image_optimizer:
+  :enabled: true
+  :config:
+    :pngout: false
+    :svgo: false
+    :advpng: false
+    :gifsicle:
+      :careful: true
+    :optipng:
+      :strip: false
+    :jpegtran:
+      :copy_chunks: true
+    :jpegoptim:
+      :strip: :comments

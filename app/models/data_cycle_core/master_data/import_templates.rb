@@ -133,6 +133,47 @@ module DataCycleCore
         hash
       end
 
+      def self.find_not_translatable_embedded
+        not_translatable_list = check_not_translatable
+        return [] if not_translatable_list.blank?
+
+        not_translated_occurances = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          template.embedded_property_names.map { |item|
+            { item => template.properties_for(item) }
+          }.each do |properties|
+            key = properties.keys.first
+            next unless properties.dig(key, 'template_name').in?(not_translatable_list)
+            next if properties.dig(key, 'translated') == true
+            not_translated_occurances.push({ template.template_name => key })
+          end
+        end
+        not_translated_occurances
+      end
+
+      def self.check_not_translatable
+        templates = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          properties = template.schema['properties'].with_indifferent_access
+          not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
+          templates.push(template.template_name) if not_trans
+        end
+        templates
+      end
+
+      def self.not_translatable?(properties)
+        translated_columns = DataCycleCore::Thing.new.translated_attributes
+        result = true
+        properties.each do |name, property|
+          next if property.dig(:type).in? [:key, :classification, :asset, :linked, :embedded]
+          return false if property[:storage_location] == 'translated_value'
+          return false if property[:storage_location] == 'column' && name.in?(translated_columns)
+          result = not_translatable?(property.dig(:properties)) if property.dig(:type) == :object
+          return false if result == false
+        end
+        true
+      end
+
       def self.validate(template)
         result_header = validate_header.call(template)
         errors = {}
@@ -181,6 +222,10 @@ module DataCycleCore
               value.in?(['all', 'same'])
             end
 
+            def validate_link_direction?(value)
+              value.in?(['inverse'])
+            end
+
             def valid_compute_config?(value)
               return false unless value.is_a?(Hash)
               module_name = valid_computed_module?(value.dig(:module))
@@ -208,7 +253,8 @@ module DataCycleCore
                     valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
                     valid_compute_config?: 'module and method combination not found.',
-                    valid_linked_language?: 'must be all or same.'
+                    valid_linked_language?: 'must be all or same.',
+                    validate_link_direction?: 'must be inverse if present.'
                   }
                 }
               )
@@ -217,164 +263,103 @@ module DataCycleCore
 
           required(:label) { str? }
           required(:type) do
-            str? &
-              included_in?(
-                [
-                  'key',
-                  'string',
-                  'text',
-                  'number',
-                  'boolean',
-                  'datetime',
-                  'geographic',
-                  'object',
-                  'embedded',
-                  'linked',
-                  'classification',
-                  'asset',
-                  'computed'
-                ]
-              )
-          end
-          optional(:compute).schema do
-            required(:module) { str? }
-            required(:method) { str? }
-            required(:parameters) { hash? }
-            required(:type) do
-              str? &
-                included_in?(
-                  [
-                    'string',
-                    'text',
-                    'number',
-                    'boolean',
-                    'datetime',
-                    'geographic',
-                    'object',
-                    'classification',
-                    'asset'
-                  ]
-                )
-            end
-          end
-          optional(:storage_location) do
-            str? &
-              included_in?(
-                [
-                  'column',
-                  'value',
-                  'translated_value'
-                ]
-              )
-          end
-          optional(:search) { bool? }
-          optional(:validations) { hash? }
-          optional(:properties) { hash? }
-          optional(:ui) { hash? }
-          optional(:api) { hash? }
-          optional(:delete) { bool? }
-          optional(:default_value) { str? & valid_classification? }
-          optional(:asset_type) do
-            str? &
-              included_in?(
-                [
-                  'asset',
-                  'audio',
-                  'image',
-                  'video',
-                  'pdf',
-                  'data_cycle_file'
-                ]
-              )
-          end
-          optional(:tree_label) { str? }
-          optional(:stored_filter) { array? }
-          optional(:linked_language) { str? & valid_linked_language? }
-          optional(:normalize).schema do
-            required(:id) do
-              str? &
-                included_in?(
-                  [
-                    'sex',
-                    'degree',
-                    'forename',
-                    'surname',
-                    'company',
-                    'street',
-                    'streetnr',
-                    'city',
-                    'zip',
-                    'country',
-                    'birthdate',
-                    'email',
-                    'eventname',
-                    'eventstart',
-                    'eventend',
-                    'eventplace',
-                    'longitude',
-                    'latitude'
-                  ]
-                )
-            end
-            required(:type) do
-              str? &
-                included_in?(
-                  [
-                    'sex',
-                    'degree',
-                    'forename',
-                    'surname',
-                    'company',
-                    'street',
-                    'streetnr',
-                    'city',
-                    'zip',
-                    'country',
-                    'birthdate',
-                    'email',
-                    'eventname',
-                    'datetime',
-                    'place',
-                    'longitude',
-                    'latitude'
-                  ]
-                )
-            end
-          end
-          optional(:external) { bool? }
-          optional(:not_translated) { bool? }
-
-          rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
-            properties.filled? > (
-              type.eql?('object') &
-              storage_location.included_in?(['value', 'translated_value'])
+            str? & included_in?(
+              ['key', 'string', 'text', 'number', 'boolean',
+               'datetime', 'geographic',
+               'object', 'embedded', 'linked', 'classification',
+               'asset', 'computed']
             )
           end
+          optional(:storage_location) do
+            str? & included_in?(['column', 'value', 'translated_value'])
+          end
+          optional(:validations) { hash? }
+          optional(:ui) { hash? }
+          optional(:api) { hash? }
+          optional(:search) { bool? }
+          optional(:normalize).schema do
+            required(:id) do
+              str? & included_in?(
+                ['sex', 'degree', 'forename', 'surname', 'birthdate',
+                 'company', 'email',
+                 'street', 'streetnr', 'city', 'zip', 'country',
+                 'eventname', 'eventstart', 'eventend',
+                 'eventplace', 'longitude', 'latitude']
+              )
+            end
+            required(:type) do
+              str? & included_in?(
+                ['sex', 'degree', 'forename', 'surname', 'birthdate',
+                 'company', 'email',
+                 'street', 'streetnr', 'city', 'zip', 'country',
+                 'eventname', 'datetime',
+                 'place', 'longitude', 'latitude']
+              )
+            end
+          end
 
+          # for type object
+          optional(:properties) { hash? }
+          rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
+            (type.eql?('object') > (properties.filled? & storage_location.included_in?(['value', 'translated_value']))) &
+              (properties.filled? > (type.eql?('object') & storage_location.included_in?(['value', 'translated_value'])))
+          end
+
+          # for type embedded and linked
+          optional(:stored_filter) { array? }
+
+          # for type embedded
+          optional(:translated) { bool? }
           rule(embedded_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
             (type.eql?('embedded') > template_name.filled?) |
               (type.eql?('embedded') > stored_filter.filled?)
           end
 
+          # for type linked
+          optional(:linked_language) { str? & valid_linked_language? }
+          optional(:inverse_of) { str? }
+          optional(:link_direction) { str? & validate_link_direction? }
           rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
             (type.eql?('linked') > template_name.filled?) |
               (type.eql?('linked') > stored_filter.filled?)
           end
 
+          # for type classification
+          optional(:tree_label) { str? }
+          optional(:default_value) { str? & valid_classification? }
+          optional(:not_translated) { bool? }
+          optional(:external) { bool? }
           rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
             # type.eql?('classification') >
             #   tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
             type.eql?('classification') > tree_label.filled?
           end
 
+          # for type asset
+          optional(:asset_type) do
+            str? & included_in?(
+              ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file']
+            )
+          end
           rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
-            type.eql?('asset') >
-              asset_type.filled?
+            type.eql?('asset') > asset_type.filled?
           end
 
+          # for type compute
+          optional(:compute).schema do
+            required(:module) { str? }
+            required(:method) { str? }
+            required(:parameters) { hash? }
+            required(:type) do
+              str? & included_in?(
+                ['string', 'text', 'number', 'boolean',
+                 'datetime', 'geographic',
+                 'object', 'classification', 'asset']
+              )
+            end
+          end
           rule(computed_method: [:type, :compute]) do |type, compute|
-            type.eql?('computed') >
-              (compute.hash? & compute.valid_compute_config?)
+            type.eql?('computed') > (compute.hash? & compute.valid_compute_config?)
           end
         end
       end

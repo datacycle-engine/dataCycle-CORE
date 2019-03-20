@@ -46,7 +46,7 @@ module DataCycleCore
       end
 
       def duplicate_data_hash(data_hash)
-        deep_reject(data_hash) { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
+        data_hash.deep_reject { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
       end
 
       def in_range(table_name, timestamp)

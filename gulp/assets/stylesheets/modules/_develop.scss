@@ -323,14 +323,17 @@
     .fa-exclamation-triangle {
       color: $warning-color;
       text-shadow: 0 0 1px;
-      &.alert {
-        color: $alert-color;
-      }
     }
 
     .validity_period {
       margin-bottom: 1rem;
     }
+  }
+}
+
+.fa-exclamation-triangle {
+  &.alert {
+    color: $alert-color;
   }
 }
 
@@ -719,7 +722,7 @@ select {
 .reveal {
   .loading {
     text-align: center;
-    padding: 4rem 8rem;
+    padding: 1rem;
     display: block;
 
     .fa {
@@ -784,7 +787,7 @@ a.has-tip {
     box-shadow: 0 0 1px #9d9d9d;
     border: none;
     width: 96vw;
-    height: 87vh;
+    height: 85vh;
     max-width: 1200px;
   }
 
@@ -927,7 +930,7 @@ video {
     text-align: left;
     font-size: 0.8rem;
     line-height: 1.2rem;
-    padding: 0 2rem 0.2rem 0;
+    padding-right: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -946,8 +949,8 @@ video {
 
     .history-link {
       position: absolute;
-      right: 0;
-      top: 0;
+      right: 0.2rem;
+      top: 0.2rem;
     }
   }
 }
@@ -1361,6 +1364,20 @@ select:-moz-focusring {
           float: none;
         }
 
+        .translated {
+          position: relative;
+          top: 0;
+          left: 0;
+          &.fixed-toolbar {
+            position: fixed;
+            top: 60px;
+          }
+          &.fixed-split-toolbar {
+            position: fixed;
+            top: 185px;
+          }
+        }
+
         input[name*='name'] {
           display: inline-block;
           background: transparent;
@@ -1388,6 +1405,9 @@ select:-moz-focusring {
 
       .text_editor {
         margin-bottom: 0;
+        .translated {
+          display: none;
+        }
 
         label {
           display: none;
@@ -1416,8 +1436,8 @@ select {
   }
 }
 
-.reveal-overlay.content-reveal-overlay {
-  z-index: 1007;
+.reveal-overlay {
+  z-index: 1006;
 }
 
 .detail-type.geographic,
@@ -1487,6 +1507,10 @@ select {
   }
 }
 
+.accept-agbs {
+  margin: 0;
+}
+
 .object-browser-overlay .detail-type.geographic {
   > .detail-label {
     display: none;
@@ -1537,8 +1561,12 @@ select {
 }
 [type='checkbox'],
 [type='radio'] {
+  margin: 0;
   display: inline-block;
-  vertical-align: sub;
+  vertical-align: middle;
+  & + label {
+    vertical-align: middle;
+  }
 }
 
 .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
@@ -1674,40 +1702,55 @@ input.normalized {
   }
 }
 
-#admin-panel{
+#admin-panel {
   color: darken($white, 15%);
-  background-color: darken($black, 15%);
+  background-color: rgba(darken($black, 15%), 0.9);
   position: fixed;
   bottom: 0;
   width: 100%;
-  z-index: 999999;
+  z-index: 1000;
   max-height: 100vh;
-  nav#admin-icons{
-    a{
-      padding: 1rem;
-      border-right: 1px solid $primary-color;
-      .fa {
-        font-size: 1.3rem;
+  #admin-icons {
+    background: none;
+    border-top: 1px solid $primary-color;
+    .tabs-title {
+      &.is-active {
+        a {
+          background: none;
+          .fa {
+            color: darken($white, 15%);
+          }
+        }
       }
-      &:hover .fa {
-        color: darken($white,15%);
+      a {
+        padding: 1rem;
+        border-right: 1px solid $primary-color;
+        .fa {
+          font-size: 1.3rem;
+        }
+        &:hover,
+        &:focus {
+          background: none;
+          .fa {
+            color: darken($white, 15%);
+          }
+        }
       }
     }
   }
-  section#admin-inner{
+  section#admin-inner {
     > section {
-      display:none;
       padding: 1rem;
       border-top: 1px solid $primary-color;
-      &.expanded{
+      &.expanded {
         display: block;
       }
-      button{
+      button {
         background-color: none;
         border: 1px solid $primary-color;
         color: $primary-color;
       }
-      span.admin-clipboard-notice{
+      span.admin-clipboard-notice {
         position: absolute;
         right: 6rem;
         display: block;
@@ -1719,10 +1762,20 @@ input.normalized {
         line-height: 1.3;
         padding: 0.75rem 1rem;
       }
-      &#schema, &#datahash, &#json-api, &#related-content{
-        .schema-nav, .datahash-nav, .json-api-nav, .json-related-content{
-          padding-bottom: 1rem;
+      &#schema,
+      &#datahash,
+      &#json-api,
+      &#related-content {
+        .schema-nav,
+        .datahash-nav,
+        .json-api-nav,
+        .json-related-content {
+          padding: 0.5rem;
           text-align: right;
+          h5 {
+            float: left;
+            margin: 0.5rem 0;
+          }
         }
         /* Scrollbar styles */
         ::-webkit-scrollbar {
@@ -1740,12 +1793,12 @@ input.normalized {
         ::-webkit-scrollbar-thumb:hover {
           background: $light-gray;
         }
-        pre{
+        pre {
           overflow: auto;
           display: block;
           width: 100%;
           max-height: calc(100vh - 9.3rem);
-          code{
+          code {
             height: auto;
             width: 100%;
             display: inline-block;
@@ -1756,7 +1809,74 @@ input.normalized {
           }
         }
       }
+    }
+  }
+}
 
+.translated-attribute-container {
+  .translated-attribute {
+    display: none;
+    &.active {
+      display: block;
+    }
+  }
+}
+.translated-attribute-locales {
+  position: absolute;
+  right: 3rem;
+  top: 0.5rem;
+  padding: 0.3rem 0;
+  .translated-attribute-locale {
+    &.active {
+      color: $black;
+      cursor: default;
+    }
+  }
+}
+
+/* Lists */
+section.related-objects {
+  margin: 2rem 0 5rem 0;
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    > li {
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      transition: all ease-in-out 0.2s;
+      background: lighten($primary-color, 50%);
+      -webkit-filter: blur(0);
+      padding: 1rem;
+      margin-bottom: 1rem;
+
+      &.expired-item {
+        box-shadow: 0 1px 8px $alert-color;
+
+        &:hover,
+        &:focus {
+          box-shadow: 0 1px 25px $alert-color;
+        }
+      }
+      > ul {
+        margin-top: 1rem;
+        li {
+          background: $white;
+        }
+        li:last-child {
+          margin-bottom: 0;
+        }
+      }
+      .buttons {
+        float: right;
+        > * {
+          margin-right: 0.5rem;
+        }
+      }
+
+      a {
+        font-weight: normal;
+        color: $black;
+      }
     }
   }
 }

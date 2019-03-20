@@ -15,6 +15,24 @@ module DataCycleCore
         end
       ]
     end
+
+    def deep_reject(&block)
+      dup.deep_reject!(&block)
+    end
+
+    def deep_reject!(&block)
+      each do |k, v|
+        v.deep_reject!(&block) if v.is_a?(Hash)
+
+        if v.is_a?(Array)
+          v.each do |val|
+            val.deep_reject!(&block) if val.is_a?(Hash)
+          end
+        end
+
+        delete(k) if yield(k, v)
+      end
+    end
   end
 end
 

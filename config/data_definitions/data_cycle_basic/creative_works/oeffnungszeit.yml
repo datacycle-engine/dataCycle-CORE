@@ -59,6 +59,7 @@
         :label: Zeit
         :type: embedded
         :template_name: Öffnungszeit - Zeitspanne
+        :translated: true
       :description:
         :label: Text
         :type: string
