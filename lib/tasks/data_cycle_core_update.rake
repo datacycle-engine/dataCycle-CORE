@@ -50,6 +50,7 @@ namespace :data_cycle_core do
       if templates.present?
         puts "\nERROR: the following templates use not translatable embedded:"
         ap templates
+        puts "\nHINT: add ':translated: true' to the respective embedded propert(y)/(ies) to make it work"
         exit(-1)
       else
         puts('[done] ... looks good')
