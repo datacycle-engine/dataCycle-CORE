@@ -2,22 +2,30 @@
 
 namespace :dc do
   namespace :update_data do
-    desc 'Remove all data from external_source'
+    desc 'update all computed attributes'
     task :computed_attributes, [:dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
 
-      templates_w_computed = DataCycleCore::Thing.where(template: true).find_each.select { |template| template.computed_property_names.present? }.each do |template|
+      DataCycleCore::Thing.where(template: true).find_each.select { |template| template.computed_property_names.present? }.each do |template|
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
-        ap "#{template.template_name}: #{items.size}"
+        items_to_update = items.size
+
+        puts "Computed attributes found in:  #{template.template_name}"
+        puts "Updating #{items_to_update.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
+        index = 0
+        items.each do |item|
+          progress_bar(items_to_update, index)
+          index += 1
+          next if dry_run
+          item.set_data_hash(data_hash: item.get_data_hash)
+        end
+        progress_bar(items_to_update, items_to_update)
       end
-      ap templates_w_computed
-      # byebug
 
       if dry_run
         puts 'Dry run: no database changes made'
         exit(-1)
       end
-      exit(-1)
     end
   end
 end
