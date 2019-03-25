@@ -293,7 +293,7 @@ module DataCycleCore
                  'company', 'email',
                  'street', 'streetnr', 'city', 'zip', 'country',
                  'eventname', 'datetime',
-                 'place', 'longitude', 'latitude']
+                 'eventplace', 'longitude', 'latitude']
               )
             end
           end

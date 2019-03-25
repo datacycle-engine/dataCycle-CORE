@@ -17,4 +17,4 @@
           :minimal: true
         :normalize:
           :id: eventplace
-          :type: place
+          :type: eventplace
