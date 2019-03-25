@@ -88,7 +88,7 @@
         :label: POIS
         :type: linked
         :template_name: POI
-        :inverse_of: tour           
+        :inverse_of: tour
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string

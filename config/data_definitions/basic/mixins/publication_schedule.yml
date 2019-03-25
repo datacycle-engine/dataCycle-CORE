@@ -10,9 +10,6 @@
         :translated: true
         :validations:
           :classifications: no_conflicts
-#        :ui:
-#          :show:
-#            :content_area: header
         :features:
           :publication_schedule:
             :allowed: true
