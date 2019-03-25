@@ -426,7 +426,7 @@ CREATE TABLE public.things (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    seen_at timestamp without time zone,
+    touched_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -668,7 +668,7 @@ CREATE TABLE public.thing_histories (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    seen_at timestamp without time zone,
+    touched_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -1846,6 +1846,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190118145915'),
 ('20190129083607'),
 ('20190312141313'),
-('20190314094528');
+('20190314094528'),
+('20190325122951');
 
 
