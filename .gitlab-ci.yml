@@ -70,6 +70,11 @@ services:
 
 .rails_test_config:
   extends: .job_cache_config
+  artifacts:
+    name: "$CI_JOB_NAME"
+    expire_in: 1 week
+    paths:
+      - coverage/
   script:
     - bundle exec rake db:drop
     - bundle exec rake db:create
