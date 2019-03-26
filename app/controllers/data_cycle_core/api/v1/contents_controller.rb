@@ -10,7 +10,7 @@ module DataCycleCore
         end
 
         def show
-          return if permitted_params[:type].nil? || permitted_params[:type] == 'things'
+          return if permitted_params[:type].nil? || permitted_params[:type] != 'things'
 
           @content = DataCycleCore::Thing
             .includes({ classifications: [], translations: [] })
