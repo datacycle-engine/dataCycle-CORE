@@ -74,7 +74,7 @@ module DataCycleCore
                 template_name: template[:data][:name],
                 template: true
               )
-            data_set.touched_at = Time.zone.now
+            data_set.template_updated_at = Time.zone.now
             data_set.schema = template[:data]
             data_set.save
           elsif error.present?
