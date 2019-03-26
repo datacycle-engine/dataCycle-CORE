@@ -13,33 +13,10 @@ module DataCycleCore
             class Tour < ActionDispatch::IntegrationTest
               include Devise::Test::IntegrationHelpers
               include Engine.routes.url_helpers
-              # include DataCycleCore::DummyDataHelper
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                # schedule
-                saison = [
-                  {
-                    by_month: (['Juni'].map{|m| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', m) })
-                  }
-                ]
-
-                # poi
-                poi_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
-                @poi = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash)
-
-                tour_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_tour')
-                tour_data_hash[:image] = @image.id
-                tour_data_hash[:primary_image] = @image.id
-                tour_data_hash[:logo] = @image.id
-                tour_data_hash[:poi] = @poi.id
-                tour_data_hash[:schedule] = saison
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Tour', data_hash: tour_data_hash)
-
+                @content = DataCycleCore::DummyDataHelper.create_data('tour')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 

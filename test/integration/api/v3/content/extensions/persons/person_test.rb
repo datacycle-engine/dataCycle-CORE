@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore
@@ -15,18 +16,7 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                person_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'api_person')
-                gender_classification = DataCycleCore::Classification.find_by(name: 'Männlich')
-                country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
-                person_data_hash[:gender] = [gender_classification.id]
-                person_data_hash[:country_code] = [country_classification.id]
-                person_data_hash[:image] = [@image.id]
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash)
-
+                @content = DataCycleCore::DummyDataHelper.create_data('person')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 

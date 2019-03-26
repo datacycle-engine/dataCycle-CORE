@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore
@@ -15,19 +16,7 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
-                place_data_hash[:image] = @image.id
-                @place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
-
-                event_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'api_event')
-                event_data_hash[:image] = [@image.id]
-                event_data_hash[:content_location] = [@place.id]
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: event_data_hash)
-
+                @content = DataCycleCore::DummyDataHelper.create_data('event')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 

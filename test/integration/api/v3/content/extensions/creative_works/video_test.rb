@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore
@@ -15,10 +16,7 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_video')
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash: creative_work_data_hash)
-
+                @content = DataCycleCore::DummyDataHelper.create_data('video')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 

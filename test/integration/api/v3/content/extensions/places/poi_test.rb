@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore
@@ -15,24 +16,7 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
-                country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
-                place_data_hash[:country_code] = [country_classification.id]
-                place_data_hash[:image] = @image.id
-                place_data_hash[:primary_image] = @image.id
-                place_data_hash[:logo] = @image.id
-
-                opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-                opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-                opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-                place_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
-
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
+                @content = DataCycleCore::DummyDataHelper.create_data('poi')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 

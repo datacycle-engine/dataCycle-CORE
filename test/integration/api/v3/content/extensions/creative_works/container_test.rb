@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore
@@ -15,12 +16,9 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
+                @content = DataCycleCore::DummyDataHelper.create_data('container')
 
-                container_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_container')
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: container_data_hash)
-
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
-                @article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
+                @article = DataCycleCore::DummyDataHelper.create_data('article')
                 @article.is_part_of = @content.id
                 @article.save!
 
