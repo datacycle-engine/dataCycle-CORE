@@ -64,8 +64,7 @@ module DataCycleCore
           .where({
             content_content_histories: {
               content_a_history_id: id,
-              relation_a: relation_name,
-              content_b_history_type: 'DataCycleCore::Thing::History'
+              relation_a: relation_name
             }
           })
         relation_contents = relation_contents.joins(:translations).where(thing_history_translations: { locale: I18n.locale }) if language_flag
