@@ -341,7 +341,7 @@ module DataCycleCore
           end
         templates
           .to_a
-          .sort { |item, other| item[1][:template_updated_at] <=> other[1][:template_updated_at] }
+          .sort_by { |item| item[1][:template_updated_at] }
           .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
       end
 
