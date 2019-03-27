@@ -1,0 +1,6 @@
+:templates:
+  :places:
+    :POI:
+      :features:
+        :creatable:
+          :allowed: true

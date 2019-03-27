@@ -90,8 +90,14 @@ module DataCycleCore
 
       def self.transform_schema(content_table: nil, schema: {})
         schema[:boost] = schema[:boost] || 1.0
+        schema[:features] = transform_features(schema: schema, content_table: content_table)
         schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table)
         schema
+      end
+
+      def self.transform_features(schema: {}, content_table: nil)
+        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features)) if DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features).present?
+        schema.dig(:features) || {}
       end
 
       def self.transform_properties(property_hash: {}, content_table: nil)
