@@ -123,7 +123,7 @@ namespace :data_cycle_core do
           schema = '#{template.schema.to_json}',
           boost = #{template.schema.dig('boost') || 'NULL'},
           content_type = '#{template.schema.dig('content_type')}',
-          touched_at = '#{Time.zone.now}'
+          template_updated_at = '#{Time.zone.now}'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
