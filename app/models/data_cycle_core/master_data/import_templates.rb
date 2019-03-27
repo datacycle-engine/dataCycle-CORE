@@ -325,7 +325,7 @@ module DataCycleCore
 
       def self.updated_template_statistics(timestamp = Time.zone.now)
         templates = {}
-        DataCycleCore::Thing.where("template_updated_at < '#{timestamp.to_s(:long_usec)}'")
+        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.to_s(:long_usec))
           .where(template: true).find_each do |template|
             templates[template.template_name] = {
               template_updated_at: template.template_updated_at,
