@@ -34,6 +34,7 @@ namespace :data_cycle_core do
 
     desc 'import all template definitions'
     task import_templates: [:environment] do
+      before_import = Time.zone.now
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if duplicates.present?
@@ -54,6 +55,16 @@ namespace :data_cycle_core do
         exit(-1)
       else
         puts('[done] ... looks good')
+      end
+
+      outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
+      if outdated_templates.present?
+        puts "\ntemplate_updated_at:"
+        puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
+        puts '-' * 92
+        outdated_templates.each do |key, value|
+          puts "#{key.to_s.ljust(20)} | #{value[:template_updated_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
+        end
       end
     end
 

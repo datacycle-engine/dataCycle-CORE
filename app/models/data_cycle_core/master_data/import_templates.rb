@@ -323,9 +323,25 @@ module DataCycleCore
         end
       end
 
+      def self.updated_template_statistics(timestamp = Time.zone.now)
+        templates = {}
+        DataCycleCore::Thing.where("template_updated_at < '#{timestamp.to_s(:long_usec)}'")
+          .where(template: true).find_each do |template|
+            templates[template.template_name] = {
+              template_updated_at: template.template_updated_at,
+              count: DataCycleCore::Thing.where(template: false, template_name: template.template_name).count,
+              count_history: DataCycleCore::Thing::History.where(template: false, template_name: template.template_name).count
+            }
+          end
+        templates
+          .to_a
+          .sort { |item, other| item[1][:template_updated_at] <=> other[1][:template_updated_at] }
+          .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
+      end
+
       def self.template_statistics
         templates = {}
-        DataCycleCore::Thing.where(template: true).pluck(:template_name).sort.each do |template|
+        DataCycleCore::Thing.where(template: true).pluck(:template_name)&.sort&.each do |template|
           templates[template] = DataCycleCore::Thing.where(template_name: template, template: false).count
         end
         templates
