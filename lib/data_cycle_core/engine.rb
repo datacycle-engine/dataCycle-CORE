@@ -100,6 +100,9 @@ module DataCycleCore
     mattr_accessor :features
     self.features = {}
 
+    mattr_accessor :main_config
+    self.main_config = {}
+
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']
