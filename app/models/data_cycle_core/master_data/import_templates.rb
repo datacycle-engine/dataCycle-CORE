@@ -331,7 +331,7 @@ module DataCycleCore
 
       def self.updated_template_statistics(timestamp = Time.zone.now)
         templates = {}
-        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.to_s(:long_usec))
+        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.utc.to_s(:long_usec))
           .where(template: true).find_each do |template|
             templates[template.template_name] = {
               template_updated_at: template.template_updated_at,
@@ -341,7 +341,7 @@ module DataCycleCore
           end
         templates
           .to_a
-          .sort { |item, other| item[1][:template_updated_at] <=> other[1][:template_updated_at] }
+          .sort_by { |item| item[1][:template_updated_at] }
           .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
       end
 
