@@ -15,6 +15,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: TourOverlay
+        :validations:
+          :max: 1
       :description:
         :label: Beschreibung
         :type: string
