@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         test 'json of stored article exists' do
-          get api_v2_thing_path(@content)
+          get api_v2_thing_path(id: @content)
 
           assert_response(:success)
           assert_equal('application/json', response.content_type)

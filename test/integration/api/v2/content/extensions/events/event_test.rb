@@ -21,7 +21,7 @@ module DataCycleCore
               end
 
               test 'json of stored content exists and is correct' do
-                get api_v2_thing_path(@content)
+                get api_v2_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
@@ -31,7 +31,7 @@ module DataCycleCore
                 assert_equal('http://schema.org', json_data.dig('@context'))
                 assert_equal('Event', json_data.dig('@type'))
                 assert_equal('Event', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v2_thing_path(@content), json_data.dig('@id'))
+                assert_equal(root_url[0...-1] + api_v2_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
                 assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
@@ -112,7 +112,7 @@ module DataCycleCore
                 end
                 @content.reload
 
-                get api_v2_thing_path(@content)
+                get api_v2_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)

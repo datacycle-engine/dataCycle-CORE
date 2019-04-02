@@ -25,7 +25,7 @@ module DataCycleCore
 
         test 'api for specific classificaiton_trees' do
           classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-          get api_v3_classification_tree_path(classification_tree)
+          get api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
           assert_equal('application/json', response.content_type)
@@ -36,7 +36,7 @@ module DataCycleCore
 
         test 'list of classifications within a classification_tree' do
           classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
-          get classifications_api_v3_classification_tree_path(classification_tree)
+          get classifications_api_v3_classification_tree_path(id: classification_tree)
 
           assert_response(:success)
           assert_equal('application/json', response.content_type)
