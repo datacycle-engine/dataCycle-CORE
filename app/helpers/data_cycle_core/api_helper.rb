@@ -14,8 +14,14 @@ module DataCycleCore
         definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
         definition['type'].underscore.to_s,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
-      return first_existing_partial(partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
+      ].reject(&:blank?)
+
+      api_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
+      if @api_subversion.present?
+        subversion_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/#{@api_subversion}/api_base/attributes/#{p}" }
+        api_partials = subversion_partials + api_partials
+      end
+      return first_existing_partial(api_partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
     end
 
     def first_existing_partial(partials)
@@ -25,8 +31,8 @@ module DataCycleCore
       end
     end
 
-    def api_cache_key(item, language, include_parameters, mode_parameters)
-      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
+    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
+      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
     end
   end
 end

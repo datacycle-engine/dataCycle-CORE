@@ -1,7 +1,5 @@
 # frozen_string_literal: true
 
-# render "data_cycle_core/api/v#{@api_version}/api_base/attribute", key: key, definition: definition, value: value, options: options, content: content do
-
 json ||= {}
 
 key_name = definition.dig('api', 'name') || key

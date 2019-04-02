@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to api_v2_thing_path(@content) }
+          format.json { redirect_to api_v2_thing_path(id: @content) }
           format.html { render && return }
         end
       end

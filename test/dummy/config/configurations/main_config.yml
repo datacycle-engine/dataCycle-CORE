@@ -4,3 +4,7 @@
       :features:
         :creatable:
           :allowed: true
+:api:
+  :v2:
+    :subversions:
+    - 'test'
