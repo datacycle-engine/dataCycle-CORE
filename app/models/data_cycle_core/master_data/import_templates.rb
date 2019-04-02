@@ -282,21 +282,20 @@ module DataCycleCore
 
           # for type linked
           optional(:linked_language) { str? & valid_linked_language? }
-          optional(:inverse_of) { str? }
-          optional(:link_direction) { str? & validate_link_direction? }
+          optional(:inverse_of) { str? } # for bidirectional links
+          optional(:link_direction) { str? & validate_link_direction? } # make sure if link_direction = inverse set api: disabled: true
           rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
             (type.eql?('linked') > template_name.filled?) |
               (type.eql?('linked') > stored_filter.filled?)
           end
 
           # for type classification
-          optional(:tree_label) { str? }
-          optional(:default_value) { str? & valid_classification? }
-          optional(:not_translated) { bool? }
-          optional(:external) { bool? }
+          optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
+          optional(:default_value) { str? & valid_classification? } # the default_value is set if no value is given
+          optional(:not_translated) { bool? } # true -> classification only exists in german
+          optional(:external) { bool? } # true -> only imported can not be manually edited
+          optional(:global) { bool? } # true -> edit is allowed for imported data
           rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
-            # type.eql?('classification') >
-            #   tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
             type.eql?('classification') > tree_label.filled?
           end
 

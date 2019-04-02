@@ -121,7 +121,7 @@ namespace :data_cycle_core do
       total_items = DataCycleCore::Thing.where(template_name: args[:template_name], template: false).count
 
       if template.nil?
-        puts 'ERROR: template not found. The following templates are known to the system:'
+        puts "ERROR: template [#{args[:template_name]}] not found. The following templates are known to the system:"
         puts DataCycleCore::Thing.where(template: true).map(&:template_name)
         exit(-1)
       end
