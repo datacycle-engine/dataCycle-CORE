@@ -28,8 +28,27 @@ namespace :data_cycle_core do
 
     desc 'import classifications'
     task import_classifications: [:environment] do
+      before_import = Time.zone.now
       puts 'importing new classification definitions'
-      DataCycleCore::MasterData::ImportClassifications.import_all
+      imported_classifications = DataCycleCore::MasterData::ImportClassifications.import_all
+      if imported_classifications.size.positive?
+        puts('[done] ... looks good')
+      else
+        exit(-1)
+      end
+
+      puts "\nchecking for unused <Inhaltstypen> classifications"
+      data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
+      if data.present?
+        puts "\nWARNING: the following classification_aliases are not updated:"
+        puts 'name'.ljust(30) + ' | ' + 'last_seen'.ljust(38) + ' | ' + 'occurrence'
+        puts '-' * 82
+        data.each do |key, value|
+          puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
+        end
+      else
+        puts('[done] ... looks good')
+      end
     end
 
     desc 'import all template definitions'
