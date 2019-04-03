@@ -39,7 +39,7 @@ module DataCycleCore
       user_group = DataCycleCore::UserGroup.find_by(name: 'TestUserGroup')
       name = "test_watch_list_#{Time.now.getutc.to_i}"
 
-      patch watch_list_path(@watch_list), params: {
+      patch watch_list_path(id: @watch_list), params: {
         watch_list: {
           name: name,
           user_group_ids: [user_group.id]

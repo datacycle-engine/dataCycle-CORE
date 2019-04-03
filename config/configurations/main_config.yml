@@ -1,2 +1,5 @@
 :api:
   :default: v2
+#  :v2:
+#    :subversions:
+#      - 'test'
