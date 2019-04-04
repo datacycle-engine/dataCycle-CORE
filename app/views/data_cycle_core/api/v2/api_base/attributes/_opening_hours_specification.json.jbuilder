@@ -4,8 +4,12 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
   json.set! key_new do
     json.array!(value.presence&.includes(:translations, :classifications)&.map do |specification|
-      specification.time.map do |time|
-        [specification, time]
+      if specification.time.present?
+        specification.time.map do |time|
+          [specification, time]
+        end
+      else
+        [[specification, specification.time]]
       end
     end&.reduce(&:+)) do |specification_with_time|
       I18n.with_locale(specification_with_time.first.first_available_locale) do
@@ -18,7 +22,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
                                   hidden_attributes: (options[:hidden_attributes] || []) + ['time', 'opens', 'closes']
                                 )
 
-          json.content_partial! 'properties', content: specification_with_time.second, options: options
+          json.content_partial! 'properties', content: specification_with_time.second, options: options if specification_with_time.second.present?
         end
       end
     end
