@@ -95,8 +95,6 @@
         :type: linked
         :template_name: POI
         :inverse_of: tour
-        :api:
-          :disabled: true
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
