@@ -9,3 +9,5 @@
         :inverse_of: poi
         :link_direction: inverse
         :template_name: Tour
+        :api:
+          :disabled: true
