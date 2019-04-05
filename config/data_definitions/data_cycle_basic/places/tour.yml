@@ -165,25 +165,9 @@
         :label: Bewertung - Landschaft
         :type: number
         :storage_location: value
-      :external_tour_url:
-        :label: "External Tour URL"
-        :storage_location: translated_value
-        :type: computed
-        :compute:
-          :type: string
-          :module: Utility::Compute::String
-          :method: concat
-          :parameters:
-            :0:
-              :type: external_source
-              :name: outdoor_active_tour_base_url
-            :1:
-              :type: I18n
-              :name: locale
-            :2: "/tour/"
-            :3:
-              :type: content
-              :name: external_key
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :data_type:
         :label: Inhaltstype
         :type: classification
