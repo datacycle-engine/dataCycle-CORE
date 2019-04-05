@@ -92,12 +92,13 @@ module DataCycleCore
                 api_v3_json = JSON.parse(response.body)
 
                 # openingHoursSpecification has been changed in APIv3
-                excepted_params = ['@id', 'image', 'primaryImage', 'logo', 'schedule']
+                excepted_params = ['@id', 'image', 'primaryImage', 'logo', 'schedule', 'poi']
 
                 assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('primaryImage').first.except(*excepted_params), api_v2_json.dig('primaryImage').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('logo').first.except(*excepted_params), api_v2_json.dig('logo').first.except(*excepted_params))
+                assert_equal(api_v3_json.dig('poi').first.except(*excepted_params), api_v2_json.dig('poi').first.except(*excepted_params))
               end
             end
           end
