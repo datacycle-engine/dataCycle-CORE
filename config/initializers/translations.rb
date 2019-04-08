@@ -2,5 +2,4 @@
 
 Translations.configure do |config|
   config.plugins(:query, :cache, :attribute_methods)
-  # config.plugins(:query)
 end
