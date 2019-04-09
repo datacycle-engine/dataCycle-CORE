@@ -2,7 +2,7 @@
   <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
 
   <%= render_attribute_editor key: 'thing[datahash][name]',
-                              definition: template.schema.dig('properties', 'name'),
+                              definition: template.schema.dig('properties', 'name').deep_reject{ |k, v| k == 'readonly' },
                               value: local_assigns[:search_param],
                               content: template,
                               parameters: {
