@@ -320,8 +320,8 @@ Validator.prototype.resolveRequests = function(submit = false, event_data = unde
   this.query_count++;
   let requests = this.requests.slice();
   this.requests = [];
-  Promise.all(requests)
-    .then(values => {
+  Promise.all(requests).then(
+    values => {
       this.query_count--;
       this.valid = true;
       let error = this.form.find('.single_error').first();
@@ -339,8 +339,8 @@ Validator.prototype.resolveRequests = function(submit = false, event_data = unde
           this.submitForm();
         }
       } else if (!this.valid && submit) {
-        if (this.form.hasClass('edit-content-form') && error !== undefined) {
-          error.get(0).scrollIntoView({ behavior: 'smooth', block: 'center' });
+        if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
+          error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
         }
       }
 
@@ -358,8 +358,8 @@ Validator.prototype.resolveRequests = function(submit = false, event_data = unde
       if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {
         this.form.trigger('goto.dc.multistep', this.form.find('fieldset').index(error.closest('fieldset')));
       }
-    })
-    .catch(error => {
+    },
+    error => {
       this.query_count--;
       let button_text =
         '<span id="button_server_error" class="tooltip-error">' +
@@ -369,7 +369,8 @@ Validator.prototype.resolveRequests = function(submit = false, event_data = unde
       this.enable();
       this.submit_button.addClass('alert');
       $('#' + this.submit_button.data('toggle')).append(button_text);
-    });
+    }
+  );
 };
 
 module.exports = Validator;
