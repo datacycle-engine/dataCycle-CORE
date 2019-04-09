@@ -56,13 +56,6 @@ module.exports.initialize = function() {
   });
 
   let masonryEvents = ['load', 'resize'];
-
-  $(document)
-    .find('.grid')
-    .on('load', event => {
-      console.log('load');
-    });
-
   masonryEvents.forEach(event => {
     window.addEventListener(event, event => {
       if ($(document).find('.grid').length) resizeAllMasonryItems();
