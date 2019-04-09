@@ -1,9 +1,9 @@
 <ul class="grid no-bullet no-format <%= @mode %>">
-    <li class="grid-sizer"></li>
-    <li class="gutter-sizer"></li>
-    <li class="grid-loading show">
+    <li class="grid-loading">
+      <span class="content-link">
         <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
         <span class="sr-only">Loading...</span>
+      </span>
     </li>
 
     <% contents&.each do |content| %>

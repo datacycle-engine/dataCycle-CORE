@@ -61,6 +61,28 @@ button,
   }
 }
 
+.pagination-margin {
+  margin-top: 1rem;
+}
+
+.html-feature-missing {
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background-color: rgba($black, 0.5);
+  z-index: 999999999999;
+  h2 {
+    display: block;
+    margin: 40% 3rem 0 3rem;
+    color: $alert-color;
+    text-align: center;
+    background: white;
+    padding: 2rem;
+  }
+}
+
 .pagination {
   border-radius: 30px; //background: lighten($light-gray, 7%);
 
