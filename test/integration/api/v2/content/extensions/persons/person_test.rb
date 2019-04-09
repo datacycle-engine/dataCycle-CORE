@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'dummy_data_helper'
 require 'json'
 
 module DataCycleCore

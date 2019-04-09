@@ -115,7 +115,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'binding_of_caller'
   # s.add_development_dependency 'listen'
   # s.add_development_dependency 'spring'
-  s.add_development_dependency 'spring-watcher-listen'
   s.add_development_dependency 'web-console'
 
   s.add_dependency 'dotenv-rails'

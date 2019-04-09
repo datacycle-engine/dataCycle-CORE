@@ -31,6 +31,7 @@ gem 'jb'
 group :development, :test, :review do
   gem 'listen'
   gem 'spring'
+  gem 'spring-watcher-listen'
 
   gem 'byebug'
   gem 'pry'
