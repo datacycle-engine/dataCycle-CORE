@@ -70,6 +70,8 @@ module DataCycleCore
     def create
       authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]), resolve_params(params, false).dig(:scope))
 
+      @object_browser_parent = DataCycleCore::Thing.find(params[:content_id]) if params[:content_id].present?
+
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(params[:template])
 

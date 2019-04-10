@@ -22,7 +22,11 @@ module.exports.initialize = function() {
       rowHeight = parseInt(window.getComputedStyle(grid).getPropertyValue('grid-auto-rows'));
 
     let rowSpan = Math.round(
-      (item.querySelector('.content-link').getBoundingClientRect().height + rowGap) / (rowHeight + rowGap)
+      ((item.querySelector('.content-link') === null
+        ? item.getBoundingClientRect().height
+        : item.querySelector('.content-link').getBoundingClientRect().height) +
+        rowGap) /
+        (rowHeight + rowGap)
     );
 
     item.style.gridRowEnd = 'span ' + rowSpan;

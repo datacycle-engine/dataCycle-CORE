@@ -18,6 +18,15 @@ module.exports.initialize = function() {
       .css('z-index', 1007);
   });
 
+  $(document).on('closed.zf.reveal', '.reveal', event => {
+    event.stopPropagation();
+    if ($(event.target).find('video').length)
+      $(event.target)
+        .find('video')
+        .get(0)
+        .pause();
+  });
+
   $(document).on('remove', '*', event => {
     event.stopPropagation();
   });

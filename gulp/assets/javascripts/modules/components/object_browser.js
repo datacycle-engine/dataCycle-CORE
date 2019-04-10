@@ -45,13 +45,13 @@ var ObjectBrowser = function(selector) {
 ObjectBrowser.prototype.setup = function() {
   var self = this;
 
-  this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs')[0], {
+  this.sortable = new Sortable(this.element.find('> .media-thumbs > .object-thumbs').get(0), {
     handle: '.draggable-handle',
-    draggable: '.item'
+    draggable: 'li.item'
   });
 
   this.ids = this.ids.diff(
-    $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
+    $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
   );
 
   // initialize all eventhandlers
@@ -66,7 +66,7 @@ ObjectBrowser.prototype.setup = function() {
       if (
         elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
         !this.loading &&
-        this.overlay.children('.items').children('.item').length < this.total
+        this.overlay.children('.items').children('li.item').length < this.total
       ) {
         this.page += 1;
         this.loadObjects();
@@ -81,7 +81,7 @@ ObjectBrowser.prototype.setup = function() {
     self.loadObjects(false);
   });
 
-  this.overlay.find('.chosen-items-container').on('click', '.item', function(event) {
+  this.overlay.find('.chosen-items-container').on('click', 'li.item', function(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (self.selected != $(this).data('id')) {
@@ -89,7 +89,7 @@ ObjectBrowser.prototype.setup = function() {
     }
   });
 
-  this.overlay.children('.items').on('click', '.item', function(event) {
+  this.overlay.children('.items').on('click', 'li.item', function(event) {
     event.preventDefault();
     event.stopImmediatePropagation();
     if (self.selected != $(this).data('id')) {
@@ -116,7 +116,7 @@ ObjectBrowser.prototype.setup = function() {
     event.stopPropagation();
     self.removeObject(
       $(this)
-        .parent()
+        .closest('li.item')
         .data('id'),
       event
     );
@@ -138,7 +138,7 @@ ObjectBrowser.prototype.setup = function() {
     );
 
     this.updateChosenCounter();
-    this.overlay.find('.items .item .reveal.media-preview').each(function() {
+    this.overlay.find('.items li.item .reveal.media-preview').each(function() {
       if (
         $(this)
           .prop('id')
@@ -147,7 +147,7 @@ ObjectBrowser.prototype.setup = function() {
         $(this).prop('id', 'overlay_' + $(this).prop('id'));
     });
 
-    this.element.find('.object-thumbs .item .reveal.media-preview').each((index, element) => {
+    this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
       $(element).foundation();
     });
   });
@@ -157,7 +157,7 @@ ObjectBrowser.prototype.setup = function() {
     if (data.external_ids != undefined) new_items = data.external_ids;
     else if (data.ids != undefined)
       new_items = data.ids.diff(
-        $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'))
+        $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
       );
 
     if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
@@ -210,7 +210,9 @@ ObjectBrowser.prototype.initNewFormHandlers = function(e) {
         definition: this.definition,
         editable: this.editable,
         options: this.options,
+        content_id: this.content_id,
         class: this.class,
+        prefix: this.prefix,
         objects: this.chosen,
         new_overlay_id: '#new_' + this.id
       });
@@ -226,7 +228,7 @@ ObjectBrowser.prototype.initNewFormHandlers = function(e) {
 };
 
 ObjectBrowser.prototype.removeThumbObject = function(element) {
-  let item = $(element).closest('.item');
+  let item = $(element).closest('li.item');
   let elem_id = item.data('id');
   this.chosen = this.chosen.diff(elem_id);
   this.ids = this.ids.diff(elem_id);
@@ -259,6 +261,8 @@ ObjectBrowser.prototype.findObjects = function(ids, external) {
       ids: ids,
       editable: this.editable,
       class: this.class,
+      content_id: this.content_id,
+      content_type: this.content_type,
       objects: this.chosen,
       external: external
     }),
@@ -283,8 +287,8 @@ ObjectBrowser.prototype.setChosen = function() {
     this.element
       .children('.media-thumbs')
       .children('.object-thumbs')
-      .html(this.overlay.find('.chosen-items-container .item').clone())
-      .children('.item')
+      .html(this.overlay.find('.chosen-items-container li.item').clone())
+      .children('li.item')
       .find('.reveal.media-preview')
       .each(function() {
         if (
@@ -304,7 +308,7 @@ ObjectBrowser.prototype.setChosen = function() {
     this.element
       .children('.media-thumbs')
       .children('.object-thumbs')
-      .children('.item')
+      .children('li.item')
       .find('[data-tooltip]')
       .each(function() {
         $(this)
@@ -327,7 +331,7 @@ ObjectBrowser.prototype.addObject = function(id, element, event) {
       });
     this.overlay
       .children('.items')
-      .find('.item[data-id=' + id + ']')
+      .find('li.item[data-id=' + id + ']')
       .addClass('active');
     this.updateChosenCounter();
   }
@@ -339,7 +343,7 @@ ObjectBrowser.prototype.removeObject = function(id, event) {
   this.overlay.find('.chosen-items-container [data-id=' + id + ']').remove();
   this.overlay
     .children('.items')
-    .find('.item[data-id=' + id + ']')
+    .find('li.item[data-id=' + id + ']')
     .removeClass('active');
   this.updateChosenCounter();
 };
@@ -402,7 +406,7 @@ ObjectBrowser.prototype.loadDetails = function(id) {
 
 ObjectBrowser.prototype.resetOverlay = function() {
   this.overlay.find('.object-browser-search').val('');
-  this.overlay.find('.chosen-items-container .item').remove();
+  this.overlay.find('.chosen-items-container li.item').remove();
   this.chosen = [];
   this.search = '';
   this.excluded = [];
@@ -410,7 +414,7 @@ ObjectBrowser.prototype.resetOverlay = function() {
 };
 
 ObjectBrowser.prototype.reset = function(event) {
-  this.element.find('.media-thumbs .item').each((_, element) => {
+  this.element.find('.media-thumbs li.item').each((_, element) => {
     this.removeThumbObject(element);
   });
 };
@@ -418,7 +422,7 @@ ObjectBrowser.prototype.reset = function(event) {
 ObjectBrowser.prototype.setPreselected = function() {
   this.overlay
     .find('.chosen-items-container')
-    .html(this.element.find('> .media-thumbs > .object-thumbs > .item').clone())
+    .html(this.element.find('> .media-thumbs > .object-thumbs > li.item').clone())
     .find('[data-tooltip]')
     .each(function() {
       $(this)
@@ -426,7 +430,7 @@ ObjectBrowser.prototype.setPreselected = function() {
         .foundation();
     });
 
-  this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
+  this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
 };
 
 ObjectBrowser.prototype.openOverlay = function(ev) {
@@ -455,7 +459,7 @@ ObjectBrowser.prototype.openOverlay = function(ev) {
 
   $(window).on('message.object_browser onmessage.object_browser', this.import.bind(this));
 
-  let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > .item'), (val, i) => $(val).data('id'));
+  let loaded = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
 
   if (this.ids.diff(loaded).length > 0) this.loadMore(loaded);
   else this.loadObjects(false);
@@ -496,7 +500,7 @@ ObjectBrowser.prototype.import = function(event) {
     })
       .done(
         function(data) {
-          this.overlay.find('.items .item .reveal.media-preview').each(function() {
+          this.overlay.find('.items li.item .reveal.media-preview').each(function() {
             if (
               $(this)
                 .prop('id')
@@ -543,6 +547,8 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
         objects: this.chosen,
         editable: this.editable,
         excluded: this.excluded,
+        content_id: this.content_id,
+        content_type: this.content_type,
         prefix: this.prefix,
         append: append
       }),
@@ -550,7 +556,7 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
     })
       .done(data => {
         this.total = this.overlay.data('total');
-        this.overlay.find('.items .item .reveal.media-preview').each(function() {
+        this.overlay.find('.items li.item .reveal.media-preview').each(function() {
           if (
             $(this)
               .prop('id')
@@ -560,10 +566,10 @@ ObjectBrowser.prototype.loadObjects = function(append = true) {
         });
         this.loading = false;
         if (
-          this.overlay.children('.items').children('.item').length < this.total &&
+          this.overlay.children('.items').children('li.item').length < this.total &&
           this.overlay
             .children('.items')
-            .children('.item')
+            .children('li.item')
             .last()
             .offset().top -
             this.overlay.children('.items').offset().top <

@@ -60,14 +60,14 @@
             &.has-changes {
               &.new.bild .thumbnail,
               &.new.video .thumbnail,
-              &.new:not(.bild, .video) {
+              &.new:not(.image) {
                 background-color: rgba($success-color, 0.3) !important;
                 box-shadow: 0 0 1px darken($success-color, 20%);
               }
 
               &.remove.bild .thumbnail,
               &.remove.video .thumbnail,
-              &.remove:not(.bild, .video) {
+              &.remove:not(.image) {
                 background-color: rgba($alert-color, 0.2) !important;
                 box-shadow: 0 0 1px $alert-color;
               }
@@ -212,55 +212,6 @@
 
             position: relative;
             text-align: left;
-
-            .thumbnail {
-              position: relative;
-              width: 194px;
-              height: 170px;
-              margin-right: 0.5rem;
-              background-position: center center;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-color: white;
-              overflow: hidden;
-              border: 0;
-
-              &.has-restrictions {
-                box-shadow: 0 0 2px 1px red;
-              }
-
-              &:focus,
-              &:hover {
-                .description {
-                  opacity: 1;
-                }
-              }
-
-              .description {
-                position: absolute;
-                left: 0;
-                top: 0;
-                opacity: 0;
-                width: 100%;
-                background: rgba(255, 255, 255, 0.9);
-                height: 100%;
-                line-height: 1rem;
-                font-size: 0.8rem;
-                color: $body-font-color;
-                overflow: hidden;
-                /* white-space: nowrap; */
-                /* text-overflow: ellipsis; */
-                padding: 0.5rem;
-                text-align: center;
-                display: -ms-flexbox;
-                display: flex;
-                -ms-flex-align: center;
-                align-items: center;
-                -ms-flex-pack: center;
-                justify-content: center;
-                transition: opacity 0.25s;
-              }
-            }
           }
 
           .detail-label {
