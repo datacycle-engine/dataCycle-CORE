@@ -16,6 +16,11 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { "Document:#{s.dig('id', '#cdata-section')}" })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('creationDate', '#cdata-section') })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('lastModified', '#cdata-section') })
+          .>> t(:add_field, 'upload_data', ->(s) { s.dig('uploadDate', '#cdata-section') })
+          .>> t(:add_field, 'description', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '5') })
+          .>> t(:add_field, 'caption', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '7') })
+          .>> t(:add_field, 'license', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '3') })
+          .>> t(:add_field, 'types_of_use_celum', ->(s) { [parse_types_of_use(s.dig('documentInformationEntries', 'documentInformationEntry'))].compact.presence })
           .>> t(:add_links, 'keywords_celum', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('keywords', 'keyword')]&.flatten&.map { |item| item.is_a?(::Hash) ? "Keyword:#{item.values.first}" : nil }&.flatten || [] })
           .>> t(:add_links, 'folders_celum', DataCycleCore::Classification, external_source_id, ->(s) { ["Folder:#{s&.dig('folder', '#cdata-section')}"] }, ->(s) { s&.dig('folder', '#cdata-section') })
           .>> t(
@@ -54,6 +59,28 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { "User:#{s.dig('external_id')}" })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('created') })
           .>> t(:strip_all)
+        end
+
+        def self.document_information_value(data:, language:, type:, field_number:)
+          data
+            &.select { |item| item.dig('documentInformationField', 'type') == type && item.dig('documentInformationField', '#cdata-section') == field_number }
+            &.map { |item| item.dig('content') }
+            &.flatten
+            &.select { |content| content&.dig('language', '#cdata-section') == language }
+            &.map { |item| item.dig('value', '#cdata-section') }
+            &.first
+        end
+
+        def self.parse_types_of_use(data)
+          DataCycleCore::ClassificationAlias
+            .for_tree('Celum - Verwendungsart')
+            .find_by(name: unescape_html(document_information_value(data: data, language: 'de', type: '5', field_number: '1')))
+            &.id
+            &.downcase
+        end
+
+        def self.unescape_html(string)
+          Nokogiri::HTML.fragment(string).to_s
         end
       end
     end

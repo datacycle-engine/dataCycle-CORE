@@ -2,15 +2,4 @@
 - :data:
     :name: additional_image_properties
     :type: mixin
-    :properties:
-      :license:
-        :label: Copyright / Lizenz
-        :type: string
-        :storage_location: value
-        :search: true
-        :external: true
-      :mandatory_license:
-        :label: Copyright Nennung verpflichtend
-        :type: boolean
-        :storage_location: value
-        :external: true
+    :properties: ~

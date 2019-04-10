@@ -34,7 +34,7 @@
         :ui:
           :show:
             :content_area: header
-      :usage_category_celum:
+      :types_of_use_celum:
         :label: Celum - Verwendungsart
         :type: classification
         :tree_label: Celum - Verwendungsart

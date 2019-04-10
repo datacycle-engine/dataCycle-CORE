@@ -46,10 +46,8 @@ module DataCycleCore
           global_data = global_attributes.merge(data)
 
           if config&.dig(:asset_type).present?
-            content.asset&.map do |item|
-              item.remove_file!
-              item.destroy!
-            end
+            content.asset&.remove_file!
+            content.asset&.destroy!
 
             asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
             asset.save!
@@ -106,7 +104,6 @@ module DataCycleCore
                     iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
                       durations << Benchmark.realtime do
                         item_count += 1
-
                         data_processor.call(
                           utility_object: utility_object,
                           raw_data: content[:dump][locale],
