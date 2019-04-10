@@ -30,10 +30,10 @@
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
       data-min="<%= definition.dig('validations', 'min') || 0 %>">
         <div class="media-thumbs">
-          <div class="object-thumbs">
+          <ul class="object-thumbs no-bullet">
             <% if objects.present? %>
               <% objects.each do |object| %>
-                <%= render_object_browser_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, editable: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content)) }, content: content) %>
+                <%= render_linked_partial(key: "#{key}[]", definition: definition, parameters: { object: object, prefix: local_assigns.dig(:options, :prefix), options: options, edit_buttons: true }, content: content) %>
               <% end %>
 
               <% value.presence&.ids&.reject { |v| objects.presence&.ids&.include?(v) }&.each do |id| %>
@@ -42,7 +42,7 @@
             <% else %>
               <%= hidden_field_tag "#{key}[]", nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
             <% end %>
-          </div>
+          </ul>
 
           <div class="buttons clear-both">
             <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
@@ -83,11 +83,11 @@
         <span class="item-count"></span>
       </div>
 
-      <div class="items margin-bottom-10">
+      <ul class="items margin-bottom-10 no-bullet">
         <div class="loading">
           <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
         </div>
-      </div>
+      </ul>
 
       <div class="item-info">
         <div class="item-info-scrollable"></div>
@@ -95,8 +95,7 @@
 
       <div class="object-browser-footer">
         <div class="chosen-items items">
-          <div class="chosen-items-container">
-          </div>
+          <ul class="chosen-items-container no-bullet"></ul>
         </div>
         <div class="buttons">
           <span class="button-title">

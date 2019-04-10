@@ -4,22 +4,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
   <% content_for :rendered_items do %>
     <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
       <% @linked_objects.each do |content| %>
-        <li class="<%= [
-                          'copy-single',
-                            'content',
-                            content.schema_type.underscore.dasherize,
-                            content.template_name.underscore_blanks.dasherize,
-                        ].join(' ') %>" data-id="<%= [content.id] %>">
-            <%= render_first_existing_partial [
-                                                    "data_cycle_core/contents/viewers/tiles/#{content.template_name.underscore_blanks}",
-                                                    "data_cycle_core/contents/viewers/tiles/#{content.schema_type.underscore_blanks}",
-                                                    'data_cycle_core/contents/viewers/tiles/default'
-                                              ], {
-                                                  key: @params[:key],
-                                                  definition: @params[:definition],
-                                                  content: content,
-                                              } %>
-        </li>
+        <%= render_linked_partial(key: @params[:key], definition: @params[:definition], parameters: { object: content, options: @params[:options], objects: @params[:objects], object_id: [content.id], tile_links: true }, content: @object) %>
       <% end %>
     <% end %>
     <div class="clear-both">
