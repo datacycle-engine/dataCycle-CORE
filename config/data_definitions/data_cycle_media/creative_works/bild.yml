@@ -170,6 +170,10 @@
           :method: file_format
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
       :author:
         :label: Fotograf
         :type: linked
@@ -194,6 +198,9 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
+      :additional_image_properties:
+        :type: mixin
+        :name: additional_image_properties
       :tags:
         :type: mixin
         :name: tags
