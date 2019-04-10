@@ -8,6 +8,7 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
         template_name = @definition.dig(:template_name)
@@ -66,6 +67,8 @@ module DataCycleCore
       authorize! :show, :object_browser
       return if permitted_params[:ids].blank?
 
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
+
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         if permitted_params[:external]
           @objects = DataCycleCore::Thing.where(external_key: permitted_params[:ids])
@@ -94,7 +97,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
+      [:per, :page, :id, :locale, :content_id, :external, { ids: [] }, :search, :excluded, { definition: {} }]
     end
   end
 end
