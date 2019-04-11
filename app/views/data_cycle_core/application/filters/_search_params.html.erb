@@ -23,6 +23,7 @@
     key: filter['n'].presence&.parameterize(separator: '_'),
     target: filter['n'].presence&.parameterize(separator: '_'),
     value: filter['v'],
+    filter_method: filter['m'],
     selected_classification_aliases: selected_classification_aliases,
     buttons: false }) %>
 <% end %>

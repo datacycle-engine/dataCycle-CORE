@@ -124,6 +124,7 @@
                         title: filter['n'],
                         key: filter['n'].presence&.parameterize(separator: '_'),
                         target: filter['n'].presence&.parameterize(separator: '_') + "_#{idx + index}",
+                        filter_method: filter['m'],
                         value: filter['v'],
                         classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
                         buttons: 'a' }) %>

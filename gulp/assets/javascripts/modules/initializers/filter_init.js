@@ -174,6 +174,10 @@ module.exports.initialize = function() {
             .first()
             .map((index, element) => $(element).val())
             .get(),
+          m: $(event.currentTarget)
+            .find(':input[name*="[m]"]')
+            .first()
+            .val(),
           index: $(event.currentTarget).data('index')
         },
         dataType: 'script',
@@ -257,6 +261,18 @@ module.exports.initialize = function() {
         $(event.currentTarget)
           .addClass('active')
           .trigger('mouseenter');
+        let list = $(event.currentTarget).find('> ul');
+        if (!list.length) return;
+
+        let available_height =
+          $(window).height() +
+          $(window).scrollTop() -
+          $(event.currentTarget)
+            .find('> ul')
+            .offset().top;
+        if (available_height < list.get(0).scrollHeight && available_height > 20)
+          list.css('height', available_height - 20);
+        else list.css('height', '');
       }
     });
 

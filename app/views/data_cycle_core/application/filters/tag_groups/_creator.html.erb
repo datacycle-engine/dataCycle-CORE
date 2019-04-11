@@ -1,4 +1,4 @@
-<span class="tag-group tags <%= key %>" data-id="<%= target %>">
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %>" data-id="<%= target %>">
   <i class="tag-group-label">
     <i class="fa fa-user" aria-hidden="true"></i>
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:

@@ -450,6 +450,29 @@
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
 
+      &.e {
+        box-shadow: 0 0 2px rgba($alert-color, 0.8);
+        .tag {
+          position: relative;
+          &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            border-bottom: 1px solid;
+            width: calc(100% - 0.4rem);
+            margin: 0 0.2rem;
+          }
+        }
+        // background-color: lighten($alert-color, 40%);
+      }
+
+      &.i {
+        box-shadow: 0 0 2px $success-color;
+        // background-color: lighten($success-color, 35%);
+      }
+
       .tag-container {
         font-size: 0;
 
@@ -578,6 +601,7 @@
 
         > ul {
           display: none;
+          overflow-y: auto;
 
           li {
             &:not(:last-child) {
@@ -642,6 +666,22 @@
                     color: $dark-gray;
                     display: block;
                     margin-right: 0.5rem;
+
+                    &.e {
+                      .tag {
+                        position: relative;
+                        &::after {
+                          content: '';
+                          display: block;
+                          position: absolute;
+                          top: 50%;
+                          left: 0;
+                          border-bottom: 1px solid;
+                          width: calc(100% - 0.4rem);
+                          margin: 0 0.2rem;
+                        }
+                      }
+                    }
 
                     .tag {
                       color: $black;
@@ -928,6 +968,22 @@
                 line-height: 1.2rem;
                 border-radius: 5px;
                 white-space: nowrap;
+              }
+
+              &.e {
+                .tag {
+                  position: relative;
+                  &::after {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    border-bottom: 1px solid;
+                    width: calc(100% - 0.4rem);
+                    margin: 0 0.2rem;
+                  }
+                }
               }
 
               &.search-term .tag {
