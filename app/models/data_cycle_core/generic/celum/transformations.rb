@@ -16,7 +16,7 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { "Document:#{s.dig('id', '#cdata-section')}" })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('creationDate', '#cdata-section') })
           .>> t(:add_field, 'date_modified', ->(s) { s.dig('lastModified', '#cdata-section') })
-          .>> t(:add_field, 'upload_data', ->(s) { s.dig('uploadDate', '#cdata-section') })
+          .>> t(:add_field, 'upload_date', ->(s) { s.dig('uploadDate', '#cdata-section') })
           .>> t(:add_field, 'description', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '5') })
           .>> t(:add_field, 'caption', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '7') })
           .>> t(:add_field, 'license', ->(s) { document_information_value(data: s.dig('documentInformationEntries', 'documentInformationEntry'), language: 'de', type: '0', field_number: '3') })
@@ -75,12 +75,13 @@ module DataCycleCore
           DataCycleCore::ClassificationAlias
             .for_tree('Celum - Verwendungsart')
             .find_by(name: unescape_html(document_information_value(data: data, language: 'de', type: '5', field_number: '1')))
+            &.classifications
+            &.first
             &.id
-            &.downcase
         end
 
         def self.unescape_html(string)
-          Nokogiri::HTML.fragment(string).to_s
+          Nokogiri::HTML.fragment(string)&.to_s&.downcase
         end
       end
     end

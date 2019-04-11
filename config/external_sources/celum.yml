@@ -67,7 +67,12 @@ config:
       source_type: documents
       source_filter:
         'dump.de.assetType.#cdata-section': '1'
-        'dump.de.fileExtension.#cdata-section': 'jpg'
+        'dump.de.fileExtension.#cdata-section':
+          $in:
+            - 'png'
+            - 'gif'
+            - 'jpg'
+            - 'jpeg'
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
       locales: [de]
       transformations:
