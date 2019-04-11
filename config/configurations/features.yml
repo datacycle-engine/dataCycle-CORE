@@ -37,6 +37,7 @@
   :classification_alias_ids: all
   :external_source: true
   :creator: true
+  :classification_tree_ids: all
 
 :geocode:
   :enabled: false

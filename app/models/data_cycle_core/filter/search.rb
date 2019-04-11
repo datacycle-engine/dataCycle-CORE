@@ -184,6 +184,30 @@ module DataCycleCore
         )
       end
 
+      def classification_tree_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(
+            thing[:id].in(
+              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+            )
+          )
+        )
+      end
+
+      def not_classification_tree_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(
+            thing[:id].not_in(
+              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+            )
+          )
+        )
+      end
+
       def with_classification_alias_ids_without_recursion(ids = nil)
         return self if ids.blank?
 
@@ -245,6 +269,27 @@ module DataCycleCore
           .on(classification[:id].eq(classification_group[:classification_id]))
           .join(classification_alias)
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
           .where(
             classification[:deleted_at].eq(nil)
             .and(classification_group[:deleted_at].eq(nil))

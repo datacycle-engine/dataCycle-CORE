@@ -175,6 +175,7 @@ de:
     language: Sprache
     external_source: Externe Quelle
     creator: Ersteller
+    classification_tree_ids: Klassifizierungsbaum
 
   terms:
     valid: gültig

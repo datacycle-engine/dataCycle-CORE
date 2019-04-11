@@ -68,6 +68,10 @@ module DataCycleCore
       items = DataCycleCore::Filter::Search.new(:de)
         .with_classification_aliases('Tags', 'Tag 3')
       assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de)
+        .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
+      assert_equal(4, items.count)
     end
 
     # test 'test method only_frontend_valid (excludes places)' do
@@ -92,6 +96,15 @@ module DataCycleCore
       creator_id = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       items = DataCycleCore::Filter::Search.new(:de).creator(creator_id)
       assert_equal(1, items.count)
+    end
+
+    test 'test query for classification_tree' do
+      tree_label_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+      items = DataCycleCore::Filter::Search.new(:de).classification_tree_ids(tree_label_id)
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_classification_tree_ids(tree_label_id)
+      assert_equal(3, items.count)
     end
 
     test 'has method to include joined tables' do
