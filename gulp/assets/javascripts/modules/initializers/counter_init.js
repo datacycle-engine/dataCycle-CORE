@@ -14,7 +14,7 @@ module.exports.initialize = function() {
     $(container)
       .find('input.form-control[type=text]:not(:disabled):not(.flatpickr-input)')
       .each((index, element) => {
-        CounterArray[$(element).prop('id')] = new Counter(element);
+        CounterArray[$(element).prop('id')] = new Counter(element).start();
       });
   }
 };
