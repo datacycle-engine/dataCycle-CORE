@@ -66,6 +66,6 @@
 <% if template.content_type?('container') && DataCycleCore::Feature::LifeCycle.allowed?(template) %>
   <div class="form-element">
     <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}", t('common.life_cycle', locale: DataCycleCore.ui_language) %>
-    <%= select_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(template)), { id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}" } %>
+    <%= select_tag "thing[datahash][#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}][]", options_for_select(DataCycleCore::Feature::LifeCycle.creatable_stages(template), DataCycleCore::Feature::LifeCycle.default_alias_id(template)), { id: "#{local_assigns.dig(:options, :prefix)}thing_datahash_#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(template)&.first}" } %>
   </div>
 <% end %>

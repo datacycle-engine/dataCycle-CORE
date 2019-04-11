@@ -173,6 +173,17 @@ module DataCycleCore
         reflect(@query.with_classification_alias_ids(ids))
       end
 
+      def not_classification_alias_ids(ids = nil)
+        return self if ids.blank?
+
+        manager = create_classification_alias_recursion(ids)
+        reflect(
+          @query.where(
+            search[:content_data_id].not_in(manager)
+          )
+        )
+      end
+
       def with_classification_alias_ids_without_recursion(ids = nil)
         return self if ids.blank?
 
@@ -247,6 +258,10 @@ module DataCycleCore
 
       def classification
         Classification.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
       end
 
       def classification_group

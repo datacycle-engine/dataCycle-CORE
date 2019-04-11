@@ -41,28 +41,28 @@ module DataCycleCore
 
       private
 
-      # def create_classification_alias_recursion(ids)
-      #   children = Arel::Table.new(:children)
-      #   recursive_term = Arel::SelectManager.new
-      #     .from(classification_tree)
-      #     .project(Arel.star)
-      #     .where(classification_tree[:parent_classification_alias_id].in(ids))
-      #   non_recursive_term = Arel::SelectManager.new
-      #     .project(classification_tree[Arel.star])
-      #     .from(classification_tree).join(children)
-      #     .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-      #   union = recursive_term.union(:all, non_recursive_term)
-      #   cte_as_statement = Arel::Nodes::As.new(children, union)
-      #   select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-      #   manager = select_manager
-      #     .with(:recursive, cte_as_statement)
-      #     .from(children)
-      #     .project(children[:classification_alias_id])
-      #
-      #   query2 = join_classification_alias2
-      #   query2.where(classification_alias[:id].in(manager)
-      #                             .or(classification_alias[:id].in(ids)))
-      # end
+      def create_classification_alias_recursion(ids)
+        children = Arel::Table.new(:children)
+        recursive_term = Arel::SelectManager.new
+          .from(classification_tree)
+          .project(Arel.star)
+          .where(classification_tree[:parent_classification_alias_id].in(ids))
+        non_recursive_term = Arel::SelectManager.new
+          .project(classification_tree[Arel.star])
+          .from(classification_tree).join(children)
+          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
+        union = recursive_term.union(:all, non_recursive_term)
+        cte_as_statement = Arel::Nodes::As.new(children, union)
+        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
+        manager = select_manager
+          .with(:recursive, cte_as_statement)
+          .from(children)
+          .project(children[:classification_alias_id])
+
+        query2 = join_classification_alias
+        query2.where(classification_alias[:id].in(manager)
+                                  .or(classification_alias[:id].in(ids)))
+      end
 
       def get_point(longitude, latitude)
         Arel::Nodes::NamedFunction.new('ST_GeomFromEWKT', ["SRID=4326;POINT (#{longitude} #{latitude})"])

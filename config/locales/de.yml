@@ -105,6 +105,8 @@ de:
     entries: Einträge
     is: ist
     is_not: ist nicht
+    has: enthält
+    has_not: enthält nicht
     no_translation: Keine Übersetzung vorhanden
     max: maximal
     min: mindestens

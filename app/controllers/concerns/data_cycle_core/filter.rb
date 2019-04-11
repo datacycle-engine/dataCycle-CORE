@@ -26,7 +26,11 @@ module DataCycleCore
       @filters = current_user.default_filter(@filters) if user_filter
 
       @filters.presence&.each do |filter|
-        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+        if filter['m'] == 'e' && query.respond_to?("not_#{filter['t']}")
+          query = query.send("not_#{filter['t']}", filter['v'])
+        elsif filter['m'] != 'e' && query.respond_to?(filter['t'])
+          query = query.send(filter['t'], filter['v'])
+        end
       end
 
       # add existing stored filter params
