@@ -38,7 +38,7 @@ module DataCycleCore
 
         query = query.in_validity_period
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
-        query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
+        query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
         unless template_name == 'contentLocation'
           query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present?
@@ -97,7 +97,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :content_id, :external, { ids: [] }, :search, :excluded, { definition: {} }]
+      [:per, :page, :id, :locale, :content_id, :external, { ids: [] }, :search, { definition: {} }, excluded: []]
     end
   end
 end
