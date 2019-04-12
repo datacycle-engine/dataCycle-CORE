@@ -46,8 +46,10 @@ module DataCycleCore
           global_data = global_attributes.merge(data)
 
           if config&.dig(:asset_type).present?
-            content.asset&.remove_file!
-            content.asset&.destroy!
+            [content.asset].flatten.map do |item|
+              item&.remove_file!
+              item&.destroy!
+            end
 
             asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
             asset.save!

@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
-        def self.document_to_bild(external_source_id)
+        def self.document_to_media_object(external_source_id)
           t(:stringify_keys)
           .>> t(:compact)
           .>> t(:rename_keys, { 'name' => 'old_name' })
