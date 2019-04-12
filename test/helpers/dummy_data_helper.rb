@@ -7,8 +7,8 @@ module DataCycleCore
     def create_data(type, user = nil)
       @user = user
       send(type)
-      # rescue StandardError
-      #   raise ArgumentError, 'Unknow type for DummyDataHelper'
+    rescue StandardError
+      raise ArgumentError, 'Unknow type for DummyDataHelper'
     end
 
     def tour
