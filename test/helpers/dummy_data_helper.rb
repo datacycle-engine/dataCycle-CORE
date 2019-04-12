@@ -4,10 +4,11 @@ module DataCycleCore
   module DummyDataHelper
     module_function
 
-    def create_data(type)
+    def create_data(type, user = nil)
+      @user = user
       send(type)
-    rescue StandardError
-      raise ArgumentError, 'Unknow type for DummyDataHelper'
+      # rescue StandardError
+      #   raise ArgumentError, 'Unknow type for DummyDataHelper'
     end
 
     def tour
@@ -28,7 +29,7 @@ module DataCycleCore
       tour_data_hash[:poi] = poi_data.id
       tour_data_hash[:schedule] = schedule
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Tour', data_hash: tour_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Tour', data_hash: tour_data_hash, user: @user)
     end
 
     def poi
@@ -47,7 +48,7 @@ module DataCycleCore
 
       poi_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash, user: @user)
     end
 
     def person
@@ -57,7 +58,7 @@ module DataCycleCore
       person_data_hash[:gender] = [gender_classification.id]
       person_data_hash[:country_code] = [country_classification.id]
       person_data_hash[:image] = [image.id]
-      DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash, user: @user)
     end
 
     def organization
@@ -65,38 +66,38 @@ module DataCycleCore
       country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
       organization_data_hash[:country_code] = [country_classification.id]
       organization_data_hash[:image] = [image.id]
-      DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: organization_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: organization_data_hash, user: @user)
     end
 
     def event
       event_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'api_event')
       event_data_hash[:image] = [image.id]
       event_data_hash[:content_location] = [poi.id]
-      DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: event_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: event_data_hash, user: @user)
     end
 
     def article
-      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_dummy_hash('api_article'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_dummy_hash('api_article'), user: @user)
     end
 
     def biography
-      DataCycleCore::TestPreparations.create_content(template_name: 'Biografie', data_hash: creative_work_dummy_hash('api_article'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'Biografie', data_hash: creative_work_dummy_hash('api_article'), user: @user)
     end
 
     def interview
-      DataCycleCore::TestPreparations.create_content(template_name: 'Interview', data_hash: creative_work_dummy_hash('api_article'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'Interview', data_hash: creative_work_dummy_hash('api_article'), user: @user)
     end
 
     def quiz
-      DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: creative_work_dummy_hash('api_quiz'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'Quiz', data_hash: creative_work_dummy_hash('api_quiz'), user: @user)
     end
 
     def social_media_posting
-      DataCycleCore::TestPreparations.create_content(template_name: 'SocialMediaPosting', data_hash: creative_work_dummy_hash('api_article'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'SocialMediaPosting', data_hash: creative_work_dummy_hash('api_article'), user: @user)
     end
 
     def timeline
-      DataCycleCore::TestPreparations.create_content(template_name: 'Zeitleiste', data_hash: creative_work_dummy_hash('api_timeline'))
+      DataCycleCore::TestPreparations.create_content(template_name: 'Zeitleiste', data_hash: creative_work_dummy_hash('api_timeline'), user: @user)
     end
 
     def recipe
@@ -106,37 +107,37 @@ module DataCycleCore
       recipe_course = DataCycleCore::Classification.find_by(name: 'Rezept-Gang 1')
       recipe_data_hash[:recipe_course] = [recipe_course.id]
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Rezept', data_hash: recipe_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Rezept', data_hash: recipe_data_hash, user: @user)
     end
 
     def image
       image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash, user: @user)
     end
 
     def asset
       asset_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_asset')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Datei', data_hash: asset_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Datei', data_hash: asset_data_hash, user: @user)
     end
 
     def audio
       audio_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_audio')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Audio', data_hash: audio_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Audio', data_hash: audio_data_hash, user: @user)
     end
 
     def pdf
       pdf_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_pdf')
-      DataCycleCore::TestPreparations.create_content(template_name: 'PDF', data_hash: pdf_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'PDF', data_hash: pdf_data_hash, user: @user)
     end
 
     def video
       video_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_video')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash: video_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Video', data_hash: video_data_hash, user: @user)
     end
 
     def container
       container_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_container')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: container_data_hash)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: container_data_hash, user: @user)
     end
 
     def creative_work_dummy_hash(fixture_name)

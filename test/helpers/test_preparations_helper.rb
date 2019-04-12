@@ -126,7 +126,7 @@ module DataCycleCore
       )
     end
 
-    def self.create_content(template_name: nil, data_hash: nil)
+    def self.create_content(template_name: nil, data_hash: nil, user: nil)
       return if template_name.blank? || data_hash.blank?
       data_hash.deep_stringify_keys!
 
@@ -135,10 +135,11 @@ module DataCycleCore
 
       @content = DataCycleCore::Thing.find_by(template_name: template_name, template: true).dup
       @content.template = false
-      @content.save!
+      @content.created_by = user&.id if user.present?
 
+      @content.save!
       I18n.with_locale(:de) do
-        @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+        @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')))
       end
       @content.reload
     end
