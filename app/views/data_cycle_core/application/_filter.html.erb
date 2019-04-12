@@ -126,6 +126,7 @@
                         target: filter['n'].presence&.parameterize(separator: '_') + "_#{idx + index}",
                         filter_method: filter['m'],
                         value: filter['v'],
+                        container_classes: 'advanced-tags',
                         classification_aliases: @selected_classification_aliases&.slice(*filter['v']),
                         buttons: 'a' }) %>
                     <% end %>

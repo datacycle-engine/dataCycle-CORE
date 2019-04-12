@@ -88,7 +88,7 @@ module.exports.initialize = function() {
       if ($(event.currentTarget).is(':checked')) {
         if (!$('.filters .filtertags .filter-groups .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
           $('.filters .filtertags .filter-groups').append(
-            '<span class="tag-group tags ' +
+            '<span class="tag-group tags i ' +
               tree_label +
               '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
               tree_label_title +

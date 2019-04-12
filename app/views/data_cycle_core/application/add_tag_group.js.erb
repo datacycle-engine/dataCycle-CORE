@@ -6,6 +6,7 @@ var new_html = '<%= j render_first_existing_partial(["data_cycle_core/applicatio
   target: target,
   value: params['v'] || [],
   filter_method: params['m'] || 'i',
+  container_classes: 'advanced-tags',
   buttons: 'a' }) %>';
 
 if($('.filters .tag-group[data-id="<%= target %>"]').length){
