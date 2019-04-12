@@ -157,6 +157,14 @@ module.exports.initialize = function() {
     });
 
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
+      $(event.currentTarget)
+        .removeClass('i e')
+        .addClass(
+          $(event.currentTarget)
+            .find(':input[name*="[m]"]')
+            .first()
+            .val()
+        );
       $.ajax({
         url: '/add_tag_group',
         method: 'GET',

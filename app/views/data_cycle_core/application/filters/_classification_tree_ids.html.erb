@@ -1,4 +1,4 @@
-<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
   <%= hidden_field_tag "f[#{index}][t]", :classification_tree_ids %>
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
@@ -9,7 +9,7 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.assigned", locale: DataCycleCore.ui_language), 'i'], [t("common.not_assigned", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
@@ -26,7 +26,7 @@
 
   <% if can?(:advanced_filter, :backend) %>
     <div class="buttons">
-      <a class="remove-advanced-filter button alert" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

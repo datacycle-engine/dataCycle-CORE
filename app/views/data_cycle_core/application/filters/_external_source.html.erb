@@ -1,4 +1,4 @@
-<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
   <%= hidden_field_tag "f[#{index}][t]", :external_source %>
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
@@ -27,7 +27,7 @@
 
   <% if can?(:advanced_filter, :backend) %>
     <div class="buttons">
-      <a class="remove-advanced-filter button alert" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

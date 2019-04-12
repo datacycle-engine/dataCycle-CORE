@@ -107,6 +107,8 @@ de:
     is_not: ist nicht
     has: enthält
     has_not: enthält nicht
+    assigned: zugeordnet
+    not_assigned: nicht zugeordnet
     no_translation: Keine Übersetzung vorhanden
     max: maximal
     min: mindestens
