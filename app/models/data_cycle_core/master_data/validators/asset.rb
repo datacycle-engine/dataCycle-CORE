@@ -33,8 +33,10 @@ module DataCycleCore
           data.each do |key|
             if key.is_a?(::String)
               check_reference(key, template)
+            elsif key.is_a?(DataCycleCore::Asset)
+              check_reference(key.id, template)
             else
-              (@error[:warning][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_language)
+              (@error[:error][@template_key] ||= []) << I18n.t(:data_array_format, scope: [:validation, :warnings], data: key, template: template['label'], locale: DataCycleCore.ui_language)
             end
           end
         end
