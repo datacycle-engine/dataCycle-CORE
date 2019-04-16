@@ -74,7 +74,7 @@ module DataCycleCore
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.present? && data.size > value
         end
 
         def required(data, value)
