@@ -16,7 +16,8 @@ module DataCycleCore
           (
             data.template_name == 'POI' &&
             data&.external_source&.name == 'Feratel Kärnten' &&
-            Functions.outdoor_active_categories(data, external_system).size.positive? &&
+            Functions.outdoor_active_system_categories(data, external_system).size.positive? &&
+            Functions.outdoor_active_system_source_keys(data, external_system).size.positive? &&
             job_id.blank?
           )
         end

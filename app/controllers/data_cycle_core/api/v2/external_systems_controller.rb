@@ -15,9 +15,9 @@ module DataCycleCore
 
           xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, content)
 
-          content.each do |item|
-            reset_external_data(item, external_system)
-          end
+          # content.each do |item|
+          #   reset_external_data(item, external_system)
+          # end
 
           render xml: xml_content
         end

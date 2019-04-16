@@ -9,7 +9,7 @@ module DataCycleCore
           @key = options.dig(:key)
         end
 
-        def notification_request(data:)
+        def update_request(data:)
           # send response
           # response = Faraday.new.get do |req|
           #   req.url File.join([@host])
@@ -22,7 +22,21 @@ module DataCycleCore
           # TODO: save jobId
 
           job_id = Digest::MD5.hexdigest(data.id)
-          job_id
+          { 'job_id' => job_id, 'external_source_id' => data.external_source.id }
+        end
+
+        def job_status_request(data:)
+          # send response
+          # response = Faraday.new.get do |req|
+          #   req.url File.join([@host])
+          #
+          #   req.params['key'] = @key
+          #   req.params['ids'] = data.id
+          # end
+
+          # raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, @key])} ", response) unless response.success?
+          # TODO: save jobId
+          { 'job_status' => 'test', 'external_source_id' => data.external_source.id }
         end
       end
     end
