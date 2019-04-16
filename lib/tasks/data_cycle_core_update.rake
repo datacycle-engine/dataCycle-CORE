@@ -212,21 +212,26 @@ namespace :data_cycle_core do
         puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
       end
     end
-
-    namespace :configs do
-      desc 'import and update all classifications, external_sources, external_systems and templates'
-      task update_all: :environment do
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:refactor:import_update_all_templates"].invoke
-      end
-    end
   end
 
   private
 
   def format_time(time, n, m, unit)
     time.round(m).to_s.split('.').zip([->(x) { x.rjust(n) }, ->(x) { x.ljust(m, '0') }]).map { |x, f| f.call(x) }.join('.') + " #{unit}"
+  end
+end
+
+namespace :dc do
+  namespace :update do
+    namespace :configs do
+      desc 'import and update all classifications, external_sources, external_systems and templates'
+      task :all, [:history] => :environment do
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(args.fetch(:history, false))
+      end
+    end
   end
 end
