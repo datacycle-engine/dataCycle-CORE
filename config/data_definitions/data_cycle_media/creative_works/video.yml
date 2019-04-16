@@ -189,6 +189,12 @@
           :method: quality
           :parameters:
             :0: asset
+      :additional_video_properties:
+        :type: mixin
+        :name: additional_video_properties
+      :tags:
+        :type: mixin
+        :name: tags        
       :data_type:
         :label: Inhaltstype
         :type: classification
