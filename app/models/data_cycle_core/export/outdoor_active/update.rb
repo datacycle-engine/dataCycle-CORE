@@ -14,7 +14,7 @@ module DataCycleCore
         def self.filter(data, external_system)
           job_id = data.external_system_data(external_system)&.dig('job_id')
           (
-            data.template_name == 'POI' &&
+            (data.template_name == 'POI' || data.template_name == 'Unterkunft')&&
             data&.external_source&.name == 'Feratel Kärnten' &&
             Functions.outdoor_active_system_categories(data, external_system).size.positive? &&
             Functions.outdoor_active_system_source_keys(data, external_system).size.positive? &&

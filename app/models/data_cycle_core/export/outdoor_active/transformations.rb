@@ -105,6 +105,7 @@ module DataCycleCore
 
         def self.outdoor_active_system_categories(content, xml, external_system)
           categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_categories(content, external_system)
+          return if categories.blank?
           if categories.count == 1
             xml.category categories.first.external_key.split(':').last
           else
@@ -118,6 +119,7 @@ module DataCycleCore
 
         def self.outdoor_active_system_source_keys(content, xml, external_system)
           categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_source_keys(content, external_system)
+          return if categories.blank?
           xml.owner categories.first.external_key.split(':').last
         end
       end
