@@ -13,8 +13,8 @@ module DataCycleCore
         end
 
         def perform
-          job_result = @endpoint.send(@request, data: @data)
-          @data.add_external_system_data(@external_system, @external_system_data.merge(job_result))
+          job_result = @endpoint.send(@request, data: @data, external_system_data: @external_system_data)
+          @data.add_external_system_data(@external_system, job_result)
         end
 
         def queue_name

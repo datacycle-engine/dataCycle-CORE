@@ -9,6 +9,13 @@
 <% content.thing_external_systems.each do |external_relation| %>
   <span class="external-system">
     <b><%= DataCycleCore::ExternalSystem.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></b><br>
-    <%= DataCycleCore::ExternalSource.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>: <%= external_relation.external_system.name %>
+    <%= DataCycleCore::ExternalSource.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>: <%= external_relation.external_system.name %><br />
+    <% if content.external_system_data(external_relation.external_system).present? %>
+      <% if content.external_system_data(external_relation.external_system).dig('outdoor_active_id').present? %>
+        <%= DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language) %>: <%= content.external_system_data(external_relation.external_system).dig('outdoor_active_id') %>
+      <% else %>
+        Status: <%= content.external_system_data(external_relation.external_system).dig('job_status') %>
+      <% end %>
+    <% end %>
   </span>
 <% end %>
