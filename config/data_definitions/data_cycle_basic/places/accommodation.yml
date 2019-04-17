@@ -58,6 +58,9 @@
       :outdoor_active_categories:
         :type: mixin
         :name: outdoor_active_categories
+      :outdoor_active_external_system:
+        :type: mixin
+        :name: outdoor_active_external_system
       :feratel_categories:
         :type: mixin
         :name: feratel_categories

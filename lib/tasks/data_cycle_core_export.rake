@@ -10,9 +10,9 @@ namespace :data_cycle_core do
     end
 
     desc 'refresh tasks'
-    task :refresh, [:external_system_id] => [:environment] do |_, args|
+    task :refresh, [:external_system_id, :job_id] => [:environment] do |_, args|
       external_system = DataCycleCore::ExternalSystem.find(args[:external_system_id])
-      external_system.refresh
+      external_system.refresh({ job_id: args.fetch(:job_id, nil) })
     end
   end
 end

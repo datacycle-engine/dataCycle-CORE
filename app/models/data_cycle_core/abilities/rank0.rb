@@ -41,7 +41,7 @@ module DataCycleCore
             (
               attribute.definition.dig('tree_label').present? &&
               DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id.present? &&
-              DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id)
+              (DataCycleCore::ClassificationTreeLabel.where(name: attribute.definition.dig('tree_label'))&.first&.external_source_id != attribute.content.try(:external_source_id) && !attribute.definition.dig('global'))
             ) ||
             (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?) ||
             (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')

@@ -15,13 +15,23 @@ module DataCycleCore
             data: data,
             external_system: external_system,
             external_system_data: external_system_data,
-            endpoint: utility_object.endpoint
+            endpoint: utility_object.endpoint,
+            request: :update_request
           )
           webhook.perform
         end
 
-        def self.create(utility_object:, data:)
-          update(utility_object: utility_object, data: data)
+        def self.update_job_status(utility_object:, data:)
+          external_system = utility_object.external_system
+          external_system_data = data.external_system_data(external_system)
+          webhook = DataCycleCore::Export::OutdoorActive::Webhook.new(
+            data: data,
+            external_system: external_system,
+            external_system_data: external_system_data,
+            endpoint: utility_object.endpoint,
+            request: :job_status_request
+          )
+          webhook.perform
         end
 
         def self.delete(_utility_object:, _data:)
@@ -35,15 +45,22 @@ module DataCycleCore
           # webhook.perform
         end
 
-        def self.outdoor_active_categories(data, external_system)
+        def self.outdoor_active_system_categories(data, external_system)
+          outdoor_active_categories(data, external_system, 'OutdoorActive - System - Kategorien')
+        end
+
+        def self.outdoor_active_system_source_keys(data, external_system)
+          outdoor_active_categories(data, external_system, 'OutdoorActive - System - Quellen')
+        end
+
+        def self.outdoor_active_categories(data, external_system, tree_label)
           external_source_id = DataCycleCore::ExternalSource.find_by(name: external_system.credentials.dig('external_source'))&.id
 
-          # OutdoorActive - System - Kategorien
           data.classifications.includes(:classification_aliases)
             .map(&:classification_aliases).flatten.uniq
             &.select do |c|
-              c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == 'OutdoorActive - System - Kategorien'
-            end&.map(&:primary_classification)
+            c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
+          end&.map(&:primary_classification)
         end
       end
     end
