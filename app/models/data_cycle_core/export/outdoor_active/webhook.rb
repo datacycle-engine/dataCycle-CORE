@@ -13,8 +13,10 @@ module DataCycleCore
         end
 
         def perform
-          job_result = @endpoint.send(@request, data: @data, external_system_data: @external_system_data)
-          @data.add_external_system_data(@external_system, job_result)
+          data = DataCycleCore::Thing.find(@data.id)
+          job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
+          data.add_external_system_data(@external_system, job_result)
+          raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive job is still running with job_status #{job_result}" if job_result.dig('outdoor_active_id').blank? && job_result.dig('job_status').present?
         end
 
         def queue_name
