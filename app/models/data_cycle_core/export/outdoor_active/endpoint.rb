@@ -9,7 +9,7 @@ module DataCycleCore
           @key = options.dig(:key)
         end
 
-        def update_request(data:, _external_system_data:)
+        def update_request(data:, external_system_data: nil)
           response = Faraday.new.get do |req|
             req.url File.join([@host])
 
@@ -17,7 +17,7 @@ module DataCycleCore
             req.params['ids'] = data.id
           end
 
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, @key])} ", response) unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, @key])}, external_system_data: #{external_system_data}", response) unless response.success?
 
           response_body = Nokogiri::XML(response.body)
           job_id = response_body.children.first.attribute('jobid').value
