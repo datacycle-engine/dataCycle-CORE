@@ -178,6 +178,10 @@ de:
     external_source: Externe Quelle
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
+    created_at: Erstellt
+    updated_at: Aktualisiert
+    deleted_at: Gelöscht
+    validity_period: Gültigkeitszeitraum
 
   terms:
     valid: gültig

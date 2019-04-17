@@ -11,27 +11,30 @@ module DataCycleCore
         def self.update(utility_object:, data:)
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system)
-          webhook = DataCycleCore::Export::OutdoorActive::Webhook.new(
-            data: data,
-            external_system: external_system,
-            external_system_data: external_system_data,
-            endpoint: utility_object.endpoint,
-            request: :update_request
+          Delayed::Job.enqueue(
+            DataCycleCore::Export::OutdoorActive::Webhook.new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name),
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :update_request
+            )
           )
-          webhook.perform
         end
 
         def self.update_job_status(utility_object:, data:)
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system)
-          webhook = DataCycleCore::Export::OutdoorActive::Webhook.new(
-            data: data,
-            external_system: external_system,
-            external_system_data: external_system_data,
-            endpoint: utility_object.endpoint,
-            request: :job_status_request
+
+          Delayed::Job.enqueue(
+            DataCycleCore::Export::OutdoorActive::Webhook.new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name),
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :job_status_request
+            )
           )
-          webhook.perform
         end
 
         def self.delete(_utility_object:, _data:)
