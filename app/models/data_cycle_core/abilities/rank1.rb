@@ -5,7 +5,10 @@ module DataCycleCore
     class Rank1 < DataCycleCore::Ability
       def initialize(user, _session = {})
         can :create_duplicate, DataCycleCore::Asset
-        can [:read, :settings, :advanced_filter], :backend
+        can [:read, :settings], :backend
+        can :advanced_filter, :backend do |_t, _k, v|
+          v != 'classification_tree_ids'
+        end
         can :update, DataCycleCore::User, id: user.id
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id
         can :read, DataCycleCore::StoredFilter, system: true

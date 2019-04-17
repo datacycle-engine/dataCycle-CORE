@@ -62,6 +62,14 @@ module DataCycleCore
         )
       end
 
+      def not_external_source(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing[:external_source_id].not_in(ids).or(thing[:external_source_id].eq(nil)))
+        )
+      end
+
       def creator(ids = nil)
         return self if ids.blank?
 
@@ -181,6 +189,46 @@ module DataCycleCore
           @query.where(
             search[:content_data_id].not_in(manager)
           )
+        )
+      end
+
+      def date_range(d = nil, attribute_path = nil)
+        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? }) || attribute_path.blank?
+
+        date_range = "'[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]'"
+
+        reflect(
+          @query.where("#{date_range}::daterange @> (#{attribute_path})::date")
+        )
+      end
+
+      def not_date_range(d = nil, attribute_path = nil)
+        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? }) || attribute_path.blank?
+
+        date_range = "'[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]'"
+
+        reflect(
+          @query.where.not("#{date_range}::daterange @> (#{attribute_path})::date")
+        )
+      end
+
+      def validity_period(d = nil)
+        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? })
+
+        date_range = "'[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]'"
+
+        reflect(
+          @query.where("things.validity_range @> #{date_range}::tstzrange")
+        )
+      end
+
+      def not_validity_period(d = nil)
+        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? })
+
+        date_range = "'[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]'"
+
+        reflect(
+          @query.where.not("things.validity_range @> #{date_range}::tstzrange")
         )
       end
 

@@ -34,7 +34,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
-          @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+          filters
           @filters.push(
             {
               't' => 'part_of',

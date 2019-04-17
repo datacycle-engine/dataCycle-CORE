@@ -141,6 +141,7 @@
   flex-flow: row wrap;
 
   .content {
+    line-height: 0;
     display: block;
     width: auto;
     height: auto;
@@ -264,8 +265,8 @@
   .content.bild,
   .content.bild-filmcommission,
   .content.video {
-    padding: 1px;
-    margin: 0 0.5rem 1rem 0;
+    margin: 0 0.1rem 2rem 0;
+    padding: 6px;
     box-shadow: 0 0 0 0;
   }
 
@@ -367,7 +368,7 @@
 
       &.thumbnail {
         position: relative;
-        width: 194px;
+        width: 100%;
         max-width: 194px;
         height: 170px;
         padding: 5px 0;
