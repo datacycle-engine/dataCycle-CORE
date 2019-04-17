@@ -30,7 +30,7 @@ module DataCycleCore
         next unless query.respond_to?(t)
 
         if query.method(t)&.parameters&.size == 2
-          query = query.send(t, filter['v'], filter['q'].presence || (filter['n'].present? ? "things.#{filter['n']}" : nil))
+          query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
         else
           query = query.send(t, filter['v'])
         end

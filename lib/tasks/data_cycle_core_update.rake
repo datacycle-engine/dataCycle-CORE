@@ -225,7 +225,7 @@ namespace :dc do
   namespace :update do
     namespace :configs do
       desc 'import and update all classifications, external_sources, external_systems and templates'
-      task :all, [:history] => :environment do
+      task :all, [:history] => :environment do |_, args|
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
