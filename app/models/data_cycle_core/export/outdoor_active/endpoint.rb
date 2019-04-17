@@ -9,7 +9,7 @@ module DataCycleCore
           @key = options.dig(:key)
         end
 
-        def update_request(data:, external_system_data: nil)
+        def update_request(data:, external_system_data: {})
           response = Faraday.new.get do |req|
             req.url File.join([@host])
 
@@ -21,7 +21,7 @@ module DataCycleCore
 
           response_body = Nokogiri::XML(response.body)
           job_id = response_body.children.first.attribute('jobid').value
-          { 'job_id' => job_id, 'external_source_id' => data.external_source.id }
+          external_system_data.merge!({ 'job_id' => job_id, 'external_source_id' => data.external_source.id })
         end
 
         def job_status_request(data:, external_system_data:)
