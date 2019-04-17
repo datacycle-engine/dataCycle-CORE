@@ -158,13 +158,30 @@ module.exports.initialize = function() {
 
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
       $(event.currentTarget)
-        .removeClass('i e')
+        .removeClass('i e n')
         .addClass(
           $(event.currentTarget)
             .find(':input[name*="[m]"]')
             .first()
             .val()
         );
+
+      let value;
+      if ($(event.currentTarget).find(':input[name*="[v]"]').length > 1) {
+        value = {};
+        $(event.currentTarget)
+          .find(':input[name*="[v]"]')
+          .each((index, elem) => {
+            value[
+              $(elem)
+                .prop('name')
+                .get_key()
+            ] = $(elem).val();
+          });
+      } else if ($(event.currentTarget).find(':input[name*="[v]"]').length == 1)
+        value = $(event.currentTarget)
+          .find(':input[name*="[v]"]')
+          .val();
       $.ajax({
         url: '/add_tag_group',
         method: 'GET',
@@ -177,11 +194,7 @@ module.exports.initialize = function() {
             .find(':input[name*="[n]"]')
             .first()
             .val(),
-          v: $(event.currentTarget)
-            .find(':input[name*="[v]"]')
-            .first()
-            .map((index, element) => $(element).val())
-            .get(),
+          v: value,
           m: $(event.currentTarget)
             .find(':input[name*="[m]"]')
             .first()

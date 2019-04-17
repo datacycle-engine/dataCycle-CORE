@@ -6,8 +6,8 @@ module DataCycleCore
       module Refresh
         include Functions
 
-        def self.process(utility_object:)
-          Functions.refresh(utility_object: utility_object)
+        def self.process(utility_object:, options:)
+          Functions.refresh(utility_object: utility_object, options: options)
         end
       end
     end

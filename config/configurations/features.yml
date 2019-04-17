@@ -38,6 +38,8 @@
   :external_source: true
   :creator: true
   :classification_tree_ids: all
+  :date_range: all
+  :validity_period: true
 
 :geocode:
   :enabled: false

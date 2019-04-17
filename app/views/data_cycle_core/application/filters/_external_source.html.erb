@@ -9,8 +9,7 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= t("common.has", locale: DataCycleCore.ui_language) %>
-    <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
