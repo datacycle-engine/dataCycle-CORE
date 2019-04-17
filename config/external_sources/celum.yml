@@ -76,5 +76,30 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
       locales: [de]
       transformations:
-        images:
+        type: image
+        asset:
           asset_type: DataCycleCore::Image
+    audio:
+      sorting: 11
+      source_type: documents
+      source_filter:
+        'dump.de.assetType.#cdata-section': '4'
+        'dump.de.fileExtension.#cdata-section': 'mp3'
+      import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      locales: [de]
+      transformations:
+        type: audio
+        asset:
+          asset_type: DataCycleCore::Audio
+    video:
+      sorting: 12
+      source_type: documents
+      source_filter:
+        'dump.de.assetType.#cdata-section': '3'
+        'dump.de.fileExtension.#cdata-section': 'mp4'
+      import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      locales: [de]
+      transformations:
+        type: video
+        asset:
+          asset_type: DataCycleCore::Video
