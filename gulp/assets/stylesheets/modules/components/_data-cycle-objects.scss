@@ -141,7 +141,6 @@
   flex-flow: row wrap;
 
   .content {
-    line-height: 0;
     display: block;
     width: auto;
     height: auto;
@@ -155,6 +154,7 @@
 
     .thumbnail {
       position: relative;
+      display: block;
       width: 194px;
       height: 170px;
       margin: 0;
