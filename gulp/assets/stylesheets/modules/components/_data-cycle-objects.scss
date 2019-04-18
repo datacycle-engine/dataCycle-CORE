@@ -898,6 +898,7 @@ span.single_error.object-browser-error {
   &.new-item,
   &.new-content-reveal {
     background: $white;
+    min-width: 60%;
 
     .loading {
       display: none;
