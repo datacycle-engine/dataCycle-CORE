@@ -35,6 +35,22 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :text:
+        :label: Inhalt
+        :type: computed
+        :storage_location: value
+        :search: true
+        :compute:
+          :type: string
+          :module: Utility::Compute::Pdf
+          :method: extract_content
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
       :content_url:
         :label: URL
         :storage_location: value
@@ -137,6 +153,9 @@
           :method: file_format
           :parameters:
             :0: asset
+      :additional_pdf_properties:
+        :type: mixin
+        :name: additional_pdf_properties
       :data_type:
         :label: Inhaltstype
         :type: classification
