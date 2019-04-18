@@ -422,7 +422,7 @@ class AssetUploader {
     var messages = [];
     for (var key in file_options.chosen_type_validation) {
       if (typeof this['validate_' + key] == 'function') {
-        validation_value = this['validate_' + key](file_options, file_options.chosen_type_validation[key]);
+        let validation_value = this['validate_' + key](file_options, file_options.chosen_type_validation[key]);
         valid &= validation_value.valid;
         if (validation_value.message !== undefined) messages.push(validation_value.message);
       }
