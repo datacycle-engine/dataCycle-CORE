@@ -12,12 +12,13 @@ module DataCycleCore
       create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids('Tags', ['Tag 3', 'Tag 2']) })
       create_content('Örtlichkeit', { name: 'PLACE 1', location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 10) })
 
-      multiling = create_content('Artikel', { name: 'XYZ de' })
+      validity_period = { valid_from: DateTime.current.beginning_of_day.to_s, valid_until: DateTime.current.end_of_day.to_s }
+      multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
       multiling.external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
       multiling.created_by = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       multiling.save!
       I18n.with_locale(:en) do
-        multiling.set_data_hash(data_hash: { name: 'XYZ en' }.stringify_keys)
+        multiling.set_data_hash(data_hash: { name: 'XYZ en', validity_period: validity_period }.stringify_keys)
         multiling.save!
       end
     end
@@ -90,12 +91,33 @@ module DataCycleCore
       external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
       items = DataCycleCore::Filter::Search.new(:de).external_source(external_source_id)
       assert_equal(1, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_external_source(external_source_id)
+      assert_equal(5, items.count)
     end
 
     test 'test query for creator' do
       creator_id = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       items = DataCycleCore::Filter::Search.new(:de).creator(creator_id)
       assert_equal(1, items.count)
+    end
+
+    test 'test query for date_range (created_at)' do
+      items = DataCycleCore::Filter::Search.new(:de)
+        .date_range({ from: Date.current, until: Date.current }, 'created_at')
+      assert_equal(6, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de)
+        .not_date_range({ from: Date.current, until: Date.current }, 'created_at')
+      assert_equal(0, items.count)
+    end
+
+    test 'test query for validity_period' do
+      items = DataCycleCore::Filter::Search.new(:de).validity_period({ from: Date.current, until: Date.current })
+      assert_equal(6, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
+      assert_equal(0, items.count)
     end
 
     test 'test query for classification_tree' do
@@ -129,13 +151,7 @@ module DataCycleCore
     private
 
     def create_content(template_name, data = {})
-      content = DataCycleCore::TestPreparations.data_set_object(template_name)
-      content.save!
-
-      result = content.set_data_hash(data_hash: data.stringify_keys)
-      raise 'InvalidData' if result[:error].present?
-      content.save!
-      content
+      DataCycleCore::TestPreparations.create_content(template_name: template_name, data_hash: data)
     end
 
     def get_classification_ids(tree_name, *alias_names)

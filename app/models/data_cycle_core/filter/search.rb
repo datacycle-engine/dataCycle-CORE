@@ -193,7 +193,7 @@ module DataCycleCore
       end
 
       def date_range(d = nil, attribute_path = nil)
-        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? }) || attribute_path.blank?
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
 
         date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
@@ -204,7 +204,7 @@ module DataCycleCore
       end
 
       def not_date_range(d = nil, attribute_path = nil)
-        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? }) || attribute_path.blank?
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
 
         date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
@@ -215,9 +215,9 @@ module DataCycleCore
       end
 
       def validity_period(d = nil)
-        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? })
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+        date_range = "[#{d&.dig('from')&.noon&.to_s},#{d&.dig('until')&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
 
         reflect(
@@ -226,9 +226,9 @@ module DataCycleCore
       end
 
       def not_validity_period(d = nil)
-        return self if d.blank? || (d.is_a?(Hash) && d.all? { |_, v| v.blank? })
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+        date_range = "[#{d&.dig('from')&.noon&.to_s},#{d&.dig('until')&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
 
         reflect(
