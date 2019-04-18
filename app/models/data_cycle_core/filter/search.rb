@@ -217,7 +217,7 @@ module DataCycleCore
       def validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
-        date_range = "[#{d&.dig('from')&.noon&.to_s},#{d&.dig('until')&.noon&.to_s}]"
+        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
 
         reflect(
@@ -228,7 +228,7 @@ module DataCycleCore
       def not_validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
-        date_range = "[#{d&.dig('from')&.noon&.to_s},#{d&.dig('until')&.noon&.to_s}]"
+        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
 
         reflect(
