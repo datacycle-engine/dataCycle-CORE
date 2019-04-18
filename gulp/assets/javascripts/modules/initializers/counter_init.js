@@ -6,7 +6,7 @@ module.exports.initialize = function() {
 
   init_counters($('#edit-form'));
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     init_counters(event.target);
   });
 

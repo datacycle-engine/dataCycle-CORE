@@ -278,7 +278,7 @@ module.exports.initialize = function() {
 
   Quill.register('modules/counter', Counter);
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     if (
       $(event.target)
         .find('.quill-editor')

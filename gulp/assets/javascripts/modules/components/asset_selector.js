@@ -27,10 +27,10 @@ class AssetSelector {
     this.asset_list.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
     this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
     this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
-    this.button.closest('form').on('reset.dc.form', this.resetSelector.bind(this));
-    this.asset_list.on('changed.dc.asset_list', this.updateButtons.bind(this));
+    this.button.closest('form').on('reset', this.resetSelector.bind(this));
+    this.asset_list.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.asset_list.parent().on('scroll', this.loadMoreOnScroll.bind(this));
-    this.select_button.on('changed.dc.selected_asset', this.updateSelectButton.bind(this));
+    this.select_button.on('dc:selected_asset:changed', this.updateSelectButton.bind(this));
   }
   loadMoreOnScroll(event) {
     if (
@@ -140,9 +140,9 @@ class AssetSelector {
       .attr('src');
     if (value !== undefined) {
       this.hidden_field.val(value);
-      this.form_element.trigger('selected.dc.asset', { id: this.selected_asset_id, thumb: this.selected_asset_thumb });
+      this.form_element.trigger('dc:asset:selected', { id: this.selected_asset_id, thumb: this.selected_asset_thumb });
     } else this.hidden_field.removeAttr('value');
-    this.form_element.trigger('changed.dc.asset', { id: this.selected_asset_id, thumb: this.selected_asset_thumb });
+    this.form_element.trigger('dc:asset:changed', { id: this.selected_asset_id, thumb: this.selected_asset_thumb });
   }
   selectAssets(event) {
     event.preventDefault();

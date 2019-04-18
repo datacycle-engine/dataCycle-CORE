@@ -146,7 +146,7 @@ class ObjectBrowser {
         this.findObjects(new_items, data.external_ids != undefined);
       }
     });
-    this.overlay.on('complete.dc.import', (event, data) => {
+    this.overlay.on('dc:import:complete', (event, data) => {
       if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
       this.overlay
         .children('.items')
@@ -156,14 +156,14 @@ class ObjectBrowser {
           behavior: 'smooth'
         });
       this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
-      $('#new_' + this.id + '.in-object-browser form').trigger('reset.dc.form');
+      $('#new_' + this.id + '.in-object-browser form').trigger('reset');
     });
     $(document).on(
-      'changed.dc.html',
+      'dc:html:changed',
       '#new_' + this.id + '.in-object-browser .new-content-form',
       this.initNewFormHandlers.bind(this)
     );
-    this.element.on('changed.dc.locale', this.updateLocale.bind(this));
+    this.element.on('dc:locale:changed', this.updateLocale.bind(this));
     this.element.closest('form').on('reset', this.reset.bind(this));
   }
   updateLocale(e) {

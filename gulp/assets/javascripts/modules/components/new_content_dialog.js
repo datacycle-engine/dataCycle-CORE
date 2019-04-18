@@ -19,17 +19,16 @@ class NewContentDialog {
         .addClass('active');
     this.next_button.on('click', this.next.bind(this));
     this.prev_button.on('click', this.prev.bind(this));
-    this.reset_button.on('click', this.resetForm.bind(this));
     this.form.on('click', '.form-crumb-link', this.goTo.bind(this));
-    this.form.on('reset.dc.form', this.resetForm.bind(this));
+    this.form.on('reset', this.resetForm.bind(this));
     this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
-    this.form.on('goto.dc.multistep', this.goTo.bind(this));
+    this.form.on('dc:multistep:goto', this.goTo.bind(this));
     this.form.on('click', '.translated-attribute-locale', event => {
       event.preventDefault();
       this.changeTranslation(event.target);
     });
-    this.form.on('selected.dc.asset', '.form-element', this.checkSelectedAsset.bind(this));
-    this.form.on('changed.dc.asset', '.form-element', this.updateThumbnail.bind(this));
+    this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
+    this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
   }
   updateForm() {
     this.updateCrumbs();
@@ -68,13 +67,13 @@ class NewContentDialog {
     this.form
       .find('.translated-attribute.' + $(target).data('locale'))
       .addClass('active')
-      .trigger('render.dc.remote');
+      .trigger('dc:remote:render');
   }
   next(event) {
     event.preventDefault();
     let active_fieldset = this.form.find('fieldset.active');
     if (this.form.hasClass('validation-form')) {
-      active_fieldset.trigger('validate.dc.form', {
+      active_fieldset.trigger('dc:form:validate', {
         success_callback: () => {
           this.goTo(
             undefined,
@@ -115,6 +114,7 @@ class NewContentDialog {
     if (event !== undefined) event.preventDefault();
     if (
       this.form.find('fieldset.active').hasClass('template') &&
+      this.form.find(':input[name="template"]').val() !== null &&
       this.form.find(':input[name="template"]').val() != this.form.data('template')
     ) {
       this.renderContentForm();
@@ -124,7 +124,7 @@ class NewContentDialog {
     this.form
       .find('fieldset:eq(' + index + ')')
       .addClass('active')
-      .trigger('render.dc.remote');
+      .trigger('dc:remote:render');
     if (this.form.find('fieldset.active').hasClass('template') || this.form.find('fieldset.active').hasClass('iframe'))
       this.form.closest('.reveal:not(.full)').foundation('_updatePosition');
     this.updateForm();
@@ -167,7 +167,7 @@ class NewContentDialog {
     this.form.find('.callout').hide();
     this.form
       .find('fieldset:not(.template)')
-      .trigger('remove.dc.html')
+      .trigger('dc:html:remove')
       .remove();
     this.form.find('.translated-attribute-locales, .form-thumbnail').remove();
     this.form
@@ -193,14 +193,9 @@ class NewContentDialog {
   }
   resetForm(event) {
     this.form.find(':input').blur();
-    this.form.find('fielset.active').removeClass('active');
-    this.form
-      .find('fielset')
-      .first()
-      .addClass('active');
     $.rails.enableFormElements(this.form);
     this.form.find('.single_error').remove();
-    this.form[0].reset();
+    this.form.removeData('template');
     this.changeTranslation(this.form.find('.translated-attribute-locale[data-locale="' + this.locale + '"]'));
     this.goTo(undefined, this.form.find('fieldset').index(this.form.find('fieldset').first()));
   }
@@ -215,7 +210,7 @@ class NewContentDialog {
         if ($(elem).data('locale') != this.locale)
           $(elem)
             .data('locale', this.locale)
-            .trigger('changed.dc.locale');
+            .trigger('dc:locale:changed');
       });
     $(container)
       .find('.remote-render')

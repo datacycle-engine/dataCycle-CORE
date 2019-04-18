@@ -14,7 +14,7 @@ module.exports.initialize = function() {
       });
   });
 
-  $(document).on('open.zf.reveal render.dc.remote changed.dc.html', '*', event => {
+  $(document).on('open.zf.reveal dc:remote:render dc:html:changed', '*', event => {
     event.stopPropagation();
     $(event.target)
       .find('.remote-render:visible')

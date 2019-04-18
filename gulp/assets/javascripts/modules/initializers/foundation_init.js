@@ -5,7 +5,7 @@ module.exports.initialize = function() {
   Foundation.Tooltip.defaults.clickOpen = false;
   $(document).foundation();
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
     $(event.target).foundation();
   });
@@ -31,7 +31,7 @@ module.exports.initialize = function() {
     event.stopPropagation();
   });
 
-  $(document).on('remove.dc.html', '*', event => {
+  $(document).on('dc:html:remove', '*', event => {
     event.stopPropagation();
 
     $(event.target)
@@ -39,12 +39,12 @@ module.exports.initialize = function() {
       .each((i, elem) => {
         if ($('#' + $(elem).data('open')).parent('.reveal-overlay').length)
           $('#' + $(elem).data('open'))
-            .trigger('remove.dc.html')
+            .trigger('dc:html:remove')
             .parent('.reveal-overlay')
             .remove();
         else
           $('#' + $(elem).data('open'))
-            .trigger('remove.dc.html')
+            .trigger('dc:html:remove')
             .remove();
       });
     $(event.target)
@@ -52,12 +52,12 @@ module.exports.initialize = function() {
       .each((i, elem) => {
         if ($('#' + $(elem).data('toggle')).parent('.reveal-overlay').length)
           $('#' + $(elem).data('toggle'))
-            .trigger('remove.dc.html')
+            .trigger('dc:html:remove')
             .parent('.reveal-overlay')
             .remove();
         else
           $('#' + $(elem).data('toggle'))
-            .trigger('remove.dc.html')
+            .trigger('dc:html:remove')
             .remove();
       });
   });

@@ -112,7 +112,7 @@ class EmbeddedObject {
     } else this.removeObject(element);
   }
   removeObject(element) {
-    element.trigger('remove.dc.html');
+    element.trigger('dc:html:remove');
     let id = element.data('id');
     this.element.find('input:hidden[value="' + id + '"]').remove();
     element.remove();

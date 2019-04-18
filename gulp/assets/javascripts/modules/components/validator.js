@@ -16,8 +16,8 @@ class Validator {
     this.addEventHandlers();
   }
   addEventHandlers() {
-    this.form.on('change validate.dc.formfield', '.validation-container', this.validateSingle.bind(this));
-    this.form.on('validate.dc.form', '*', this.validateForm.bind(this));
+    this.form.on('change dc:form:validatefield', '.validation-container', this.validateSingle.bind(this));
+    this.form.on('dc:form:validate', '*', this.validateForm.bind(this));
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
@@ -309,7 +309,7 @@ class Validator {
         }
         // scroll to step in multi-step form
         if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {
-          this.form.trigger('goto.dc.multistep', this.form.find('fieldset').index(error.closest('fieldset')));
+          this.form.trigger('dc:multistep:goto', this.form.find('fieldset').index(error.closest('fieldset')));
         }
       },
       error => {

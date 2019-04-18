@@ -1,7 +1,7 @@
 // Add Lazyloading + fixes
 module.exports.initialize = function() {
   // reposition reveal after it is loaded
-  $(document).on('changed.dc.html lazyloaded', '*', event => {
+  $(document).on('dc:html:changed lazyloaded', '*', event => {
     event.stopPropagation();
     let reveal = $(event.target).closest('.reveal:not(.full)');
     if (reveal.length && (reveal.data('v-offset') === 'auto' || reveal.data('v-offset') === undefined))
