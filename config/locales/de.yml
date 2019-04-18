@@ -182,6 +182,7 @@ de:
     updated_at: Aktualisiert
     deleted_at: Gelöscht
     validity_period: Gültigkeitszeitraum
+    upload_date: Hochgeladen
 
   terms:
     valid: gültig
