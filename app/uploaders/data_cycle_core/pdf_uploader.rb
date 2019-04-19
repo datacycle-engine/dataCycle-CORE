@@ -41,13 +41,18 @@ module DataCycleCore
     def metadata
       reader = PDF::Reader.new(current_path)
       return nil if reader.blank?
-      {
-        info: reader.info,
-        pdf_version: reader.pdf_version,
-        metadata: reader.metadata,
-        content: reader.pages.map(&:text).join(' '),
-        page_count: reader.page_count
-      }
+
+      begin
+        {
+          info: reader.info,
+          pdf_version: reader.pdf_version,
+          metadata: reader.metadata,
+          content: reader.pages.map(&:text).join(' '),
+          page_count: reader.page_count
+        }
+      rescue PDF::Reader::MalformedPDFError
+        nil
+      end
     end
   end
 end
