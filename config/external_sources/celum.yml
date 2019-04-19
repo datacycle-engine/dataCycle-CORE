@@ -57,10 +57,12 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportFolders
       tree_label: Celum - Folders
       locales: [de]
-    persons:
-      sorting: 8
+    users:
+      sorting: 5
       source_type: users
-      import_strategy: DataCycleCore::Generic::Celum::ImportPersons
+      import_strategy: DataCycleCore::Generic::Celum::ImportUsers
+      tree_label: Celum - Users
+      external_id_prefix: 'Celum - User - '
       locales: [de]
     images:
       sorting: 10
