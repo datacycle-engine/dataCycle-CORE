@@ -47,7 +47,7 @@ module DataCycleCore
           info: reader.info,
           pdf_version: reader.pdf_version,
           metadata: reader.metadata,
-          content: reader.pages.map(&:text).join(' '),
+          content: reader.pages&.map(&:text)&.join(' '),
           page_count: reader.page_count
         }
       rescue PDF::Reader::MalformedPDFError
