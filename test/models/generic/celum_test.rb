@@ -56,9 +56,9 @@ module DataCycleCore
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Audio').with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Video').with_schema_type('CreativeWork').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Person').with_schema_type('Person').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Keywords').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Folders').count)
+        assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Users').count)
       end
     end
   end
