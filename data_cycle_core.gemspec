@@ -27,7 +27,7 @@ Gem::Specification.new do |s|
 
   # rails
   # s.add_dependency 'jquery-rails'
-  s.add_dependency 'rails', '~> 5.1.6'
+  s.add_dependency 'rails', '~> 5.1.6.1'
   s.add_dependency 'rake'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
@@ -48,7 +48,7 @@ Gem::Specification.new do |s|
   # SOAP Client
   # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.8.5'
+  s.add_dependency 'nokogiri', '~> 1.10.3'
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
@@ -63,7 +63,6 @@ Gem::Specification.new do |s|
   # simple logger for import/load
   s.add_dependency 'logging'
   # background-jobs
-  s.add_dependency 'delayed_job'
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
   s.add_dependency 'daemons'
@@ -87,7 +86,12 @@ Gem::Specification.new do |s|
   s.add_dependency 'streamio-ffmpeg'
   s.add_dependency 'taglib-ruby'
 
-  s.add_dependency 'globalize', '~> 5.1.0'
+  # Image Optimization
+  s.add_dependency 'image_optim'
+  s.add_dependency 'image_optim_pack'
+
+  # s.add_dependency 'translate', path: 'vendor/gems/translate'
+
   s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
@@ -100,23 +104,35 @@ Gem::Specification.new do |s|
   # phash
   s.add_dependency 'pHash'
 
+  # progress bar
+  s.add_dependency 'ruby-progressbar'
+
+  # jb gem for APIv3
+  # s.add_dependency 'jb'
+
   # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
   # s.add_development_dependency 'listen'
   # s.add_development_dependency 'spring'
-  s.add_development_dependency 'spring-watcher-listen'
   s.add_development_dependency 'web-console'
 
   s.add_dependency 'dotenv-rails'
   s.add_dependency 'puma', '~> 3.11.0'
   s.add_dependency 'puma_worker_killer'
 
+  # Excel Generator
+  s.add_dependency 'axlsx_rails'
+
+  # premailer
+  s.add_dependency 'premailer'
   # validation gems
   s.add_development_dependency 'brakeman', '4.3.0'
   s.add_development_dependency 'bundler-audit'
+  s.add_development_dependency 'faker'
+  s.add_development_dependency 'fasterer'
   s.add_development_dependency 'gemsurance'
-  s.add_development_dependency 'rubocop', '~> 0.56.0'
+  s.add_development_dependency 'rubocop', '~> 0.63.1'
   # s.add_development_dependency 'capybara'
   # s.add_development_dependency 'selenium-webdriver'
   # s.add_development_dependency 'chromedriver-helper'

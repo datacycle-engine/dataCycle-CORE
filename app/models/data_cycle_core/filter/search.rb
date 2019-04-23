@@ -5,24 +5,40 @@ module DataCycleCore
     class Search < QueryBuilder
       include DataCycleCore::Filter::Common::Configurable
 
-      def initialize(locale = ['de'], query = nil)
+      def initialize(locale = ['de'], query = nil, joined_search = false)
         @locale = locale
-        @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
+        @joined_search = joined_search
+        if locale.nil?
+          @query = query || DataCycleCore::Thing
+        else
+          @query = query || DataCycleCore::Thing.joins(:searches).where(searches: { locale: @locale })
+        end
+      end
+
+      def exclude_templates_embedded
+        reflect(
+          @query.where(template: false).where.not(content_type: 'embedded')
+        )
       end
 
       def content_includes
         reflect(
           @query.includes(
-            :display_classification_aliases,
             :translations,
             :watch_lists,
-            :external_source
+            :external_source,
+            :external_systems,
+            :parent,
+            display_classification_aliases: :classification_alias_path
           )
         )
       end
 
       def fulltext_search(name)
         return self if name.blank?
+
+        @query = @query.joins(:searches)
+        @joined_search = true
 
         reflect(
           @query.where(
@@ -32,15 +48,9 @@ module DataCycleCore
         )
       end
 
-      def only_frontend_valid
-        reflect(
-          @query.where(search[:schema_type].not_eq(quoted('Place')))
-        )
-      end
-
       def in_validity_period(current_date = Time.zone.now)
         reflect(
-          @query.where(in_range(search[:validity_period], cast_tstz(current_date)))
+          @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
         )
       end
 
@@ -49,6 +59,14 @@ module DataCycleCore
 
         reflect(
           @query.where(thing[:external_source_id].in(ids))
+        )
+      end
+
+      def not_external_source(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing[:external_source_id].not_in(ids).or(thing[:external_source_id].eq(nil)))
         )
       end
 
@@ -143,7 +161,7 @@ module DataCycleCore
       end
 
       def distinct_by_content_id(order_string = nil)
-        return self if @locale.presence&.size == 1
+        return self unless (@joined_search && @locale.blank?) || @locale&.many?
 
         reflect(
           DataCycleCore::Thing.joins(:searches)
@@ -153,6 +171,7 @@ module DataCycleCore
       end
 
       def count_distinct
+        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
@@ -160,6 +179,80 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(@query.with_classification_alias_ids(ids))
+      end
+
+      def not_classification_alias_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(@query.without_classification_alias_ids(ids))
+      end
+
+      def date_range(d = nil, attribute_path = nil)
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+
+        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
+
+        reflect(
+          @query.where(query_string)
+        )
+      end
+
+      def not_date_range(d = nil, attribute_path = nil)
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+
+        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
+
+        reflect(
+          @query.where.not(query_string)
+        )
+      end
+
+      def validity_period(d = nil)
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
+
+        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
+        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
+
+        reflect(
+          @query.where(query_string)
+        )
+      end
+
+      def not_validity_period(d = nil)
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
+
+        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
+        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
+
+        reflect(
+          @query.where.not(query_string)
+        )
+      end
+
+      def classification_tree_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(
+            thing[:id].in(
+              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+            )
+          )
+        )
+      end
+
+      def not_classification_tree_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(
+            thing[:id].not_in(
+              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+            )
+          )
+        )
       end
 
       def with_classification_alias_ids_without_recursion(ids = nil)
@@ -180,7 +273,7 @@ module DataCycleCore
           .merge(
             DataCycleCore::ClassificationAlias
               .for_tree(tree_name)
-              .with_name(aliases)
+              .with_internal_name(aliases)
               .with_descendants
           )
 
@@ -190,19 +283,19 @@ module DataCycleCore
       end
 
       def self.get_order_by_query_string(search)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'searches.boost DESC, searches.updated_at DESC') if search.blank?
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.boost DESC, things.updated_at DESC') if search.blank?
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
-            "searches.boost * (
+            "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
               2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))
               DESC NULLS LAST,
-              searches.updated_at DESC",
+              things.updated_at DESC",
             search_string: "%#{search_string}%",
             search: (search || '').squish
           ]
@@ -230,12 +323,37 @@ module DataCycleCore
           )
       end
 
+      def join_classification_trees
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+            .and(classification_group[:deleted_at].eq(nil))
+            .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
       end
 
       def classification
         Classification.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
       end
 
       def classification_group

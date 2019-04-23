@@ -5,10 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class VTicketTest < ActiveSupport::TestCase
-      def setup
-        @cw_temp = DataCycleCore::CreativeWork.where(template: false).count
-      end
-
       def download_from_local_json(external_source)
         path = Rails.root.join('..', 'fixtures', 'external_sources', 'v_ticket')
         files = path + '*.json'

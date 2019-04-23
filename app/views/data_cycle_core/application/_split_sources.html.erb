@@ -22,7 +22,9 @@
                 </div>
             </div>
 
-            <button class="button"><%= t('common.load_splitsource', locale: DataCycleCore.ui_language) %></button>
+            <button class="button" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> <%= t('common.load_splitsource', locale: DataCycleCore.ui_language) %>">
+              <%= t('common.load_splitsource', locale: DataCycleCore.ui_language) %>
+            </button>
         <% end %>
     </div>
 </div>

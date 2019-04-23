@@ -17,9 +17,7 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: EventOverlay
-        :external: true
         :validations:
           :max: 1
       :title:
@@ -32,7 +30,6 @@
         :label: Veranstaltungszeitraum
         :type: object
         :storage_location: value
-        :external: true
         :validations:
           :daterange:
             :from: start_date
@@ -55,6 +52,9 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize:
+              :id: eventstart
+              :type: datetime
           :end_date:
             :label: Endzeitpunkt
             :type: datetime
@@ -67,6 +67,9 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: "tt.mm.jjjj --:--"
+            :normalize:
+              :id: eventend
+              :type: datetime
       :description:
         :label: Beschreibung
         :type: string
@@ -92,15 +95,20 @@
         :storage_location: translated_value
         :validations:
           :format: url
+        :api:
+          :name: link
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1
@@ -109,8 +117,12 @@
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
-        :linked_table: things
         :template_name: SubEvent
+      :event_schedule:
+        :label: Event-Schedule
+        :type: embedded
+        :template_name: EventSchedule
+        :translated: true
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -128,6 +140,9 @@
       :v_ticket:
         :type: mixin
         :name: v_ticket
+      :feratel_events:
+        :type: mixin
+        :name: feratel_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

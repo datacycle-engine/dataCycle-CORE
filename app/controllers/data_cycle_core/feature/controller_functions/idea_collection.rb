@@ -16,10 +16,9 @@ module DataCycleCore
         private
 
         def create_parent
-          object_params = content_params(controller_name, params[:template])
+          object_params = content_params(params[:template])
 
           parent = DataCycleCore::DataHashService.create_internal_object(
-            params[:table],
             DataCycleCore::Feature::Container.available_containers&.first&.template_name,
             object_params,
             current_user

@@ -6,6 +6,8 @@ module DataCycleCore
       self.abstract_class = true
       define_model_callbacks :save_data_hash, only: :before
       define_model_callbacks :saved_data_hash, only: :after
+      define_model_callbacks :created_data_hash, only: :after
+      define_model_callbacks :destroyed_data_hash, only: :after
 
       DataCycleCore.features.each_key do |key|
         module_name = ('DataCycleCore::Feature::DataHash::' + key.to_s.classify).constantize
@@ -14,12 +16,15 @@ module DataCycleCore
       include CreateHistory
       include UpdateSearch
 
+      before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_webhooks
+      after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_created_data_hash :execute_create_webhooks
+      after_destroyed_data_hash :execute_delete_webhooks
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
         @data_hash = data_hash
         @current_user = current_user
@@ -34,36 +39,34 @@ module DataCycleCore
 
         valid_hash = validate(@data_hash, schema_hash)
 
-        if validate?(valid_hash) && diff?(@data_hash)
-          ActiveRecord::Base.transaction do
-            to_history(save_time: @save_time) unless id.nil? || prevent_history
+        if validate?(valid_hash)
+          if diff?(@data_hash) || force_update
+            ActiveRecord::Base.transaction do
+              to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-            set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
+              set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
-            self.updated_at = @save_time
-            self.updated_by = @current_user&.id
-            if id.nil?
-              self.created_at = @save_time
-              self.created_by = @current_user&.id
+              self.updated_at = @save_time
+              self.updated_by = @current_user&.id
+
+              if id.nil?
+                self.created_at = @save_time
+                self.created_by = @current_user&.id
+              end
+              save(touch: false)
+              search_languages(update_search_all)
             end
-            save(touch: false)
-
-            search_languages(update_search_all)
+            reload
+            run_callbacks(:saved_data_hash) unless prevent_history
+            run_callbacks(:created_data_hash) if @new_content
           end
-          reload && run_callbacks(:saved_data_hash) unless prevent_history
         end
         valid_hash
       end
 
-      def set_last_updated_by
-        # TODO: check after #507: Benutzerinteraktionen mit Content soll von System und nicht mehr durch die Templates definiert werden.
-        last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
-        @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
-      end
-
       def set_computed_values
         computed_property_names.each do |computed_property|
-          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(properties_for(computed_property), @data_hash)
+          @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
         end
       end
 
@@ -74,25 +77,16 @@ module DataCycleCore
         end
       end
 
-      def execute_webhooks
+      def execute_update_webhooks
         Webhook::Update.execute_all(self)
       end
 
-      def get_inherit_datahash(parent)
-        data_hash = get_data_hash
+      def execute_create_webhooks
+        Webhook::Create.execute_all(self)
+      end
 
-        I18n.with_locale(parent.first_available_locale) do
-          parent_data_hash = parent.get_data_hash
-
-          DataCycleCore.inheritable_attributes.each do |attribute_key|
-            parent_data = parent_data_hash[attribute_key]
-            data_hash[attribute_key] = parent_data if parent_data.present?
-          end
-
-          data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = parent_data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] if DataCycleCore::Feature::LifeCycle.enabled?
-        end
-
-        data_hash.compact!
+      def execute_delete_webhooks
+        Webhook::Delete.execute_all(self)
       end
 
       def validate(data, schema_hash = nil)
@@ -102,6 +96,13 @@ module DataCycleCore
 
       def validate?(validation_hash)
         validation_hash&.dig(:error).blank?
+      end
+
+      def set_internal_data
+        self.content_type = schema&.dig('content_type')
+        self.boost = schema&.dig('boost') || 1.0
+        validity_hash = metadata.nil? ? nil : metadata['validity_period']
+        self.validity_range = get_validity_range(validity_hash)
       end
 
       private
@@ -119,15 +120,16 @@ module DataCycleCore
       end
 
       def storage_cases_set(key, value, properties)
+        # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
         when 'linked'
-          set_linked(key, value)
+          set_linked(key, value, properties)
         when 'embedded'
-          set_embedded(key, value, properties['template_name'])
+          set_embedded(key, value, properties['template_name'], properties['translated'])
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'computed'
@@ -181,25 +183,33 @@ module DataCycleCore
         data_hash
       end
 
-      def set_linked(field_name, input_data)
+      def set_linked(field_name, input_data, properties)
+        return if properties['link_direction'] == 'inverse' # inverse direction is read_only
+        relation_b = properties['inverse_of']
+
         item_ids_before_update = send(field_name).ids
         item_ids_after_update = parse_linked_ids(input_data)
 
         item_ids_after_update.each_index do |index|
-          next if item_ids_before_update[index] == item_ids_after_update[index]
-
-          upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-            get_relation_data_hash(field_name, item_ids_after_update[index])
-          )
-          upsert_relation.order_a = index
-          upsert_relation.save
+          update_relation = DataCycleCore::ContentContent.find_or_create_by({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_after_update[index]
+          })
+          update_relation.order_a = index
+          update_relation.relation_b = relation_b
+          update_relation.save!
         end
 
         item_ids_to_delete = item_ids_before_update - item_ids_after_update
         return if item_ids_to_delete.size.zero?
-        # destroy relations
+
         DataCycleCore::ContentContent
-          .where(get_relation_data_hash(field_name, item_ids_to_delete))
+          .where({
+            content_a_id: id,
+            relation_a: field_name,
+            content_b_id: item_ids_to_delete
+          })
           .destroy_all
       end
 
@@ -211,9 +221,9 @@ module DataCycleCore
         data
       end
 
-      def set_embedded(field_name, input_data, name)
+      def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = send(field_name).ids
+        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
         data = parse_embedded_content(input_data) || []
 
         data.each_index do |index|
@@ -222,9 +232,11 @@ module DataCycleCore
             upsert_content(name, item) if item.keys.size > 1
 
             if available_update_item_keys[index] != item['id']
-              upsert_relation = DataCycleCore::ContentContent.find_or_create_by(
-                get_relation_data_hash(field_name, item['id'])
-              )
+              upsert_relation = DataCycleCore::ContentContent.find_or_create_by!({
+                content_a_id: id,
+                relation_a: field_name,
+                content_b_id: item['id']
+              })
               upsert_relation.order_a = index
               upsert_relation.save
             end
@@ -232,25 +244,22 @@ module DataCycleCore
             updated_item_keys << item['id']
           else
             insert_item = upsert_content(name, item)
-            DataCycleCore::ContentContent.create!(
-              get_relation_data_hash(field_name, insert_item.id).merge({ order_a: index, order_b: nil })
-            )
-
+            DataCycleCore::ContentContent.create!({
+              content_a_id: id,
+              relation_a: field_name,
+              order_a: index,
+              content_b_id: insert_item.id
+            })
             updated_item_keys << insert_item.id
           end
         end
 
         potentially_delete = available_update_item_keys - updated_item_keys
         potentially_delete.each do |key|
+          # fully destroy all remaining embedded!
           item = DataCycleCore::Thing.find_by(id: key)
-          translations = item.translated_locales
-          if (translations - [I18n.locale]).empty?
-            item.destroy_children
-            item.destroy
-          else
-            # only destroy particular translation !
-            item.translation.destroy
-          end
+          item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
+          item.destroy
         end
       end
 
@@ -275,31 +284,24 @@ module DataCycleCore
         end
         upsert_item.schema = template.schema
         upsert_item.template_name = template.template_name
+        # TODO: check if external_source_id is required
         upsert_item.external_source_id = external_source_id
         upsert_item.save
         upsert_item.set_data_hash(data_hash: item, current_user: @current_user, save_time: @save_time, prevent_history: true)
         upsert_item
       end
 
-      def get_relation_data_hash(field_name, item_id)
-        item_data = [item_id, 'DataCycleCore::Thing', '']
-        self_data = [id, self.class.to_s, field_name]
-        ['a', 'b'].map { |selector|
-          ["content_#{selector}_id".to_sym, "content_#{selector}_type".to_sym, "relation_#{selector}".to_sym]
-        }.flatten.zip(self_data + item_data).to_h
-      end
-
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value)
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated)
+        return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
         if is_blank?(ids)
           if default_value.present?
-            classification_id = load_default_classification(tree_label, default_value).id
+            classification_id = load_default_classification(tree_label, default_value)
             ids = [classification_id] # the convention is: don't delete the default_value
             if present_relation_ids.count.zero?
               DataCycleCore::ClassificationContent.find_or_create_by!(
                 'content_data_id' => id,
-                'content_data_type' => self.class.to_s,
                 classification_id: classification_id,
                 relation: relation_name
               )
@@ -310,7 +312,6 @@ module DataCycleCore
             next if present_relation_ids.include?(classification_id_value)
             DataCycleCore::ClassificationContent.find_or_create_by!(
               'content_data_id' => id,
-              'content_data_type' => self.class.to_s,
               classification_id: classification_id_value,
               relation: relation_name
             )
@@ -326,24 +327,26 @@ module DataCycleCore
           .destroy_all
       end
 
-      def set_asset_id(id, relation_name, asset_type)
-        if id.present?
+      def set_asset_id(asset_id, relation_name, asset_type)
+        asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
+        asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
+
+        if id.present? && asset_id.present?
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,
             'content_data_type' => self.class.to_s,
-            asset_id: id,
+            asset_id: asset_id,
             asset_type: asset_type,
             relation: relation_name
           )
         end
 
-        # delete old id
-        found_ids = load_asset_relation(relation_name).ids
-        to_delete = found_ids - [id]
-        return if to_delete.empty?
+        # delete old asset if necessary
+        old_id = load_asset_relation(relation_name)&.id
+        return if old_id == asset_id
         DataCycleCore::AssetContent
-          .with_content(id)
-          .with_assets(to_delete, asset_type)
+          .with_content(id, self.class.to_s)
+          .with_assets(old_id, asset_type)
           .with_relation(relation_name)
           .destroy_all
       end

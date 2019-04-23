@@ -6,27 +6,24 @@ module DataCycleCore
     include Content::Extensions::Thing
     include Content::ExternalData
 
-    class Translation < Globalize::ActiveRecord::Translation
-    end
-
     class History < Content::Content
       include Content::ContentHistoryLoader
 
-      translates :name, :description, :content, :history_valid
-      attribute :name
-      attribute :description
-      attribute :content
-      attribute :history_valid
+      extend ::Translations
+      translates :name, :description, :content, :history_valid, backend: :table
+      default_scope { i18n }
+
       content_relations table_name: 'things', postfix: 'history'
+
       belongs_to :thing
     end
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
-    translates :name, :description, :content
-    attribute :name
-    attribute :description
-    attribute :content
+    extend ::Translations
+    translates :name, :description, :content, backend: :table
+    default_scope { i18n }
+
     content_relations table_name: table_name
 
     has_many :thing_external_systems, dependent: :destroy
@@ -66,9 +63,42 @@ module DataCycleCore
       )
     end
 
-    # to cash also translated values (comming from gem Globalize)
+    def self.without_classification_alias_ids(classification_alias_ids)
+      classification_alias_ids = Array(classification_alias_ids).map { |id|
+        "'#{id}'"
+      }.join(',')
+
+      virtual_table_name = "contents_#{SecureRandom.hex}"
+
+      where(
+        <<-SQL.gsub(/\s+/, ' ')
+          things.id NOT IN (
+            WITH #{virtual_table_name} AS (
+              WITH recursive recursive_classification_trees AS (
+                    SELECT *
+                    FROM   classification_trees
+                    WHERE  classification_trees.parent_classification_alias_id IN (#{classification_alias_ids})
+                    OR     classification_trees.classification_alias_id        IN (#{classification_alias_ids})
+                    UNION ALL
+                    SELECT     classification_trees.*
+                    FROM       classification_trees
+                    inner join recursive_classification_trees
+                    ON         classification_trees.parent_classification_alias_id = recursive_classification_trees.classification_alias_id
+              ) SELECT DISTINCT content_data_id
+              FROM classification_contents
+              join classification_groups ON classification_contents.classification_id = classification_groups.classification_id
+              join recursive_classification_trees ON recursive_classification_trees.classification_alias_id = classification_groups.classification_alias_id
+              WHERE classification_groups.deleted_at IS NULL
+                  AND recursive_classification_trees.deleted_at IS NULL
+            )
+            SELECT content_data_id FROM #{virtual_table_name}
+          )
+        SQL
+      )
+    end
+
     def cache_key
-      super + '-' + Globalize.locale.to_s
+      [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
     end
   end
 end

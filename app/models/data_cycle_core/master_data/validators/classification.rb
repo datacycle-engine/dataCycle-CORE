@@ -5,12 +5,12 @@ module DataCycleCore
     module Validators
       class Classification < BasicValidator
         def keywords
-          ['min', 'max']
+          ['min', 'max', 'required']
         end
 
         def validate(data, template)
           if blank?(data)
-            (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :errors], data: template['label'], locale: DataCycleCore.ui_language)
+            check_reference_array(data, template)
           elsif data.is_a?(::Array)
             check_reference_array(data, template)
           elsif data.is_a?(::String)
@@ -36,6 +36,8 @@ module DataCycleCore
           end
 
           # validate references themself
+          return if blank?(data)
+
           data.each do |key|
             if key.is_a?(::String)
               check_reference(key, template)
@@ -50,8 +52,10 @@ module DataCycleCore
           find_classification_alias = DataCycleCore::ClassificationTree
             .joins(:classification_tree_label)
             .joins(sub_classification_alias: [classification_groups: [:classification]])
-            .where('classifications.id = ? ', key)
-            .where('classification_tree_labels.name = ?', template['tree_label'])
+            .where({
+              classifications: { id: key },
+              classification_tree_labels: { name: template['tree_label'] }
+            })
 
           (@error[:error][@template_key] ||= []) << I18n.t(:classification, scope: [:validation, :errors], key: key, label: template['label'], tree_label: template['tree_label'], locale: DataCycleCore.ui_language) if find_classification_alias.count < 1
         end
@@ -70,7 +74,11 @@ module DataCycleCore
         end
 
         def max(data, value)
-          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.size > value
+          (@error[:error][@template_key] ||= []) << I18n.t(:max_ref, scope: [:validation, :errors], data: data.size, value: value, locale: DataCycleCore.ui_language) if data.present? && data.size > value
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && blank?(data)
         end
       end
     end

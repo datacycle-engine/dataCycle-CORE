@@ -13,11 +13,18 @@ module DataCycleCore
         external_source = DataCycleCore::ExternalSource.find_by(name: 'DataCycle - Media')
         external_source.import
 
-        assert_equal(7, DataCycleCore::Asset.count)
+        assert_equal(8, DataCycleCore::Asset.count)
         assert_equal(1, DataCycleCore::Audio.count)
-        assert_equal(4, DataCycleCore::Image.count)
+        assert_equal(5, DataCycleCore::Image.count)
         assert_equal(1, DataCycleCore::Pdf.count)
         assert_equal(1, DataCycleCore::Video.count)
+      end
+
+      def teardown
+        DataCycleCore::Asset.find_each do |asset|
+          asset.remove_file!
+          asset.destroy!
+        end
       end
     end
   end

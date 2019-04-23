@@ -12,9 +12,12 @@ module DataCycleCore
           return
         end
 
-        file_names = Dir[external_source_path + '*.yml']
+        default_file_names = Dir[external_source_path + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
+        specific_file_names = Dir[external_source_path + Rails.env + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
+
+        file_names = default_file_names.merge(specific_file_names).values
         file_names.each do |file_name|
-          data = YAML.safe_load(File.open(file_name))
+          data = YAML.safe_load(File.open(file_name), [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
@@ -22,8 +25,6 @@ module DataCycleCore
             external_source.config = data['config']
             external_source.default_options = data['default_options']
             external_source.save
-
-            check_for_use_case(external_source.id)
           else
             errors[data['name']] = error
           end
@@ -31,19 +32,6 @@ module DataCycleCore
         errors
       rescue StandardError => e
         puts "could not access the YML File #{file_name}"
-        puts e.message
-        puts e.backtrace
-      end
-
-      def self.check_for_use_case(external_source_id)
-        user = DataCycleCore::User.find_by(email: 'admin@pixelpoint.at') || DataCycleCore::User.find_by(email: 'admin@datacycle.at')
-        use_case = DataCycleCore::UseCase.find_or_initialize_by(
-          user_id: user.id,
-          external_source_id: external_source_id
-        )
-        use_case.save unless use_case.persisted?
-      rescue StandardError => e
-        puts 'could not find the super_admin user'
         puts e.message
         puts e.backtrace
       end
@@ -79,11 +67,16 @@ module DataCycleCore
               end
             end
 
+            def credentials?(value)
+              value.is_a?(Array) || value.is_a?(Hash)
+            end
+
             def self.messages
               super.merge(
                 en: {
                   errors: {
-                    class?: 'the string given does not specify a valid ruby class.'
+                    class?: 'the string given does not specify a valid ruby class.',
+                    credentials?: 'must be either an Array or Hash.'
                   }
                 }
               )
@@ -91,7 +84,7 @@ module DataCycleCore
           end
 
           required(:name) { str? }
-          required(:credentials) { hash? }
+          required(:credentials) { credentials? }
           optional(:api_strategy) { str? & class? }
           optional(:default_options).schema do
             optional(:locales).each { str? }
@@ -115,7 +108,11 @@ module DataCycleCore
             end
 
             def logger?(value)
-              temp = Class.new.instance_eval(value) rescue false
+              temp = begin
+                       Class.new.instance_eval(value)
+                     rescue StandardError
+                       false
+                     end
               temp == false ? temp : true
             end
 
@@ -152,7 +149,11 @@ module DataCycleCore
             end
 
             def logger?(value)
-              temp = Class.new.instance_eval(value) rescue false
+              temp = begin
+                       Class.new.instance_eval(value)
+                     rescue StandardError
+                       false
+                     end
               temp == false ? temp : true
             end
 

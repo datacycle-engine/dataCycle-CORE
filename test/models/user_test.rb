@@ -35,7 +35,7 @@ module DataCycleCore
       end
 
       it 'return all users for usergroups' do
-        assert_equal([admin_user.id], admin_user.sibling_ids.uniq)
+        assert_equal([admin_user.id], admin_user.include_groups_user_ids.uniq)
       end
 
       it 'return des correct role' do

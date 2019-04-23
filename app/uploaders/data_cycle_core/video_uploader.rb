@@ -8,15 +8,16 @@ module DataCycleCore
 
     version :thumb_preview do
       process create_thumb: [300, 300]
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        "#{version_name}_#{basename}.jpg"
+        "#{version_name}_#{basename}.png"
       end
     end
 
     def extension_white_list
-      ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['avi', 'mov', 'mp4', 'mpeg', 'mpg', 'wmv']
     end
 
     def create_thumb(width, height)

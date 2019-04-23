@@ -50,9 +50,9 @@ module DataCycleCore
           return data.map { |v| unwrap_description(v, description_types) } if data.is_a?(Array)
 
           description_types.map { |description_type|
-            description_text = Array.wrap(data.dig('Descriptions', 'Description')).select { |h|
+            description_text = Array.wrap(data.dig('Descriptions', 'Description')).detect { |h|
               h['Type'] == description_type
-            }.first.try(:[], 'text')
+            }.try(:[], 'text')
 
             { description_type => description_text }
           }.reduce(data.reject { |k, _| k == 'Descriptions' }, &:merge)
@@ -61,17 +61,23 @@ module DataCycleCore
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
-          return data.map { |v| unwrap_address(v, address_type) } if data.is_a?(Array)
-
           Hash[data.map do |k, v|
             if k == 'Addresses'
               [
                 'Address',
-                [v['Address']].flatten.select { |h|
+                [v['Address']].flatten.detect do |h|
                   h['Type'] == address_type
-                }.first
+                end
               ]
-            elsif v.is_a?(Hash) || v.is_a?(Array)
+            elsif v.is_a?(Array)
+              [k, v.map do |item|
+                if item.is_a?(Array) || item.is_a?(Hash)
+                  unwrap_address(item, address_type)
+                else
+                  item
+                end
+              end]
+            elsif v.is_a?(Hash)
               [k, unwrap_address(v, address_type)]
             else
               [k, v]

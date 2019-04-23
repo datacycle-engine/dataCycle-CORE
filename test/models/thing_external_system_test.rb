@@ -26,7 +26,7 @@ module DataCycleCore
       external_thing_data = {
         'key_1' => 'value_1'
       }
-      @external_system = DataCycleCore::ExternalSystem.find_by(name: 'Test-System')
+      @external_system = DataCycleCore::ExternalSystem.find_by(name: 'Local-Text-File')
       @data_set.add_external_system_data(@external_system, external_thing_data)
     end
 

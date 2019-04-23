@@ -40,7 +40,7 @@ module DataCycleCore
         def classifications
           page_params = permitted_params.fetch(:page, DEFAULT_PAGE_SETTINGS)
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          @classification_aliases = @classification_tree_label.classification_aliases.where(internal: false).page(page_params[:number].to_i)
+          @classification_aliases = @classification_tree_label.classification_aliases.page(page_params[:number].to_i)
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_aliases = @classification_aliases.where(
@@ -68,10 +68,11 @@ module DataCycleCore
           @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params.dig(:api_subversion))
         end
 
         def permitted_parameter_keys
-          super + [:id, :include, :mode, { filter: [:modified_since, :created_since, :deleted_since] }]
+          super + [:id, :include, :mode, :language, { filter: [:modified_since, :created_since, :deleted_since] }]
         end
       end
     end

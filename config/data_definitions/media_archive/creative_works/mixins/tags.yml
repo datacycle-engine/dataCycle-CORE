@@ -14,6 +14,7 @@
         :label: MediaArchive - Tags
         :type: classification
         :tree_label: MediaArchive - Tags
+        :external: true
         :ui:
           :show:
             :content_area: header

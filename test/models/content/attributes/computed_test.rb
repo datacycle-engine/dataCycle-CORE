@@ -54,6 +54,51 @@ module DataCycleCore
 
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Calculation-Common').count)
         end
+
+        test 'Testing Utility::Calculation::String methods' do
+          data_set = DataCycleCore::TestPreparations.data_set_object('Computed-String')
+          data_set.save
+
+          data = {
+            'value_1' => 'val_1',
+            'value_2' => 'val_2'
+          }
+
+          data_set.set_data_hash(data_hash: data, update_search_all: false)
+          data_set.save
+          expected_hash = {
+            'value_1' => 'val_1',
+            'value_2' => 'val_2',
+            'computed_value' => "-text-de-text-#{data_set.created_at}-text-val_2"
+          }
+
+          assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
+          assert_equal('val_1', data_set.value_1)
+          assert_equal('val_2', data_set.value_2)
+          assert_equal("-text-de-text-#{data_set.created_at}-text-val_2", data_set.computed_value)
+
+          assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Computed-String').count)
+
+          I18n.with_locale(:en) do
+            data_set.set_data_hash(
+              data_hash: data,
+              prevent_history: true
+            )
+
+            expected_hash = {
+              'value_1' => 'val_1',
+              'value_2' => 'val_2',
+              'computed_value' => "-text-en-text-#{data_set.created_at}-text-val_2"
+            }
+
+            assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes))
+            assert_equal('val_1', data_set.value_1)
+            assert_equal('val_2', data_set.value_2)
+            assert_equal("-text-en-text-#{data_set.created_at}-text-val_2", data_set.computed_value)
+
+            assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Computed-String').count)
+          end
+        end
       end
     end
   end

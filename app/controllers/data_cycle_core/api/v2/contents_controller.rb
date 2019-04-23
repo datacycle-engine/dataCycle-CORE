@@ -5,6 +5,8 @@ module DataCycleCore
     module V2
       class ContentsController < Api::V2::ApiBaseController
         include DataCycleCore::Filter
+        include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
+
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
@@ -56,18 +58,14 @@ module DataCycleCore
 
         def apply_ordering(query)
           query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
-          if permitted_params[:q].blank?
-            query
-          else
-            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q]))
-          end
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
         end
 
         def build_search_query
           stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id)
+            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
@@ -103,16 +101,12 @@ module DataCycleCore
             query = query.event_from_time(Time.zone.now)
           end
 
-          if permitted_params&.dig(:filter, :to).present?
-            query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)))
-          end
+          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
           query
         end
 
         def apply_place_query_filters(query)
-          if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
-            query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
-          end
+          query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f)) if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
           query
         end
 
@@ -121,6 +115,7 @@ module DataCycleCore
           @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params.dig(:api_subversion))
         end
 
         def content_schema_type

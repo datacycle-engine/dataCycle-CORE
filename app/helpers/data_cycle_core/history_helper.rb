@@ -11,7 +11,21 @@ module DataCycleCore
     def attribute_changes(diff, key)
       return nil if diff.blank?
       item_path_array = key.split(/[\[\]]+/)
-      diff.dig(*item_path_array)
+      # diff.dig(*item_path_array)
+      save_navigate(diff, item_path_array)
+    end
+
+    def save_navigate(diff, item_path)
+      data = diff
+      item_path.each do |item|
+        if data.is_a?(::Hash)
+          data = data&.dig(item)
+        else
+          data = nil
+          break
+        end
+      end
+      data
     end
 
     def changes_class(diff, value)
@@ -41,8 +55,17 @@ module DataCycleCore
       diff.presence&.select { |v| v[0] == mode }&.dig(0, 1) || []
     end
 
+    def change_by_mode(diff, mode)
+      return [] if diff&.dig(0) != mode
+      diff[1]
+    end
+
     def new_relations(diff, table)
       "data_cycle_core/#{table}".classify.constantize.where(id: changes_by_mode(diff, '+'))
+    end
+
+    def new_relation(diff, table)
+      "data_cycle_core/#{table}".classify.constantize.where(id: change_by_mode(diff, '+'))
     end
   end
 end

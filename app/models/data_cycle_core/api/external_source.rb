@@ -3,12 +3,12 @@
 module DataCycleCore
   module Api
     class ExternalSource
-      attr_reader :external_source, :target_type, :external_key
+      attr_reader :external_source, :target_type, :external_key, :access_token
 
-      def initialize(external_source, type, external_key)
+      def initialize(external_source, _type, external_key, access_token)
         @external_source = external_source
-        @target_type = "DataCycleCore::#{type.classify}".safe_constantize
         @external_key = external_key
+        @access_token = access_token
       end
     end
   end

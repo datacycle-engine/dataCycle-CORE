@@ -21,19 +21,9 @@ namespace :data_cycle_core do
         'external_source_id valid'
       )
       status_relation(
-        DataCycleCore::ClassificationContent.where(content_data_type: nil).count,
-        'ClassificationContent',
-        'content_data_type IS NULL'
-      )
-      status_relation(
         DataCycleCore::ClassificationContent.where(content_data_id: nil).count,
         'ClassificationContent',
         'content_data_id IS NULL'
-      )
-      status_relation(
-        DataCycleCore::ClassificationContent.where(content_data_type: 'DataCycleCore::Thing').where('classification_contents.content_data_id NOT IN (SELECT id FROM things)').count,
-        'ClassificationContent',
-        'content_data_id(DataCycleCore::Thing)'
       )
       status_relation(
         DataCycleCore::Thing.where('things.external_source_id IS NOT NULL AND things.external_source_id NOT IN (SELECT id FROM external_sources)').count,

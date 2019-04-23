@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class VideoTest < ActiveSupport::TestCase
       def setup
+        DataCycleCore::VideoUploader.enable_processing = true
         @video_temp = DataCycleCore::Video.count
       end
 
@@ -30,12 +31,12 @@ module DataCycleCore
         assert(@video.metadata.is_a?(Hash))
       end
 
-      test 'upload Video: mp3' do
-        file_name = 'test.mpg'
+      test 'upload Video: mp4' do
+        file_name = 'test.mp4'
         upload_video file_name
 
-        assert_equal('mpeg', @video.metadata.dig('format', 'format_name'))
-        assert_equal('video/mpeg', @video.content_type)
+        assert_equal('mov', @video.metadata.dig('format', 'format_name')&.split(',')&.first)
+        assert_equal('video/mp4', @video.content_type)
 
         validate_video file_name
       end
@@ -49,6 +50,12 @@ module DataCycleCore
         assert_not(@video.persisted?)
         assert_not(@video.valid?)
         assert_equal(@video.errors.size, 2)
+      end
+
+      def teardown
+        @video.remove_file!
+        @video.destroy!
+        DataCycleCore::VideoUploader.enable_processing = false
       end
     end
   end

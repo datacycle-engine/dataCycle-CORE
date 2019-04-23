@@ -58,22 +58,18 @@
       :textblock:
         :label: Textblock
         :type: embedded
-        :linked_table: things
         :template_name: Textblock
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :content_location:
         :label: Ort
         :type: linked
-        :linked_table: things
         :template_name: POI
       :quotation:
         :label: Zitat
         :type: embedded
-        :linked_table: things
         :template_name: Zitat
       :data_type:
         :label: Inhaltstype

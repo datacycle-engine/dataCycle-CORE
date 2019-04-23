@@ -12,8 +12,8 @@ module DataCycleCore
       data_set.save!
       data_hash = { 'name' => 'Dies ist ein Test!' }
       error = data_set.set_data_hash(data_hash: data_hash, prevent_history: true)
-      save_time = Time.zone.now
       data_set.save
+      save_time = Time.zone.now
       returned_data_hash = data_set.get_data_hash
       assert_equal(data_hash, returned_data_hash.compact)
       assert_equal(0, error[:error].count)
@@ -257,6 +257,8 @@ module DataCycleCore
       assert_nil(data_set.as_of(weeks4ago - 2.weeks))
       assert_nil(data_set.as_of(Time.zone.now - 3.months))
       assert_equal(data_hash_1w, data_set.get_data_hash(Time.zone.now + 1.month))
+      # assert_equal({ 'name' => ['~', 'Test 1.weeks.ago!', 'Test 4.weeks.ago!'] }, data_set.diff(data_set.get_data_hash(weeks4ago + 1.day)))
+      # assert_equal({ 'name' => ['~', 'Test 2.weeks.ago!', 'Test 3.weeks.ago!'] }, data_set.as_of(weeks1ago - 1.day).diff(data_set.get_data_hash(weeks2ago - 1.day)))
     end
 
     test 'save creative work with embeddedLink to history' do

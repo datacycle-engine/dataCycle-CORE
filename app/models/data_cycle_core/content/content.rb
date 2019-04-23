@@ -21,12 +21,12 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
       extend  DataCycleCore::Common::ArelBuilder
-      include DataCycleCore::MasterData::DataConverter
       include ContentRelations
       extend  ContentFilters
       include DestroyContent
       include DataHashUtility
       include Extensions::Content
+      include Extensions::ContentWarnings
 
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
@@ -46,7 +46,7 @@ module DataCycleCore
       end
 
       def content_type?(*types)
-        types&.flatten&.map(&:to_s)&.include?(schema&.dig('content_type'))
+        types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
       def schema_type
@@ -57,15 +57,17 @@ module DataCycleCore
         schema&.dig('features', 'translatable', 'allowed') || false
       end
 
-      def creatable?
-        schema&.dig('content_type') != 'embedded' &&
-          schema&.dig('features', 'creatable', 'allowed')
+      def creatable?(scope)
+        schema.dig('content_type') != 'embedded' &&
+          schema.dig('features', 'creatable', 'allowed') &&
+          (
+            schema.dig('features', 'creatable', 'scope').blank? ||
+            schema.dig('features', 'creatable', 'scope')&.include?(scope)
+          )
       end
 
       def property_definitions
         schema&.dig('properties') || {}
-      rescue StandardError
-        {}
       end
 
       def property_names
@@ -77,12 +79,14 @@ module DataCycleCore
       end
 
       def translatable_property_names
-        translated_columns = (self.class.to_s + '::Translation').constantize.column_names
+        @translatable_property_names ||= begin
+          translated_columns = (self.class.to_s + '::Translation').constantize.column_names
 
-        property_definitions.select { |property_name, definition|
-          definition['storage_location'] == 'translated_value' ||
-            (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
-        }.keys
+          property_definitions.select { |property_name, definition|
+            definition['storage_location'] == 'translated_value' ||
+              (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+          }.keys
+        end
       end
 
       def untranslatable_property_names
@@ -130,6 +134,12 @@ module DataCycleCore
         }.keys
       end
 
+      def combined_property_names
+        property_definitions.select { |_, definition|
+          definition.dig('api', 'transformation', 'method') == 'combine'
+        }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
+      end
+
       def classification_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'classification'
@@ -150,18 +160,6 @@ module DataCycleCore
 
       def geo_properties
         property_definitions.select { |_, val| val['type'] == 'geographic' }
-      end
-
-      def embedded_relations
-        embedded_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
-      end
-
-      def linked_relations
-        linked_property_names.map { |property_name|
-          { name: property_name, table: property_definitions[property_name]['linked_table'] }
-        }.compact.uniq
       end
 
       def to_h(timestamp = Time.zone.now)
@@ -205,10 +203,6 @@ module DataCycleCore
 
       def history?
         respond_to?('history_valid')
-      end
-
-      def as_of(_timestamp)
-        self
       end
 
       def collect_properties(definition = schema, parents = [])
@@ -293,13 +287,29 @@ module DataCycleCore
 
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_contents)
-          .where(asset_contents: { content_data_id: id, relation: relation_name })
+          .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
       def set_property_value(property_name, property_definition, value)
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+      end
+
+      def convert_to_type(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
+      end
+
+      def convert_to_string(type, value)
+        DataCycleCore::MasterData::DataConverter.convert_to_string(type, value)
+      end
+
+      def parent_templates
+        DataCycleCore::Thing
+          .from("things, jsonb_each(schema -> 'properties') property_name")
+          .where("things.template = ? AND value ->> 'type' = ? AND value ->> 'template_name' = ?", true, 'embedded', template_name)
+          .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
+          .flatten
       end
     end
   end

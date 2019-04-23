@@ -2,19 +2,12 @@
 
 module DataCycleCore
   class User < ApplicationRecord
-    devise :database_authenticatable, :registerable,
-           :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
 
-    has_many :use_cases
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
     belongs_to :role
-
-    has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-    has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
-    has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
-    has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
 
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
     has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
@@ -29,7 +22,13 @@ module DataCycleCore
     has_many :received_data_links, class_name: :DataLink, foreign_key: :receiver_id, dependent: :destroy
     has_many :created_data_links, class_name: :DataLink, foreign_key: :creator_id, dependent: :destroy
 
+    has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
+
     before_create :set_default_role
+
+    def recoverable?
+      !(external? || is_rank?(0))
+    end
 
     def full_name
       name || "#{given_name} #{family_name}"
@@ -51,7 +50,7 @@ module DataCycleCore
       self&.user_groups&.map(&:name)&.include?(group_name)
     end
 
-    def sibling_ids
+    def include_groups_user_ids
       user_groups.map { |ug| ug.users.ids }.flatten.uniq << id
     end
 

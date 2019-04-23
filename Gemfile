@@ -14,14 +14,24 @@ end
 # development dependencies will be added by default to the :development group.
 gemspec
 
+gem 'translations', path: 'vendor/gems/translations'
+
+# NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
+gem 'rubyzip', '>= 1.2.1'
+gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'
+gem 'axlsx_rails'
+
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
 gem 'dotenv-rails'
 
+gem 'jb'
+
 group :development, :test, :review do
   gem 'listen'
   gem 'spring'
+  gem 'spring-watcher-listen'
 
   gem 'byebug'
   gem 'pry'
@@ -33,6 +43,8 @@ group :development, :test, :review do
 
   gem 'simplecov', require: false
 
+  # gem 'jb'
+
   # activate for performance profiling
   # performance profiling
   # gem 'rack-mini-profiler'
@@ -41,4 +53,9 @@ group :development, :test, :review do
   # For call-stack profiling flamegraphs
   # gem 'flamegraph'
   # gem 'stackprof'
+  #
+  # for API benchmark testing
+  # gem 'rails_api_benchmark'
+  # gem 'pronto', '~> 0.9.5'
+  # gem 'pronto-rubocop', '~> 0.9.1', require: false
 end

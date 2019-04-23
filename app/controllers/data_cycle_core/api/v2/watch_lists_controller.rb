@@ -7,10 +7,9 @@ module DataCycleCore
         def index
           if permitted_params[:user_email].present?
             @watch_lists = DataCycleCore::WatchList
-              .where(user: User.find_by(email: permitted_params[:user_email]))
-              .all
+              .accessible_by(DataCycleCore::Ability.new(User.find_by(email: permitted_params[:user_email]), session))
           else
-            @watch_lists = DataCycleCore::WatchList.where(user: current_user).all
+            @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
           end
 
           # FIXME: Jbuilder Bug: tries to render jbuilder partial
@@ -19,7 +18,7 @@ module DataCycleCore
               {
                 id: l.id,
                 name: l.name,
-                url: api_v2_collection_url(l),
+                url: api_v2_collection_url(id: l),
                 item_count: l.watch_list_data_hashes.count
               }
             end

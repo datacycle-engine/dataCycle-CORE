@@ -178,13 +178,11 @@ describe DataCycleCore::Content do
             },
             existing_locations: {
               label: 'Location',
-              type: 'linked',
-              linked_table: 'places'
+              type: 'linked'
             },
             existing_main_location: {
               label: 'Main Location',
-              type: 'linked',
-              linked_table: 'places'
+              type: 'linked'
             }
           },
           metadata: {
@@ -228,13 +226,11 @@ describe DataCycleCore::Content do
             },
             existing_locations: {
               label: 'Location',
-              type: 'embedded',
-              linked_table: 'thing'
+              type: 'embedded'
             },
             nested_creative_works: {
               label: 'Nested Data',
-              type: 'embedded',
-              linked_table: 'thing'
+              type: 'embedded'
             }
           }
         }
@@ -512,6 +508,13 @@ describe DataCycleCore::Content do
           'property2' => 'data property2'
         }
       )
+    end
+
+    it 'throws an exception of wrong data_definition are given ' do
+      subject.schema['properties']['included_object']['properties']['property1']['storage_location'] = 'Tschibuti'
+      assert_raises StandardError do
+        subject.included_object
+      end
     end
 
     it 'returns values for included sub_properties' do

@@ -32,7 +32,7 @@ end
 
 # Default Show Crumb
 crumb :show do |item, title_method, watch_list|
-  link to_html_string(item.model_name.human(locale: DataCycleCore.ui_language), item.try(title_method)), thing_path(item), authorized: can?(:show, item)
+  link to_html_string(item.model_name.human(locale: DataCycleCore.ui_language), item.try(title_method)), polymorphic_path(item), authorized: can?(:show, item)
   parent :show, watch_list, :name if watch_list.present?
 end
 
@@ -50,7 +50,7 @@ end
 # Content Crumbs
 crumb :content do |content, watch_list|
   I18n.with_locale(content.first_available_locale) do
-    link to_html_string(t("content_type.#{content.template_name.downcase}", default: content.template_name.titleize, locale: DataCycleCore.ui_language), content.title), thing_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
+    link to_html_string(t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language), content.title), thing_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
   end
 
   if watch_list
@@ -94,16 +94,20 @@ end
 
 # Documentation
 crumb :documentation do
-  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '#', authorized: false
+  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '/docs', authorized: true
 
-  path_segments = params['path'].split('/')
+  path_segments = (params['path'] || '').split('/')
+
   (0..path_segments.length - 1).each do |i|
     translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
 
-    if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
-      translation_key += '.root'
-    end
+    translation_key += '.root' if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
 
     link t(translation_key, locale: DataCycleCore.ui_language), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
   end
+end
+
+# Schema
+crumb :schema do
+  link t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language), '#', authorized: false
 end

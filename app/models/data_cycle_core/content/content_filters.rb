@@ -22,7 +22,6 @@ module DataCycleCore
             .join(search_entries)
             .on(
               contents[:id].eq(search_entries[:content_data_id])
-                .and(search_entries[:content_data_type].eq(name))
                 .and(search_entries[:locale].eq(language))
             ).join_sources
         ).where(
@@ -37,6 +36,18 @@ module DataCycleCore
 
       def with_schema_type(type)
         where("schema ->> 'schema_type' = ?", type)
+      end
+
+      def without_template_names(*names)
+        where.not(template_name: names)
+      end
+
+      def with_template_names(*names)
+        where(template_name: names)
+      end
+
+      def with_default_data_type(classification_alias_names)
+        where("schema -> 'properties' -> 'data_type' ->> 'default_value' IN (?)", classification_alias_names)
       end
 
       def expired_not_release_id(id)

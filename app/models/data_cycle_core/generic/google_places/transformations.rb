@@ -28,7 +28,7 @@ module DataCycleCore
           .>> t(:add_field, 'address_country', ->(s) { s['address_components'].select { |item| item['types'].include?('country') }&.first.try(:[], 'long_name') })
           .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
           .>> t(:nest, 'contact_info', ['telephone', 'url'])
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_hours(s.dig('opening_hours', 'periods')) })
+          .>> t(:add_field, 'opening_hours', ->(s) { parse_opening_hours(s.dig('opening_hours', 'periods')) })
           .>> t(:reject_keys, ['geometry', 'address_components'])
           .>> t(:strip_all)
         end

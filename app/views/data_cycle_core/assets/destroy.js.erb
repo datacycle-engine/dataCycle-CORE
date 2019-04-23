@@ -1,0 +1,2 @@
+$('.asset-list [data-id="<%= @asset.id %>"]').remove();
+$('.select-asset-link').trigger('dc:selected_asset:changed', { selected_asset: '<%= @asset.id %>' });

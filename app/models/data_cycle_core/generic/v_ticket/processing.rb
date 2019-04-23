@@ -5,14 +5,12 @@ module DataCycleCore
     module VTicket
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           (raw_data.dig('images') || []).each do |image_hash|
             DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
               utility_object: utility_object,
-              class_type: type,
-              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+              template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
               data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
                 DataCycleCore::Generic::VTicket::Transformations
@@ -29,13 +27,12 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data.dig('location'),
             transformation: DataCycleCore::Generic::VTicket::Transformations.vticket_location_to_content_location,
-            default: { content_type: DataCycleCore::Thing, template: 'Örtlichkeit' },
+            default: { template: 'Örtlichkeit' },
             config: config
           )
         end
 
         def self.process_event(utility_object, raw_data, config)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Event'
 
           sub_events = loop_collect(raw_data, 'subEvent') do |item_data|
@@ -50,8 +47,7 @@ module DataCycleCore
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
               event_data

@@ -8,10 +8,13 @@
     :features:
       :creatable:
         :allowed: true
+        :scope:
+          - asset
+          - backend
       :translatable:
         :allowed: true
     :api:
-      :type: AssetObject
+      :type: MediaObject
     :properties:
       :id:
         :label: id
@@ -22,11 +25,6 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
-        :label: Alt-Label
-        :type: string
-        :storage_location: translated_value
-        :search: true
       :description:
         :label: Teasertext
         :type: string
@@ -47,11 +45,11 @@
           :method: content_url
           :parameters:
             :0: asset
-        :api:
-          :minimal: true
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :storage_location: value
@@ -83,6 +81,18 @@
           :method: width
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -93,6 +103,20 @@
           :method: height
           :parameters:
             :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
         :storage_location: value

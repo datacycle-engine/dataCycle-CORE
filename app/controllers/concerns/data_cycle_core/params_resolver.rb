@@ -10,22 +10,24 @@ module DataCycleCore
       return_hash = {}
 
       if params_hash.is_a?(String)
-        params_hash = begin
-          JSON.parse(params_hash)
-        rescue JSON::ParserError
-          params_hash
-        end
+        params_hash =
+          begin
+            JSON.parse(params_hash)
+          rescue JSON::ParserError
+            params_hash
+          end
       elsif params_hash.is_a?(ActionController::Parameters)
         params_hash = params_hash.to_unsafe_h
       end
 
       params_hash.presence&.each do |key, value|
         if value.is_a?(String)
-          value = begin
-            JSON.parse(value)
-          rescue JSON::ParserError
-            value
-          end
+          value =
+            begin
+              JSON.parse(value)
+            rescue JSON::ParserError
+              value
+            end
         end
 
         if resolve_instances && value.is_a?(Hash) && value.key?('id') && value.key?('class')

@@ -8,6 +8,9 @@
     :features:
       :creatable:
         :allowed: true
+        :scope:
+          - asset
+          - backend
       :translatable:
         :allowed: true
     :api:
@@ -22,8 +25,13 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
+      :alternative_headline:
         :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :caption:
+        :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
@@ -47,11 +55,11 @@
           :method: content_url
           :parameters:
             :0: asset
-        :api:
-          :minimal: true
         :ui:
           :show:
             :disabled: true
+        :api:
+          :minimal: true
       :thumbnail_url:
         :label: Thumbnail URL
         :storage_location: value
@@ -64,15 +72,38 @@
             :0: asset
         :ui:
           :show:
-            :disabled: true
+            :partial: preview_image
         :api:
           :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
       :asset:
         :label: Datei
         :type: asset
         :asset_type: image
         :api:
           :disabled: true
+        # :versions:
+        #   :thumb_large:
+        #     - remove_animation
+        #     -
+        #       - convert
+        #       - jpg
+        #     -
+        #       - resize_to_fit
+        #       -
+        #         - 1200
+        #         - 1200
+        #     -
+        #       - colorspace
+        #       - RGB
+        #     - optimize
       :width:
         :label: Breite
         :storage_location: value
@@ -87,6 +118,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -101,6 +140,16 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
       :content_size:
         :label: Dateigröße
         :storage_location: value
@@ -121,6 +170,48 @@
           :method: file_format
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
+        :ui:
+         :edit:
+           :type: date
+           :options:
+             :placeholder: tt.mm.jjjj
+             :class: daterange
+         :show:
+           :type: date
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Copyright - Inhaber
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+      :additional_image_properties:
+        :type: mixin
+        :name: additional_image_properties
+      :tags:
+        :type: mixin
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification

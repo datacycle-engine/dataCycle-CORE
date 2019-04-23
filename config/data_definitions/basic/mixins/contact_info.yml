@@ -23,13 +23,12 @@
             :label: E-Mail
             :type: string
             :storage_location: translated_value
-#            :validations:
-#              :format: email
+            :normalize:
+              :id: email
+              :type: email
           :url:
             :label: Web
             :type: string
             :storage_location: translated_value
             :api:
               :name: website
-#            :validations:
-#              :format: url

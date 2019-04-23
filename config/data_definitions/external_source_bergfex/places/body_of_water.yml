@@ -8,6 +8,8 @@
     :features:
       :overlay:
         :allowed: true
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -15,7 +17,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: BodyOfWaterOverlay
         :validations:
           :max: 1
@@ -88,8 +89,8 @@
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: things
-        :template_name: Öffnungszeit - Erweitert
+        :template_name: Öffnungszeit
+        :translated: true
       :url:
         :label: Link
         :type: string

@@ -1,5 +1,5 @@
 .bundle/
-log/*.log
+log/*
 pkg/
 test/dummy/db/*.sqlite3
 test/dummy/db/*.sqlite3-journal
@@ -8,6 +8,7 @@ test/dummy/tmp/
 test/dummy/public/eyebase/*
 tmp/
 .byebug_history
+.irb-history
 
 node_modules/
 lib/assets
@@ -22,3 +23,4 @@ rdoc/
 package-lock.json
 coverage
 .env
+benchmark/

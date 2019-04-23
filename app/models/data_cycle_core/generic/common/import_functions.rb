@@ -5,26 +5,26 @@ module DataCycleCore
     module Common
       module ImportFunctions
         def self.process_step(utility_object:, raw_data:, transformation:, default:, config:)
-          type = config&.dig(:content_type)&.constantize || default.dig(:content_type)
           template = config&.dig(:template) || default.dig(:template)
           create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: load_template(type, template),
+            template: load_template(template),
             data: merge_default_values(
               config,
               transformation.call(raw_data)
-            ).with_indifferent_access
+            ).with_indifferent_access,
+            local: false,
+            config: config
           )
         end
 
-        def self.create_or_update_content(utility_object:, class_type:, template:, data:, local: false)
+        def self.create_or_update_content(utility_object:, template:, data:, local: false, config: {})
           return nil if data.except('external_key', 'locale').blank?
 
           if local
-            content = class_type.new
+            content = DataCycleCore::Thing.new
           else
-            content = class_type.find_or_initialize_by(
+            content = DataCycleCore::Thing.find_or_initialize_by(
               external_source_id: utility_object.external_source.id,
               external_key: data['external_key']
             )
@@ -33,6 +33,9 @@ module DataCycleCore
           content.schema = template.schema
           content.template_name = template.template_name
           content.created_by = data['created_by']
+
+          credentials = utility_object&.external_source&.credentials&.is_a?(Hash) ? utility_object.external_source.credentials : utility_object.external_source.credentials&.first
+          content.webhook_source = credentials&.dig('external_system') || utility_object&.external_source&.name
           content.save!
 
           global_attributes = {}
@@ -40,8 +43,31 @@ module DataCycleCore
             global_attributes[attribute] = content.attribute_to_h(attribute).presence if content.respond_to?(attribute)
           end
 
+          global_data = global_attributes.merge(data)
+
+          if config&.dig(:asset_type).present?
+            Array(content.asset).map do |item|
+              item&.remove_file!
+              item&.destroy!
+            end
+
+            asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+            asset.save!
+            global_data['asset'] = asset.id
+          end
+
+          if DataCycleCore::Feature::Normalize.enabled?
+            normalize_options = {
+              id: data['external_key'],
+              comment: utility_object.external_source.name
+            }
+            normalized_data, _diff = utility_object.normalizer.normalize(global_data, template.schema, normalize_options)
+          else
+            normalized_data = global_data
+          end
+
           current_user = data['updated_by'].present? ? DataCycleCore::User.find(data['updated_by']) : nil
-          error = content.set_data_hash(data_hash: global_attributes.merge(data), prevent_history: !utility_object.history, update_search_all: false, current_user: current_user)
+          error = content.set_data_hash(data_hash: normalized_data, prevent_history: !utility_object.history, update_search_all: false, current_user: current_user, partial_update: utility_object.partial_update)
 
           if utility_object.logging && error[:error].present?
             utility_object.logging.error('Validating import data', data['external_key'], data, error[:error].values.flatten.join('\n'))
@@ -73,16 +99,14 @@ module DataCycleCore
                   logging.phase_started("#{phase_name} #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
-                  if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                    source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import })
-                  end
+                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
                   durations = []
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
                       durations << Benchmark.realtime do
                         item_count += 1
-
+                        next if options[:min_count].present? && item_count < options[:min_count]
                         data_processor.call(
                           utility_object: utility_object,
                           raw_data: content[:dump][locale],
@@ -135,12 +159,12 @@ module DataCycleCore
           return_data.reject { |_, value| value.blank? }
         end
 
-        def self.load_template(target_type, template_name)
+        def self.load_template(template_name)
           I18n.with_locale(:de) do
-            target_type.find_by!(template: true, template_name: template_name)
+            DataCycleCore::Thing.find_by!(template: true, template_name: template_name)
           end
         rescue ActiveRecord::RecordNotFound
-          raise "Missing template #{template_name} for #{target_type}"
+          raise "Missing template #{template_name}"
         end
 
         def self.default_classification(value:, tree_label:)
@@ -165,40 +189,42 @@ module DataCycleCore
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               each_locale(utility_object.locales) do |locale|
-                phase_name = utility_object.source_type.collection_name
+                I18n.with_locale(locale) do
+                  phase_name = utility_object.source_type.collection_name
 
-                item_count = 0
+                  item_count = 0
 
-                begin
-                  logging.phase_started("#{phase_name}_#{locale}")
+                  begin
+                    logging.phase_started("#{phase_name}_#{locale}")
 
-                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
+                    utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                      raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
 
-                    while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
-                      item_count += 1
+                      while (raw_classification_data = raw_classification_data_stack.pop.try(:[], 'dump')&.dig(locale))
+                        item_count += 1
+                        next if options[:min_count].present? && item_count < options[:min_count]
+                        extracted_classification_data = extract_data.call(options, raw_classification_data)
 
-                      extracted_classification_data = extract_data.call(options, raw_classification_data)
+                        import_classification(
+                          utility_object: utility_object,
+                          classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                          parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
+                        )
+                        raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
 
-                      import_classification(
-                        utility_object: utility_object,
-                        classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
-                        parent_classification_alias: load_parent_classification_alias.call(raw_classification_data, external_source_id)
-                      )
-                      raw_classification_data_stack += load_child_classifications.call(mongo_item, raw_classification_data, locale).to_a
+                        logging.item_processed(
+                          extracted_classification_data[:name],
+                          extracted_classification_data[:external_key],
+                          item_count,
+                          nil
+                        )
 
-                      logging.item_processed(
-                        extracted_classification_data[:name],
-                        extracted_classification_data[:id],
-                        item_count,
-                        nil
-                      )
-
-                      break if options[:max_count] && item_count >= options[:max_count]
+                        break if options[:max_count] && item_count >= options[:max_count]
+                      end
                     end
+                  ensure
+                    logging.phase_finished("#{phase_name}_#{locale}", item_count)
                   end
-                ensure
-                  logging.phase_finished("#{phase_name}_#{locale}", item_count)
                 end
               end
             end

@@ -1,0 +1,771 @@
+[
+  {
+    "_id" : "5cb3601d231040218a07307b",
+    "external_id" : "738",
+    "dump" : {
+        "de" : {
+            "parent" : {
+                "#cdata-section" : "1"
+            },
+            "position" : {
+                "#cdata-section" : "0"
+            },
+            "lastModified" : {
+                "#cdata-section" : "2013-02-03 16:45:16"
+            },
+            "root" : {
+                "#cdata-section" : "true"
+            },
+            "tag" : {
+                "#cdata-section" : "!default"
+            },
+            "class" : {
+                "#cdata-section" : "class ims.imagemanagement.keywords.KeyWord"
+            },
+            "id" : {
+                "#cdata-section" : "738"
+            },
+            "creationDate" : {
+                "#cdata-section" : "2010-03-19 19:20:08"
+            },
+            "mainKeyword" : {
+                "#cdata-section" : "true"
+            },
+            "transferred" : {
+                "#cdata-section" : "false"
+            },
+            "allParentIds" : {
+                "#cdata-section" : "1/738/"
+            },
+            "assetType" : {
+                "#cdata-section" : "103"
+            },
+            "defaultSystemLocale" : {
+                "#cdata-section" : "de"
+            },
+            "name" : {
+                "#cdata-section" : "Österreich Wein Marketing"
+            },
+            "path" : {
+                "#cdata-section" : "/Österreich Wein Marketing/"
+            },
+            "translatable" : {
+                "#cdata-section" : "false"
+            },
+            "tagUrl" : {
+                "#cdata-section" : "../img/aci/keyword/!default/small.png"
+            },
+            "nrOfChildren" : {
+                "#cdata-section" : "23"
+            },
+            "additionalLanguages" : {
+                "additionalLanguage" : [
+                    {
+                        "locale" : "de",
+                        "#cdata-section" : "Österreich Wein Marketing"
+                    },
+                    {
+                        "locale" : "en",
+                        "#cdata-section" : "Austrian Wine Marketing"
+                    }
+                ]
+            },
+            "userPermissions" : {
+                "KEYWORD_VIEW" : {
+                    "#cdata-section" : "true"
+                },
+                "KEYWORD_CREATE" : {
+                    "#cdata-section" : "true"
+                },
+                "KEYWORD_DELETE" : {
+                    "#cdata-section" : "true"
+                },
+                "KEYWORD_EDIT" : {
+                    "#cdata-section" : "true"
+                },
+                "KEYWORD_ASSIGN" : {
+                    "#cdata-section" : "true"
+                },
+                "KEYWORD_EDIT_PERMISSIONS" : {
+                    "#cdata-section" : "true"
+                }
+            },
+            "permissions" : {
+                "permissionSet" : [
+                    {
+                        "defaultPermissions" : {
+                            "type" : "group",
+                            "displayname" : "--- all user group ---",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "__ÖWM allgemein",
+                            "#cdata-section" : "10"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Admins",
+                            "#cdata-section" : "9"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM future bytes",
+                            "#cdata-section" : "13"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Grafik",
+                            "#cdata-section" : "19"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Media",
+                            "#cdata-section" : "12"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Presse",
+                            "#cdata-section" : "11"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Publikationen",
+                            "#cdata-section" : "15"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "_ÖWM Werbemittel",
+                            "#cdata-section" : "14"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "Fotografen",
+                            "#cdata-section" : "22"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "kodama",
+                            "#cdata-section" : "20"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "mmc",
+                            "#cdata-section" : "21"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "webgate Bildergalerie",
+                            "#cdata-section" : "23"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "Weinviertel DAC",
+                            "#cdata-section" : "17"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "Wiener Wein",
+                            "#cdata-section" : "18"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "group" : {
+                            "type" : "group",
+                            "displayname" : "ÖWI",
+                            "#cdata-section" : "16"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "true",
+                            "locked" : "false",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "user" : {
+                            "type" : "user",
+                            "username" : "evakelety",
+                            "displayname" : "Kelety",
+                            "#cdata-section" : "134"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        }
+                    },
+                    {
+                        "user" : {
+                            "type" : "user",
+                            "username" : "annastoecher",
+                            "displayname" : "Stöcher",
+                            "#cdata-section" : "92"
+                        },
+                        "KEYWORD_VIEW" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_CREATE" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_ASSIGN" : {
+                            "inherited" : "false",
+                            "locked" : "false",
+                            "#cdata-section" : "true"
+                        },
+                        "KEYWORD_EDIT" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_DELETE" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        },
+                        "KEYWORD_EDIT_PERMISSIONS" : {
+                            "inherited" : "false",
+                            "locked" : "true",
+                            "#cdata-section" : "false"
+                        }
+                    }
+                ]
+            }
+        }
+    },
+    "seen_at" : "2019-04-17T08:55:53.975Z",
+    "updated_at" : "2019-04-14T16:30:21.512Z",
+    "created_at" : "2019-04-14T16:30:21.512Z"
+  }
+]

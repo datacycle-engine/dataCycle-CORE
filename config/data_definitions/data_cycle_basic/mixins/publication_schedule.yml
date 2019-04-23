@@ -6,13 +6,12 @@
       :publication_schedule:
         :label: Geplante Publikation
         :type: embedded
-        :linked_table: things
         :template_name: Publikations-Plan
+        :translated: true
         :validations:
           :classifications: no_conflicts
-#        :ui:
-#          :show:
-#            :content_area: header
         :features:
           :publication_schedule:
             :allowed: true
+        :api:
+          :disabled: true

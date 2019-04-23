@@ -8,6 +8,10 @@
     :features:
       :overlay:
         :allowed: true
+      :translatable:
+        :allowed: true
+    :api:
+      :type: SkiResort
     :properties:
       :id:
         :label: id
@@ -15,7 +19,6 @@
       :overlay:
         :label: Overlay
         :type: embedded
-        :linked_table: things
         :template_name: SnowResortOverlay
         :validations:
           :max: 1
@@ -36,6 +39,12 @@
         :storage_location: value
         :validations:
           :format: date_time
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
         :ui:
           :edit:
             :type: datetime
@@ -48,6 +57,12 @@
         :storage_location: value
         :validations:
           :format: date_time
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
         :ui:
           :edit:
             :type: date
@@ -56,47 +71,126 @@
               :placeholder: "tt.mm.jjjj"
           :show:
             :type: date
-      :open_lifts:
-        :label: Geöffnete Lifte
+      :lifts:
+        :label: Lifte
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Geöffnete Lifte
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+          :max_value:
+            :label: Lifte gesamt
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+      :slopes:
+        :label: Pistenlänge
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Pistenlänge, geöffnete Pisten
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: float
+          :max_value:
+            :label: Max Pistenlänge
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: float
+      :count_open_slopes:
+        :label: Pisten
+        :type: object
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+        :properties:
+          :value:
+            :label: Geöffnete Pisten
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+          :max_value:
+            :label: Pisten gesamt
+            :type: number
+            :storage_location: value
+            :validations:
+              :format: integer
+      :length_nordic_classic:
+        :label: Loipenlänge Nordisch Klassisch
         :type: number
         :storage_location: value
         :validations:
-          :format: integer
-      :max_lifts:
-        :label: Lifte gesamt
+          :format: float
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :length_nordic_skating:
+        :label: Loipenlänge Nordisch Skating
         :type: number
         :storage_location: value
         :validations:
-          :format: integer
-      :open_slopes:
-        :label: Geöffnete Pisten
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :max_slopes:
-        :label: Pisten gesamt
-        :type: number
-        :storage_location: value
-        :validations:
-          :format: integer
-      :opening_hours:
+          :format: float
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
-        :linked_table: things
-        :template_name: Öffnungszeit - Erweitert
+        :template_name: Öffnungszeit
+        :translated: true
+      :addons:
+        :label: Addons
+        :type: embedded
+        :template_name: Skigebiet - Addon
+        :api:
+          :name: amenityFeature
       :geo:
         :type: mixin
         :name: geo
       :snow_report:
-        :label: Schneeberichte
+        :label: Schneehöhe - Messpunkt
         :type: embedded
-        :linked_table: things
-        :template_name: Schneebericht
+        :template_name: Schneehöhe - Messpunkt
+        :api:
+          :name: containsPlace
+          :partial: to_linked
       :url:
         :label: Link
         :type: string
         :storage_location: translated_value
+        :api:
+          :name: sameAs
       :condition_avalanche_warning_level:
         :label: "Lawinenwarnlevel"
         :type: classification
@@ -107,6 +201,14 @@
             :content_area: header
       :condition_nordic_classic:
         :label: "NordicClassic - Meldung"
+        :type: classification
+        :tree_label: "Bergfex - NordicClassic - Meldung"
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :condition_nordic_skating:
+        :label: "NordicSkating - Meldung"
         :type: classification
         :tree_label: "Bergfex - NordicClassic - Meldung"
         :external: true

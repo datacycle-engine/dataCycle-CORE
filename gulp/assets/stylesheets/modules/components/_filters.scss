@@ -1,12 +1,14 @@
 /* Filter */
+$filter-border: #aaa;
+
 #search-form {
   .filters {
     position: relative;
     background: $light-gray;
 
     .main-filters {
-      li[data-children]>label:after {
-        content: "\f105";
+      li[data-children] > label:after {
+        content: '\f105';
         font-family: FontAwesome;
         font-style: normal;
         font-weight: normal;
@@ -18,8 +20,8 @@
         transition: all ease-in-out 0.1s;
       }
 
-      li[data-children]:hover>label:after,
-      li[data-children]:focus>label:after {
+      li[data-children]:hover > label:after,
+      li[data-children]:focus > label:after {
         right: 0.8rem;
       }
     }
@@ -49,8 +51,9 @@
     .advanced-filters {
       .add-advanced-filter-container {
         background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 3px $dark-gray inset;
+        box-shadow: 0 0 2px $dark-gray;
         padding: 0.5rem;
+        border-radius: 5px;
       }
 
       .advanced-filter {
@@ -58,14 +61,33 @@
         display: flex;
         margin: 1rem 0;
         background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 3px $dark-gray inset;
         transition: background-color 1s ease;
+        border-radius: 5px;
+        box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+
+        .separator {
+          padding: 0 1rem;
+          &:last-child {
+            padding-right: 0;
+          }
+          &:first-child {
+            padding-left: 0;
+          }
+        }
+
+        &.i {
+          box-shadow: 0 0 0 1px $success-color, 0 0 2px 1px $success-color;
+        }
+
+        &.e {
+          box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+        }
 
         &.highlight {
           background-color: $white;
         }
 
-        >div {
+        > div {
           position: relative;
           display: flex;
           flex: 0;
@@ -77,22 +99,44 @@
           }
 
           &.buttons {
-            padding: 0 0 0 0.5rem;
+            padding: 0 0.1rem;
 
-            .button,
-            button {
+            .remove-advanced-filter {
               display: flex;
               margin: 0;
               align-items: center;
               justify-content: center;
               height: 100%;
-              width: 3.5rem;
+              width: 3rem;
+              .fa {
+                color: $alert-color;
+                font-size: 1.3rem;
+              }
             }
           }
         }
 
         .advanced-filter-selector {
           flex: 1;
+          .flatpickr-wrapper {
+            width: 100%;
+          }
+          .flatpickr-input {
+            margin: 0;
+            height: 2.2rem;
+            border-radius: 4px;
+            border-color: $filter-border;
+          }
+        }
+
+        .advanced-filter-mode {
+          flex: unset;
+          select {
+            border-radius: 4px;
+            height: 2.2rem;
+            border-color: $filter-border;
+            font-size: 0.9rem;
+          }
         }
 
         .advanced-filter-title {
@@ -132,7 +176,7 @@
       }
     }
 
-    >.row>.column>div {
+    > .row > .column > div {
       margin: 1rem 0;
     }
 
@@ -153,7 +197,7 @@
         transition: background ease-in-out 0.2s;
         margin-bottom: 0;
 
-        >* {
+        > * {
           background-color: transparent;
         }
 
@@ -199,9 +243,7 @@
       }
     }
 
-    button[type="submit"].button {
-      padding: 0.85em 1em;
-
+    button[type='submit'].button {
       i {
         font-size: 1rem;
       }
@@ -232,7 +274,7 @@
         cursor: pointer;
 
         label:hover:before {
-          opacity: .3;
+          opacity: 0.3;
         }
 
         input {
@@ -240,7 +282,7 @@
         }
 
         /* :: CHECKED :: */
-        input:checked~label {
+        input:checked ~ label {
           background-color: $primary-color;
           color: white;
 
@@ -249,7 +291,7 @@
           }
         }
 
-        input:checked~label:before {
+        input:checked ~ label:before {
           animation: throw 0.2s linear;
           top: 0px;
           color: white;
@@ -279,7 +321,7 @@
           background: #ddd;
         }
 
-        >div {
+        > div {
           display: none;
           z-index: 2;
           position: absolute;
@@ -332,7 +374,7 @@
             box-shadow: none;
             background: lighten($light-gray, 4%);
 
-            >label i {
+            > label i {
               left: 16.7rem;
             }
           }
@@ -385,23 +427,22 @@
         }
       }
 
-      ul>li:hover> {
-
+      ul > li:hover > {
         div,
         ul,
-        div>ul {
+        div > ul {
           display: block;
         }
       }
     }
 
-    >ul {
+    > ul {
       display: flex;
       position: relative;
       width: 100%;
       line-height: 1;
 
-      >li {
+      > li {
         padding: 1rem;
         float: none;
         position: initial;
@@ -427,7 +468,7 @@
     font-size: 0.8rem;
     display: flex;
 
-    >.icon {
+    > .icon {
       white-space: nowrap;
       margin-right: 0.5rem;
     }
@@ -442,6 +483,28 @@
       border-radius: 5px;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
+      box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+
+      &.e {
+        box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+        .tag {
+          position: relative;
+          &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            border-bottom: 1px solid;
+            width: calc(100% - 0.4rem);
+            margin: 0 0.2rem;
+          }
+        }
+      }
+
+      &.i {
+        box-shadow: 0 0 2px 1px $success-color;
+      }
 
       .tag-container {
         font-size: 0;
@@ -522,13 +585,20 @@
       a.button {
         color: $black;
         background: transparent;
+        &#reset-filter {
+          i {
+            color: $alert-color;
+          }
+          &:hover i,
+          &:focus i {
+            color: lighten($alert-color, 10%);
+          }
+        }
       }
 
       button,
       .button {
-        padding: 0.85em 1em;
         font-size: 0.9rem;
-        line-height: 1;
         display: inline-block;
         vertical-align: middle;
 
@@ -537,12 +607,14 @@
           color: lighten($black, 30%);
         }
 
-        transition: background-color ease-in-out 0.25s,
-        color ease-in-out 0.25s;
+        transition: all ease-in-out 0.25s, color ease-in-out 0.25s;
         margin: 0 2rem 0 0;
         font-weight: normal;
 
         i {
+          transition: all ease-in-out 0.25s, color ease-in-out 0.25s;
+          font-size: 1.1rem;
+          line-height: 1.2;
           margin-right: 0.2rem;
         }
       }
@@ -552,15 +624,17 @@
       display: inline-block;
 
       .dropdown-menu-item {
-        padding: 1rem;
+        padding: 0.75rem 1rem;
         display: inline-flex;
+        align-items: center;
         color: $dark-gray;
-        line-height: 1.2rem;
+        line-height: 1.3;
         text-align: left;
         cursor: pointer;
 
-        >ul {
+        > ul {
           display: none;
+          overflow-y: auto;
 
           li {
             &:not(:last-child) {
@@ -626,6 +700,22 @@
                     display: block;
                     margin-right: 0.5rem;
 
+                    &.e {
+                      .tag {
+                        position: relative;
+                        &::after {
+                          content: '';
+                          display: block;
+                          position: absolute;
+                          top: 50%;
+                          left: 0;
+                          border-bottom: 1px solid;
+                          width: calc(100% - 0.4rem);
+                          margin: 0 0.2rem;
+                        }
+                      }
+                    }
+
                     .tag {
                       color: $black;
                       background-color: $light-gray;
@@ -650,11 +740,15 @@
           }
         }
 
-        >span,
-        >i {
+        > span,
+        > i {
           flex: 1;
           white-space: nowrap;
           padding-right: 5px;
+        }
+
+        > i {
+          line-height: inherit;
         }
 
         &.active {
@@ -662,11 +756,11 @@
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
 
-          >ul {
+          > ul {
             display: block;
             position: absolute;
             left: 0;
-            top: 100%;
+            top: calc(100% - 1px);
             width: 100%;
             background-color: white;
             box-shadow: 0 5px 3px rgba($black, 0.3);
@@ -702,11 +796,11 @@
       padding: 0;
     }
 
-    >.accordion-item.is-active>.accordion-title {
+    > .accordion-item.is-active > .accordion-title {
       margin-top: 1rem;
 
-      >span {
-        >i::before {
+      > span {
+        > i::before {
           content: '\f077';
         }
       }
@@ -743,7 +837,7 @@
 
       &::before {
         position: absolute;
-        content: "";
+        content: '';
         height: 1px;
         border-bottom: 1px solid $medium-gray;
         right: 0;
@@ -796,7 +890,7 @@
 
         &:before {
           position: absolute;
-          content: "";
+          content: '';
           height: 1px;
           border-bottom: 1px solid $medium-gray;
           right: 0;
@@ -909,6 +1003,22 @@
                 white-space: nowrap;
               }
 
+              &.e {
+                .tag {
+                  position: relative;
+                  &::after {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    border-bottom: 1px solid;
+                    width: calc(100% - 0.4rem);
+                    margin: 0 0.2rem;
+                  }
+                }
+              }
+
               &.search-term .tag {
                 background-color: lighten($primary-color, 50%);
               }
@@ -968,16 +1078,15 @@
 .clickable-menu {
   margin: 0;
 
-  >li.active {
-
-    >div,
-    >ul,
-    >div>ul {
+  > li.active {
+    > div,
+    > ul,
+    > div > ul {
       display: block !important;
     }
   }
 
-  >li {
+  > li {
     transition: background 0.4s ease;
 
     &:hover {

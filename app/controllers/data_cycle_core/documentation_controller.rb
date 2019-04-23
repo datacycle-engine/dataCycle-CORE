@@ -11,9 +11,9 @@ module DataCycleCore
         p.split('/')[0..-3].join('/')
       }.map { |p|
         File.join(p, request.path)
-      }.select { |p|
+      }.detect do |p|
         File.file?(p)
-      }.first
+      end
 
       if image_path
         send_file image_path
@@ -27,9 +27,9 @@ module DataCycleCore
         (p.split('/')[0..-3] + ['docs']).join('/')
       }.map { |p|
         File.join(p, sanitized_path + '.md')
-      }.select { |p|
+      }.detect do |p|
         File.file?(p)
-      }.first
+      end
 
       markdown = Redcarpet::Markdown.new(Redcarpet::Render::HTML,
                                          no_intra_emphasis: true,
@@ -39,7 +39,11 @@ module DataCycleCore
     end
 
     def sanitized_path
-      sanitize(params['path']) if params.dig('path').present?
+      if params.dig('path').present?
+        sanitize(params['path'])
+      else
+        'overview'
+      end
     end
 
     def sanitized_file

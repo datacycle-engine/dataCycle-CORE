@@ -1,0 +1,14 @@
+# frozen_string_literal: true
+
+json = {}
+
+json['data'] = @classification_tree_labels
+  .as_json(
+    only: [:id, :name]
+  ).map { |item| item.merge('url' => api_v3_classification_tree_url(@api_subversion, id: item.dig('id'), language: @language)) }
+
+json.merge! render 'pagination_links',
+                   objects: @classification_tree_labels,
+                   object_url: ->(params) { api_v3_classification_trees_url(params) }
+
+json

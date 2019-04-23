@@ -1,10 +1,7 @@
 // Classification Selctor in Edit Forms
 require('select2');
 require('select2/i18n/de');
-$.fn.select2.defaults.set(
-  'language',
-  $.fn.select2.amd.require('select2/i18n/de')
-);
+$.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function() {
@@ -31,9 +28,7 @@ module.exports.initialize = function() {
             }
 
             var term = query.term || '';
-            var result = data.title
-              ? select2_helpers.markMatch(data.title, term)
-              : null;
+            var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
             select2_helpers.removeTreeLabel(result, tree_label);
             select2_helpers.decorateResult(result);
 
@@ -70,16 +65,22 @@ module.exports.initialize = function() {
                 .$container.removeClass('select2-loading');
               return {
                 results: data.map(value => {
-                  if (alias_ids && value.classification_alias_id != undefined)
-                    value.id = value.classification_alias_id;
-                  else if (value.classification_id != undefined)
-                    value.id = value.classification_id;
+                  if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                  else if (value.classification_id != undefined) value.id = value.classification_id;
                   return value;
                 })
               };
             }
           }
         });
+
+        $(this)
+          .closest('form')
+          .on('reset', event => {
+            $(this)
+              .val(null)
+              .trigger('change');
+          });
       });
 
     $(element)
@@ -94,15 +95,16 @@ module.exports.initialize = function() {
           width: '100%',
           dropdownParent: $(that).parent(),
           templateResult: function(data) {
+            var title = $(data.element).data('title');
+
             if (data.loading) {
               return data.text;
             }
 
             var term = query.term || '';
-            var text_value = data.name || data.text;
-            var result = text_value
-              ? select2_helpers.markMatch(text_value, term)
-              : null;
+            var text_value = title || data.text;
+
+            var result = text_value ? select2_helpers.markMatch(text_value, term) : null;
             select2_helpers.removeTreeLabel(result, tree_label);
             select2_helpers.decorateResult(result);
 
@@ -116,12 +118,40 @@ module.exports.initialize = function() {
             }
           },
           templateSelection: function(data) {
-            return select2_helpers.removeTreeLabelFromSelection(
-              data.text,
-              tree_label
-            );
+            return select2_helpers.removeTreeLabelFromSelection(data.text, tree_label);
+          },
+          matcher: function(params, data) {
+            // If there are no search terms, return all of the data
+            if ($.trim(params.term) === '') {
+              return data;
+            }
+
+            // Do not display the item if there is no 'text' property
+            if (typeof data.text === 'undefined') {
+              return null;
+            }
+
+            // `params.term` should be the term that is used for searching
+            // `data.text` is the text that is displayed for the data object
+            if (
+              data.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
+              (data.title !== undefined && data.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
+            ) {
+              return data;
+            }
+
+            // Return `null` if the term should not be displayed
+            return null;
           }
         });
+
+        $(this)
+          .closest('form')
+          .on('reset', event => {
+            $(this)
+              .val(null)
+              .trigger('change');
+          });
       });
   };
 
@@ -133,29 +163,9 @@ module.exports.initialize = function() {
       });
   }
 
-  $(document).on(
-    'open.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      init(event.target);
-    }
-  );
-
-  $(document).on(
-    'closed.zf.reveal',
-    '.new-content-reveal[data-reset-on-close]',
-    event => {
-      removeHandlers(event.target);
-    }
-  );
-
-  $(document).on(
-    'clone-added',
-    '.content-object-item, .advanced-filter',
-    function() {
-      init(this);
-    }
-  );
+  $(document).on('dc:html:changed', '*', event => {
+    init(event.target);
+  });
 
   init(document);
 };

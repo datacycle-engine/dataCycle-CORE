@@ -42,8 +42,8 @@ module DataCycleCore
           .>> t(:add_links, 'primary_image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('primaryImage')&.dig('id') })
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : [] })
-          .>> t(:load_category_key, 'poi_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
-          .>> t(:load_category, 'frontend_type', ->(s) { s&.dig('frontendtype').presence }, external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
+          .>> t(:load_category, 'poi_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
+          .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
           .>> t(:reject_keys, ['category', 'primaryImage', 'images', 'regions', 'meta'])
           .>> t(:strip_all)
@@ -57,7 +57,7 @@ module DataCycleCore
           .>> t(:add_field, 'tour', ->(s) { tour(s&.dig('geometry')) })
           .>> t(:unwrap, 'elevation', ['ascent', 'descent', 'minAltitude', 'maxAltitude'])
           .>> t(:unwrap, 'time', ['min'])
-          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'experience', 'landscape'])
+          .>> t(:unwrap, 'rating', ['condition', 'difficulty', 'qualityOfExperience', 'landscape'])
           .>> t(:add_field, 'author', ->(s) { s.dig('meta', 'author') })
           .>> t(
             :rename_keys,
@@ -72,7 +72,7 @@ module DataCycleCore
               'min' => 'duration',
               'condition' => 'condition_rating',
               'difficulty' => 'difficulty_rating',
-              'experience' => 'experience_rating',
+              'qualityOfExperience' => 'experience_rating',
               'landscape' => 'landscape_rating',
               'directions' => 'instructions',
               'gettingThere' => 'directions',
@@ -82,6 +82,7 @@ module DataCycleCore
               'additionalInformation' => 'additional_information'
             }
           )
+          .>> t(:add_field, 'schedule', ->(s) { load_tour_season(s.dig('season')) })
           .>> t(:map_value, 'elevation', ->(s) { s&.to_f })
           .>> t(:map_value, 'length', ->(s) { s&.to_f })
           .>> t(:map_value, 'duration', ->(s) { s&.to_i })
@@ -89,9 +90,10 @@ module DataCycleCore
           .>> t(:map_value, 'difficulty_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'experience_rating', ->(s) { s&.to_i })
           .>> t(:map_value, 'landscape_rating', ->(s) { s&.to_i })
+          .>> t(:add_links, 'poi', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('pois', 'poi')&.map { |item| item&.dig('id') } || [] })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images', 'image')&.map { |item| item&.dig('id') } || [] })
-          .>> t(:load_category_key, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
-          .>> t(:load_category, 'frontend_type', ->(s) { s&.dig('frontendtype').presence }, external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
+          .>> t(:load_category, 'tour_categories', external_source_id, ->(s) { s&.dig('category', 'id').present? ? "CATEGORY:#{s&.dig('category', 'id')}" : nil })
+          .>> t(:load_category, 'frontend_type', external_source_id, ->(s) { s&.dig('frontendtype').present? ? "FRONTENDTYPE:#{Digest::MD5.new.update(s.dig('frontendtype')).hexdigest}" : nil })
           .>> t(:category_key_to_ids, 'outdoor_active_tags', ->(s) { s&.dig('properties', 'property') }, nil, external_source_id, 'TAG:', 'tag')
           .>> t(:add_links, 'regions', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('regions', 'region')&.map { |item| "REGION:#{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'source', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('meta', 'source', 'id').present? ? ["SOURCE:#{s&.dig('meta', 'source', 'id')}"] : nil })
@@ -102,9 +104,10 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'content_url', ->(s) { "http://img.oastatic.com/img/#{s['id']}/.jpg" })
           .>> t(:add_field, 'thumbnail_url', ->(s) { "http://img.oastatic.com/img/400/400/fit/#{s['id']}/.jpg" })
-          .>> t(:map_value, 'license', ->(s) { s.to_s if s.present? })
+          .>> t(:add_field, 'caption', ->(s) { [s.dig('author'), s.dig('source')]&.reject(&:blank?)&.join(' - ') })
+          .>> t(:map_value, 'license', ->(s) { s.dig('url') if s.present? })
           .>> t(:rename_keys, { 'id' => 'external_key', 'title' => 'name' })
-          .>> t(:reject_keys, ['meta', 'primary', 'gallery'])
+          .>> t(:reject_keys, ['meta', 'primary', 'gallery', 'author'])
           .>> t(:strip_all)
         end
 
@@ -116,6 +119,36 @@ module DataCycleCore
               &.map { |p| p.split(',').map(&:to_f) }
               &.map { |p| factory.point(*p) }
           )
+        end
+
+        def self.load_tour_season(season)
+          return if season.blank?
+          season_data = season.select { |_k, val| val.present? }.keys.map { |month| by_month_id(month) }
+          return if season_data.blank?
+          [
+            {
+              by_month: season_data
+            }
+          ]
+        end
+
+        def self.by_month_id(month)
+          return nil unless ['jan', 'feb', 'mar', 'apr', 'may', 'jun', 'jul', 'aug', 'sep', 'oct', 'nov', 'dec'].include?(month)
+          month_hash = {
+            'jan' => 'Januar',
+            'feb' => 'Februar',
+            'mar' => 'März',
+            'apr' => 'April',
+            'may' => 'Mai',
+            'jun' => 'Juni',
+            'jul' => 'Juli',
+            'aug' => 'August',
+            'sep' => 'September',
+            'oct' => 'Oktober',
+            'nov' => 'November',
+            'dec' => 'Dezember'
+          }
+          DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Monate', month_hash[month])
         end
       end
     end

@@ -5,11 +5,10 @@ module DataCycleCore
     INTERNAL_PROPERTIES = DataCycleCore.internal_data_attributes + ['id']
 
     def object_from_definition(definition)
-      return nil if definition.blank? || definition.dig('linked_table').nil? || definition.dig('template_name').nil?
+      return nil if definition.blank? || definition.dig('template_name').nil?
 
-      object_type = 'DataCycleCore::' + definition['linked_table'].classify
       template_name = definition['template_name']
-      object_type.constantize.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
+      DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
     def ordered_validation_properties(validation:, type: nil, content_area: nil)
@@ -25,9 +24,7 @@ module DataCycleCore
           next if prop[1].dig('ui', 'show', 'content_area') != content_area
         end
 
-        if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
-          ordered_properties[prop[1]['sorting'].to_i] = prop
-        end
+        ordered_properties[prop[1]['sorting'].to_i] = prop if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])
       end
 
       Hash[ordered_properties.sort.map { |_, v| v }]

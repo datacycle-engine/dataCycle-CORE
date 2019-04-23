@@ -58,17 +58,16 @@
             background-color: transparent;
 
             &.has-changes {
-
               &.new.bild .thumbnail,
               &.new.video .thumbnail,
-              &.new:not(.bild, .video) {
+              &.new:not(.image) {
                 background-color: rgba($success-color, 0.3) !important;
                 box-shadow: 0 0 1px darken($success-color, 20%);
               }
 
               &.remove.bild .thumbnail,
               &.remove.video .thumbnail,
-              &.remove:not(.bild, .video) {
+              &.remove:not(.image) {
                 background-color: rgba($alert-color, 0.2) !important;
                 box-shadow: 0 0 1px $alert-color;
               }
@@ -138,7 +137,7 @@
               }
             }
 
-            >span {
+            > span {
               display: inline-block;
               margin-right: 2rem;
             }
@@ -146,7 +145,6 @@
 
           &.has-changes.geographic {
             &.new {
-
               .geographic,
               .map-info {
                 &::after {
@@ -160,7 +158,6 @@
             }
 
             &.remove {
-
               .geographic,
               .map-info {
                 &::after {
@@ -183,7 +180,7 @@
             margin-bottom: 1rem;
           }
 
-          >div:not(.detail-type, .map-info, .geographic) {
+          > div:not(.detail-type, .map-info, .geographic) {
             margin-bottom: 1rem;
           }
 
@@ -196,7 +193,7 @@
               box-shadow: 0 0 1px #9d9d9d;
               padding: 2.2rem 1rem 1rem 1rem;
 
-              >.detail-label {
+              > .detail-label {
                 position: absolute;
                 float: none;
               }
@@ -208,24 +205,6 @@
             }
           }
 
-          &.asset {
-            .inner {
-              padding: 0.5rem;
-
-              span {
-                display: block;
-
-                &.asset-type {
-                  opacity: 0.8;
-                }
-              }
-
-              .thumb {
-                margin-top: 1rem;
-              }
-            }
-          }
-
           &.media {
             .media-thumbs {
               display: flex;
@@ -233,54 +212,6 @@
 
             position: relative;
             text-align: left;
-
-            .thumbnail {
-              position: relative;
-              width: 194px;
-              height: 170px;
-              margin-right: 0.5rem;
-              background-position: center center;
-              background-size: contain;
-              background-repeat: no-repeat;
-              background-color: white;
-              overflow: hidden;
-              border: 0;
-
-              &.has-restrictions {
-                box-shadow: 0 0 2px 1px red;
-              }
-
-              &:focus,
-              &:hover {
-                .description {
-                  opacity: 1;
-                }
-              }
-
-              .description {
-                position: absolute;
-                left: 0;
-                top: 0;
-                opacity: 0;
-                width: 100%;
-                background: rgba(255, 255, 255, 0.9);
-                height: 100%;
-                line-height: 1rem;
-                font-size: 0.8rem;
-                color: $body-font-color;
-                overflow: hidden;
-                /* white-space: nowrap; */
-                /* text-overflow: ellipsis; */
-                padding: 0.5rem;
-                text-align: center;
-                display: -ms-flexbox;
-                display: flex;
-                -ms-flex-align: center;
-                align-items: center;
-                -ms-flex-pack: center;
-                justify-content: center;
-              }
-            }
           }
 
           .detail-label {
@@ -310,7 +241,7 @@
   .type {
     &.translations {
       .header {
-        margin: 0 0 1rem 1.25rem
+        margin: 0 0 1rem 1.25rem;
       }
     }
   }
@@ -318,7 +249,7 @@
   .object.detail_object {
     padding-bottom: 1rem;
 
-    >.detail-type {
+    > .detail-type {
       padding-left: 1rem;
     }
   }

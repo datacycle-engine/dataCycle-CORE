@@ -71,21 +71,6 @@ module DataCycleCore
 
         private
 
-        def verify_embedded_object(data, table, name)
-          return if data.empty?
-          template = ('DataCycleCore::' + table.classify).constantize
-            .find_by(template: true, template_name: name)
-          if template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: name, locale: DataCycleCore.ui_language)
-            return
-          end
-
-          data.each do |item|
-            validator_object = DataCycleCore::MasterData::ValidateData.new
-            merge_errors(validator_object.validate(item, template.schema))
-          end
-        end
-
         def daterange(data_hash, template_hash)
           data_hash = {} if data_hash.nil?
           if template_hash.blank? || template_hash['from'].blank? || template_hash['to'].blank?

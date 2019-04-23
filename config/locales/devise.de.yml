@@ -43,9 +43,9 @@ de:
       reset_password_instructions:
         action: Passwort ändern
         greeting: Hallo %{recipient}!
-        instruction: Jemand hat einen Link angefordert, um Ihr Passwort zu ändern. Klicken Sie auf den unten aufgeführten Link um das Passwort zu ändern.
-        instruction_2: Bitte ignorieren Sie diese E-Mail, wenn Sie kein neues Passwort angefordert haben.
-        instruction_3: Das Passwort wird nicht geändert bis Sie den obenstehenden Link abrufen und ein neues Passwort bestimmen.
+        instruction: "Jemand hat einen Link angefordert, um Ihr Passwort zu ändern. Klicken Sie auf den folgenden Link um ein neues Passwort zu vergeben:"
+        instruction_2: Bitte ignorieren Sie dieses E-Mail, wenn Sie kein neues Passwort angefordert haben.
+        instruction_3: Das Passwort wird nicht geändert bis Sie den obenstehenden Link aufrufen und ein neues Passwort festlegen!
         subject: Anleitung für das Zurücksetzen Ihres Passworts
       unlock_instructions:
         action: Mein Konto entsperren
@@ -64,12 +64,14 @@ de:
         new_password: Neues Passwort
       new:
         forgot_your_password: Haben Sie Ihr Passwort vergessen?
-        send_me_reset_password_instructions: Schicken Sie mir die Anleitung, mein Passwort zurückzusetzen
+        send_me_reset_password_instructions: Neues Passwort anfordern
       no_token: Sie können sich nicht auf dieser Seite anmelden, wenn Sie nicht von einer Passwort-Zurücksetzen-E-Mail kommen. Wenn Sie von solch einer E-Mail kommen, überprüfen Sie bitte, ob Sie die gesamte URL verwendeten.
       send_instructions: Sie erhalten in wenigen Minuten eine E-Mail mit der Anleitung, wie Sie Ihr Passwort zurücksetzen können.
       send_paranoid_instructions: Falls Ihre E-Mail-Adresse in unserer Datenbank existiert, erhalten Sie in wenigen Minuten eine E-Mail, mit der Anleitung, wie Sie Ihr Passwort zurücksetzen können.
       updated: Ihr Passwort wurde geändert. Sie sind jetzt angemeldet.
       updated_not_active: Ihr Passwort wurde geändert.
+      user:
+        not_recoverable: Das Passwort von externen Benutzern oder Gastbenutzern kann nicht zurückgesetzt werden.
     registrations:
       destroyed: Ihr Account wurde gelöscht.
       edit:

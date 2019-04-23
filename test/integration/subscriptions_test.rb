@@ -26,6 +26,10 @@ module DataCycleCore
       get subscriptions_path
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', 'TestArtikel'
+
+      @content.set_data_hash(data_hash: {
+        name: 'TestArtikel123'
+      }, partial_update: true)
     end
 
     test 'unsubscribe article' do

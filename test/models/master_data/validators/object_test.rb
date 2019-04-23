@@ -28,7 +28,7 @@ describe DataCycleCore::MasterData::Validators::Object do
     let(:daterange_hash) do
       {
         'validity_period' => {
-          'label' =>  'Gültigkeitszeitraum',
+          'label' => 'Gültigkeitszeitraum',
           'type' => 'object',
           'storage_location' => 'value',
           'validations' => {
@@ -102,7 +102,7 @@ describe DataCycleCore::MasterData::Validators::Object do
       data_hash = { 'greeting' => nil, 'anzahl' => nil }
       validator = subject.new(data_hash, template_hash)
       assert_equal(0, validator.error[:error].size)
-      assert_equal(2, validator.error[:warning].size)
+      assert_equal(1, validator.error[:warning].size)
     end
 
     it 'successfully validates daterange with proper template and varying test-data' do
@@ -236,6 +236,26 @@ describe DataCycleCore::MasterData::Validators::Object do
       validator = subject.new({ 'test' => 'wrong' }, daterange_hash)
       assert_equal(0, validator.error[:error].size)
       assert_equal(1, validator.error[:warning].size)
+    end
+
+    it 'produced an error if wrong validator is given' do
+      data_hash = {
+        'validity_period' => {
+          'valid_from' => '2016-01-01',
+          'valid_until' => '2017-01-01'
+        }
+      }
+      template_hash = daterange_hash.deep_dup
+      template_hash['validity_period']['validations']['unknown_valitor'] = 'test'
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(0, validator.error[:error].size)
+      assert_equal(1, validator.error[:warning].size)
+
+      template_hash = daterange_hash.deep_dup
+      template_hash['validity_period']['validations']['daterange'] = { 'from' => 'valid_from' }
+      validator = subject.new(data_hash, template_hash)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
     end
   end
 end

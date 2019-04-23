@@ -100,5 +100,31 @@ module DataCycleCore
       assert_response :success
       assert_select 'li.grid-item > .content-link > .inner > .title', { count: 0, text: 'TestContainer' }
     end
+
+    test 'move content to new parent and update life_cycle_stage' do
+      stages = DataCycleCore::Feature::LifeCycle.ordered_classifications(@container)
+
+      patch update_life_cycle_thing_path(@container), params: {
+        life_cycle: {
+          id: stages.values.last[:id],
+          name: stages.keys.last
+        }
+      }, headers: {
+        referer: thing_path(@container)
+      }
+
+      assert_redirected_to thing_path(@container)
+      assert @container.reload.life_cycle_stage?(stages.values.last[:id])
+
+      post set_parent_thing_path(@content), params: {
+        parent_id: @container.id
+      }, headers: {
+        referer: thing_path(@content)
+      }
+
+      assert_redirected_to thing_path(@content)
+      assert_equal I18n.t(:moved_to, scope: [:controllers, :success], locale: DataCycleCore.ui_language, data: @container.title), flash[:notice]
+      assert @content.reload.life_cycle_stage?(stages.values.last[:id])
+    end
   end
 end

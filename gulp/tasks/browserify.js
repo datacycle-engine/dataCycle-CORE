@@ -1,5 +1,6 @@
 var _ = require('lodash');
 var browserify = require('browserify');
+var babelify = require('babelify');
 var browserSync = require('browser-sync');
 var bundleLogger = require('../util/bundleLogger');
 var config = require('../config').browserify;
@@ -8,12 +9,10 @@ var handleErrors = require('../util/handleErrors');
 var source = require('vinyl-source-stream');
 var watchify = require('watchify');
 
-var browserifyTask = function (callback, devMode) {
-
+var browserifyTask = function(callback, devMode) {
   var bundleQueue = config.bundleConfigs.length;
 
-  var browserifyThis = function (bundleConfig) {
-
+  var browserifyThis = function(bundleConfig) {
     if (devMode) {
       _.extend(bundleConfig, watchify.args, {
         debug: true
@@ -23,18 +22,25 @@ var browserifyTask = function (callback, devMode) {
 
     var b = browserify(bundleConfig);
 
-    var bundle = function () {
+    var bundle = function() {
       bundleLogger.start(bundleConfig.outputName);
 
       return b
+        .transform(
+          babelify.configure({
+            presets: ['es2015']
+          })
+        )
         .bundle()
         .on('error', handleErrors)
         .pipe(source(bundleConfig.outputName))
         .pipe(gulp.dest(bundleConfig.dest))
         .on('end', reportFinished)
-        .pipe(browserSync.reload({
-          stream: true
-        }));
+        .pipe(
+          browserSync.reload({
+            stream: true
+          })
+        );
     };
 
     if (devMode) {
@@ -46,7 +52,7 @@ var browserifyTask = function (callback, devMode) {
       if (bundleConfig.external) b.external(bundleConfig.external);
     }
 
-    var reportFinished = function () {
+    var reportFinished = function() {
       bundleLogger.end(bundleConfig.outputName);
 
       if (bundleQueue) {

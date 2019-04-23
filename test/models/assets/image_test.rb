@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class ImageTest < ActiveSupport::TestCase
       def setup
+        DataCycleCore::ImageUploader.enable_processing = true
         @image_temp = DataCycleCore::Image.count
       end
 
@@ -33,6 +34,16 @@ module DataCycleCore
 
       test 'upload Image: rgb/jpg' do
         file_name = 'test_rgb.jpg'
+        upload_image file_name
+
+        assert_equal('sRGB', @image.metadata.dig('colorspace'))
+        assert_equal('image/jpeg', @image.content_type)
+
+        validate_image file_name
+      end
+
+      test 'upload portrait format Image: rgb/jpg' do
+        file_name = 'test_rgb_portrait.jpg'
         upload_image file_name
 
         assert_equal('sRGB', @image.metadata.dig('colorspace'))
@@ -80,6 +91,12 @@ module DataCycleCore
         assert_not(@image.persisted?)
         assert_not(@image.valid?)
         assert_equal(@image.errors.size, 2)
+      end
+
+      def teardown
+        @image.remove_file!
+        @image.destroy!
+        DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

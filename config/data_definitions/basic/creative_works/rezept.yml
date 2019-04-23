@@ -45,7 +45,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :recipe_instructions:
         :label: Fließtext

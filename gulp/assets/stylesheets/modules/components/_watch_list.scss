@@ -16,6 +16,11 @@
   }
 }
 
+.detail-header-functions .add-to-watchlist-link,
+.add-to-watchlist-link {
+  display: inline;
+}
+
 #main-menu {
   .watch-lists,
   .abos {
@@ -26,11 +31,11 @@
     }
     li {
       .watch-list-item {
-        padding: 0 0 0.5rem 0;
+        padding: inherit;
         .watchlist-name {
           width: 100%;
           display: block;
-          i.fa{
+          i.fa {
             font-size: 1rem;
           }
         }
@@ -63,6 +68,9 @@
     list-style: none;
   }
   li {
+    &:nth-child(even) .watch-list-item .check {
+      color: white;
+    }
     .watch-list-item {
       .check {
         position: absolute;
@@ -73,7 +81,7 @@
         }
       }
       width: 100%;
-      display: inline-block;
+      display: block;
       padding: 0 1.5rem 0 1.5rem;
       position: relative;
       line-height: 1.2rem;
@@ -113,7 +121,7 @@
       }
     }
     form {
-      [type=submit] {
+      [type='submit'] {
         position: absolute;
         right: 0;
         top: 0;
@@ -122,8 +130,9 @@
         line-height: 1.4rem;
         border: none;
         z-index: 2;
+        width: 2.5rem;
       }
-      button[type="submit"].button i {
+      button[type='submit'].button i {
         font-size: 1rem;
         line-height: 1.2rem;
       }
@@ -131,14 +140,15 @@
   }
 }
 
-.watchlist-name{
-  .fa{
+.watchlist-name {
+  .fa {
+    margin-right: 0.3rem;
     font-size: 1rem;
   }
 }
 
-.description.watchlist{
-  .fa{
+.description.watchlist {
+  .fa {
     margin-right: 0.5rem;
   }
 }

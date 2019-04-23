@@ -24,7 +24,6 @@ require 'awesome_print'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
-require 'delayed_job'
 require 'delayed_job_active_record'
 
 # REST-client
@@ -33,9 +32,6 @@ require 'faraday_middleware'
 
 # simple logger
 require 'logging'
-
-# i18n for db
-require 'globalize'
 
 # Breadcrumbs
 require 'gretel'
@@ -58,6 +54,14 @@ require 'carrierwave_backgrounder'
 # redcarpet (for markdown rendering)
 require 'redcarpet'
 
+# progress bar
+require 'ruby-progressbar'
+
+require 'premailer'
+
+# Image Optimizer
+require 'image_optim'
+
 module DataCycleCore
   class << self
     mattr_accessor :breadcrumb_root_name
@@ -75,16 +79,16 @@ module DataCycleCore
     self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
-    self.asset_objects = ['DataCycleCore::Asset', 'DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::TextFile', 'DataCycleCore::Pdf', 'DataCycleCore::Audio']
+    self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
 
     # mattr_accessor :content_tables
     # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource']
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Overlay', 'Publikations-Plan', 'Textblock']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -94,57 +98,10 @@ module DataCycleCore
 
     # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
-    self.features = {
-      publication_schedule: {
-        enabled: false
-      },
-      overlay: {
-        enabled: false,
-        attribute_keys: ['overlay']
-      },
-      releasable: {
-        enabled: false,
-        attribute_keys: [
-          'release_status_id',
-          'release_status_comment'
-        ],
-        classification_names: {
-          valid: 'freigegeben',
-          partner: 'beim Partner',
-          review: 'in Review',
-          archive: 'archiviert'
-        }
-      },
-      life_cycle: {
-        enabled: false
-      },
-      idea_collection: {
-        enabled: false
-      },
-      container: {
-        enabled: false
-      },
-      main_filter: {
-        enabled: true,
-        classification_alias_ids: ['Inhaltstypen']
-      },
-      advanced_filter: {
-        enabled: true,
-        classification_alias_ids: 'all',
-        external_source: true,
-        creator: true
-      },
-      geocode: {
-        enabled: false,
-        attribute_keys: []
-      },
-      gpx_converter: {
-        enabled: true
-      },
-      external_media_archive: {
-        enabled: false
-      }
-    }
+    self.features = {}
+
+    mattr_accessor :main_config
+    self.main_config = {}
 
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
@@ -159,11 +116,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = {
-      create: [],
-      delete: [],
-      update: []
-    }
+    self.webhooks = []
 
     # template directories
     mattr_accessor :template_path
@@ -180,18 +133,14 @@ module DataCycleCore
     mattr_accessor :allowed_content_api_classifications
     self.allowed_content_api_classifications = []
 
-    mattr_accessor :image_validations
-    self.image_validations = {}
-
-    mattr_accessor :video_validations
-    self.video_validations = {}
+    mattr_accessor :uploader_validations
+    self.uploader_validations = {}
 
     mattr_accessor :default_map_position
-    self.default_map_position = {
-      longitude: 14.128417968749998,
-      latitude: 47.41520280002081,
-      zoom: 7
-    }
+    self.default_map_position = {}
+
+    mattr_accessor :content_warnings
+    self.content_warnings = {}
   end
 
   def self.setup
@@ -258,6 +207,8 @@ module DataCycleCore
       ).each do |c|
         require_dependency(c)
       end
+
+      Devise::Mailer.layout 'data_cycle_core/email' # email.haml or email.erb
     end
   end
 end

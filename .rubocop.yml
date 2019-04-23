@@ -14,19 +14,24 @@ Rails:
   Enabled: true
 
 #######################################################
+########## Bundler
+Bundler/OrderedGems:
+  Enabled: false
+
+#######################################################
 ########## Layout
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-Lint/SplatKeywordArguments:
-  Enabled: false
+#Lint/SplatKeywordArguments:
+#  Enabled: false
 
 Layout/IndentHash:
   EnforcedStyle: consistent
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
-  
+
 #######################################################
 ########## Style
 

@@ -19,9 +19,7 @@ module DataCycleCore
 
         def self.location(data_hash)
           if data_hash['longitude'].present? && data_hash['latitude'].present?
-            unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
-              location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f)
-            end
+            location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
           end
           location ||= nil
           data_hash.nil? ? { 'location' => location } : data_hash.merge({ 'location' => location })
@@ -41,7 +39,6 @@ module DataCycleCore
           else
             data_hash[attribute] = data_hash[attribute].map { |keyword|
               DataCycleCore::Classification.where(
-                name: keyword,
                 external_source_id: external_source_id,
                 external_key: external_prefix + keyword
               )&.first&.id
@@ -50,7 +47,7 @@ module DataCycleCore
           data_hash
         end
 
-        def self.category_key_to_ids(data_hash, attribute, data_list, name, external_source_id, external_prefix, key)
+        def self.category_key_to_ids(data_hash, attribute, data_list, _name, external_source_id, external_prefix, key)
           return data_hash if data_hash.blank? || data_list.blank?
 
           data_hash.merge(
@@ -61,31 +58,13 @@ module DataCycleCore
                     external_source_id: external_source_id,
                     external_key: external_prefix + item_data.dig(key)
                   }
-
-                  search_params.merge(name: item_data.dig(name)) if name.present?
-
                   DataCycleCore::Classification.find_by(search_params)&.id
                 end&.reject(&:nil?) || []
             }
           )
         end
 
-        def self.load_category(data_hash, attribute, name, external_source_id, external_key)
-          return data_hash if external_key.call(data_hash).blank? || name.call(data_hash).blank?
-          data_hash.merge(
-            {
-              attribute => [
-                DataCycleCore::Classification.find_by(
-                  name: name.call(data_hash),
-                  external_source_id: external_source_id,
-                  external_key: external_key.call(data_hash)
-                )&.id
-              ].compact.presence
-            }
-          )
-        end
-
-        def self.load_category_key(data_hash, attribute, external_source_id, external_key)
+        def self.load_category(data_hash, attribute, external_source_id, external_key)
           data_hash.merge(
             {
               attribute => [
@@ -99,8 +78,9 @@ module DataCycleCore
         end
 
         def self.add_link(data_hash, attribute, content_type, external_source_id, key_function, condition_function = nil)
-          return data_hash if key_function.call(data_hash).blank?
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
+          return data_hash if key_function.call(data_hash).blank?
+
           data_hash.merge(
             {
               attribute => [
@@ -122,7 +102,7 @@ module DataCycleCore
           return data_hash if condition_function.present? && !condition_function.call(data_hash)
 
           key_function_values = key_function.call(data_hash) || []
-
+          # key_function_values = [DataCycleCore::Thing.where(external_source_id: external_source_id, template: false, template_name: 'POI').first.external_key] if attribute == 'poi'
           data_hash.merge(
             {
               attribute =>

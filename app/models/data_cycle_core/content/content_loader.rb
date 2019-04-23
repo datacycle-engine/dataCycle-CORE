@@ -4,7 +4,7 @@ module DataCycleCore
   module Content
     module ContentLoader
       def get_data_hash(timestamp = Time.zone.now)
-        return if !translated_locales.include?(I18n.locale) && changes.count.zero? # for new data-sets with pending data in it
+        # return if changes.count.zero? # for new data-sets with pending data in it
         as_of(timestamp).try(:to_h, timestamp)
       end
 
@@ -18,24 +18,44 @@ module DataCycleCore
         differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
       end
 
-      def load_linked_objects(relation_name)
-        load_relation(relation_name)
+      def load_linked_objects(relation_name, same_language = false)
+        properties = properties_for(relation_name)
+        relation_b = properties.dig('inverse_of')
+        language_flag = same_language
+        language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
+        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction') == 'inverse')
       end
 
-      def load_embedded_objects(relation_name)
-        load_relation(relation_name)
+      def load_embedded_objects(relation_name, same_language = true)
+        language_flag = same_language
+        language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
+        language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
+        load_relation(relation_name, nil, language_flag)
       end
 
-      def load_relation(relation_name)
-        DataCycleCore::Thing
-          .joins(:translations, :content_content_b)
-          .where(thing_translations: { locale: I18n.locale })
+      def load_relation(relation_a, relation_b, same_language, inverse = false)
+        if inverse
+          relation_name = :content_content_a
+          content_id_sym = :content_b_id
+          relation_a_name = relation_b
+          relation_b_name = relation_a
+        else
+          relation_name = :content_content_b
+          content_id_sym = :content_a_id
+          relation_a_name = relation_a
+          relation_b_name = relation_b
+        end
+        relation_contents = DataCycleCore::Thing
+          .joins(relation_name)
           .where({
             content_contents: {
-              content_a_id: id,
-              relation_a: relation_name
+              content_id_sym => id,
+              relation_a: relation_a_name,
+              relation_b: relation_b_name
             }
-          }).order('content_contents.order_a ASC')
+          })
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
+        relation_contents.order('content_contents.order_a ASC')
       end
 
       def load_classifications(relation_name)
@@ -43,19 +63,13 @@ module DataCycleCore
           .joins(:classification_contents)
           .where(
             classification_contents: {
-              content_data_type: self.class.to_s,
               content_data_id: id, relation: relation_name
             }
           )
       end
 
       def load_default_classification(tree_label, alias_name)
-        DataCycleCore::Classification
-          .joins(classification_aliases: [classification_tree: [:classification_tree_label]])
-          .where(
-            classification_tree_labels: { name: tree_label },
-            classification_aliases: { name: alias_name }
-          ).first!
+        DataCycleCore::ClassificationAlias.classification_for_tree_with_name(tree_label, alias_name)
       end
 
       def as_of(timestamp)
@@ -73,14 +87,6 @@ module DataCycleCore
           in_range(history_table_translation, timestamp)
         ).order(history_table_translation[:history_valid])
         return_data.last
-      end
-
-      def in_range(table_name, timestamp)
-        Arel::Nodes::InfixOperation.new(
-          '@>',
-          table_name[:history_valid],
-          Arel::Nodes::SqlLiteral.new("CAST('#{timestamp.to_s(:long_usec)}' AS TIMESTAMP WITH TIME ZONE)")
-        )
       end
     end
   end

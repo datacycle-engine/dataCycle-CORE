@@ -6,10 +6,14 @@ module DataCycleCore
   class ImageUploader < CommonUploader
     include CarrierWave::MiniMagick
 
+    process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+
     version :thumb_preview do
+      process :remove_animation
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
       process colorspace: 'RGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
       process :set_phash
 
       def full_filename(for_file)
@@ -19,11 +23,11 @@ module DataCycleCore
     end
 
     def extension_white_list
-      ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
     end
 
     def metadata
-      image = ::MiniMagick::Image.open(current_path)
+      image = ::MiniMagick::Image.new(current_path)
       image.data
     end
 
@@ -39,6 +43,12 @@ module DataCycleCore
         phash: Phash::Image.new(file.file).try(:compute_phash).try(:data)
       }
       model.save!
+    end
+
+    def remove_animation
+      manipulate! do |img, index|
+        img if index.to_i.zero?
+      end
     end
 
     def colorspace(cs)

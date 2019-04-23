@@ -7,7 +7,6 @@ module DataCycleCore
         include ActionController::Caching
         include ActionView::Rendering
         include CanCan::ControllerAdditions
-        include DataCycleCore::Common
         helper DataCycleCore::ApiHelper
 
         unless Rails.env.development?
@@ -30,12 +29,16 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:format, :token, { page: [:size, :number, :offset, :limit] }]
+          [:api_subversion, :format, :token, { page: [:size, :number, :offset, :limit] }]
         end
 
         def apply_paging(query)
           page_params = DEFAULT_PAGE_SETTINGS.merge(permitted_params[:page].to_h.reject { |_, v| v.blank? }.symbolize_keys)
           query.page(page_params[:number].to_i).per(page_params[:size].to_i)
+        end
+
+        def current_ability
+          @current_ability ||= DataCycleCore::Ability.new(current_user, session)
         end
 
         private

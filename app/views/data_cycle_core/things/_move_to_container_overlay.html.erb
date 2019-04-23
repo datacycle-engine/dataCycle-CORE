@@ -12,7 +12,15 @@
           </div>
         </div>
 
-        <%= submit_tag t('actions.move', locale: DataCycleCore.ui_language), class: "button primary", data: { disable_with: t('actions.move', locale: DataCycleCore.ui_language) } %>
+        <div class="buttons">
+          <%= button_tag t('actions.move', locale: DataCycleCore.ui_language),
+            class: "button primary",
+            data: {
+              disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i> #{t('actions.move', locale: DataCycleCore.ui_language)}"
+            },
+            type: :submit %>
+        </div>
+
     <% end %>
 
     <button class="close-button" data-close aria-label="Close modal" type="button">

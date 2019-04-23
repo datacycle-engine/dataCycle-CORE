@@ -14,7 +14,7 @@
       :tour_categories:
         :label: OutdoorActive - Kategorie
         :type: classification
-        :tree_label: OutdoorActive - Kategorien
+        :tree_label: OutdoorActive - Touren-Kategorien
         :external: true
         :ui:
           :show:
@@ -22,7 +22,7 @@
       :poi_categories:
         :label: OutdoorActive - Kategorie
         :type: classification
-        :tree_label: OutdoorActive - Kategorien
+        :tree_label: OutdoorActive - POI-Kategorien
         :external: true
         :ui:
           :show:

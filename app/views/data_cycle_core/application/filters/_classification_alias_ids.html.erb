@@ -1,4 +1,4 @@
-<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter" data-label="<%= filter_name %>">
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
   <%= hidden_field_tag "f[#{index}][t]", :classification_alias_ids %>
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
@@ -9,8 +9,7 @@
   </div>
 
   <div class="advanced-filter-mode">
-    <%= t("common.is", locale: DataCycleCore.ui_language) %>
-    <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
@@ -19,13 +18,13 @@
       &.classification_trees
       &.includes(
         :parent_classification_alias, sub_classification_alias: [
-          :classifications, sub_classification_alias: [
-            :classifications, sub_classification_alias: [
-              :classifications, :sub_classification_alias
+          :classifications, :classification_alias_path, sub_classification_alias: [
+            :classifications, :classification_alias_path, sub_classification_alias: [
+              :classifications, :classification_alias_path, :sub_classification_alias
             ]
           ]
         ]
-      ) %>
+      ) || [] %>
 
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
         <%= select_tag(
@@ -33,7 +32,7 @@
           value.blank? ? nil : options_for_select(
             value.map { |c|
               [
-                @selected_classification_aliases[c].try(:name),
+                @selected_classification_aliases[c].try(:internal_name),
                 c,
                 {
                   title: [
@@ -56,15 +55,18 @@
           }
         ) %>
     <% else %>
-        <% available_items = classification_items&.map { |c|
+        <% available_items = classification_items&.select { |type| !DataCycleCore.excluded_filter_classifications.include?(type.sub_classification_alias.try(:internal_name)) }&.map { |c|
           [
-            c.sub_classification_alias.try(:name),
+            c.sub_classification_alias.try(:internal_name),
             c.sub_classification_alias.try(:id),
             {
               title: [
                 c.sub_classification_alias.full_path,
                 c.sub_classification_alias.description
-              ].reject(&:blank?).join("\n\n")
+              ].reject(&:blank?).join("\n\n"),
+              data: {
+                title: c.sub_classification_alias.full_path,
+              },
             }
           ]
         } %>
@@ -87,7 +89,7 @@
 
   <% if can?(:advanced_filter, :backend) %>
     <div class="buttons">
-      <a class="remove-advanced-filter button alert" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
     </div>
   <% end %>
 </div>

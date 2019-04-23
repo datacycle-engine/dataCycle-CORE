@@ -28,15 +28,6 @@ module DataCycleCore
       end
     end
 
-    def display_flash_messages_resource(closable: true)
-      capture do
-        resource.errors.messages.each do |value|
-          text_string = "#{value[0]} #{value[1][0]}"
-          concat alert_box(text_string, :alert, closable)
-        end
-      end
-    end
-
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'DataCycle'
@@ -56,32 +47,20 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def new_content_select_options(query: DataCycleCore::ClassificationAlias, query_methods: [], content: nil, scope: nil)
-      query = query.includes(:classification_alias_path).for_tree('Inhaltstypen')
-
+    def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
+      query = query.where(template: true)
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
-        if query.respond_to?(query_method['method_name']) && query_method['value'].present?
+        if query.respond_to?(query_method['method_name']) && query_method.key?('value')
           query = query.try(query_method['method_name'], query_method['value'])
         elsif query.respond_to?(query_method['method_name'])
           query = query.try(query_method['method_name'])
         end
       end
 
-      query.order(:name).with_content_templates.map { |c|
-        next unless can?(:create, c.content_template, scope, {
-          classification_alias: c,
-          content: content
-        })
-
-        [
-          c.name,
-          "source_id=>#{c&.content_template&.id},source_table=>#{c&.content_template&.class&.table_name}",
-          {
-            title: c.description,
-            disabled: c&.content_template&.id.blank?
-          }
-        ]
-      }.compact
+      query = query.each.select { |t| can?(:create, t, scope, { content: content }) }
+      query = query.sort_by { |t| ordered_array.index(t.template_name).to_i } if ordered_array.present?
+      query = query.first(limit.to_i) if limit.present?
+      query.sort_by(&:template_name)
     end
 
     def to_query_params(options_hash)
@@ -119,6 +98,60 @@ module DataCycleCore
       feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
     end
 
+    def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
+      if value.is_a? Hash
+        return_html = ''
+        value.each do |k, v|
+          return_html += uploader_validation_to_text(v, parents + [k.to_s])
+        end
+        return_html
+      elsif parents[-2] == 'file_size'
+        "<li>#{I18n.t(parents.join('.'), data: ApplicationController.helpers.number_to_human_size(value, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)}</li>"
+      else
+        "<li>#{I18n.t(parents.join('.'), data: value.is_a?(Array) ? value.join(', ') : value.try(:to_s), locale: DataCycleCore.ui_language)}</li>"
+      end
+    end
+
+    def merge_uploader_white_list(asset_type: nil)
+      uploader_validations = {}
+
+      if can?(:create, DataCycleCore::DataLink)
+        uploader_validations = {
+          text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
+            class: 'DataCycleCore::TextFile',
+            translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+            translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+          })
+        }
+      end
+
+      return uploader_validations if asset_type == 'text_file'
+
+      if asset_type.present?
+        uploader_validations.delete(:text_file)
+
+        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
+      else
+        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value->> 'type' = ? OR things.template_name IN(?))", true, 'asset', DataCycleCore.features.dig(:external_media_archive, :enabled) ? ['Bild', 'Video'] : nil)
+      end
+
+      templates.each do |t|
+        next unless t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset')
+
+        uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
+
+        next if uploader_model.nil?
+
+        uploader_validations[uploader_model.name.demodulize.underscore.to_sym] = {
+          format: uploader_model.uploaders[:file].new&.extension_white_list || [],
+          class: uploader_model.name,
+          translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+        }.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
+      end
+      uploader_validations
+    end
+
     def render_content_partial(partial, parameters)
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
       content_parameter = parameters[:content].schema['schema_type'].underscore
@@ -131,7 +164,9 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters)
     end
 
-    def render_attribute_editor(key:, definition:, value:, parameters: {}, content: nil, scope: :edit)
+    def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
+      parameters[:options] ||= {}
+      return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
 
       if definition&.dig('ui', 'edit', 'partial').present?
@@ -140,7 +175,7 @@ module DataCycleCore
         partials = [
           key.attribute_name_from_key,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'edit').try(:[], 'type').try(:underscore)}",
+          "#{definition['type'].underscore}_#{definition&.dig('ui', 'edit', 'type')&.underscore}",
           definition['type'].underscore.to_s
         ]
       end
@@ -195,7 +230,7 @@ module DataCycleCore
         key.underscore.to_s,
         definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
         content.try(:schema_type)&.underscore,
-        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
 
@@ -206,8 +241,8 @@ module DataCycleCore
       partials = [
         key.underscore.to_s,
         definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        "#{definition.try(:[], 'linked_table').try(:singularize).try(:underscore)}_#{definition.try(:[], 'template_name').try(:parameterize).try(:underscore)}",
-        definition.try(:[], 'linked_table').try(:singularize).try(:underscore).to_s,
+        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
+        'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
 
@@ -223,8 +258,9 @@ module DataCycleCore
     end
 
     def render_asset_viewer(key:, value:, definition:, parameters: {}, content: nil)
+      value = value.first if value.is_a?(ActiveRecord::Relation) || value.is_a?(Array)
       partials = [
-        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        value.try(:type)&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
@@ -241,12 +277,21 @@ module DataCycleCore
       return first_existing_partial(partials), parameters.merge({ item: item })
     end
 
-    def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
+    def render_linked_partial(key:, definition:, parameters: {}, content: nil)
       partials = [
         definition.dig('template_name')&.underscore_blanks,
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/compact/#{p}" }
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+    end
+
+    def render_linked_details(key:, definition:, parameters: {}, content: nil)
+      partials = [
+        definition.dig('template_name')&.underscore_blanks,
+        parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_detail" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
@@ -259,14 +304,14 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_new_form(new_template: nil, parameters: {})
+    def render_new_form(template: nil, parameters: {})
       partials = [
-        new_template&.template_name&.underscore_blanks,
-        new_template&.schema_type&.underscore_blanks,
+        template&.template_name&.underscore_blanks,
+        template&.schema_type&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}_form" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
 
-      render_first_existing_partial(partials, parameters.merge({ new_template: new_template }))
+      render_first_existing_partial(partials, parameters.merge({ template: template }))
     end
 
     private
@@ -286,11 +331,11 @@ module DataCycleCore
       options[:data] = { closable: '' } if closable
       content_tag(:div, options) do
         if value.is_a?(String)
-          concat value.to_s
+          concat value.html_safe
         elsif value.is_a?(Hash)
           concat value.map { |k, v| content_tag(:b, k.titleize + ': ') + v.join(', ') }.join(', ').html_safe
         else
-          concat value.to_s
+          concat value.html_safe.to_s
         end
         concat close_link if closable
       end

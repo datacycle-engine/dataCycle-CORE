@@ -15,6 +15,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: TourOverlay
+        :validations:
+          :max: 1
       :description:
         :label: Beschreibung
         :type: string
@@ -38,7 +44,6 @@
       :primary_image:
         :label: Hauptbild
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
@@ -47,17 +52,20 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true
       :logo:
         :label: Logo
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :api:
           :minimal: true
+      :schedule:
+        :label: Season
+        :type: embedded
+        :template_name: Schedule
+        :translated: true
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -82,6 +90,11 @@
             :disabled: true
         :api:
           :minimal: true
+      :poi:
+        :label: POIS
+        :type: linked
+        :template_name: POI
+        :inverse_of: tour
       :directions_public_transport:
         :label: Anfahrt mit öffentlichen Verkehrsmitteln
         :type: string
@@ -152,6 +165,9 @@
         :label: Bewertung - Landschaft
         :type: number
         :storage_location: value
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :data_type:
         :label: Inhaltstype
         :type: classification

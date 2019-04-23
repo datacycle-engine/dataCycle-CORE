@@ -6,7 +6,7 @@ module DataCycleCore
       extend ActiveSupport::Concern
 
       module ClassMethods
-        def content_relations(options = {}, &block)
+        def content_relations(options = {})
           table_given = options[:table_name]
           postfix = options[:postfix]
 
@@ -25,13 +25,18 @@ module DataCycleCore
           has_many :classifications, through: classification_content_table.to_sym
           has_many :classification_groups, through: :classifications
           has_many :classification_aliases, through: :classification_groups
-          has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false) }, through: :classification_groups, source: :classification_alias
+          has_many :primary_classification_groups, through: :classifications
+          has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
+          has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false).distinct },
+                   through: :classification_groups, source: :classification_alias
 
           # relation content to all other contents
-          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', as: :content_b, dependent: :destroy
+          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+          has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', as: :content_a, dependent: :destroy
-          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_a_history, dependent: :destroy
+          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_b, through: :content_content_b
+          has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
@@ -49,6 +54,31 @@ module DataCycleCore
           has_many :indirect_data_links, through: :data_link_content_items
           has_many :data_links, as: :item, dependent: :destroy
         end
+      end
+
+      def assigned_classification_aliases
+        primary_classification_aliases
+      end
+
+      def mapped_classification_aliases
+        classification_aliases.where.not(id: primary_classification_aliases.pluck(:id))
+      end
+
+      def is_related?
+        content_content_b.exists?
+      end
+
+      def has_related?
+        content_content_a.exists?
+      end
+
+      def related_to
+        content_a&.map(&:related_object)
+      end
+
+      def related_object
+        return self unless content_type?('embedded')
+        content_a&.first&.send(:related_object)
       end
     end
   end

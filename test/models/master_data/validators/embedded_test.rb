@@ -14,7 +14,6 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Bilder',
         'type' => 'embedded',
-        'linked_table' => 'things',
         'template_name' => 'Bild',
         'validations' => {
           'max' => 1
@@ -26,7 +25,6 @@ describe DataCycleCore::MasterData::Validators::Embedded do
       {
         'label' => 'Geplante Publikation',
         'type' => 'embedded',
-        'linked_table' => 'things',
         'template_name' => 'Publikations-Plan',
         'validations' => {
           'classifications' => 'no_conflicts'

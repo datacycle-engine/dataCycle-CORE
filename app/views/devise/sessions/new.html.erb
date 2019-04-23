@@ -6,7 +6,7 @@
         <![endif]-->
         <div class="columns">
             <%= render 'logo' %>
-            <h1>Willkommen</h1>
+            <h1><%= t('welcome', locale: DataCycleCore.ui_language) %></h1>
         </div>
 
 
@@ -15,7 +15,10 @@
             <ul class="accordion" data-accordion>
                 <li class="accordion-item is-active" data-accordion-item>
                     <!-- Accordion tab title -->
-                    <a href="#" class="accordion-title"><i class="fa fa-smile-o" aria-hidden="true"></i><span>Login</span></a>
+                    <a href="#" class="accordion-title">
+                        <i class="fa fa-smile-o" aria-hidden="true"></i>
+                        <span><%= t('devise.sessions.new.sign_in', locale: DataCycleCore.ui_language) %></span>
+                    </a>
 
                     <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
                     <div class="accordion-content" data-tab-content>
@@ -24,7 +27,9 @@
 
                             <div class="row">
                                 <div class="small-4 columns">
-                                    <label for="user_email" class="text-right middle">E-Mail:</label>
+                                    <label for="user_email" class="text-right middle">
+                                        <%= t('activerecord.attributes.user.email', locale: DataCycleCore.ui_language) %>:
+                                    </label>
                                 </div>
                                 <div class="small-7 columns end">
                                     <%= f.input :email, required: false, autofocus: true, label: false %>
@@ -33,18 +38,29 @@
 
                             <div class="row">
                                 <div class="small-4 columns">
-                                    <label for="user_password" class="text-right middle">Passwort:</label>
+                                    <label for="user_password" class="text-right middle">
+                                        <%= t('activerecord.attributes.user.password', locale: DataCycleCore.ui_language) %>:
+                                    </label>
                                 </div>
                                 <div class="small-7 columns end">
                                     <%= f.input :password, required: false, label: false %>
+
+                                    <%- if devise_mapping.recoverable? %>
+                                        <%= link_to t('devise.shared.links.forgot_your_password'),
+                                                    new_password_path(resource_name),
+                                                    class: 'forgotten_password_link' %>
+                                    <% end -%>
                                 </div>
                             </div>
 
                             <div class="row">
                                 <div class="small-4 columns">&nbsp;</div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :remember_me, as: :boolean, label: 'Angemeldet bleiben ?' if devise_mapping.rememberable? %>
-                                </div>
+                                <%- if devise_mapping.rememberable? %>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :remember_me, as: :boolean,
+                                                    label: t('activerecord.attributes.user.remember_me', locale: DataCycleCore.ui_language) %>
+                                    </div>
+                                <% end -%>
                             </div>
 
                             <div class="row">
@@ -61,57 +77,61 @@
 
                     </div>
                 </li>
-                <li class="accordion-item" data-accordion-item>
-                    <!-- Accordion tab title -->
-                    <a href="#" class="accordion-title"><i class="fa fa-cogs" aria-hidden="true"></i><span>Registrieren</span></a>
 
-                    <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
-                    <div class="accordion-content" data-tab-content>
+                <% if DataCycleCore::User.included_modules.include?(Devise::Models::Registerable) %>
+                    <li class="accordion-item" data-accordion-item>
+                        <!-- Accordion tab title -->
+                        <a href="#" class="accordion-title"><i class="fa fa-cogs" aria-hidden="true"></i><span>Registrieren</span></a>
 
-                        <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-                            <%= f.error_notification %>
+                        <!-- Accordion tab content: it would start in the open state due to using the `is-active` state class. -->
+                        <div class="accordion-content" data-tab-content>
 
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_email" class="text-right middle">E-Mail:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :email, required: true, autofocus: true, label: false, disabled: true %>
-                                </div>
-                            </div>
+                            <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+                                <%= f.error_notification %>
 
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_password" class="text-right middle">Passwort:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false, disabled: true %>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="small-4 columns">
-                                    <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
-                                </div>
-                                <div class="small-7 columns end">
-                                    <%= f.input :password_confirmation, required: true, label: false, disabled: true %>
-                                </div>
-                            </div>
-
-                            <div class="row">
-                                <div class="small-7 small-offset-4 columns end">
-                                    <div class="form-actions">
-                                        <%= f.button :button, class:"button",type:"submit", disabled: true do %>
-                                            <i class="fa fa-angle-right" aria-hidden="true"></i>
-                                        <% end %>
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_email" class="text-right middle">E-Mail:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :email, required: true, autofocus: true, label: false, disabled: true %>
                                     </div>
                                 </div>
-                            </div>
 
-                        <% end %>
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_password" class="text-right middle">Passwort:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false, disabled: true %>
+                                    </div>
+                                </div>
 
-                    </div>
-                </li>
+                                <div class="row">
+                                    <div class="small-4 columns">
+                                        <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
+                                    </div>
+                                    <div class="small-7 columns end">
+                                        <%= f.input :password_confirmation, required: true, label: false, disabled: true %>
+                                    </div>
+                                </div>
+
+                                <div class="row">
+                                    <div class="small-7 small-offset-4 columns end">
+                                        <div class="form-actions">
+                                            <%= f.button :button, class:"button",type:"submit", disabled: true do %>
+                                                <i class="fa fa-angle-right" aria-hidden="true"></i>
+                                            <% end %>
+                                        </div>
+                                    </div>
+                                </div>
+
+                            <% end %>
+
+                        </div>
+                    </li>
+                <% end %>
+
             </ul>
 
         </div>

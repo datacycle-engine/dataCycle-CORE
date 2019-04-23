@@ -69,7 +69,6 @@
       :testPlace:
         :label: Ort
         :type: embedded
-        :linked_table: things
         :template_name: testPlace
 
 - :data:
@@ -85,7 +84,6 @@
       :testCW:
         :label: Kreativdaten
         :type: embedded
-        :linked_table: things
         :template_name: EmbeddedCreativeWork
 
 - :data:
@@ -128,4 +126,3 @@
       :linked:
         :label: Verlinkt
         :type: linked
-        :linked_table: things

@@ -25,14 +25,46 @@ namespace :data_cycle_core do
       end
     end
 
+    desc 'import all external_system configs'
+    task import_external_system_configs: [:environment] do
+      puts 'importing new external_system configs'
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all
+      if errors.blank?
+        puts '[done] ... looks good'
+      else
+        puts 'the following errors were encountered during import:'
+        ap errors
+      end
+    end
+
     desc 'import classifications'
     task import_classifications: [:environment] do
+      before_import = Time.zone.now
       puts 'importing new classification definitions'
-      DataCycleCore::MasterData::ImportClassifications.import_all
+      imported_classifications = DataCycleCore::MasterData::ImportClassifications.import_all
+      if imported_classifications.size.positive?
+        puts('[done] ... looks good')
+      else
+        exit(-1)
+      end
+
+      puts "\nchecking for unused <Inhaltstypen> classifications"
+      data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
+      if data.present?
+        puts "\nWARNING: the following classification_aliases are not updated:"
+        puts 'name'.ljust(30) + ' | ' + 'last_seen'.ljust(38) + ' | ' + 'occurrence'
+        puts '-' * 82
+        data.each do |key, value|
+          puts "#{key.to_s.ljust(30)} |  #{value[:seen_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(7)}"
+        end
+      else
+        puts('[done] ... looks good')
+      end
     end
 
     desc 'import all template definitions'
     task import_templates: [:environment] do
+      before_import = Time.zone.now
       puts 'importing new template definitions'
       errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if duplicates.present?
@@ -44,6 +76,26 @@ namespace :data_cycle_core do
         ap errors
       end
       errors.blank? ? puts('[done] ... looks good') : exit(-1)
+      puts "\nchecking for usage of not translatable embedded"
+      templates = DataCycleCore::MasterData::ImportTemplates.find_not_translatable_embedded
+      if templates.present?
+        puts "\nERROR: the following templates use not translatable embedded:"
+        ap templates
+        puts "\nHINT: add ':translated: true' to the respective embedded propert(y)/(ies) to make it work"
+        exit(-1)
+      else
+        puts('[done] ... looks good')
+      end
+
+      outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
+      if outdated_templates.present?
+        puts "\ntemplate_updated_at:"
+        puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
+        puts '-' * 92
+        outdated_templates.each do |key, value|
+          puts "#{key.to_s.ljust(20)} | #{value[:template_updated_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
+        end
+      end
     end
 
     desc 'delete history of a specific template_name'
@@ -81,14 +133,13 @@ namespace :data_cycle_core do
     end
 
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
-    task :update_all_templates_sql, [:history, :prefix] => [:environment] do |_, args|
-      args[:prefix] ||= ''
+    task :update_all_templates_sql, [:history] => [:environment] do |_, args|
       temp = Time.zone.now
       puts "#{'table_name'.ljust(15)} | #{'template_name'.ljust(25)} | #updated|of total | process time/s \r"
       puts '-' * 80 + " \r"
       DataCycleCore::Thing.where(template: true).each do |template_object|
-        Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
-        Rake::Task["#{args[:prefix]}data_cycle_core:update:update_template_sql"].reenable
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].reenable
       end
       puts '-' * 80 + " \r"
       puts "total time: #{format_time(Time.zone.now - temp, 6, 6, 's')} \r"
@@ -100,7 +151,7 @@ namespace :data_cycle_core do
       total_items = DataCycleCore::Thing.where(template_name: args[:template_name], template: false).count
 
       if template.nil?
-        puts 'ERROR: template not found. The following templates are known to the system:'
+        puts "ERROR: template [#{args[:template_name]}] not found. The following templates are known to the system:"
         puts DataCycleCore::Thing.where(template: true).map(&:template_name)
         exit(-1)
       end
@@ -111,7 +162,9 @@ namespace :data_cycle_core do
         UPDATE things
         SET
           schema = '#{template.schema.to_json}',
-          updated_at = updated_at + INTERVAL '1 sec'
+          boost = #{template.schema.dig('boost') || 'NULL'},
+          content_type = '#{template.schema.dig('content_type')}',
+          template_updated_at = '#{Time.zone.now}'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
@@ -127,7 +180,9 @@ namespace :data_cycle_core do
 
       update_history_sql = <<-EOS
         UPDATE thing_histories
-        SET schema = '#{template.schema.to_json}'
+        SET schema = '#{template.schema.to_json}',
+        boost = #{template.schema.dig('boost') || 'NULL'},
+        content_type = '#{template.schema.dig('content_type')}'
         WHERE template_name='#{args[:template_name]}' and template=false
       EOS
 
@@ -174,5 +229,20 @@ namespace :data_cycle_core do
 
   def format_time(time, n, m, unit)
     time.round(m).to_s.split('.').zip([->(x) { x.rjust(n) }, ->(x) { x.ljust(m, '0') }]).map { |x, f| f.call(x) }.join('.') + " #{unit}"
+  end
+end
+
+namespace :dc do
+  namespace :update do
+    namespace :configs do
+      desc 'import and update all classifications, external_sources, external_systems and templates'
+      task :all, [:history] => :environment do |_, args|
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(args.fetch(:history, false))
+      end
+    end
   end
 end

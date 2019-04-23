@@ -1,19 +1,58 @@
-<h2>Change your password</h2>
+<div class="glass home-container reset-password">
+    <div class="home-container-content">
+        <!--[if lt IE 9]>
+        <div class="legacy-ie-fix"></div>
+        <![endif]-->
+        <div class="columns">
+            <%= render 'logo' %>
+        </div>
 
-<%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
-  <%= f.error_notification %>
+        <main class="columns">
+            <h1><%= t('devise.passwords.edit.change_your_password', locale: DataCycleCore.ui_language) %></h1>
 
-  <%= f.input :reset_password_token, as: :hidden %>
-  <%= f.full_error :reset_password_token %>
+            <%= simple_form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put }) do |f| %>
+                <%= f.input :reset_password_token, as: :hidden %>
 
-  <div class="form-inputs">
-    <%= f.input :password, label: "New password", required: true, autofocus: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
-    <%= f.input :password_confirmation, label: "Confirm your new password", required: true %>
-  </div>
+                <% if resource.errors.any? %>
+                    <ul class="errors">
+                        <% resource.errors.messages.values.flatten.each do |message| %>
+                            <li><%= message %></li>
+                        <% end %>
+                    </ul>
+                <% end %>
 
-  <div class="form-actions">
-    <%= f.button :submit, "Change my password" %>
-  </div>
-<% end %>
+                <div class="row">
+                    <div class="small-5 columns">
+                        <label for="user_password" class="text-right middle">
+                          <%= t('activerecord.attributes.user.password', locale: DataCycleCore.ui_language) %>:
+                        </label>
+                    </div>
+                    <div class="small-6 columns end">
+                        <%= f.input :password, required: false, label: false %>
+                    </div>
+                </div>
 
-<%= render "devise/shared/links" %>
+                <div class="row">
+                    <div class="small-5 columns">
+                        <label for="user_password_confirmation" class="text-right middle">
+                          <%= t('activerecord.attributes.user.password_confirmation', locale: DataCycleCore.ui_language) %>:
+                        </label>
+                    </div>
+                    <div class="small-6 columns end">
+                        <%= f.input :password_confirmation, required: false, label: false %>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="small-7 small-offset-5 columns end">
+                        <div class="form-actions">
+                            <%= f.button :button, class: 'button', type: 'submit' do %>
+                                <%= t('devise.passwords.edit.change_your_password', locale: DataCycleCore.ui_language) %>
+                            <% end %>
+                        </div>
+                    </div>
+                </div>
+            <% end %>
+        </div>
+    </div>
+</div>

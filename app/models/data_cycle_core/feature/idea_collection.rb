@@ -12,10 +12,6 @@ module DataCycleCore
           DataCycleCore::Thing.find_by(template: true, template_name: template_name(content))
         end
 
-        def template_data_type(content = nil)
-          template(content)&.schema&.dig('properties', 'data_type', 'default_value')
-        end
-
         def life_cycle_stage(content = nil)
           DataCycleCore::Feature::LifeCycle.ordered_classifications(content).dig(configuration(content).dig('life_cycle_stage'), :id)
         end

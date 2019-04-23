@@ -1,0 +1,43 @@
+:publication_schedule:
+  :enabled: true
+  :classification_keys:
+    - output_channel
+
+:overlay:
+  :enabled: true
+
+:container:
+  :enabled: true
+
+:external_media_archive:
+  :enabled: false
+
+:normalize:
+  :enabled: true
+  :external_source: Econob Normalize
+  :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
+
+:duplicate_content:
+  :enabled: true
+
+:releasable:
+  :enabled: true
+
+:life_cycle:
+  :enabled: true
+  :attribute_keys:
+    - data_pool
+  :tree_label: Inhaltspools
+  :ordered:
+    - Vorschläge
+    - Recherche
+    - Aktuelle Inhalte
+    - Archiv
+
+:idea_collection:
+  :enabled: true
+  :dependencies:
+    - life_cycle
+    - container
+  :template: Recherche
+  :life_cycle_stage: Recherche

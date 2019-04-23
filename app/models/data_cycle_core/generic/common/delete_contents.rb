@@ -14,19 +14,17 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where({ "dump.#{locale}" => { '$exists': true } }.merge(source_filter.with_evaluated_values))
+          mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(source_filter.with_evaluated_values))
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            clazz = options.dig(:import, :target_type).constantize
-
             external_key_path = options.dig(:import, :external_key_path).split('.')
 
-            clazz.find_by(
+            DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
               external_key: raw_data.dig(*external_key_path)
-            ).try(:destroy!)
+            ).try(:destroy_content, save_history: false, destroy_linked: true)
           end
         end
       end

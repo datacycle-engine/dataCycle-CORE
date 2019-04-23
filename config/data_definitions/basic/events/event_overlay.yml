@@ -63,7 +63,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
       :url:
         :label: URL
@@ -76,7 +75,6 @@
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :linked_table: things
         :template_name: Örtlichkeit
         :validations:
           :max: 1

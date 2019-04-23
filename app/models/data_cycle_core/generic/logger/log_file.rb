@@ -36,7 +36,11 @@ module DataCycleCore
         end
 
         def info(title, id)
-          id.blank? ? @log.info("INFO: #{title}") : @log.info("INFO: #{title} | #{id}")
+          id.blank? ? @log.info(title) : @log.info("#{title} | #{id}")
+        end
+
+        def debug(title, id, data)
+          @log.debug "#{title} | #{id} | #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}"
         end
 
         def phase_finished(label, total)

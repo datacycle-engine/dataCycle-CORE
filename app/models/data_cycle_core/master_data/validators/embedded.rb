@@ -36,10 +36,10 @@ module DataCycleCore
           end
 
           # validate references
-          embedded_template = ('DataCycleCore::' + template['linked_table'].classify).constantize
+          embedded_template = DataCycleCore::Thing
             .find_by(template: true, template_name: template['template_name'])
           if template.blank? || embedded_template.blank?
-            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: template&.dig('linked_table'), locale: DataCycleCore.ui_language)
+            (@error[:error][@template_key] ||= []) << I18n.t(:no_template, scope: [:validation, :errors], name: 'things', locale: DataCycleCore.ui_language)
             return
           end
           data.each do |item|

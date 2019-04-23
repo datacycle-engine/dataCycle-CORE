@@ -8,6 +8,20 @@ SET check_function_bodies = false;
 SET client_min_messages = warning;
 SET row_security = off;
 
+--
+-- Name: public; Type: SCHEMA; Schema: -; Owner: -
+--
+
+CREATE SCHEMA public;
+
+
+--
+-- Name: SCHEMA public; Type: COMMENT; Schema: -; Owner: -
+--
+
+COMMENT ON SCHEMA public IS 'standard public schema';
+
+
 SET default_tablespace = '';
 
 SET default_with_oids = false;
@@ -67,7 +81,7 @@ CREATE TABLE public.assets (
 
 CREATE TABLE public.classification_aliases (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
+    internal_name character varying,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
@@ -75,7 +89,9 @@ CREATE TABLE public.classification_aliases (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
-    description character varying
+    internal_description character varying,
+    name_i18n jsonb DEFAULT '{}'::jsonb,
+    description_i18n jsonb DEFAULT '{}'::jsonb
 );
 
 
@@ -122,7 +138,7 @@ CREATE VIEW public.classification_alias_paths AS
          SELECT classification_aliases.id,
             ARRAY[]::uuid[] AS ancestor_ids,
             ARRAY[classification_aliases.id] AS full_path_ids,
-            ARRAY[classification_aliases.name, classification_tree_labels.name] AS full_path_names
+            ARRAY[classification_aliases.internal_name, classification_tree_labels.name] AS full_path_names
            FROM ((public.classification_trees
              JOIN public.classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
              JOIN public.classification_tree_labels ON ((classification_tree_labels.id = classification_trees.classification_tree_label_id)))
@@ -131,7 +147,7 @@ CREATE VIEW public.classification_alias_paths AS
          SELECT classification_aliases.id,
             (classification_alias_paths_1.id || classification_alias_paths_1.ancestor_ids) AS ancestor_ids,
             (classification_aliases.id || classification_alias_paths_1.full_path_ids) AS full_path_ids,
-            (classification_aliases.name || classification_alias_paths_1.full_path_names) AS full_path_names
+            (classification_aliases.internal_name || classification_alias_paths_1.full_path_names) AS full_path_names
            FROM ((public.classification_trees
              JOIN classification_alias_paths classification_alias_paths_1 ON ((classification_alias_paths_1.id = classification_trees.parent_classification_alias_id)))
              JOIN public.classification_aliases ON ((classification_aliases.id = classification_trees.classification_alias_id)))
@@ -144,32 +160,12 @@ CREATE VIEW public.classification_alias_paths AS
 
 
 --
--- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.classification_content_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    content_data_history_id uuid,
-    content_data_history_type character varying,
-    classification_id uuid,
-    tag boolean,
-    classification boolean,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    relation character varying
-);
-
-
---
 -- Name: classification_contents; Type: TABLE; Schema: public; Owner: -
 --
 
 CREATE TABLE public.classification_contents (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
-    content_data_type character varying,
     classification_id uuid,
     tag boolean,
     classification boolean,
@@ -195,6 +191,109 @@ CREATE TABLE public.classification_groups (
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone
 );
+
+
+--
+-- Name: classification_alias_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_alias_statistics AS
+ WITH descendant_counts AS (
+         SELECT classification_aliases_1.id,
+            count(
+                CASE
+                    WHEN (exploded_classification_ancestors.ancestor_id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS descendant_count
+           FROM (public.classification_aliases classification_aliases_1
+             JOIN ( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id
+                   FROM public.classification_alias_paths) exploded_classification_ancestors ON ((exploded_classification_ancestors.ancestor_id = classification_aliases_1.id)))
+          GROUP BY classification_aliases_1.id
+        ), linked_content_counts AS (
+         SELECT classification_aliases_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases_1.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS linked_content_count
+           FROM (((public.classification_aliases classification_aliases_1
+             JOIN public.classification_alias_paths ON ((classification_aliases_1.id = classification_alias_paths.id)))
+             JOIN public.classification_groups ON ((classification_aliases_1.id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY classification_aliases_1.id
+        ), descendants_linked_content_counts AS (
+         SELECT exploded_classification_ancestors.ancestor_id AS id,
+            count(*) AS linked_content_count
+           FROM ((( SELECT unnest(classification_alias_paths.ancestor_ids) AS ancestor_id,
+                    classification_alias_paths.id AS classification_alias_id
+                   FROM public.classification_alias_paths) exploded_classification_ancestors
+             JOIN public.classification_groups ON ((exploded_classification_ancestors.classification_alias_id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY exploded_classification_ancestors.ancestor_id
+        )
+ SELECT classification_aliases.id,
+    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
+    (COALESCE(linked_content_counts.linked_content_count, (0)::bigint) + COALESCE(descendants_linked_content_counts.linked_content_count, (0)::bigint)) AS linked_content_count
+   FROM (((public.classification_aliases
+     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_aliases.id)))
+     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_aliases.id)))
+     LEFT JOIN descendants_linked_content_counts ON ((descendants_linked_content_counts.id = classification_aliases.id)));
+
+
+--
+-- Name: classification_content_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_content_histories (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    content_data_history_id uuid,
+    classification_id uuid,
+    tag boolean,
+    classification boolean,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    external_source_id uuid,
+    relation character varying
+);
+
+
+--
+-- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.classification_tree_label_statistics AS
+ WITH descendant_counts AS (
+         SELECT classification_tree_labels_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS descendant_count
+           FROM ((public.classification_tree_labels classification_tree_labels_1
+             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
+             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
+          GROUP BY classification_tree_labels_1.id
+        ), linked_content_counts AS (
+         SELECT classification_tree_labels_1.id,
+            count(
+                CASE
+                    WHEN (classification_aliases.id IS NOT NULL) THEN 1
+                    ELSE NULL::integer
+                END) AS linked_content_count
+           FROM ((((public.classification_tree_labels classification_tree_labels_1
+             JOIN public.classification_trees ON ((classification_tree_labels_1.id = classification_trees.classification_tree_label_id)))
+             JOIN public.classification_aliases ON ((classification_trees.classification_alias_id = classification_aliases.id)))
+             JOIN public.classification_groups ON ((classification_aliases.id = classification_groups.classification_alias_id)))
+             JOIN public.classification_contents ON ((classification_groups.classification_id = classification_contents.classification_id)))
+          GROUP BY classification_tree_labels_1.id
+        )
+ SELECT classification_tree_labels.id,
+    COALESCE(descendant_counts.descendant_count, (0)::bigint) AS descendant_count,
+    COALESCE(linked_content_counts.linked_content_count, (0)::bigint) AS linked_content_count
+   FROM ((public.classification_tree_labels
+     LEFT JOIN descendant_counts ON ((descendant_counts.id = classification_tree_labels.id)))
+     LEFT JOIN linked_content_counts ON ((linked_content_counts.id = classification_tree_labels.id)));
 
 
 --
@@ -225,16 +324,14 @@ CREATE TABLE public.classifications (
 CREATE TABLE public.content_content_histories (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_a_history_id uuid,
-    content_a_history_type character varying,
     relation_a character varying,
     content_b_history_id uuid,
     content_b_history_type character varying,
-    relation_b character varying,
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
-    order_b integer
+    relation_b character varying
 );
 
 
@@ -245,15 +342,12 @@ CREATE TABLE public.content_content_histories (
 CREATE TABLE public.content_contents (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_a_id uuid,
-    content_a_type character varying,
     relation_a character varying,
     content_b_id uuid,
-    content_b_type character varying,
-    relation_b character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
-    order_b integer
+    relation_b character varying
 );
 
 
@@ -332,7 +426,7 @@ CREATE TABLE public.things (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    seen_at timestamp without time zone,
+    template_updated_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -352,7 +446,10 @@ CREATE TABLE public.things (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    is_part_of uuid
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -362,7 +459,7 @@ CREATE TABLE public.things (
 
 CREATE VIEW public.content_meta_items AS
  SELECT things.id,
-    'DataCycleCore::Thing' AS content_type,
+    'DataCycleCore::Thing'::text AS content_type,
     things.template_name,
     things.schema,
     things.external_source_id,
@@ -372,126 +469,6 @@ CREATE VIEW public.content_meta_items AS
     things.deleted_by
    FROM public.things
   WHERE (things.template IS FALSE);
-
-
---
--- Name: creative_work_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.creative_work_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    creative_work_id uuid,
-    "position" integer,
-    is_part_of uuid,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    external_source_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_key character varying,
-    deleted_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid
-);
-
-
---
--- Name: creative_work_history_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.creative_work_history_translations (
-    id integer NOT NULL,
-    creative_work_history_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    headline text,
-    description text,
-    history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: creative_work_history_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.creative_work_history_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: creative_work_history_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.creative_work_history_translations_id_seq OWNED BY public.creative_work_history_translations.id;
-
-
---
--- Name: creative_work_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.creative_work_translations (
-    id integer NOT NULL,
-    creative_work_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    headline text,
-    description text
-);
-
-
---
--- Name: creative_work_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.creative_work_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: creative_work_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.creative_work_translations_id_seq OWNED BY public.creative_work_translations.id;
-
-
---
--- Name: creative_works; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.creative_works (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    "position" integer DEFAULT 0,
-    is_part_of uuid,
-    metadata jsonb,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    template boolean DEFAULT false NOT NULL,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
 
 
 --
@@ -521,6 +498,7 @@ CREATE TABLE public.delayed_jobs (
 --
 
 CREATE SEQUENCE public.delayed_jobs_id_seq
+    AS integer
     START WITH 1
     INCREMENT BY 1
     NO MINVALUE
@@ -533,126 +511,6 @@ CREATE SEQUENCE public.delayed_jobs_id_seq
 --
 
 ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
-
-
---
--- Name: event_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.event_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    event_id uuid,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    external_source_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_key character varying,
-    deleted_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid
-);
-
-
---
--- Name: event_history_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.event_history_translations (
-    id integer NOT NULL,
-    event_history_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    headline text,
-    description text,
-    history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: event_history_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.event_history_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: event_history_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.event_history_translations_id_seq OWNED BY public.event_history_translations.id;
-
-
---
--- Name: event_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.event_translations (
-    id integer NOT NULL,
-    event_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    headline text,
-    description text
-);
-
-
---
--- Name: event_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.event_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: event_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.event_translations_id_seq OWNED BY public.event_translations.id;
-
-
---
--- Name: events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.events (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    start_date timestamp without time zone,
-    end_date timestamp without time zone,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
 
 
 --
@@ -687,350 +545,20 @@ CREATE TABLE public.external_systems (
 
 
 --
--- Name: organization_histories; Type: TABLE; Schema: public; Owner: -
+-- Name: primary_classification_groups; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE TABLE public.organization_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    organization_id uuid NOT NULL,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    external_source_id uuid,
-    external_key character varying,
-    deleted_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid
-);
-
-
---
--- Name: organization_history_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organization_history_translations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    organization_history_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    headline character varying,
-    description text,
-    history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: organization_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organization_translations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    organization_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    headline character varying,
-    description text,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: organizations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.organizations (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    external_source_id uuid,
-    external_key character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: person_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    person_id uuid,
-    given_name character varying,
-    family_name character varying,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    external_source_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_key character varying,
-    deleted_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid
-);
-
-
---
--- Name: person_history_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_history_translations (
-    id integer NOT NULL,
-    person_history_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    headline text,
-    description text,
-    history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: person_history_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.person_history_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: person_history_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.person_history_translations_id_seq OWNED BY public.person_history_translations.id;
-
-
---
--- Name: person_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.person_translations (
-    id integer NOT NULL,
-    person_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    content jsonb,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    headline text,
-    description text
-);
-
-
---
--- Name: person_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.person_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: person_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.person_translations_id_seq OWNED BY public.person_translations.id;
-
-
---
--- Name: persons; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.persons (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    given_name character varying,
-    family_name character varying,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
-
-
---
--- Name: place_histories; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.place_histories (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    place_id uuid,
-    external_key character varying,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
-    location public.geometry(Point,4326),
-    line public.geography(LineStringZ,4326),
-    photo uuid,
-    metadata jsonb,
-    template boolean DEFAULT false NOT NULL,
-    seen_at timestamp without time zone,
-    external_source_id uuid,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
-    deleted_at timestamp without time zone,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid
-);
-
-
---
--- Name: place_history_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.place_history_translations (
-    id integer NOT NULL,
-    place_history_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    name character varying,
-    url character varying,
-    hours_available character varying,
-    address character varying,
-    content jsonb,
-    headline text,
-    description text,
-    history_valid tstzrange,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: place_history_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.place_history_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: place_history_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.place_history_translations_id_seq OWNED BY public.place_history_translations.id;
-
-
---
--- Name: place_translations; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.place_translations (
-    id integer NOT NULL,
-    place_id uuid NOT NULL,
-    locale character varying NOT NULL,
-    name character varying,
-    url character varying,
-    hours_available character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    content jsonb,
-    description text,
-    headline text
-);
-
-
---
--- Name: place_translations_id_seq; Type: SEQUENCE; Schema: public; Owner: -
---
-
-CREATE SEQUENCE public.place_translations_id_seq
-    START WITH 1
-    INCREMENT BY 1
-    NO MINVALUE
-    NO MAXVALUE
-    CACHE 1;
-
-
---
--- Name: place_translations_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
---
-
-ALTER SEQUENCE public.place_translations_id_seq OWNED BY public.place_translations.id;
-
-
---
--- Name: places; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.places (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    external_source_id uuid,
-    external_key character varying,
-    longitude double precision,
-    latitude double precision,
-    elevation double precision,
-    location public.geometry(Point,4326),
-    seen_at timestamp without time zone,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    photo uuid,
-    line public.geography(LineStringZ,4326),
-    metadata jsonb,
-    template boolean DEFAULT false,
-    address_locality character varying,
-    street_address character varying,
-    postal_code character varying,
-    address_country character varying,
-    fax_number character varying,
-    telephone character varying,
-    email character varying,
-    template_name character varying,
-    schema jsonb,
-    created_by uuid,
-    updated_by uuid,
-    deleted_by uuid,
-    deleted_at timestamp without time zone
-);
+CREATE VIEW public.primary_classification_groups AS
+ SELECT DISTINCT ON (classification_groups.classification_id) classification_groups.id,
+    classification_groups.classification_id,
+    classification_groups.classification_alias_id,
+    classification_groups.external_source_id,
+    classification_groups.seen_at,
+    classification_groups.created_at,
+    classification_groups.updated_at,
+    classification_groups.deleted_at
+   FROM public.classification_groups
+  ORDER BY classification_groups.classification_id, classification_groups.created_at;
 
 
 --
@@ -1062,7 +590,6 @@ CREATE TABLE public.schema_migrations (
 CREATE TABLE public.searches (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
     content_data_id uuid,
-    content_data_type character varying,
     locale character varying,
     words tsvector,
     full_text text,
@@ -1141,7 +668,7 @@ CREATE TABLE public.thing_histories (
     created_by uuid,
     updated_by uuid,
     deleted_by uuid,
-    seen_at timestamp without time zone,
+    template_updated_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     deleted_at timestamp without time zone,
@@ -1161,7 +688,10 @@ CREATE TABLE public.thing_histories (
     fax_number character varying,
     telephone character varying,
     email character varying,
-    is_part_of uuid
+    is_part_of uuid,
+    validity_range tstzrange,
+    boost numeric,
+    content_type character varying
 );
 
 
@@ -1193,19 +723,6 @@ CREATE TABLE public.thing_translations (
     content jsonb,
     name character varying,
     description text,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: use_cases; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.use_cases (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    user_id uuid,
-    external_source_id uuid,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 );
@@ -1298,66 +815,10 @@ CREATE TABLE public.watch_lists (
 
 
 --
--- Name: creative_work_history_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_work_history_translations ALTER COLUMN id SET DEFAULT nextval('public.creative_work_history_translations_id_seq'::regclass);
-
-
---
--- Name: creative_work_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_work_translations ALTER COLUMN id SET DEFAULT nextval('public.creative_work_translations_id_seq'::regclass);
-
-
---
 -- Name: delayed_jobs id; Type: DEFAULT; Schema: public; Owner: -
 --
 
 ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
-
-
---
--- Name: event_history_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_history_translations ALTER COLUMN id SET DEFAULT nextval('public.event_history_translations_id_seq'::regclass);
-
-
---
--- Name: event_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_translations ALTER COLUMN id SET DEFAULT nextval('public.event_translations_id_seq'::regclass);
-
-
---
--- Name: person_history_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_history_translations ALTER COLUMN id SET DEFAULT nextval('public.person_history_translations_id_seq'::regclass);
-
-
---
--- Name: person_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_translations ALTER COLUMN id SET DEFAULT nextval('public.person_translations_id_seq'::regclass);
-
-
---
--- Name: place_history_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.place_history_translations ALTER COLUMN id SET DEFAULT nextval('public.place_history_translations_id_seq'::regclass);
-
-
---
--- Name: place_translations id; Type: DEFAULT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.place_translations ALTER COLUMN id SET DEFAULT nextval('public.place_translations_id_seq'::regclass);
 
 
 --
@@ -1457,38 +918,6 @@ ALTER TABLE ONLY public.content_contents
 
 
 --
--- Name: creative_work_histories creative_work_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_work_histories
-    ADD CONSTRAINT creative_work_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: creative_work_history_translations creative_work_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_work_history_translations
-    ADD CONSTRAINT creative_work_history_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: creative_work_translations creative_work_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_work_translations
-    ADD CONSTRAINT creative_work_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: creative_works creative_works_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.creative_works
-    ADD CONSTRAINT creative_works_pkey PRIMARY KEY (id);
-
-
---
 -- Name: delayed_jobs delayed_jobs_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1505,38 +934,6 @@ ALTER TABLE ONLY public.data_links
 
 
 --
--- Name: event_histories event_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_histories
-    ADD CONSTRAINT event_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: event_history_translations event_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_history_translations
-    ADD CONSTRAINT event_history_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: event_translations event_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.event_translations
-    ADD CONSTRAINT event_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.events
-    ADD CONSTRAINT events_pkey PRIMARY KEY (id);
-
-
---
 -- Name: external_sources external_sources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1550,102 +947,6 @@ ALTER TABLE ONLY public.external_sources
 
 ALTER TABLE ONLY public.external_systems
     ADD CONSTRAINT external_systems_pkey PRIMARY KEY (id);
-
-
---
--- Name: organization_histories organization_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organization_histories
-    ADD CONSTRAINT organization_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: organization_history_translations organization_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organization_history_translations
-    ADD CONSTRAINT organization_history_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: organization_translations organization_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organization_translations
-    ADD CONSTRAINT organization_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: organizations organizations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.organizations
-    ADD CONSTRAINT organizations_pkey PRIMARY KEY (id);
-
-
---
--- Name: person_histories person_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_histories
-    ADD CONSTRAINT person_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: person_history_translations person_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_history_translations
-    ADD CONSTRAINT person_history_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: person_translations person_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.person_translations
-    ADD CONSTRAINT person_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: persons persons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.persons
-    ADD CONSTRAINT persons_pkey PRIMARY KEY (id);
-
-
---
--- Name: place_histories place_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.place_histories
-    ADD CONSTRAINT place_histories_pkey PRIMARY KEY (id);
-
-
---
--- Name: place_history_translations place_history_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.place_history_translations
-    ADD CONSTRAINT place_history_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: place_translations place_translations_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.place_translations
-    ADD CONSTRAINT place_translations_pkey PRIMARY KEY (id);
-
-
---
--- Name: places places_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.places
-    ADD CONSTRAINT places_pkey PRIMARY KEY (id);
 
 
 --
@@ -1729,14 +1030,6 @@ ALTER TABLE ONLY public.things
 
 
 --
--- Name: use_cases use_cases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.use_cases
-    ADD CONSTRAINT use_cases_pkey PRIMARY KEY (id);
-
-
---
 -- Name: user_group_users user_group_users_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1792,24 +1085,10 @@ CREATE INDEX all_text_idx ON public.searches USING gin (all_text public.gin_trgm
 
 
 --
--- Name: by_content_data_classification_relation; Type: INDEX; Schema: public; Owner: -
+-- Name: by_content_relation_a; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX by_content_data_classification_relation ON public.classification_contents USING btree (content_data_id, content_data_type, classification_id, relation);
-
-
---
--- Name: by_content_data_history_classification_relation; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_content_data_history_classification_relation ON public.classification_content_histories USING btree (content_data_history_id, content_data_history_type, classification_id, relation);
-
-
---
--- Name: by_content_data_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_content_data_locale ON public.searches USING btree (content_data_id, content_data_type, locale);
+CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree (content_a_id, relation_a, content_b_id);
 
 
 --
@@ -1817,41 +1096,6 @@ CREATE UNIQUE INDEX by_content_data_locale ON public.searches USING btree (conte
 --
 
 CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (external_source_id);
-
-
---
--- Name: by_cwt_cwi_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_cwt_cwi_locale ON public.creative_work_translations USING btree (creative_work_id, locale);
-
-
---
--- Name: by_et_ei_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_et_ei_locale ON public.event_translations USING btree (event_id, locale);
-
-
---
--- Name: by_ot_ei_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_ot_ei_locale ON public.organization_translations USING btree (organization_id, locale);
-
-
---
--- Name: by_persont_pi_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_persont_pi_locale ON public.person_translations USING btree (person_id, locale);
-
-
---
--- Name: by_pt_p_locale; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX by_pt_p_locale ON public.place_translations USING btree (place_id, locale);
 
 
 --
@@ -1869,20 +1113,6 @@ CREATE INDEX classification_content_data_history_id_idx ON public.classification
 
 
 --
--- Name: classification_content_data_history_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX classification_content_data_history_idx ON public.classification_content_histories USING btree (content_data_history_type, content_data_history_id);
-
-
---
--- Name: classification_content_data_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX classification_content_data_idx ON public.classification_contents USING btree (content_data_type, content_data_id);
-
-
---
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1897,80 +1127,10 @@ CREATE INDEX classified_name_idx ON public.stored_filters USING btree (api, syst
 
 
 --
--- Name: content_a_history_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX content_a_history_idx ON public.content_content_histories USING btree (content_a_history_type, content_a_history_id);
-
-
---
--- Name: content_a_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX content_a_idx ON public.content_contents USING btree (content_a_type, content_a_id);
-
-
---
 -- Name: content_b_history_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX content_b_history_idx ON public.content_content_histories USING btree (content_b_history_type, content_b_history_id);
-
-
---
--- Name: content_b_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX content_b_idx ON public.content_contents USING btree (content_b_type, content_b_id);
-
-
---
--- Name: creative_work_histories_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_histories_id_idx ON public.creative_work_histories USING btree (id);
-
-
---
--- Name: creative_work_history_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_history_id_idx ON public.creative_work_history_translations USING btree (creative_work_history_id);
-
-
---
--- Name: creative_work_history_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_history_locale_idx ON public.creative_work_history_translations USING btree (locale);
-
-
---
--- Name: creative_work_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_id_foreign_key_idx ON public.creative_work_histories USING btree (creative_work_id);
-
-
---
--- Name: creative_work_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_id_idx ON public.creative_work_translations USING btree (creative_work_id);
-
-
---
--- Name: creative_work_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX creative_work_locale_idx ON public.creative_work_translations USING btree (locale);
-
-
---
--- Name: cw_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX cw_template_template_name_idx ON public.creative_works USING btree (template, template_name);
 
 
 --
@@ -2020,55 +1180,6 @@ CREATE INDEX deleted_at_classification_id_idx ON public.classification_groups US
 --
 
 CREATE INDEX deleted_at_id_idx ON public.classification_aliases USING btree (deleted_at, id);
-
-
---
--- Name: ev_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX ev_template_template_name_idx ON public.events USING btree (template, template_name);
-
-
---
--- Name: event_histories_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_histories_id_idx ON public.event_histories USING btree (id);
-
-
---
--- Name: event_history_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_history_id_idx ON public.event_history_translations USING btree (event_history_id);
-
-
---
--- Name: event_history_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_history_locale_idx ON public.event_history_translations USING btree (locale);
-
-
---
--- Name: event_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_id_foreign_key_idx ON public.event_histories USING btree (event_id);
-
-
---
--- Name: event_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_id_idx ON public.event_translations USING btree (event_id);
-
-
---
--- Name: event_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX event_locale_idx ON public.event_translations USING btree (locale);
 
 
 --
@@ -2132,6 +1243,13 @@ CREATE INDEX index_classification_contents_on_classification_id ON public.classi
 --
 
 CREATE INDEX index_classification_contents_on_content_data_id ON public.classification_contents USING btree (content_data_id);
+
+
+--
+-- Name: index_classification_contents_on_unique_constraint; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_classification_contents_on_unique_constraint ON public.classification_contents USING btree (content_data_id, classification_id, relation);
 
 
 --
@@ -2219,55 +1337,6 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 
 
 --
--- Name: index_creative_works_on_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_content_type ON public.creative_works USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_creative_works_on_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_external_key ON public.creative_works USING btree (((metadata ->> 'external_key'::text)), external_source_id);
-
-
---
--- Name: index_creative_works_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_external_source_id ON public.creative_works USING btree (external_source_id);
-
-
---
--- Name: index_creative_works_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_creative_works_on_id ON public.creative_works USING btree (id);
-
-
---
--- Name: index_creative_works_on_is_part_of; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_is_part_of ON public.creative_works USING btree (is_part_of);
-
-
---
--- Name: index_creative_works_on_metadata_validation_name; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_creative_works_on_metadata_validation_name ON public.creative_works USING btree (((metadata #>> '{validation,name}'::text[])));
-
-
---
--- Name: index_cw_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_cw_on_external_source_id_and_external_key ON public.creative_works USING btree (external_source_id, external_key);
-
-
---
 -- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2289,34 +1358,6 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 
 
 --
--- Name: index_e_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_e_on_external_source_id_and_external_key ON public.events USING btree (external_source_id, external_key);
-
-
---
--- Name: index_events_on_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_content_type ON public.events USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_events_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_external_source_id ON public.events USING btree (external_source_id);
-
-
---
--- Name: index_events_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_events_on_id ON public.events USING btree (id);
-
-
---
 -- Name: index_external_sources_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2328,97 +1369,6 @@ CREATE UNIQUE INDEX index_external_sources_on_id ON public.external_sources USIN
 --
 
 CREATE UNIQUE INDEX index_external_systems_on_id ON public.external_systems USING btree (id);
-
-
---
--- Name: index_o_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_o_on_external_source_id_and_external_key ON public.organizations USING btree (external_source_id, external_key);
-
-
---
--- Name: index_organizations_on_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_organizations_on_content_type ON public.organizations USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_organizations_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_organizations_on_external_source_id ON public.organizations USING btree (external_source_id);
-
-
---
--- Name: index_organizations_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_organizations_on_id ON public.organizations USING btree (id);
-
-
---
--- Name: index_pers_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_pers_on_external_source_id_and_external_key ON public.persons USING btree (external_source_id, external_key);
-
-
---
--- Name: index_persons_on_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_persons_on_content_type ON public.persons USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_persons_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_persons_on_external_source_id ON public.persons USING btree (external_source_id);
-
-
---
--- Name: index_persons_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_persons_on_id ON public.persons USING btree (id);
-
-
---
--- Name: index_places_on_content_type; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_places_on_content_type ON public.places USING btree (((schema ->> 'content_type'::text)));
-
-
---
--- Name: index_places_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_places_on_external_source_id ON public.places USING btree (external_source_id);
-
-
---
--- Name: index_places_on_external_source_id_and_external_key; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_places_on_external_source_id_and_external_key ON public.places USING btree (external_source_id, external_key);
-
-
---
--- Name: index_places_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_places_on_id ON public.places USING btree (id);
-
-
---
--- Name: index_places_on_location; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_places_on_location ON public.places USING gist (location);
 
 
 --
@@ -2443,6 +1393,13 @@ CREATE INDEX index_searches_on_content_data_id ON public.searches USING btree (c
 
 
 --
+-- Name: index_searches_on_content_data_id_and_locale; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_searches_on_content_data_id_and_locale ON public.searches USING btree (content_data_id, locale);
+
+
+--
 -- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2450,17 +1407,17 @@ CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
 
 
 --
--- Name: index_searches_on_locale_and_content_data_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_searches_on_locale_and_content_data_id ON public.searches USING btree (locale, content_data_id);
-
-
---
 -- Name: index_searches_on_words; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_words ON public.searches USING gin (words);
+
+
+--
+-- Name: index_stored_filters_on_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_stored_filters_on_updated_at ON public.stored_filters USING btree (updated_at);
 
 
 --
@@ -2492,17 +1449,10 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
--- Name: index_thing_external_systems_on_external_system_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_thing_external_systems_on_thing_id_and_external_system_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE UNIQUE INDEX index_thing_external_systems_on_external_system_id ON public.thing_external_systems USING btree (external_system_id);
-
-
---
--- Name: index_thing_external_systems_on_thing_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id ON public.thing_external_systems USING btree (thing_id);
+CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id_and_external_system_id ON public.thing_external_systems USING btree (thing_id, external_system_id);
 
 
 --
@@ -2576,6 +1526,13 @@ CREATE INDEX index_thing_translations_on_thing_id ON public.thing_translations U
 
 
 --
+-- Name: index_things_on_boost_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_boost_updated_at ON public.things USING btree (boost, updated_at);
+
+
+--
 -- Name: index_things_on_content_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2604,31 +1561,24 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 
 
 --
+-- Name: index_things_on_schema_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema ->> 'schema_type'::text)));
+
+
+--
+-- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
+
+
+--
 -- Name: index_things_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_things_template_template_name_idx ON public.things USING btree (template, template_name);
-
-
---
--- Name: index_use_cases_on_external_source_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_use_cases_on_external_source_id ON public.use_cases USING btree (external_source_id);
-
-
---
--- Name: index_use_cases_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_use_cases_on_id ON public.use_cases USING btree (id);
-
-
---
--- Name: index_use_cases_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_use_cases_on_user_id ON public.use_cases USING btree (user_id);
 
 
 --
@@ -2678,6 +1628,13 @@ CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
 --
 
 CREATE UNIQUE INDEX index_users_on_reset_password_token ON public.users USING btree (reset_password_token);
+
+
+--
+-- Name: index_validity_range; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_validity_range ON public.things USING gist (validity_range);
 
 
 --
@@ -2733,56 +1690,7 @@ CREATE INDEX index_watch_lists_on_user_id ON public.watch_lists USING btree (use
 -- Name: name_idx; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX name_idx ON public.classification_aliases USING gin (name public.gin_trgm_ops);
-
-
---
--- Name: or_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX or_template_template_name_idx ON public.organizations USING btree (template, template_name);
-
-
---
--- Name: organization_histories_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_histories_id_idx ON public.organization_histories USING btree (id);
-
-
---
--- Name: organization_history_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_history_id_idx ON public.organization_history_translations USING btree (organization_history_id);
-
-
---
--- Name: organization_history_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_history_locale_idx ON public.organization_history_translations USING btree (locale);
-
-
---
--- Name: organization_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_id_foreign_key_idx ON public.organization_histories USING btree (organization_id);
-
-
---
--- Name: organization_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_id_idx ON public.organization_translations USING btree (organization_id);
-
-
---
--- Name: organization_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX organization_locale_idx ON public.organization_translations USING btree (locale);
+CREATE INDEX name_idx ON public.classification_aliases USING gin (internal_name public.gin_trgm_ops);
 
 
 --
@@ -2790,104 +1698,6 @@ CREATE INDEX organization_locale_idx ON public.organization_translations USING b
 --
 
 CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btree (parent_classification_alias_id, classification_alias_id);
-
-
---
--- Name: pe_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX pe_template_template_name_idx ON public.persons USING btree (template, template_name);
-
-
---
--- Name: person_histories_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_histories_id_idx ON public.person_histories USING btree (id);
-
-
---
--- Name: person_history_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_history_id_idx ON public.person_history_translations USING btree (person_history_id);
-
-
---
--- Name: person_history_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_history_locale_idx ON public.person_history_translations USING btree (locale);
-
-
---
--- Name: person_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_id_foreign_key_idx ON public.person_histories USING btree (person_id);
-
-
---
--- Name: person_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_id_idx ON public.person_translations USING btree (person_id);
-
-
---
--- Name: person_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX person_locale_idx ON public.person_translations USING btree (locale);
-
-
---
--- Name: pl_template_template_name_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX pl_template_template_name_idx ON public.places USING btree (template, template_name);
-
-
---
--- Name: place_histories_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_histories_id_idx ON public.place_histories USING btree (id);
-
-
---
--- Name: place_history_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_history_id_idx ON public.place_history_translations USING btree (place_history_id);
-
-
---
--- Name: place_history_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_history_locale_idx ON public.place_history_translations USING btree (locale);
-
-
---
--- Name: place_id_foreign_key_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_id_foreign_key_idx ON public.place_histories USING btree (place_id);
-
-
---
--- Name: place_id_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_id_idx ON public.place_translations USING btree (place_id);
-
-
---
--- Name: place_locale_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX place_locale_idx ON public.place_translations USING btree (locale);
 
 
 --
@@ -3020,6 +1830,23 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20181011125030'),
 ('20181019075437'),
 ('20181106113333'),
-('20181116090243');
+('20181116090243'),
+('20181123113811'),
+('20181126000001'),
+('20181127142527'),
+('20181130130052'),
+('20181229111741'),
+('20181231081526'),
+('20190107074405'),
+('20190108154224'),
+('20190110092936'),
+('20190110151543'),
+('20190117135807'),
+('20190118113621'),
+('20190118145915'),
+('20190129083607'),
+('20190312141313'),
+('20190314094528'),
+('20190325122951');
 
 

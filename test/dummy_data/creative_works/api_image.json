@@ -1,0 +1,12 @@
+{
+  "name": "Headline",
+  "caption": "Caption",
+  "description": "Description",
+  "content_url": "https://content.url.com",
+  "thumbnail_url": "https://thumbnail.url.com",
+  "url": "https://url.com",
+  "width": 1920,
+  "height": 1080,
+  "content_size": 500,
+  "file_format": "image/jpg"
+}

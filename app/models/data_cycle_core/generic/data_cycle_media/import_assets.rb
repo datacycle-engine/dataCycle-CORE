@@ -38,12 +38,26 @@ module DataCycleCore
                   next unless asset_file.save
 
                   image_data = {
-                    name: title,
-                    asset: asset_file.id
+                    'name' => title,
+                    'asset' => asset_file.id
                   }
-                  new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
-                  next unless new_object
-                  File.delete(p) if credentials.dig('delete')
+
+                  # update_item
+
+                  fixed_item = DataCycleCore::Thing.find_by(
+                    name: title
+                  )
+
+                  # version to restore images
+                  next unless fixed_item
+                  fixed_item.set_data_hash(data_hash: fixed_item.get_data_hash.merge(image_data))
+                  next unless fixed_item
+
+                  # original Version
+                  # new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
+                  # next unless new_object
+                  # File.delete(p) if credentials.dig('delete')
+
                   item_count += 1
                 end
                 break if options[:max_count].present? && item_count >= options[:max_count]
@@ -59,13 +73,11 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, options:)
           config = options.dig(:import, :transformations, :asset)
-          type = config&.dig(:content_type)&.constantize || DataCycleCore::Thing
           template = config&.dig(:template) || 'Bild'
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
-            class_type: type,
-            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(type, template),
+            template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
               raw_data

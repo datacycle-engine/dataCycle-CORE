@@ -23,26 +23,15 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :alternative_headline:
-        :label: Subüberschrift
-        :type: string
-        :storage_location: translated_value
-        :search: true
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
+      :creative_attributes:
+        :type: mixin
+        :name: creative_attributes
       :question:
         :label: Frage
         :type: embedded
-        :linked_table: things
         :template_name: Frage
+        :api:
+          :name: hasPart
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -77,7 +66,7 @@
         :type: string
         :storage_location: column
         :validations:
-          :min: 1
+          :required: true
         :api:
           :name: headline
       :text:
@@ -92,21 +81,18 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1
       :accepted_answer:
         :label: Richtige Antwort
         :type: embedded
-        :linked_table: things
         :template_name: Antwort
         :validations:
           :max: 1
       :suggested_answer:
         :label: Falsche Antwort
         :type: embedded
-        :linked_table: things
         :template_name: Antwort
       :data_type:
         :label: Inhaltstype
@@ -130,7 +116,7 @@
         :type: string
         :storage_location: translated_value
         :validations:
-          :min: 1
+          :required: true
         :ui:
           :edit:
             :type: text_editor
@@ -139,7 +125,6 @@
       :image:
         :label: Bilder
         :type: linked
-        :linked_table: things
         :template_name: Bild
         :validations:
           :max: 1

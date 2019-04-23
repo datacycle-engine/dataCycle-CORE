@@ -32,6 +32,18 @@ describe DataCycleCore::MasterData::Validators::Classification do
       }
     end
 
+    let(:template_hash_required) do
+      {
+        'label' => 'Inhaltstyp',
+        'type' => 'classification',
+        'tree_label' => 'Inhaltstypen',
+        'default_value' => 'Bild',
+        'validations' => {
+          'required' => true
+        }
+      }
+    end
+
     let(:no_error_hash) do
       { error: {}, warning: {} }
     end
@@ -39,15 +51,6 @@ describe DataCycleCore::MasterData::Validators::Classification do
     it 'properly validates a DateObject' do
       classification = DataCycleCore::Classification.find_by(name: 'Bild')
       assert_equal(no_error_hash, subject.new([classification.id], template_hash).error)
-    end
-
-    it 'produces a warning if no uuid given' do
-      data_cases = [nil, '', ['']]
-      data_cases.each do |case_item|
-        validator = subject.new(case_item, template_hash)
-        assert_equal(0, validator.error[:error].size)
-        assert_equal(1, validator.error[:warning].size)
-      end
     end
 
     it 'successfully validates in these cases' do
@@ -60,6 +63,17 @@ describe DataCycleCore::MasterData::Validators::Classification do
         validator = subject.new(case_item, template_hash)
         assert_equal(no_error_hash, validator.error)
       end
+    end
+
+    it 'successfully validates with required given' do
+      uuids = [DataCycleCore::Classification.find_by(name: 'Bild').id]
+      validator = subject.new(uuids, template_hash_required)
+      assert_equal(no_error_hash, validator.error)
+    end
+
+    it 'properly errors out for missing required values' do
+      validator = subject.new([], template_hash_required)
+      assert_equal(1, validator.error[:error].size)
     end
 
     it 'successfully validates with min, max given' do

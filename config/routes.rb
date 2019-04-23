@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
 DataCycleCore::Engine.routes.draw do
-  devise_for :users, class_name: 'DataCycleCore::User', module: :devise
+  devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
+                     controllers: { passwords: 'data_cycle_core/passwords' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -14,6 +15,14 @@ DataCycleCore::Engine.routes.draw do
 
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
+  get '/docs', to: 'documentation#show'
+
+  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
+    klass: /(image|audio|video|pdf|text_file)/,
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+  }
+
+  get '/schema', to: 'schema#index'
 
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
@@ -29,13 +38,14 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :new, :create, :edit, :update, :destroy], controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
       get 'compare', on: :member
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
+      get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
       get :new_embedded_object, on: :member
@@ -50,16 +60,14 @@ DataCycleCore::Engine.routes.draw do
   resources :classification_tree_labels, only: :show
 
   scope('files') do
-    resources :assets, only: [:index, :show, :new, :create, :update, :destroy] do
-      post 'new_asset_object', on: :collection
-      delete 'remove_asset_object', on: :member
+    resources :assets, only: [:index, :show, :create, :update, :destroy] do
+      get :find, on: :collection
     end
   end
 
   resources :data_links do
     post :send_mail, on: :member
     get :download, on: :member
-    get :find, on: :collection
     get :get_text_file, on: :member
   end
 
@@ -74,6 +82,13 @@ DataCycleCore::Engine.routes.draw do
     delete :destroy, on: :collection
     get :search, on: :collection
     get :download, on: :collection
+  end
+
+  scope :admin do
+    resources :external_sources, only: [] do
+      get :authorize, on: :member
+      get :callback, on: :member
+    end
   end
 
   get  '/admin', to: 'dash_board#home'
@@ -108,39 +123,56 @@ DataCycleCore::Engine.routes.draw do
         get 'contents/search', to: 'contents#search'
         get 'contents/deleted', to: 'contents#deleted'
 
-        resources :external_sources, only: [] do
-          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
-          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
-          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+        scope 'external_sources/:external_source_id' do
+          resource :things, only: [:show, :create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
         end
       end
       namespace :v2 do
-        type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-        get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
-        # get 'endpoints/:id(/:type)', to: 'contents#index', constraints: {type: type_regexp}, as: 'stored_filter'
-        # resources :stored_filters, only: [:show], path: :endpoints do
-        #   resources(*['organizations', 'persons', 'events', 'places', 'creative_works', 'things'].map(&:to_sym), only: [:index], path: ':type', controller: :things)
-        # end
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        # TODO: check if additional parameter is necessary, to achieve old results especially for index!!
-        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
-        # type_regexp = Regexp.new(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym).join('|'))
-        # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:index], controller: :things, constraints: {type: type_regexp})
-        # resources(*(CONTENT_TABLES_FALLBACK + DataCycleCore.content_tables).map(&:to_sym), only: [:show], controller: :things, constraints: {type: type_regexp})
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+            get :gpx, on: :member
+          end
 
-        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
-        resources :classification_trees, only: [:index, :show] do
-          get :classifications, on: :member
+          resources :classification_trees, only: [:index, :show] do
+            get :classifications, on: :member
+          end
+
+          resources :collections, only: [:index, :show], controller: :watch_lists
+
+          scope 'external_sources/:external_source_id' do
+            resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+          end
+
+          resources :external_systems, only: [:show], controller: :external_systems
         end
+      end
+      namespace :v3 do
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        resources :collections, only: [:index, :show], controller: :watch_lists
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+            get :gpx, on: :member
+          end
 
-        resources :external_sources, only: [] do
-          post ':external_source_id/:type/:external_key', to: 'external_sources#create', on: :collection
-          patch ':external_source_id/:type/:external_key', to: 'external_sources#update', on: :collection
-          delete ':external_source_id/:type/:external_key', to: 'external_sources#destroy', on: :collection
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+
+          resources :classification_trees, only: [:index, :show] do
+            get :classifications, on: :member
+          end
+
+          resources :collections, only: [:index, :show], controller: :watch_lists
+
+          scope 'external_sources/:external_source_id' do
+            resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+          end
         end
       end
     end
@@ -153,7 +185,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   post 'contents/upload', to: 'contents#upload'
-  post 'contents/new', to: 'contents#new'
+  # post 'contents/new', to: 'contents#new'
 
   resources :publications, only: :index
 

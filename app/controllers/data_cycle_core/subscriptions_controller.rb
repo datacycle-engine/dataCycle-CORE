@@ -11,8 +11,7 @@ module DataCycleCore
     end
 
     def create
-      object_type = data_cycle_object(subscription_params['subscribable_type'].demodulize.tableize)
-      authorize! :subscribe, object_type
+      authorize! :subscribe, DataCycleCore::Thing
       @subscription = current_user.subscriptions.build(subscription_params)
 
       respond_to do |format|
@@ -27,9 +26,8 @@ module DataCycleCore
 
     def destroy
       @subscription = DataCycleCore::Subscription.find(params[:id])
-      object_type = data_cycle_object(@subscription.subscribable_type.demodulize.tableize)
 
-      authorize! :subscribe, object_type
+      authorize! :subscribe, DataCycleCore::Thing
       @subscription.destroy
 
       respond_to do |format|

@@ -41,9 +41,7 @@ namespace :data_cycle_core do
 
           puts "Subscriptions with changes: #{subcribed_with_changes.size}"
 
-          if subcribed_with_changes.size.positive?
-            user.send_notification subcribed_with_changes
-          end
+          user.send_notification subcribed_with_changes if subcribed_with_changes.size.positive?
         end
       end
     end
@@ -312,10 +310,8 @@ namespace :data_cycle_core do
       end
 
       duplicated_content_relations = DataCycleCore::ContentContent
-        .select(:content_a_id, :content_a_type, :relation_a,
-                :content_b_id, :content_b_type, :relation_b,
-                'MIN(created_at) AS "oldest_creation_date"')
-        .group(:content_a_id, :content_a_type, :relation_a, :content_b_id, :content_b_type, :relation_b)
+        .select(:content_a_id, :relation_a, :content_b_id, 'MIN(created_at) AS "oldest_creation_date"')
+        .group(:content_a_id, :relation_a, :content_b_id)
         .having('COUNT(*) > 1')
 
       duplicated_content_relations_count = duplicated_content_relations.to_a.size
@@ -325,11 +321,8 @@ namespace :data_cycle_core do
       duplicated_content_relations.each do |duplicated_relation|
         DataCycleCore::ContentContent.where(
           content_a_id: duplicated_relation.content_a_id,
-          content_a_type: duplicated_relation.content_a_type,
           relation_a: duplicated_relation.relation_a,
-          content_b_id: duplicated_relation.content_b_id,
-          content_b_type: duplicated_relation.content_b_type,
-          relation_b: duplicated_relation.relation_b
+          content_b_id: duplicated_relation.content_b_id
         ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
       end
 
@@ -338,41 +331,15 @@ namespace :data_cycle_core do
   end
 
   namespace :refactor do
-    desc 'dev mode'
-    task restore_dev_mode: :environment do
-      temp = Time.zone.now
-
-      Rake::Task['app:data_cycle_core:clear:all'].invoke
-      Rake::Task['app:data_cycle_core:update:import_classifications'].invoke
-      Rake::Task['app:data_cycle_core:update:import_templates'].invoke
-      Rake::Task['app:data_cycle_core:update:import_external_source_configs'].invoke
-      Rake::Task['app:data_cycle_core:import:list'].invoke
-
-      puts 'END'
-      puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
-    end
-
     desc 'import and update all templates'
-    task :import_update_all_templates, [:prefix] => [:environment] do |_, args|
+    task import_update_all_templates: :environment do
       temp = Time.zone.now
-      args[:prefix] ||= ''
 
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:import_templates"].invoke
-      Rake::Task["#{args[:prefix]}data_cycle_core:update:update_all_templates_sql"].invoke(false, args[:prefix])
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(false)
 
       puts 'END'
       puts "--> MIGRATION time: #{(Time.zone.now - temp)} sec"
     end
-  end
-
-  desc 'reset database and import classifications, external sources and templates'
-  task reset_all: :environment do
-    Rake::Task['db:drop'].invoke
-    Rake::Task['db:create'].invoke
-    Rake::Task['db:migrate'].invoke
-    Rake::Task['db:seed'].invoke
-    Rake::Task['data_cycle_core:update:import_classifications'].invoke
-    Rake::Task['data_cycle_core:update:import_external_source_configs'].invoke
-    Rake::Task['data_cycle_core:refactor:import_update_all_templates'].invoke
   end
 end

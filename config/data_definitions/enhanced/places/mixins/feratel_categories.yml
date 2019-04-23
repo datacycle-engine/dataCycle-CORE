@@ -43,6 +43,14 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_locations:
+        :label: Feratel - Orte
+        :type: classification
+        :tree_label: Feratel - Orte
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :stars:
         :label: Feratel - Sterne
         :type: classification

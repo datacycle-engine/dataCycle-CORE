@@ -11,8 +11,9 @@ module DataCycleCore
         format.html do
           authorize! :index, DataCycleCore::ClassificationTreeLabel
 
-          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel.accessible_by(current_ability)
-            .includes(classification_aliases: :classifications)
+          @classification_tree_labels = DataCycleCore::ClassificationTreeLabel
+            .accessible_by(current_ability)
+            .includes(:statistics)
             .order(:created_at)
             .distinct
         end
@@ -24,21 +25,31 @@ module DataCycleCore
 
           if permitted_params.include?(:classification_tree_label_id)
             @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
-            @classification_trees = @classification_tree_label.classification_trees.accessible_by(current_ability)
-              .where(parent_classification_alias: nil)
-              .order(:created_at).page(params[:page])
-            @page = @classification_trees.current_page
-            @total_pages = @classification_trees.total_pages
+            @classification_trees = @classification_tree_label.classification_trees.where(parent_classification_alias: nil)
+
           elsif permitted_params.include?(:classification_tree_id)
             @classification_tree = DataCycleCore::ClassificationTree.find(params[:classification_tree_id])
             @classification_tree_label = @classification_tree.classification_tree_label
-            @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees.accessible_by(current_ability)
-              .order(:created_at).page(params[:page])
-            @page = @classification_trees.current_page
-            @total_pages = @classification_trees.total_pages
+            @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
           else
             raise 'Missing parameter; either classification_tree_label_id or classification_tree_id must be provided'
           end
+
+          @classification_trees = @classification_trees
+            .accessible_by(current_ability)
+            .includes(
+              sub_classification_alias: {
+                classifications: { primary_classification_alias: :classification_alias_path },
+                primary_classification: {},
+                additional_classifications: {},
+                statistics: {}
+              }
+            ).order(:created_at)
+            .page(params[:page])
+
+          @page = @classification_trees.current_page
+
+          @total_pages = @classification_trees.total_pages
         end
       end
     end
@@ -61,7 +72,7 @@ module DataCycleCore
         {
           classification_id: a.primary_classification.id,
           classification_alias_id: a.id,
-          name: a.name,
+          name: a.internal_name,
           title: a.full_path,
           description: a.description,
           disabled: !a.assignable
@@ -74,7 +85,7 @@ module DataCycleCore
         :classification_tree_label_id,
         :classification_tree_id,
         { classification_tree_label: [:name, :internal] },
-        { classification_alias: [:name, :internal, :assignable] }
+        { classification_alias: [:name, :internal, :description, :assignable] }
       )
 
       respond_to do |format|
@@ -126,10 +137,10 @@ module DataCycleCore
         format.js do
           if permitted_params[:classification_tree_label]
             @object = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:classification_tree_label][:id])
-            @object.update_attributes!(permitted_params[:classification_tree_label])
+            @object.update!(permitted_params[:classification_tree_label])
           else
             @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
-            @object.update_attributes!(permitted_params[:classification_alias])
+            @object.update!(permitted_params[:classification_alias])
           end
         end
       end
@@ -160,11 +171,15 @@ module DataCycleCore
     end
 
     def download
+      params.permit(:classification_tree_label_id, :include_contents)
+
       object = DataCycleCore::ClassificationTreeLabel.find(params[:classification_tree_label_id])
 
       respond_to do |format|
         format.csv do
-          send_data "sep=,\n" + object.to_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
+          raw_csv = params[:include_contents] ? object.to_csv(include_contents: true) : object.to_csv
+
+          send_data "sep=,\n" + raw_csv.encode('ISO-8859-1', invalid: :replace, undef: :replace),
                     type: 'text/csv; charset=iso-8859-1;',
                     filename: "#{object.name}.csv"
         end

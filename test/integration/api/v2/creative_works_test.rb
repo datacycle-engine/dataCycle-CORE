@@ -30,7 +30,7 @@ module DataCycleCore
 
           content = DataCycleCore::Thing.find_by(name: name)
 
-          get api_v2_thing_path(content)
+          get api_v2_thing_path(id: content)
 
           assert_response :success
           assert_equal response.content_type, 'application/json'

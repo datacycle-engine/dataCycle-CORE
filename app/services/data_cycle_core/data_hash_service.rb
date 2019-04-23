@@ -13,41 +13,65 @@ module DataCycleCore
       datahash
     end
 
-    def self.get_internal_template(storage_location, name)
-      internal_template = ('DataCycleCore::' + storage_location.classify).constantize
-        .find_by(template: true, template_name: name)
+    def self.get_internal_template(name)
+      internal_template = DataCycleCore::Thing.find_by(template: true, template_name: name)
 
       return nil if internal_template.blank?
 
       internal_template
     end
 
-    def self.get_object_params(storage_location, template_name)
-      template = get_internal_template(storage_location, template_name)
+    def self.create_duplicate(content: nil, current_user: nil)
+      return if content.blank? || !content.content_type?('entity')
+      new_content = DataCycleCore::Thing.find_by(template_name: content.template_name, template: true).dup
+      new_content.template = false
+
+      content.available_locales.each do |locale|
+        I18n.with_locale(locale) do
+          created = new_content.new_record?
+          new_content.save!
+          new_content_datahash = content.duplicate_data_hash(content.get_data_hash)
+          new_content.set_data_hash(data_hash: new_content_datahash, current_user: current_user, new_content: created)
+        end
+      end
+      new_content.reload
+    end
+
+    def self.get_object_params(template_name)
+      template = get_internal_template(template_name)
       datahash = get_params_from_hash(template.schema)
       datahash
     end
 
-    def self.create_internal_object(storage_location, template_name, object_params, current_user, is_part_of = nil, source = nil)
-      object = ('DataCycleCore::' + storage_location.classify).constantize.new(object_params)
+    def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
+      object = DataCycleCore::Thing.new(object_params.except(:translations))
 
-      template = get_internal_template(storage_location, template_name)
+      template = get_internal_template(template_name)
       object.schema = template.schema
       object.template_name = template.template_name
       object.created_by = current_user.id
       object.is_part_of = is_part_of if is_part_of.present?
       object.save
 
-      return nil if object_params[:datahash].nil?
+      return if object_params[:datahash].nil? && object_params[:translations].nil?
 
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], object.schema)
-      datahash['headline_external'] = datahash['headline']
+      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? }
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(I18n.locale.to_s) || {}), object.schema)
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
+      translations&.each do |locale, locale_hash|
+        I18n.with_locale(locale) do
+          # object.save
+          valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
+          return if valid[:error].present?
+        end
+      end
+
       valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
 
-      return nil if valid[:error].present?
+      return if valid[:error].present?
       object
     end
 
@@ -59,7 +83,7 @@ module DataCycleCore
 
         template_hash['properties'].each do |key, value|
           if value['type'] == 'embedded'
-            object_properties = get_internal_template(value['linked_table'], value['template_name'])
+            object_properties = get_internal_template(value['template_name'])
             key = { key.to_sym => get_params_from_hash(object_properties.schema) }
           elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
             key = { key.to_sym => get_params_from_hash(value) }
@@ -80,11 +104,11 @@ module DataCycleCore
 
         datahash.each do |key, value|
           properties = template_hash['properties'][key]
-
+          type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
           if value.is_a?(::Hash)
 
-            if properties['type'] == 'embedded'
-              object_properties = get_internal_template(properties['linked_table'], properties['template_name'])
+            if type == 'embedded'
+              object_properties = get_internal_template(properties['template_name'])
               temp_value = []
 
               value.each_value do |object_value|
@@ -92,7 +116,7 @@ module DataCycleCore
               end
 
               value = temp_value
-            elsif properties['type'] == 'object'
+            elsif type == 'object'
               temp_value = {}
 
               value.each do |object_key, object_value|
@@ -105,10 +129,10 @@ module DataCycleCore
             end
           elsif value.is_a?(::Array)
             value = value.reject(&:blank?).uniq
-          elsif properties['type'] == 'number' && properties.dig('validations', 'format') == 'float'
-            value = value.to_f
-          elsif properties['type'] == 'number'
-            value = value.to_i
+          elsif type == 'number' && properties.dig('validations', 'format') == 'float'
+            value = value.blank? ? nil : value.to_f
+          elsif type == 'number'
+            value = value.blank? ? nil : value.to_i
           end
 
           temp_datahash[key] = value
