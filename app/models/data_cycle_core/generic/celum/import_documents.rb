@@ -19,26 +19,11 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            case options.dig(:import, :transformations, :type)
-            when 'image'
-              DataCycleCore::Generic::Celum::Processing.process_images(
-                utility_object,
-                raw_data,
-                options.dig(:import, :transformations, :asset)
-              )
-            when 'audio'
-              DataCycleCore::Generic::Celum::Processing.process_audio(
-                utility_object,
-                raw_data,
-                options.dig(:import, :transformations, :asset)
-              )
-            when 'video'
-              DataCycleCore::Generic::Celum::Processing.process_video(
-                utility_object,
-                raw_data,
-                options.dig(:import, :transformations, :asset)
-              )
-            end
+            DataCycleCore::Generic::Celum::Processing.process_document(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :asset)
+            )
           end
         end
       end

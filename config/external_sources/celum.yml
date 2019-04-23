@@ -57,10 +57,12 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportFolders
       tree_label: Celum - Folders
       locales: [de]
-    persons:
-      sorting: 8
+    users:
+      sorting: 5
       source_type: users
-      import_strategy: DataCycleCore::Generic::Celum::ImportPersons
+      import_strategy: DataCycleCore::Generic::Celum::ImportUsers
+      tree_label: Celum - Users
+      external_id_prefix: 'Celum - User - '
       locales: [de]
     images:
       sorting: 10
@@ -76,8 +78,8 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
       locales: [de]
       transformations:
-        type: image
         asset:
+          template: Bild
           asset_type: DataCycleCore::Image
     audio:
       sorting: 11
@@ -88,8 +90,8 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
       locales: [de]
       transformations:
-        type: audio
         asset:
+          template: Audio
           asset_type: DataCycleCore::Audio
     video:
       sorting: 12
@@ -100,6 +102,33 @@ config:
       import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
       locales: [de]
       transformations:
-        type: video
         asset:
+          template: Video
           asset_type: DataCycleCore::Video
+    asset:
+      sorting: 13
+      source_type: documents
+      source_filter:
+        'dump.de.fileExtension.#cdata-section':
+          $in:
+            - 'ai'
+            - 'eps'
+            - 'ppt'
+            - 'pptx'
+      import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      locales: [de]
+      transformations:
+        asset:
+          template: Datei
+          asset_type: DataCycleCore::Asset
+    pdf:
+      sorting: 14
+      source_type: documents
+      source_filter:
+        'dump.de.fileExtension.#cdata-section': 'pdf'
+      import_strategy: DataCycleCore::Generic::Celum::ImportDocuments
+      locales: [de]
+      transformations:
+        asset:
+          template: PDF
+          asset_type: DataCycleCore::Pdf
