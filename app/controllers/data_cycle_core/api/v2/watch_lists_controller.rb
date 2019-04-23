@@ -18,7 +18,7 @@ module DataCycleCore
               {
                 id: l.id,
                 name: l.name,
-                url: api_v2_collection_url(l),
+                url: api_v2_collection_url(id: l),
                 item_count: l.watch_list_data_hashes.count
               }
             end

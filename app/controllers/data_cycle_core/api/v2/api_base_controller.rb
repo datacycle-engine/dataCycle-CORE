@@ -29,7 +29,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:format, :token, { page: [:size, :number, :offset, :limit] }]
+          [:api_subversion, :format, :token, { page: [:size, :number, :offset, :limit] }]
         end
 
         def apply_paging(query)

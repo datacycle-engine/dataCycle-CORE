@@ -31,6 +31,7 @@
         :label: Öffnungszeit
         :type: embedded
         :template_name: Öffnungszeit
+        :translated: true
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -62,6 +63,9 @@
       :outdoor_active_categories:
         :type: mixin
         :name: outdoor_active_categories
+      :outdoor_active_external_system:
+        :type: mixin
+        :name: outdoor_active_external_system
       :poi_category:
         :label: Kategorie
         :type: classification

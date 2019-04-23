@@ -15,46 +15,12 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                person_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'api_person')
-                gender_classification = DataCycleCore::Classification.find_by(name: 'Männlich')
-                person_data_hash[:gender] = [gender_classification.id]
-                person_data_hash[:image] = [@image.id]
-                @person = DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: person_data_hash)
-
-                organization_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'api_organization')
-                organization_data_hash[:image] = [@image.id]
-                @organization = DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: organization_data_hash)
-
-                place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
-                place_data_hash[:image] = @image.id
-                @place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
-
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
-                creative_work_data_hash[:author] = @person.id
-                creative_work_data_hash[:about] = @organization.id
-                creative_work_data_hash[:image] = @image.id
-                creative_work_data_hash[:content_location] = @place.id
-                tag_classification = DataCycleCore::Classification.find_by(name: 'Tag 1')
-                creative_work_data_hash[:tags] = [tag_classification.id]
-
-                # validity_period
-                validity_period = {
-                  'valid_from' => 10.days.ago,
-                  'valid_until' => 10.days.from_now
-                }
-                creative_work_data_hash[:validity_period] = validity_period
-
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Biografie', data_hash: creative_work_data_hash)
-
+                @content = DataCycleCore::DummyDataHelper.create_data('biography')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
               test 'json of stored article exists' do
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
@@ -64,7 +30,7 @@ module DataCycleCore
                 assert_equal('http://schema.org', json_data.dig('@context'))
                 assert_equal('CreativeWork', json_data.dig('@type'))
                 assert_equal('Biografie', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
+                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
                 assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
@@ -131,12 +97,12 @@ module DataCycleCore
               end
 
               test 'APIv2 json equals APIv3 json result' do
-                get api_v2_thing_path(@content)
+                get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v2_json = JSON.parse(response.body)
 
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)

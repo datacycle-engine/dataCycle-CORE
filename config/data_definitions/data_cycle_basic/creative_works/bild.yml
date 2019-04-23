@@ -147,6 +147,10 @@
           :method: file_format
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
       :author:
         :label: Fotograf
         :type: linked

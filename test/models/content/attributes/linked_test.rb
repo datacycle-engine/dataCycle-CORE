@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 require 'test_helper'
-require 'data_helper'
 
 module DataCycleCore
   module Content

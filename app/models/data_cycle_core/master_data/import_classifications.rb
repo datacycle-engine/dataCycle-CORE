@@ -41,6 +41,7 @@ module DataCycleCore
       end
 
       def self.walk_tree_hash(data_tree, parent)
+        # data format> [$$]name[ | description]
         return nil if data_tree.blank?
         data_tree.each do |k, v|
           internal = false
@@ -110,6 +111,21 @@ module DataCycleCore
           classification.seen_at = Time.zone.now
           classification.save
         end
+      end
+
+      def self.updated_classification_statistics(timestamp = Time.zone.now)
+        classifications = {}
+        DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').where('classification_aliases.seen_at < ?', timestamp.utc.to_s(:long_usec))
+          .where(internal: true).where.not(seen_at: nil).find_each do |classification|
+            classifications[classification.internal_name] = {
+              seen_at: classification.seen_at,
+              count: classification.linked_contents.count
+            }
+          end
+        classifications
+          .to_a
+          .sort_by { |item| item[1][:seen_at] }
+          .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
       end
     end
   end

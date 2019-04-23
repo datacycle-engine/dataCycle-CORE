@@ -5,12 +5,28 @@ module DataCycleCore
     scope :by_user, ->(user) { where user: user }
     belongs_to :user
 
+    # Mögliche Filter-Parameter: c, t, v, m, n
+    #
+    # c => 'd' oder 'a'         | für 'default' oder 'advanced'
+    # t => String               | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
+    # v => String oder Array    | der übergebene Wert für die Filtermethode (z.B. ['a9b25ff1-5af2-4f21-b61e-408812e14b0d'])
+    # m => 'i', 'e' oder 'n'    | Filtermethode, 'include', 'exclude' oder 'neutral'
+    # n => String               | das Filterlabel (z.B. 'Inhaltspools')
+    # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width')
+
     def apply
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
       query = DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       parameters.presence&.each do |filter|
-        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+        t = filter['m'] == 'e' ? "not_#{filter['t']}" : filter['t']
+        next unless query.respond_to?(t)
+
+        if query.method(t)&.parameters&.size == 2
+          query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
+        else
+          query = query.send(t, filter['v'])
+        end
       end
       query
     end

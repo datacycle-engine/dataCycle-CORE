@@ -16,7 +16,7 @@ module DataCycleCore
       redirect_to root if @watch_list.nil?
 
       @language ||= params.fetch(:language) { ['all'] }
-      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      filters
       @filters.push(
         {
           't' => 'watch_list_id',
@@ -29,7 +29,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to api_v2_collection_path(@watch_list) }
+        format.json { redirect_to api_v2_collection_path(id: @watch_list) }
       end
     end
 

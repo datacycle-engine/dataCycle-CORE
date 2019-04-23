@@ -19,9 +19,9 @@ namespace :data_cycle_core do
 
         case args[:mode]
         when 'review'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories' --exclude-table-data='external_sources' --exclude-table-data='external_systems'"
         when 'full'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='external_sources' --exclude-table-data='external_systems'"
         else
           cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
@@ -155,8 +155,14 @@ namespace :data_cycle_core do
 
       ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
 
-      Rake::Task['data_cycle_core:db:clear_connections'].invoke
-      Rake::Task['data_cycle_core:db:restore'].invoke('dev_db.sql')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.sql')
+
+      if ENV.fetch('RAILS_ENV', 'development') != 'development'
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
+        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke(true)
+      end
+
       logger.info('Imported Live DB successfully')
     end
 
@@ -175,10 +181,7 @@ namespace :data_cycle_core do
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:create"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:seed"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}dc:update:configs:all"].invoke
       puts 'Reset Complete...'
     end
 

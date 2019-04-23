@@ -163,7 +163,7 @@ module.exports.initialize = function() {
       });
   }
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     init(event.target);
   });
 

@@ -15,7 +15,7 @@ module DataCycleCore
         &.map { |k, v| [k, v['tree_label']] }
         &.to_h || {}
 
-      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      filters
       @filters.push(
         {
           't' => 'relation',

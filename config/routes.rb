@@ -128,47 +128,51 @@ DataCycleCore::Engine.routes.draw do
         end
       end
       namespace :v2 do
-        type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-        get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
-          get :gpx, on: :member
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+            get :gpx, on: :member
+          end
+
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+
+          resources :classification_trees, only: [:index, :show] do
+            get :classifications, on: :member
+          end
+
+          resources :collections, only: [:index, :show], controller: :watch_lists
+
+          scope 'external_sources/:external_source_id' do
+            resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+          end
+
+          resources :external_systems, only: [:show], controller: :external_systems
         end
-
-        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
-
-        resources :classification_trees, only: [:index, :show] do
-          get :classifications, on: :member
-        end
-
-        resources :collections, only: [:index, :show], controller: :watch_lists
-
-        scope 'external_sources/:external_source_id' do
-          resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
-        end
-
-        resources :external_systems, only: [:show], controller: :external_systems
       end
       namespace :v3 do
-        type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-        get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-        resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
-          get :gpx, on: :member
-        end
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+            get :gpx, on: :member
+          end
 
-        get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-        get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
-        resources :classification_trees, only: [:index, :show] do
-          get :classifications, on: :member
-        end
+          resources :classification_trees, only: [:index, :show] do
+            get :classifications, on: :member
+          end
 
-        resources :collections, only: [:index, :show], controller: :watch_lists
+          resources :collections, only: [:index, :show], controller: :watch_lists
 
-        scope 'external_sources/:external_source_id' do
-          resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+          scope 'external_sources/:external_source_id' do
+            resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+          end
         end
       end
     end

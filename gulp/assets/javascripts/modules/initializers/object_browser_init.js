@@ -8,7 +8,7 @@ module.exports.initialize = function() {
     object_browsers.push(new ObjectBrowser($(elem)));
   });
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
     $(event.target)
       .find('.object-browser')

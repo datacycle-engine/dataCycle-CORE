@@ -12,7 +12,7 @@ if data.present?
   data.each do |item|
     if @include_parameters.include?('linked')
 
-      Rails.cache.fetch("api_v3_#{item.class}_#{item.id}_#{item.first_available_locale(@language)}_#{item.updated_at}_#{@include_parameters.join('_')}_#{@mode_parameters.join('_')}", expires_in: 1.year + Random.rand(7.days)) do
+      Rails.cache.fetch("api_v3_#{api_cache_key(item, @language, @include_parameters, @mode_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
         json[key_new].push render 'content_details', content: item
       end
 

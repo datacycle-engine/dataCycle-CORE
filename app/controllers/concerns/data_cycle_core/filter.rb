@@ -5,7 +5,7 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     def get_filtered_results(query = nil, user_filter = false)
-      @filters ||= params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      filters
       @language ||= Array(params.fetch(:language) { [current_user.default_locale] })
 
       @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
@@ -26,7 +26,14 @@ module DataCycleCore
       @filters = current_user.default_filter(@filters) if user_filter
 
       @filters.presence&.each do |filter|
-        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+        t = filter['m'] == 'e' ? "not_#{filter['t']}" : filter['t']
+        next unless query.respond_to?(t)
+
+        if query.method(t)&.parameters&.size == 2
+          query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
+        else
+          query = query.send(t, filter['v'])
+        end
       end
 
       # add existing stored filter params
@@ -72,10 +79,14 @@ module DataCycleCore
       new_filter
     end
 
+    def filters
+      @filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+    end
+
     private
 
     def set_default_filter
-      @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+      filters
 
       if DataCycleCore::Feature::LifeCycle.tree_label.present? &&
          DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&

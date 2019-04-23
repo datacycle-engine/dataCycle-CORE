@@ -12,12 +12,13 @@ module DataCycleCore
 
         setup do
           @routes = Engine.routes
+          @test_content = DataCycleCore::DummyDataHelper.create_data('tour')
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
         test '/api/v2/contents/search default results' do
           get api_v2_contents_search_path
-          count = DataCycleCore::Search.select(:id).distinct.limit(25).size
+          count = DataCycleCore::Filter::Search.new.count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -25,6 +26,33 @@ module DataCycleCore
           assert_equal count, json_data['data'].length
           assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
+        end
+
+        test '/api/v2/contents/search with available API params' do
+          get api_v2_contents_search_path
+          count = DataCycleCore::Filter::Search.new.count
+
+          included_params = DataCycleCore::Api::V2::ContentsController::ALLOWED_INCLUDE_PARAMETERS
+          included_params.each do |param|
+            get api_v2_contents_search_path(include: param)
+            assert_response :success
+            assert_equal response.content_type, 'application/json'
+            json_data = JSON.parse response.body
+            assert_equal count, json_data['data'].length
+            assert_equal count, json_data['meta']['total'].to_i
+            assert_equal true, json_data['links'].present?
+          end
+
+          mode_params = DataCycleCore::Api::V2::ContentsController::ALLOWED_MODE_PARAMETERS
+          mode_params.each do |param|
+            get api_v2_contents_search_path(mode: param)
+            assert_response :success
+            assert_equal response.content_type, 'application/json'
+            json_data = JSON.parse response.body
+            assert_equal count, json_data['data'].length
+            assert_equal count, json_data['meta']['total'].to_i
+            assert_equal true, json_data['links'].present?
+          end
         end
 
         test '/api/v2/contents/deleted w/o any results' do
@@ -38,9 +66,9 @@ module DataCycleCore
           assert_equal true, json_data['links'].present?
         end
 
-        test '/api/v2/creative_works default results' do
+        test '/api/v2/creative_works' do
           get api_v2_creative_works_path
-          count = DataCycleCore::Thing.where("metadata ->> 'schema_type' = 'CreativeWork'").where(template: false).limit(25).size
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'CreativeWork' }).count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
@@ -50,47 +78,64 @@ module DataCycleCore
           assert_equal true, json_data['links'].present?
         end
 
-        test '/api/v2/places w/o any results' do
+        test '/api/v2/places' do
           get api_v2_places_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Place' }).count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal 0, json_data['data'].length
-          assert_equal 0, json_data['meta']['total'].to_i
+          assert_equal count, json_data['data'].length
+          assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
         end
 
-        test '/api/v2/events w/o any results' do
+        test '/api/v2/events' do
           get api_v2_events_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Event' }).count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal 0, json_data['data'].length
-          assert_equal 0, json_data['meta']['total'].to_i
+          assert_equal count, json_data['data'].length
+          assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
         end
 
-        test '/api/v2/persons w/o any results' do
+        test '/api/v2/persons' do
           get api_v2_persons_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Person' }).count
 
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal 0, json_data['data'].length
-          assert_equal 0, json_data['meta']['total'].to_i
+          assert_equal count, json_data['data'].length
+          assert_equal count, json_data['meta']['total'].to_i
+          assert_equal true, json_data['links'].present?
+        end
+
+        test '/api/v2/organizations' do
+          get api_v2_organizations_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Organization' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/json'
+          json_data = JSON.parse response.body
+          assert_equal count, json_data['data'].length
+          assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
         end
 
         test '/api/v2/classification_trees' do
           get api_v2_classification_trees_path
 
+          count = DataCycleCore::ClassificationTreeLabel.all.count
+
           assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse response.body
-          assert_equal 13, json_data['data'].length
-          assert_equal 13, json_data['meta']['total'].to_i
+          assert_equal count, json_data['data'].length
+          assert_equal count, json_data['meta']['total'].to_i
           assert_equal true, json_data['links'].present?
 
           test_classification = json_data['data'].detect { |a| a['name'] == 'Tags' }['id']

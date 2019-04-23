@@ -10,12 +10,12 @@
         :search: true
         :validations:
           :required: true
-        :ui:
-          :show:
-            :disabled: true
         :normalize:
           :id: forename
           :type: forename
+        :ui:
+          :show:
+            :disabled: true
       :family_name:
         :label: Nachname
         :type: string
@@ -23,11 +23,11 @@
         :search: true
         :validations:
           :required: true
+        :normalize:
+          :id: surname
+          :type: surname
         :ui:
           :show:
             :disabled: true
         :api:
           :minimal: true
-        :normalize:
-          :id: surname
-          :type: surname

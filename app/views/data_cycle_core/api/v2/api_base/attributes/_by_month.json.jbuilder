@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
+classification_aliases = content.send(key)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq
 
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 

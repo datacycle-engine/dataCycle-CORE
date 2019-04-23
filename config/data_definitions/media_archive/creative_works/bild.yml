@@ -22,8 +22,13 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :caption:
+      :alternative_headline:
         :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :caption:
+        :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
@@ -136,7 +141,6 @@
         :type: string
         :storage_location: value
         :search: true
-        :external: true
       :tags:
         :type: mixin
         :name: tags

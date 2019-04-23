@@ -20,7 +20,7 @@
     <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
 
     <%= render_attribute_editor key: 'thing[datahash][asset]',
-                                definition: template.schema.dig('properties', 'asset'),
+                                definition: template.schema.dig('properties', 'asset').deep_reject{ |k, v| k == 'readonly' },
                                 value: [],
                                 content: template,
                                 parameters: {
@@ -33,7 +33,7 @@
     <legend><%= t('new_step_title.title', locale: DataCycleCore.ui_language) %></legend>
 
     <%= render_attribute_editor key: 'thing[datahash][name]',
-                                definition: template.schema.dig('properties', 'name'),
+                                definition: template.schema.dig('properties', 'name').deep_reject{ |k, v| k == 'readonly' },
                                 value: local_assigns[:search_param],
                                 content: template,
                                 parameters: {
@@ -41,7 +41,7 @@
                                 } %>
 
     <%= render_attribute_editor key: 'thing[datahash][caption]',
-                                definition: template.schema.dig('properties', 'caption'),
+                                definition: template.schema.dig('properties', 'caption').deep_reject{ |k, v| k == 'readonly' },
                                 value: nil,
                                 content: template,
                                 parameters: {
@@ -49,7 +49,7 @@
                                 } %>
 
     <%= render_attribute_editor key: 'thing[datahash][description]',
-                                definition: template.schema.dig('properties', 'description'),
+                                definition: template.schema.dig('properties', 'description').deep_reject{ |k, v| k == 'readonly' },
                                 value: nil,
                                 content: template,
                                 parameters: {
@@ -57,7 +57,7 @@
                                 } %>
 
     <%= render_attribute_editor key: 'thing[datahash][tags]',
-                                definition: template.schema.dig('properties', 'tags'),
+                                definition: template.schema.dig('properties', 'tags').deep_reject{ |k, v| k == 'readonly' },
                                 value: nil,
                                 content: template,
                                 parameters: {
@@ -71,7 +71,7 @@
     <legend><%= t('new_step_title.copyright', locale: DataCycleCore.ui_language) %></legend>
 
     <%= render_attribute_editor key: 'thing[datahash][validity_period]',
-                                definition: template.schema.dig('properties', 'validity_period'),
+                                definition: template.schema.dig('properties', 'validity_period').deep_reject{ |k, v| k == 'readonly' },
                                 value: nil,
                                 content: template,
                                 parameters: {
