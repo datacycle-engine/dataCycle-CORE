@@ -104,11 +104,11 @@ module DataCycleCore
 
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(:de)
-        .date_range({ from: Date.current, until: Date.current }, 'created_at')
+        .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
       assert_equal(6, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
-        .not_date_range({ from: Date.current, until: Date.current }, 'created_at')
+        .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
       assert_equal(0, items.count)
     end
 

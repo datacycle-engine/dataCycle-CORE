@@ -73,6 +73,9 @@
           :method: file_format
           :parameters:
             :0: asset
+      :additional_asset_properties:
+        :type: mixin
+        :name: additional_asset_properties            
       :data_type:
         :label: Inhaltstype
         :type: classification
