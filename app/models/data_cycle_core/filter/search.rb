@@ -184,12 +184,7 @@ module DataCycleCore
       def not_classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        manager = create_classification_alias_recursion(ids)
-        reflect(
-          @query.where(
-            search[:content_data_id].not_in(manager)
-          )
-        )
+        reflect(@query.without_classification_alias_ids(ids))
       end
 
       def date_range(d = nil, attribute_path = nil)
