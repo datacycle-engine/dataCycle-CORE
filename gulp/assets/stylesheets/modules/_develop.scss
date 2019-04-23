@@ -323,6 +323,9 @@
     .fa-exclamation-triangle {
       color: $warning-color;
       text-shadow: 0 0 1px;
+      &.alert {
+        color: $alert-color;
+      }
     }
 
     .validity_period {

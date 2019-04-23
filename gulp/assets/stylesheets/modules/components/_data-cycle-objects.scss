@@ -712,6 +712,29 @@
       }
     }
 
+    .item.content {
+      transition: box-shadow 0.1s;
+
+      &.hard-warnings {
+        &.media,
+        .media {
+          box-shadow: 0 0 5px $alert-color;
+          .content-warning {
+            color: $alert-color;
+          }
+        }
+      }
+
+      &:hover,
+      &.active:hover,
+      &.active.hard-warnings:hover {
+        &.media,
+        .media {
+          box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+        }
+      }
+    }
+
     .media {
       width: auto;
       height: auto;
@@ -726,24 +749,11 @@
       transition: box-shadow 0.1s;
       line-height: 1.5;
 
-      &.hard-warnings {
-        box-shadow: 0 0 5px $alert-color;
-        .content-warning {
-          color: $alert-color;
-        }
-      }
-
       .name {
         font-weight: 600;
       }
 
       cursor: pointer;
-
-      &:hover,
-      &.active:hover,
-      &.active.hard-warnings:hover {
-        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
-      }
 
       &.thumbnail {
         width: 200px;
