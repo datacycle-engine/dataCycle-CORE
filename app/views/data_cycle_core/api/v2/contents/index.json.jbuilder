@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json.data @contents do |item|
-  json.cache!("#{item.class}_#{item.id}_#{item.first_available_locale(@language)}_#{item.updated_at}_#{@include_parameters.join('_')}_#{@mode_parameters.join('_')}", expires_in: 1.year + Random.rand(7.days)) do
+  json.cache!(api_cache_key(item, @language, @include_parameters, @mode_parameters, @api_subversion), expires_in: 1.year + Random.rand(7.days)) do
     I18n.with_locale(item.first_available_locale(@language)) do
       json.content_partial! 'details', content: item
     end

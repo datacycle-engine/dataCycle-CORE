@@ -85,18 +85,19 @@ describe DataCycleCore::MasterData::Validators::Asset do
       end
     end
 
-    it 'produces a warning if one of the entries in the uuid array is not a String' do
-      data_cases = [[asset1.id, ['test']]]
+    it 'produces an error if the data given is not a valid uuid or DataCyclCore::Asset Object' do
+      data_cases = ['00000000-xxxx-0000-0000-000000000001', ['test']]
       data_cases.each do |case_item|
-        validator = subject.new(case_item, template_hash) # byebug
-        assert_equal(0, validator.error[:error].size)
-        assert_equal(1, validator.error[:warning].size)
+        validator = subject.new(case_item, template_hash)
+        assert_equal(1, validator.error[:error].size)
+        assert_equal(0, validator.error[:warning].size)
       end
     end
 
     it 'successfully validates in these cases' do
       data_cases = [
-        asset1.id
+        asset1.id,
+        asset1
       ]
       data_cases.each do |case_item|
         validator = subject.new(case_item, template_hash)

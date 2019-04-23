@@ -88,7 +88,7 @@ module.exports.initialize = function() {
       if ($(event.currentTarget).is(':checked')) {
         if (!$('.filters .filtertags .filter-groups .tag-group.tags:not(.advanced-tags).' + tree_label).length) {
           $('.filters .filtertags .filter-groups').append(
-            '<span class="tag-group tags ' +
+            '<span class="tag-group tags i ' +
               tree_label +
               '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
               tree_label_title +
@@ -157,6 +157,31 @@ module.exports.initialize = function() {
     });
 
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
+      $(event.currentTarget)
+        .removeClass('i e n')
+        .addClass(
+          $(event.currentTarget)
+            .find(':input[name*="[m]"]')
+            .first()
+            .val()
+        );
+
+      let value;
+      if ($(event.currentTarget).find(':input[name*="[v]"]').length > 1) {
+        value = {};
+        $(event.currentTarget)
+          .find(':input[name*="[v]"]')
+          .each((index, elem) => {
+            value[
+              $(elem)
+                .prop('name')
+                .get_key()
+            ] = $(elem).val();
+          });
+      } else if ($(event.currentTarget).find(':input[name*="[v]"]').length == 1)
+        value = $(event.currentTarget)
+          .find(':input[name*="[v]"]')
+          .val();
       $.ajax({
         url: '/add_tag_group',
         method: 'GET',
@@ -169,11 +194,11 @@ module.exports.initialize = function() {
             .find(':input[name*="[n]"]')
             .first()
             .val(),
-          v: $(event.currentTarget)
-            .find(':input[name*="[v]"]')
+          v: value,
+          m: $(event.currentTarget)
+            .find(':input[name*="[m]"]')
             .first()
-            .map((index, element) => $(element).val())
-            .get(),
+            .val(),
           index: $(event.currentTarget).data('index')
         },
         dataType: 'script',
@@ -257,6 +282,18 @@ module.exports.initialize = function() {
         $(event.currentTarget)
           .addClass('active')
           .trigger('mouseenter');
+        let list = $(event.currentTarget).find('> ul');
+        if (!list.length) return;
+
+        let available_height =
+          $(window).height() +
+          $(window).scrollTop() -
+          $(event.currentTarget)
+            .find('> ul')
+            .offset().top;
+        if (available_height < list.get(0).scrollHeight && available_height > 20)
+          list.css('height', available_height - 20);
+        else list.css('height', '');
       }
     });
 

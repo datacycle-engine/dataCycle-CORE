@@ -42,7 +42,7 @@
             :type: datetime
             :storage_location: value
             :validations:
-              :format: date_time
+              :format: date
             :ui:
               :edit:
                 :type: date

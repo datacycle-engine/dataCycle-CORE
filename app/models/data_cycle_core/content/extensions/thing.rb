@@ -22,7 +22,7 @@ module DataCycleCore
           when 'Organization', 'Event', 'CreativeWork'
             description
           when 'Person'
-            content['job_title']
+            content&.dig('job_title')
           end
         end
 

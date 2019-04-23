@@ -2,7 +2,7 @@
   <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge(search_param: true) %>
 
   <%= render_attribute_editor key: 'thing[datahash][name]',
-                              definition: template.schema.dig('properties', 'name'),
+                              definition: template.schema.dig('properties', 'name').deep_reject{ |k, v| k == 'readonly' },
                               value: local_assigns[:search_param],
                               content: template,
                               parameters: {
@@ -10,7 +10,7 @@
                               } %>
 
   <%= render_attribute_editor key: 'thing[datahash][address][street_address]',
-                              definition: template.schema.dig('properties', 'address', 'properties', 'street_address'),
+                              definition: template.schema.dig('properties', 'address', 'properties', 'street_address').deep_reject{ |k, v| k == 'readonly' },
                               value: nil,
                               content: template,
                               parameters: {
@@ -18,7 +18,7 @@
                               } %>
 
   <%= render_attribute_editor key: 'thing[datahash][address][postal_code]',
-                              definition: template.schema.dig('properties', 'address', 'properties', 'postal_code'),
+                              definition: template.schema.dig('properties', 'address', 'properties', 'postal_code').deep_reject{ |k, v| k == 'readonly' },
                               value: nil,
                               content: template,
                               parameters: {
@@ -26,7 +26,7 @@
                               } %>
 
   <%= render_attribute_editor key: 'thing[datahash][address][address_locality]',
-                              definition: template.schema.dig('properties', 'address', 'properties', 'address_locality'),
+                              definition: template.schema.dig('properties', 'address', 'properties', 'address_locality').deep_reject{ |k, v| k == 'readonly' },
                               value: nil,
                               content: template,
                               parameters: {

@@ -1,4 +1,6 @@
 /* Filter */
+$filter-border: #aaa;
+
 #search-form {
   .filters {
     position: relative;
@@ -49,8 +51,9 @@
     .advanced-filters {
       .add-advanced-filter-container {
         background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 3px $dark-gray inset;
+        box-shadow: 0 0 2px $dark-gray;
         padding: 0.5rem;
+        border-radius: 5px;
       }
 
       .advanced-filter {
@@ -58,8 +61,27 @@
         display: flex;
         margin: 1rem 0;
         background-color: darken($medium-gray, 10%);
-        box-shadow: 0 0 3px $dark-gray inset;
         transition: background-color 1s ease;
+        border-radius: 5px;
+        box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+
+        .separator {
+          padding: 0 1rem;
+          &:last-child {
+            padding-right: 0;
+          }
+          &:first-child {
+            padding-left: 0;
+          }
+        }
+
+        &.i {
+          box-shadow: 0 0 0 1px $success-color, 0 0 2px 1px $success-color;
+        }
+
+        &.e {
+          box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+        }
 
         &.highlight {
           background-color: $white;
@@ -77,22 +99,44 @@
           }
 
           &.buttons {
-            padding: 0 0 0 0.5rem;
+            padding: 0 0.1rem;
 
-            .button,
-            button {
+            .remove-advanced-filter {
               display: flex;
               margin: 0;
               align-items: center;
               justify-content: center;
               height: 100%;
-              width: 3.5rem;
+              width: 3rem;
+              .fa {
+                color: $alert-color;
+                font-size: 1.3rem;
+              }
             }
           }
         }
 
         .advanced-filter-selector {
           flex: 1;
+          .flatpickr-wrapper {
+            width: 100%;
+          }
+          .flatpickr-input {
+            margin: 0;
+            height: 2.2rem;
+            border-radius: 4px;
+            border-color: $filter-border;
+          }
+        }
+
+        .advanced-filter-mode {
+          flex: unset;
+          select {
+            border-radius: 4px;
+            height: 2.2rem;
+            border-color: $filter-border;
+            font-size: 0.9rem;
+          }
         }
 
         .advanced-filter-title {
@@ -439,6 +483,28 @@
       border-radius: 5px;
       padding: 2px 4px;
       margin: 0 0.5rem 0.5rem 0;
+      box-shadow: 0 0 2px lighten($color: $black, $amount: 20%);
+
+      &.e {
+        box-shadow: 0 0 2px 1px rgba($alert-color, 0.8);
+        .tag {
+          position: relative;
+          &::after {
+            content: '';
+            display: block;
+            position: absolute;
+            top: 50%;
+            left: 0;
+            border-bottom: 1px solid;
+            width: calc(100% - 0.4rem);
+            margin: 0 0.2rem;
+          }
+        }
+      }
+
+      &.i {
+        box-shadow: 0 0 2px 1px $success-color;
+      }
 
       .tag-container {
         font-size: 0;
@@ -568,6 +634,7 @@
 
         > ul {
           display: none;
+          overflow-y: auto;
 
           li {
             &:not(:last-child) {
@@ -633,6 +700,22 @@
                     display: block;
                     margin-right: 0.5rem;
 
+                    &.e {
+                      .tag {
+                        position: relative;
+                        &::after {
+                          content: '';
+                          display: block;
+                          position: absolute;
+                          top: 50%;
+                          left: 0;
+                          border-bottom: 1px solid;
+                          width: calc(100% - 0.4rem);
+                          margin: 0 0.2rem;
+                        }
+                      }
+                    }
+
                     .tag {
                       color: $black;
                       background-color: $light-gray;
@@ -677,7 +760,7 @@
             display: block;
             position: absolute;
             left: 0;
-            top: 100%;
+            top: calc(100% - 1px);
             width: 100%;
             background-color: white;
             box-shadow: 0 5px 3px rgba($black, 0.3);
@@ -918,6 +1001,22 @@
                 line-height: 1.2rem;
                 border-radius: 5px;
                 white-space: nowrap;
+              }
+
+              &.e {
+                .tag {
+                  position: relative;
+                  &::after {
+                    content: '';
+                    display: block;
+                    position: absolute;
+                    top: 50%;
+                    left: 0;
+                    border-bottom: 1px solid;
+                    width: calc(100% - 0.4rem);
+                    margin: 0 0.2rem;
+                  }
+                }
               }
 
               &.search-term .tag {

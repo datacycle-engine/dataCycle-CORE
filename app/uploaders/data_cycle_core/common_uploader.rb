@@ -17,7 +17,7 @@ module DataCycleCore
     end
 
     def url
-      "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{model.name&.underscore}"
+      "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{model.name&.underscore_blanks}"
     end
 
     def filename

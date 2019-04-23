@@ -16,7 +16,7 @@ module DataCycleCore
     def refresh(options = {})
       raise "Missing refresh_strategy for #{name}, options given: #{options}" if refresh_config.dig(:strategy).blank?
       utility_object = DataCycleCore::Export::RefreshObject.new(external_system: self)
-      refresh_config.dig(:strategy).constantize.process(utility_object: utility_object)
+      refresh_config.dig(:strategy).constantize.process(utility_object: utility_object, options: options)
     end
   end
 end

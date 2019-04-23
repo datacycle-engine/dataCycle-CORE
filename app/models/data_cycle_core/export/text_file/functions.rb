@@ -8,8 +8,8 @@ module DataCycleCore
           DataCycleCore::Export::Common::Transformations
         end
 
-        def self.refresh(utility_object:)
-          utility_object.endpoint.refresh_request
+        def self.refresh(utility_object:, options:)
+          utility_object.endpoint.refresh_request(options)
         end
 
         def self.update(utility_object:, data:)

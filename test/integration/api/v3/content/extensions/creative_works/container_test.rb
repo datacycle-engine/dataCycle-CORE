@@ -15,12 +15,9 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
+                @content = DataCycleCore::DummyDataHelper.create_data('container')
 
-                container_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_container')
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: container_data_hash)
-
-                creative_work_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_article')
-                @article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: creative_work_data_hash)
+                @article = DataCycleCore::DummyDataHelper.create_data('article')
                 @article.is_part_of = @content.id
                 @article.save!
 
@@ -28,13 +25,13 @@ module DataCycleCore
               end
 
               test 'json of stored container exists' do
-                get api_v3_thing_path(@article)
+                get api_v3_thing_path(id: @article)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 article_json_data = JSON.parse(response.body)
 
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
@@ -44,7 +41,7 @@ module DataCycleCore
                 assert_equal('http://schema.org', json_data.dig('@context'))
                 assert_equal('CreativeWork', json_data.dig('@type'))
                 assert_equal('Container', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
+                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
                 assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
@@ -92,12 +89,12 @@ module DataCycleCore
               end
 
               test 'APIv2 json equals APIv3 json result' do
-                get api_v2_thing_path(@content)
+                get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v2_json = JSON.parse(response.body)
 
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)

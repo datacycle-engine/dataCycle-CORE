@@ -8,6 +8,7 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
         template_name = @definition.dig(:template_name)
@@ -37,7 +38,7 @@ module DataCycleCore
 
         query = query.in_validity_period
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
-        query = query.where('content_data_id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
+        query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
 
         unless template_name == 'contentLocation'
           query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present?
@@ -65,6 +66,8 @@ module DataCycleCore
     def find
       authorize! :show, :object_browser
       return if permitted_params[:ids].blank?
+
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
 
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         if permitted_params[:external]
@@ -94,7 +97,7 @@ module DataCycleCore
     end
 
     def permitted_parameter_keys
-      [:per, :page, :id, :locale, :external, { ids: [] }, :search, :excluded, { definition: {} }]
+      [:per, :page, :id, :locale, :content_id, :external, { ids: [] }, :search, { definition: {} }, excluded: []]
     end
   end
 end

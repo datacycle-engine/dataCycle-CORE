@@ -1,9 +1,9 @@
 <ul class="grid no-bullet no-format <%= @mode %>">
-    <li class="grid-sizer"></li>
-    <li class="gutter-sizer"></li>
-    <li class="grid-loading show">
+    <li class="grid-loading">
+      <span class="content-link">
         <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>
         <span class="sr-only">Loading...</span>
+      </span>
     </li>
 
     <% contents&.each do |content| %>
@@ -11,7 +11,7 @@
             <% if no_cache ||= false %>
                 <%= render(*(content_tile item: content)) %>
             <% else %>
-                <% cache(["#{content.class}_#{content.id}_#{content.updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 1.year + Random.rand(7.days)) do %>
+                <% cache(["#{content.class}_#{content.id}_#{content.updated_at}_#{content.template_updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 1.year + Random.rand(7.days)) do %>
                     <%= render(*(content_tile item: content)) %>
                 <% end %>
             <% end %>

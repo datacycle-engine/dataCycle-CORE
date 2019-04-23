@@ -74,7 +74,7 @@ module DataCycleCore
                 template_name: template[:data][:name],
                 template: true
               )
-            data_set.seen_at = Time.zone.now
+            data_set.template_updated_at = Time.zone.now
             data_set.schema = template[:data]
             data_set.save
           elsif error.present?
@@ -90,8 +90,14 @@ module DataCycleCore
 
       def self.transform_schema(content_table: nil, schema: {})
         schema[:boost] = schema[:boost] || 1.0
+        schema[:features] = transform_features(schema: schema, content_table: content_table)
         schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table)
         schema
+      end
+
+      def self.transform_features(schema: {}, content_table: nil)
+        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features)) if DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features).present?
+        schema.dig(:features) || {}
       end
 
       def self.transform_properties(property_hash: {}, content_table: nil)
@@ -131,47 +137,6 @@ module DataCycleCore
         # hash[:sorting] = sorting unless hash.dig(:ui, :edit, :disabled).present?
         hash[:sorting] = sorting
         hash
-      end
-
-      def self.find_not_translatable_embedded
-        not_translatable_list = check_not_translatable
-        return [] if not_translatable_list.blank?
-
-        not_translated_occurances = []
-        DataCycleCore::Thing.where(template: true).find_each do |template|
-          template.embedded_property_names.map { |item|
-            { item => template.properties_for(item) }
-          }.each do |properties|
-            key = properties.keys.first
-            next unless properties.dig(key, 'template_name').in?(not_translatable_list)
-            next if properties.dig(key, 'translated') == true
-            not_translated_occurances.push({ template.template_name => key })
-          end
-        end
-        not_translated_occurances
-      end
-
-      def self.check_not_translatable
-        templates = []
-        DataCycleCore::Thing.where(template: true).find_each do |template|
-          properties = template.schema['properties'].with_indifferent_access
-          not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
-          templates.push(template.template_name) if not_trans
-        end
-        templates
-      end
-
-      def self.not_translatable?(properties)
-        translated_columns = DataCycleCore::Thing.new.translated_attributes
-        result = true
-        properties.each do |name, property|
-          next if property.dig(:type).in? [:key, :classification, :asset, :linked, :embedded]
-          return false if property[:storage_location] == 'translated_value'
-          return false if property[:storage_location] == 'column' && name.in?(translated_columns)
-          result = not_translatable?(property.dig(:properties)) if property.dig(:type) == :object
-          return false if result == false
-        end
-        true
       end
 
       def self.validate(template)
@@ -293,7 +258,7 @@ module DataCycleCore
                  'company', 'email',
                  'street', 'streetnr', 'city', 'zip', 'country',
                  'eventname', 'datetime',
-                 'place', 'longitude', 'latitude']
+                 'eventplace', 'longitude', 'latitude']
               )
             end
           end
@@ -317,21 +282,20 @@ module DataCycleCore
 
           # for type linked
           optional(:linked_language) { str? & valid_linked_language? }
-          optional(:inverse_of) { str? }
-          optional(:link_direction) { str? & validate_link_direction? }
+          optional(:inverse_of) { str? } # for bidirectional links
+          optional(:link_direction) { str? & validate_link_direction? } # make sure if link_direction = inverse set api: disabled: true
           rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
             (type.eql?('linked') > template_name.filled?) |
               (type.eql?('linked') > stored_filter.filled?)
           end
 
           # for type classification
-          optional(:tree_label) { str? }
-          optional(:default_value) { str? & valid_classification? }
-          optional(:not_translated) { bool? }
-          optional(:external) { bool? }
+          optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
+          optional(:default_value) { str? & valid_classification? } # the default_value is set if no value is given
+          optional(:not_translated) { bool? } # true -> classification only exists in german
+          optional(:external) { bool? } # true -> only imported can not be manually edited
+          optional(:global) { bool? } # true -> edit is allowed for imported data
           rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
-            # type.eql?('classification') >
-            #   tree_label.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
             type.eql?('classification') > tree_label.filled?
           end
 
@@ -362,6 +326,73 @@ module DataCycleCore
             type.eql?('computed') > (compute.hash? & compute.valid_compute_config?)
           end
         end
+      end
+
+      def self.updated_template_statistics(timestamp = Time.zone.now)
+        templates = {}
+        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.utc.to_s(:long_usec))
+          .where(template: true).find_each do |template|
+            templates[template.template_name] = {
+              template_updated_at: template.template_updated_at,
+              count: DataCycleCore::Thing.where(template: false, template_name: template.template_name).count,
+              count_history: DataCycleCore::Thing::History.where(template: false, template_name: template.template_name).count
+            }
+          end
+        templates
+          .to_a
+          .sort_by { |item| item[1][:template_updated_at] }
+          .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
+      end
+
+      def self.template_statistics
+        templates = {}
+        history = {}
+        DataCycleCore::Thing.where(template: true).pluck(:template_name)&.sort&.each do |template|
+          templates[template] = DataCycleCore::Thing.where(template_name: template, template: false).count
+          history[template] = DataCycleCore::Thing::History.where(template_name: template).count
+        end
+        return templates, history
+      end
+
+      def self.find_not_translatable_embedded
+        not_translatable_list = check_not_translatable
+        return [] if not_translatable_list.blank?
+
+        not_translated_occurances = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          template.embedded_property_names.map { |item|
+            { item => template.properties_for(item) }
+          }.each do |properties|
+            key = properties.keys.first
+            next unless properties.dig(key, 'template_name').in?(not_translatable_list)
+            next if properties.dig(key, 'translated') == true
+            not_translated_occurances.push({ template.template_name => key })
+          end
+        end
+        not_translated_occurances
+      end
+
+      def self.check_not_translatable
+        templates = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          properties = template.schema['properties'].with_indifferent_access
+          not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
+          templates.push(template.template_name) if not_trans
+        end
+        templates
+      end
+
+      def self.not_translatable?(properties)
+        translated_columns = DataCycleCore::Thing.new.translated_attributes
+        result = true
+        properties.each do |name, property|
+          next if property.dig(:type).in? [:key, :classification, :asset, :linked, :embedded]
+          return false if property[:storage_location] == 'translated_value'
+          return false if property[:storage_location] == 'column' && name.in?(translated_columns)
+          result = not_translatable?(property.dig(:properties)) if property.dig(:type) == :object
+          return false if result == false
+        end
+        true
       end
     end
   end

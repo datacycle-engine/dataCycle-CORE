@@ -1,0 +1,10 @@
+:templates:
+  :places:
+    :POI:
+      :features:
+        :creatable:
+          :allowed: true
+:api:
+  :v2:
+    :subversions:
+    - 'test'

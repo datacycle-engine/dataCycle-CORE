@@ -21,8 +21,10 @@ DataCycleCore.setup do |config|
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
     ].freeze
   else
     config.default_template_paths = [

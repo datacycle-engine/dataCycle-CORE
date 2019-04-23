@@ -277,12 +277,21 @@ module DataCycleCore
       return first_existing_partial(partials), parameters.merge({ item: item })
     end
 
-    def render_object_browser_partial(partial: 'tile', key:, definition:, parameters: {}, content: nil)
+    def render_linked_partial(key:, definition:, parameters: {}, content: nil)
       partials = [
         definition.dig('template_name')&.underscore_blanks,
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_#{partial}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/compact/#{p}" }
+      render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
+    end
+
+    def render_linked_details(key:, definition:, parameters: {}, content: nil)
+      partials = [
+        definition.dig('template_name')&.underscore_blanks,
+        parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/object_browser/#{p}_detail" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 

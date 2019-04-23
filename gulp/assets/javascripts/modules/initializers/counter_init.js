@@ -6,7 +6,7 @@ module.exports.initialize = function() {
 
   init_counters($('#edit-form'));
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     init_counters(event.target);
   });
 
@@ -14,7 +14,7 @@ module.exports.initialize = function() {
     $(container)
       .find('input.form-control[type=text]:not(:disabled):not(.flatpickr-input)')
       .each((index, element) => {
-        CounterArray[$(element).prop('id')] = new Counter(element);
+        CounterArray[$(element).prop('id')] = new Counter(element).start();
       });
   }
 };

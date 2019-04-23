@@ -4,8 +4,8 @@ $('#object_browser_<%= "#{params[:prefix]}#{sanitize_to_id(params[:key])}" %> .i
 
 <% content_for :rendered_items, flush: true do %>
   <% I18n.with_locale(params[:locale] || I18n.locale) do %>
-    <% @results.each do |content| %>
-      <%= render_object_browser_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: content, options: params[:options], objects: params[:objects], editable: params[:editable], prefix: params[:prefix] }) %>
+    <% @results.each do |object| %>
+      <%= render_linked_partial(key: params[:key] + (params[:definition]['type'] == "object" ? '[][id]' : '[]'), definition: params[:definition], parameters: { object: object, prefix: params[:prefix], options: params[:options], objects: params[:objects], edit_buttons: true }, content: @content) %>
     <% end %>
   <% end %>
 <% end %>

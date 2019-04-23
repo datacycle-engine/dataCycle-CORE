@@ -11,13 +11,13 @@ module DataCycleCore
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
               xml.source @source
-              xml.owner @owner
+              # xml.owner @owner
               contents.each do |content|
                 xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
-                  xml.owner @owner
+                  outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
                   xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
-                  outdoor_active_categories(content, xml, external_system)
+                  outdoor_active_system_categories(content, xml, external_system)
                   outdoor_active_contact(content, xml)
                   outdoor_active_descriptons(content, xml)
                   outdoor_active_images(content, xml)
@@ -103,8 +103,9 @@ module DataCycleCore
           xml.license license_string
         end
 
-        def self.outdoor_active_categories(content, xml, external_system)
-          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_categories(content, external_system)
+        def self.outdoor_active_system_categories(content, xml, external_system)
+          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_categories(content, external_system)
+          return if categories.blank?
           if categories.count == 1
             xml.category categories.first.external_key.split(':').last
           else
@@ -114,6 +115,12 @@ module DataCycleCore
               end
             end
           end
+        end
+
+        def self.outdoor_active_system_source_keys(content, xml, external_system)
+          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_source_keys(content, external_system)
+          return if categories.blank?
+          xml.owner categories.first.external_key.split(':').last
         end
       end
     end

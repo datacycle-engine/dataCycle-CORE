@@ -105,6 +105,10 @@ de:
     entries: Einträge
     is: ist
     is_not: ist nicht
+    has: enthält
+    has_not: enthält nicht
+    assigned: zugeordnet
+    not_assigned: nicht zugeordnet
     no_translation: Keine Übersetzung vorhanden
     max: maximal
     min: mindestens
@@ -173,6 +177,12 @@ de:
     language: Sprache
     external_source: Externe Quelle
     creator: Ersteller
+    classification_tree_ids: Klassifizierungsbaum
+    created_at: Erstellt
+    updated_at: Aktualisiert
+    deleted_at: Gelöscht
+    validity_period: Gültigkeitszeitraum
+    upload_date: Hochgeladen
 
   terms:
     valid: gültig

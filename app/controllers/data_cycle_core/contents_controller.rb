@@ -34,7 +34,7 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
-          @filters = params[:f].presence&.values&.reject { |f| f['v'].blank? } || []
+          filters
           @filters.push(
             {
               't' => 'part_of',
@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to api_v2_thing_path(@content) }
+          format.json { redirect_to api_v2_thing_path(id: @content) }
           format.html { render && return }
         end
       end
@@ -69,6 +69,8 @@ module DataCycleCore
 
     def create
       authorize!(__method__, DataCycleCore::Thing.find_by(template: true, template_name: params[:template]), resolve_params(params, false).dig(:scope))
+
+      @object_browser_parent = DataCycleCore::Thing.find(params[:content_id]) if params[:content_id].present?
 
       I18n.with_locale(locale_params[:locale]) do
         object_params = content_params(params[:template])
@@ -136,7 +138,6 @@ module DataCycleCore
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
         @content.finalize = params[:finalize] if DataCycleCore::Feature::Releasable.enabled?
-
         valid = @content.set_data_hash(data_hash: datahash, current_user: current_user)
 
         redirect_to(edit_thing_path(@content, watch_list_params), alert: valid[:error]) && return if valid[:error].present?
@@ -213,7 +214,7 @@ module DataCycleCore
       content = params[:data].as_json
       external_source = DataCycleCore::ExternalSource.find(content['source_key'])
       api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
-      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last)
+      api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last, nil)
       @content = api_strategy.create(content.except('source_key'))
       @content = @content.try(:first)
 

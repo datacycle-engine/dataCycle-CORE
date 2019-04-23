@@ -32,11 +32,11 @@ module.exports.initialize = function() {
 
   init();
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     init(event.target);
   });
 
-  $(document).on('remove.dc.html', '*', event => {
+  $(document).on('dc:html:remove', '*', event => {
     event.preventDefault();
     event.stopPropagation();
     if ($(event.target).hasClass('asset-selector-reveal')) {

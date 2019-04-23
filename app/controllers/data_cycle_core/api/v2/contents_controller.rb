@@ -65,7 +65,7 @@ module DataCycleCore
           stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id)
+            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
@@ -115,6 +115,7 @@ module DataCycleCore
           @include_parameters = (permitted_params.dig(:include)&.split(',') || []).select { |v| ALLOWED_INCLUDE_PARAMETERS.include?(v) }.sort
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params.dig(:api_subversion))
         end
 
         def content_schema_type

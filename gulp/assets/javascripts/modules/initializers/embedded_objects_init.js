@@ -8,7 +8,7 @@ module.exports.initialize = function() {
     embedded_objects.push(new EmbeddedObject($(element)));
   });
 
-  $(document).on('changed.dc.html', '*', event => {
+  $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
     $(event.target)
       .find('.embedded-object')

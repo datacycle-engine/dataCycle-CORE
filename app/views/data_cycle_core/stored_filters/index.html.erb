@@ -34,11 +34,11 @@
                 </span>
                 <span class="buttons">
                   <% if stored_search.api %>
-                    <%= link_to api_v2_stored_filter_path(stored_search),
+                    <%= link_to api_v2_stored_filter_path(id: stored_search),
                       class: 'copy-to-clipboard',
                       data: {
                         tooltip: true,
-                        value: api_v2_stored_filter_url(stored_search)
+                        value: api_v2_stored_filter_url(id: stored_search)
                       },
                       title: t('actions.copy_to_clipboard', locale: DataCycleCore.ui_language) do %>
                       <i class="fa fa-clipboard" aria-hidden="true"></i>

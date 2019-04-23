@@ -6,7 +6,7 @@
       allow_html: content.release_status_comment.present?
     },
     title: content.release_status_comment do %>
-    <%= tag.strong content.release_status_id.first&.primary_classification_alias&.name %>
+    <%= tag.strong content.release_status_id.first&.primary_classification_alias&.internal_name %>
     <%= tag.i class: 'fa fa-comment' if content.release_status_comment.present? %>
   <% end %>
 </div>

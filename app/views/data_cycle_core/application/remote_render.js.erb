@@ -1,8 +1,8 @@
 $('#<%= @target %>').children().fadeOut('fast', function(){
   <% if @render_function.present? && respond_to?(@render_function) %>
-    $('#<%= @target %>').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-render').addClass('remote-rendered').trigger('changed.dc.html');
+    $('#<%= @target %>').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-render').addClass('remote-rendered').trigger('dc:html:changed');
   <% else %>
-    $('#<%= @target %>').html('<%= j render(@partial, @options) %>').removeClass('remote-render').addClass('remote-rendered').trigger('changed.dc.html');
+    $('#<%= @target %>').html('<%= j render(@partial, @options) %>').removeClass('remote-render').addClass('remote-rendered').trigger('dc:html:changed');
   <% end %>
 
   <% @content_for.presence&.each do |yield_class| %>

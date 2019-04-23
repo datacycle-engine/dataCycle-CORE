@@ -48,6 +48,7 @@
         :label: Öffnungszeit
         :type: embedded
         :template_name: Öffnungszeit
+        :translated: true
       :data_type:
         :label: Inhaltstype
         :type: classification

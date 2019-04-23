@@ -34,6 +34,10 @@ module DataCycleCore
         def default_filter(content = nil)
           configuration(content).dig('default_filter')
         end
+
+        def default_alias_id(content)
+          ordered_classifications(content).presence&.dig(content&.schema&.dig('properties', allowed_attribute_keys(content)&.first, 'default_value'), :id)
+        end
       end
     end
   end

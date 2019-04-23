@@ -15,30 +15,13 @@ module DataCycleCore
 
               setup do
                 @routes = Engine.routes
-
-                image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
-                @image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
-
-                place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
-                country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
-                place_data_hash[:country_code] = [country_classification.id]
-                place_data_hash[:image] = @image.id
-                place_data_hash[:primary_image] = @image.id
-                place_data_hash[:logo] = @image.id
-
-                opening_hours_classifications = DataCycleCore::Classification.where(name: ['Montag'])&.map(&:id)
-                opening_hours_specification_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'opening_hours_specification')
-                opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
-
-                place_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
-
-                @content = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
+                @content = DataCycleCore::DummyDataHelper.create_data('poi')
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
               # TODO: Add tests for overlay, openingHoursSpecification
               test 'json of stored item exists and is correct' do
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
@@ -48,7 +31,7 @@ module DataCycleCore
                 assert_equal('http://schema.org', json_data.dig('@context'))
                 assert_equal('TouristAttraction', json_data.dig('@type'))
                 assert_equal('POI', json_data.dig('contentType'))
-                assert_equal(root_url[0...-1] + api_v3_thing_path(@content), json_data.dig('@id'))
+                assert_equal(root_url[0...-1] + api_v3_thing_path(id: @content), json_data.dig('@id'))
                 assert_equal(@content.id, json_data.dig('identifier'))
                 assert_equal(@content.created_at.as_json, json_data.dig('dateCreated'))
                 assert_equal(@content.updated_at.as_json, json_data.dig('dateModified'))
@@ -71,8 +54,6 @@ module DataCycleCore
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
                 assert_equal(@content.description, json_data.dig('description'))
-                assert_equal(@content.potentialAction.name, json_data.dig('potentialAction', 'name'))
-                assert_equal(@content.potentialAction.url, json_data.dig('potentialAction', 'url'))
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: additionalProperty
@@ -125,7 +106,7 @@ module DataCycleCore
                 end
                 @content.reload
 
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
 
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
@@ -158,12 +139,12 @@ module DataCycleCore
               end
 
               test 'APIv2 json equals APIv3 json result' do
-                get api_v2_thing_path(@content)
+                get api_v2_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v2_json = JSON.parse(response.body)
 
-                get api_v3_thing_path(@content)
+                get api_v3_thing_path(id: @content)
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 api_v3_json = JSON.parse(response.body)

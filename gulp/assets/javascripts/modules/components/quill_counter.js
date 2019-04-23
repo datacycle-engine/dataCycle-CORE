@@ -1,29 +1,24 @@
 var Counter = require('./word_counter');
 
 // QuillJS Word Counter Module
-var QuillCounter = function(quill, options) {
-  this.quill = quill;
-  this.options = options;
-
-  Counter.call(this, quill.container);
-};
-
-QuillCounter.prototype = Object.create(Counter.prototype);
-QuillCounter.prototype.constructor = QuillCounter;
-
-QuillCounter.prototype.addEventHandlers = function() {
-  this.quill.on('text-change', this.update.bind(this));
-};
-
-QuillCounter.prototype.getText = function() {
-  return this.quill.getText();
-};
-
-QuillCounter.prototype.setContainer = function() {
-  var parentElement = this.quill.container.parentElement;
-  if (parentElement.querySelector('.counter') == null)
-    parentElement.insertAdjacentHTML('beforeend', '<div class="counter"></div>');
-  return parentElement.querySelector('.counter');
-};
+class QuillCounter extends Counter {
+  constructor(quill, _options) {
+    super(quill.container);
+    this.quill = quill;
+    this.start();
+  }
+  addEventHandlers() {
+    this.quill.on('text-change', this.update.bind(this));
+  }
+  getText() {
+    return this.quill.getText();
+  }
+  setContainer() {
+    let parentElement = this.quill.container.parentElement;
+    if (parentElement.querySelector('.counter') == null)
+      parentElement.insertAdjacentHTML('beforeend', '<div class="counter"></div>');
+    this.container = parentElement.querySelector('.counter');
+  }
+}
 
 module.exports = QuillCounter;

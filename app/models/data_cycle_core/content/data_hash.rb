@@ -24,7 +24,7 @@ module DataCycleCore
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
-      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false)
+      def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
         @data_hash = data_hash
         @current_user = current_user
@@ -39,32 +39,29 @@ module DataCycleCore
 
         valid_hash = validate(@data_hash, schema_hash)
 
-        if validate?(valid_hash) && diff?(@data_hash)
-          ActiveRecord::Base.transaction do
-            to_history(save_time: @save_time) unless id.nil? || prevent_history
+        if validate?(valid_hash)
+          if diff?(@data_hash) || force_update
+            ActiveRecord::Base.transaction do
+              to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-            set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
+              set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
 
-            self.updated_at = @save_time
-            self.updated_by = @current_user&.id
+              self.updated_at = @save_time
+              self.updated_by = @current_user&.id
 
-            if id.nil?
-              self.created_at = @save_time
-              self.created_by = @current_user&.id
+              if id.nil?
+                self.created_at = @save_time
+                self.created_by = @current_user&.id
+              end
+              save(touch: false)
+              search_languages(update_search_all)
             end
-            save(touch: false)
-            search_languages(update_search_all)
+            reload
+            run_callbacks(:saved_data_hash) unless prevent_history
+            run_callbacks(:created_data_hash) if @new_content
           end
-          reload
-          run_callbacks(:saved_data_hash) unless prevent_history
-          run_callbacks(:created_data_hash) if @new_content
         end
         valid_hash
-      end
-
-      def set_last_updated_by
-        last_updated_by = @current_user.presence&.id || (@prevent_history ? try(:last_updated_by).presence&.first&.id : nil)
-        @data_hash = @data_hash.merge({ 'last_updated_by' => [last_updated_by] }) unless last_updated_by.nil?
       end
 
       def set_computed_values
@@ -123,6 +120,7 @@ module DataCycleCore
       end
 
       def storage_cases_set(key, value, properties)
+        # puts "#{key}, #{value}, #{properties.dig('type')}"
         case properties['type']
         when 'linked'
           set_linked(key, value, properties)
@@ -331,8 +329,9 @@ module DataCycleCore
 
       def set_asset_id(asset_id, relation_name, asset_type)
         asset_id = asset_id.first.id if asset_id.is_a?(ActiveRecord::Relation) || asset_id.is_a?(::Array)
+        asset_id = asset_id.id if asset_id.is_a?(DataCycleCore::Asset)
 
-        if id.present?
+        if id.present? && asset_id.present?
           DataCycleCore::AssetContent.find_or_create_by(
             'content_data_id' => id,
             'content_data_type' => self.class.to_s,
@@ -342,13 +341,12 @@ module DataCycleCore
           )
         end
 
-        # delete old id
-        found_ids = load_asset_relation(relation_name)&.id
-        to_delete = Array(found_ids) - Array(asset_id)
-        return if to_delete.empty?
+        # delete old asset if necessary
+        old_id = load_asset_relation(relation_name)&.id
+        return if old_id == asset_id
         DataCycleCore::AssetContent
           .with_content(id, self.class.to_s)
-          .with_assets(to_delete, asset_type)
+          .with_assets(old_id, asset_type)
           .with_relation(relation_name)
           .destroy_all
       end

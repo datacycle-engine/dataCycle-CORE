@@ -53,9 +53,10 @@ module DataCycleCore
           else
             @classification_trees = @classification_tree_label.classification_trees
               .where(parent_classification_alias: nil)
-              .where.not(classification_aliases: { name: DataCycleCore.excluded_filter_classifications })
+              .joins(:sub_classification_alias)
+              .where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications })
               .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
-              .order('classification_aliases.name')
+              .order('classification_aliases.internal_name')
               .page(params[:tree_page])
           end
 

@@ -57,6 +57,7 @@ function init_map(idx, item) {
   var data = window[map_id];
   var feature, feature_old;
   var drawable = true;
+  var iconStyle, redIconStyle, greenIconStyle;
 
   if ($(item).data('icon-path') !== undefined) {
     iconStyle = new ol.style.Style({

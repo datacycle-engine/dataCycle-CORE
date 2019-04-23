@@ -132,7 +132,8 @@
   }
 }
 
-.content-tiles {
+.content-tiles,
+.media-thumbs {
   margin: 0;
   margin-bottom: 1rem;
   list-style-type: none;
@@ -151,6 +152,56 @@
     width: 300px;
     max-width: 450px;
 
+    .thumbnail {
+      position: relative;
+      display: block;
+      width: 194px;
+      height: 170px;
+      margin: 0;
+      background-position: center center;
+      background-size: contain;
+      background-repeat: no-repeat;
+      background-color: white;
+      overflow: hidden;
+      border: 0;
+      cursor: pointer;
+
+      &.has-restrictions {
+        box-shadow: 0 0 2px 1px red;
+      }
+
+      &:focus,
+      &:hover {
+        .description {
+          opacity: 1;
+        }
+      }
+
+      .description {
+        position: absolute;
+        left: 0;
+        top: 0;
+        opacity: 0;
+        width: 100%;
+        background: rgba(255, 255, 255, 0.9);
+        height: 100%;
+        line-height: 1rem;
+        font-size: 0.8rem;
+        color: $body-font-color;
+        overflow: hidden;
+        /* white-space: nowrap; */
+        /* text-overflow: ellipsis; */
+        padding: 0.5rem;
+        text-align: center;
+        display: -ms-flexbox;
+        display: flex;
+        -ms-flex-align: center;
+        align-items: center;
+        -ms-flex-pack: center;
+        justify-content: center;
+        transition: opacity 0.25s;
+      }
+    }
     &.hard-warnings {
       box-shadow: 0 0 5px 1px $alert-color;
       .content-warning {
@@ -158,10 +209,9 @@
       }
     }
 
-    &.bild,
-    &.video {
-      width: 205px;
-      max-width: 205px;
+    &.image {
+      width: 194px;
+      max-width: 194px;
       &.hard-warnings {
         box-shadow: none;
 
@@ -215,8 +265,8 @@
   .content.bild,
   .content.bild-filmcommission,
   .content.video {
-    padding: 1px;
-    margin: 0;
+    margin: 0 0.1rem 2rem 0;
+    padding: 6px;
     box-shadow: 0 0 0 0;
   }
 
@@ -273,6 +323,7 @@
     display: flex;
     flex-flow: row wrap;
     width: 100%;
+    margin-bottom: 0;
     .media {
       flex: auto;
       position: relative;
@@ -281,7 +332,6 @@
       width: auto;
       height: auto;
       padding: 0.65rem;
-      margin: 0 1rem 1rem 0;
       background-position: center center;
       background-size: contain;
       background-repeat: no-repeat;
@@ -318,7 +368,7 @@
 
       &.thumbnail {
         position: relative;
-        width: 194px;
+        width: 100%;
         max-width: 194px;
         height: 170px;
         padding: 5px 0;
@@ -492,6 +542,11 @@
       line-height: 1;
       display: flex;
       flex-flow: row;
+      margin-bottom: 0;
+
+      .types-of-use {
+        display: none;
+      }
 
       .expired-item-overlay {
         font-size: 0;
@@ -500,45 +555,50 @@
       .description {
         display: none;
       }
+
+      li.item {
+        width: auto !important;
+        margin: 0;
+      }
     }
 
-    .items .media {
+    .items .item.media {
       position: relative;
       line-height: 1.5;
 
-      &.item {
+      position: relative;
+      margin: 0 0.3rem 0 0;
+      width: auto;
+      max-width: none;
+
+      .delete-thumbnail {
+        display: block;
+        float: right;
+
+        margin-left: 5px;
+        text-shadow: 1px 1px 1px rgba($black, 0.3);
+        .fa {
+          font-size: 1.3rem;
+        }
+      }
+
+      &.thumbnail {
+        width: 80px;
+        height: 80px;
+        background-size: cover;
+        border: 0;
         margin: 0 0.3rem 0 0;
-        width: auto;
-        max-width: none;
+        display: inline-block;
 
         .delete-thumbnail {
           display: block;
-          position: relative;
-          float: right;
-          margin-left: 5px;
+          right: 0.2rem;
+          color: white;
           text-shadow: 1px 1px 1px rgba($black, 0.3);
-          .fa {
-            font-size: 1.3rem;
-          }
         }
 
-        &.thumbnail {
-          width: 80px;
-          height: 80px;
-          background-size: cover;
-          border: 0;
-          margin: 0 0.3rem 0 0;
-          display: inline-block;
-
-          .delete-thumbnail {
-            right: 0.2rem;
-            color: white;
-            text-shadow: 1px 1px 1px rgba($black, 0.3);
-          }
-
-          .warning {
-            display: none;
-          }
+        .warning {
+          display: none;
         }
       }
     }
@@ -586,6 +646,11 @@
   }
 
   > .items {
+    .item.active .media.thumbnail {
+      border-color: $primary-color;
+      background-color: $primary-color;
+      box-shadow: 0 0 1px rgba($primary-color, 1);
+    }
     .media.item {
       position: relative;
       &.active {
@@ -627,6 +692,49 @@
     display: flex;
     flex-flow: row wrap;
 
+    li.item {
+      display: block;
+      flex: auto;
+      width: 250px;
+      max-width: 500px;
+      margin: 0 1rem 1rem 0;
+
+      .delete-thumbnail {
+        display: none;
+      }
+
+      .description {
+        display: none;
+      }
+      &.image {
+        width: 194px;
+        max-width: 194px;
+      }
+    }
+
+    .item.content {
+      transition: box-shadow 0.1s;
+
+      &.hard-warnings {
+        &.media,
+        .media {
+          box-shadow: 0 0 5px $alert-color;
+          .content-warning {
+            color: $alert-color;
+          }
+        }
+      }
+
+      &:hover,
+      &.active:hover,
+      &.active.hard-warnings:hover {
+        &.media,
+        .media {
+          box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
+        }
+      }
+    }
+
     .media {
       width: auto;
       height: auto;
@@ -641,40 +749,11 @@
       transition: box-shadow 0.1s;
       line-height: 1.5;
 
-      &.hard-warnings {
-        box-shadow: 0 0 5px $alert-color;
-        .content-warning {
-          color: $alert-color;
-        }
-      }
-
       .name {
         font-weight: 600;
       }
 
       cursor: pointer;
-
-      &:hover,
-      &.active:hover,
-      &.active.hard-warnings:hover {
-        box-shadow: 0 0 6px 1px rgba($primary-color, 0.5);
-      }
-
-      &.item {
-        display: block;
-        flex: auto;
-        width: 250px;
-        max-width: 500px;
-        margin: 0 1rem 1rem 0;
-
-        .delete-thumbnail {
-          display: none;
-        }
-
-        .description {
-          display: none;
-        }
-      }
 
       &.thumbnail {
         width: 200px;
@@ -686,6 +765,7 @@
         background-repeat: no-repeat;
         background-origin: content-box;
         position: relative;
+        margin: 0;
       }
     }
 
@@ -828,6 +908,7 @@ span.single_error.object-browser-error {
   &.new-item,
   &.new-content-reveal {
     background: $white;
+    min-width: 60%;
 
     .loading {
       display: none;
