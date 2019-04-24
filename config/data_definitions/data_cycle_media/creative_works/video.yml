@@ -8,9 +8,6 @@
     :features:
       :creatable:
         :allowed: true
-        :scope:
-          - asset
-          - backend
       :translatable:
         :allowed: true
     :api:
@@ -194,7 +191,7 @@
         :name: additional_video_properties
       :tags:
         :type: mixin
-        :name: tags        
+        :name: tags
       :data_type:
         :label: Inhaltstype
         :type: classification
