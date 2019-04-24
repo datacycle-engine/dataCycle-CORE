@@ -1,0 +1,38 @@
+---
+name: Pimcore
+credentials:
+  host: https://www.montafon.at/webservice/imx
+  end_point: infrastructure
+  apikey: 6b46d5f1240824f1a27b6aaa3641e03d96694789f5700d149dae2aa144ea150d
+default_options:
+  locales: [de, en]
+config:
+  download_config:
+    infrastructure:
+      sorting: 1
+      source_type: infrastructures
+      endpoint: DataCycleCore::Generic::Pimcore::Endpoint
+      download_strategy: DataCycleCore::Generic::Pimcore::Download
+  import_config:
+    categories:
+      sorting: 1
+      source_type: infrastructures
+      import_strategy: DataCycleCore::Generic::Common::ImportCategories
+      tree_label: 'Pimcore - Categories'
+    city:
+      sorting: 2
+      source_type: infrastructures
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: 'Pimcore - Cities'
+      tag_id_path: 'city.id'
+      tag_name_path: 'city.name'
+      external_id_prefix: 'Pimcore - City - '
+    infrastructures:
+      sorting: 10
+      source_type: infrastructure_items
+      import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
+      transformations:
+        image:
+          template: Bild
+        infrastructure:
+          template: POI
