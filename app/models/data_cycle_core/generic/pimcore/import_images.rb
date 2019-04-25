@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Pimcore
-      module ImportInfrastructure
+      module ImportImages
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -19,11 +19,14 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Pimcore::Processing.process_infrastructure(
-              utility_object,
-              raw_data,
-              options.dig(:import, :transformations, :place)
-            )
+            ['teaserImage', 'imageGallery'].each do |entry|
+              next if raw_data.dig(entry).blank?
+              DataCycleCore::Generic::Pimcore::Processing.process_image(
+                utility_object,
+                raw_data.dig(entry),
+                options.dig(:import, :transformations, :image)
+              )
+            end
           end
         end
       end

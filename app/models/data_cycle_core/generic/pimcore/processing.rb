@@ -4,16 +4,15 @@ module DataCycleCore
   module Generic
     module Pimcore
       module Processing
-        # def self.process_image(utility_object, raw_data, config)
-        #   return if raw_data&.dig('attributes', 'image').blank?
-        #   DataCycleCore::Generic::Common::ImportFunctions.process_step(
-        #     utility_object: utility_object,
-        #     raw_data: raw_data,
-        #     transformation: DataCycleCore::Generic::Xamoom::Transformations.xamoom_to_image,
-        #     default: { template: 'Bild' },
-        #     config: config
-        #   )
-        # end
+        def self.process_image(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Pimcore::Transformations.pimcore_to_image(config.dig(:content_url_prefix)),
+            default: { template: 'Bild' },
+            config: config
+          )
+        end
 
         def self.process_infrastructure(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
