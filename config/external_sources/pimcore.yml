@@ -38,7 +38,6 @@ config:
         image:
           template: Bild
           content_url_prefix: 'https://www.montafon.at'
-      locales: [de]
     infrastructures:
       sorting: 10
       source_type: infrastructures
@@ -48,4 +47,3 @@ config:
           template: Bild
         infrastructure:
           template: POI
-      locales: [de]

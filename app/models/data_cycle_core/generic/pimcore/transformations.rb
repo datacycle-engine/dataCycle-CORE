@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:unwrap, 'geoPosition', ['latitude', 'longitude'])
           .>> t(:location)
           .>> t(:nest, 'contact_info', ['url'])
-          .>> t(:add_optional_field, ->(s) {  opening_hours(s) if I18n.locale.to_s == 'de' })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { opening_hours(s, external_source_id, s.dig('external_key')) })
           .>> t(:rename_keys, { 'contentText' => 'description' })
           .>> t(:add_links, 'pimcore_city', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('city'))&.map { |item| "Pimcore - City - #{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('categories'))&.map { |item| "Pimcore - Category - #{item.dig('id')}" } || [] })
@@ -34,15 +34,13 @@ module DataCycleCore
           .>> t(:reject_keys, ['id', 'title', 'url'])
         end
 
-        def self.opening_hours(data)
-          return if data.dig('openingTimes').blank?
-          {
-            'opening_hours_specification' => [
-              {
-                'description' => data.dig('openingTimes')
-              }
-            ]
-          }
+        def self.opening_hours(data, external_source_id, external_key)
+          thing = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)
+          to_update = thing&.opening_hours_specification&.first
+          attribute_hash = {}
+          attribute_hash['id'] = to_update.id if to_update.present?
+          attribute_hash['description'] = data.dig('openingTimes') if data.dig('openingTimes').present?
+          [attribute_hash.presence].compact
         end
       end
     end
