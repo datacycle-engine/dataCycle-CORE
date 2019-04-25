@@ -47,18 +47,18 @@ module DataCycleCore
         external_source = DataCycleCore::ExternalSource.find_by(name: 'Celum')
         download_from_local_json(external_source)
         # patch external_source import_config because we do not want to download files
-        external_source.config['import_config']['images']['transformations'] = external_source.config['import_config']['images']['transformations'].except('asset')
-        external_source.config['import_config']['audio']['transformations'] = external_source.config['import_config']['audio']['transformations'].except('asset')
-        external_source.config['import_config']['video']['transformations'] = external_source.config['import_config']['video']['transformations'].except('asset')
+        external_source.config['import_config']['images']['transformations']['asset'] = external_source.config['import_config']['images']['transformations']['asset'].except('asset_type')
+        external_source.config['import_config']['audio']['transformations']['asset'] = external_source.config['import_config']['audio']['transformations']['asset'].except('asset_type')
+        external_source.config['import_config']['video']['transformations']['asset'] = external_source.config['import_config']['video']['transformations']['asset'].except('asset_type')
 
         external_source.import(options)
 
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Audio').with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Video').with_schema_type('CreativeWork').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Person').with_schema_type('Person').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Keywords').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Folders').count)
+        assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Users').count)
       end
     end
   end

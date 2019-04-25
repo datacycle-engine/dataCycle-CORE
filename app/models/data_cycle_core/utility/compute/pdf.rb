@@ -22,6 +22,12 @@ module DataCycleCore
             return nil if pdf.blank? || path.blank?
             pdf&.metadata&.dig(*path)
           end
+
+          def extract_content(**args)
+            pdf = DataCycleCore::Pdf.find_by(id: args.dig(:computed_parameters)&.first)
+            return nil if pdf.blank?
+            pdf&.metadata&.dig('content')
+          end
         end
       end
     end
