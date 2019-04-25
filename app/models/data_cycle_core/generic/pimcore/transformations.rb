@@ -14,7 +14,7 @@ module DataCycleCore
           .>> t(:unwrap, 'geoPosition', ['latitude', 'longitude'])
           .>> t(:location)
           .>> t(:nest, 'contact_info', ['url'])
-          .>> t(:add_field, 'opening_hours_specification', ->(s) { [{ 'description' => s.dig('openingTimes') }] if s.dig('openingTimes').present? })
+          .>> t(:add_optional_field, ->(s) {  opening_hours(s) if I18n.locale.to_s == 'de' })
           .>> t(:rename_keys, { 'contentText' => 'description' })
           .>> t(:add_links, 'pimcore_city', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('city'))&.map { |item| "Pimcore - City - #{item&.dig('id')}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array(s&.dig('categories'))&.map { |item| "Pimcore - Category - #{item.dig('id')}" } || [] })
@@ -32,6 +32,17 @@ module DataCycleCore
           .>> t(:add_field, 'alternative_headline', ->(s) { s.dig('alt') || s.dig('name') })
           .>> t(:add_field, 'external_key', ->(s) { "Pimcore - Image - #{s.dig('id')}" })
           .>> t(:reject_keys, ['id', 'title', 'url'])
+        end
+
+        def self.opening_hours(data)
+          return if data.dig('openingTimes').blank?
+          {
+            'opening_hours_specification' => [
+              {
+                'description' => data.dig('openingTimes')
+              }
+            ]
+          }
         end
       end
     end

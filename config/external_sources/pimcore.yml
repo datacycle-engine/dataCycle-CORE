@@ -8,7 +8,7 @@ default_options:
   locales: [de, en]
 config:
   download_config:
-    infrastructure:
+    infrastructures:
       sorting: 1
       source_type: infrastructures
       endpoint: DataCycleCore::Generic::Pimcore::Endpoint
@@ -17,8 +17,11 @@ config:
     categories:
       sorting: 1
       source_type: infrastructures
-      import_strategy: DataCycleCore::Generic::Common::ImportCategories
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: 'Pimcore - Categories'
+      tag_id_path: 'categories.id'
+      tag_name_path: 'categories.name'
+      external_id_prefix: 'Pimcore - Category - '
     city:
       sorting: 2
       source_type: infrastructures
@@ -27,12 +30,22 @@ config:
       tag_id_path: 'city.id'
       tag_name_path: 'city.name'
       external_id_prefix: 'Pimcore - City - '
+    images:
+      sorting: 5
+      source_type: infrastructures
+      import_strategy: DataCycleCore::Generic::Pimcore::ImportImages
+      transformations:
+        image:
+          template: Bild
+          content_url_prefix: 'https://www.montafon.at'
+      locales: [de]
     infrastructures:
       sorting: 10
-      source_type: infrastructure_items
-      import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
+      source_type: infrastructures
+      import_strategy: DataCycleCore::Generic::Pimcore::ImportInfrastructure
       transformations:
         image:
           template: Bild
         infrastructure:
           template: POI
+      locales: [de]
