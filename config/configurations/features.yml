@@ -74,3 +74,6 @@
       :copy_chunks: true
     :jpegoptim:
       :strip: :comments
+
+:duplicate_candidate:
+  :enabled: true

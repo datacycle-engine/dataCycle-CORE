@@ -4,7 +4,9 @@
     if related_objects.count.positive?
 %>
 <section class="related-objects">
-    <h2>Related Items (<%= related_objects.count %>)</h2>
+    <span class="horizontal-separator-header">
+      <h4 class="header-text"><%= t('common.related_items', locale: DataCycleCore.ui_language) %> (<%= related_objects.count %>)</h4>
+    </span>
 
     <ul class="list">
         <% grouped_objects.presence&.each do |group| %>

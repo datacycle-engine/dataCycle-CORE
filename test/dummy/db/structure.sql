@@ -514,6 +514,40 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 
 
 --
+-- Name: thing_duplicates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_duplicates (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid,
+    thing_duplicate_id uuid,
+    method character varying,
+    score double precision,
+    false_positive boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: duplicate_candidates; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.duplicate_candidates AS
+ SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
+    thing_duplicates.thing_id AS original_id,
+    thing_duplicates.score
+   FROM public.thing_duplicates
+  WHERE (thing_duplicates.false_positive = false)
+UNION
+ SELECT thing_duplicates.thing_id AS duplicate_id,
+    thing_duplicates.thing_duplicate_id AS original_id,
+    thing_duplicates.score
+   FROM public.thing_duplicates
+  WHERE (thing_duplicates.false_positive = false);
+
+
+--
 -- Name: external_sources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -987,6 +1021,14 @@ ALTER TABLE ONLY public.stored_filters
 
 ALTER TABLE ONLY public.subscriptions
     ADD CONSTRAINT subscriptions_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: thing_duplicates thing_duplicates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_duplicates
+    ADD CONSTRAINT thing_duplicates_pkey PRIMARY KEY (id);
 
 
 --
@@ -1701,6 +1743,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: unique_duplicate_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btree (thing_id, thing_duplicate_id, method);
+
+
+--
 -- Name: validity_period_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1847,6 +1896,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190129083607'),
 ('20190312141313'),
 ('20190314094528'),
-('20190325122951');
+('20190325122951'),
+('20190423083517'),
+('20190423103601');
 
 

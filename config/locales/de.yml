@@ -157,6 +157,13 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    related_items: Verknüpfte Inhalte
+
+  duplicate:
+    candidates: Mögliche Duplikate
+    score: Score
+    merge: Zusammenführen
+    mark_false_positive: Kein Duplikat
 
   tile_links:
     details: zur Detailansicht
