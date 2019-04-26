@@ -47,10 +47,10 @@ module DataCycleCore
         info: reader.info,
         pdf_version: reader.pdf_version,
         metadata: reader.metadata,
-        content: reader.try(:pages)&.map(&:text)&.join(' '),
+        content: reader.try(:pages)&.map { |page| page.try(:text) }&.join(' '),
         page_count: reader.page_count
       }
-    rescue PDF::Reader::MalformedPDFError
+    rescue PDF::Reader::MalformedPDFError, ArgumentError
       nil
     end
   end
