@@ -70,10 +70,13 @@
       :careful: true
     :optipng:
       :strip: false
+      :level: 1
     :jpegtran:
       :copy_chunks: true
     :jpegoptim:
       :strip: :comments
+    :pngquant:
+      :speed: 10
 
 :duplicate_candidate:
   :enabled: true
