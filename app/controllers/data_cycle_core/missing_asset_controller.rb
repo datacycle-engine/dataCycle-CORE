@@ -16,7 +16,7 @@ module DataCycleCore
 
       headers['ETag'] = %("#{File.mtime(@asset_path)}-#{File.size(@asset_path)}")
       headers['Last-Modified'] = File.mtime(@asset_path).httpdate
-      send_file @asset_path, type: @asset.content_type, disposition: 'inline'
+      send_file @asset_path, disposition: 'inline'
     end
 
     private

@@ -8,12 +8,12 @@ module DataCycleCore
 
     # Create different versions of your uploaded files:
     version :thumb_preview do
-      process :convert_to_png
+      process :convert_to_jpg
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
-        "#{version_name}_#{basename}.png"
+        "#{version_name}_#{basename}.jpg"
       end
     end
 
@@ -21,9 +21,9 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['pdf']
     end
 
-    def convert_to_png
+    def convert_to_jpg
       dirname = File.dirname(current_path)
-      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.png"
+      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.jpg"
 
       MiniMagick::Tool::Convert.new do |convert|
         convert.density(288)
@@ -32,6 +32,7 @@ module DataCycleCore
         convert.flatten
         convert.resize('25%')
         convert.colorspace('RGB')
+        convert.resize('1400x1400>')
         convert << "#{current_path}[0]"
         convert << thumb_path
       end
