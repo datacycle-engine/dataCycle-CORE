@@ -10,8 +10,7 @@ pidfile "<%= fetch(:puma_pid) %>"
 state_path "<%= fetch(:puma_state) %>"
 stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
-<% threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
-threads 1,<%= threads_count %>
+threads 1,<%= Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
 
 <%= puma_plugins %>
 
