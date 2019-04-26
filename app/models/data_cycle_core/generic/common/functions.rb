@@ -132,10 +132,6 @@ module DataCycleCore
         def self.add_field(data_hash, name, function)
           data_hash.merge({ name => function.call(data_hash) })
         end
-
-        def self.add_optional_field(data_hash, function)
-          data_hash.merge(function.call(data_hash) || {})
-        end
       end
     end
   end
