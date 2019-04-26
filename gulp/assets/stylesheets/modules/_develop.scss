@@ -653,11 +653,20 @@ select {
 
         .close-subscribe-notice {
           position: absolute;
-          right: 0.5rem;
+          right: 0;
           top: 0;
           font-size: 2em;
+          padding: 0.1rem;
+
           cursor: pointer;
           color: white;
+
+          span {
+            display: block;
+            height: 2rem;
+            width: 2rem;
+            line-height: 2rem;
+          }
 
           &:hover,
           &:focus {

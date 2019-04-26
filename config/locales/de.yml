@@ -162,7 +162,8 @@ de:
   duplicate:
     candidates: Mögliche Duplikate
     score: Score
-    merge: Zusammenführen
+    merge: zusammenführen
+    merge_content: Inhalte zusammenführen
     mark_false_positive: Kein Duplikat
 
   tile_links:
@@ -249,6 +250,9 @@ de:
     back_to_select: Zurück zur Auswahl
     delete_translation: 'Übersetzung (%{data}) löschen'
     delete_with_translated_html: 'Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!'
+    discard_changes: Änderungen verwerfen
+    save_changes: Änderungen speichern
+    merge_with_duplicate: Änderungen speichern und Duplikat löschen
 
   validation:
     errors:
@@ -311,6 +315,8 @@ de:
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
+      duplicate:
+        type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."

@@ -2,7 +2,11 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-name">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
+        <% if content_for?(:form_action) %>
+          <%= content_for(:form_action) %>
+        <% else %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
+        <% end %>
       </div>
       <ul>
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
@@ -32,12 +36,26 @@
               tooltip: true,
               click_open: false,
               url: normalize_thing_path(content),
-              disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
             } if DataCycleCore::Feature::Normalize.enabled? %>
-          <%= link_to previous_authorized_crumb.url do %>
-            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
-          <% end if previous_authorized_crumb.present? %>
-          <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" title="Änderungen speichern" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
+
+          <%= link_to tag.button(
+            tag.i(class: 'fa fa-times', aria_hidden: true),
+            class: 'button discard top',
+            type: :button,
+            title: t('actions.discard_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true
+            }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <%= button_tag tag.i(class: 'fa fa-check', aria_hidden: true),
+            class: 'button-prime submit submit-edit-form',
+            title: content_for?(:submit_button_text) ? content_for(:submit_button_text) : t('actions.save_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true,
+              confirm: 'REALLY?',
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            } %>
         </li>
       </ul>
     </div>

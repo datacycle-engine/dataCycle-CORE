@@ -55,6 +55,28 @@ module DataCycleCore
       assert_equal [content1.id, content2.id, content3.id].sort, content4.duplicates.ids.sort
     end
 
+    test 'merge with duplicate' do
+      assert DataCycleCore::Feature::DuplicateCandidate.enabled?
+
+      image1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1' })
+      image2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
+      image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3' })
+
+      content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', image: [image2.id, image3.id] })
+      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [image1.id, image2.id] })
+      content3 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 3', image: [image1.id] })
+
+      content1.set_data_hash(data_hash: { name: 'TestArtikel 1' }.deep_stringify_keys, partial_update: true)
+
+      image1.merge_with_duplicate(image2)
+
+      assert image2.destroyed?
+      assert_equal [image1.id, image3.id], content1.image.ids
+      assert_equal [image1.id, image3.id], content1.histories.first.image.ids
+      assert_equal [image1.id], content2.image.ids
+      assert_equal [image1.id], content3.image.ids
+    end
+
     def teardown
       DataCycleCore::ImageUploader.enable_processing = false
     end

@@ -7,7 +7,7 @@
           <% content_for :tile_buttons, flush: true do %>
             <div class="duplicate-buttons">
               <div class="duplicate-score"><%= t('duplicate.score', locale: DataCycleCore.ui_language) %>: <b><%= item.score.to_i %></b></div>
-              <%= link_to t('duplicate.merge', locale: DataCycleCore.ui_language), merge_with_duplicate_thing_path(id: content.id, duplicate_id: item.duplicate.id), class: 'button' %>
+              <%= link_to t('duplicate.merge', locale: DataCycleCore.ui_language).titleize, merge_with_duplicate_thing_path(id: content.id, duplicate_id: item.duplicate.id), class: 'button' %>
               <%= link_to t('duplicate.mark_false_positive', locale: DataCycleCore.ui_language), '#', class: 'button secondary' %>
             </div>
           <% end %>
