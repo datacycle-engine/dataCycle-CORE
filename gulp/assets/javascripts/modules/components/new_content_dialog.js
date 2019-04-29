@@ -27,6 +27,12 @@ class NewContentDialog {
       event.preventDefault();
       this.changeTranslation(event.target);
     });
+    this.form.on('keypress', event => {
+      if (event.which == 13 && this.form.find('fieldset.active:not(:last-of-type)').length) {
+        event.preventDefault();
+        this.next(event);
+      }
+    });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
   }
@@ -38,8 +44,8 @@ class NewContentDialog {
       (!active_fieldset.hasClass('iframe') && !active_fieldset.hasClass('no-search-warning')) ||
       active_fieldset.hasClass('template')
     )
-      this.form.find('.callout').show();
-    else this.form.find('.callout').hide();
+      this.form.find('.search-warning').show();
+    else this.form.find('.search-warning').hide();
     if (active_fieldset.hasClass('template')) $.rails.enableFormElements(this.form);
     else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
   }
@@ -132,12 +138,12 @@ class NewContentDialog {
   updateWarningLevel() {
     if (this.form.find('fieldset.active').hasClass('template'))
       this.form
-        .find('> .callout')
+        .find('> .search-warning')
         .removeClass('alert')
         .addClass('warning');
     else
       this.form
-        .find('> .callout')
+        .find('> .search-warning')
         .removeClass('warning')
         .addClass('alert');
   }
@@ -164,7 +170,7 @@ class NewContentDialog {
     );
   }
   renderContentForm() {
-    this.form.find('.callout').hide();
+    this.form.find('.search-warning').hide();
     this.form
       .find('fieldset:not(.template)')
       .trigger('dc:html:remove')

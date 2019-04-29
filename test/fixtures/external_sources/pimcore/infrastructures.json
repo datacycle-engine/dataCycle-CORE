@@ -1,0 +1,100 @@
+[
+  {
+    "_id" : "5cbf205d23104032f652faf7",
+    "external_id" : "15982",
+    "dump" : {
+        "de" : {
+            "id" : 15982,
+            "lastModified" : "2018-06-04T09:32:08Z",
+            "pageType" : "montafon",
+            "themes" : [
+                {
+                    "id" : 45005,
+                    "name" : "infrastruktur"
+                }
+            ],
+            "url" : "https://www.montafon.at/de/Service/Montafon-A-Z/Pfarrkirche-Vandans_i_15982",
+            "name" : "Pfarrkirche Vandans",
+            "contentText" : "Die Pfarrkirche Vandans wurde in den Jahren 1958 bis 1960 erbaut und gliedert sich deutlich in drei Baukörper: die eigentliche Kirche, den Sakristeibau und den anschließenden Turm, der durch seine schlanke Form und der Distanzierung vom Hauptbau an eine Campanile erinnert. Alles in Allem:&nbsp;Eine der bemerkenswertesten \"modernen\" Kirchenbauten von zeitloser Schönheit und Klarheit, in der sich Architekten und Künstler aber auch der Opferwille der Gemeinde ein ehrendes Denkmal gesetzt haben.\n\nGOTTESDIENSTZEITEN:\nDo 18:30 Uhr, So 10:00 Uhr\n\n\n\n&nbsp;\n",
+            "city" : [
+                {
+                    "id" : 15100,
+                    "name" : "Vandans"
+                }
+            ],
+            "categories" : [
+                {
+                    "id" : 17286,
+                    "parent" : "",
+                    "name" : "Kirche / Kapelle"
+                }
+            ],
+            "geoPosition" : {
+                "latitude" : 47.0948524,
+                "longitude" : 9.8649194
+            },
+            "teaserImage" : {
+                "id" : 229630,
+                "url" : "/1-Bilder/3-Infrastruktur/5-Kunst-Kultur/Kirchen-Kapellen/image-thumb__229630__lightbox/Pfarrkirche-Vandans.jpeg",
+                "title" : "Kirche Vandans",
+                "alt" : "Kirche Vandans"
+            },
+            "imageGallery" : {
+                "id" : 229642,
+                "url" : "/1-Bilder/3-Infrastruktur/5-Kunst-Kultur/Kirchen-Kapellen/image-thumb__229642__lightbox/Kirche-Vandans-Innenansicht.jpeg",
+                "title" : "Kirche Vandans",
+                "alt" : "Pfarrkirche St. Johannes in Vandans"
+            },
+            "category" : {
+                "id" : 45005,
+                "name" : "Infrastruktur"
+            }
+        },
+        "en" : {
+            "id" : 15982,
+            "lastModified" : "2018-06-04T09:32:08Z",
+            "pageType" : "montafon",
+            "themes" : {
+                "id" : 45007,
+                "name" : "info-service"
+            },
+            "url" : "https://www.montafon.at/en/service/montafon-A-Z/Pfarrkirche-Vandans_i_15982",
+            "name" : "Pfarrkirche Vandans",
+            "city" : [
+                {
+                    "id" : 15100,
+                    "name" : "Vandans"
+                }
+            ],
+            "categories" : [
+                {
+                    "id" : 17286,
+                    "parent" : "",
+                    "name" : "Church/Chapel"
+                }
+            ],
+            "geoPosition" : {
+                "latitude" : 47.0948524,
+                "longitude" : 9.8649194
+            },
+            "teaserImage" : {
+                "id" : 229630,
+                "url" : "/1-Bilder/3-Infrastruktur/5-Kunst-Kultur/Kirchen-Kapellen/image-thumb__229630__lightbox/Pfarrkirche-Vandans.jpeg",
+                "title" : null,
+                "alt" : null
+            },
+            "imageGallery" : {
+                "id" : 229642,
+                "url" : "/1-Bilder/3-Infrastruktur/5-Kunst-Kultur/Kirchen-Kapellen/image-thumb__229642__lightbox/Kirche-Vandans-Innenansicht.jpeg"
+            },
+            "category" : {
+                "id" : 45005,
+                "name" : "Infrastructure"
+            }
+        }
+    },
+    "seen_at" : "2019-04-24T08:11:31.662Z",
+    "updated_at" : "2019-04-24T08:11:31.663Z",
+    "created_at" : "2019-04-23T14:25:33.311Z"
+  }
+]
