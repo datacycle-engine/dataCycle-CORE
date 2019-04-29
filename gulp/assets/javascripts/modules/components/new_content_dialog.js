@@ -27,6 +27,12 @@ class NewContentDialog {
       event.preventDefault();
       this.changeTranslation(event.target);
     });
+    this.form.on('keypress', event => {
+      if (event.which == 13 && this.form.find('fieldset.active:not(:last-of-type)').length) {
+        event.preventDefault();
+        this.next(event);
+      }
+    });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
   }
