@@ -44,7 +44,7 @@ module DataCycleCore
       return nil if reader.blank?
 
       {
-        info: reader.info,
+        info: convert_info(reader.info),
         pdf_version: reader.pdf_version,
         metadata: reader.metadata,
         content: reader.try(:pages)&.map { |page| page.try(:text) }&.join(' '),
@@ -52,6 +52,21 @@ module DataCycleCore
       }
     rescue PDF::Reader::MalformedPDFError, ArgumentError
       nil
+    end
+
+    def convert_info(info_hash)
+      info_hash.map { |key, value|
+        {
+          key =>
+            if value.is_a?(::String)
+              value
+                .encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+                .delete("\u0000")
+            else
+              value
+            end
+        }
+      }.reduce({}) { |aggregate, item| aggregate.merge(item) }
     end
   end
 end
