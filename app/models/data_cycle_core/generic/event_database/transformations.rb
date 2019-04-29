@@ -24,10 +24,8 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.event_database_sub_item_to_sub_event(external_source_id)
+        def self.event_database_sub_item_to_sub_event
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
-          .>> t(:rename_keys, 'location' => 'event_location')
-          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
           .>> t(:reject_keys, ['id', '@type', 'event_location'])
           .>> t(:underscore_keys)
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
