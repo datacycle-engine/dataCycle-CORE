@@ -55,7 +55,7 @@ module DataCycleCore
     end
 
     def convert_info(info_hash)
-      info_hash.map { |key, value|
+      info_hash&.map do |key, value|
         {
           key =>
             if value.is_a?(::String)
@@ -66,7 +66,7 @@ module DataCycleCore
               value
             end
         }
-      }.reduce({}) { |aggregate, item| aggregate.merge(item) }
+      end&.reduce({}) { |aggregate, item| aggregate.merge(item) }
     end
   end
 end
