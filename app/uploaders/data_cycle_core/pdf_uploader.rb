@@ -50,7 +50,7 @@ module DataCycleCore
         content: reader.try(:pages)&.map { |page| page.try(:text) }&.join(' '),
         page_count: reader.page_count
       }
-    rescue PDF::Reader::MalformedPDFError, ArgumentError
+    rescue PDF::Reader::MalformedPDFError, ArgumentError, NoMethodError
       nil
     end
 
