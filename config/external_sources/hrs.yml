@@ -1,0 +1,32 @@
+---
+name: HRS
+credentials:
+  host: https://api.hrs-ds.com
+  end_point: api
+  interface_id: hmLZk1ougo3J85gDd7s3Nw
+  region_name: Vorarlberg
+config:
+  download_config:
+    rooms:
+      sorting: 1
+      source_type: rooms
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::Download
+  import_config:
+    rooms:
+      sorting: 2
+      source_type: rooms
+      import_strategy: DataCycleCore::Generic::Hrs::ImportRooms
+      transformations:
+        image:
+          template: Bild
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Bild
+        room:
+          template: Unterkunft
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Unterkunft
