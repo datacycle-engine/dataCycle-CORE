@@ -80,6 +80,24 @@ module DataCycleCore
       }.to_json, content_type: 'application/json'
     end
 
+    def find
+      params.permit(:ids)
+
+      query = DataCycleCore::Classification.where(id: params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: query.map { |c|
+        {
+          classification_id: c.id,
+          classification_alias_id: c.primary_classification_alias.id,
+          name: c.primary_classification_alias.internal_name,
+          title: c.primary_classification_alias.full_path,
+          description: c.primary_classification_alias.description,
+          disabled: !c.primary_classification_alias.assignable
+        }
+      }.to_json, content_type: 'application/json'
+    end
+
     def create
       permitted_params = params.permit(
         :classification_tree_label_id,

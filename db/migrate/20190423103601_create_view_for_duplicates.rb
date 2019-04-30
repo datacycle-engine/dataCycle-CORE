@@ -4,13 +4,11 @@ class CreateViewForDuplicates < ActiveRecord::Migration[5.1]
   def up
     execute <<-SQL.squish
       CREATE VIEW duplicate_candidates AS
-      SELECT thing_duplicates.thing_duplicate_id AS duplicate_id, thing_duplicates.thing_id AS original_id, thing_duplicates.score
+      SELECT thing_duplicates.thing_duplicate_id AS duplicate_id, thing_duplicates.thing_id AS original_id, thing_duplicates.score, thing_duplicates.id AS thing_duplicate_id, thing_duplicates.false_positive
       FROM thing_duplicates
-      WHERE thing_duplicates.false_positive = FALSE
       UNION
-      SELECT thing_duplicates.thing_id AS duplicate_id, thing_duplicates.thing_duplicate_id As original_id, thing_duplicates.score
+      SELECT thing_duplicates.thing_id AS duplicate_id, thing_duplicates.thing_duplicate_id As original_id, thing_duplicates.score, thing_duplicates.id AS thing_duplicate_id, thing_duplicates.false_positive
       FROM thing_duplicates
-      WHERE thing_duplicates.false_positive = FALSE
     SQL
   end
 

@@ -95,14 +95,14 @@ $(function() {
 
               if (contents !== undefined) {
                 if (contents.title !== undefined) {
-                  $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
+                  $('[data-label="Meta-Titel"] > input[type=text]').trigger('dc:import:data', {
                     label: 'Meta-Titel',
                     value: contents.title
                   });
                 }
 
                 if (contents.description !== undefined) {
-                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
+                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('dc:import:data', {
                     label: 'Meta-Description',
                     value: contents.description
                   });
@@ -133,7 +133,7 @@ $(function() {
 
                   $('.linked[data-label="Bilder"]')
                     .children('.object-browser')
-                    .trigger('import-data', {
+                    .trigger('dc:import:data', {
                       label: label,
                       external_ids: image_ids
                     });

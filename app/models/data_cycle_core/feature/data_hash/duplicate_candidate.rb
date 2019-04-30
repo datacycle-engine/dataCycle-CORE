@@ -9,7 +9,7 @@ module DataCycleCore
           return if duplicates.blank?
 
           duplicates.each do |duplicate|
-            thing_duplicates.create!(thing_duplicate_id: duplicate[:content]&.id, method: duplicate[:method], score: duplicate[:score]) unless duplicate_candidates.any? { |c| c.duplicate_id == duplicate[:content]&.id }
+            thing_duplicates.create!(thing_duplicate_id: duplicate[:content]&.id, method: duplicate[:method], score: duplicate[:score]) unless duplicate_candidates.with_fp.any? { |c| c.duplicate_id == duplicate[:content]&.id }
           end
         end
 

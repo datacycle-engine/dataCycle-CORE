@@ -15,6 +15,46 @@ module.exports.initialize = function() {
         var max = $(this).data('max');
         var that = this;
 
+        $(this).on('dc:import:data', (event, data) => {
+          if (data.value !== undefined) {
+            let async_select = $(event.target);
+            let value = async_select.val();
+            let diff = data.value.diff(value);
+            if (diff.length) {
+              var studentSelect = $('#mySelect2');
+              $.ajax({
+                type: 'GET',
+                url: '/classifications/find',
+                data: {
+                  ids: diff
+                },
+                dataType: 'json',
+                contentType: 'application/json'
+              }).then(data => {
+                data = data.map(value => {
+                  if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                  else if (value.classification_id != undefined) value.id = value.classification_id;
+                  return value;
+                });
+
+                data.forEach(element => {
+                  let option = new Option(element.name, element.id, true, true);
+                  option.title = element.title;
+                  async_select.append(option).trigger('change');
+
+                  // manually trigger the `select2:select` event
+                  async_select.trigger({
+                    type: 'select2:select',
+                    params: {
+                      data: element
+                    }
+                  });
+                });
+              });
+            }
+          }
+        });
+
         $(this).select2({
           allowClear: true,
           minimumInputLength: 2,
@@ -89,6 +129,17 @@ module.exports.initialize = function() {
         var query = {};
         var tree_label = $(this).data('tree-label');
         var that = this;
+
+        $(this).on('dc:import:data', (event, data) => {
+          if (data.value !== undefined) {
+            let value = $(event.target).val();
+            let diff = data.value.diff(value);
+            if (diff.length)
+              $(event.target)
+                .val(value.concat(diff))
+                .trigger('change');
+          }
+        });
 
         $(this).select2({
           allowClear: true,

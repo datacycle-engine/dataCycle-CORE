@@ -21,7 +21,11 @@ class Validator {
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submit_button.on('click', () => this.form.trigger('submit'));
+    this.submit_button.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.form.trigger('submit');
+    });
     this.form.on('submit', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
@@ -243,33 +247,57 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitWithWarnings(warnings) {
-    new ConfirmationModal(
-      'Es sind Warnungen vorhanden (' +
-        warnings
-          .closest('.form-element')
-          .map((i, elem) => $(elem).data('label'))
-          .get()
-          .join(', ') +
-        ').<br>Soll der Inhalt trotzdem gespeichert werden?',
-      'warning',
-      true,
-      () => this.submitForm(),
-      () => this.enable()
-    );
-  }
-  submitForm() {
-    if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      this.form.trigger('submit_without_redirect');
-    } else if (this.form.find(':input[name="finalize"]:checked').length) {
-      $(window).off('beforeunload');
-      new ConfirmationModal(
+  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined }) {
+    if (confirmations.warnings !== undefined) {
+      return new ConfirmationModal(
+        'Es sind Warnungen vorhanden (' +
+          warnings
+            .closest('.form-element')
+            .map((i, elem) => $(elem).data('label'))
+            .get()
+            .join(', ') +
+          ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+        'warning',
+        true,
+        () => {
+          confirmations.warnings = undefined;
+          this.submitForm(confirmations);
+        },
+        () => this.enable()
+      );
+    }
+
+    if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
+      return new ConfirmationModal(
         'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
         'success',
         true,
-        () => this.form.trigger('submit.rails'),
+        () => {
+          confirmations.finalize = false;
+          this.submitForm(confirmations);
+        },
         () => this.enable()
       );
+    }
+
+    if (confirmations.confirm && this.submit_button.data('confirm') !== undefined) {
+      return new ConfirmationModal(
+        this.submit_button.data('confirm'),
+        'alert',
+        true,
+        () => {
+          confirmations.confirm = false;
+          this.submitForm(confirmations);
+        },
+        () => this.enable()
+      );
+    }
+
+    this.triggerFormSubmit();
+  }
+  triggerFormSubmit() {
+    if (this.form.closest('.reveal').hasClass('in-object-browser')) {
+      return this.form.trigger('submit_without_redirect');
     } else {
       $(window).off('beforeunload');
       this.form.trigger('submit.rails');
@@ -290,11 +318,13 @@ class Validator {
         if (this.valid && submit) {
           this.query_count = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          if (warnings.length) {
-            this.submitWithWarnings(warnings);
-          } else {
-            this.submitForm();
-          }
+          let confirmations = {
+            finalize: true,
+            confirm: true,
+            warnings: warnings.length ? warnings : undefined
+          };
+
+          this.submitForm(confirmations);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });

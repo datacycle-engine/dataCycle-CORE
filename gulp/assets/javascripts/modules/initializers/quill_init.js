@@ -165,7 +165,7 @@ module.exports.initialize = function() {
           quill_helpers.update_editors(editor.container);
         });
 
-      $(editor.container).on('import-data', function(event, data) {
+      $(editor.container).on('dc:import:data', function(event, data) {
         if (editor.getText().trim().length > 1) {
           var confirmationModal = new ConfirmationModal(
             data.label + ' wird überschrieben. <br>Fortfahren?',

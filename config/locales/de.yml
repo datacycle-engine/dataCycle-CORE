@@ -164,7 +164,7 @@ de:
     score: Score
     merge: zusammenführen
     merge_content: Inhalte zusammenführen
-    mark_false_positive: Kein Duplikat
+    mark_false_positive: kein Duplikat
 
   tile_links:
     details: zur Detailansicht
@@ -335,6 +335,8 @@ de:
       updated_multiple: "%{data} wurden aktualisiert."
       moved_to: "Inhalt in %{data} verschoben"
       become_user: 'Eingeloggt als %{data}.'
+      duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
+      merged_with_duplicate: Inhalte wurden zusammengeführt
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."

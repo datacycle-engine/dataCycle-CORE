@@ -7,7 +7,7 @@
   :enabled: true
 
 :container:
-  :enabled: false
+  :enabled: true
 
 :external_media_archive:
   :enabled: false
@@ -19,3 +19,6 @@
 
 :duplicate_content:
   :enabled: true
+
+:main_filter:
+  :autoload_last_filter: true

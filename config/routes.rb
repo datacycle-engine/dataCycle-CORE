@@ -81,6 +81,7 @@ DataCycleCore::Engine.routes.draw do
     patch :update, on: :collection
     delete :destroy, on: :collection
     get :search, on: :collection
+    get :find, on: :collection
     get :download, on: :collection
   end
 

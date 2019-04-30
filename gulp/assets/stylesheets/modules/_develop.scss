@@ -1922,21 +1922,40 @@ section {
 
 section.duplicate-candidates {
   margin-bottom: 3rem;
-  .duplicate-buttons {
+  .duplicate-info-separator {
+    display: table-row;
+  }
+  .content-link {
+    display: table;
+    width: 100%;
+    height: 100%;
+  }
+  .duplicate-info {
+    display: table-cell;
+    vertical-align: bottom;
     text-align: center;
     margin-top: 1rem;
     border-top: 1px solid $light-gray;
     padding-top: 5px;
-    .button {
-      margin: 5px 0 0 0;
+    min-width: 250px;
+    .duplicate-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 0.5rem;
+      .button {
+        margin: 5px 0 0 0;
+      }
     }
   }
   .content-tiles {
     .content.image {
       box-shadow: 0 0 1px rgba($black, 0.8);
       margin: 0 1rem 1rem 0;
+      width: 250px;
+      max-width: 300px;
       .thumbnail {
         box-shadow: none;
+        margin: 0 auto;
       }
     }
   }

@@ -536,15 +536,17 @@ CREATE TABLE public.thing_duplicates (
 CREATE VIEW public.duplicate_candidates AS
  SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
     thing_duplicates.thing_id AS original_id,
-    thing_duplicates.score
+    thing_duplicates.score,
+    thing_duplicates.id AS thing_duplicate_id,
+    thing_duplicates.false_positive
    FROM public.thing_duplicates
-  WHERE (thing_duplicates.false_positive = false)
 UNION
  SELECT thing_duplicates.thing_id AS duplicate_id,
     thing_duplicates.thing_duplicate_id AS original_id,
-    thing_duplicates.score
-   FROM public.thing_duplicates
-  WHERE (thing_duplicates.false_positive = false);
+    thing_duplicates.score,
+    thing_duplicates.id AS thing_duplicate_id,
+    thing_duplicates.false_positive
+   FROM public.thing_duplicates;
 
 
 --

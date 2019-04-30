@@ -77,6 +77,32 @@ module DataCycleCore
       assert_equal [image1.id], content3.image.ids
     end
 
+    test 'duplicates marked as false_positive are not shown as duplicates' do
+      image1 = upload_image 'test_rgb.jpg'
+      content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
+
+      image2 = upload_image 'test_rgb.png'
+      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
+
+      assert_empty content1.duplicate_candidates
+      assert_empty content2.duplicate_candidates
+
+      DataCycleCore::Thing
+        .where(template: false, external_source_id: nil, external_key: nil)
+        .where.not(content_type: 'embedded')
+        .find_each(&:create_duplicate_candidates)
+
+      assert_equal 1, content1.duplicate_candidates.reload.size
+      assert_equal 1, content2.duplicate_candidates.reload.size
+
+      DataCycleCore::ThingDuplicate
+        .find(content2.duplicate_candidates.with_fp.find_by(duplicate_id: content1.id).thing_duplicate_id)
+        .update!(false_positive: true)
+
+      assert_empty content1.duplicate_candidates.reload
+      assert_empty content2.duplicate_candidates.reload
+    end
+
     def teardown
       DataCycleCore::ImageUploader.enable_processing = false
     end
