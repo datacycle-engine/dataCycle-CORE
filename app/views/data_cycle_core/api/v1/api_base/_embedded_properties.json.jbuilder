@@ -13,7 +13,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
   next if data.empty?
   json.set! property.pluralize.camelize(:lower) do
     json.array!(data) do |item|
-      json.cache!(item, expires_in: 24.hours + Random.rand(12.hours)) do
+      json.cache!(api_cache_key(item, I18n.locale, [], []), expires_in: 24.hours + Random.rand(12.hours)) do
         json.content_partial! 'details', content: item
       end
     end

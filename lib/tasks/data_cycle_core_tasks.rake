@@ -85,10 +85,10 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              data_hash = content.get_data_hash
+              data_hash = {}
               data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
               data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
-              content.set_data_hash(data_hash: data_hash)
+              content.set_data_hash(data_hash: data_hash, partial_update: true)
               logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
@@ -126,9 +126,9 @@ namespace :data_cycle_core do
             index += 1
 
             I18n.with_locale(content.first_available_locale) do
-              data_hash = content.get_data_hash
+              data_hash = {}
               data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
-              content.set_data_hash(data_hash: data_hash)
+              content.set_data_hash(data_hash: data_hash, partial_update: true)
               logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
           end
