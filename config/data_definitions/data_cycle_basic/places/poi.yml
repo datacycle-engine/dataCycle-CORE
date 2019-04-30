@@ -73,6 +73,9 @@
         :ui:
           :show:
             :content_area: header
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :data_type:
         :label: Inhaltstype
         :type: classification
