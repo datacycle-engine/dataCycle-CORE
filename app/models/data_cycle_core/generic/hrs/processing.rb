@@ -5,7 +5,6 @@ module DataCycleCore
     module Hrs
       module Processing
         def self.process_image(utility_object, raw_data, config)
-          return if raw_data&.dig('attributes', 'image').blank?
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,

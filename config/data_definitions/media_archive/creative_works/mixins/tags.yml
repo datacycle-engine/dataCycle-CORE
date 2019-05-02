@@ -18,3 +18,11 @@
         :ui:
           :show:
             :content_area: header
+      :hrs_image_categories:
+        :label: HRS - Image-Categories
+        :type: classification
+        :tree_label: HRS - Image-Categories
+        :external: true
+        :ui:
+          :show:
+            :content_area: header            

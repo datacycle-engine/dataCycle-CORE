@@ -19,6 +19,30 @@ module DataCycleCore
           end
         end
 
+        def category(lang: :de)
+          Enumerator.new do |yielder|
+            load_file('o_category.json', lang).each do |key, value|
+              yielder << { 'id' => key, 'name' => value }
+            end
+          end
+        end
+
+        def ausstattung(lang: :de)
+          Enumerator.new do |yielder|
+            load_file('o_ausstattung.json', lang).each do |key, value|
+              yielder << { 'id' => key, 'name' => value }
+            end
+          end
+        end
+
+        def leisure(lang: :de)
+          Enumerator.new do |yielder|
+            load_file('o_leisure.json', lang).each do |key, value|
+              yielder << { 'id' => key, 'name' => value }
+            end
+          end
+        end
+
         protected
 
         def load_data(location, _lang)
@@ -29,6 +53,15 @@ module DataCycleCore
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           Nokogiri::XML(response.body).xpath('//rooms/content').first.to_hash
+        end
+
+        def load_file(file_name, _lang)
+          full_path = [
+            'vendor', 'gems', 'data-cycle-core', 'app', 'models',
+            'data_cycle_core', 'generic', 'hrs', 'json'
+          ] + [file_name]
+          path = Rails.root.join(*full_path)
+          JSON.parse(File.read(path))
         end
       end
     end

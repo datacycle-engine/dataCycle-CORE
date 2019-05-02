@@ -19,11 +19,13 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            # DataCycleCore::Generic::Hrs::Processing.process_image(
-            #   utility_object,
-            #   raw_data,
-            #   options.dig(:import, :transformations, :image)
-            # )
+            raw_data.dig('o_bild', 'bild').each do |image_data|
+              DataCycleCore::Generic::Hrs::Processing.process_image(
+                utility_object,
+                image_data,
+                options.dig(:import, :transformations, :image)
+              )
+            end
             DataCycleCore::Generic::Hrs::Processing.process_room(
               utility_object,
               raw_data,
