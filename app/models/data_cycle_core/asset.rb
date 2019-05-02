@@ -40,7 +40,7 @@ module DataCycleCore
       self.file_size = file.size
       self.name ||= file.file.filename
       begin
-        self.metadata = file.metadata.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
+        self.metadata = file.metadata&.to_utf8 if file.respond_to?(:metadata) && file.metadata.try(:to_utf8)&.to_json.present?
       rescue JSON::GeneratorError
         self.metadata = nil
       end

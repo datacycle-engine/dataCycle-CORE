@@ -38,9 +38,8 @@ module DataCycleCore
         end
 
         def classifications
-          page_params = permitted_params.fetch(:page, DEFAULT_PAGE_SETTINGS)
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          @classification_aliases = @classification_tree_label.classification_aliases.page(page_params[:number].to_i)
+          @classification_aliases = @classification_tree_label.classification_aliases
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_aliases = @classification_aliases.where(
@@ -60,7 +59,7 @@ module DataCycleCore
             ).order(:deleted_at)
           end
 
-          @classification_aliases = apply_paging(@classification_aliases)
+          @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
         end
 
         def prepare_url_parameters

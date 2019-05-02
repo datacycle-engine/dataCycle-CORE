@@ -55,13 +55,11 @@ module DataCycleCore
           end
         end
 
-        def self.transform_sub_event(utility_object, raw_data, config)
-          process_place(utility_object, raw_data&.dig('location'), utility_object.external_source.config.dig(:import_config, :events, :transformations, :place))
-
+        def self.transform_sub_event(_utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
             config,
             DataCycleCore::Generic::EventDatabase::Transformations
-            .event_database_sub_item_to_sub_event(utility_object.external_source.id)
+            .event_database_sub_item_to_sub_event
             .call(raw_data)
           ).with_indifferent_access
         end

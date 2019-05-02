@@ -19,6 +19,9 @@ module DataCycleCore
           content.try(:external_key).blank?
         end
 
+        # Advanced filter
+        can :advanced_filter, :backend
+
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil
         can [:read, :download], DataCycleCore::ClassificationTreeLabel
