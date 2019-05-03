@@ -30,5 +30,21 @@ module DataCycleCore
       assert_response :success
       assert response.body.include?(@content.name)
     end
+
+    test 'find classifications with ids' do
+      classification_tree = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Inhaltstypen')
+
+      ids = classification_tree.classification_aliases.includes(:primary_classification).map { |c| c.primary_classification.id }
+
+      get find_classifications_path, params: { ids: ids }, headers: {
+        referer: root_path
+      }
+
+      assert_response :success
+      assert_equal 'application/json', response.content_type
+      json_data = JSON.parse(response.body)
+
+      assert_equal ids.size, json_data.size
+    end
   end
 end

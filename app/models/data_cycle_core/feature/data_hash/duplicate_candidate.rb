@@ -16,8 +16,17 @@ module DataCycleCore
         def merge_with_duplicate(duplicate)
           return if template_name != duplicate.template_name
 
-          duplicate.content_content_b.where.not(content_a_id: content_content_b.map(&:content_a_id)).update_all(content_b_id: id) # rubocop:disable Rails/SkipsModelValidations
-          duplicate.content_content_b_history.where.not(content_a_history_id: content_content_b_history.map(&:content_a_history_id)).update_all(content_b_history_id: id) # rubocop:disable Rails/SkipsModelValidations
+          existing_query = content_content_b.map { |c| "(content_contents.content_a_id = '#{c.content_a_id}' AND content_contents.relation_a = '#{c.relation_a}')" }.join(' OR ')
+
+          query1 = duplicate.content_content_b
+          query1 = query1.where.not(existing_query) if existing_query.present?
+          query1.update_all(content_b_id: id) # rubocop:disable Rails/SkipsModelValidations
+
+          existing_history_query = content_content_b_history.map { |c| "(content_content_histories.content_a_history_id = '#{c.content_a_history_id}' AND content_content_histories.relation_a = '#{c.relation_a}')" }.join(' OR ')
+
+          query2 = duplicate.content_content_b_history
+          query2 = query2.where.not(existing_history_query) if existing_history_query.present?
+          query2.update_all(content_b_history_id: id) # rubocop:disable Rails/SkipsModelValidations
 
           duplicate.destroy_content
         end

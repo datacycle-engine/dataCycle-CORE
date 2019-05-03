@@ -1,0 +1,3 @@
+var html = $('<%= j render 'data_cycle_core/assets/asset_list', assets: Array(@duplicate), class: 'editable' %>').find('>li');
+$('#<%= @html_target %>').siblings('.asset-list').html(html).trigger('dc:asset:selected', { id: '<%= @duplicate.id %>' });
+html.trigger('dc:html:changed');

@@ -11,7 +11,9 @@ class SplitView {
       '> .editor-block > .quill-editor',
       '> .v-select > select.multi-select',
       '> .v-select > select.single-select',
-      '> .v-select > select.async-select'
+      '> .v-select > select.async-select',
+      '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
+      '> .asset-selector-button'
     ];
     this.setup();
   }
@@ -20,6 +22,8 @@ class SplitView {
     this.setupEmbeddedObjectButtons();
     this.setupClassificationButtons();
     this.setupTextFieldButtons();
+    this.setupDateTimeButtons();
+    this.setupAssetSelectorButtons();
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
@@ -42,19 +46,27 @@ class SplitView {
       );
     }
   }
+  availableEditors(selectors = []) {
+    let selector_string = selectors
+      .map(x => {
+        return '> div[data-editor=' + x + '], > div[data-editor=included-object] > div[data-editor=' + x + ']';
+      })
+      .join(', ');
+    return this.container.find(selector_string);
+  }
   setupObjectBrowserButtons() {
-    this.container.children('div[data-editor=object_browser]').each((_, elem) => {
+    this.availableEditors(['object_browser']).each((_, elem) => {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
       this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'single-data-id', true);
     });
   }
   setupEmbeddedObjectButtons() {
-    this.container.children('div[data-editor=embedded_object]').each((_, elem) => {
+    this.availableEditors(['embedded_object']).each((_, elem) => {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
     });
   }
   setupTextFieldButtons() {
-    this.container.children('div[data-editor=string], div[data-editor=text_editor]').each((_, elem) => {
+    this.availableEditors(['string', 'text_editor']).each((_, elem) => {
       this.addButtons(
         elem,
         $(elem).data('key'),
@@ -67,7 +79,17 @@ class SplitView {
     });
   }
   setupClassificationButtons() {
-    this.container.children('div[data-editor=classification]').each((_, elem) => {
+    this.availableEditors(['classification']).each((_, elem) => {
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
+    });
+  }
+  setupDateTimeButtons() {
+    this.availableEditors(['date_picker']).each((_, elem) => {
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || [], 'data-value');
+    });
+  }
+  setupAssetSelectorButtons() {
+    this.availableEditors(['asset_selector']).each((_, elem) => {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
     });
   }
@@ -95,14 +117,27 @@ class SplitView {
     let elem = $(event.currentTarget);
     switch (elem.data('copy-attribute')) {
       case 'single-data-id':
-        value = elem.parents('.copy-single').data('id');
+        value = elem
+          .parents('.copy-single')
+          .first()
+          .data('id');
         break;
       case 'data-id':
-        value = elem.parents('[data-editor]').data('id');
+        value = elem
+          .parents('[data-editor]')
+          .first()
+          .data('id');
+        break;
+      case 'data-value':
+        value = elem
+          .parents('[data-editor]')
+          .first()
+          .data('value');
         break;
       case 'html':
         value = elem
           .parents('[data-editor]')
+          .first()
           .find('.detail-content')
           .html();
         break;

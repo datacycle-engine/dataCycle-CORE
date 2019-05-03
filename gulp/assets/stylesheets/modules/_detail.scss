@@ -3,6 +3,14 @@
   min-height: 10rem;
 }
 
+.detail-content {
+  .object[data-editor='included-object'] {
+    > .detail-type > .buttons {
+      top: 0;
+    }
+  }
+}
+
 // Details for Show
 .detail-content {
   .buttons {

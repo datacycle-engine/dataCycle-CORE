@@ -62,6 +62,7 @@ DataCycleCore::Engine.routes.draw do
   scope('files') do
     resources :assets, only: [:index, :show, :create, :update, :destroy] do
       get :find, on: :collection
+      post :duplicate, on: :member
     end
   end
 

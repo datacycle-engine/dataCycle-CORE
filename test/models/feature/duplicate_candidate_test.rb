@@ -62,19 +62,37 @@ module DataCycleCore
       image2 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2' })
       image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3' })
 
-      content1 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 1', image: [image2.id, image3.id] })
-      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 2', image: [image1.id, image2.id] })
-      content3 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Test Artikel 3', image: [image1.id] })
+      content1 = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: 'Test Artikel 1', image: [image2.id, image3.id], primary_image: [image2.id], logo: [image2.id, image3.id] })
+      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: 'Test Artikel 2', image: [image1.id, image2.id], primary_image: [image1.id], logo: [image1.id, image2.id] })
+      content3 = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: 'Test Artikel 3', image: [image1.id], primary_image: [image2.id], logo: [image2.id] })
 
       content1.set_data_hash(data_hash: { name: 'TestArtikel 1' }.deep_stringify_keys, partial_update: true)
+      content2.set_data_hash(data_hash: { name: 'TestArtikel 2' }.deep_stringify_keys, partial_update: true)
+      content3.set_data_hash(data_hash: { name: 'TestArtikel 2' }.deep_stringify_keys, partial_update: true)
 
       image1.merge_with_duplicate(image2)
 
       assert image2.destroyed?
       assert_equal [image1.id, image3.id], content1.image.ids
+      assert_equal [image1.id], content1.primary_image.ids
+      assert_equal [image1.id, image3.id], content1.logo.ids
       assert_equal [image1.id, image3.id], content1.histories.first.image.ids
+      assert_equal [image1.id], content1.histories.first.primary_image.ids
+      assert_equal [image1.id, image3.id], content1.histories.first.logo.ids
+
       assert_equal [image1.id], content2.image.ids
+      assert_equal [image1.id], content2.primary_image.ids
+      assert_equal [image1.id], content2.logo.ids
+      assert_equal [image1.id], content2.histories.first.image.ids
+      assert_equal [image1.id], content2.histories.first.primary_image.ids
+      assert_equal [image1.id], content2.histories.first.logo.ids
+
       assert_equal [image1.id], content3.image.ids
+      assert_equal [image1.id], content3.primary_image.ids
+      assert_equal [image1.id], content3.logo.ids
+      assert_equal [image1.id], content3.histories.first.image.ids
+      assert_equal [image1.id], content3.histories.first.primary_image.ids
+      assert_equal [image1.id], content3.histories.first.logo.ids
     end
 
     test 'duplicates marked as false_positive are not shown as duplicates' do

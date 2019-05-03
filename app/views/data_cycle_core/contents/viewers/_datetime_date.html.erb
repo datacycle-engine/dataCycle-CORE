@@ -3,7 +3,10 @@
   definition: definition,
   value: value,
   options: options,
-  content: content do %>
+  content: content,
+  data_attributes: {
+    value: value.present? ? l(value.to_date, locale: DataCycleCore.ui_language) : nil, editor: "date_picker"
+  } do %>
 
     <span class="detail-content">
       <% case options.dig(:item_diff, 0) %>

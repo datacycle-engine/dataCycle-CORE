@@ -53,7 +53,6 @@
             title: content_for?(:submit_button_text) ? content_for(:submit_button_text) : t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
               tooltip: true,
-              confirm: 'REALLY?',
               disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
             } %>
         </li>
