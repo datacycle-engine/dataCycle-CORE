@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module MongoHelper
-    def drop_mongo_db(external_source_name)
+    def self.drop_mongo_db(external_source_name)
       external_source = DataCycleCore::ExternalSource.find_by(name: external_source_name)
       id = external_source.id
       mongo_database = "#{Generic::Collection.database_name}_#{id}"

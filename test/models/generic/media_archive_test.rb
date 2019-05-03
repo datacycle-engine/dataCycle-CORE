@@ -5,7 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class MediaArchiveTest < ActiveSupport::TestCase
-      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -55,7 +54,7 @@ module DataCycleCore
       end
 
       def teardown
-        drop_mongo_db('Medienarchiv')
+        DataCycleCore::MongoHelper.drop_mongo_db('Medienarchiv')
       end
     end
   end

@@ -5,8 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class FeratelTest < ActiveSupport::TestCase
-      include DataCycleCore::MongoHelper
-
       def download_from_local_json(external_source)
         path = Rails.root.join('..', 'fixtures', 'external_sources', 'feratel')
         files = path + '*.json'
@@ -54,7 +52,7 @@ module DataCycleCore
       end
 
       def teardown
-        drop_mongo_db('Feratel VCloud')
+        DataCycleCore::MongoHelper.drop_mongo_db('Feratel VCloud')
       end
     end
   end

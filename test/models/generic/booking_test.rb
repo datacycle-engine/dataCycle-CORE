@@ -5,7 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class BookingTest < ActiveSupport::TestCase
-      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -54,7 +53,7 @@ module DataCycleCore
       end
 
       def teardown
-        drop_mongo_db('Booking')
+        DataCycleCore::MongoHelper.drop_mongo_db('Booking')
       end
     end
   end

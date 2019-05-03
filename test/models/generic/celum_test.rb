@@ -5,7 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class CelumTest < ActiveSupport::TestCase
-      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -63,7 +62,7 @@ module DataCycleCore
       end
 
       def teardown
-        drop_mongo_db('Celum')
+        DataCycleCore::MongoHelper.drop_mongo_db('Celum')
       end
     end
   end

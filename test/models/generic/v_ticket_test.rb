@@ -5,8 +5,6 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class VTicketTest < ActiveSupport::TestCase
-      include DataCycleCore::MongoHelper
-
       def download_from_local_json(external_source)
         path = Rails.root.join('..', 'fixtures', 'external_sources', 'v_ticket')
         files = path + '*.json'
@@ -51,7 +49,7 @@ module DataCycleCore
       end
 
       def teardown
-        drop_mongo_db('V-Ticket')
+        DataCycleCore::MongoHelper.drop_mongo_db('V-Ticket')
       end
     end
   end
