@@ -33,6 +33,8 @@ module DataCycleCore
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "#{s['contentType']}-#{place_template}: #{s['external_key']}" }, ->(s) { s['orig_content_location'].present? })
           .>> t(:add_link, 'photographer', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('photographer_organization', 'id')}" }, ->(s) { s['photographer_organization'].present? })
           .>> t(:add_link, 'photographer', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('photographer_person', 'id')}" }, ->(s) { s['photographer_person'].present? })
+          .>> t(:add_link, 'author', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('author_organization', 'id')}" }, ->(s) { s['author_organization'].present? })
+          .>> t(:add_link, 'author', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - Photographer - #{s&.dig('author_person', 'id')}" }, ->(s) { s['author_person'].present? })
           .>> t(:add_link, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - CopyrightHolder - #{s&.dig('copyright_organization', 'id')}" }, ->(s) { s['copyright_organization'].present? })
           .>> t(:add_link, 'copyright_holder', DataCycleCore::Thing, external_source_id, ->(s) { "MedienArchive - CopyrightHolder - #{s&.dig('copyright_person', 'id')}" }, ->(s) { s['copyright_person'].present? })
           .>> t(:add_user_link, 'created_by', ->(s) { s&.dig('accountable_person', 'email') })
