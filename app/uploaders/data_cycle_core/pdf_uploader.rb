@@ -43,17 +43,32 @@ module DataCycleCore
       reader = PDF::Reader.new(current_path)
       return nil if reader.blank?
 
-      begin
-        {
-          info: reader.info,
-          pdf_version: reader.pdf_version,
-          metadata: reader.metadata,
-          content: reader.try(:pages)&.map(&:text)&.join(' '),
-          page_count: reader.page_count
-        }
-      rescue PDF::Reader::MalformedPDFError
-        nil
-      end
+      {
+        info: convert_info(reader.info),
+        pdf_version: reader.pdf_version,
+        metadata: reader.metadata,
+        content: reader.try(:pages)&.map { |page| page.try(:text)&.delete("\u0000") }&.join(' '),
+        page_count: reader.page_count
+      }
+    rescue PDF::Reader::MalformedPDFError, ArgumentError, NoMethodError
+      nil
+    end
+
+    def convert_info(info_hash)
+      info_hash
+        &.map do |key, value|
+          {
+            key =>
+              if value.is_a?(::String)
+                value
+                  .encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
+                  .delete("\u0000")
+              else
+                value
+              end
+          }
+        end
+        &.reduce({}) { |aggregate, item| aggregate.merge(item) }
     end
   end
 end

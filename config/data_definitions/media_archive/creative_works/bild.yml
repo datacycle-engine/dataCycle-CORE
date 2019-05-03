@@ -100,6 +100,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
       :height:
         :label: Höhe
         :storage_location: value
@@ -114,6 +122,14 @@
           :show:
             :options:
               :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -141,6 +157,21 @@
         :type: string
         :storage_location: value
         :search: true
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
+      :author:
+        :label: Fotograf
+        :type: linked
+        :template_name: Person
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
       :tags:
         :type: mixin
         :name: tags

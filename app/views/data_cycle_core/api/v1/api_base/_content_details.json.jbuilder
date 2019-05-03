@@ -10,11 +10,11 @@ json.content_partial! 'header', content: content, options: options
 
 json.partial! 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 
-json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
+json.partial! 'untranslated_properties', content: content, locale: content.translations.first&.locale || I18n.locale, options: options
 
 if content.translations.reject { |t| t.id.nil? }.size == 1
-  json.set! 'inLanguage', content.translations.first.locale
-  json.partial! 'translated_properties', content: content, locale: content.translations.first.locale, options: options
+  json.set! 'inLanguage', content.translations.first&.locale || I18n.locale
+  json.partial! 'translated_properties', content: content, locale: content.translations.first&.locale || I18n.locale, options: options
 else
   json.set! 'translations' do
     content.translations.each do |translation|

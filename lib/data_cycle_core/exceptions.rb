@@ -5,6 +5,8 @@ module DataCycleCore
     module Api
       class InvalidArgumentError < StandardError
       end
+      class TimeOutError < StandardError
+      end
     end
     class RecordNotFoundError < StandardError
     end
