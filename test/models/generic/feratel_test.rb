@@ -5,6 +5,8 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class FeratelTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
+
       def download_from_local_json(external_source)
         path = Rails.root.join('..', 'fixtures', 'external_sources', 'feratel')
         files = path + '*.json'
@@ -49,6 +51,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').count)
         assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
+      end
+
+      def teardown
+        drop_mongo_db('Feratel VCloud')
       end
     end
   end

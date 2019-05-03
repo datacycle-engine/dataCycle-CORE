@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class BookingTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -50,6 +51,10 @@ module DataCycleCore
         external_source.import(options)
 
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').count)
+      end
+
+      def teardown
+        drop_mongo_db('Booking')
       end
     end
   end

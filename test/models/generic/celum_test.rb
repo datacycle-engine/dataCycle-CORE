@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class CelumTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -59,6 +60,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Keywords').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Folders').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Users').count)
+      end
+
+      def teardown
+        drop_mongo_db('Celum')
       end
     end
   end

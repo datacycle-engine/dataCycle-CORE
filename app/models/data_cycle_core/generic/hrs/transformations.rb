@@ -35,7 +35,7 @@ module DataCycleCore
         def self.hrs_to_image
           t(:stringify_keys)
           .>> t(:add_field, 'external_key', ->(s) { image_id(s&.dig('text')) })
-          .>> t(:add_field, 'name', ->(s) { s.dig('beschreibung') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('beschreibung') || '__noname__' })
           .>> t(:add_field, 'width', ->(_s) { 1024 })
           .>> t(:add_field, 'height', ->(_s) { 768 })
           .>> t(:add_field, 'thumbnail_url', ->(s) { url_size(s&.dig('text'), 'sm') })

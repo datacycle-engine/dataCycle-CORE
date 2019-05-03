@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class EyebaseTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -49,6 +50,10 @@ module DataCycleCore
         external_source.import(options)
 
         assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
+      end
+
+      def teardown
+        drop_mongo_db('Eyebase')
       end
     end
   end

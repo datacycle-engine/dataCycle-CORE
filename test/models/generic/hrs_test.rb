@@ -4,14 +4,14 @@ require 'test_helper'
 
 module DataCycleCore
   module Generic
-    class FeratelCpsTest < ActiveSupport::TestCase
+    class HrsTest < ActiveSupport::TestCase
       include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
 
       def download_from_local_json(external_source)
-        path = Rails.root.join('..', 'fixtures', 'external_sources', 'feratel_cps')
+        path = Rails.root.join('..', 'fixtures', 'external_sources', 'hrs')
         files = path + '*.json'
 
         file_names = Dir[files]
@@ -42,21 +42,29 @@ module DataCycleCore
 
       test 'perform import' do
         options = {
-          max_count: 1,
+          max_count: 3,
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Feratel CPS')
+        external_source = DataCycleCore::ExternalSource.find_by(name: 'HRS')
         download_from_local_json(external_source)
         external_source.import(options)
 
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Lift').with_schema_type('Place').count)
-        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Piste').with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Unterkunft').with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
+        assert_equal(3, DataCycleCore::ClassificationAlias.for_tree('HRS - Categories').count)
+        assert_equal(3, DataCycleCore::ClassificationAlias.for_tree('HRS - Target-Groups').count)
+        assert_equal(3, DataCycleCore::ClassificationAlias.for_tree('HRS - Facilities').count)
+
+        data = DataCycleCore::Thing.find_by(template: false, template_name: 'Unterkunft')
+        assert_equal(1, data.image.count)
+        assert_equal(3, data.hrs_facilities.count)
+        assert_equal(3, data.hrs_categories.count)
+        assert_equal(3, data.hrs_target_groups.count)
       end
 
       def teardown
-        drop_mongo_db('Feratel CPS')
+        drop_mongo_db('HRS')
       end
     end
   end

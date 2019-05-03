@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class PimcoreTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -59,6 +60,10 @@ module DataCycleCore
         assert_equal(1, data.primary_image.count)
         assert_equal(1, data.pimcore_city.count)
         assert_equal(1, data.pimcore_categories.count)
+      end
+
+      def teardown
+        drop_mongo_db('Pimcore')
       end
     end
   end

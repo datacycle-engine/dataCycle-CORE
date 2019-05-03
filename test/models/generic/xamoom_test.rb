@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Generic
     class XamoomTest < ActiveSupport::TestCase
+      include DataCycleCore::MongoHelper
       def setup
         @cw_temp = DataCycleCore::Thing.where(template: false).count
       end
@@ -51,6 +52,10 @@ module DataCycleCore
 
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
+      end
+
+      def teardown
+        drop_mongo_db('Xamoom')
       end
     end
   end
