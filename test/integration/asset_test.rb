@@ -123,5 +123,15 @@ module DataCycleCore
 
       assert_response :success
     end
+
+    test 'duplicate existing asset' do
+      image = DataCycleCore::Image.create!(file: File.open(File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', 'test_rgb.jpg')), creator: @current_user)
+
+      post duplicate_asset_path(image), xhr: true, params: {}, headers: {
+        referer: root_path
+      }
+
+      assert_response :success
+    end
   end
 end

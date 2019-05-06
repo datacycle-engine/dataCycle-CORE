@@ -1,4 +1,6 @@
-// Ajax Callback Queue
+var ConfirmationModal = require('./confirmation_modal');
+
+// Asset Selector
 class AssetSelector {
   constructor(button, asset_selectors) {
     this.button = $(button);
@@ -17,6 +19,7 @@ class AssetSelector {
     this.page = 1;
     this.loading = false;
     this.requests = [];
+    this.import_requests = [];
     this.total = 0;
     this.per = 25;
     this.last_asset_type = '';
@@ -27,10 +30,12 @@ class AssetSelector {
     this.asset_list.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
     this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
     this.selected_asset_list.on('click', '.asset-deselect', this.deselect.bind(this));
+    this.selected_asset_list.on('dc:asset:selected', this.setAssetId.bind(this));
     this.button.closest('form').on('reset', this.resetSelector.bind(this));
     this.asset_list.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.asset_list.parent().on('scroll', this.loadMoreOnScroll.bind(this));
     this.select_button.on('dc:selected_asset:changed', this.updateSelectButton.bind(this));
+    this.button.on('dc:import:data', this.checkDataToImport.bind(this));
   }
   loadMoreOnScroll(event) {
     if (
@@ -41,6 +46,48 @@ class AssetSelector {
     ) {
       this.loadAssets();
     }
+  }
+  checkDataToImport(event, data) {
+    if (data === undefined || data.value === undefined || data.value[0] === undefined) return;
+    let id = data.value[0];
+
+    if (this.selected_asset_id !== undefined) {
+      new ConfirmationModal(
+        data.label + ' wird überschrieben. <br>Fortfahren?',
+        'success',
+        true,
+        function() {
+          this.importData(id);
+        }.bind(this)
+      );
+    } else {
+      this.importData(id);
+    }
+  }
+  importData(id) {
+    $.rails.disableFormElement(this.button);
+    this.selected_asset_list.html(
+      '<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>'
+    );
+
+    this.import_requests.forEach(request => {
+      request.abort();
+      this.import_requests = this.import_requests.filter(r => r != request);
+    });
+    this.import_requests.push(
+      $.ajax({
+        url: '/files/assets/' + id + '/duplicate',
+        method: 'POST',
+        data: JSON.stringify({
+          html_target: this.hidden_field.prop('id')
+        }),
+        dataType: 'script',
+        contentType: 'application/json'
+      }).always((data, text, jqXHR) => {
+        this.import_requests = this.import_requests.filter(r => r != jqXHR);
+        $.rails.enableFormElement(this.button);
+      })
+    );
   }
   updateSelectButton(event, data) {
     if (data !== undefined && this.selected_asset_id == data.selected_asset) {
@@ -82,7 +129,7 @@ class AssetSelector {
   }
   updateButtons(event, data) {
     if (data !== undefined) {
-      if (data.selected !== undefined && data.selected != '')
+      if (data.selected !== undefined && data.selected != '' && data.total != 0)
         this.select_button.attr('disabled', false).data('value', data.selected);
       if (data.total !== undefined) this.total = data.total;
       if (data.page !== undefined) this.page = data.page + 1;
@@ -144,9 +191,12 @@ class AssetSelector {
     } else this.hidden_field.removeAttr('value');
     this.form_element.trigger('dc:asset:changed', { id: this.selected_asset_id, thumb: this.selected_asset_thumb });
   }
+  setAssetId(event, data) {
+    this.updateHiddenField(data.id);
+  }
   selectAssets(event) {
     event.preventDefault();
-    this.selected_asset_list.html(this.asset_list.find('li.active').clone());
+    this.selected_asset_list.html(this.asset_list.find('li.active').clone()).foundation();
     this.updateHiddenField(this.select_button.data('value'));
     this.reveal.foundation('close');
   }

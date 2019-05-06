@@ -17,7 +17,29 @@ module DataCycleCore
 
       belongs_to :thing
     end
+
+    class DuplicateCandidates < ApplicationRecord
+      self.table_name = 'duplicate_candidates'
+
+      belongs_to :original, class_name: 'DataCycleCore::Thing'
+      belongs_to :duplicate, class_name: 'DataCycleCore::Thing'
+
+      def self.with_fp
+        unscope(where: :false_positive)
+      end
+
+      def readonly?
+        true
+      end
+    end
+
     has_many :histories, -> { order(created_at: :desc) }, class_name: 'DataCycleCore::Thing::History', foreign_key: :thing_id, inverse_of: :thing
+
+    has_many :duplicate_candidates, -> { where(false_positive: false).order(score: :asc) }, class_name: 'DuplicateCandidates', foreign_key: :original_id, inverse_of: :original
+    has_many :duplicates, through: :duplicate_candidates, source: :duplicate
+    has_many :thing_duplicates, dependent: :destroy
+    has_one :thing_original, class_name: 'DataCycleCore::ThingDuplicate', foreign_key: :thing_duplicate_id, dependent: :destroy, inverse_of: :original
+
     has_many :searches, foreign_key: :content_data_id, dependent: :destroy, inverse_of: :content_data
 
     extend ::Translations

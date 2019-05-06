@@ -653,11 +653,20 @@ select {
 
         .close-subscribe-notice {
           position: absolute;
-          right: 0.5rem;
+          right: 0;
           top: 0;
           font-size: 2em;
+          padding: 0.1rem;
+
           cursor: pointer;
           color: white;
+
+          span {
+            display: block;
+            height: 2rem;
+            width: 2rem;
+            line-height: 2rem;
+          }
 
           &:hover,
           &:focus {
@@ -1839,13 +1848,14 @@ input.normalized {
 
 /* Lists */
 section.related-objects {
-  margin: 2rem 0 5rem 0;
+  margin-bottom: 3rem;
+
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
     > li {
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       transition: all ease-in-out 0.2s;
       background: lighten($primary-color, 50%);
       -webkit-filter: blur(0);
@@ -1886,4 +1896,71 @@ section.related-objects {
 
 .callout.warning {
   font-style: normal;
+}
+
+section {
+  .horizontal-separator-header {
+    position: relative;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+    .header-text {
+      position: relative;
+      display: inline-block;
+      margin: 0;
+      background: white;
+      padding: 1rem;
+    }
+
+    &::before {
+      position: absolute;
+      content: '';
+      height: 0;
+      border-bottom: 3px double $dark-gray;
+      right: 0;
+      left: 0;
+      top: 50%;
+    }
+  }
+}
+
+section.duplicate-candidates {
+  margin-bottom: 3rem;
+  .duplicate-info-separator {
+    display: table-row;
+  }
+  .content-link {
+    display: table;
+    width: 100%;
+    height: 100%;
+  }
+  .duplicate-info {
+    display: table-cell;
+    vertical-align: bottom;
+    text-align: center;
+    margin-top: 1rem;
+    border-top: 1px solid $light-gray;
+    padding-top: 5px;
+    min-width: 250px;
+    .duplicate-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 0.5rem;
+      .button {
+        margin: 5px 0 0 0;
+      }
+    }
+  }
+  .content-tiles {
+    .content.image {
+      box-shadow: 0 0 1px rgba($black, 0.8);
+      margin: 0 1rem 1rem 0;
+      width: 250px;
+      max-width: 300px;
+      .thumbnail {
+        box-shadow: none;
+        margin: 0 auto;
+      }
+    }
+  }
 }

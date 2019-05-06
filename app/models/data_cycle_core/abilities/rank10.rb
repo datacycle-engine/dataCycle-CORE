@@ -6,6 +6,7 @@ module DataCycleCore
       def initialize(user, _session = {})
         can [:read, :create, :update, :destroy], DataCycleCore::UserGroup
         can [:create_global, :create_api], DataCycleCore::StoredFilter, user_id: user.id
+        can :merge_duplicates, DataCycleCore::Thing
 
         # User Administraion
         can [:read, :create_user, :update, :destroy, :unlock, :generate_access_token, :set_role, :set_user_groups], DataCycleCore::User do |the_user|

@@ -117,7 +117,7 @@ class ObjectBrowser {
         this.overlay.foundation('close');
       }
     });
-    this.element.on('update-chosen', (event, data) => {
+    this.element.on('dc:update:chosen', (event, data) => {
       this.chosen = this.chosen.concat(data.chosen.diff(this.chosen));
       $($.map(data.chosen, id => this.element.children('input:hidden[value="' + id + '"]'))).each((index, elem) =>
         $(elem).remove()
@@ -135,11 +135,11 @@ class ObjectBrowser {
         $(element).foundation();
       });
     });
-    this.element.on('import-data', (event, data) => {
+    this.element.on('dc:import:data', (event, data) => {
       let new_items = [];
       if (data.external_ids != undefined) new_items = data.external_ids;
-      else if (data.ids != undefined)
-        new_items = data.ids.diff(
+      else if (data.value != undefined)
+        new_items = data.value.diff(
           $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
         );
       if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {

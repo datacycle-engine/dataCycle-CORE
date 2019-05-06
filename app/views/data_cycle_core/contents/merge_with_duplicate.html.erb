@@ -1,0 +1,25 @@
+<% breadcrumb :merge_content, @content, @duplicate, @watch_list %>
+
+<% content_for :top_content do %>
+
+<div class="reveal-blur">
+  <div id="edit-form">
+    <% content_for :form_action do %>
+      <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t("content_type.#{@content.template_name.underscore_blanks}", default: @content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('duplicate.merge', locale: DataCycleCore.ui_language) %>
+    <% end %>
+
+    <% content_for :additional_form_fields do %>
+      <%= hidden_field_tag :duplicate_id, @duplicate.id %>
+    <% end %>
+
+    <% content_for(:submit_button_text, t('actions.merge_with_duplicate', locale: DataCycleCore.ui_language)) %>
+
+    <%= render 'form',
+      key_prefix: 'thing[datahash]',
+      content: @content,
+      watch_list: @watch_list,
+      split_source: @duplicate %>
+  </div>
+</div>
+
+<% end %>

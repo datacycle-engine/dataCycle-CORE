@@ -36,11 +36,11 @@ class EmbeddedObject {
         .find('> .buttons > #add_' + this.id)
         .show();
     this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
-    this.element.off('import-data').on(
-      'import-data',
+    this.element.off('dc:import:data').on(
+      'dc:import:data',
       function(event, data) {
         let page = data.page || 1;
-        let new_items = data.ids.diff(
+        let new_items = data.value.diff(
           this.element
             .children('.content-object-item')
             .map((index, elem) => $(elem).data('id'))

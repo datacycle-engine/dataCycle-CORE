@@ -3,7 +3,11 @@
   definition: definition,
   value: value,
   options: options,
-  content: content do %>
+  content: content,
+  data_attributes: {
+    value: { x: value.try(:x), y: value.try(:y), elevation: content&.try(:elevation) }.to_json,
+    editor: "geographic"
+  } do %>
 
     <% value ||= options.dig(:item_diff, 1) %>
 
