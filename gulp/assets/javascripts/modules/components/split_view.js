@@ -13,7 +13,8 @@ class SplitView {
       '> .v-select > select.single-select',
       '> .v-select > select.async-select',
       '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
-      '> .asset-selector-button'
+      '> .asset-selector-button',
+      '> .geographic > .geographic-map'
     ];
     this.setup();
   }
@@ -24,6 +25,7 @@ class SplitView {
     this.setupTextFieldButtons();
     this.setupDateTimeButtons();
     this.setupAssetSelectorButtons();
+    this.setupGeographicButtons();
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
@@ -73,7 +75,7 @@ class SplitView {
         $(elem)
           .find('.detail-content')
           .html()
-          .trim() || [],
+          .trim() || '',
         'html'
       );
     });
@@ -85,7 +87,7 @@ class SplitView {
   }
   setupDateTimeButtons() {
     this.availableEditors(['date_picker']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || [], 'data-value');
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
     });
   }
   setupAssetSelectorButtons() {
@@ -93,14 +95,35 @@ class SplitView {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
     });
   }
+  setupGeographicButtons() {
+    this.availableEditors(['geographic']).each((_, elem) => {
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || {}, 'data-value');
+    });
+  }
   addButtons(element, key, value, copy_attr, single = false) {
-    if ($('.flex-box .edit-content [data-key="' + key + '"]').length && value.length > 0) {
+    if (
+      $('.flex-box .edit-content [data-key="' + key + '"]').length &&
+      this.valueNotEmpty(value) &&
+      !$('.flex-box .edit-content [data-key="' + key + '"]')
+        .first()
+        .data('readonly')
+    ) {
       if (single && !$(element).hasClass('copy-single')) element = $(element).find('.copy-single');
       this.renderButton(element, copy_attr, single);
     }
   }
+  valueNotEmpty(value) {
+    if (value === undefined || value === null) return false;
+    switch (typeof value) {
+      case 'object':
+        return Object.values(value).filter(x => x != '' && x !== null && x !== undefined).length > 0;
+      case 'string':
+        return value.length > 0;
+    }
+  }
   renderButton(element, copy_attr, single) {
     if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
+    if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
 
     $(element).append(
@@ -108,7 +131,7 @@ class SplitView {
         (single ? ' copy-single-button' : '') +
         '" data-copy-attribute="' +
         copy_attr +
-        '" title="Übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+        '" title="übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
     );
   }
   handleButtonClick(event) {
@@ -152,7 +175,7 @@ class SplitView {
 
     target.find(this.selectors.join(', ')).trigger('dc:import:data', {
       label: label,
-      value: value
+      value: typeof value == 'string' ? value.trim() : value
     });
 
     target.get(0).scrollIntoView({ behavior: 'smooth' });

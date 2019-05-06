@@ -1,3 +1,5 @@
+var ConfirmationModal = require('./../components/confirmation_modal');
+
 var ol = {
   Map: require('ol/map').default,
   layer: {
@@ -134,6 +136,49 @@ function init_map(idx, item) {
       geometry: new ol.geom.LineString(data.points)
     });
   }
+
+  $(item).on('dc:import:data', (event, data) => {
+    let form_fields = $(event.target)
+      .parent('.geographic')
+      .siblings('.map-info')
+      .first();
+
+    if (
+      form_fields.find('.form-element.elevation > input').val().length == 0 &&
+      $(event.target)
+        .parent('.geographic')
+        .siblings('input.location-data:hidden')
+        .first()
+        .val().length == 0
+    ) {
+      form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+      form_fields
+        .find('.form-element.latitude > input')
+        .val(data.value.y)
+        .trigger('change');
+      form_fields
+        .find('.form-element.longitude > input')
+        .val(data.value.x)
+        .trigger('change');
+    } else {
+      var confirmationModal = new ConfirmationModal(
+        data.label + ' wird überschrieben. <br>Fortfahren?',
+        'success',
+        true,
+        function() {
+          form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+          form_fields
+            .find('.form-element.latitude > input')
+            .val(data.value.y)
+            .trigger('change');
+          form_fields
+            .find('.form-element.longitude > input')
+            .val(data.value.x)
+            .trigger('change');
+        }.bind(this)
+      );
+    }
+  });
 
   var options = {};
   var features = [];

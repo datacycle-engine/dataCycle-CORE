@@ -18,7 +18,6 @@ module DataCycleCore
               (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
               !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
             )
-
           else
             (
               attribute.content.try(:external_key).blank? ||
