@@ -38,8 +38,6 @@ DataCycleCore.setup do |config|
     ].freeze
   end
 
-  config.max_asynch_classification_items = 5
-
   config.webhooks = ['Local-Text-File']
 
   config.webhooks = ['Local-Text-File'] if Rails.env.test?
