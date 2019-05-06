@@ -1,0 +1,73 @@
+---
+name: HRS
+credentials:
+  host: https://api.hrs-ds.com
+  end_point: api
+  interface_id: hmLZk1ougo3J85gDd7s3Nw
+  region_name: Vorarlberg
+default_options:
+  locales: [de]
+config:
+  download_config:
+    category:
+      sorting: 1
+      source_type: category
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::DownloadTags
+    ausstattung:
+      sorting: 2
+      source_type: ausstattung
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::DownloadTags
+    leisure:
+      sorting: 3
+      source_type: leisure
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::DownloadTags
+    rooms:
+      sorting: 10
+      source_type: rooms
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::Download
+  import_config:
+    category:
+      sorting: 1
+      source_type: category
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: HRS - Categories
+      tag_id_path: id
+      tag_name_path: name
+      external_id_prefix: 'HRS - Category - '
+    ausstattung:
+      sorting: 2
+      source_type: ausstattung
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: HRS - Facilities
+      tag_id_path: id
+      tag_name_path: name
+      external_id_prefix: 'HRS - Facility - '
+    leisure:
+      sorting: 3
+      source_type: leisure
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: HRS - Target-Groups
+      tag_id_path: id
+      tag_name_path: name
+      external_id_prefix: 'HRS - Target-Group - '
+    rooms:
+      sorting: 10
+      source_type: rooms
+      import_strategy: DataCycleCore::Generic::Hrs::ImportRooms
+      transformations:
+        image:
+          template: Bild
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Bild
+        room:
+          template: Unterkunft
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Unterkunft

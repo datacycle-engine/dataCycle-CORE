@@ -53,6 +53,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Lift').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Piste').with_schema_type('Place').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Feratel CPS')
+      end
     end
   end
 end

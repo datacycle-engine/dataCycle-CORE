@@ -50,6 +50,10 @@ module DataCycleCore
 
         assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Eyebase')
+      end
     end
   end
 end
