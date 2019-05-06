@@ -9,7 +9,11 @@ module DataCycleCore
         end
 
         def allowed?(content = nil) # rubocop:disable Lint/UnusedMethodArgument
-          enabled?
+          true
+        end
+
+        def allowed_attribute_keys(content = nil)
+          attribute_keys(content) || []
         end
       end
     end
