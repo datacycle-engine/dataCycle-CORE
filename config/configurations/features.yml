@@ -79,4 +79,4 @@
       :speed: 10
 
 :duplicate_candidate:
-  :enabled: true
+  :enabled: false
