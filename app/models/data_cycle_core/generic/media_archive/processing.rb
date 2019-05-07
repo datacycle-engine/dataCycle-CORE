@@ -56,6 +56,8 @@ module DataCycleCore
 
           template = config&.dig(:template) || 'Person'
 
+          existing_external_key = DataCycleCore::Thing.find_by("? = ANY (string_to_array(things.external_key, ';')) AND things.external_source_id = ?", external_key, utility_object.external_source.id)&.external_key
+
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
@@ -65,7 +67,7 @@ module DataCycleCore
                 .media_archive_to_person(utility_object.external_source.id)
                 .call(raw_data)
             ).merge(
-              external_key: external_key
+              external_key: existing_external_key || external_key
             ).with_indifferent_access
           )
         end
