@@ -90,9 +90,10 @@ module DataCycleCore
           delta = 100
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
-              phase_name = utility_object.source_type.collection_name
               importer_name = options.dig(:import, :name)
-              logging.preparing_phase("#{utility_object.external_source.name} #{phase_name}")
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
                 fixnum_max = (2**(0.size * 4 - 2) - 1)
@@ -118,7 +119,7 @@ module DataCycleCore
                         next unless (item_count % delta).zero?
 
                         GC.start
-                        logging.info("Imported #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
+                        logging.info("Imported   #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
                       end
                       break if options[:max_count].present? && item_count >= options[:max_count]
                     end
@@ -189,11 +190,12 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
-                  phase_name = utility_object.source_type.collection_name
-                  importer_name = options.dig(:import, :name)
-
                   item_count = 0
 
                   begin
