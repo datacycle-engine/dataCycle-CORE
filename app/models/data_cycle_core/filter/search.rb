@@ -220,11 +220,11 @@ module DataCycleCore
       def duplicate_candidates(value)
         if value == 'true'
           reflect(
-            @query.joins(:duplicate_candidates).where.not(duplicate_candidates: { duplicate: nil })
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists)
           )
         else
           reflect(
-            @query.left_outer_joins(:duplicate_candidates).where(duplicate_candidates: { duplicate: nil })
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists.not)
           )
         end
       end
@@ -398,6 +398,10 @@ module DataCycleCore
 
       def thing
         DataCycleCore::Thing.arel_table
+      end
+
+      def duplicate_candidate
+        DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
     end
   end
