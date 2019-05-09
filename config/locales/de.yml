@@ -191,6 +191,7 @@ de:
     deleted_at: Gelöscht
     validity_period: Gültigkeitszeitraum
     upload_date: Hochgeladen
+    duplicate_candidates: Duplikate
 
   terms:
     valid: gültig

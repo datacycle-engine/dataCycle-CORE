@@ -64,6 +64,18 @@ module DataCycleCore
           end
         end
 
+        def boolean(value = [])
+          value = ['duplicate_candidates'] if value == 'all'
+
+          value.presence&.map do |c|
+            [
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
+              'boolean',
+              data: { name: c }
+            ]
+          end || []
+        end
+
         def default(key, value)
           if value
             [

@@ -209,6 +209,26 @@ module DataCycleCore
         )
       end
 
+      def boolean(value, filter_method)
+        if respond_to?(filter_method)
+          send(filter_method, value)
+        else
+          self
+        end
+      end
+
+      def duplicate_candidates(value)
+        if value == 'true'
+          reflect(
+            @query.joins(:duplicate_candidates).where.not(duplicate_candidates: { duplicate: nil })
+          )
+        else
+          reflect(
+            @query.left_outer_joins(:duplicate_candidates).where(duplicate_candidates: { duplicate: nil })
+          )
+        end
+      end
+
       def validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
