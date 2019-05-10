@@ -272,6 +272,16 @@ button,
     }
   }
 
+  &.editor {
+    .detail-header-info {
+      position: relative;
+      left: 0;
+      top: 0;
+      text-align: left;
+      margin-bottom: 1rem;
+    }
+  }
+
   .bookmark {
     position: absolute;
     right: 1rem;
@@ -480,7 +490,6 @@ button,
 
   &.editor {
     padding: 0 0 30rem 0;
-    margin-top: 3rem;
     background: none;
 
     .translated {
@@ -555,12 +564,11 @@ button,
       }
     }
 
-    .detail-header-info {
-      top: -2rem;
-      left: 0.5rem;
-    }
-
     .bookmark {
+      .detail-header-info {
+        top: -2rem;
+        left: 0.5rem;
+      }
       display: none;
     }
 
