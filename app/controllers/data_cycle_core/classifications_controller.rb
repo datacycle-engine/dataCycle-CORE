@@ -37,6 +37,7 @@ module DataCycleCore
 
           @classification_trees = @classification_trees
             .accessible_by(current_ability)
+            .joins(:sub_classification_alias)
             .includes(
               sub_classification_alias: {
                 classifications: { primary_classification_alias: :classification_alias_path },
@@ -44,7 +45,7 @@ module DataCycleCore
                 additional_classifications: {},
                 statistics: {}
               }
-            ).order(:created_at)
+            ).order('classification_aliases.internal_name')
             .page(params[:page])
 
           @page = @classification_trees.current_page
