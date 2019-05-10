@@ -29,7 +29,7 @@ PATH
       faraday
       faraday_middleware
       gretel
-      hashdiff (= 0.3.8)
+      hashdiff
       image_optim
       image_optim_pack
       jbuilder
@@ -248,7 +248,7 @@ GEM
       activesupport (>= 4.2.0)
     gretel (3.0.9)
       rails (>= 3.1.0)
-    hashdiff (0.3.8)
+    hashdiff (0.3.9)
     hashery (2.1.2)
     htmlentities (4.3.4)
     i18n (1.6.0)
