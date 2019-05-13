@@ -26,6 +26,7 @@ module DataCycleCore
           .>> t(:add_links, 'hrs_categories', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('o_category', 'category')]&.compact&.flatten&.map { |item| "HRS - Category - #{item.dig('position')}" }&.flatten || [] })
           .>> t(:add_links, 'hrs_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('o_ausstattung', 'ausstattung')]&.compact&.flatten&.map { |item| "HRS - Facility - #{item.dig('position')}" }&.flatten || [] })
           .>> t(:add_links, 'hrs_target_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('o_leisure', 'leisure')]&.compact&.flatten&.map { |item| "HRS - Target-Group - #{item.dig('position')}" }&.flatten || [] })
+          .>> t(:add_links, 'hrs_stars', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('o_sterne', 'text')&.to_i]&.compact&.flatten&.map { |item| "HRS - Star - #{item}" }&.flatten || [] })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('o_bild', 'bild')]&.flatten&.map { |item| image_id(item.dig('text')) } })
           .>> t(:add_field, 'external_key', ->(s) { "HRS - #{s.dig('o_id', 'text')}" })
           .>> t(:reject_keys, ['id', 'o_id', 'o_gps', 'o_bezeichnung', 'o_url', 'o_ort', 'o_strasse', 'o_plz', 'o_ort', 'o_land', 'o_bemerkung', 'o_lage'])

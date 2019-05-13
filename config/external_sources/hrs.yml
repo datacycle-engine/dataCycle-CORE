@@ -24,6 +24,11 @@ config:
       source_type: leisure
       endpoint: DataCycleCore::Generic::Hrs::Endpoint
       download_strategy: DataCycleCore::Generic::Hrs::DownloadTags
+    stars:
+      sorting: 4
+      source_type: stars
+      endpoint: DataCycleCore::Generic::Hrs::Endpoint
+      download_strategy: DataCycleCore::Generic::Hrs::DownloadTags
     rooms:
       sorting: 10
       source_type: rooms
@@ -54,6 +59,14 @@ config:
       tag_id_path: id
       tag_name_path: name
       external_id_prefix: 'HRS - Target-Group - '
+    stars:
+      sorting: 4
+      source_type: stars
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: HRS - Stars
+      tag_id_path: id
+      tag_name_path: name
+      external_id_prefix: 'HRS - Star - '
     rooms:
       sorting: 10
       source_type: rooms

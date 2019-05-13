@@ -27,3 +27,11 @@
         :ui:
           :show:
             :content_area: header
+      :hrs_stars:
+        :label: HRS - Stars
+        :type: classification
+        :tree_label: HRS - Stars
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

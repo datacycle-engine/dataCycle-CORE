@@ -43,6 +43,14 @@ module DataCycleCore
           end
         end
 
+        def stars(lang: :de)
+          Enumerator.new do |yielder|
+            load_file('o_sterne.json', lang).each do |key, value|
+              yielder << { 'id' => key, 'name' => value }
+            end
+          end
+        end
+
         protected
 
         def load_data(location, _lang)
