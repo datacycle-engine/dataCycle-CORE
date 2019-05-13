@@ -167,21 +167,34 @@ module.exports.initialize = function() {
         );
 
       let value;
-      if ($(event.currentTarget).find(':input[name*="[v]"]').length > 1) {
+      let value_fields = $(event.currentTarget).find(':input[name*="[v]"]');
+      if (value_fields.is(':checkbox')) {
+        if (
+          value_fields
+            .filter(':checkbox')
+            .first()
+            .prop('checked')
+        )
+          value = value_fields
+            .filter(':checkbox')
+            .first()
+            .val();
+        else
+          value = value_fields
+            .filter(':hidden')
+            .first()
+            .val();
+      } else if (value_fields.length > 1) {
         value = {};
-        $(event.currentTarget)
-          .find(':input[name*="[v]"]')
-          .each((index, elem) => {
-            value[
-              $(elem)
-                .prop('name')
-                .get_key()
-            ] = $(elem).val();
-          });
-      } else if ($(event.currentTarget).find(':input[name*="[v]"]').length == 1)
-        value = $(event.currentTarget)
-          .find(':input[name*="[v]"]')
-          .val();
+        value_fields.each((index, elem) => {
+          value[
+            $(elem)
+              .prop('name')
+              .get_key()
+          ] = $(elem).val();
+        });
+      } else if (value_fields.length == 1) value = value_fields.val();
+
       $.ajax({
         url: '/add_tag_group',
         method: 'GET',

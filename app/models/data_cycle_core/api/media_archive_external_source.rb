@@ -77,7 +77,7 @@ module DataCycleCore
           original = DataCycleCore::Thing.find_by(external_source_id: @external_source.id, external_key: original_id)
 
           DataCycleCore::ContentContent.where(content_b_id: contents.map(&:id)).find_each do |content_relation|
-            content_relation.update!(content_b_id: original.id)
+            content_relation.update!(content_b_id: original.id) unless DataCycleCore::ContentContent.where(content_a_id: content_relation.content_a_id, content_b_id: original.id, relation_a: content_relation.relation_a).exists?
           end
         end
 

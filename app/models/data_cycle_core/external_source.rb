@@ -64,6 +64,7 @@ module DataCycleCore
     def import_single(name, options = {})
       raise "unknown importer name: #{name}" if import_config.dig(name).blank?
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ import: import_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
+      full_options[:import][:name] = name.to_s
       locales = full_options[:import][:locales] || full_options[:locales] || I18n.available_locales
       utility_object = DataCycleCore::Generic::ImportObject.new(full_options.merge(external_source: self, locales: locales))
       raise "Missing import_strategy for #{name}, options given: #{options}" if full_options.dig(:import, :import_strategy).blank?

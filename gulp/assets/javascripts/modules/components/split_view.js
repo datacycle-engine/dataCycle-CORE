@@ -27,7 +27,11 @@ class SplitView {
     this.setupAssetSelectorButtons();
     this.setupGeographicButtons();
 
+    this.setupCopyAllButtons(this.container.closest('.split-content'));
+    this.setupCopyAllButtons(this.availableEditors(['included-object']));
+
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
+    this.container.closest('.split-content').on('click', '.copy-all', this.triggerAllButtons.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
   }
   setupAdditionalButtons(event, data) {
@@ -100,6 +104,14 @@ class SplitView {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || {}, 'data-value');
     });
   }
+  setupCopyAllButtons(elements) {
+    elements.each((_, item) => {
+      if ($(item).find('a.copy').length)
+        $(item).append(
+          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+        );
+    });
+  }
   addButtons(element, key, value, copy_attr, single = false) {
     if (
       $('.flex-box .edit-content [data-key="' + key + '"]').length &&
@@ -169,6 +181,13 @@ class SplitView {
     let label = elem.parents('[data-editor]').data('label');
     let key = elem.parents('[data-editor]').data('key');
     this.copyContents(value, label, key);
+  }
+  triggerAllButtons(event) {
+    event.preventDefault();
+    $(event.currentTarget)
+      .parent('.split-content, [data-editor="included-object"]')
+      .find('a.copy')
+      .trigger('click');
   }
   copyContents(value, label, key) {
     let target = $('.flex-box .edit-content [data-key="' + key + '"]');

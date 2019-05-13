@@ -512,17 +512,39 @@ select {
       height: inherit;
     }
 
+    .detail-header {
+      &.editor {
+        margin-top: 0;
+      }
+    }
+
+    .detail-type.object {
+      a.copy-all {
+        width: 2rem;
+        height: 2rem;
+        .fa {
+          font-size: 1.2rem;
+          line-height: 2rem;
+        }
+      }
+    }
+
     .detail-content {
       position: relative;
       padding: 0 1rem;
 
       .show-content {
-        margin-top: 3rem;
         position: relative;
 
         > br {
           display: none;
         }
+      }
+
+      .copy-all {
+        position: absolute;
+        right: 0.1rem;
+        top: 0.1rem;
       }
 
       .copy-to-clipboard {
@@ -551,9 +573,6 @@ select {
       text-align: left;
       display: flex;
       width: 100%;
-      left: 0;
-      position: absolute;
-      top: -2rem;
       opacity: 0.3;
       transition: opacity 0.3s ease;
 
@@ -561,6 +580,7 @@ select {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        margin-top: 1rem;
 
         .icon {
           margin-right: 0.2rem;
@@ -568,6 +588,7 @@ select {
 
         > .type {
           margin-right: 0.2rem;
+          font-size: 0.9rem;
         }
 
         .show-history-link {
@@ -620,7 +641,7 @@ select {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding-left: 0.5rem;
+        font-size: 0.9rem;
       }
     }
 

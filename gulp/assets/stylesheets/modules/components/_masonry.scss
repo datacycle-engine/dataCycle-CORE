@@ -20,6 +20,7 @@
   .grid-item {
     z-index: 1;
     display: none;
+    grid-row-end: span 7;
 
     .content-link {
       padding: 1rem;

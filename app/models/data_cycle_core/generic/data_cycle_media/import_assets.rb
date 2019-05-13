@@ -44,19 +44,19 @@ module DataCycleCore
 
                   # update_item
 
-                  fixed_item = DataCycleCore::Thing.find_by(
-                    name: title
-                  )
+                  # fixed_item = DataCycleCore::Thing.find_by(
+                  #   name: title
+                  # )
 
                   # version to restore images
-                  next unless fixed_item
-                  fixed_item.set_data_hash(data_hash: fixed_item.get_data_hash.merge(image_data))
-                  next unless fixed_item
+                  # next unless fixed_item
+                  # fixed_item.set_data_hash(data_hash: fixed_item.get_data_hash.merge(image_data))
+                  # next unless fixed_item
 
                   # original Version
-                  # new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
-                  # next unless new_object
-                  # File.delete(p) if credentials.dig('delete')
+                  new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
+                  next unless new_object
+                  File.delete(p) if credentials.dig('delete')
 
                   item_count += 1
                 end

@@ -23,6 +23,13 @@ module DataCycleCore
       end
     end
 
+    def upload_image(file_name)
+      file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
+      image = DataCycleCore::Image.new(file: File.open(file_path))
+      image.save
+      image
+    end
+
     test 'small helper functions' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').limit(1).count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').take(1).count)
@@ -118,6 +125,26 @@ module DataCycleCore
 
       items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
       assert_equal(0, items.count)
+    end
+
+    test 'test query for boolean -> duplicate_candidates' do
+      DataCycleCore::ImageUploader.enable_processing = true
+      assert DataCycleCore::Feature::DuplicateCandidate.enabled?
+      image1 = upload_image 'test_rgb.jpg'
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
+      image2 = upload_image 'test_rgb.png'
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
+      DataCycleCore::Thing
+        .where(template: false, external_source_id: nil, external_key: nil, template_name: 'Bild')
+        .where.not(content_type: 'embedded')
+        .find_each(&:create_duplicate_candidates)
+
+      items = DataCycleCore::Filter::Search.new(:de).boolean('true', 'duplicate_candidates')
+      assert_equal(2, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
+      assert_equal(6, items.count)
+      DataCycleCore::ImageUploader.enable_processing = false
     end
 
     test 'test query for classification_tree' do

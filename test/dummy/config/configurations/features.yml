@@ -22,3 +22,10 @@
 
 :main_filter:
   :autoload_last_filter: true
+
+:advanced_filter:
+  :boolean:
+    - duplicate_candidates
+
+:duplicate_candidate:
+  :enabled: true
