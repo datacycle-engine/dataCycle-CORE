@@ -3,7 +3,11 @@
   definition: definition,
   value: value,
   options: options,
-  content: content do %>
+  content: content,
+  data_attributes: {
+    editor: definition.dig('ui', 'edit', 'type').try(:underscore) || 'number',
+    value: value
+  } do %>
 
     <span class="detail-content">
       <% number_method = definition&.dig('validations', 'format') == 'float' ? 'to_f' : 'to_i' %>

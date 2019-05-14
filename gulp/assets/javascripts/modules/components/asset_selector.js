@@ -52,14 +52,16 @@ class AssetSelector {
     let id = data.value[0];
 
     if (this.selected_asset_id !== undefined) {
-      new ConfirmationModal(
-        data.label + ' wird überschrieben. <br>Fortfahren?',
-        'success',
-        true,
-        function() {
+      new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
           this.importData(id);
         }.bind(this)
-      );
+      });
     } else {
       this.importData(id);
     }

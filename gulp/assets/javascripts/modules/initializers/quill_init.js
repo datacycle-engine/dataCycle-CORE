@@ -167,14 +167,16 @@ module.exports.initialize = function() {
 
       $(editor.container).on('dc:import:data', function(event, data) {
         if (editor.getText().trim().length > 1) {
-          var confirmationModal = new ConfirmationModal(
-            data.label + ' wird überschrieben. <br>Fortfahren?',
-            'success',
-            true,
-            function() {
+          var confirmationModal = new ConfirmationModal({
+            text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+            confirmationText: 'Ja',
+            cancelText: 'Nein',
+            confirmationClass: 'success',
+            cancelable: true,
+            confirmationCallback: function() {
               editor.clipboard.dangerouslyPasteHTML(data.value);
             }
-          );
+          });
         } else {
           editor.clipboard.dangerouslyPasteHTML(data.value);
         }

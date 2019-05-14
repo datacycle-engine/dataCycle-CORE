@@ -51,6 +51,16 @@ module DataCycleCore
       respond_to(:js)
     end
 
+    def reload_required
+      render(json: { error: I18n.t(:session_expired, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:redirect_to_login, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless user_signed_in?
+
+      render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless any_authenticity_token_valid? || Rails.env.test?
+
+      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if DataCycleCore::Thing.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
+
+      head :no_content
+    end
+
     rescue_from CanCan::AccessDenied do |exception|
       respond_to do |format|
         format.json { head :forbidden, content_type: 'text/html' }
@@ -71,6 +81,10 @@ module DataCycleCore
 
     def remote_render_params
       params.permit(:target, :partial, :render_function, content_for: [])
+    end
+
+    def reload_params
+      params.permit(:id, :datestring)
     end
   end
 end

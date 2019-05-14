@@ -61,9 +61,16 @@ class Validator {
         this.submit_form_data = this.form.serializeArray();
         if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
           event.preventDefault();
-          new ConfirmationModal('Wollen Sie speichern und auf die neue Sprache wechseln?', 'success', true, () => {
-            this.form.append('<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">');
-            this.form.trigger('submit');
+          new ConfirmationModal({
+            text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
+            confirmationClass: 'success',
+            cancelable: true,
+            confirmationCallback: () => {
+              this.form.append(
+                '<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">'
+              );
+              this.form.trigger('submit');
+            }
           });
         }
       });
@@ -249,48 +256,49 @@ class Validator {
   }
   submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined }) {
     if (confirmations.warnings !== undefined) {
-      return new ConfirmationModal(
-        'Es sind Warnungen vorhanden (' +
+      return new ConfirmationModal({
+        text:
+          'Es sind Warnungen vorhanden (' +
           warnings
             .closest('.form-element')
             .map((i, elem) => $(elem).data('label'))
             .get()
             .join(', ') +
           ').<br>Soll der Inhalt trotzdem gespeichert werden?',
-        'warning',
-        true,
-        () => {
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => {
           confirmations.warnings = undefined;
           this.submitForm(confirmations);
         },
-        () => this.enable()
-      );
+        cancelCallback: () => this.enable()
+      });
     }
 
     if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
-      return new ConfirmationModal(
-        'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
-        'success',
-        true,
-        () => {
+      return new ConfirmationModal({
+        text: 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: () => {
           confirmations.finalize = false;
           this.submitForm(confirmations);
         },
-        () => this.enable()
-      );
+        cancelCallback: () => this.enable()
+      });
     }
 
     if (confirmations.confirm && this.submit_button.data('confirm') !== undefined) {
-      return new ConfirmationModal(
-        this.submit_button.data('confirm'),
-        'alert',
-        true,
-        () => {
+      return new ConfirmationModal({
+        text: this.submit_button.data('confirm'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
           confirmations.confirm = false;
           this.submitForm(confirmations);
         },
-        () => this.enable()
-      );
+        cancelCallback: () => this.enable()
+      });
     }
 
     this.triggerFormSubmit();

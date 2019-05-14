@@ -254,6 +254,8 @@ de:
     discard_changes: Änderungen verwerfen
     save_changes: Änderungen speichern
     merge_with_duplicate: Änderungen speichern und Duplikat löschen
+    reload: Seite neu laden
+    redirect_to_login: zur Anmeldung
 
   validation:
     errors:
@@ -318,6 +320,8 @@ de:
       missing_parameter: Parameter fehlt!
       duplicate:
         type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
+      session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
+      token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -341,6 +345,7 @@ de:
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."
+      content_updated: Der Inhalt wurde geändert.
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."

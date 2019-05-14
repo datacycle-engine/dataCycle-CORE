@@ -53,7 +53,7 @@ class EmbeddedObject {
         ) {
           this.renderEmbeddedObjects('render', new_items);
         } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
-          var confirmationModal = new ConfirmationModal('Maximalanzahl: ' + this.max);
+          var confirmationModal = new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
       }.bind(this)
     );
@@ -106,8 +106,13 @@ class EmbeddedObject {
     event.preventDefault();
     let element = $(event.target).closest('.content-object-item');
     if ($(event.target).data('confirm-delete') != undefined) {
-      new ConfirmationModal($(event.target).data('confirm-delete'), 'alert', true, () => {
-        this.removeObject(element);
+      new ConfirmationModal({
+        text: $(event.target).data('confirm-delete'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
+          this.removeObject(element);
+        }
       });
     } else this.removeObject(element);
   }

@@ -242,10 +242,10 @@ class ObjectBrowser {
   }
   validate(type = '~', new_length = this.chosen.length) {
     if (type != '-' && this.max != 0 && new_length > this.max) {
-      new ConfirmationModal('Maximalanzahl: ' + this.max);
+      new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
       return false;
     } else if (type != '+' && this.min != 0 && new_length < this.min) {
-      new ConfirmationModal('Mindestanzahl: ' + this.min);
+      new ConfirmationModal({ text: 'Mindestanzahl: ' + this.min });
       return false;
     }
     return true;

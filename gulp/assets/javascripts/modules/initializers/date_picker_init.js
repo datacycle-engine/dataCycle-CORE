@@ -126,16 +126,18 @@ module.exports.initialize = function() {
         .val(data.value)
         .trigger('change');
     } else {
-      var confirmationModal = new ConfirmationModal(
-        data.label + ' wird überschrieben. <br>Fortfahren?',
-        'success',
-        true,
-        function() {
+      var confirmationModal = new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
           $(event.target)
             .val(data.value)
             .trigger('change');
         }.bind(this)
-      );
+      });
     }
   });
 };

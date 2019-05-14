@@ -161,11 +161,13 @@ function init_map(idx, item) {
         .val(data.value.x)
         .trigger('change');
     } else {
-      var confirmationModal = new ConfirmationModal(
-        data.label + ' wird überschrieben. <br>Fortfahren?',
-        'success',
-        true,
-        function() {
+      var confirmationModal = new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
           form_fields.find('.form-element.elevation > input').val(data.value.elevation);
           form_fields
             .find('.form-element.latitude > input')
@@ -176,7 +178,7 @@ function init_map(idx, item) {
             .val(data.value.x)
             .trigger('change');
         }.bind(this)
-      );
+      });
     }
   });
 

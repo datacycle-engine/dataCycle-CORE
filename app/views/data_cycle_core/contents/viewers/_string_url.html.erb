@@ -5,6 +5,7 @@
   options: options,
   content: content,
   data_attributes: {
+    editor: definition.dig('validations', 'format').try(:underscore) || 'string',
     'diff-before': options.dig(:item_diff, 1),
     'diff-after': options.dig(:item_diff, 2),
   } do %>
