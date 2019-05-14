@@ -28,8 +28,22 @@ module DataCycleCore
       tour_data_hash[:logo] = image_data.id
       tour_data_hash[:poi] = poi_data.id
       tour_data_hash[:schedule] = schedule
+      tour_data_hash.deep_stringify_keys!
 
-      DataCycleCore::TestPreparations.create_content(template_name: 'Tour', data_hash: tour_data_hash, user: @user)
+      content = DataCycleCore::Thing.find_by(tour_data_hash.slice('name').merge(template_name: 'Tour'))
+      return @content if @content.present?
+
+      content = DataCycleCore::Thing.find_by(template_name: 'Tour', template: true).dup
+      content.template = false
+      content.created_by = @user&.id
+      content.external_key = 'test1'
+      content.external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
+
+      content.save!
+      I18n.with_locale(:de) do
+        content.set_data_hash(data_hash: tour_data_hash, new_content: true, current_user: @user)
+      end
+      content.reload
     end
 
     def poi
