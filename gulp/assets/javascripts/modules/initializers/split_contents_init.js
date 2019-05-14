@@ -9,29 +9,63 @@ module.exports.initialize = function() {
     new SplitView(container);
   }
 
-  $('.edit-content-form .form-element.string:not(.text_editor)').on('dc:import:data', function(event, data) {
-    if (
-      $(this)
-        .find('input[type=text]')
-        .val().length === 0
-    ) {
-      $(this)
-        .find('input[type=text]')
+  // add eventhandlers for editor fields
+  $('.edit-content-form .form-element.string:not(.text_editor) > input[type="text"]').on('dc:import:data', function(
+    event,
+    data
+  ) {
+    if ($(event.target).val().length === 0) {
+      $(event.target)
         .val(data.value)
         .trigger('input');
     } else {
-      var confirmationModal = new ConfirmationModal(
-        data.label + ' wird überschrieben. <br>Fortfahren?',
-        'success',
-        true,
-        function() {
-          $(this)
-            .find('input[type=text]')
+      new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
+          $(event.target)
             .val(data.value)
             .trigger('input');
-        }.bind(this)
-      );
+        }
+      });
     }
+  });
+
+  $('.edit-content-form .form-element.number > input[type="number"]').on('dc:import:data', function(event, data) {
+    if ($(event.target).val().length === 0) {
+      $(event.target)
+        .val(data.value)
+        .trigger('input');
+    } else {
+      new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
+          $(event.target)
+            .val(data.value)
+            .trigger('input');
+        }
+      });
+    }
+  });
+
+  $('.edit-content-form .form-element.boolean :checkbox').on('dc:import:data', function(event, data) {
+    new ConfirmationModal({
+      text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+      confirmationText: 'Ja',
+      cancelText: 'Nein',
+      confirmationClass: 'success',
+      cancelable: true,
+      confirmationCallback: function() {
+        $(event.target).prop('checked', data.value);
+      }
+    });
   });
 
   // SPLIT CONTENT

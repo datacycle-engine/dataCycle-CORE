@@ -1,4 +1,5 @@
 // Classification Selctor in Edit Forms
+var ConfirmationModal = require('./../components/confirmation_modal');
 require('select2');
 require('select2/i18n/de');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
@@ -6,6 +7,17 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function() {
   let init = function(element) {
+    $('.edit-content-form .form-element.classification.check_box > ul.classification-checkbox-list').on(
+      'dc:import:data',
+      function(event, data) {
+        $(event.target)
+          .find('> li > :checkbox')
+          .each((_, item) => {
+            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
+          });
+      }
+    );
+
     $(element)
       .find('.async-select')
       .each(function() {

@@ -1,5 +1,3 @@
-var ConfirmationModal = require('./confirmation_modal');
-
 // Split View
 class SplitView {
   constructor(container = document) {
@@ -12,9 +10,13 @@ class SplitView {
       '> .v-select > select.multi-select',
       '> .v-select > select.single-select',
       '> .v-select > select.async-select',
+      '> ul.classification-checkbox-list',
       '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
       '> .asset-selector-button',
-      '> .geographic > .geographic-map'
+      '> .geographic > .geographic-map',
+      '> :checkbox',
+      '> :input[type="number"]',
+      '> .duration-slider > div > input[type="number"]'
     ];
     this.setup();
   }
@@ -26,6 +28,9 @@ class SplitView {
     this.setupDateTimeButtons();
     this.setupAssetSelectorButtons();
     this.setupGeographicButtons();
+    this.setupBooleanButtons();
+    this.setupNumberButtons();
+    this.setupUrlButtons();
 
     this.setupCopyAllButtons(this.container.closest('.split-content'));
     this.setupCopyAllButtons(this.availableEditors(['included-object']));
@@ -104,6 +109,28 @@ class SplitView {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || {}, 'data-value');
     });
   }
+  setupBooleanButtons() {
+    this.availableEditors(['boolean']).each((_, elem) => {
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value'), 'data-value');
+    });
+  }
+  setupNumberButtons() {
+    this.availableEditors(['number', 'duration']).each((_, elem) => {
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value'), 'data-value');
+    });
+  }
+  setupUrlButtons() {
+    this.availableEditors(['url']).each((_, elem) => {
+      this.addButtons(
+        elem,
+        $(elem).data('key'),
+        $(elem)
+          .find('.detail-content > a')
+          .attr('href'),
+        'href'
+      );
+    });
+  }
   setupCopyAllButtons(elements) {
     elements.each((_, item) => {
       if ($(item).find('a.copy').length)
@@ -131,6 +158,8 @@ class SplitView {
         return Object.values(value).filter(x => x != '' && x !== null && x !== undefined).length > 0;
       case 'string':
         return value.length > 0;
+      case 'boolean':
+        return true;
     }
   }
   renderButton(element, copy_attr, single) {
@@ -175,6 +204,13 @@ class SplitView {
           .first()
           .find('.detail-content')
           .html();
+        break;
+      case 'href':
+        value = elem
+          .parents('[data-editor]')
+          .first()
+          .find('.detail-content > a')
+          .attr('href');
         break;
     }
 
