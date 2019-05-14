@@ -36,8 +36,8 @@ class MasonryGrid {
     for (var mutation of mutationsList) {
       let item = $(mutation.target).closest('.grid-item');
       if (
-        !mutation.target.classList.contains('watch-lists-link') &&
-        !mutation.target.classList.contains('watch-lists') &&
+        !mutation.target.closest('.watch-lists') &&
+        !mutation.target.closest('.watch-lists-link') &&
         this.heightChanged(item)
       ) {
         this.resizeMasonryItem(item[0]);
