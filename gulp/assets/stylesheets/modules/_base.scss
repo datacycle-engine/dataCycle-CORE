@@ -203,6 +203,16 @@ button,
     position: relative;
   }
 
+  .external-connections {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    .external-connection {
+      position: relative;
+      display: inline-block;
+      margin: 0 1rem;
+    }
+  }
+
   > .title {
     padding: 0 5rem 1rem 5rem;
   }

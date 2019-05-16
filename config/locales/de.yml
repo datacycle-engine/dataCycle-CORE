@@ -256,6 +256,7 @@ de:
     merge_with_duplicate: Änderungen speichern und Duplikat löschen
     reload: Seite neu laden
     redirect_to_login: zur Anmeldung
+    external_edit: In Externem System öffnen
 
   validation:
     errors:

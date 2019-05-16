@@ -35,12 +35,14 @@
 
       > a {
         line-height: inherit;
+        margin-left: 0.2rem;
       }
 
-      > i.fa {
-        color: $dark-gray;
+      > i.fa,
+      > .fa-stack {
+        color: lighten($black, 20%);
         line-height: inherit;
-
+        margin-left: 0.2rem;
         &.has-tip {
           border: none;
         }

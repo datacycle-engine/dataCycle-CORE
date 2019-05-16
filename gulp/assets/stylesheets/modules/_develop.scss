@@ -1624,23 +1624,6 @@ select {
   border: none;
 }
 
-.external-connection-tooltip {
-  > span {
-    display: block;
-    &:not(:first-child) {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba($light-gray, 0.5);
-    }
-  }
-}
-
-.external-connections {
-  border-bottom: dotted 1px;
-  font-weight: normal;
-  margin-top: 0.5rem;
-}
-
 // Normalizer Styles
 .normalize-content-button {
   outline: none;
@@ -1982,6 +1965,60 @@ section.duplicate-candidates {
         box-shadow: none;
         margin: 0 auto;
       }
+    }
+  }
+}
+
+.external-source-icon,
+.external-source-icon .fa,
+.external-system-icon,
+.external-system-icon .fa {
+  height: 1.2rem;
+  width: 1rem;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  text-align: center;
+}
+.external-source-icon {
+  margin-left: 4px;
+  .fa-long-arrow-right {
+    top: 2px;
+    left: -4px;
+  }
+}
+
+.external-system-icon {
+  margin-right: 5px;
+  .fa-long-arrow-right {
+    top: 2px;
+    left: 6px;
+  }
+}
+
+.fa-stack {
+  &.external-source-icon,
+  &.external-system-icon {
+    vertical-align: top;
+  }
+}
+
+.external-connection-tooltip {
+  p {
+    margin: 0;
+    &:not(:first-of-type) {
+      border-top: 1px dashed;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+  .external-source-icon,
+  .external-system-icon {
+    height: 1.2rem;
+    width: 1.2rem;
+    line-height: 1rem;
+    margin-right: 0.3rem;
+    .fa {
+      font-size: 1rem;
     }
   }
 }
