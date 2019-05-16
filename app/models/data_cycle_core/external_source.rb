@@ -104,7 +104,7 @@ module DataCycleCore
     end
 
     def external_url(content)
-      return if default_options&.dig('external_url').blank? || content.blank?
+      return if default_options&.dig('external_url').blank? || content&.external_key.blank?
 
       format(default_options.dig('external_url'), locale: I18n.locale, external_key: content.external_key)
     end

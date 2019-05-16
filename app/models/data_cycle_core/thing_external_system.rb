@@ -6,13 +6,13 @@ module DataCycleCore
     belongs_to :external_system
 
     def external_url
-      return if external_system&.default_options&.dig('external_url').blank?
+      return if external_system&.default_options&.dig('external_url').blank? || external_key.blank?
 
       format(external_system.default_options.dig('external_url'), locale: I18n.locale, type: type, external_key: external_key)
     end
 
     def type
-      external_system&.default_options&.dig('type_mapping', thing.template_name)
+      external_system&.default_options&.dig('type_mapping', thing.template_name) || thing.template_name.underscore_blanks
     end
 
     def external_key
