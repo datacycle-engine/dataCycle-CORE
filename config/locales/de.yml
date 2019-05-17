@@ -186,12 +186,12 @@ de:
     external_source: Externe Quelle
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
-    created_at: Erstellt
-    updated_at: Aktualisiert
-    deleted_at: Gelöscht
+    created_at: Erstellungsdatum
+    updated_at: Aktualisierungsdatum
     validity_period: Gültigkeitszeitraum
-    upload_date: Hochgeladen
-    duplicate_candidates: Duplikate
+    upload_date: Uploaddatum
+    duplicate_candidates: Potentielle Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
 
   terms:
     valid: gültig
@@ -256,6 +256,7 @@ de:
     merge_with_duplicate: Änderungen speichern und Duplikat löschen
     reload: Seite neu laden
     redirect_to_login: zur Anmeldung
+    external_edit: In Externem System öffnen
 
   validation:
     errors:

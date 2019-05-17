@@ -184,6 +184,11 @@ module.exports.initialize = function() {
             .filter(':hidden')
             .first()
             .val();
+      } else if (value_fields.is(':radio')) {
+        value = value_fields
+          .filter(':checked')
+          .first()
+          .val();
       } else if (value_fields.length > 1) {
         value = {};
         value_fields.each((index, elem) => {

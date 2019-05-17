@@ -1,4 +1,4 @@
-<% if value.present? || options.dig(:force_render).to_s == 'true' %>
+<% if value.present? || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
 
     <% mode = options.fetch(:mode, 'has-changes edit') %>
 
