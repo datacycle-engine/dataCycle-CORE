@@ -37,3 +37,12 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_active:
+        :label: Feratel - Active
+        :type: classification
+        :tree_label: Feratel - Active
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
