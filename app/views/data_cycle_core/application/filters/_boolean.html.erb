@@ -9,12 +9,12 @@
   </div>
 
   <div class="advanced-filter-selector">
-    <%= radio_button_tag "f[#{index}][v]", 'true', (value == 'true') %>
+    <%= radio_button_tag "f[#{index}][v]", 'true', (value != 'false') %>
     <%= label_tag "f_#{index}_v_true", t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
   </div>
 
   <div class="advanced-filter-selector">
-    <%= radio_button_tag "f[#{index}][v]", 'false', (value != 'true') %>
+    <%= radio_button_tag "f[#{index}][v]", 'false', (value == 'false') %>
     <%= label_tag "f_#{index}_v_false", t("filter.not_#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
   </div>
 
