@@ -18,6 +18,7 @@
   }
 
   .grid-item {
+    position: relative;
     z-index: 1;
     display: none;
     grid-row-end: span 7;
