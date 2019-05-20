@@ -47,7 +47,7 @@ module.exports.initialize = function() {
               else addReloadTimeout();
             });
           });
-      }, 3000);
+      }, 300000);
     }
   }
 };
