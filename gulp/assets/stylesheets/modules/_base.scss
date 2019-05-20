@@ -203,6 +203,16 @@ button,
     position: relative;
   }
 
+  .external-connections {
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    .external-connection {
+      position: relative;
+      display: inline-block;
+      margin: 0 1rem;
+    }
+  }
+
   > .title {
     padding: 0 5rem 1rem 5rem;
   }
@@ -269,6 +279,16 @@ button,
     .type {
       display: inline-block;
       transition: opacity ease-in-out 0.25s;
+    }
+  }
+
+  &.editor {
+    .detail-header-info {
+      position: relative;
+      left: 0;
+      top: 0;
+      text-align: left;
+      margin-bottom: 1rem;
     }
   }
 
@@ -480,7 +500,6 @@ button,
 
   &.editor {
     padding: 0 0 30rem 0;
-    margin-top: 3rem;
     background: none;
 
     .translated {
@@ -498,7 +517,7 @@ button,
       }
       &.fixed-split-toolbar {
         position: fixed;
-        top: 182px;
+        top: 190px;
         left: 52%;
         z-index: 13;
       }
@@ -555,12 +574,11 @@ button,
       }
     }
 
-    .detail-header-info {
-      top: -2rem;
-      left: 0.5rem;
-    }
-
     .bookmark {
+      .detail-header-info {
+        top: -2rem;
+        left: 0.5rem;
+      }
       display: none;
     }
 

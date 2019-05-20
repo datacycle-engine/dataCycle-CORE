@@ -1,5 +1,6 @@
 var flatpickr = require('flatpickr');
 var Deutsch = require('flatpickr/dist/l10n/de.js').default.de;
+var ConfirmationModal = require('./../components/confirmation_modal');
 
 module.exports.initialize = function() {
   //  TODO: dont fire change event on setup/setSibling
@@ -116,5 +117,27 @@ module.exports.initialize = function() {
 
   $(document).on('dc:html:changed', '*', event => {
     init(event.target);
+  });
+
+  $('.edit-content-form .form-element.datetime input.flatpickr-input').on('dc:import:data', function(event, data) {
+    event.stopImmediatePropagation();
+    if ($(event.target).val().length === 0) {
+      $(event.target)
+        .val(data.value)
+        .trigger('change');
+    } else {
+      var confirmationModal = new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
+          $(event.target)
+            .val(data.value)
+            .trigger('change');
+        }.bind(this)
+      });
+    }
   });
 };

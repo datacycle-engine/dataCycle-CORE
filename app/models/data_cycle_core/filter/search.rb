@@ -209,6 +209,26 @@ module DataCycleCore
         )
       end
 
+      def boolean(value, filter_method)
+        if respond_to?(filter_method)
+          send(filter_method, value)
+        else
+          self
+        end
+      end
+
+      def duplicate_candidates(value)
+        if value == 'true'
+          reflect(
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists)
+          )
+        else
+          reflect(
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists.not)
+          )
+        end
+      end
+
       def validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
@@ -378,6 +398,10 @@ module DataCycleCore
 
       def thing
         DataCycleCore::Thing.arel_table
+      end
+
+      def duplicate_candidate
+        DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
     end
   end

@@ -13,8 +13,8 @@ module DataCycleCore
         end
 
         def phase_started(label, total = nil)
-          puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} ..." if total.nil?
-          puts "#{@kind.capitalize}   #{label.to_s.tr('/_/', ' ')} (#{total} items) ..." if total
+          puts [@kind.capitalize.ljust(10), "#{label.to_s.tr('/_/', ' ')} ..."].join if total.nil?
+          puts [@kind.capitalize.ljust(10), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ..."].join if total
         end
 
         def item_processed(title, id, num, total)
@@ -39,7 +39,7 @@ module DataCycleCore
         end
 
         def phase_finished(label, total)
-          puts "#{@kind.capitalize}ed #{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"
+          puts [(@kind.capitalize + 'ed').ljust(10), "#{label.to_s.tr('/_/', ' ')} (#{total} items) ... [DONE]"].join
         end
       end
     end

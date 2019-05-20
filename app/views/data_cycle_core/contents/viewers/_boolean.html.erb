@@ -3,7 +3,11 @@
   definition: definition,
   value: value,
   options: options,
-  content: content do %>
+  content: content,
+  data_attributes: {
+    value: value,
+    editor: "boolean"
+  } do %>
 
     <span class="detail-content">
       <% case options.dig(:item_diff, 0) %>
@@ -13,7 +17,7 @@
       <% when '+' %>
         <%= t("common.#{options.dig(:item_diff, 1).to_s}", locale: DataCycleCore.ui_language) %>
       <% else %>
-        <%= t("common.#{value.to_s}", locale: DataCycleCore.ui_language) if value.present? %>
+        <%= t("common.#{value.to_s}", locale: DataCycleCore.ui_language) unless value.nil? %>
       <% end %>
     </span>
 

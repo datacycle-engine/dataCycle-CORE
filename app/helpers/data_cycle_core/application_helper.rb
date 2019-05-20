@@ -198,8 +198,8 @@ module DataCycleCore
         partials = [
           key.underscore.to_s,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore)}",
-          "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
+          "#{definition['type'].underscore}_#{definition&.dig('ui', 'show', 'type')&.underscore}",
+          "#{definition['type'].underscore}_#{definition&.dig('validations', 'format')&.underscore}",
           definition.dig('compute', 'type')&.underscore&.to_s,
           definition['type'].underscore.to_s
         ]

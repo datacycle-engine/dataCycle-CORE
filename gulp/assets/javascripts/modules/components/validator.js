@@ -21,7 +21,11 @@ class Validator {
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submit_button.on('click', () => this.form.trigger('submit'));
+    this.submit_button.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.form.trigger('submit');
+    });
     this.form.on('submit', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
@@ -57,9 +61,16 @@ class Validator {
         this.submit_form_data = this.form.serializeArray();
         if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
           event.preventDefault();
-          new ConfirmationModal('Wollen Sie speichern und auf die neue Sprache wechseln?', 'success', true, () => {
-            this.form.append('<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">');
-            this.form.trigger('submit');
+          new ConfirmationModal({
+            text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
+            confirmationClass: 'success',
+            cancelable: true,
+            confirmationCallback: () => {
+              this.form.append(
+                '<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">'
+              );
+              this.form.trigger('submit');
+            }
           });
         }
       });
@@ -243,33 +254,58 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitWithWarnings(warnings) {
-    new ConfirmationModal(
-      'Es sind Warnungen vorhanden (' +
-        warnings
-          .closest('.form-element')
-          .map((i, elem) => $(elem).data('label'))
-          .get()
-          .join(', ') +
-        ').<br>Soll der Inhalt trotzdem gespeichert werden?',
-      'warning',
-      true,
-      () => this.submitForm(),
-      () => this.enable()
-    );
+  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined }) {
+    if (confirmations.warnings !== undefined) {
+      return new ConfirmationModal({
+        text:
+          'Es sind Warnungen vorhanden (' +
+          warnings
+            .closest('.form-element')
+            .map((i, elem) => $(elem).data('label'))
+            .get()
+            .join(', ') +
+          ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.warnings = undefined;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
+      return new ConfirmationModal({
+        text: 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.finalize = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    if (confirmations.confirm && this.submit_button.data('confirm') !== undefined) {
+      return new ConfirmationModal({
+        text: this.submit_button.data('confirm'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.confirm = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    this.triggerFormSubmit();
   }
-  submitForm() {
+  triggerFormSubmit() {
     if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      this.form.trigger('submit_without_redirect');
-    } else if (this.form.find(':input[name="finalize"]:checked').length) {
-      $(window).off('beforeunload');
-      new ConfirmationModal(
-        'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
-        'success',
-        true,
-        () => this.form.trigger('submit.rails'),
-        () => this.enable()
-      );
+      return this.form.trigger('submit_without_redirect');
     } else {
       $(window).off('beforeunload');
       this.form.trigger('submit.rails');
@@ -290,11 +326,13 @@ class Validator {
         if (this.valid && submit) {
           this.query_count = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          if (warnings.length) {
-            this.submitWithWarnings(warnings);
-          } else {
-            this.submitForm();
-          }
+          let confirmations = {
+            finalize: true,
+            confirm: true,
+            warnings: warnings.length ? warnings : undefined
+          };
+
+          this.submitForm(confirmations);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });

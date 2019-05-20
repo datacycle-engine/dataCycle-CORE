@@ -90,13 +90,15 @@ module DataCycleCore
           delta = 100
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
               phase_name = utility_object.source_type.collection_name
-              logging.preparing_phase("#{utility_object.external_source.name} #{phase_name}")
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
                 fixnum_max = (2**(0.size * 4 - 2) - 1)
                 begin
-                  logging.phase_started("#{phase_name} #{locale}")
+                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
                   source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
@@ -117,13 +119,13 @@ module DataCycleCore
                         next unless (item_count % delta).zero?
 
                         GC.start
-                        logging.info("Imported #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
+                        logging.info("Imported   #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
                       end
                       break if options[:max_count].present? && item_count >= options[:max_count]
                     end
                   end
                 ensure
-                  logging.phase_finished("#{phase_name}_#{locale}", item_count)
+                  logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                 end
               end
             end
@@ -188,14 +190,16 @@ module DataCycleCore
           external_source_id = utility_object.external_source.id
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
               each_locale(utility_object.locales) do |locale|
                 I18n.with_locale(locale) do
-                  phase_name = utility_object.source_type.collection_name
-
                   item_count = 0
 
                   begin
-                    logging.phase_started("#{phase_name}_#{locale}")
+                    logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
 
                     utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                       raw_classification_data_stack = load_root_classifications.call(mongo_item, locale, options).to_a
@@ -223,7 +227,7 @@ module DataCycleCore
                       end
                     end
                   ensure
-                    logging.phase_finished("#{phase_name}_#{locale}", item_count)
+                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                   end
                 end
               end

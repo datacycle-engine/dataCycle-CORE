@@ -1,0 +1,20 @@
+<section class="duplicate-candidates">
+    <span class="horizontal-separator-header">
+      <h4 class="header-text"><%= t('duplicate.candidates', locale: DataCycleCore.ui_language) %> (<%= content.duplicate_candidates.size %>)</h4>
+    </span>
+    <ul class="content-tiles">
+        <% content.duplicate_candidates.presence&.each do |item| %>
+          <% content_for :tile_buttons, flush: true do %>
+            <div class="duplicate-info-separator"></div>
+            <div class="duplicate-info">
+              <div class="duplicate-score"><%= t('duplicate.score', locale: DataCycleCore.ui_language) %>: <b><%= item.score.to_i %></b></div>
+              <div class="duplicate-buttons">
+                <%= link_to t('duplicate.merge', locale: DataCycleCore.ui_language), merge_with_duplicate_thing_path(id: content.id, duplicate_id: item.duplicate.id), class: 'button small' %>
+                <%= link_to t('duplicate.mark_false_positive', locale: DataCycleCore.ui_language), false_positive_duplicate_thing_path(id: content.id, duplicate_id: item.duplicate.id), method: :post, class: 'button secondary small' %>
+              </div>
+            </div>
+          <% end %>
+          <%= render_linked_partial key: "duplicate_candidate_#{item.duplicate.id}", definition: { template_name: item.duplicate.template_name, type: 'linked' }.with_indifferent_access, content: content, parameters: { options: {}, object: item.duplicate, object_id: [item.duplicate.id], prefix: local_assigns.dig(:options, :prefix), tile_links: true } %>
+        <% end %>
+    </ul>
+</section>

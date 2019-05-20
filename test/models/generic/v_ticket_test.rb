@@ -47,6 +47,10 @@ module DataCycleCore
 
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Event').with_schema_type('Event').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('V-Ticket')
+      end
     end
   end
 end

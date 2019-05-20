@@ -52,6 +52,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'POI').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Tour').with_schema_type('Place').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('OutdoorActive')
+      end
     end
   end
 end

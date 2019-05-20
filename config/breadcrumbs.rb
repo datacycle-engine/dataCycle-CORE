@@ -71,6 +71,12 @@ crumb :edit_content do |item, watch_list|
   parent :content, item, watch_list
 end
 
+# Duplicate Merge Crumbs
+crumb :merge_content do |item, duplicate, watch_list|
+  link to_html_string("<i class='fa fa-code-fork' aria-hidden='true'></i>#{t('duplicate.merge_content', locale: DataCycleCore.ui_language).capitalize}"), merge_with_duplicate_thing_path(id: item.id, duplicate_id: duplicate.id), authorized: can?(:merge_duplicates, item)
+  parent :content, item, watch_list
+end
+
 # History Crumbs
 crumb :show_history do |item, watch_list|
   link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>#{t('actions.show', locale: DataCycleCore.ui_language).capitalize}"), thing_path(item), authorized: can?(:history, item)

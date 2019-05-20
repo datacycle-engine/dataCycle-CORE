@@ -77,3 +77,6 @@
       :strip: :comments
     :pngquant:
       :speed: 10
+
+:duplicate_candidate:
+  :enabled: false

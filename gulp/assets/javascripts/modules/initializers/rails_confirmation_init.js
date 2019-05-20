@@ -20,8 +20,13 @@ module.exports.initialize = function() {
   $.rails.showConfirmationDialog = function(link) {
     var message = link.data('confirm');
 
-    var confirmationModal = new ConfirmationModal(message, 'alert', true, function() {
-      $.rails.confirmed(link);
+    var confirmationModal = new ConfirmationModal({
+      text: message,
+      confirmationClass: 'alert',
+      cancelable: true,
+      confirmationCallback: function() {
+        $.rails.confirmed(link);
+      }
     });
   };
 };

@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+<%= render 'data_cycle_core/contents/viewers/attribute', key: key, definition: definition, value: value, options: options, content: content, data_attributes: { id: Array(value).map(&:id), editor: "asset_selector" } do %>
 
     <% value = Array(value) %>
     <% value = new_relation(options.dig(:item_diff), 'assets').to_a if change_by_mode(options.dig(:item_diff), '+').present? %>

@@ -14,10 +14,11 @@
 }
 
 .data-cycle-object {
+  position: relative;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
   transition: all ease-in-out 0.2s;
   background: $white;
-  -webkit-filter: blur(0);
+  // -webkit-filter: blur(0);
 
   &.expired-item {
     box-shadow: 0 1px 8px $alert-color;
@@ -31,7 +32,7 @@
   &:hover,
   &:focus {
     box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3);
-    transform: perspective(1px) scale(1.029);
+    // transform: perspective(1px) scale(1.029);
     z-index: 2;
   }
 
@@ -547,10 +548,6 @@
       display: flex;
       flex-flow: row;
       margin-bottom: 0;
-
-      .types-of-use {
-        display: none;
-      }
 
       .expired-item-overlay {
         font-size: 0;

@@ -27,6 +27,7 @@
     <% end %>
 <% else %>
     <%= render_content_partial 'details', content: @content %>
+    <%= render 'duplicate_candidates', content: @content if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
     <%= render 'related', content: @content, options: options ||= {} if can?(:show_related, @content) %>
 <% end %>
 

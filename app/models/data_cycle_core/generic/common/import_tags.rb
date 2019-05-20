@@ -76,6 +76,7 @@ module DataCycleCore
         end
 
         def self.parse_common_tag_path(options)
+          return options.dig(:import, :tag_path) if options.dig(:import, :tag_path).present?
           options.dig(:import, :tag_id_path).split('.')
             .zip(options.dig(:import, :tag_name_path).split('.'))
             .take_while { |id_component, name_component| id_component == name_component }

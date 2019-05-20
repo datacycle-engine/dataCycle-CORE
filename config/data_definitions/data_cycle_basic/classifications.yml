@@ -69,6 +69,10 @@
   - $$Subregion
   - $$Country
 
+- Feratel - Active:
+  - $$active
+  - $$inactive
+
 - Ländercodes:
   - AF | Afghanistan
   - EG | Ägypten

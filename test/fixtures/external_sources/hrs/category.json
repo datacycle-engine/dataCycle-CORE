@@ -1,0 +1,41 @@
+[
+  {
+    "_id" : "5ccad2d72310407aeccf5d7a",
+    "external_id" : "1",
+    "dump" : {
+        "de" : {
+            "id" : "1",
+            "name" : "Hotel"
+        }
+    },
+    "seen_at" : "2019-05-02T11:21:59.610Z",
+    "updated_at" : "2019-05-02T11:21:59.610Z",
+    "created_at" : "2019-05-02T11:21:59.610Z"
+  },
+  {
+    "_id" : "5ccad2d72310407aeccf5d7b",
+    "external_id" : "2",
+    "dump" : {
+        "de" : {
+            "id" : "2",
+            "name" : "Ferienwohnung"
+        }
+    },
+    "seen_at" : "2019-05-02T11:21:59.622Z",
+    "updated_at" : "2019-05-02T11:21:59.622Z",
+    "created_at" : "2019-05-02T11:21:59.622Z"
+  },
+  {
+    "_id" : "5ccad2d72310407aeccf5d7c",
+    "external_id" : "5",
+    "dump" : {
+        "de" : {
+            "id" : "5",
+            "name" : "Ferienhaus"
+        }
+    },
+    "seen_at" : "2019-05-02T11:21:59.624Z",
+    "updated_at" : "2019-05-02T11:21:59.625Z",
+    "created_at" : "2019-05-02T11:21:59.625Z"
+  }
+]

@@ -66,6 +66,15 @@ module DataCycleCore
       @asset.destroy
     end
 
+    def duplicate
+      @asset = DataCycleCore::Asset.find(permitted_params[:id])
+      @duplicate = @asset.dup
+      @duplicate.file = @asset.file
+      @html_target = permitted_params[:html_target]
+
+      @duplicate.save
+    end
+
     private
 
     def asset_params

@@ -52,6 +52,10 @@ module DataCycleCore
         assert_equal(2, DataCycleCore::Thing.where(template: false).with_schema_type('CreativeWork').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false).with_schema_type('Place').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Medienarchiv')
+      end
     end
   end
 end

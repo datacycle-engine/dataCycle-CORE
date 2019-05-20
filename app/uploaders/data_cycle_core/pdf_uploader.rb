@@ -47,7 +47,7 @@ module DataCycleCore
         info: convert_info(reader.info),
         pdf_version: reader.pdf_version,
         metadata: reader.metadata,
-        content: reader.try(:pages)&.map { |page| page.try(:text) }&.join(' '),
+        content: reader.try(:pages)&.map { |page| page.try(:text)&.delete("\u0000") }&.join(' '),
         page_count: reader.page_count
       }
     rescue PDF::Reader::MalformedPDFError, ArgumentError, NoMethodError

@@ -50,6 +50,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'EventSchedule').with_schema_type('Event').count)
         assert_equal(3, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Feratel VCloud')
+      end
     end
   end
 end

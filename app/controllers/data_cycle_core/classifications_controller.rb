@@ -37,6 +37,7 @@ module DataCycleCore
 
           @classification_trees = @classification_trees
             .accessible_by(current_ability)
+            .joins(:sub_classification_alias)
             .includes(
               sub_classification_alias: {
                 classifications: { primary_classification_alias: :classification_alias_path },
@@ -44,7 +45,7 @@ module DataCycleCore
                 additional_classifications: {},
                 statistics: {}
               }
-            ).order(:created_at)
+            ).order('classification_aliases.internal_name')
             .page(params[:page])
 
           @page = @classification_trees.current_page
@@ -76,6 +77,24 @@ module DataCycleCore
           title: a.full_path,
           description: a.description,
           disabled: !a.assignable
+        }
+      }.to_json, content_type: 'application/json'
+    end
+
+    def find
+      params.permit(:ids)
+
+      query = DataCycleCore::Classification.where(id: params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: query.map { |c|
+        {
+          classification_id: c.id,
+          classification_alias_id: c.primary_classification_alias.id,
+          name: c.primary_classification_alias.internal_name,
+          title: c.primary_classification_alias.full_path,
+          description: c.primary_classification_alias.description,
+          disabled: !c.primary_classification_alias.assignable
         }
       }.to_json, content_type: 'application/json'
     end

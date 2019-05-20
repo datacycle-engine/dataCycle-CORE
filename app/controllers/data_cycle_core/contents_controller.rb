@@ -144,9 +144,11 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
+        merge_and_remove_duplicate if params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize] && !params[:duplicate_id]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
