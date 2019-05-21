@@ -34,7 +34,7 @@ module DataCycleCore
           when 'Person'
             ['honorific_prefix', 'job_title', 'contact_info']
           when 'Place'
-            ['address']
+            ['address', 'location']
           end
         end
 

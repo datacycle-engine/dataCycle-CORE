@@ -17,7 +17,7 @@ module DataCycleCore
         .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
         .map { |c| "users.#{c.name}" }
 
-      query = DataCycleCore::User.accessible_by(current_ability)
+      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins)
 
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
 
@@ -29,7 +29,7 @@ module DataCycleCore
       query = query.where(role: @roles.ids) if @roles.present?
       query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
-      @contents = query.left_outer_joins(:role, :user_groups).order(:email).page(params[:page])
+      @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
       @total = @contents.total_count
     end
 
