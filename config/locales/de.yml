@@ -159,6 +159,12 @@ de:
       other: '%{data} mögliche Duplikate'
     related_items: Verknüpfte Inhalte
 
+  external_connection_states:
+    success: Erfolgreich synchronisiert
+    pending: wird synchronisiert
+    error: 'Es ist ein Fehler aufgetreten.<br>Die Synchronisation wird in bestimmten Intervallen erneut versucht.'
+    failure: 'Es ist ein schwerer Fehler aufgetreten.<br>Der Inhalt kann nich synchronisiert werden.'
+
   duplicate:
     candidates: Mögliche Duplikate
     score: Score
