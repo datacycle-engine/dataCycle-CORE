@@ -17,7 +17,8 @@ module DataCycleCore
         .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
         .map { |c| "users.#{c.name}" }
 
-      query = DataCycleCore::User.accessible_by(current_ability)
+      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins)
+
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
 
       if @search_param.present?
