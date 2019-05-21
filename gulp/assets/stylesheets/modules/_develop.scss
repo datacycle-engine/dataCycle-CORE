@@ -1999,6 +1999,7 @@ section.duplicate-candidates {
   &.external-source-icon,
   &.external-system-icon {
     vertical-align: top;
+    color: lighten($black, 10%);
 
     &.success {
       color: $success-color;
