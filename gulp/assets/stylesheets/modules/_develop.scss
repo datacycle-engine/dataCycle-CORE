@@ -1999,6 +1999,22 @@ section.duplicate-candidates {
   &.external-source-icon,
   &.external-system-icon {
     vertical-align: top;
+
+    &.success {
+      color: $success-color;
+    }
+
+    &.pending {
+      color: $primary-color;
+    }
+
+    &.error {
+      color: $warning-color;
+    }
+
+    &.failure {
+      color: $alert-color;
+    }
   }
 }
 
