@@ -69,9 +69,9 @@
   - $$Subregion
   - $$Country
 
-- Feratel - Active:
-  - $$active
-  - $$inactive
+- Feratel - Status:
+  - $$Aktiv
+  - $$Inaktiv
 
 - Ländercodes:
   - AF | Afghanistan

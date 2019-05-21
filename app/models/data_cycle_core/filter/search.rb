@@ -70,6 +70,22 @@ module DataCycleCore
         )
       end
 
+      def external_system(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists)
+        )
+      end
+
+      def not_external_system(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists.not)
+        )
+      end
+
       def creator(ids = nil)
         return self if ids.blank?
 
@@ -402,6 +418,10 @@ module DataCycleCore
 
       def duplicate_candidate
         DataCycleCore::Thing::DuplicateCandidate.arel_table
+      end
+
+      def thing_external_system
+        DataCycleCore::ThingExternalSystem.arel_table
       end
     end
   end

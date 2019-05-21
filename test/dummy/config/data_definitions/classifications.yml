@@ -121,9 +121,9 @@
   - Markt 2
   - Markt 3
 
-- Feratel - Active:
-  - $$active
-  - $$inactive
+- Feratel - Status:
+  - $$Aktiv
+  - $$Inaktiv
 
 - Ländercodes:
   - AF | Afghanistan
