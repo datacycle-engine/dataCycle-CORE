@@ -259,7 +259,7 @@ class Validator {
       return new ConfirmationModal({
         text:
           'Es sind Warnungen vorhanden (' +
-          warnings
+          confirmations.warnings
             .closest('.form-element')
             .map((i, elem) => $(elem).data('label'))
             .get()
