@@ -60,34 +60,5 @@ module DataCycleCore
         img
       end
     end
-
-    def auto_tag
-      vision = Google::Cloud::Vision.new project_id: 'KW_Media_Archive_Vision'
-      translation_service = Google::Cloud::Translate.new(project_id: 'KW_Media_Archive_Vision')
-
-      labels = vision.image(file.thumb_lightbox.file.file).labels
-
-      labels.each do |label|
-        Tag.find_or_create_by(name: label.description) do |tag|
-          tag.language = 'en'
-
-          translation = translation_service.translate(tag.name, to: 'de')
-          unless tag.name.casecmp(translation).zero?
-            begin
-              translated_tag = Tag.find_or_create_by(name: translation.text, language: 'de')
-              tag.original_id = translated_tag.id
-            rescue StandardError => e
-              puts e
-            end
-          end
-        end
-      end
-
-      medium.tag_list.add(labels.map(&:description))
-      medium.save
-      labels
-    rescue => e
-      puts e
-    end
   end
 end
