@@ -19,9 +19,9 @@ namespace :data_cycle_core do
 
         case args[:mode]
         when 'review'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories' --exclude-table-data='external_sources' --exclude-table-data='external_systems'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
         when 'full'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='external_sources' --exclude-table-data='external_systems'"
+          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
           cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '9.6')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
@@ -129,6 +129,7 @@ namespace :data_cycle_core do
           Rake::Task['db:create'].invoke
           puts cmd
           system cmd
+          Rake::Task['data_cycle_core:update:import_external_system_configs'].invoke
           puts ''
           puts "Restored from file: #{file}"
           puts ''
