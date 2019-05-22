@@ -52,18 +52,12 @@ module DataCycleCore
       image.data
     end
 
-    def duplicate_check
-      {
-        phash: Phash::Image.new(current_path).try(:compute_phash).try(:data)
-      }
-    end
-
     def set_phash
       return if model.duplicate_check&.dig('phash').present? && model.duplicate_check&.dig('phash')&.positive?
-      model.duplicate_check = {
+
+      model.update(duplicate_check: {
         phash: Phash::Image.new(file.file).try(:compute_phash).try(:data)
-      }
-      model.save!
+      })
     end
 
     def remove_animation
