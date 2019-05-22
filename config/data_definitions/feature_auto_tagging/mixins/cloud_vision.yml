@@ -8,7 +8,8 @@
         :type: classification
         :tree_label: Cloud Vision - Tags
         :external: true
-        :not_translated: true        
+        :not_translated: true
+        :global: true        
         :ui:
           :show:
             :content_area: header
