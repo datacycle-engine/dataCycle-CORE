@@ -186,6 +186,19 @@
           :method: quality
           :parameters:
             :0: asset
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
       :additional_video_properties:
         :type: mixin
         :name: additional_video_properties
