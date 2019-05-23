@@ -73,7 +73,9 @@ describe DataCycleCore::MasterData::Validators::Asset do
     end
 
     it 'properly validates a ImageObject' do
+      DataCycleCore::ImageUploader.enable_processing = true
       assert_equal(no_error_hash, subject.new([image1.id], template_image_hash).error)
+      DataCycleCore::ImageUploader.enable_processing = false
     end
 
     it 'produces an error if no uuid given' do
@@ -113,10 +115,12 @@ describe DataCycleCore::MasterData::Validators::Asset do
     end
 
     it 'add warnings for invalid asset_type' do
+      DataCycleCore::ImageUploader.enable_processing = true
       uuids = image1.id
       validator = subject.new(uuids, template_hash)
       assert_equal(0, validator.error[:error].size)
       assert_equal(1, validator.error[:warning].size)
+      DataCycleCore::ImageUploader.enable_processing = false
     end
   end
 end

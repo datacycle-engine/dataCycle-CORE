@@ -6,6 +6,7 @@ module DataCycleCore
   module Assets
     class AudioTest < ActiveSupport::TestCase
       def setup
+        DataCycleCore::AudioUploader.enable_processing = true
         @audio_temp = DataCycleCore::Audio.count
       end
 
@@ -53,6 +54,7 @@ module DataCycleCore
       def teardown
         @audio.remove_file!
         @audio.destroy!
+        DataCycleCore::AudioUploader.enable_processing = false
       end
     end
   end

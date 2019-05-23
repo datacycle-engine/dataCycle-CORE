@@ -6,6 +6,7 @@ module DataCycleCore
   module Generic
     class DataCycleMediaTest < ActiveSupport::TestCase
       def setup
+        DataCycleCore::ImageUploader.enable_processing = true
         @asset_temp = DataCycleCore::Asset.count
       end
 
@@ -25,6 +26,7 @@ module DataCycleCore
           asset.remove_file!
           asset.destroy!
         end
+        DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

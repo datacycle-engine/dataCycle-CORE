@@ -93,4 +93,3 @@ DataCycleCore::TestPreparations.load_dummy_data(
 DataCycleCore::TestPreparations.load_user_roles
 DataCycleCore::TestPreparations.create_users
 DataCycleCore::TestPreparations.create_user_group
-DataCycleCore::CommonUploader.enable_processing = true

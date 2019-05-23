@@ -4,6 +4,10 @@ require 'test_helper'
 
 module DataCycleCore
   class DuplicateCandidateTest < ActiveSupport::TestCase
+    def setup
+      DataCycleCore::ImageUploader.enable_processing = true
+    end
+
     def upload_image(file_name)
       file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
       image = DataCycleCore::Image.new(file: File.open(file_path))
@@ -115,6 +119,10 @@ module DataCycleCore
 
       assert_empty content1.duplicate_candidates.reload
       assert_empty content2.duplicate_candidates.reload
+    end
+
+    def teardown
+      DataCycleCore::ImageUploader.enable_processing = false
     end
   end
 end
