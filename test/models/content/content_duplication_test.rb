@@ -82,7 +82,6 @@ module DataCycleCore
       end
 
       test 'test duplication with assets' do
-        DataCycleCore::ImageUploader.enable_processing = true
         file_name = 'test_rgb.jpg'
         file_path = File.join(DataCycleCore::TestPreparations::ASSETS_PATH, 'images', file_name)
         @local_image = DataCycleCore::Image.new(file: File.open(file_path))
@@ -105,7 +104,6 @@ module DataCycleCore
         content.computed_property_names.each do |computed_property|
           assert_nil(new_content.send(computed_property.to_sym))
         end
-        DataCycleCore::ImageUploader.enable_processing = false
       end
 
       # linked objects must be the same

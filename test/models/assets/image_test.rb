@@ -6,7 +6,6 @@ module DataCycleCore
   module Assets
     class ImageTest < ActiveSupport::TestCase
       def setup
-        DataCycleCore::ImageUploader.enable_processing = true
         @image_temp = DataCycleCore::Image.count
       end
 
@@ -96,7 +95,6 @@ module DataCycleCore
       def teardown
         @image.remove_file!
         @image.destroy!
-        DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end

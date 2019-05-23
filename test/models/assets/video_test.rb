@@ -6,7 +6,6 @@ module DataCycleCore
   module Assets
     class VideoTest < ActiveSupport::TestCase
       def setup
-        DataCycleCore::VideoUploader.enable_processing = true
         @video_temp = DataCycleCore::Video.count
       end
 
@@ -55,7 +54,6 @@ module DataCycleCore
       def teardown
         @video.remove_file!
         @video.destroy!
-        DataCycleCore::VideoUploader.enable_processing = false
       end
     end
   end

@@ -6,7 +6,6 @@ module DataCycleCore
   module Assets
     class AssetTest < ActiveSupport::TestCase
       def setup
-        DataCycleCore::ImageUploader.enable_processing = true
         @asset_temp = DataCycleCore::Image.count
 
         @data_set = DataCycleCore::TestPreparations.data_set_object('Asset-Template-1')
@@ -105,7 +104,6 @@ module DataCycleCore
       def teardown
         @asset.remove_file!
         @asset.destroy!
-        DataCycleCore::ImageUploader.enable_processing = false
       end
     end
   end
