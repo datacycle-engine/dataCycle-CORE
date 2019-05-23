@@ -5,7 +5,7 @@ module DataCycleCore
     mount_uploader :file, ImageUploader
     process_in_background :file
 
-    after_create_commit :set_duplicate_hash, if: proc { |image| image.persisted? && !image.file.thumb_preview&.file&.exists? }
+    after_create_commit :set_duplicate_hash, if: proc { |image| image.persisted? && file.enable_processing && !image.file.thumb_preview&.file&.exists? }
 
     def dimensions_validation(options)
       return if options.dig(:exclude, :format)&.include?(file.filename&.split('.')&.last) || file&.file.nil?
