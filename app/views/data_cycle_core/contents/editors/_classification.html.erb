@@ -3,11 +3,13 @@
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
-    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
-      <%#=console%>
-      <a href="<%= auto_tagging_thing_path + "?id=#{content.id}"%>" class="auto-tagging-button fa fa-download" data-id="<%=content.id%>"></a>
-    <% end %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+  <% end %>
+
+  <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
+    <%= link_to auto_tagging_thing_path(id: content.id, key: sanitize_to_id(key)), class: 'auto-tagging-button', remote: true, data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>' } do %>
+      <i class="fa fa-cloud-download"></i>
+    <% end %>
   <% end %>
 
   <div class="v-select">
@@ -23,13 +25,13 @@
             ]
           ]
         ) %>
-      <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
+      <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
           <%= select_tag(
             key,
             value.blank? ? nil : options_for_select(
               value.map { |c|
                 [
-                  c.try(:name),
+                  c.primary_classification_alias.try(:internal_name),
                   c.id,
                   {
                     title: [

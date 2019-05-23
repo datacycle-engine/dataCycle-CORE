@@ -18,6 +18,14 @@ module.exports.initialize = function() {
       }
     );
 
+    $('.auto-tagging-button').on('click', event => {
+      $(event.target)
+        .closest('.form-element')
+        .find('> .v-select > select')
+        .val(null)
+        .trigger('change');
+    });
+
     $(element)
       .find('.async-select')
       .each(function() {
@@ -33,7 +41,6 @@ module.exports.initialize = function() {
             let value = async_select.val();
             let diff = data.value.diff(value);
             if (diff.length) {
-              var studentSelect = $('#mySelect2');
               $.ajax({
                 type: 'GET',
                 url: '/classifications/find',

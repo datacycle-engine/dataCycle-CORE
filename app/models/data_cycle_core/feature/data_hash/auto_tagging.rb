@@ -72,7 +72,7 @@ module DataCycleCore
             .map { |item| item.classifications.first.id }
 
           set_classification_relation_ids(tag_ids, relation_name, tree_name, nil, true)
-          tag_records
+          tag_ids
         end
       end
     end
