@@ -9,12 +9,13 @@ module DataCycleCore
           treshold = DataCycleCore.features.dig(:auto_tagging, :score) || 0.5
           tree_name = DataCycleCore.features.dig(:auto_tagging, :tree_label) || 'Cloud Vision - Tags'
           relation_name = DataCycleCore.features.dig(:auto_tagging, :relation_name) || 'cloud_vision_tags'
+          external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
           file_path = thumbnail_url || content_url
 
           require 'google/cloud/vision'
           require 'google/cloud/translate'
 
-          external_source = DataCycleCore::ExternalSource.find_by(name: 'Google Cloud Vision')
+          external_source = DataCycleCore::ExternalSource.find_by(name: external_source_name)
           image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
           translation_service = Google::Cloud::Translate.new(credentials: external_source.credentials)
 

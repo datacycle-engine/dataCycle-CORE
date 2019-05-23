@@ -3,6 +3,10 @@
   <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
     <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
     <%= definition['label'] %>
+    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key) %>
+      <%#=console%>
+      <a href="<%= auto_tagging_thing_path + "?id=#{content.id}"%>" class="auto-tagging-button fa fa-download" data-id="<%=content.id%>"></a>
+    <% end %>
     <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   <% end %>
 
@@ -89,5 +93,4 @@
       <%= hidden_field_tag key + '[]', c.id %>
     <% end unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
   </div>
-
 <% end if classification_tree_label_has_children?(definition['tree_label']) %>
