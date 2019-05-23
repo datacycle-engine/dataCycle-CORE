@@ -129,7 +129,6 @@ namespace :data_cycle_core do
           Rake::Task['db:create'].invoke
           puts cmd
           system cmd
-          Rake::Task['data_cycle_core:update:import_external_system_configs'].invoke
           puts ''
           puts "Restored from file: #{file}"
           puts ''

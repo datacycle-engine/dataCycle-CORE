@@ -683,7 +683,8 @@ CREATE TABLE public.thing_external_systems (
     external_system_id uuid,
     data jsonb,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    status character varying
 );
 
 
@@ -1900,6 +1901,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190314094528'),
 ('20190325122951'),
 ('20190423083517'),
-('20190423103601');
+('20190423103601'),
+('20190520124223');
 
 
