@@ -11,6 +11,8 @@ module DataCycleCore
         def self.update(utility_object:, data:)
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system)
+          data.add_external_system_data(external_system, nil, 'pending')
+
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
               data: OpenStruct.new(id: data.id, template_name: data.template_name),
