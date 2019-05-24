@@ -124,6 +124,10 @@ Gem::Specification.new do |s|
   # Excel Generator
   s.add_dependency 'axlsx_rails'
 
+  # Google Cloud Services
+  s.add_dependency 'google-cloud-translate'
+  s.add_dependency 'google-cloud-vision'
+
   # premailer
   s.add_dependency 'premailer'
   # validation gems

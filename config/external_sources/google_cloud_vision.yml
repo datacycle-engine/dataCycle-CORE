@@ -1,0 +1,13 @@
+---
+name: Google Cloud Vision
+credentials:
+  type: service_account
+  project_id: coral-current-241210
+  private_key_id: b00cfb798afbf8988e5f58d20a7b49f32d92e9b3
+  private_key: "-----BEGIN PRIVATE KEY-----\nMIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQDKBB16zjlNOUx6\noSrUGR1hBJ0Q2tHhpxyBAI33N8N2xAMyg7aIz74TxgtVSG3IwkGUZ28pwT5hwO9y\n7i8utjP1JiOGj10AFEEyBxLcDWH4FaZv9mgahchyp3qA0S3RtZ60VvCQQe2OaWb7\nTqQQ/SjVwp7BJLBkM2CKGrvai7TV8V+NprqBYiYAxtl8Qvd6s2dZuUoXBTYciF4y\nGtAy7GNNMGscImyFhhskqCM6UuejUhkzeBpoW2VLm4zFbmKuDdVa/e/G+djAA8OP\nGyjhm1U+jvFbdQy9omg+pNil89UkWWTb0px7Ynndm5441ZzsCkqp1xjf6xhZLGpu\nTGUyLRexAgMBAAECggEALlXzTQ+wJP5XhGkjIbMBAhfEzvDh4xgpeY1fAq1PsBYV\nhaigXZEI0BBE2TLbu4iS8i8nWDRy0okmYv4u5E/2auxsiZiohDQhIBBvSvnm1rhg\njJ3AExVMfL/dYV6ZW9iEpmiqlOwKSPf0HwBSsXLfwuf48eQwcUs3gXXQULhqqgdi\nYlLGB5dY0d9Qmt1WGuxW/Or9VW5ZVjVWwp+1WF7/ufzkf91T4epb6qxNW2JaDNNC\nU8VUHlbXxj8Ajmp6tS29ZC8kabRE9gXvMM8k3gy6U+QmTshsdVl0Loc7l/GCelPU\n6IbxeZd06U5DO1X5D8UHFruIrQu5EnFtYCMGDp8AgQKBgQD4N3MbAgK0RjcLw5VU\nS9wFNx+eMq25i3xsazcbQOtzvkO+22cg5Auy2NvpXopXdtLyfpfji+7B1KBmEpuO\nLpvcVkTtbm4P1ZqORr2+rMCn30ATtQ+KJ3pRSqsXKwM46kGWG+zNdnW8dCi+3F/d\nU8yGTjpGZADvOLlUTkUpMRmjDQKBgQDQWcrYreBSpQh48PtHfLsDJxAHKtpM8LYp\nxfY8gWSp6+ZLk2ZaOLzLZSKadb4dvnVbLS8Zx2R/AFWi/u53289kNWuc94eVg1y4\npFtpKhBZtXB69dj9G00fIL3F2qGvPE06Tp1LIJDwFMm30tWWn8Rk7Ie29AF9fgF2\njuxKAlouNQKBgBIu9ba3yfzs2+F3vXvEZuTW6fEL42AhUMccf5f2hIkhGhNkPUTS\nj+zVKB8LdvT7Vm6/SV85BA+dBPcVS+H5lh9pDnmaSmPMkRr1IbdTLnXdy/Llo7LK\nO5Ky9p+m3gCQYKefehR/JhbdJ5L7z+YF2ojIOEqpzsu3ixQa+8QNvcQNAoGBAI3b\nJQYkVKBQZxVZFe0VWosJ9Jq8rYdHOO/2LfICM1SSHemFAWIaUUi2ojnCQuAjhem/\nONt3a9AgnS3uHtUSnwDeclecHP9KQj4hAW/3yMwbgermKogiJ38zHqJwejdCel5h\nmizFjok3ziPPc8crHl+Mv9ZsCfu0aDCdnPnC4j2lAoGAIwKoccFbhnBDLHxRvwtN\nL9bd5zM/fETibYKjUNgaoHhspefmsQg8euEcswmR3r2H+XTALlH+/tjzd9IJaAZG\nS7l7bpvXjPC/uMXQwHwEAvKzxW4EY5vXotxReoKmAzK1OJER9eUTwm3qkWu/CKQj\naWIUbocYwH48Yjpqsa3mOEw=\n-----END PRIVATE KEY-----\n"
+  client_email: cloud-vision-api-test@coral-current-241210.iam.gserviceaccount.com
+  client_id: 102313132222713583096
+  auth_uri: https://accounts.google.com/o/oauth2/auth
+  token_uri: https://oauth2.googleapis.com/token
+  auth_provider_x509_cert_url: https://www.googleapis.com/oauth2/v1/certs
+  client_x509_cert_url: https://www.googleapis.com/robot/v1/metadata/x509/cloud-vision-api-test%40coral-current-241210.iam.gserviceaccount.com
