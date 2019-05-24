@@ -7,7 +7,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
-        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false)

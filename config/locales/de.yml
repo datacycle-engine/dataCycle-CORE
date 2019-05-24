@@ -190,6 +190,7 @@ de:
     add: Filter hinzufügen
     language: Sprache
     external_source: Externe Quelle
+    external_system: Externe Zielsysteme
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
     created_at: Erstellungsdatum

@@ -4,7 +4,7 @@ module DataCycleCore
   module Export
     module OutdoorActive
       module Transformations
-        def self.to_xml(external_system, contents)
+        def self.to_xml(external_system, contents, deleted_content_ids = [])
           @source = external_system.credentials.dig('xml', 'source')
           @owner =  external_system.credentials.dig('xml', 'owner')
 
@@ -22,6 +22,10 @@ module DataCycleCore
                   outdoor_active_descriptons(content, xml)
                   outdoor_active_images(content, xml)
                 end
+              end
+
+              deleted_content_ids.each do |id|
+                xml.poi('id' => id, 'workflow' => 'deleted')
               end
             end
           end
