@@ -203,6 +203,19 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
+      :keywords:
+        :label: Keywords
+        :storage_location: translated_value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: keywords
+          :parameters:
+            :0: tags
+        :ui:
+          :show:
+            :disabled: true
       :additional_image_properties:
         :type: mixin
         :name: additional_image_properties

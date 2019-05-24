@@ -10,7 +10,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
-        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
@@ -90,7 +90,11 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
+              if @mode_parameters.include?('strict')
+                query = query.with_classification_alias_ids_without_recursion(classifications)
+              else
+                query = query.classification_alias_ids(classifications)
+              end
             end
           end
           query
