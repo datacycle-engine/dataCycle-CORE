@@ -44,7 +44,7 @@ module DataCycleCore
           if @classification_id.present? && @mode_parameters.include?('strict')
             @classification_aliases = DataCycleCore::ClassificationAlias.find(@classification_id).sub_classification_alias
           elsif @mode_parameters.include?('strict')
-            @classification_aliases = @classification_tree_label.classification_aliases.includes(:parent_classification_alias).where(classification_trees: {parent_classification_alias_id: nil})
+            @classification_aliases = @classification_tree_label.classification_aliases.includes(:parent_classification_alias).where(classification_trees: { parent_classification_alias_id: nil })
           elsif @classification_id.present?
             @classification_aliases = DataCycleCore::ClassificationAlias.find(@classification_id).descendants
           else
