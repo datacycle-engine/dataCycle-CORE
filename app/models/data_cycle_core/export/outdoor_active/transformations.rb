@@ -12,8 +12,13 @@ module DataCycleCore
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
               xml.source @source
               # xml.owner @owner
-              contents.each do |content|
-                xml.poi('id' => content.id, 'workflow' => 'online', 'lastmodified' => content.updated_at) do
+              contents.reject { |content|
+                Functions.outdoor_active_system_status(content, external_system) == 'offline' &&
+                  !content.external_systems.map(&:id).include?(external_system.id)
+              }.each do |content|
+                xml.poi('id' => content.id,
+                        'workflow' => DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_status(content, external_system),
+                        'lastmodified' => content.updated_at) do
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
                   xml.point outdoor_active_point(content.location) if content.respond_to?(:location)
