@@ -19,7 +19,9 @@ module DataCycleCore
           tree_array = YAML.load(File.open(file.to_s))
           merged_data_trees.deep_merge!(iterate_array(tree_array))
         end
-        iterate_tree_hash(merged_data_trees)
+        return_data = iterate_tree_hash(merged_data_trees)
+        check_features
+        return_data
       end
 
       def self.iterate_array(array)
@@ -88,7 +90,7 @@ module DataCycleCore
       end
 
       def self.get_label(label)
-        DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label, external_source_id: nil) do |label_data|
+        DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label) do |label_data|
           label_data.seen_at = Time.zone.now
         end
       end
@@ -126,6 +128,19 @@ module DataCycleCore
           .to_a
           .sort_by { |item| item[1][:seen_at] }
           .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
+      end
+
+      def self.check_features
+        return unless DataCycleCore::Feature::AutoTagging.enabled?
+        tree_name = DataCycleCore.features.dig(:auto_tagging, :tree_label) || 'Cloud Vision - Tags'
+        tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: tree_name, external_source_id: nil)
+        external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
+
+        return unless tree_label.present? && external_source_name.present?
+        external_source_id = DataCycleCore::ExternalSource.find_by(name: external_source_name).id
+        tree_label.external_source_id = external_source_id
+        tree_label.save
+        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id) # rubocop:disable Rails/SkipsModelValidations
       end
     end
   end
