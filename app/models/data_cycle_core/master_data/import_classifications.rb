@@ -132,12 +132,15 @@ module DataCycleCore
 
       def self.check_features
         return unless DataCycleCore::Feature::AutoTagging.enabled?
+
         tree_name = DataCycleCore.features.dig(:auto_tagging, :tree_label) || 'Cloud Vision - Tags'
         tree_label = DataCycleCore::ClassificationTreeLabel.find_by(name: tree_name, external_source_id: nil)
         external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
+        return if tree_label.blank? || external_source_name.blank?
 
-        return unless tree_label.present? && external_source_name.present?
-        external_source_id = DataCycleCore::ExternalSource.find_by(name: external_source_name).id
+        external_source_id = DataCycleCore::ExternalSource.find_by(name: external_source_name)&.id
+        return if external_source_id.blank?
+
         tree_label.external_source_id = external_source_id
         tree_label.save
         DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id) # rubocop:disable Rails/SkipsModelValidations
