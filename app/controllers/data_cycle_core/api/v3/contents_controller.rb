@@ -97,6 +97,8 @@ module DataCycleCore
               end
             end
           end
+          query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+
           query
         end
 

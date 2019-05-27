@@ -78,6 +78,14 @@ module DataCycleCore
         )
       end
 
+      def with_content_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing[:id].in(ids))
+        )
+      end
+
       def not_external_system(ids = nil)
         return self if ids.blank?
 

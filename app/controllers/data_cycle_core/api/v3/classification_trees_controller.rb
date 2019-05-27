@@ -39,7 +39,14 @@ module DataCycleCore
 
         def classifications
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          @classification_aliases = @classification_tree_label.classification_aliases
+          @classification_id = permitted_params[:classification_id] || nil
+
+          if @classification_id.present?
+            classification_alias = DataCycleCore::ClassificationAlias.find(@classification_id)
+            @classification_aliases = classification_alias.sub_classification_alias
+          else
+            @classification_aliases = @classification_tree_label.classification_aliases
+          end
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_aliases = @classification_aliases.where(
@@ -71,7 +78,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :include, :mode, :language, { filter: [:modified_since, :created_since, :deleted_since] }]
+          super + [:id, :include, :mode, :language, :classification_id, { filter: [:modified_since, :created_since, :deleted_since] }]
         end
       end
     end
