@@ -17,6 +17,10 @@ module DataCycleCore
         def external_source_keys(lang: :de)
           csv_categories(lang: lang)
         end
+
+        def external_statuses(lang: :de)
+          csv_categories(lang: lang)
+        end
       end
     end
   end
