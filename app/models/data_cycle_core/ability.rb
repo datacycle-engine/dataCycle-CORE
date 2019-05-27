@@ -12,9 +12,11 @@ module DataCycleCore
         merge DataCycleCore::Abilities.const_get("rank_#{rank}".classify).new(user, session)
       end
 
-      DataCycleCore.features.select { |_, v| v[:enabled] }.each_key do |key|
-        merge DataCycleCore::Feature::Abilities.const_get(key.to_s.classify).new(user, session)
-      end
+      DataCycleCore.features
+        .select { |_, v| !v[:only_config] == true }
+        .select { |_, v| v[:enabled] }.each_key do |key|
+          merge DataCycleCore::Feature::Abilities.const_get(key.to_s.classify).new(user, session)
+        end
     end
   end
 end
