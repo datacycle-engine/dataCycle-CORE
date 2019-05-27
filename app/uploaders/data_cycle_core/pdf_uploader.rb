@@ -43,11 +43,14 @@ module DataCycleCore
       reader = PDF::Reader.new(current_path)
       return nil if reader.blank?
 
+      content_text = ''
+      content_text = reader.try(:pages)&.map { |page| page.try(:text)&.delete("\u0000") }&.join(' ') unless DataCycleCore.features.dig(:cancel_pdf_full_text_search, :enabled) == true
+
       {
         info: convert_info(reader.info),
         pdf_version: reader.pdf_version,
         metadata: reader.metadata,
-        content: reader.try(:pages)&.map { |page| page.try(:text)&.delete("\u0000") }&.join(' '),
+        content: content_text,
         page_count: reader.page_count
       }
     rescue PDF::Reader::MalformedPDFError, ArgumentError, NoMethodError

@@ -39,7 +39,7 @@ module DataCycleCore
         I18n.with_locale(language) do
           full_text = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
           full_text = '' if full_text.nil?
-          full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline', 'text']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
+          full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
           full_text_most = '' if full_text_most.nil?
           headline = try('send', 'title')
           headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?

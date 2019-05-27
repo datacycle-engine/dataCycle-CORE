@@ -16,10 +16,12 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      DataCycleCore.features.each_key do |key|
-        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-      end
+      DataCycleCore.features
+        .select { |_, v| !v.dig(:only_config) == true }
+        .each_key do |key|
+          module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
+          include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+        end
       extend  DataCycleCore::Common::ArelBuilder
       include ContentRelations
       extend  ContentFilters

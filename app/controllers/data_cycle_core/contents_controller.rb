@@ -5,10 +5,12 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
 
-    DataCycleCore.features.each_key do |key|
-      module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
-      include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-    end
+    DataCycleCore.features
+      .select { |_, v| !v.dig(:only_config) == true }
+      .each_key do |key|
+        module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+      end
 
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
