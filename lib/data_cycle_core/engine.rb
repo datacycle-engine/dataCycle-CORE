@@ -76,7 +76,7 @@ module DataCycleCore
     self.internal_classification_attributes = ['data_type']
 
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of', 'data_pool'] + internal_classification_attributes
+    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
