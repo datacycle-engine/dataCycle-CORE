@@ -128,15 +128,8 @@ module DataCycleCore
       def relation(name = nil)
         return self if name.blank?
 
-        sub_query = Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(content_content)
-          .on(thing[:id].eq(content_content[:content_a_id]))
-          .where(content_content[:relation_a].eq(name))
-
         reflect(
-          @query.where(thing[:id].in(sub_query))
+          @query.where(content_content.where(content_content[:content_a_id].eq(thing[:id]).and(content_content[:relation_a].eq(name))).exists)
         )
       end
 
