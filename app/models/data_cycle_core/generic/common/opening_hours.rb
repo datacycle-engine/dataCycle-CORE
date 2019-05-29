@@ -21,6 +21,7 @@ module DataCycleCore
             else
               raise NotImplementedError, "only formats #{FORMATS.map(&:to_s).join(', ')} are implemented"
             end
+          simplify_all_ranges
         end
 
         def parse_google(data_hash)
@@ -80,7 +81,7 @@ module DataCycleCore
 
         def simplify_all_ranges
           return if @data.blank?
-          DAY_HASH.keys.each do |day|
+          DAY_HASH.each_key do |day|
             next if @data.dig(day).size < 2
             @data[day] = simplify_ranges(@data.dig(day).sort_by(&:max))
           end
