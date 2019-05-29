@@ -165,6 +165,12 @@ module DataCycleCore
       end
     end
 
+    def translated_locales
+      @translated_locales ||= begin
+        (name_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).concat(description_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).uniq
+      end
+    end
+
     private
 
     def set_internal_data

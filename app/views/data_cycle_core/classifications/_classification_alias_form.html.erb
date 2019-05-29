@@ -2,8 +2,24 @@
   <%= hidden_field(nil, :classification_tree_label_id, value: classification_tree_label.id) %>
   <%= hidden_field(nil, :classification_tree_id, value: classification_tree.id) if classification_tree %>
   <%= f.hidden_field :id %>
+  <% active_locale = I18n.locale %>
 
   <div class="ca-buttons">
+    <span class="has-dropdown">
+      <a class="button-prime small" data-toggle="language-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
+      <div class="dropdown-pane align-right no-bullet bottom" id="language-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+        <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
+        <ul class="list-items">
+          <% available_locales_with_names.except(:all).each do |locale| %>
+            <li>
+              <%= link_to locale.last, nil, data: { locale: locale.first }, class: "ca-translation-link #{'active' if locale.first == active_locale}" %>
+              <%= tag.span(tag.i(class: 'fa fa-language ca-language-icon', aria_hidden: true), class: 'buttons') if classification_alias&.translated_locales&.include?(locale.first) %>
+            </li>
+          <% end %>
+        </ul>
+      </div>
+    </span>
+
     <button class="button-prime small success update" data-disable-with='<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'>
       <i aria-hidden="true" class="fa fa-check"></i>
     </button>
@@ -11,13 +27,32 @@
   </div>
 
   <div class="ca-input">
-    <%= f.label :name, class: 'ca-label' %>
-    <%= f.text_field :name, class: 'ca-input-field', disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+    <%= f.label :internal_name, DataCycleCore::ClassificationAlias.human_attribute_name(:internal_name, locale: DataCycleCore.ui_language), class: 'ca-label' %>
+    <%= f.text_field :internal_name, class: 'ca-input-field', readonly: true, placeholder: t('common.generated_value_placeholder', locale: DataCycleCore.ui_language) %>
   </div>
 
-  <div class="ca-input">
-    <%= f.label :description, class: 'ca-label' %>
-    <%= f.text_field :description, class: 'ca-input-field', disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+  <div class="ca-input translated">
+    <% I18n.available_locales.each do |locale| %>
+      <% I18n.with_locale(locale) do %>
+        <%= label_tag "classification_alias[translation][#{locale}][name]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:name, locale: DataCycleCore.ui_language)} (#{locale})", class: "ca-label #{locale} #{'active' if locale == active_locale}" %>
+        <%= text_field_tag "classification_alias[translation][#{locale}][name]", classification_alias&.name, class: "ca-input-field #{locale} #{'active' if locale == active_locale}", disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
+      <% end %>
+    <% end %>
+  </div>
+
+  <div class="ca-input translated">
+    <% I18n.available_locales.each do |locale| %>
+      <% I18n.with_locale(locale) do %>
+        <div class="editor-block form-element <%= locale %> <%= 'active' if locale == active_locale %>">
+          <%= label_tag "classification_alias[translation][#{locale}][description]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:description, locale: DataCycleCore.ui_language)} (#{locale})", class: 'ca-label' %>
+          <%= hidden_field_tag "classification_alias[translation][#{locale}][description]", classification_alias&.description, id: (classification_alias&.id.present? ? "#{classification_alias&.id}_" : '') + "classification_alias_#{locale}_description" %>
+
+          <div class="quill-editor" data-hidden-field-id="<%= "#{classification_alias&.id}_" if classification_alias&.id.present? %>classification_alias_<%= locale %>_description" data-size="minimal" data-default-value="<%= classification_alias&.description %>">
+            <%= classification_alias&.description&.html_safe %>
+          </div>
+        </div>
+      <% end %>
+    <% end %>
   </div>
 
   <div class="ca-input checkbox">

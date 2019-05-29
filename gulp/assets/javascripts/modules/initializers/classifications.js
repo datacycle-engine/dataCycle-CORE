@@ -2,6 +2,7 @@ require('select2');
 require('select2/i18n/de');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 var select2_helpers = require('./../helpers/select2_helpers');
+var quill_helpers = require('./../helpers/quill_helpers');
 
 module.exports.initialize = function() {
   let load_sub_classifications = function(location_array, index) {
@@ -68,6 +69,14 @@ module.exports.initialize = function() {
         return false;
       }
     });
+
+    $('#classification-administration').on(
+      'ajax:before',
+      '.edit_classification_alias, .new_classification_alias',
+      (event, xhr, options) => {
+        quill_helpers.update_editors(event.target);
+      }
+    );
 
     $('#classification-administration').on('click', 'a.create, a.edit', function(event) {
       $('#classification-administration li.active').removeClass('active');
@@ -151,6 +160,17 @@ module.exports.initialize = function() {
         .closest('li.active')
         .removeClass('active');
       return false;
+    });
+    $('#classification-administration').on('click', '.ca-translation-link', event => {
+      event.preventDefault();
+
+      let locale = $(event.target).data('locale');
+      let caContainer = $(event.target).closest('form');
+
+      caContainer.find('.list-items a.active').removeClass('active');
+      caContainer.find('.list-items [data-locale="' + locale + '"]').addClass('active');
+      caContainer.find('.ca-input > .active').removeClass('active');
+      caContainer.find('.ca-input > .' + locale).addClass('active');
     });
   }
 
