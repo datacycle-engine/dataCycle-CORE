@@ -106,7 +106,7 @@ module DataCycleCore
         :classification_tree_id,
         classification_tree_label: [:name, :internal],
         classification_alias: [:name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      ).to_h.deep_reject { |_, v| v.blank? }
+      )
 
       respond_to do |format|
         format.html do
@@ -154,7 +154,7 @@ module DataCycleCore
       permitted_params = params.permit(
         classification_tree_label: [:id, :name, :internal],
         classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
-      ).to_h.deep_reject { |_, v| v.blank? }
+      )
 
       respond_to do |format|
         format.html do
