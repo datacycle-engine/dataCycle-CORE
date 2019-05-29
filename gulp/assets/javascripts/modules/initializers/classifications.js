@@ -170,7 +170,10 @@ module.exports.initialize = function() {
       caContainer.find('.list-items a.active').removeClass('active');
       caContainer.find('.list-items [data-locale="' + locale + '"]').addClass('active');
       caContainer.find('.ca-input > .active').removeClass('active');
-      caContainer.find('.ca-input > .' + locale).addClass('active');
+      caContainer
+        .find('.ca-input > .' + locale)
+        .addClass('active')
+        .trigger('dc:remote:render');
     });
   }
 

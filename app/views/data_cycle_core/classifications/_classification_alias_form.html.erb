@@ -33,23 +33,15 @@
 
   <div class="ca-input translated">
     <% I18n.available_locales.each do |locale| %>
-      <% I18n.with_locale(locale) do %>
-        <%= label_tag "classification_alias[translation][#{locale}][name]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:name, locale: DataCycleCore.ui_language)} (#{locale})", class: "ca-label #{locale} #{'active' if locale == active_locale}" %>
-        <%= text_field_tag "classification_alias[translation][#{locale}][name]", classification_alias&.name, class: "ca-input-field #{locale} #{'active' if locale == active_locale}", disabled: classification_alias&.id.present? ? !can?(:update, classification_alias) : !can?(:create, DataCycleCore::ClassificationAlias) %>
-      <% end %>
-    <% end %>
-  </div>
-
-  <div class="ca-input translated">
-    <% I18n.available_locales.each do |locale| %>
-      <% I18n.with_locale(locale) do %>
-        <div class="editor-block form-element <%= locale %> <%= 'active' if locale == active_locale %>">
-          <%= label_tag "classification_alias[translation][#{locale}][description]", "#{DataCycleCore::ClassificationAlias.human_attribute_name(:description, locale: DataCycleCore.ui_language)} (#{locale})", class: 'ca-label' %>
-          <%= hidden_field_tag "classification_alias[translation][#{locale}][description]", classification_alias&.description, id: (classification_alias&.id.present? ? "#{classification_alias&.id}_" : '') + "classification_alias_#{locale}_description" %>
-
-          <div class="quill-editor" data-hidden-field-id="<%= "#{classification_alias&.id}_" if classification_alias&.id.present? %>classification_alias_<%= locale %>_description" data-size="minimal" data-default-value="<%= classification_alias&.description %>">
-            <%= classification_alias&.description&.html_safe %>
-          </div>
+      <% if locale == active_locale %>
+        <div class="translated-fields <%= locale %> <%= 'active' if locale == active_locale %>" id="translated-field-<%= locale %>-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>">
+          <%= render 'data_cycle_core/classifications/translated_form_fields', locale: locale, classification_alias: classification_alias %>
+        </div>
+      <% else %>
+        <div class="translated-fields remote-render <%= locale %> <%= 'active' if locale == active_locale %>"
+          id="translated-field-<%= locale %>-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"
+          data-remote-path="data_cycle_core/classifications/translated_form_fields"
+          data-remote-options="<%= to_query_params(classification_alias: classification_alias, locale: locale).to_json %>">
         </div>
       <% end %>
     <% end %>

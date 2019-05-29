@@ -107,9 +107,7 @@ ul.backend-treeview-list {
       }
 
       &.translated {
-        > label:not(.active),
-        > input.ca-input-field:not(.active),
-        > .form-element:not(.active) {
+        > .translated-fields:not(.active) {
           display: none;
         }
       }
@@ -285,7 +283,6 @@ ul.backend-treeview-list {
 
     input[type='text'],
     div.editor-block {
-      margin-bottom: 0;
       border: 1px solid $light-gray;
       background: $light-gray;
       box-shadow: none;
