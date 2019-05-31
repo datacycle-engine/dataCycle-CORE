@@ -1,6 +1,6 @@
 var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@params[:complete_key]) %>').parent('.clear-both');
 
-<% if @params[:definition][:type] == 'linked' %>
+<% if @params.dig(:definition, :type) == 'linked' %>
   <% content_for :rendered_items do %>
     <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
       <% @linked_objects.each do |content| %>
@@ -27,9 +27,9 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
     </div>
   <% end %>
 
-  $('<%= j yield :rendered_items %>').insertAfter(load_more_button).trigger('dc:contents:added', { editor: 'object_browser', single: true }).foundation();
+  $('<%= j yield :rendered_items %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'object_browser', single: true }).foundation();
 <% else %>
-  $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: @params[:options].presence || {} }, content: @object %>').insertAfter(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false }).foundation();
+  <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
+    $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), page: params.fetch(:page, 1).to_i }, content: @object %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false }).foundation();
+  <% end %>
 <% end %>
-
-load_more_button.remove();

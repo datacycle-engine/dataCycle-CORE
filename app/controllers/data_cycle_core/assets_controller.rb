@@ -68,11 +68,8 @@ module DataCycleCore
 
     def duplicate
       @asset = DataCycleCore::Asset.find(permitted_params[:id])
-      @duplicate = @asset.dup
-      @duplicate.file = @asset.file
+      @duplicate = @asset.duplicate
       @html_target = permitted_params[:html_target]
-
-      @duplicate.save
     end
 
     private

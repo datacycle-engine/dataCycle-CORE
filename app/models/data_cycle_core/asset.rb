@@ -80,6 +80,13 @@ module DataCycleCore
       end
     end
 
+    def duplicate
+      new_asset = dup
+      new_asset.file = file
+      new_asset.save
+      new_asset
+    end
+
     private
 
     def recreate_version(version_name = nil)
