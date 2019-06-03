@@ -16,7 +16,7 @@
           remote: true,
           method: :delete,
           data: {
-            confirm: "Inhalt (#{content&.title}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language)} (#{watch_list.name}) entfernen?"
+            confirm: "Inhalt (#{I18n.with_locale(content&.first_available_locale){ content&.title }}) von<br>#{DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language)} (#{watch_list.name}) entfernen?"
           } do %>
           <i aria-hidden="true" class="fa fa-times-circle"></i>
         <% end %>

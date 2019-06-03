@@ -25,7 +25,7 @@ module DataCycleCore
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
 
     has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
-    has_many :watch_lists, through: :watch_list_shares
+    has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
     before_create :set_default_role
 
