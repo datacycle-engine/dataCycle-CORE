@@ -24,6 +24,9 @@ module DataCycleCore
 
     has_many :assets, foreign_key: :creator_id, class_name: 'DataCycleCore::Asset'
 
+    has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
+    has_many :watch_lists, through: :watch_list_shares
+
     before_create :set_default_role
 
     def recoverable?
@@ -31,7 +34,7 @@ module DataCycleCore
     end
 
     def full_name
-      name || "#{given_name} #{family_name}"
+      name || "#{given_name} #{family_name}".presence || '__unnamed_user__'
     end
 
     def default_filter(filters = [])

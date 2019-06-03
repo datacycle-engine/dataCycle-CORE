@@ -19,8 +19,11 @@ module DataCycleCore
         can [:read, :create, :update, :destroy], DataCycleCore::WatchList, user_id: user.id
         can [:add_item, :remove_item], DataCycleCore::WatchList, user_id: user.id, valid_write_links?: false
 
-        can :read, DataCycleCore::WatchList, watch_list_user_groups: { user_group_id: user.user_group_ids }
-        can [:add_item, :remove_item], DataCycleCore::WatchList, valid_write_links?: false, watch_list_user_groups: { user_group_id: user.user_group_ids }
+        can :read, DataCycleCore::WatchList, watch_list_shares: { shareable_id: user.user_group_ids, shareable_type: 'DataCycleCore::UserGroup' }
+        can :read, DataCycleCore::WatchList, watch_list_shares: { shareable_id: user.id, shareable_type: 'DataCycleCore::User' }
+
+        can [:add_item, :remove_item], DataCycleCore::WatchList, valid_write_links?: false, watch_list_shares: { shareable_id: user.user_group_ids, shareable_type: 'DataCycleCore::UserGroup' }
+        can [:add_item, :remove_item], DataCycleCore::WatchList, valid_write_links?: false, watch_list_shares: { shareable_id: user.id, shareable_type: 'DataCycleCore::User' }
       end
     end
   end

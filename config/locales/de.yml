@@ -465,6 +465,7 @@ de:
       data_cycle_core/watch_list:
         name: Name
         user_group_ids: Benutzergruppen
+        user_ids: Benutzer
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'

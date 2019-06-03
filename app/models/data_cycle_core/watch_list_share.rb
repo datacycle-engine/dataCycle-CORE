@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class WatchListUserGroup < ApplicationRecord
-    belongs_to :user_group
+  class WatchListShare < ApplicationRecord
     belongs_to :watch_list, touch: true
+    belongs_to :shareable, polymorphic: true
   end
 end

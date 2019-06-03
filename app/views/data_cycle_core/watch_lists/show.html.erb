@@ -43,10 +43,17 @@
                 <%= @watch_list&.name %>
             </div>
 
-            <% if @watch_list.watch_list_user_groups.size.positive? %>
+            <% if @watch_list.users.any? %>
+                <div class="description watchlist">
+                    <i class="fa fa-user"></i>
+                    <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, title: u.email) }, ', ') %>
+                </div>
+            <% end %>
+
+            <% if @watch_list.user_groups.any? %>
                 <div class="description watchlist">
                     <i class="fa fa-users"></i>
-                    <%= @watch_list.watch_list_user_groups.map(&:user_group).map(&:name).join(', ') %>
+                    <%= @watch_list.user_groups.map(&:name).join(', ') %>
                 </div>
             <% end %>
 

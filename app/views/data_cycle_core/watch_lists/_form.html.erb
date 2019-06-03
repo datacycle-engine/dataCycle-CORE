@@ -35,14 +35,22 @@
 				</div>
 
 				<div class="form-element input name">
-                    <%= f.label :name %>
-                    <%= f.text_field :name, data: { validate: 'text' } %>
+          <%= f.label :name, DataCycleCore::WatchList.human_attribute_name(:name, locale: DataCycleCore.ui_language) %>
+          <%= f.text_field :name, data: { validate: 'text' } %>
 				</div>
 
 				<div class="form-element">
 					<div class="v-select">
-						<%= f.label :user_group_ids %>
+						<%= f.label :user_group_ids, DataCycleCore::WatchList.human_attribute_name(:user_group_ids, locale: DataCycleCore.ui_language) %>
 						<%= f.collection_select(:user_group_ids, DataCycleCore::UserGroup.all, :id, :name, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+					</div>
+				</div>
+
+				<div class="form-element">
+					<div class="v-select">
+						<%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: DataCycleCore.ui_language) %>
+            <%= hidden_field_tag 'watch_list[user_ids][]', nil, id: 'hidden_watch_list_user_ids' %>
+            <%= select_tag('watch_list[user_ids][]', options_for_select(DataCycleCore::User.all.map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
 					</div>
 				</div>
 
