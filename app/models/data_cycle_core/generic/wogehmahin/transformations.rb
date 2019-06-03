@@ -4,6 +4,8 @@ module DataCycleCore
   module Generic
     module Wogehmahin
       module Transformations
+        DAYS = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'].freeze
+
         def self.t(*args)
           DataCycleCore::Generic::Common::Functions[*args]
         end
@@ -22,6 +24,9 @@ module DataCycleCore
               'country' => 'address_country'
             }
           )
+          .>> t(:add_field, 'latitude', ->(s) { s.dig('location', 'latitude')&.to_f })
+          .>> t(:add_field, 'longitude', ->(s) { s.dig('location', 'longitude')&.to_f })
+          .>> t(:location)
           .>> t(:map_value, 'postal_code', ->(s) { s == '0' ? nil : s })
           .>> t(:nest, 'address', ['street_address', 'address_locality', 'postal_code', 'address_country'])
           .>> t(
@@ -38,7 +43,8 @@ module DataCycleCore
           .>> t(:tags_to_ids, 'wogehmahin_topics', external_source_id, 'Wogehmahin - Topic - ')
           .>> t(:add_field, 'wogehmahin_types', ->(s) { s.dig('types')&.map { |item| item.dig('name') } })
           .>> t(:tags_to_ids, 'wogehmahin_types', external_source_id, 'Wogehmahin - Type - ')
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('photos').map { |item| generate_key(item) } })
+          .>> t(:add_field, 'opening_hours_specification', ->(s) { parse_opening_hours(s.dig('OpeningHours')) })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('photos').map { |item| item.dig('identifier') } })
           .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end
@@ -47,24 +53,14 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
-          .>> t(:add_field, 'external_key', ->(s) { generate_key(s) })
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('identifier') })
+          .>> t(:add_field, 'license', ->(s) { s.dig('copyright').presence })
           .>> t(:strip_all)
         end
 
-        def self.generate_key(data_hash)
-          id = data_hash.dig('identifier')
-          return if id.blank?
-          if uuid?(id)
-            id
-          elsif id == 'WGH-Bild'
-            'WGH - Image - ' + data_hash.dig('url').split('/').last.split('.').first
-          end
-        end
-
-        def self.uuid?(data)
-          data_clean = data.squish.downcase
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          data_clean.length == 36 && !(data_clean =~ uuid).nil?
+        def self.parse_opening_hours(data)
+          return if data.blank?
+          DataCycleCore::Generic::Common::OpeningHours.new(data, format: :google, options: { wrong_time_format: true }).to_opening_hours_specifications
         end
       end
     end
