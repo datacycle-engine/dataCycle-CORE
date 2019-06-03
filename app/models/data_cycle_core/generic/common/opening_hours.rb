@@ -67,7 +67,7 @@ module DataCycleCore
           @data.select { |_day, ranges| ranges.present? }.size.zero?
         end
 
-        # private
+        private
 
         def parse_google(data_hash)
           DAY_HASH
