@@ -6,6 +6,7 @@ module DataCycleCore
       class OpeningHours
         DAY_HASH = { 'Monday' => 'Montag', 'Tuesday' => 'Dienstag', 'Wednesday' => 'Mittwoch', 'Thursday' => 'Donnerstag', 'Friday' => 'Freitag', 'Saturday' => 'Samstag', 'Sunday' => 'Sonntag' }.freeze
         FORMATS = [:google, :opening_hours_specification].freeze
+        CLOSED_STRING = 'geschlossen'
 
         attr_reader :data, :validity
 
@@ -24,33 +25,11 @@ module DataCycleCore
           simplify_all_ranges
         end
 
-        def parse_google(data_hash)
-          DAY_HASH
-            .keys
-            .map { |day| data_hash&.dig(day)&.map { |interval| parse_google_interval(interval) }&.compact || [] }
-            .zip(DAY_HASH.keys)
-            .map { |data_interval| { data_interval[1] => data_interval[0] } }
-            .inject(&:merge)
-        end
-
-        def parse_opening_hours_specification(data_hash)
-          # classification_id_day_of_week = DAY_HASH
-          #   .map { |key, value| { DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id => key } }
-          #   .reduce(&:merge)
-          day_of_week_classification_ids = DAY_HASH
-            .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
-            .reduce(&:merge)
-          DAY_HASH
-            .keys
-            .map { |day|
-              {
-                day =>
-                  data_hash
-                    .select { |record| record&.dig('day_of_week')&.include?(day_of_week_classification_ids[day]) }
-                    .map { |record| record.dig('time').map { |time| parse_opening_hours_interval(time) } }
-                    .flatten
-              }
-            }
+        def to_per_day_opening_hours
+          return nil if empty?
+          data
+            .map { |day, ranges| { DAY_HASH[day] => ranges.map { |range| convert_range_to_string(range) }.join(', ') } }
+            .map { |day_hash| day_hash.values.first.present? ? day_hash : { day_hash.keys.first => CLOSED_STRING } }
             .inject(&:merge)
         end
 
@@ -80,6 +59,40 @@ module DataCycleCore
             end
         end
 
+        def empty?
+          return true if @data.empty?
+          @data.select { |_day, ranges| ranges.present? }.size.zero?
+        end
+
+        private
+
+        def parse_google(data_hash)
+          DAY_HASH
+            .keys
+            .map { |day| data_hash&.dig(day)&.map { |interval| parse_google_interval(interval) }&.compact || [] }
+            .zip(DAY_HASH.keys)
+            .map { |data_interval| { data_interval[1] => data_interval[0] } }
+            .inject(&:merge)
+        end
+
+        def parse_opening_hours_specification(data_hash)
+          day_of_week_classification_ids = DAY_HASH
+            .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
+            .reduce(&:merge)
+          DAY_HASH
+            .keys
+            .map { |day|
+              {
+                day =>
+                  data_hash
+                    .select { |record| record&.dig('day_of_week')&.include?(day_of_week_classification_ids[day]) }
+                    .map { |record| record.dig('time').map { |time| parse_opening_hours_interval(time) } }
+                    .flatten
+              }
+            }
+            .inject(&:merge)
+        end
+
         def simplify_all_ranges
           return if @data.blank?
           DAY_HASH.each_key do |day|
@@ -98,8 +111,8 @@ module DataCycleCore
                 finished = true
                 next
               end
-              if intervals[i].max == intervals[i + 1].min
-                intervals[i + 1] = (intervals[i].min..intervals[i + 1].max)
+              if intervals[i].max >= intervals[i + 1].min
+                intervals[i + 1] = (intervals[i].min..[intervals[i].max, intervals[i + 1].max].max)
                 intervals[i] = nil
               end
             end
@@ -107,21 +120,6 @@ module DataCycleCore
           end
           intervals
         end
-
-        def to_per_day_opening_hours
-          return nil if empty?
-          data
-            .map { |day, ranges| { DAY_HASH[day] => ranges.map { |range| convert_range_to_string(range) }.join(', ') } }
-            .map { |day_hash| day_hash.values.first.present? ? day_hash : { day_hash.keys.first => 'geschlossen' } }
-            .inject(&:merge)
-        end
-
-        def empty?
-          return true if @data.empty?
-          @data.select { |_day, ranges| ranges.present? }.size.zero?
-        end
-
-        # private
 
         def days_in_range(interval)
           DAY_HASH.keys.select { |day| data[day].map { |range| range.include?(interval) }.inject(&:|) }
