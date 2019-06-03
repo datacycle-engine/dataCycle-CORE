@@ -10,15 +10,17 @@ module DataCycleCore
 
         attr_reader :data, :validity
 
-        def initialize(data_hash = {}, validity: nil, format: nil, options: {})
+        def initialize(data_hash, validity: nil, format: nil, options: {})
           @validity = validity
           @options = options
           @data =
             case format
             when :google
-              parse_google(data_hash)
+              raise StandardError unless data_hash.is_a?(::Hash) || data_hash.nil?
+              parse_google(data_hash || {})
             when :opening_hours_specification
-              parse_opening_hours_specification(data_hash)
+              raise StandardError unless data_hash.is_a?(::Array) || data_hash.nil?
+              parse_opening_hours_specification(data_hash || [])
             else
               raise NotImplementedError, "only formats #{FORMATS.map(&:to_s).join(', ')} are implemented"
             end
@@ -65,7 +67,7 @@ module DataCycleCore
           @data.select { |_day, ranges| ranges.present? }.size.zero?
         end
 
-        private
+        # private
 
         def parse_google(data_hash)
           DAY_HASH
@@ -142,7 +144,7 @@ module DataCycleCore
 
         def parse_time_interval(string_opens, string_closes)
           opens = convert_to_i(string_opens)
-          closes = convert_to_i(string_closes, string_opens)
+          closes = convert_to_i(string_closes)
           closes = convert_to_i(string_closes, opens > closes)
           return nil if opens.negative? || closes.negative?
           return nil if opens > closes

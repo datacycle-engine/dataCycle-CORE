@@ -215,6 +215,10 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       }
     end
 
+    let(:next_day) do
+      { 'Monday' => [{ 'open' => '20:00:00', 'close' => '02:00:00' }] }
+    end
+
     it 'raises an exception if the wrong format is given' do
       assert_raises(NotImplementedError) { subject.new(empty_record, format: :wrong) }
     end
@@ -272,6 +276,11 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     it 'reads gapped_data' do
       subject.new(two_records_gapped, format: :opening_hours_specification).to_per_day_opening_hours.must_equal gapped_per_day
       subject.new(two_records_gapped, format: :opening_hours_specification).to_opening_hours_specifications.must_equal gapped_ohs
+    end
+
+    it 'hadles intervals over midnight correctly' do
+      subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Montag').must_equal '20:00 - 2:00'
+      subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Mittwoch').must_equal 'geschlossen'
     end
   end
 
