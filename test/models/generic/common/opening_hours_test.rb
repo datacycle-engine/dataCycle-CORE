@@ -59,10 +59,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       [{
         'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '10:00',
-          'closes' => '22:00'
-        }]
+        'time' => [{ 'opens' => '10:00', 'closes' => '22:00' }]
       }]
     end
 
@@ -82,17 +79,11 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       [{
         'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '10:00',
-          'closes' => '22:00'
-        }]
+        'time' => [{ 'opens' => '10:00', 'closes' => '22:00' }]
       }, {
         'day_of_week' => days_to_ids(['Freitag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '22:00',
-          'closes' => '24:00'
-        }]
+        'time' => [{ 'opens' => '22:00', 'closes' => '24:00' }]
       }]
     end
 
@@ -112,28 +103,19 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       [{
         'day_of_week' => days_to_ids(['Dienstag', 'Mittwoch']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '7:00',
-          'closes' => '10:00'
-        }]
+        'time' => [{ 'opens' => '7:00', 'closes' => '10:00' }]
       }, {
         'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '10:00',
-          'closes' => '22:00'
-        }]
+        'time' => [{ 'opens' => '10:00', 'closes' => '22:00' }]
       }, {
         'day_of_week' => days_to_ids(['Freitag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '22:00',
-          'closes' => '24:00'
-        }]
+        'time' => [{ 'opens' => '22:00', 'closes' => '24:00' }]
       }]
     end
 
-    let(:tree_records_string_output) do
+    let(:three_records_string_output) do
       {
         'Montag' => '10:00 - 22:00',
         'Dienstag' => '7:00 - 22:00',
@@ -173,25 +155,64 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       [{
         'day_of_week' => days_to_ids(['Montag', 'Donnerstag', 'Freitag', 'Sonntag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '10:00',
-          'closes' => '12:00'
-        }]
+        'time' => [{ 'opens' => '10:00', 'closes' => '12:00' }]
       }, {
         'day_of_week' => days_to_ids(['Dienstag', 'Donnerstag', 'Samstag', 'Sonntag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '12:00',
-          'closes' => '14:00'
-        }]
+        'time' => [{ 'opens' => '12:00', 'closes' => '14:00' }]
       }, {
         'day_of_week' => days_to_ids(['Mittwoch', 'Freitag', 'Samstag', 'Sonntag']),
         'validity' => nil,
-        'time' => [{
-          'opens' => '14:00',
-          'closes' => '16:00'
-        }]
+        'time' => [{ 'opens' => '14:00', 'closes' => '16:00' }]
       }]
+    end
+
+    let(:two_records_gapped) do
+      [{
+        'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
+        'validity' => nil,
+        'time' => [{ 'opens' => '7:00', 'closes' => '12:00' }]
+      }, {
+        'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
+        'validity' => nil,
+        'time' => [{ 'opens' => '13:00', 'closes' => '20:00' }]
+      }]
+    end
+
+    let(:google_gapped_records) do
+      {
+        'Monday' => [{ 'open' => '10:00:00', 'close' => '12:00:00', 'text' => nil }, { 'open' => '14:00:00', 'close' => '18:00:00', 'text' => nil }],
+        'Tuesday' => [{ 'open' => '10:00:00', 'close' => '12:00:00', 'text' => nil }, { 'open' => '14:00:00', 'close' => '18:00:00', 'text' => nil }],
+        'Wednesday' => [{ 'open' => '10:00:00', 'close' => '12:00:00', 'text' => nil }, { 'open' => '14:00:00', 'close' => '18:00:00', 'text' => nil }],
+        'Thursday' => [{ 'open' => '10:00:00', 'close' => '12:00:00', 'text' => nil }, { 'open' => '14:00:00', 'close' => '18:00:00', 'text' => nil }],
+        'Friday' => [{ 'open' => '10:00:00', 'close' => '12:00:00', 'text' => nil }, { 'open' => '14:00:00', 'close' => '18:00:00', 'text' => nil }],
+        'Saturday' => [{ 'open' => nil, 'close' => nil, 'text' => nil }],
+        'Sunday' => [{ 'open' => nil, 'close' => nil, 'text' => nil }]
+      }
+    end
+
+    let(:gapped_ohs) do
+      [{
+        'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
+        'validity' => nil,
+        'time' => [{ 'opens' => '7:00', 'closes' => '12:00' }]
+      }, {
+        'day_of_week' => days_to_ids(['Montag', 'Dienstag', 'Mittwoch', 'Donnerstag', 'Freitag']),
+        'validity' => nil,
+        'time' => [{ 'opens' => '13:00', 'closes' => '20:00' }]
+      }]
+    end
+
+    let(:gapped_per_day) do
+      {
+        'Montag' => '7:00 - 12:00, 13:00 - 20:00',
+        'Dienstag' => '7:00 - 12:00, 13:00 - 20:00',
+        'Mittwoch' => '7:00 - 12:00, 13:00 - 20:00',
+        'Donnerstag' => '7:00 - 12:00, 13:00 - 20:00',
+        'Freitag' => '7:00 - 12:00, 13:00 - 20:00',
+        'Samstag' => 'geschlossen',
+        'Sonntag' => 'geschlossen'
+      }
     end
 
     it 'raises an exception if the wrong format is given' do
@@ -223,7 +244,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     end
 
     it 'converts opening_hours to a day_hash' do
-      subject.new(three_records, format: :google).to_per_day_opening_hours.must_equal tree_records_string_output
+      subject.new(three_records, format: :google).to_per_day_opening_hours.must_equal three_records_string_output
     end
 
     it 'correctly reads, converts, and simplifies three_records2' do
@@ -246,6 +267,11 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       validity_hash = { 'valid_from' => '1.1.2000', 'valid_through' => '31.12.2020' }
       three_records_with_validity = tree_records_transformed.map { |item| item.merge({ 'validity' => validity_hash }) }
       subject.new(three_records, format: :google, validity: validity_hash).to_opening_hours_specifications.must_equal three_records_with_validity
+    end
+
+    it 'reads gapped_data' do
+      subject.new(two_records_gapped, format: :opening_hours_specification).to_per_day_opening_hours.must_equal gapped_per_day
+      subject.new(two_records_gapped, format: :opening_hours_specification).to_opening_hours_specifications.must_equal gapped_ohs
     end
   end
 

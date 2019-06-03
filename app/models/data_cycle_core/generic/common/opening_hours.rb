@@ -47,7 +47,7 @@ module DataCycleCore
             .uniq
             .sort
             .each_cons(2)
-            .map do |from, to|
+            .map { |from, to|
               {
                 'day_of_week' => days_in_range((from...to)).map { |day| day_of_week_classification_ids[day] },
                 'validity' => @validity,
@@ -56,7 +56,8 @@ module DataCycleCore
                   'closes' => convert_to_time_string(to)
                 }]
               }
-            end
+            }
+            .select { |item| item.dig('day_of_week').size.positive? }
         end
 
         def empty?
@@ -141,7 +142,8 @@ module DataCycleCore
 
         def parse_time_interval(string_opens, string_closes)
           opens = convert_to_i(string_opens)
-          closes = convert_to_i(string_closes, string_opens > string_closes)
+          closes = convert_to_i(string_closes, string_opens)
+          closes = convert_to_i(string_closes, opens > closes)
           return nil if opens.negative? || closes.negative?
           return nil if opens > closes
           return nil if opens > 24 * 60 * 60
