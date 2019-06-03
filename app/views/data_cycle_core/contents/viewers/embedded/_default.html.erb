@@ -18,7 +18,7 @@
                    content: content do %>
 
             <span class="detail-label">
-                <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (params.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
+                <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
             </span>
 
             <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
@@ -51,8 +51,9 @@
       complete_key: key,
       definition: definition,
       options: options,
-      page: params.fetch(:page, 1).to_i + 1,
-      load_more_action: :show
+      page: local_assigns.fetch(:page, 1).to_i + 1,
+      load_more_action: :show,
+      locale: I18n.locale
     ),
     remote: true,
     id: "load_more_#{content&.id}_#{sanitize_to_id(key)}",

@@ -35,7 +35,7 @@ module DataCycleCore
           has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
           has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
-          has_many :content_b, through: :content_content_b
+          has_many :content_b, through: :content_content_a
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source

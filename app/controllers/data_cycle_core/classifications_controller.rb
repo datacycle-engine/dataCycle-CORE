@@ -100,11 +100,12 @@ module DataCycleCore
     end
 
     def create
+      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
       permitted_params = params.permit(
         :classification_tree_label_id,
         :classification_tree_id,
-        { classification_tree_label: [:name, :internal] },
-        { classification_alias: [:name, :internal, :description, :assignable] }
+        classification_tree_label: [:name, :internal],
+        classification_alias: [:name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 
       respond_to do |format|
@@ -125,8 +126,14 @@ module DataCycleCore
             end
 
             ActiveRecord::Base.transaction do
-              @classification = DataCycleCore::Classification.create!(name: permitted_params[:classification_alias][:name])
-              @classification_alias = DataCycleCore::ClassificationAlias.create!(permitted_params[:classification_alias])
+              @classification_alias = DataCycleCore::ClassificationAlias.new(permitted_params[:classification_alias].except(:translation))
+              permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+                I18n.with_locale(locale.to_sym) do
+                  @classification_alias.attributes = values
+                end
+              end
+              @classification_alias.save!
+              @classification = DataCycleCore::Classification.create!(name: @classification_alias.internal_name)
               @classification_group = DataCycleCore::ClassificationGroup.create!(
                 classification: @classification,
                 classification_alias: @classification_alias
@@ -143,9 +150,10 @@ module DataCycleCore
     end
 
     def update
+      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
       permitted_params = params.permit(
         classification_tree_label: [:id, :name, :internal],
-        classification_alias: [:id, :name, :internal, :assignable, :description, classification_ids: []]
+        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 
       respond_to do |format|
@@ -159,7 +167,15 @@ module DataCycleCore
             @object.update!(permitted_params[:classification_tree_label])
           else
             @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
-            @object.update!(permitted_params[:classification_alias])
+
+            permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+              I18n.with_locale(locale.to_sym) do
+                @object.attributes = values
+              end
+            end
+
+            @object.attributes = permitted_params[:classification_alias].except(:translation)
+            @object.save!
           end
         end
       end

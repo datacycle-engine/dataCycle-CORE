@@ -157,7 +157,7 @@ DataCycleCore::Engine.routes.draw do
       namespace :v3 do
         scope path: '(/:api_subversion)' do
           type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
           resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
             get :gpx, on: :member
@@ -167,7 +167,8 @@ DataCycleCore::Engine.routes.draw do
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
           resources :classification_trees, only: [:index, :show] do
-            get :classifications, on: :member
+            # get :classifications, on: :member
+            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
           end
 
           resources :collections, only: [:index, :show], controller: :watch_lists

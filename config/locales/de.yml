@@ -158,6 +158,7 @@ de:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
     related_items: Verknüpfte Inhalte
+    generated_value_placeholder: Dieser Wert wird automatisch gesetzt
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -211,6 +212,7 @@ de:
       other: meine
 
   actions:
+    new: erstellen
     show: anzeigen
     edit: bearbeiten
     manage: verwalten
@@ -456,14 +458,18 @@ de:
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
+      data_cycle_core/classification_alias:
+        one: Klassifizierung
+        other: Klassifizierungen
     attributes:
       data_cycle_core/watch_list:
         name: Name
         user_group_ids: Benutzergruppen
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
-        description: Beschreibungstext
+        description: 'Beschreibungstext'
         classification_ids: Klassifizierungs-Mapping
+        internal_name: Sprachneutraler Name
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

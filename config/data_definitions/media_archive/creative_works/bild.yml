@@ -175,6 +175,9 @@
       :tags:
         :type: mixin
         :name: tags
+      :cloud_vision:
+        :type: mixin
+        :name: cloud_vision  
       :media_archive:
         :type: mixin
         :name: media_archive

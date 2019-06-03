@@ -58,6 +58,21 @@ module DataCycleCore
           outdoor_active_categories(data, external_system, 'OutdoorActive - System - Quellen')
         end
 
+        def self.outdoor_active_system_status(data, external_system)
+          statuses = outdoor_active_categories(data, external_system, 'OutdoorActive - System - Stati')
+
+          if statuses.blank? ||
+             outdoor_active_system_categories(data, external_system).blank? ||
+             outdoor_active_system_source_keys(data, external_system).blank?
+
+            'offline'
+          elsif statuses.size == 1
+            'online'
+          else
+            raise 'Ambiguous value for "OutdoorActive - System - Status"'
+          end
+        end
+
         def self.outdoor_active_categories(data, external_system, tree_label)
           external_source_id = DataCycleCore::ExternalSource.find_by(name: external_system.credentials.dig('external_source'))&.id
 

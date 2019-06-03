@@ -91,7 +91,11 @@ module DataCycleCore
     end
 
     def feature_attributes(content, prefix = '')
-      DataCycleCore.features.keys.map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", content) }.flatten
+      DataCycleCore.features
+        .select { |_, v| !v.dig(:only_config) == true }
+        .keys
+        .map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", content) }
+        .flatten
     end
 
     def allowed_feature_attribute?(key, content)
