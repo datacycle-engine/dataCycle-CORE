@@ -27,7 +27,7 @@ module DataCycleCore
         def parse_google(data_hash)
           DAY_HASH
             .keys
-            .map { |day| data_hash.dig(day).map { |interval| parse_google_interval(interval) }.compact }
+            .map { |day| data_hash&.dig(day)&.map { |interval| parse_google_interval(interval) }&.compact || [] }
             .zip(DAY_HASH.keys)
             .map { |data_interval| { data_interval[1] => data_interval[0] } }
             .inject(&:merge)
@@ -46,7 +46,7 @@ module DataCycleCore
               {
                 day =>
                   data_hash
-                    .select { |record| record.dig('day_of_week').include?(day_of_week_classification_ids[day]) }
+                    .select { |record| record&.dig('day_of_week')&.include?(day_of_week_classification_ids[day]) }
                     .map { |record| record.dig('time').map { |time| parse_opening_hours_interval(time) } }
                     .flatten
               }
@@ -55,6 +55,7 @@ module DataCycleCore
         end
 
         def to_opening_hours_specifications
+          return nil if empty?
           day_of_week_classification_ids = DAY_HASH
             .map { |key, value| { key => DataCycleCore::ClassificationAlias.for_tree('Wochentage').find_by(name: value).classifications.first.id } }
             .reduce(&:merge)
@@ -90,11 +91,13 @@ module DataCycleCore
 
         def simplify_ranges(ranges)
           intervals = ranges
-          interv = intervals.size
-          while intervals.size == interv
-            interv = intervals.size
+          finished = false
+          until finished
             intervals.each_index do |i|
-              next if i + 1 == intervals.size
+              if i + 1 == intervals.size
+                finished = true
+                next
+              end
               if intervals[i].max == intervals[i + 1].min
                 intervals[i + 1] = (intervals[i].min..intervals[i + 1].max)
                 intervals[i] = nil
@@ -106,10 +109,16 @@ module DataCycleCore
         end
 
         def to_per_day_opening_hours
+          return nil if empty?
           data
             .map { |day, ranges| { DAY_HASH[day] => ranges.map { |range| convert_range_to_string(range) }.join(', ') } }
             .map { |day_hash| day_hash.values.first.present? ? day_hash : { day_hash.keys.first => 'geschlossen' } }
             .inject(&:merge)
+        end
+
+        def empty?
+          return true if @data.empty?
+          @data.select { |_day, ranges| ranges.present? }.size.zero?
         end
 
         # private
@@ -119,23 +128,32 @@ module DataCycleCore
         end
 
         def parse_google_interval(data)
-          return nil if data.dig('open').blank? || data.dig('close').blank?
-          opens = convert_to_i(data.dig('open'))
-          closes = convert_to_i(data.dig('close'), data.dig('open') < data.dig('close'))
-          (opens..closes)
+          return nil if data&.dig('open').blank? || data&.dig('close').blank?
+          opens = data.dig('open')
+          closes = data.dig('close')
+          parse_time_interval(opens, closes)
         end
 
         def parse_opening_hours_interval(data)
-          return nil if data.dig('opens').blank? || data.dig('closes').blank?
-          opens = convert_to_i(data.dig('opens'))
-          closes = convert_to_i(data.dig('closes'), data.dig('opens') > data.dig('closes'))
+          return nil if data&.dig('opens')&.blank? || data&.dig('closes').blank?
+          opens = data.dig('opens')
+          closes = data.dig('closes')
+          parse_time_interval(opens, closes)
+        end
+
+        def parse_time_interval(string_opens, string_closes)
+          opens = convert_to_i(string_opens)
+          closes = convert_to_i(string_closes, string_opens > string_closes)
+          return nil if opens.negative? || closes.negative?
+          return nil if opens > closes
+          return nil if opens > 24 * 60 * 60
+          return nil if closes > 48 * 60 * 60 # due to next day (2*24)
           (opens..closes)
         end
 
         def convert_to_time_string(number)
           hh = number / (60 * 60)
           mm = (number - hh * 60 * 60) / 60
-          # ss = number - hh * 60 * 60 - mm * 60
           hh -= 24 if hh > 24
           [hh.to_s, mm.to_s.rjust(2, '0')].join(':')
         end
@@ -166,8 +184,6 @@ module DataCycleCore
               .zip([60 * 60, 60])
               .map { |item| item.inject(&:*) }
               .inject(&:+)
-          else
-            raise NotImplementedError, 'only timestrings with format hh:mm or hh:mm:ss are supported'
           end
         end
 
