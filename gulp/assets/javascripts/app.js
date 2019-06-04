@@ -37,6 +37,7 @@ initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
 initializers.push(require('./modules/initializers/admin_panel_init'));
+initializers.push(require('./modules/initializers/watch_list'));
 initializers.push(require('./modules/initializers/reload_required_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values

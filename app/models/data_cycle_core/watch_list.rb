@@ -7,6 +7,7 @@ module DataCycleCore
     scope :by_user, ->(user) { where user: user }
 
     has_many :watch_list_data_hashes, dependent: :destroy
+    has_many :things, through: :watch_list_data_hashes, source: :hashable, source_type: 'DataCycleCore::Thing'
     belongs_to :user
 
     has_many :watch_list_shares, dependent: :destroy

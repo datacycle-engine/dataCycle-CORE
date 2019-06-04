@@ -1,0 +1,8 @@
+<div class="watch-lists-filter">
+    <div class="form-element">
+        <%= text_field_tag :q, nil, class: 'form-control', placeholder: "#{DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language)} filtern...", class: 'watch-list-filter-param' %>
+        <%= button_tag(type: :reset, class: "reset-watch-list-filter button") do %>
+            <i class="fa fa-times" aria-hidden="true"></i>
+        <% end %>
+    </div>
+</div>

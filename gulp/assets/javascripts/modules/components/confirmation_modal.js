@@ -76,9 +76,15 @@ class ConfirmationModal {
     this.close('confirmationCallback');
   }
   close(method_name, closeAll = false) {
-    if (this.overlay.is(':visible') && (closeAll || this.overlay.children('section.confirmation-section').length == 1))
-      this.overlay.parent('.reveal-overlay').remove();
-    else if (this.overlay.is(':visible')) {
+    if (
+      this.overlay.is(':visible') &&
+      (closeAll || this.overlay.children('section.confirmation-section').length == 1)
+    ) {
+      this.overlay
+        .foundation('close')
+        .parent('.reveal-overlay')
+        .remove();
+    } else if (this.overlay.is(':visible')) {
       this.section.remove();
       this.overlay.find('section.confirmation-section:visible').trigger('dc:confirmation_count:update');
     }

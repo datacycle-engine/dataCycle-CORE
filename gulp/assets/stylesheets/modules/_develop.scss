@@ -1576,7 +1576,8 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button) > .fa {
+[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link)
+  > .fa {
   font-size: inherit;
   line-height: inherit;
 }

@@ -69,7 +69,7 @@ module DataCycleCore
         if value.is_a?(ActiveRecord::Base)
           params_hash[key] = { id: value&.id, class: value&.class&.name }
         elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[key] = { ids: value&.ids, class: value&.class&.name }
+          params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
         else
           params_hash[key] = value
         end
