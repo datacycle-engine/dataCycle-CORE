@@ -82,15 +82,6 @@ module DataCycleCore
       data_link = watch_list.data_links.includes(:receiver).find_by(users: { email: user['email'] })
       assert data_link
 
-      get add_item_watch_list_path(watch_list), xhr: true, params: {
-        hashable_id: @content.id,
-        hashable_type: @content.class.name
-      }, headers: {
-        referer: root_path
-      }
-
-      assert_response 403
-
       delete remove_item_watch_list_path(watch_list), xhr: true, params: {
         hashable_id: watch_list_content.id,
         hashable_type: watch_list_content.class.name
@@ -98,7 +89,16 @@ module DataCycleCore
         referer: root_path
       }
 
-      assert_response 403
+      assert_response 200
+
+      get add_item_watch_list_path(watch_list), xhr: true, params: {
+        hashable_id: watch_list_content.id,
+        hashable_type: watch_list_content.class.name
+      }, headers: {
+        referer: root_path
+      }
+
+      assert_response 200
 
       logout
 
