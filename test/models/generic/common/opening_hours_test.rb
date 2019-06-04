@@ -83,7 +83,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       }, {
         'day_of_week' => days_to_ids(['Freitag']),
         'validity' => nil,
-        'time' => [{ 'opens' => '22:00', 'closes' => '24:00' }]
+        'time' => [{ 'opens' => '22:00', 'closes' => '0:00' }]
       }]
     end
 
@@ -111,7 +111,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
       }, {
         'day_of_week' => days_to_ids(['Freitag']),
         'validity' => nil,
-        'time' => [{ 'opens' => '22:00', 'closes' => '24:00' }]
+        'time' => [{ 'opens' => '22:00', 'closes' => '0:00' }]
       }]
     end
 
@@ -121,7 +121,7 @@ describe DataCycleCore::Generic::Common::OpeningHours do
         'Dienstag' => '7:00 - 22:00',
         'Mittwoch' => '7:00 - 22:00',
         'Donnerstag' => '10:00 - 22:00',
-        'Freitag' => '10:00 - 24:00',
+        'Freitag' => '10:00 - 0:00',
         'Samstag' => 'geschlossen',
         'Sonntag' => 'geschlossen'
       }

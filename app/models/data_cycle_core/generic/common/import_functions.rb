@@ -46,14 +46,18 @@ module DataCycleCore
           global_data = global_attributes.merge(data)
 
           if config&.dig(:asset_type).present?
-            Array(content.asset).map do |item|
-              item&.remove_file!
-              item&.destroy!
-            end
+            if utility_object.options.dig('no_asset_download') == true
+              global_data['asset'] = content&.asset&.id
+            else
+              Array(content.asset).map do |item|
+                item&.remove_file!
+                item&.destroy!
+              end
 
-            asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
-            asset.save!
-            global_data['asset'] = asset.id
+              asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+              asset.save!
+              global_data['asset'] = asset.id
+            end
           end
 
           if DataCycleCore::Feature::Normalize.enabled?
