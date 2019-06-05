@@ -46,9 +46,7 @@ module DataCycleCore
           global_data = global_attributes.merge(data)
 
           if config&.dig(:asset_type).present?
-            if utility_object.options.dig('no_asset_download') == true
-              global_data['asset'] = content&.asset&.id
-            else
+            if utility_object.asset_download
               Array(content.asset).map do |item|
                 item&.remove_file!
                 item&.destroy!
@@ -57,6 +55,8 @@ module DataCycleCore
               asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
               asset.save!
               global_data['asset'] = asset.id
+            else
+              global_data['asset'] = content&.asset&.id
             end
           end
 
