@@ -100,7 +100,7 @@ module DataCycleCore
           return if @data.blank?
           DAY_HASH.each_key do |day|
             next if @data.dig(day).size < 2
-            @data[day] = simplify_ranges(@data.dig(day).sort_by(&:max))
+            @data[day] = simplify_ranges(@data.dig(day).sort_by(&:min))
           end
           self
         end
