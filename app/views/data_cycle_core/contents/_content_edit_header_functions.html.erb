@@ -20,7 +20,7 @@
         <% end %>
 
         <% if content.translatable? && I18n.available_locales&.many? %>
-          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names.except(:all) }) %>
+          <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), content: content, source_locale: @split_source_params&.dig(:source_locale) %>
         <% end %>
 
         <% if can? :index, DataCycleCore::DataLink %>

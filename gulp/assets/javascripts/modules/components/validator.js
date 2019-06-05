@@ -6,7 +6,7 @@ class Validator {
   constructor(form_element) {
     this.form = $(form_element);
     this.submit_button = this.form.siblings('.edit-header').find('.submit-edit-form');
-    this.language_menu = this.form.siblings('.edit-header').find('#language-menu');
+    this.language_menu = this.form.siblings('.edit-header').find('#locales-menu');
     this.agbs_check = this.form.siblings('.edit-header').find('.form-element.agbs');
     this.initial_form_data = [];
     this.submit_form_data = [];
@@ -56,7 +56,7 @@ class Validator {
     });
     // language redirect if changes present
     if (this.language_menu.length) {
-      this.language_menu.on('click', '.list-items li a', event => {
+      this.language_menu.on('click', '.list-items > li > a', event => {
         quill_helpers.update_editors(this.form);
         this.submit_form_data = this.form.serializeArray();
         if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {

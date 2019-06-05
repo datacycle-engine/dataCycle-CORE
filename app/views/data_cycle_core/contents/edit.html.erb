@@ -2,15 +2,15 @@
 
 <% content_for :top_content do %>
 
-<div class="reveal-blur">
-  <div id="edit-form">
-    <%= render 'form',
-      key_prefix: 'thing[datahash]',
-      content: @content,
-      watch_list: @watch_list,
-      split_source: @split_source,
-      subscribe_notice: true %>
+  <div class="reveal-blur">
+    <div id="edit-form">
+      <%= render 'form',
+        key_prefix: 'thing[datahash]',
+        content: @content,
+        watch_list: @watch_list,
+        split_source: @split_source,
+        subscribe_notice: true %>
+    </div>
   </div>
-</div>
 
 <% end %>

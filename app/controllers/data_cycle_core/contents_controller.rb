@@ -110,13 +110,14 @@ module DataCycleCore
         @split_source_params = source_params
 
         if @split_source.present?
-          I18n.with_locale(@split_source.first_available_locale) do
+          I18n.with_locale(@split_source.first_available_locale(@split_source_params.dig(:source_locale))) do
             @split_schema = @split_source.get_data_hash
           end
         end
       end
 
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
         redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
@@ -378,9 +379,9 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
+        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table, :source_locale)
       elsif params[:source_id] && params[:source_table]
-        params.permit(:source_id, :source_table)
+        params.permit(:source_id, :source_table, :source_locale)
       else
         {}
       end

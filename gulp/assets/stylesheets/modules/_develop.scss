@@ -522,6 +522,8 @@ select {
       a.copy-all {
         width: 2rem;
         height: 2rem;
+        margin-top: -2.1rem;
+        margin-right: -0.9rem;
         .fa {
           font-size: 1.2rem;
           line-height: 2rem;
@@ -542,9 +544,9 @@ select {
       }
 
       .copy-all {
-        position: absolute;
-        right: 0.1rem;
-        top: 0.1rem;
+        float: right;
+        margin: 0.1rem;
+        z-index: 1;
       }
 
       .copy-to-clipboard {
@@ -572,9 +574,26 @@ select {
     .detail-header-info {
       text-align: left;
       display: flex;
-      width: 100%;
+      max-width: 100%;
       opacity: 0.3;
       transition: opacity 0.3s ease;
+
+      > * {
+        position: relative;
+        margin: 1rem 0 0 0;
+
+        &.close-source-link,
+        &.split-locales > li > a {
+          padding: 0 0.5rem;
+        }
+
+        &.close-source-link {
+          .fa {
+            font-size: 1.2rem;
+            color: $black;
+          }
+        }
+      }
 
       .metadata {
         white-space: nowrap;

@@ -38,6 +38,10 @@ class SplitView {
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
     this.container.closest('.split-content').on('click', '.copy-all', this.triggerAllButtons.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
+    this.container
+      .closest('.split-content')
+      .find('.close-subscribe-notice')
+      .on('click', this.dismissSubscribeNotice.bind(this));
   }
   setupAdditionalButtons(event, data) {
     event.stopImmediatePropagation();
@@ -56,6 +60,9 @@ class SplitView {
         data.single
       );
     }
+  }
+  dismissSubscribeNotice(_event) {
+    document.cookie = 'subscribe_notice_dismissed=true';
   }
   availableEditors(selectors = []) {
     let selector_string = selectors
@@ -134,7 +141,7 @@ class SplitView {
   setupCopyAllButtons(elements) {
     elements.each((_, item) => {
       if ($(item).find('a.copy').length)
-        $(item).append(
+        $(item).prepend(
           '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
         );
     });

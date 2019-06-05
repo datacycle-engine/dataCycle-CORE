@@ -69,15 +69,16 @@
           }
         }
       }
-      display: inline-block;
+      display: inline;
       position: relative;
       vertical-align: top;
       > a,
       > .link {
+        display: inline-block;
         color: $body-font-color;
         opacity: 0.3;
         transition: all ease-in-out 0.25s;
-        padding: 0 0.5rem 1rem 0.5rem;
+        padding: 0 0.5rem;
         border: none;
         cursor: pointer;
         line-height: 1.6;

@@ -6,8 +6,8 @@
 
   <div class="ca-buttons">
     <span class="has-dropdown">
-      <a class="button-prime small" data-toggle="language-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
-      <div class="dropdown-pane align-right no-bullet bottom" id="language-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+      <a class="button-prime small" data-toggle="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>"><i class="fa fa-language" aria-hidden="true"></i></a>
+      <div class="dropdown-pane align-right no-bullet bottom" id="locales-menu-<%= classification_alias&.id %>-<%= classification_tree_label&.id %>" data-dropdown data-hover="true" data-hover-pane="true">
         <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
         <ul class="list-items">
           <% available_locales_with_names.except(:all).each do |locale| %>

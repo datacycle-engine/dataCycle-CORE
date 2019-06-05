@@ -1233,7 +1233,6 @@ body.login-page {
 
 a[data-toggle] {
   display: inline-block;
-  padding-bottom: 1rem;
   &.has-tip {
     padding-bottom: 0;
   }
@@ -1246,6 +1245,7 @@ a[data-toggle] {
   text-align: center;
   z-index: 1006;
   max-width: 300px;
+  top: calc(100% + 1rem) !important;
 
   &::before {
     content: '▲';
@@ -1294,8 +1294,15 @@ a[data-toggle] {
       }
 
       .buttons {
+        position: relative;
+        top: 0;
+        right: 0;
         float: right;
         vertical-align: middle;
+
+        > * {
+          margin-left: 0.3rem;
+        }
 
         span,
         a {
@@ -1379,7 +1386,6 @@ a[data-toggle] {
   &.align-right {
     right: -18px !important;
     left: auto !important;
-    top: 100% !important;
 
     &:before {
       content: '▲';
