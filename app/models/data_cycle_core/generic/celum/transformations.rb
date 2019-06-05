@@ -23,7 +23,7 @@ module DataCycleCore
           .>> t(:add_field, 'types_of_use_celum', ->(s) { [parse_types_of_use([s.dig('documentInformationEntries', 'documentInformationEntry')].flatten)].compact.presence })
           .>> t(:add_links, 'keywords_celum', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('keywords', 'keyword')]&.flatten&.map { |item| item.is_a?(::Hash) ? "Keyword:#{item.values.first}" : nil }&.flatten || [] })
           .>> t(:add_links, 'folders_celum', DataCycleCore::Classification, external_source_id, ->(s) { ["Folder:#{s&.dig('folder', '#cdata-section')}"] }, ->(s) { s&.dig('folder', '#cdata-section') })
-          .>> t(:add_links, 'asset_collections_celum', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('assetCollections', 'assetCollection')]&.flatten&.map { |item| item.dig('#cdata-section')}&.map { |item| "AssetCollection:#{item}" } }, ->(s) { s&.dig('assetCollections', 'assetCollection') })
+          .>> t(:add_links, 'asset_collections_celum', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('assetCollections', 'assetCollection')]&.flatten&.map { |item| item.dig('#cdata-section') }&.map { |item| "AssetCollection:#{item}" } }, ->(s) { s&.dig('assetCollections', 'assetCollection') })
           .>> t(:add_links, 'created_by_celum', DataCycleCore::Classification, external_source_id, ->(s) { ["Celum - User - #{s&.dig('createdBy', '#cdata-section') || s&.dig('user', '#cdata-section')}"] }, ->(s) { s&.dig('createdBy', '#cdata-section') || s&.dig('user', '#cdata-section') })
           .>> t(
             :reject_keys,
