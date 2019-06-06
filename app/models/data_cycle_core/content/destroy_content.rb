@@ -37,12 +37,14 @@ module DataCycleCore
             end
           end
         end
+
+        # update update references from DataCycleCore::ContentContent::History to DataCycleCore::Thing
+        return if (destroy_locale && available_locales.many?) || history?
+
         asset_property_names.each do |name|
           load_asset_relation(name)&.destroy
         end
 
-        # update update references from DataCycleCore::ContentContent::History to DataCycleCore::Thing
-        return if (destroy_locale && available_locales.many?) || history?
         last_history_entry = histories.where.not(deleted_at: nil)&.first
         return if last_history_entry.blank?
         DataCycleCore::ContentContent::History
