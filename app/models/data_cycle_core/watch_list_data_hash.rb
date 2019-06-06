@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class WatchListDataHash < ApplicationRecord
-    belongs_to :watch_list
+    belongs_to :watch_list, touch: true
     belongs_to :hashable, polymorphic: true
 
     after_commit :notify_data_links, on: [:create, :destroy], unless: proc { |w| w.watch_list.destroyed? }
