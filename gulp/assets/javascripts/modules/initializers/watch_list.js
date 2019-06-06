@@ -66,15 +66,15 @@ module.exports.initialize = function() {
 
     if (value.length) {
       $(watchList)
-        .find('.reset-watch-list-filter:hidden')
-        .fadeIn(100);
-      $(watchList)
         .find('> .list-items > li')
         .removeClass('visible even')
         .filter('[data-name*="' + value + '"]')
         .addClass('visible')
         .filter(':even')
         .addClass('even');
+      $(watchList)
+        .find('.reset-watch-list-filter:hidden')
+        .fadeIn(100);
       $.rails.enableFormElement($(watchList).find('.reset-watch-list-filter'));
     } else {
       $(watchList)

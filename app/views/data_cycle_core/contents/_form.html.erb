@@ -29,7 +29,7 @@
               <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), data: { tooltip: true }, class: 'close-source-link' %>
             </div>
 
-            <%= render_content_partial 'details', content: split_source, options: { force_render: true } %>
+            <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
           </div>
         </div>
       <% end %>
