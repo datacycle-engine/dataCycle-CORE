@@ -159,6 +159,7 @@ de:
       other: '%{data} mögliche Duplikate'
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
+    merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
 
   external_connection_states:
     success: Erfolgreich synchronisiert

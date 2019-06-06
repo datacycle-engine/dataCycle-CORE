@@ -19,15 +19,17 @@
           </li>
         <% end %>
 
-        <% if content.translatable? && I18n.available_locales&.many? %>
-          <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), content: content, source_locale: @split_source_params&.dig(:source_locale) %>
-        <% end %>
+        <%= render 'edit_locale_links',
+          locales: available_locales_with_names.except(:all),
+          content: content,
+          source_locale: @source_locale,
+          link_action: local_assigns[:link_action] if content.translatable? && I18n.available_locales&.many? %>
 
-        <% if can? :index, DataCycleCore::DataLink %>
-          <li class="has-dropdown right"><%= render 'data_links', content: content %></li>
-        <% end %>
+        <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
 
         <li class="buttons">
+          <%= yield :additional_edit_buttons %>
+
           <%= button_tag tag.i(class: 'fa fa-exchange', aria_hidden: true),
             class: 'normalize-content-button',
             title: t('common.normalize', locale: DataCycleCore.ui_language),
@@ -50,7 +52,7 @@
 
           <%= button_tag tag.i(class: 'fa fa-check', aria_hidden: true),
             class: 'button-prime submit submit-edit-form',
-            title: content_for?(:submit_button_text) ? content_for(:submit_button_text) : t('actions.save_changes', locale: DataCycleCore.ui_language),
+            title: t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
               tooltip: true,
               disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)

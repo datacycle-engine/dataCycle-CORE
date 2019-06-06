@@ -49,6 +49,7 @@ module.exports.initialize = function() {
   });
 
   function filterWatchList(watchList, query = null) {
+    $.rails.disableFormElement($(watchList).find('.reset-watch-list-filter'));
     let q;
     if (query !== null && query !== undefined) {
       q = query;
@@ -65,19 +66,28 @@ module.exports.initialize = function() {
 
     if (value.length) {
       $(watchList)
+        .find('.reset-watch-list-filter:hidden')
+        .fadeIn(100);
+      $(watchList)
         .find('> .list-items > li')
         .removeClass('visible even')
         .filter('[data-name*="' + value + '"]')
         .addClass('visible')
         .filter(':even')
         .addClass('even');
-    } else
+      $.rails.enableFormElement($(watchList).find('.reset-watch-list-filter'));
+    } else {
       $(watchList)
         .find('> .list-items > li')
         .removeClass('even')
         .addClass('visible')
         .filter(':even')
         .addClass('even');
+      $(watchList)
+        .find('.reset-watch-list-filter:visible')
+        .fadeOut(100);
+      $.rails.enableFormElement($(watchList).find('.reset-watch-list-filter'));
+    }
 
     if ($(watchList).is(':visible')) $(watchList).trigger('dc:dropdown:resize');
 

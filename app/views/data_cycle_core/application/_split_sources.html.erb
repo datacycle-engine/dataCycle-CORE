@@ -7,18 +7,18 @@
             <% sources = [] %>
             <% contents.each do |content| %>
                 <% I18n.with_locale(content.first_available_locale) do %>
-                    <% sources.push(["#{content.title} (#{content.template_name}, #{I18n.locale})", "source_id=>#{content.id},source_table=>#{content.class.table_name}"]) %>
+                    <% sources.push(["#{content.title} (#{content.template_name}, #{I18n.locale})", content.id]) %>
                 <% end %>
             <% end %>
 
             <% selected_value = '' %>
             <% I18n.with_locale(selected.first_available_locale) do %>
-                <% selected_value = ["#{selected.title} (#{selected.template_name}, #{selected.translated_locales.first})", "source_id=>#{selected.id},source_table=>#{selected.class.table_name}"] %>
+                <% selected_value = ["#{selected.title} (#{selected.template_name}, #{selected.translated_locales.first})", selected&.id] %>
             <% end unless selected.blank? %>
 
             <div class="form-element">
                 <div class="v-select white">
-                    <%= select_tag('source', options_for_select(sources, selected_value), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
+                    <%= select_tag('source_id', options_for_select(sources, selected&.id), {class: 'single-select select', data: {placeholder: 'Vorlage wählen'}, include_blank: true}) %>
                 </div>
             </div>
 
