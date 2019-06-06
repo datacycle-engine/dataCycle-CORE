@@ -12,12 +12,9 @@ module DataCycleCore
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do
               xml.source @source
               # xml.owner @owner
-              contents.reject { |content|
-                Functions.outdoor_active_system_status(content, external_system) == 'offline' &&
-                  !content.external_systems.map(&:id).include?(external_system.id)
-              }.each do |content|
+              contents.each do |content|
                 xml.poi('id' => content.id,
-                        'workflow' => DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_status(content, external_system),
+                        'workflow' => Functions.outdoor_active_system_status(content, external_system),
                         'lastmodified' => content.updated_at) do
                   outdoor_active_system_source_keys(content, xml, external_system)
                   # xml.author 'DataCycle'
@@ -113,7 +110,7 @@ module DataCycleCore
         end
 
         def self.outdoor_active_system_categories(content, xml, external_system)
-          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_categories(content, external_system)
+          categories = Functions.outdoor_active_system_categories(content, external_system)
           return if categories.blank?
           if categories.count == 1
             xml.category categories.first.external_key.split(':').last
@@ -127,7 +124,7 @@ module DataCycleCore
         end
 
         def self.outdoor_active_system_source_keys(content, xml, external_system)
-          categories = DataCycleCore::Export::OutdoorActive::Functions.outdoor_active_system_source_keys(content, external_system)
+          categories = Functions.outdoor_active_system_source_keys(content, external_system)
           return if categories.blank?
           xml.owner categories.first.external_key.split(':').last
         end

@@ -67,7 +67,7 @@ module DataCycleCore
 
             'offline'
           elsif statuses.size == 1
-            'online'
+            statuses.first.primary_classification_alias.internal_name
           else
             raise 'Ambiguous value for "OutdoorActive - System - Status"'
           end
