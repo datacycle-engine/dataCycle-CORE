@@ -22,6 +22,12 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
+        :api:
+          :disabled: true        
       :alternative_headline:
         :label: Alt-Label
         :type: string
@@ -80,12 +86,6 @@
           :format: url
         :api:
           :name: sameAs
-      :asset:
-        :label: Datei
-        :type: asset
-        :asset_type: image
-        :api:
-          :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -170,7 +170,7 @@
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
-                - Organisation        
+                - Organisation
       :license_fields:
         :type: mixin
         :name: license_fields

@@ -20,6 +20,12 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: data_cycle_file
+        :api:
+          :disabled: true        
       :description:
         :label: Teasertext
         :type: string
@@ -45,12 +51,6 @@
         :ui:
           :show:
             :disabled: true
-      :asset:
-        :label: Datei
-        :type: asset
-        :asset_type: data_cycle_file
-        :api:
-          :disabled: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -88,7 +88,7 @@
             :disabled: true
       :additional_asset_properties:
         :type: mixin
-        :name: additional_asset_properties            
+        :name: additional_asset_properties
       :data_type:
         :label: Inhaltstype
         :type: classification

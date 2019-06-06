@@ -22,6 +22,12 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: audio
+        :api:
+          :disabled: true        
       :description:
         :label: Teasertext
         :type: string
@@ -55,12 +61,6 @@
           :format: url
         :api:
           :name: sameAs
-      :asset:
-        :label: Datei
-        :type: asset
-        :asset_type: audio
-        :api:
-          :disabled: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
