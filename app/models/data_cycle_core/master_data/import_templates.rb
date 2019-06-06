@@ -3,13 +3,13 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      CONTENT_TABLES = ['creative_works', 'events', 'organizations', 'persons', 'places', 'things'].freeze
+      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'things'].freeze
 
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
-        @mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
-        errors = import_all_templates(template_hash: import_hash, validation: validation)
+        mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
+        errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
         # TODO: add notice + warning
         return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
       end
@@ -52,19 +52,19 @@ module DataCycleCore
         return import_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
       end
 
-      def self.import_all_templates(template_hash:, validation: true)
+      def self.import_all_templates(template_hash:, validation: true, mixins:)
         errors = {}
         template_hash.each do |content_table, template_list|
-          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_table: content_table, validation: validation) })
+          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_table: content_table, validation: validation, mixins: mixins) })
         end
         errors
       end
 
-      def self.import_content_templates(template_list:, content_table:, validation: true)
+      def self.import_content_templates(template_list:, content_table:, validation: true, mixins:)
         errors = {}
         template_list.each do |template_location|
           template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
-          template[:data] = transform_schema(schema: template[:data].dup, content_table: content_table)
+          template[:data] = transform_schema(schema: template[:data].dup, content_table: content_table, mixins: mixins)
           error = {}
           error = validate(template) if validation
           if error.blank?
@@ -88,10 +88,10 @@ module DataCycleCore
         puts e.backtrace
       end
 
-      def self.transform_schema(content_table: nil, schema: {})
+      def self.transform_schema(content_table: nil, schema: {}, mixins:)
         schema[:boost] = schema[:boost] || 1.0
         schema[:features] = transform_features(schema: schema, content_table: content_table)
-        schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table)
+        schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table, mixins: mixins)
         schema
       end
 
@@ -100,16 +100,16 @@ module DataCycleCore
         schema.dig(:features) || {}
       end
 
-      def self.transform_properties(property_hash: {}, content_table: nil)
+      def self.transform_properties(property_hash: {}, content_table: nil, mixins: nil)
         new_properties = {}
         sorting = 1
         property_hash.each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
-            if !content_table.nil? && @mixin_list.dig(content_table.to_sym, property_value[:name].to_sym).present?
-              active_mixin = @mixin_list[content_table.to_sym]
-            elsif @mixin_list.dig(:default, property_value[:name].to_sym).present?
-              active_mixin = @mixin_list[:default]
+            if !content_table.nil? && mixins.dig(content_table.to_sym, property_value[:name].to_sym).present?
+              active_mixin = mixins[content_table.to_sym]
+            elsif mixins.dig(:default, property_value[:name].to_sym).present?
+              active_mixin = mixins[:default]
             else
               raise "mixin for #{property_value[:name]} not found".inspect
             end
