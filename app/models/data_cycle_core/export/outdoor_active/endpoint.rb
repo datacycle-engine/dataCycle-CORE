@@ -48,7 +48,7 @@ module DataCycleCore
             error_msg = response_body.children.first.content
             { 'job_id' => job_id, 'job_status' => job_status, 'job_message' => error_msg, 'external_source_id' => data.external_source.id }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow state for job: #{job_id} #{response}"
+            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow state for job: #{job_id} #{response}", response
           end
         end
       end
