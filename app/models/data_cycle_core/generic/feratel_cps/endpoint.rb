@@ -40,10 +40,20 @@ module DataCycleCore
           end
         end
 
+        class SimpleNoEncoder
+          def self.encode(arg)
+            "#{arg.keys.first}=#{arg.values.first}"
+          end
+
+          def self.decode(arg)
+            { arg.split('?').last.split('=').first => arg.split('?').last.split('=').last }
+          end
+        end
+
         protected
 
         def load_data(type)
-          connection = Faraday.new(@host + @end_point) do |con|
+          connection = Faraday.new(@host + @end_point, request: { params_encoder: SimpleNoEncoder }) do |con|
             con.use FaradayMiddleware::FollowRedirects, limit: 5
             con.adapter Faraday.default_adapter
           end
