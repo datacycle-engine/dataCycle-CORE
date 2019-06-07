@@ -165,7 +165,7 @@ module DataCycleCore
       unless parameters[:default]
         partials.unshift(
           "#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
-          "#{parameters[:content].schema['schema_type'].underscore}_#{partial}",
+          "#{parameters[:content].schema['schema_type'].underscore}_#{partial}"
         )
       end
 
