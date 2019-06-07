@@ -8,10 +8,11 @@ module DataCycleCore
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
-        mixin_list, _mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
+        mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
+        mixin_dup = mixin_duplicates.map { |folder, mixins| { folder => mixins.map { |name, list| { name => list.map { |item| item.except(:properties) } } } } }
         errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
         # TODO: add notice + warning
-        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}
+        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}, mixin_dup || {}
       end
 
       def self.import_template_list(template_paths: nil)
@@ -34,7 +35,6 @@ module DataCycleCore
             file_names = Dir[files]
             file_names.each do |file_name|
               data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
-              # new_template_definitions = data_templates.map { |item| item[:data][:name] }
               data_templates.each_index do |index|
                 already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
                 new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }

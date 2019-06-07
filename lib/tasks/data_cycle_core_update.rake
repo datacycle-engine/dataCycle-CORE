@@ -55,10 +55,14 @@ namespace :data_cycle_core do
     task import_templates: [:environment] do
       before_import = Time.zone.now
       puts 'importing new template definitions'
-      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+      errors, duplicates, mixin_duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if duplicates.present?
         puts 'INFO: the following templates had multiple definitions:'
         ap duplicates
+      end
+      if mixin_duplicates.present?
+        puts 'INFO: the following mixins had multiple definitions:'
+        ap mixin_duplicates
       end
       if errors.present?
         puts 'the following errors were encountered during import:'
