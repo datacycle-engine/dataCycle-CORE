@@ -3,13 +3,6 @@
     :name: tags
     :type: mixin
     :properties:
-      :tags:
-        :label: Tags
-        :type: classification
-        :tree_label: Tags
-        :ui:
-          :show:
-            :content_area: header
       :keywords_medienarchive:
         :label: MediaArchive - Tags
         :type: classification
@@ -17,7 +10,7 @@
         :external: true
         :ui:
           :show:
-            :content_area: header            
+            :content_area: header
       :keywords_eyebase:
         :label: Eyebase - Tags
         :type: classification
