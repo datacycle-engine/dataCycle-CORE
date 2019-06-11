@@ -9,10 +9,12 @@ module DataCycleCore
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
         import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
         mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
-        mixin_dup = mixin_duplicates.map { |folder, mixins| { folder => mixins.map { |name, list| { name => list.map { |item| item.except(:properties) } } } } }
         errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
+        format_duplicates = duplicates&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
+        format_mixin_duplicates = mixin_duplicates&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
+        format_errors = errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
         # TODO: add notice + warning
-        return errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}, duplicates || {}, mixin_dup || {}
+        return format_errors, format_duplicates, format_mixin_duplicates
       end
 
       def self.import_template_list(template_paths: nil)
@@ -41,8 +43,8 @@ module DataCycleCore
                 if already_exist_index.nil?
                   import_list[content_table_name.to_sym] += [new_template_data]
                 else
-                  collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name)] }) if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
-                  collisions[content_table_name.to_sym][new_template_data[:name]] += [{ file: file_name, position: index }]
+                  collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name, :position)] }) if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
+                  collisions[content_table_name.to_sym][new_template_data[:name]] += [{ file: file_name }]
                   import_list[content_table_name.to_sym][already_exist_index] = new_template_data
                 end
               end
