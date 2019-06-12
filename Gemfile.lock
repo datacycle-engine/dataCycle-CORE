@@ -415,6 +415,7 @@ GEM
     rb-fsevent (0.10.3)
     rb-inotify (0.10.0)
       ffi (~> 1.0)
+    rb-readline (0.5.5)
     redcarpet (3.4.0)
     redis (4.1.1)
     redis-actionpack (5.0.2)
@@ -534,6 +535,7 @@ DEPENDENCIES
   jb
   listen
   pry
+  rb-readline
   rubocop (~> 0.63.1)
   rubyzip (>= 1.2.1)
   simplecov

@@ -41,6 +41,8 @@
     > div,
     > span {
       display: block;
+      overflow: hidden;
+      text-overflow: ellipsis;
 
       &:not(:last-child):not(.has-parent) {
         padding-bottom: 0.5rem;

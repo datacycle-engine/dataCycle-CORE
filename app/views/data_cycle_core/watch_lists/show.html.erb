@@ -9,18 +9,19 @@
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
                         <li>
-                            <span class="link" data-tooltip data-allow-html="true"
-                                title="<%= @watch_list
-                                    .things.includes(:translations)
-                                    .map { |t| t.try(:available_locales) }.flatten.uniq
-                                    .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
-                                    .join('<br />') %>">
-                                <i class="fa fa-language" aria-hidden="true"></i>
-                            </span>
+                          <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
+                            class: 'link',
+                            data: {
+                              tooltip: @watch_list.things.present? ? true : nil,
+                              allow_html: true
+                            },
+                            title: @watch_list
+                              .things.includes(:translations)
+                              .map { |t| t.try(:available_locales) }.flatten.uniq
+                              .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
+                              .join('<br />') %>
                         </li>
-                        <% if can?(:index, DataCycleCore::DataLink) %>
-                            <li><%= render 'data_links', content: @watch_list %></li>
-                        <% end %>
+                        <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
                         <li class="buttons">
                             <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
                               <i aria-hidden="true" class="fa fa-times"></i>

@@ -105,6 +105,12 @@
           overflow: hidden;
           text-overflow: ellipsis;
           font-size: 0.8rem;
+          &.private {
+            font-weight: 600;
+          }
+          &.shared {
+            font-style: italic;
+          }
         }
       }
 
@@ -120,6 +126,8 @@
   .add-watchlist-to-menu {
     position: relative;
     margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid $medium-gray;
     label {
       display: none;
     }
@@ -164,9 +172,11 @@
       padding-right: 2.5rem;
       height: 2.2rem;
       background: none;
-      box-shadow: 0 0 2px $light-gray inset;
+      border: none;
+      border-bottom: 1px solid $light-gray;
+      box-shadow: none;
       &:focus {
-        border-color: $primary-color;
+        border-color: $dark-gray;
       }
       &::placeholder {
         color: $dark-gray;
@@ -178,11 +188,17 @@
       top: 0;
       margin: 0;
       padding: 0.5rem;
-      display: block;
+      display: none;
       outline: none;
       height: 100%;
       width: 2.5rem;
       line-height: 1rem;
+      color: $dark-gray;
+      background: none;
+      box-shadow: none;
+      &:hover {
+        color: $black;
+      }
       .fa {
         line-height: 1rem;
         font-size: 1rem;

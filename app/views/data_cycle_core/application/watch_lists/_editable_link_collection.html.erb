@@ -1,1 +1,1 @@
-<%= render partial: 'data_cycle_core/application/watch_lists/editable_link', collection: DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :watch_list_data_hashes), as: :watch_list, locals: local_assigns %>
+<%= render partial: 'data_cycle_core/application/watch_lists/editable_link', collection: DataCycleCore::WatchList.accessible_by(current_ability).includes(:valid_write_links, :watch_list_shares, :watch_list_data_hashes).order(updated_at: :desc), as: :watch_list, locals: local_assigns %>

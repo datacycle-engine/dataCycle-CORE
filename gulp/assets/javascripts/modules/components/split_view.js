@@ -65,12 +65,10 @@ class SplitView {
     document.cookie = 'subscribe_notice_dismissed=true';
   }
   availableEditors(selectors = []) {
-    let selector_string = selectors
-      .map(x => {
-        return '> div[data-editor=' + x + '], > div[data-editor=included-object] > div[data-editor=' + x + ']';
-      })
-      .join(', ');
-    return this.container.find(selector_string);
+    let newSelectorString = selectors.map(x => 'div[data-editor=' + x + ']').join(', ');
+    let notInSelector = 'div[data-editor]:not([data-editor="included-object"])';
+
+    return this.container.find(newSelectorString).filter((_, elem) => $(elem).parents(notInSelector));
   }
   setupObjectBrowserButtons() {
     this.availableEditors(['object_browser']).each((_, elem) => {

@@ -1,6 +1,6 @@
-<%= render_content_partial 'edit_header_functions', content: content %>
+<%= render_content_partial 'edit_header_functions', content: content, link_action: local_assigns[:link_action] %>
 
-<%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form' do |f| %>
+<%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
   <%= hidden_field_tag :uuid, content.id %>
   <%= hidden_field_tag :table, content.class.table_name %>
   <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
@@ -9,7 +9,7 @@
 
   <div class="<%= 'flex-box' if split_source %>">
     <% if split_source %>
-      <% I18n.with_locale(split_source.first_available_locale(@split_source_params&.dig(:source_locale))) do %>
+      <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
         <div class="row split-content detail-content">
           <%= hidden_field_tag 'splitview', true %>
 
@@ -19,12 +19,17 @@
             <div class="detail-header-info">
               <%= render 'meta_data', content: split_source %>
               <ul class="split-locales no-bullet">
-                <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), prefix: "source-#{split_source.id}-", content: content, locale: @locale %>
+                <%= render 'split_locale_links',
+                  locales: available_locales_with_names.except(:all),
+                  prefix: "source-#{split_source.id}-",
+                  content: content,
+                  locale: @locale,
+                  link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
               </ul>
               <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), data: { tooltip: true }, class: 'close-source-link' %>
             </div>
 
-            <%= render_content_partial 'details', content: split_source, options: { force_render: true } %>
+            <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
           </div>
         </div>
       <% end %>
