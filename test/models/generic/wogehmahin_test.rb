@@ -62,7 +62,7 @@ module DataCycleCore
       end
 
       def teardown
-        DataCycleCore::MongoHelper.drop_mongo_db('Wogehmahin')
+        DataCycleCore::MongoHelper.drop_mongo_db('wogehmahin.at')
       end
     end
   end
