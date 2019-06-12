@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: image
         :api:
-          :disabled: true        
+          :disabled: true
       :alternative_headline:
         :label: Alt-Label
         :type: string
@@ -216,9 +216,9 @@
         :ui:
           :show:
             :disabled: true
-      :additional_image_properties:
+      :additional_media_properties:
         :type: mixin
-        :name: additional_image_properties
+        :name: additional_media_properties
       :tags:
         :type: mixin
         :name: tags

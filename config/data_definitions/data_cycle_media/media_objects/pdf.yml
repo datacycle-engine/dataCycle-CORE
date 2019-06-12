@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: pdf
         :api:
-          :disabled: true        
+          :disabled: true
       :description:
         :label: Teasertext
         :type: string
@@ -163,9 +163,9 @@
         :ui:
           :show:
             :disabled: true
-      :additional_pdf_properties:
+      :additional_media_properties:
         :type: mixin
-        :name: additional_pdf_properties
+        :name: additional_media_properties
       :data_type:
         :label: Inhaltstype
         :type: classification

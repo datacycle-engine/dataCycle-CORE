@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: video
         :api:
-          :disabled: true        
+          :disabled: true
       :caption:
         :label: Alt-Label
         :type: string
@@ -199,9 +199,9 @@
         :ui:
           :show:
             :disabled: true
-      :additional_video_properties:
+      :additional_media_properties:
         :type: mixin
-        :name: additional_video_properties
+        :name: additional_media_properties
       :tags:
         :type: mixin
         :name: tags

@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: audio
         :api:
-          :disabled: true        
+          :disabled: true
       :description:
         :label: Teasertext
         :type: string
@@ -115,9 +115,9 @@
         :ui:
           :show:
             :disabled: true
-      :additional_audio_properties:
+      :additional_media_properties:
         :type: mixin
-        :name: additional_audio_properties
+        :name: additional_media_properties
       :tags:
         :type: mixin
         :name: tags
