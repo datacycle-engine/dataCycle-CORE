@@ -219,6 +219,9 @@
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
+      :additional_image_properties:
+        :type: mixin
+        :name: additional_image_properties        
       :tags:
         :type: mixin
         :name: tags

@@ -1,5 +1,5 @@
 ---
 - :data:
-    :name: additional_media_properties
+    :name: additional_asset_properties
     :type: mixin
     :properties: ~

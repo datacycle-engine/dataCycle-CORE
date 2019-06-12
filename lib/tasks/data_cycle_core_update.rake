@@ -12,6 +12,7 @@ namespace :data_cycle_core do
         puts 'the following errors were encountered during import:'
         ap errors
       end
+      puts "\n"
     end
 
     desc 'import all external_system configs'
@@ -24,6 +25,7 @@ namespace :data_cycle_core do
         puts 'the following errors were encountered during import:'
         ap errors
       end
+      puts "\n"
     end
 
     desc 'import classifications'
@@ -37,7 +39,7 @@ namespace :data_cycle_core do
         exit(-1)
       end
 
-      puts "\nchecking for unused <Inhaltstypen> classifications"
+      puts 'checking for unused <Inhaltstypen> classifications'
       data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
       if data.present?
         puts "\nWARNING: the following classification_aliases are not updated:"
@@ -49,6 +51,7 @@ namespace :data_cycle_core do
       else
         puts('[done] ... looks good')
       end
+      puts "\n"
     end
 
     desc 'import all template definitions'
@@ -89,6 +92,7 @@ namespace :data_cycle_core do
           puts "#{key.to_s.ljust(20)} | #{value[:template_updated_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
         end
       end
+      puts "\n"
     end
 
     desc 'delete history of a specific template_name'

@@ -118,6 +118,9 @@
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
+      :additional_audio_properties:
+        :type: mixin
+        :name: additional_audio_properties
       :tags:
         :type: mixin
         :name: tags

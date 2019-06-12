@@ -89,6 +89,9 @@
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
+      :additional_asset_properties:
+        :type: mixin
+        :name: additional_asset_properties  
       :data_type:
         :label: Inhaltstype
         :type: classification
