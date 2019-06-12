@@ -1,6 +1,6 @@
 <% if object.schema.present? %>
 
-    <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+    <% validation_properties = ordered_validation_properties(validation: object.schema, context: 'edit') %>
     <% if !validation_properties.nil? %>
 
         <div class="content-object-item draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">

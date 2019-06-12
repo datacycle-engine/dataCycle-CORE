@@ -16,7 +16,7 @@ module DataCycleCore
         classification_paths.each do |classification_path|
           file = classification_path + 'classifications.yml'
           next unless File.exist?(file)
-          tree_array = YAML.load(File.open(file.to_s))
+          tree_array = YAML.safe_load(File.open(file.to_s), [Symbol])
           merged_data_trees.deep_merge!(iterate_array(tree_array))
         end
         return_data = iterate_tree_hash(merged_data_trees)
@@ -90,9 +90,17 @@ module DataCycleCore
       end
 
       def self.get_label(label)
-        DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label) do |label_data|
+        split_data = label.split('|').map(&:squish)
+        label = split_data[0]
+        visibility = split_data[1]&.split(',')&.map(&:squish) || []
+
+        tree_label = DataCycleCore::ClassificationTreeLabel.find_or_initialize_by(name: label) do |label_data|
           label_data.seen_at = Time.zone.now
         end
+
+        tree_label.visibility = visibility
+        tree_label.save
+        tree_label
       end
 
       def self.upsert_classification(data, classification_alias_id, description)

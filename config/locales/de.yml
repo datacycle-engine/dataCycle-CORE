@@ -212,6 +212,14 @@ de:
       one: mein
       other: meine
 
+  classification_visibilities:
+    backend: Dashboard
+    show: Detail-Ansicht
+    api: API
+    tile: Kachel
+    show_more: Detail-Ansicht (standardmäßig eingeklappt)
+    edit: Bearbeitungs-Ansicht
+
   actions:
     new: erstellen
     show: anzeigen
@@ -469,6 +477,8 @@ de:
         name: Name
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
+      data_cycle_core/classification_tree_label:
+        visibility: Sichtbarkeit
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'

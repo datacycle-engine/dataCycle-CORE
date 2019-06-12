@@ -203,6 +203,35 @@ button,
     position: relative;
   }
 
+  .hidden-classifications {
+    text-align: left;
+    .accordion-item {
+      .accordion-content {
+        background: none;
+        padding: 0;
+      }
+      .accordion-title {
+        display: inline-block;
+        text-align: left;
+        padding: 0.2rem 0;
+        font-size: 0.8rem;
+
+        &::before {
+          display: none;
+        }
+
+        &::after {
+          font-family: 'FontAwesome';
+          content: '\f107';
+          margin-left: 0.3rem;
+        }
+      }
+      &.is-active .accordion-title::after {
+        content: '\f106';
+      }
+    }
+  }
+
   .external-connections {
     border-bottom: 0px;
     margin-top: 1rem;
@@ -228,7 +257,8 @@ button,
     position: relative;
   }
 
-  > .detail-type {
+  > .detail-type,
+  > .hidden-classifications .detail-type {
     text-align: left;
 
     &.classification .icon,

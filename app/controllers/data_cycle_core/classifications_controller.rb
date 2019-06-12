@@ -104,7 +104,7 @@ module DataCycleCore
       permitted_params = params.permit(
         :classification_tree_label_id,
         :classification_tree_id,
-        classification_tree_label: [:name, :internal],
+        classification_tree_label: [:name, :internal, visibility: []],
         classification_alias: [:name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 
@@ -152,7 +152,7 @@ module DataCycleCore
     def update
       locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
       permitted_params = params.permit(
-        classification_tree_label: [:id, :name, :internal],
+        classification_tree_label: [:id, :name, :internal, visibility: []],
         classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 

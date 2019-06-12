@@ -72,11 +72,8 @@ module DataCycleCore
     mattr_accessor :special_data_attributes
     self.special_data_attributes = ['id', 'validity_period']
 
-    mattr_accessor :internal_classification_attributes
-    self.internal_classification_attributes = ['data_type']
-
     mattr_accessor :internal_data_attributes
-    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of'] + internal_classification_attributes
+    self.internal_data_attributes = ['date_created', 'date_modified', 'date_deleted', 'is_part_of']
 
     mattr_accessor :asset_objects
     self.asset_objects = ['DataCycleCore::Image', 'DataCycleCore::Video', 'DataCycleCore::Audio', 'DataCycleCore::Pdf', 'DataCycleCore::DataCycleFile', 'DataCycleCore::TextFile']
@@ -141,6 +138,16 @@ module DataCycleCore
 
     mattr_accessor :content_warnings
     self.content_warnings = {}
+
+    mattr_accessor :classification_visibilities
+    self.classification_visibilities = [
+      'backend',
+      'show',
+      'show_more',
+      'edit',
+      'api',
+      'tile'
+    ]
   end
 
   def self.setup

@@ -13,16 +13,14 @@ module DataCycleCore
         end
 
         def publication_date_key(content)
-          publication_template(content)&.property_definitions&.select do |k, v|
-            v['type'] == 'datetime' &&
-              DataCycleCore.internal_classification_attributes.exclude?(k)
+          publication_template(content)&.property_definitions&.select do |_k, v|
+            v['type'] == 'datetime'
           end&.keys&.first
         end
 
         def classification_tree_labels(content)
-          publication_template(content)&.property_definitions&.select do |k, v|
-            v['type'] == 'classification' &&
-              DataCycleCore.internal_classification_attributes.exclude?(k)
+          publication_template(content)&.property_definitions&.select do |_k, v|
+            v['type'] == 'classification'
           end&.transform_values do |v|
             v['tree_label']
           end

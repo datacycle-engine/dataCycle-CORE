@@ -21,5 +21,25 @@
     </span>
   </div>
 
+  <div class="ca-input">
+    <div class="ca-collection-checkboxes">
+      <%= f.label :visibility %>
+      <%= f.collection_check_boxes :visibility,
+        DataCycleCore.classification_visibilities.map { |v|
+          OpenStruct.new(
+            name: v,
+            title: t("classification_visibilities.#{v}", locale: DataCycleCore.ui_language, default: v),
+            checked: f.object.visibility.include?(v)
+          )
+        },
+        :name,
+        :title do |l| %>
+        <span class="ca-checkbox">
+          <%= l.label { l.check_box + l.text } %>
+        </span>
+      <% end %>
+    </div>
+  </div>
+
   <%= f.submit class: 'success button' %>
 <% end %>
