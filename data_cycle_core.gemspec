@@ -131,7 +131,7 @@ Gem::Specification.new do |s|
   # premailer
   s.add_dependency 'premailer'
   # validation gems
-  s.add_development_dependency 'brakeman', '4.5.1'
+  s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'faker'
   s.add_development_dependency 'fasterer'
