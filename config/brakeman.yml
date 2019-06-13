@@ -3,3 +3,4 @@
 - config/initializers/monkey/patch_jbuilder_template.rb
 - app/models/data_cycle_core/generic/eyebase/transformations.rb
 - app/helpers/data_cycle_core/application_helper.rb
+- app/models/data_cycle_core/generic/data_cycle_media/import_assets.rb
