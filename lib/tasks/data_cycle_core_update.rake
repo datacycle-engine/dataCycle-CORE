@@ -85,7 +85,7 @@ namespace :data_cycle_core do
 
       outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
       if outdated_templates.present?
-        puts "\ntemplate_updated_at:"
+        puts "\nWARNING: the following templates are not updated:"
         puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
         puts '-' * 92
         outdated_templates.each do |key, value|
