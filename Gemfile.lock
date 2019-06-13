@@ -520,7 +520,7 @@ DEPENDENCIES
   axlsx_rails
   better_errors
   binding_of_caller
-  brakeman (= 4.5.1)
+  brakeman (>= 4.5.1)
   bundler-audit
   byebug
   capistrano-rails
