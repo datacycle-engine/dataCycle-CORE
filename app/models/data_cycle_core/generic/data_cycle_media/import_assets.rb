@@ -61,6 +61,9 @@ module DataCycleCore
                   item_count += 1
                 end
                 break if options[:max_count].present? && item_count >= options[:max_count]
+
+              rescue MiniMagick::Error => e
+                logging.error('MiniMagick::Error', p, nil, e)
               end
 
               GC.start

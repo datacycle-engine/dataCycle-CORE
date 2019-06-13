@@ -27,6 +27,8 @@ module DataCycleCore
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
 
           case job_result.dig('job_status')
+          when 'waiting'
+            data.add_external_system_data(@external_system, job_result, 'pending')
           when 'running'
             data.add_external_system_data(@external_system, job_result, 'pending')
 
