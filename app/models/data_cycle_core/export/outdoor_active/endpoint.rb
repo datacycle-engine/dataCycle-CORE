@@ -21,7 +21,13 @@ module DataCycleCore
 
           response_body = Nokogiri::XML(response.body)
           job_id = response_body.children.first.attribute('jobid').value
-          external_system_data.merge!({ 'job_id' => job_id, 'external_source_id' => data.external_source.id })
+          external_system_data.merge(
+            {
+              'job_id' => job_id,
+              'job_status' => 'waiting',
+              'external_source_id' => data.external_source.id
+            }
+          ).reject { |_k, v| v.blank? }
         end
 
         def job_status_request(data:, external_system_data:)
@@ -33,22 +39,46 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, job_id])} ", response) unless response.success?
 
-          response_body = Nokogiri::XML(response.body)
+          parse_job_status_response_body(raw_response_body: response.body).merge(
+            {
+              'job_id' => job_id,
+              'external_source_id' => data.external_source.id
+            }
+          )
+        end
+
+        def parse_job_status_response_body(raw_response_body:)
+          response_body = Nokogiri::XML(raw_response_body)
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError, 'Cannot process job status with multiple items' if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
+
           job_status = response_body.children.first.attribute('state').value
+
           case job_status
-          when 'jobnotfound'
-            { 'job_id' => job_id, 'job_status' => job_status, 'external_source_id' => data.external_source.id }
-          when 'running'
-            { 'job_id' => job_id, 'job_status' => job_status, 'external_source_id' => data.external_source.id }
-          when 'done'
-            outdoor_active_id = response_body.children.first.xpath('//details//content').attribute('cmsId').value
-            warnings = response_body.children.first.xpath('//details//content//warning').to_s
-            { 'outdoor_active_id' => outdoor_active_id, 'job_status' => job_status, 'warnings' => warnings, 'external_source_id' => data.external_source.id }
+          when 'running', 'jobnotfound'
+            {
+              'job_status' => job_status
+            }
           when 'failed'
             error_msg = response_body.children.first.content
-            { 'job_id' => job_id, 'job_status' => job_status, 'job_message' => error_msg, 'external_source_id' => data.external_source.id }
+
+            {
+              'job_status' => job_status,
+              'job_message' => error_msg
+            }
+          when 'done'
+            outdoor_active_id = response_body.xpath('//details//content[@type!="imagemeta"]//@cmsId').first.to_s
+            errors = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//invalidContent//text()').map(&:to_s)
+            warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
+
+            {
+              'outdoor_active_id' => errors.empty? ? outdoor_active_id : nil,
+              'job_status' => errors.empty? ? 'done' : 'failed',
+              'errors' => errors,
+              'warnings' => warnings
+            }.reject { |_k, v| v.blank? }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow state for job: #{job_id} #{response}", response
+            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow job state '#{job_status}'", nil
           end
         end
       end

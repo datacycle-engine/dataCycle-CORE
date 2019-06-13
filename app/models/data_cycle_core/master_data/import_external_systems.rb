@@ -10,7 +10,7 @@ module DataCycleCore
         errors = {}
         external_system_path ||= DataCycleCore.external_systems_path
         if external_system_path.blank?
-          puts '###### external systems not found'
+          puts 'INFO: no external systems found'
           return
         end
 

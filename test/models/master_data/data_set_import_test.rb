@@ -71,12 +71,10 @@ describe DataCycleCore::MasterData::ImportTemplates do
         creative_works: {
           'Entity-Creative-Work-1' => [
             {
-              file: import_path2.join('creative_works', 'entity.yml').to_s,
-              position: 0
+              file: import_path2.join('creative_works', 'entity.yml').to_s
             },
             {
-              file: import_path.join('creative_works', 'entity.yml').to_s,
-              position: 0
+              file: import_path.join('creative_works', 'entity.yml').to_s
             }
           ]
         }

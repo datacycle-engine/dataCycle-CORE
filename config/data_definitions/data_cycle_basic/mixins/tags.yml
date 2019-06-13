@@ -3,10 +3,11 @@
     :name: tags
     :type: mixin
     :properties:
-      :tags:
-        :label: Tags
+      :keywords_medienarchive:
+        :label: MediaArchive - Tags
         :type: classification
-        :tree_label: Tags
+        :tree_label: MediaArchive - Tags
+        :external: true
         :ui:
           :show:
             :content_area: header

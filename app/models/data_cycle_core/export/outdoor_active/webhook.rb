@@ -25,10 +25,21 @@ module DataCycleCore
         def perform
           data = DataCycleCore::Thing.find(@data.id)
           job_result = @endpoint.send(@request, data: data, external_system_data: @external_system_data)
-          data.add_external_system_data(@external_system, job_result)
-          raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive job is still running with job_status #{job_result}" if job_result.dig('outdoor_active_id').blank? && job_result.dig('job_status').present?
 
-          data.add_external_system_data(@external_system, nil, 'success') if job_result.dig('job_status') == 'done'
+          case job_result.dig('job_status')
+          when 'waiting'
+            data.add_external_system_data(@external_system, job_result, 'pending')
+          when 'running'
+            data.add_external_system_data(@external_system, job_result, 'pending')
+
+            raise DataCycleCore::Generic::Common::Error::GenericError, "OutdoorActive job is still running with id #{job_result.dig('job_id')}"
+          when 'jobnotfound', 'failed'
+            data.add_external_system_data(@external_system, job_result, 'failure')
+          when 'done'
+            data.add_external_system_data(@external_system, nil, 'success')
+          else
+            raise DataCycleCore::Generic::Common::Error::GenericError, "Unkown job status: #{job_result.dig('job_status')}"
+          end
         end
 
         def queue_name

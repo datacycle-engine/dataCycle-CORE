@@ -33,10 +33,9 @@ module DataCycleCore
               data_templates = YAML.load(File.open(file_name.to_s))
               data_templates.each_index do |index|
                 new_template_data = { name: data_templates[index][:data][:name], properties: data_templates[index][:data][:properties], file: file_name, position: index }
-
                 if mixin_list[content_table_name.to_sym].key?(new_template_data[:name].to_sym).present?
-                  collisions[content_table_name.to_sym][new_template_data[:name].to_sym] ||= []
-                  collisions[content_table_name.to_sym][new_template_data[:name].to_sym] += [mixin_list[content_table_name.to_sym][new_template_data[:name].to_sym].except(:name)]
+                  collisions[content_table_name.to_sym][new_template_data[:name].to_sym] ||= [mixin_list[content_table_name.to_sym][new_template_data[:name].to_sym].except(:name, :properties)]
+                  collisions[content_table_name.to_sym][new_template_data[:name].to_sym] += [new_template_data.except(:properties, :name)]
                 end
                 mixin_list[content_table_name.to_sym][new_template_data[:name].to_sym] = new_template_data
               end

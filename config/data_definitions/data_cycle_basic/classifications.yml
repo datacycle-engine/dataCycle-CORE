@@ -61,6 +61,10 @@
 
 - POI - Kategorien | show, edit, tile, api:
 
+- Rechte | show, edit, tile, api:
+
+- MediaArchive - Tags | show, edit, tile, api:
+
 - Feratel - Veranstaltungstags | show, edit, tile, api:
   - $$Top-Event
   - $$Local
