@@ -31,7 +31,7 @@ module DataCycleCore
         def before(job)
           first_available_job = Delayed::Job.where(queue: queue_name).find_by('created_at < ?', job.created_at)
 
-          raise Error::WebhookError, "Delayed job sequential error for: #{job.id} (parent: #{first_available_job.id})" unless first_available_job.nil?
+          raise DataCycleCore::Export::Common::Error::WebhookError, "Delayed job sequential error for: #{job.id} (parent: #{first_available_job.id})" unless first_available_job.nil?
         end
       end
     end

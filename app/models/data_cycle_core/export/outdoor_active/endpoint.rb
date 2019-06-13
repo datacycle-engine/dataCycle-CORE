@@ -21,7 +21,13 @@ module DataCycleCore
 
           response_body = Nokogiri::XML(response.body)
           job_id = response_body.children.first.attribute('jobid').value
-          external_system_data.merge!({ 'job_id' => job_id, 'external_source_id' => data.external_source.id })
+          external_system_data.merge(
+            {
+              'job_id' => job_id,
+              'job_status' => 'waiting',
+              'external_source_id' => data.external_source.id
+            }
+          ).reject { |_k, v| v.blank? }
         end
 
         def job_status_request(data:, external_system_data:)
@@ -72,7 +78,7 @@ module DataCycleCore
               'warnings' => warnings
             }.reject { |_k, v| v.blank? }
           else
-            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow state for job: #{job_id} #{response}", response
+            raise DataCycleCore::Generic::Common::Error::EndpointError, "Unknow job state '#{job_status}'", nil
           end
         end
       end
