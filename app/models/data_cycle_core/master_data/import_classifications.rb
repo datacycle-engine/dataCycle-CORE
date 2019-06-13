@@ -94,13 +94,10 @@ module DataCycleCore
         label = split_data[0]
         visibility = split_data[1]&.split(',')&.map(&:squish) || []
 
-        tree_label = DataCycleCore::ClassificationTreeLabel.find_or_initialize_by(name: label) do |label_data|
+        DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label) do |label_data|
           label_data.seen_at = Time.zone.now
+          label_data.visibility = visibility
         end
-
-        tree_label.visibility = visibility
-        tree_label.save
-        tree_label
       end
 
       def self.upsert_classification(data, classification_alias_id, description)

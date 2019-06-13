@@ -107,7 +107,8 @@ CREATE TABLE public.classification_tree_labels (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
 );
 
 
@@ -1904,6 +1905,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190423083517'),
 ('20190423103601'),
 ('20190520124223'),
-('20190531093158');
+('20190531093158'),
+('20190612084614'),
+('20190613092317');
 
 

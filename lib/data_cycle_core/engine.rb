@@ -140,14 +140,7 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = [
-      'backend',
-      'show',
-      'show_more',
-      'edit',
-      'api',
-      'tile'
-    ]
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'tile']
   end
 
   def self.setup

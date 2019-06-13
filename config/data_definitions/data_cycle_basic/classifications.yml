@@ -23,11 +23,11 @@
   - $$Publikations-Plan
   - $$EventSchedule
 
-- Geschlecht:
+- Geschlecht | show, edit, tile, api:
   - Männlich | Male
   - Weiblich | Female
 
-- Wochentage:
+- Wochentage | show, edit, tile, api:
   - Montag
   - Dienstag
   - Mittwoch
@@ -36,7 +36,7 @@
   - Samstag
   - Sonntag
 
-- Monate:
+- Monate | show, edit, tile, api:
   - Januar
   - Februar
   - März
@@ -50,18 +50,18 @@
   - November
   - Dezember
 
-- Tags:
+- Tags | show, edit, tile, api:
   - Tag 1
   - Tag 2
 
-- Ausgabekanäle:
+- Ausgabekanäle | show, edit, tile, api:
   - Web
   - Print
   - Social Media
 
-- POI - Kategorien:
+- POI - Kategorien | show, edit, tile, api:
 
-- Feratel - Veranstaltungstags:
+- Feratel - Veranstaltungstags | show, edit, tile, api:
   - $$Top-Event
   - $$Local
   - $$Town
@@ -69,11 +69,11 @@
   - $$Subregion
   - $$Country
 
-- Feratel - Status:
+- Feratel - Status | show, edit, tile, api:
   - $$Aktiv
   - $$Inaktiv
 
-- Ländercodes:
+- Ländercodes | show, edit, tile, api:
   - AF | Afghanistan
   - EG | Ägypten
   - AL | Albanien

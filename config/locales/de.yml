@@ -160,6 +160,7 @@ de:
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
+    additional_classifications: Weitere Klassifizierungen
 
   external_connection_states:
     success: Erfolgreich synchronisiert

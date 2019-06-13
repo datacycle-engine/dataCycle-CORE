@@ -176,6 +176,7 @@ module DataCycleCore
       parameters[:options] ||= {}
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
@@ -199,6 +200,7 @@ module DataCycleCore
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
+      return if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
@@ -370,6 +372,10 @@ module DataCycleCore
 
         return partial
       end
+    end
+
+    def visible_classification_tree?(tree_label, scopes)
+      (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility) & Array(scopes)).size.positive?
     end
   end
 end

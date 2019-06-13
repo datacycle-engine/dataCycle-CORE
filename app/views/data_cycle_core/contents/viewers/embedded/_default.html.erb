@@ -23,7 +23,7 @@
 
             <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-            <% validation_properties = ordered_validation_properties(validation: object.schema, context: 'show') %>
+            <% validation_properties = ordered_validation_properties(validation: object.schema) %>
             <% validation_properties.presence&.each do |embedded_key, prop| %>
 
                 <% object_value = object.try(embedded_key.to_sym) %>

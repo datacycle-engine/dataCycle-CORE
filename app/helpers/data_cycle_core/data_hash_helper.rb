@@ -11,7 +11,7 @@ module DataCycleCore
       DataCycleCore::Thing.find_by("template = true AND schema ->> 'content_type' = ? AND template_name =?", 'entity', template_name)
     end
 
-    def ordered_validation_properties(validation:, type: nil, content_area: nil, context: nil)
+    def ordered_validation_properties(validation:, type: nil, content_area: nil)
       return nil if validation.nil? || validation['properties'].blank?
 
       ordered_properties = ActiveSupport::OrderedHash.new
@@ -22,10 +22,6 @@ module DataCycleCore
           next if prop[1].dig('ui', 'show', 'content_area').present?
         elsif content_area.present?
           next if prop[1].dig('ui', 'show', 'content_area') != content_area
-        end
-
-        if context.present? && prop.dig(1, 'type') == 'classification'
-          next unless DataCycleCore::ClassificationTreeLabel.find_by(name: prop.dig(1, 'tree_label'))&.visibility&.include?(context)
         end
 
         ordered_properties[prop[1]['sorting'].to_i] = prop if prop[1]['sorting'].present? && !INTERNAL_PROPERTIES.include?(prop[0])

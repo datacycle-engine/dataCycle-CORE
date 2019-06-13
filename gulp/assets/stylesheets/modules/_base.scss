@@ -208,13 +208,15 @@ button,
     .accordion-item {
       .accordion-content {
         background: none;
-        padding: 0;
+        padding: 0 0 0 0.5rem;
+        margin-left: 0.5rem;
+        border-left: 1px solid $dark-gray;
       }
       .accordion-title {
         display: inline-block;
         text-align: left;
         padding: 0.2rem 0;
-        font-size: 0.8rem;
+        font-size: 1rem;
 
         &::before {
           display: none;
@@ -260,6 +262,13 @@ button,
   > .detail-type,
   > .hidden-classifications .detail-type {
     text-align: left;
+
+    &.mapped-classification {
+      color: $dark-gray;
+      .tag {
+        background-color: rgba($dark-gray, 0.6);
+      }
+    }
 
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
