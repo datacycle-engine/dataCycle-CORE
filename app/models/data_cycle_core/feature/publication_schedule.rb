@@ -20,7 +20,7 @@ module DataCycleCore
 
         def classification_tree_labels(content)
           publication_template(content)&.property_definitions&.select do |_k, v|
-            v['type'] == 'classification'
+            v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive?
           end&.transform_values do |v|
             v['tree_label']
           end

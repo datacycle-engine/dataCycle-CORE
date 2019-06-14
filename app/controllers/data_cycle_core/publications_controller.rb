@@ -11,7 +11,7 @@ module DataCycleCore
         .find_by(template: true, template_name: 'Publikations-Plan')
         &.schema
         &.dig('properties')
-        &.select { |k, v| v['type'] == 'classification' && !DataCycleCore.internal_data_attributes.include?(k) }
+        &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
         &.map { |k, v| [k, v['tree_label']] }
         &.to_h || {}
 

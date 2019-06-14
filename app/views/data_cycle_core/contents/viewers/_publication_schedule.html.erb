@@ -7,7 +7,7 @@
         <!-- # TODO: move to value after final refactor_data_definition migration -->
         <% objects.presence&.each_with_index do |publication, idx| %>
             <% classification_attributes = ordered_validation_properties(validation: publication.schema)
-              &.select { |k, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show']).size.positive? }
+              &.select { |k, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
               &.map { |k, v| [k, v['label']] }
               .to_h %>
             <% if idx.zero? %>

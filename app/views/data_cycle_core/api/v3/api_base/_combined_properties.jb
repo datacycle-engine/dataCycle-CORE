@@ -12,7 +12,7 @@ combined.each do |combined_key, combined_value|
   json[combined_key] = combined_value.map do |key, definition|
     if content.try(key.to_sym).present?
       partial_params = render_api_attribute key: key, definition: definition, value: content.try(key.to_sym), parameters: { options: options }, content: content
-      json.merge! render(*partial_params) unless partial_params.nil?
+      render(*partial_params) unless partial_params.nil?
     end
   end&.compact
 end
