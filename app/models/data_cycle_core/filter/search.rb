@@ -29,6 +29,7 @@ module DataCycleCore
             :external_source,
             :external_systems,
             :parent,
+            :primary_classification_aliases,
             classification_aliases: [:classification_alias_path, :classification_tree_label]
           )
         )

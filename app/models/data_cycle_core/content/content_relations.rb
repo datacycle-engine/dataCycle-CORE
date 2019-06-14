@@ -55,7 +55,7 @@ module DataCycleCore
       end
 
       def display_classification_aliases(context)
-        classification_aliases.to_a.select { |ca| ca.classification_tree_label&.visibility&.include?(context) }
+        classification_aliases.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
       end
 
       def assigned_classification_aliases
