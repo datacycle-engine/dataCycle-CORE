@@ -160,6 +160,7 @@ de:
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
+    additional_classifications: weitere Klassifizierungen
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -211,6 +212,14 @@ de:
     my:
       one: mein
       other: meine
+
+  classification_visibilities:
+    backend: Dashboard
+    show: Detail-Ansicht
+    api: API
+    tile: Kachel
+    show_more: Detail-Ansicht (standardmäßig eingeklappt)
+    edit: Bearbeitungs-Ansicht
 
   actions:
     new: erstellen
@@ -469,6 +478,8 @@ de:
         name: Name
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
+      data_cycle_core/classification_tree_label:
+        visibility: Sichtbarkeit
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
         description: 'Beschreibungstext'

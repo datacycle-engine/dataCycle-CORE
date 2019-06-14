@@ -120,6 +120,10 @@ module DataCycleCore
       )
     end
 
+    def self.in_context(context)
+      all.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+    end
+
     def primary_classification_id
       primary_classification&.id
     end

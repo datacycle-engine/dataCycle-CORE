@@ -203,6 +203,59 @@ button,
     position: relative;
   }
 
+  .hidden-classifications {
+    text-align: left;
+    .accordion-item {
+      .accordion-content {
+        position: relative;
+        background: none;
+        padding: 0 0 0 0.5rem;
+        margin-left: 0.5rem;
+        border-left: 1px solid rgba($dark-gray, 0.5);
+        > .classification {
+          position: relative;
+          // padding-left: 0.5rem;
+          // margin-left: 0.5rem;
+          // border-left: 1px solid $dark-gray;
+          // &:last-child {
+          //   border-color: $light-gray;
+          // }
+          // &::before {
+          //   content: '';
+          //   display: block;
+          //   position: absolute;
+          //   left: -1px;
+          //   top: 0;
+          //   width: 0.4rem;
+          //   height: 50%;
+          //   border-bottom: 1px solid $dark-gray;
+          //   border-left: 1px solid $dark-gray;
+          // }
+        }
+      }
+      .accordion-title {
+        display: inline-block;
+        text-align: left;
+        padding: 0.2rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+
+        &::before {
+          font-family: 'FontAwesome';
+          content: '\f078';
+          margin: 0 0.3rem 0 0;
+          position: relative;
+          top: 0;
+          right: 0;
+          left: 0;
+        }
+      }
+      &.is-active .accordion-title::before {
+        content: '\f077';
+      }
+    }
+  }
+
   .external-connections {
     border-bottom: 0px;
     margin-top: 1rem;
@@ -228,8 +281,16 @@ button,
     position: relative;
   }
 
-  > .detail-type {
+  > .detail-type,
+  > .hidden-classifications .detail-type {
     text-align: left;
+
+    &.mapped-classification {
+      color: $dark-gray;
+      .tag {
+        background-color: rgba($dark-gray, 0.5);
+      }
+    }
 
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
@@ -938,6 +999,10 @@ body .v-select {
 
   .tag {
     background-color: rgba($dark-gray, 0.8);
+
+    &.mapped {
+      background-color: rgba($dark-gray, 0.5);
+    }
 
     &.has-changed {
       &.removed {
