@@ -180,7 +180,7 @@ module DataCycleCore
         end
 
         def self.diff(a, b)
-          HashDiff.diff(a, b, { numeric_tolerance: 0.001 })
+          ::Hashdiff.diff(a, b, { numeric_tolerance: 0.001 })
         end
       end
     end

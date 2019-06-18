@@ -51,7 +51,7 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
-          Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']
+          [Nokogiri::XML(response.body).xpath('//lakes').first.to_hash['lake']].flatten
         end
 
         def load_snow_resort_data(lang: :de)
@@ -63,7 +63,7 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
-          Nokogiri::XML(response.body).xpath('//resorts').first.to_hash['resort']
+          [Nokogiri::XML(response.body).xpath('//resorts').first.to_hash['resort']].flatten
         end
 
         def load_snow_report_data(lang: :de)
@@ -74,7 +74,7 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
-          Nokogiri::XML(response.body).xpath('//snowreports').first.to_hash['snowreport']
+          [Nokogiri::XML(response.body).xpath('//snowreports').first.to_hash['snowreport']].flatten
         end
 
         def load_snow_condition_data(lang: :de)
@@ -84,7 +84,7 @@ module DataCycleCore
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / partner:#{@partner}", response) unless response.success?
-          Nokogiri::XML(response.body).xpath('//conditions').first.to_hash['condition']
+          [Nokogiri::XML(response.body).xpath('//conditions').first.to_hash['condition']].flatten
         end
       end
     end

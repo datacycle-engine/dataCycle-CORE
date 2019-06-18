@@ -5,9 +5,22 @@ let quill_helpers = require('./../helpers/quill_helpers');
 class Validator {
   constructor(form_element) {
     this.form = $(form_element);
-    this.submit_button = this.form.siblings('.edit-header').find('.submit-edit-form');
-    this.language_menu = this.form.siblings('.edit-header').find('#language-menu');
-    this.agbs_check = this.form.siblings('.edit-header').find('.form-element.agbs');
+    this.submit_button = this.form
+      .siblings('.edit-header')
+      .find('.submit-edit-form')
+      .first();
+    this.merge_duplicate_button = this.form
+      .siblings('.edit-header')
+      .find('.merge-with-duplicate')
+      .first();
+    this.language_menu = this.form
+      .siblings('.edit-header')
+      .find('#locales-menu')
+      .first();
+    this.agbs_check = this.form
+      .siblings('.edit-header')
+      .find('.form-element.agbs')
+      .first();
     this.initial_form_data = [];
     this.submit_form_data = [];
     this.requests = [];
@@ -25,6 +38,14 @@ class Validator {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.form.trigger('submit');
+    });
+    this.merge_duplicate_button.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.form.append(
+        '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
+      );
+      this.form.trigger('submit', { merge_confirm: true });
     });
     this.form.on('submit', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
@@ -56,7 +77,7 @@ class Validator {
     });
     // language redirect if changes present
     if (this.language_menu.length) {
-      this.language_menu.on('click', '.list-items li a', event => {
+      this.language_menu.on('click', '.list-items > li > a', event => {
         quill_helpers.update_editors(this.form);
         this.submit_form_data = this.form.serializeArray();
         if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
@@ -95,23 +116,16 @@ class Validator {
     return error;
   }
   disable() {
-    $.rails.disableFormElement(
-      this.form
-        .siblings('.edit-header')
-        .find('.submit-edit-form')
-        .first()
-    );
+    $.rails.disableFormElement(this.submit_button);
+    $.rails.disableFormElement(this.merge_duplicate_button);
     $.rails.disableFormElements(this.form);
   }
   enable() {
     if (this.query_count == 0 && !this.form.hasClass('disabled')) {
-      $.rails.enableFormElement(
-        this.form
-          .siblings('.edit-header')
-          .find('.submit-edit-form')
-          .first()
-      );
+      $.rails.enableFormElement(this.submit_button);
+      $.rails.enableFormElement(this.merge_duplicate_button);
       $.rails.enableFormElements(this.form);
+      this.form.find('input#duplicate_id').remove();
     }
   }
   renderErrorMessage(data, validation_container) {
@@ -254,7 +268,7 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined }) {
+  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false }) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
         text:
@@ -301,6 +315,19 @@ class Validator {
       });
     }
 
+    if (confirmations.merge && this.merge_duplicate_button.data('confirm') !== undefined) {
+      return new ConfirmationModal({
+        text: this.merge_duplicate_button.data('confirm'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.merge = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
     this.triggerFormSubmit();
   }
   triggerFormSubmit() {
@@ -329,7 +356,8 @@ class Validator {
           let confirmations = {
             finalize: true,
             confirm: true,
-            warnings: warnings.length ? warnings : undefined
+            warnings: warnings.length ? warnings : undefined,
+            merge: event_data !== undefined ? event_data.merge_confirm : undefined
           };
 
           this.submitForm(confirmations);

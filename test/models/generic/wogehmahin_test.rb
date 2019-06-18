@@ -45,7 +45,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Wogehmahin')
+        external_source = DataCycleCore::ExternalSource.find_by(name: 'wogehmahin.at')
         download_from_local_json(external_source)
         external_source.import(options)
 
@@ -62,7 +62,7 @@ module DataCycleCore
       end
 
       def teardown
-        DataCycleCore::MongoHelper.drop_mongo_db('Wogehmahin')
+        DataCycleCore::MongoHelper.drop_mongo_db('wogehmahin.at')
       end
     end
   end

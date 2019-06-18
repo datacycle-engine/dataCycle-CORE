@@ -30,7 +30,7 @@ module DataCycleCore
 
     # Returns the full title on a per-page basis.
     def full_title
-      base_title = 'DataCycle'
+      base_title = 'dataCycle'
 
       if content_for(:title).blank?
         base_title
@@ -69,7 +69,7 @@ module DataCycleCore
         if value.is_a?(ActiveRecord::Base)
           params_hash[key] = { id: value&.id, class: value&.class&.name }
         elsif value.is_a?(ActiveRecord::Relation)
-          params_hash[key] = { ids: value&.ids, class: value&.class&.name }
+          params_hash[key] = { ids: value&.ids, class: value&.klass&.name }
         else
           params_hash[key] = value
         end
@@ -158,12 +158,16 @@ module DataCycleCore
 
     def render_content_partial(partial, parameters)
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
-      content_parameter = parameters[:content].schema['schema_type'].underscore
+
       partials = [
-        "#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
-        "#{content_parameter}_#{partial}",
         "content_#{partial}"
       ]
+      unless parameters[:default]
+        partials.unshift(
+          "#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
+          "#{parameters[:content].schema['schema_type'].underscore}_#{partial}"
+        )
+      end
 
       render_first_existing_partial(partials, parameters)
     end
@@ -172,6 +176,7 @@ module DataCycleCore
       parameters[:options] ||= {}
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
       return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
@@ -195,6 +200,7 @@ module DataCycleCore
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
+      return if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
@@ -366,6 +372,10 @@ module DataCycleCore
 
         return partial
       end
+    end
+
+    def visible_classification_tree?(tree_label, scopes)
+      (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility) & Array(scopes)).size.positive?
     end
   end
 end

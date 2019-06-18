@@ -9,18 +9,19 @@
                 <div class="detail-header-functions">
                     <ul class="no-bullet">
                         <li>
-                            <span class="link" data-tooltip data-allow-html="true"
-                                title="<%= @watch_list
-                                    .watch_list_data_hashes.map(&:hashable)
-                                    .map{|t| t.try(:available_locales)}.flatten.uniq
-                                    .map{ |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
-                                    .join('<br />') %>">
-                                <i class="fa fa-language" aria-hidden="true"></i>
-                            </span>
+                          <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
+                            class: 'link',
+                            data: {
+                              tooltip: @watch_list.things.present? ? true : nil,
+                              allow_html: true
+                            },
+                            title: @watch_list
+                              .things.includes(:translations)
+                              .map { |t| t.try(:available_locales) }.flatten.uniq
+                              .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
+                              .join('<br />') %>
                         </li>
-                        <% if can?(:index, DataCycleCore::DataLink) %>
-                            <li><%= render 'data_links', content: @watch_list %></li>
-                        <% end %>
+                        <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
                         <li class="buttons">
                             <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
                               <i aria-hidden="true" class="fa fa-times"></i>
@@ -43,10 +44,17 @@
                 <%= @watch_list&.name %>
             </div>
 
-            <% if @watch_list.watch_list_user_groups.size.positive? %>
+            <% if @watch_list.users.any? %>
+                <div class="description watchlist">
+                    <i class="fa fa-user"></i>
+                    <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, title: u.email) }, ', ') %>
+                </div>
+            <% end %>
+
+            <% if @watch_list.user_groups.any? %>
                 <div class="description watchlist">
                     <i class="fa fa-users"></i>
-                    <%= @watch_list.watch_list_user_groups.map(&:user_group).map(&:name).join(', ') %>
+                    <%= @watch_list.user_groups.map(&:name).join(', ') %>
                 </div>
             <% end %>
 

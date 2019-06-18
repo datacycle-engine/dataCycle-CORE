@@ -46,6 +46,8 @@ ul.backend-treeview-list {
       .button-prime {
         width: 2.5rem;
         height: 2.5rem;
+        font-size: 1.2rem;
+        line-height: 2.5rem;
         margin: 0;
         box-shadow: 1px 3px 5px 0px rgba($black, 0.2);
       }
@@ -92,7 +94,7 @@ ul.backend-treeview-list {
         &.ca-label {
           display: block;
           position: absolute;
-          top: 0.2rem;
+          top: 0.5rem;
           left: 1rem;
           z-index: 12;
           color: $dark-gray;
@@ -109,6 +111,25 @@ ul.backend-treeview-list {
       &.translated {
         > .translated-fields:not(.active) {
           display: none;
+        }
+      }
+      .ca-collection-checkboxes {
+        padding: 3rem 1rem 1.5rem 1rem;
+        border: 1px solid $light-gray;
+        background: $light-gray;
+        box-shadow: none;
+        transition: background-color 0.1s, box-shadow 0.1s;
+        > label {
+          display: block;
+          position: absolute;
+          top: 0.5rem;
+          left: 1rem;
+          z-index: 12;
+          color: $dark-gray;
+        }
+        &:hover {
+          z-index: 1;
+          box-shadow: 0 0 7px $primary-color;
         }
       }
     }

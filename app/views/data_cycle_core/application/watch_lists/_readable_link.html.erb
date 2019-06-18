@@ -1,0 +1,7 @@
+<li id="header-menu-watch-list-<%= watch_list&.id %>" data-name="<%= watch_list.name.downcase %>" class="visible <%= 'even' if local_assigns[:watch_list_counter]&.even? %>">
+    <span class="watch-list-item <%= watch_list.user == current_user ? 'private' : 'shared' %>">
+        <span class="watchlist-name">
+            <%= link_to (watch_list.watch_list_shares.any? ? tag.i(class: 'fa fa-users') : '') + watch_list.name, watch_list_path(watch_list), class: "watchlist-link", title: watch_list.name %>
+        </span>
+    </span>
+</li>

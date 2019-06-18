@@ -3,10 +3,11 @@
     :name: tags
     :type: mixin
     :properties:
-      :tags:
-        :label: Tags
+      :keywords_medienarchive:
+        :label: MediaArchive - Tags
         :type: classification
-        :tree_label: Tags
+        :tree_label: MediaArchive - Tags
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -30,6 +31,14 @@
         :label: Celum - Folders
         :type: classification
         :tree_label: Celum - Folders
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :asset_collections_celum:
+        :label: Celum - Asset Collection
+        :type: classification
+        :tree_label: Celum - Asset Collections
         :external: true
         :ui:
           :show:

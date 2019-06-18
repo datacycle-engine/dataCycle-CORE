@@ -45,7 +45,6 @@ module DataCycleCore
 
         def walk_folder_tree(item)
           folder_ids = []
-          # puts "id: #{item.dig('id', '#cdata-section')} / children: #{item.dig('nrOfChildren', '#cdata-section')}"
           if item.dig('nrOfChildren', '#cdata-section').to_i.positive?
             folder_ids << [item.dig('id', '#cdata-section')]
             [load_data(end_point: 'folders.api', command: 'getFolders', flags: [], serializer: :to_hash, options: { id: item.dig('id', '#cdata-section') }).dig('folder')].flatten.each do |sub_item|
@@ -54,7 +53,6 @@ module DataCycleCore
           else
             folder_ids = [item.dig('id', '#cdata-section')]
           end
-          # puts "folder_ids: [#{folder_ids.flatten}]"
           folder_ids.flatten
         end
 
@@ -73,7 +71,6 @@ module DataCycleCore
 
         def walk_keyword_tree(item)
           folder_ids = []
-          # puts "id: #{item.dig('id', '#cdata-section')} / children: #{item.dig('nrOfChildren', '#cdata-section')}"
           if item.dig('nrOfChildren', '#cdata-section').to_i.positive?
             folder_ids << [item.dig('id', '#cdata-section')]
             [load_data(end_point: 'keywords.api', command: 'getKeywords', flags: [], serializer: :to_hash, options: { id: item.dig('id', '#cdata-section') }).dig('keyword')].flatten.each do |sub_item|
@@ -82,8 +79,29 @@ module DataCycleCore
           else
             folder_ids = [item.dig('id', '#cdata-section')]
           end
-          # puts "folder_ids: [#{folder_ids.flatten}]"
           folder_ids.flatten
+        end
+
+        def asset_collections(*)
+          api_flags = []
+          Enumerator.new do |yielder|
+            load_data(end_point: 'assetcollections.api', command: 'getAssetCollections', flags: api_flags, serializer: :simple, options: {}).dig('assetcollections', 'assetcollection').each do |item|
+              walk_asset_collection_tree(item).each do |asset_collection_record|
+                yielder << asset_collection_record
+              end
+            end
+          end
+        end
+
+        def walk_asset_collection_tree(item)
+          api_flags = []
+          asset_collection_data = [item]
+          if item.dig('nrOfChildren').to_i.positive?
+            [load_data(end_point: 'assetcollections.api', command: 'getAssetCollections', flags: api_flags, serializer: :simple, options: { id: item.dig('id') }).dig('assetcollections', 'assetcollection')].flatten.each do |sub_item|
+              asset_collection_data += walk_asset_collection_tree(sub_item)
+            end
+          end
+          asset_collection_data
         end
 
         def keyword_catalogs(*)

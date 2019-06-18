@@ -106,17 +106,11 @@ module DataCycleCore
       # get show data for split view
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
-        @split_schema = []
-        @split_source_params = source_params
-
-        if @split_source.present?
-          I18n.with_locale(@split_source.first_available_locale) do
-            @split_schema = @split_source.get_data_hash
-          end
-        end
+        @source_locale = source_params[:source_locale]
       end
 
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
         redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
@@ -130,6 +124,19 @@ module DataCycleCore
       authorize!(:edit, @content)
 
       redirect_to edit_thing_path(@content, watch_list_params)
+    end
+
+    def split_view
+      @content = DataCycleCore::Thing.find(params[:id])
+      @split_source = DataCycleCore::Thing.find(source_params[:source_id])
+      @source_locale = source_params[:source_locale]
+
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
+        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+
+        render(:edit) && return
+      end
     end
 
     def update
@@ -378,9 +385,9 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
-      elsif params[:source_id] && params[:source_table]
-        params.permit(:source_id, :source_table)
+        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
+      elsif params[:source_id].present?
+        params.permit(:source_id, :source_locale)
       else
         {}
       end

@@ -17,8 +17,17 @@
 }
 
 .detail-header-functions .add-to-watchlist-link,
-.add-to-watchlist-link {
+.detail-header-functions .remove-from-watchlist-link,
+.add-to-watchlist-link,
+.remove-from-watchlist-link {
   display: inline;
+  .fa {
+    font-size: 1.1rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    line-height: 1.1rem;
+    text-align: center;
+  }
 }
 
 #main-menu {
@@ -50,11 +59,11 @@
           display: block;
           overflow: hidden;
           text-overflow: ellipsis;
+          font-size: 0.9rem;
         }
       }
     }
     .add-watchlist-to-menu {
-      margin: 0;
       input {
         max-width: 100%;
       }
@@ -63,59 +72,74 @@
 }
 
 .watch-lists {
-  ul {
+  > ul {
     margin: 0;
     list-style: none;
-  }
-  li {
-    &:nth-child(even) .watch-list-item .check {
-      color: white;
-    }
-    .watch-list-item {
-      .check {
-        position: absolute;
-        left: 0;
-        color: $light-gray;
-        &.checked {
-          color: map-get($foundation-palette, primary);
+    > li {
+      display: none;
+      &.visible {
+        background: none;
+        display: block;
+        &.even {
+          background-color: lighten($light-gray, 3%);
+
+          .watch-list-item .check {
+            color: white;
+          }
+        }
+        .watch-list-item {
+          .check {
+            position: absolute;
+            left: 0;
+            color: $light-gray;
+            &.checked {
+              color: map-get($foundation-palette, primary);
+            }
+          }
+          width: 100%;
+          display: block;
+          padding: 0 1.5rem 0 1.5rem;
+          position: relative;
+          line-height: 1.2rem;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          font-size: 0.8rem;
+          &.private {
+            font-weight: 600;
+          }
+          &.shared {
+            font-style: italic;
+          }
         }
       }
-      width: 100%;
-      display: block;
-      padding: 0 1.5rem 0 1.5rem;
-      position: relative;
-      line-height: 1.2rem;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      font-size: 0.8rem;
-    }
-    .change-link {
-      position: absolute;
-      right: 0;
-      padding: 0;
-      width: 1.1rem;
+
+      .change-link {
+        position: absolute;
+        right: 0;
+        padding: 0;
+        width: 1.1rem;
+      }
     }
   }
   .add-watchlist,
   .add-watchlist-to-menu {
     position: relative;
     margin-top: 1rem;
+    padding-top: 1rem;
+    border-top: 2px solid $medium-gray;
     label {
       display: none;
     }
     input {
-      border: 1px solid $light-gray;
-      background: $light-gray;
-      outline: none;
-      padding: 0 2rem 0 0.5rem;
+      background: none;
+      box-shadow: 0 0 2px $light-gray inset;
+      padding-right: 2.5rem;
       height: 2.2rem;
-      line-height: 1;
       margin: 0;
-      border-color: $light-gray;
-      box-shadow: 0 0 0 $dark-gray;
-      position: relative;
-      transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+      &:focus {
+        border-color: $primary-color;
+      }
       &::placeholder {
         color: $dark-gray;
       }
@@ -132,9 +156,52 @@
         z-index: 2;
         width: 2.5rem;
       }
-      button[type='submit'].button i {
+      button[type='submit'].button {
+        height: 100%;
+        i {
+          font-size: 1rem;
+          line-height: 1.2rem;
+        }
+      }
+    }
+  }
+  .watch-lists-filter {
+    margin: 0 0 1rem 0;
+    .watch-list-filter-param {
+      margin: 0;
+      padding-right: 2.5rem;
+      height: 2.2rem;
+      background: none;
+      border: none;
+      border-bottom: 1px solid $light-gray;
+      box-shadow: none;
+      &:focus {
+        border-color: $dark-gray;
+      }
+      &::placeholder {
+        color: $dark-gray;
+      }
+    }
+    .reset-watch-list-filter {
+      position: absolute;
+      right: 0;
+      top: 0;
+      margin: 0;
+      padding: 0.5rem;
+      display: none;
+      outline: none;
+      height: 100%;
+      width: 2.5rem;
+      line-height: 1rem;
+      color: $dark-gray;
+      background: none;
+      box-shadow: none;
+      &:hover {
+        color: $black;
+      }
+      .fa {
+        line-height: 1rem;
         font-size: 1rem;
-        line-height: 1.2rem;
       }
     }
   }

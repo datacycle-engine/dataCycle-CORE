@@ -12,6 +12,7 @@ class ConfirmationModal {
     this.wrapperHtml =
       '<div class="reveal confirmation-modal" data-multiple-opened="true"><button class="close-button" data-close aria-label="Close modal" type="button"><span aria-hidden="true">&times;</span></button></div';
     this.overlay;
+    this.closed = false;
     this.section;
     this.setup();
   }
@@ -60,7 +61,7 @@ class ConfirmationModal {
     this.section.find('.confirmation-confirm').on('click', this.confirm.bind(this));
     this.section.find('.confirmation-cancel').on('click', this.cancel.bind(this));
     this.overlay.on('closed.zf.reveal', _event => {
-      this.close('cancelCallback', true);
+      if (!this.closed) this.close('cancelCallback', true);
     });
 
     this.section.on('dc:confirmation_count:update', this.updateConfirmationIndex.bind(this));
@@ -76,14 +77,23 @@ class ConfirmationModal {
     this.close('confirmationCallback');
   }
   close(method_name, closeAll = false) {
-    if (this.overlay.is(':visible') && (closeAll || this.overlay.children('section.confirmation-section').length == 1))
-      this.overlay.parent('.reveal-overlay').remove();
-    else if (this.overlay.is(':visible')) {
+    if (
+      this.overlay.is(':visible') &&
+      (closeAll || this.overlay.children('section.confirmation-section').length == 1)
+    ) {
+      this.closed = true;
+      this.overlay
+        .foundation('close')
+        .parent('.reveal-overlay')
+        .remove();
+    } else if (this.overlay.is(':visible')) {
       this.section.remove();
       this.overlay.find('section.confirmation-section:visible').trigger('dc:confirmation_count:update');
     }
 
-    if (typeof this[method_name] == 'function') this[method_name]();
+    if (typeof this[method_name] == 'function') {
+      this[method_name]();
+    }
   }
 }
 

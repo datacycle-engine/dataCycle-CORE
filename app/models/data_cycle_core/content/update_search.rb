@@ -25,7 +25,7 @@ module DataCycleCore
       #   search_record.words = (search_record.full_text + (send('headline')&.gsub(/[']/, "''") || ''))&.gsub(/\s/, ' ') || ''
       #   search_record.headline = self&.headline&.gsub(/[']/, "''") || ''
       #   search_record.data_type = template_name
-      #   search_record.classification_string = display_classification_aliases&.pluck(:name)&.try(:join, ' ')&.try(:gsub, /[']/, "''") || ''
+      #   search_record.classification_string = display_classification_aliases('tile')&.pluck(:name)&.try(:join, ' ')&.try(:gsub, /[']/, "''") || ''
       #   search_record.all_text = [search_record.headline, search_record.classification_string, search_record.full_text].join(' ')
       #   validity_data = validity_period if respond_to?(:validity_period)
       #   search_record.validity_period = get_validity(validity_data || nil)
@@ -45,8 +45,8 @@ module DataCycleCore
           headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
           headline = '' if headline.nil?
           classification_string = [
-            display_classification_aliases.pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            display_classification_aliases.pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+            display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+            display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
           ].compact.join(' ')
           all_text = [headline, classification_string, full_text].join(' ')
           # TODO: remove hardcoded metadata

@@ -41,7 +41,7 @@ DataCycleCore::Engine.routes.draw do
     resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
-      get 'compare', on: :member
+      get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
@@ -50,6 +50,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :collection
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
+      get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end
 

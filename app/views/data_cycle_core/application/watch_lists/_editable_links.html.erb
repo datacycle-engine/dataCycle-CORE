@@ -1,10 +1,18 @@
-<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= (@accessible_watch_lists - content.watch_lists).length < @accessible_watch_lists.length ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
-<div class="dropdown-pane no-bullet align-right bottom watch-lists" id="watch-lists-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true" data-content-id="<%= content&.id %>" data-content-type="<%= content&.class&.name %>">
-    <h5>Zu <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> hinzufügen</h5>
-    <ul class="list-items">
-      <%= render partial: 'data_cycle_core/application/watch_lists/edit_link', collection: @accessible_watch_lists, as: :watch_list, locals: local_assigns %>
-    </ul>
+<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= content.watch_lists.accessible_by(current_ability).exists? ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
+<div class="dropdown-pane no-bullet align-right bottom watch-lists"
+  id="watch-lists-<%= content.id %>"
+  data-dropdown data-hover="true"
+  data-hover-pane="true"
+  data-content-id="<%= content&.id %>"
+  data-content-type="<%= content&.class&.name %>"
+  data-auto-focus="true">
+  <h5>Zu <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %> hinzufügen</h5>
 
-    <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
-
+  <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
+  <ul class="list-items remote-render"
+    id="watch-lists-for-<%= content.id %>"
+    data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
+    data-remote-options="<%= to_query_params(local_assigns).to_json %>">
+  </ul>
+  <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
 </div>
