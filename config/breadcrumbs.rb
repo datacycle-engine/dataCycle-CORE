@@ -47,6 +47,11 @@ crumb :edit_from_index do |item, title_method|
   parent :index, item.class.table_name
 end
 
+crumb :bulk_edit do |item|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.bulk_edit', locale: DataCycleCore.ui_language).capitalize}"), edit_thing_path(item), authorized: can?(:edit, item)
+  parent :show, item, :name
+end
+
 # Content Crumbs
 crumb :content do |content, watch_list|
   I18n.with_locale(content.first_available_locale) do

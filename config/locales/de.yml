@@ -161,6 +161,7 @@ de:
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
+    bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -278,6 +279,7 @@ de:
     external_edit: In Externem System öffnen
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
+    bulk_edit: im Bulk bearbeiten
 
   validation:
     errors:
@@ -364,10 +366,12 @@ de:
       become_user: 'Eingeloggt als %{data}.'
       duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
       merged_with_duplicate: Inhalte wurden zusammengeführt
+      bulk_updated: Inhalte wurden aktualisiert
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
+      bulk_updated_skipped_html: '<br>Folgende Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind: %{data}'
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."

@@ -3,8 +3,8 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     include DataCycleCore::Filter
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item] # from cancancan (authorize)
 
     def index
       @contents = current_user.watch_lists.page(params[:page])
@@ -108,6 +108,76 @@ module DataCycleCore
       end
     end
 
+    def bulk_edit
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
+      @shared_template_features = @watch_list.things.shared_template_features
+
+      I18n.with_locale(params[:locale]) do
+        @locale = I18n.locale
+
+        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:edit, t) }
+
+        render && return
+      end
+    end
+
+    def bulk_update
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
+      @shared_template_features = @watch_list.things.shared_template_features
+
+      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
+      object_params = content_params(template_hash)
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], template_hash)
+
+      I18n.with_locale(params[:locale]) do
+        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
+
+        errors = []
+
+        udpate_items = @watch_list.things.joins(:translations).where(thing_translations: { locale: I18n.locale })
+        skip_update_names = (@watch_list.things - udpate_items).map { |c| I18n.with_locale(c.first_available_locale) { c.try(:title) || '__unnamed__' } }
+
+        udpate_items.find_each do |content|
+          valid = content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
+          errors << valid[:error] if valid[:error].present?
+          # sleep 10
+          # render progress
+        end
+
+        if errors.present?
+          flash[:error] = errors.join(', ')
+        else
+
+          flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+          flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], data: skip_update_names.join(', '), locale: DataCycleCore.ui_language if skip_update_names.present?
+        end
+
+        redirect_to(watch_list_path(@watch_list))
+      end
+    end
+
+    def validate
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
+      @shared_template_features = @watch_list.things.shared_template_features
+
+      render json: { warning: { content: ['content not found'] } } && return if params[:thing].blank?
+
+      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
+
+      object_params = content_params(template_hash)
+      translation_values = object_params[:translations]&.values&.first || {}
+
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), template_hash)
+
+      validator = DataCycleCore::MasterData::ValidateData.new
+      valid = validator.validate(datahash, template_hash)
+
+      render json: valid.to_json
+    end
+
     private
 
     def watch_list_params
@@ -116,6 +186,12 @@ module DataCycleCore
 
     def hashable_params
       params.permit(:hashable_id, :hashable_type)
+    end
+
+    def content_params(property_hash)
+      datahash = DataCycleCore::DataHashService.get_params_from_hash(property_hash)
+      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
+      params.require(:thing).permit(datahash: datahash, translations: translations)
     end
   end
 end

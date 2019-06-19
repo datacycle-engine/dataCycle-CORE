@@ -274,7 +274,9 @@ module DataCycleCore
             tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
               external_source_id: utility_object.external_source.id,
               name: classification_data[:tree_name]
-            )
+            ) do |item|
+              item.visibility = ['show', 'edit', 'api', 'tile']
+            end
 
             DataCycleCore::ClassificationTree.create!(
               {

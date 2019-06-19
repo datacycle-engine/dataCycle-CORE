@@ -76,6 +76,9 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     delete :remove_item, on: :member
     get :add_item, on: :member
+    get :bulk_edit, on: :member
+    patch :bulk_update, on: :member
+    post :validate, on: :member
   end
 
   resources :classifications, only: [:index, :create] do

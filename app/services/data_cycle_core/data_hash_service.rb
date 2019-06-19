@@ -75,29 +75,29 @@ module DataCycleCore
       object
     end
 
-    class << self
-      private
+    def self.get_params_from_hash(template_hash)
+      temp_params = []
 
-      def get_params_from_hash(template_hash)
-        temp_params = []
-
-        template_hash['properties'].each do |key, value|
-          if value['type'] == 'embedded'
-            object_properties = get_internal_template(value['template_name'])
-            key = { key.to_sym => get_params_from_hash(object_properties.schema) }
-          elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
-            key = { key.to_sym => get_params_from_hash(value) }
-          elsif value['type'] == 'classification' || value['type'] == 'linked'
-            key = { key.to_sym => [] }
-          else
-            key = key.to_sym
-          end
-
-          temp_params.push(key)
+      template_hash['properties'].each do |key, value|
+        if value['type'] == 'embedded'
+          object_properties = get_internal_template(value['template_name'])
+          key = { key.to_sym => get_params_from_hash(object_properties.schema) }
+        elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
+          key = { key.to_sym => get_params_from_hash(value) }
+        elsif value['type'] == 'classification' || value['type'] == 'linked'
+          key = { key.to_sym => [] }
+        else
+          key = key.to_sym
         end
 
-        temp_params
+        temp_params.push(key)
       end
+
+      temp_params
+    end
+
+    class << self
+      private
 
       def flatten_recursive(datahash, template_hash)
         temp_datahash = {}

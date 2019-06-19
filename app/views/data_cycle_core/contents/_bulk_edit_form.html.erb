@@ -1,0 +1,63 @@
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-name">
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) + ' ' + t('actions.bulk_edit', locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+      </div>
+      <ul>
+        <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+
+        <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), content: watch_list %>
+
+        <li class="buttons">
+          <%= link_to tag.button(
+            tag.i(class: 'fa fa-times', aria_hidden: true),
+            class: 'button discard top',
+            type: :button,
+            title: t('actions.discard_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true
+            }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <%= button_tag tag.i(class: 'fa fa-check', aria_hidden: true),
+            class: 'button-prime submit submit-edit-form',
+            title: t('actions.save_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true,
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            } %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<%= form_with url: bulk_update_watch_list_path(watch_list), local: true, method: :patch, class: 'validation-form edit-content-form' do |f| %>
+  <%= hidden_field_tag :uuid, watch_list.id %>
+  <%= hidden_field_tag :table, watch_list.class.table_name %>
+  <%= hidden_field_tag :locale, @locale %>
+
+  <div>
+    <div class="row">
+      <div class="column">
+        <div class="detail-header editor">
+          <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
+          <% @shared_properties.presence&.each do |key, prop| %>
+            <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
+              definition: prop,
+              value: nil,
+              parameters: {
+                options: {}
+              },
+              content: DataCycleCore::Thing.new { |t|
+                t.id = SecureRandom.uuid
+                t.schema = schema
+              } %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= content_for :forms %>

@@ -308,6 +308,39 @@ module DataCycleCore
           .map { |t| t.content_type == 'embedded' ? t.parent_templates : t }
           .flatten
       end
+
+      def feature_attributes(prefix = '')
+        DataCycleCore.features
+          .select { |_, v| !v.dig(:only_config) == true }
+          .keys
+          .map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", self) }
+          .flatten
+      end
+
+      def allowed_feature_attribute?(key)
+        feature_attributes.include?(key) ? feature_attributes('allowed_').include?(key) : true
+      end
+
+      def self.shared_ordered_properties(user)
+        all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
+          .map { |t|
+            t.schema.dig('properties').sort_by { |_, v| v['sorting'] }.to_h
+              .except(*(DataCycleCore.internal_data_attributes + ['id']))
+              .select { |k, v|
+                v['type'] != 'computed' &&
+                  user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                  user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                  t.allowed_feature_attribute?(k.attribute_name_from_key) &&
+                  (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit'))
+              }
+              .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || p_v.blank? }] }
+          }
+          .inject(:&).to_h
+      end
+
+      def self.shared_template_features
+        all.map { |t| t.schema['features'].to_a }.inject(:&).to_h
+      end
     end
   end
 end
