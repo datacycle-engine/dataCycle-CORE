@@ -25,6 +25,7 @@ Rails.application.configure do
   # Run rails dev:cache to toggle caching.
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
     config.action_controller.perform_caching = true
+
     if Rails.application.secrets.dig(:redis_server).present?
       config.cache_store = :redis_store, {
         host: Rails.application.secrets.redis_server,
