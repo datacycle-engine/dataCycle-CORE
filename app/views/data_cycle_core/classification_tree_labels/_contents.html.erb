@@ -12,7 +12,7 @@
       <div class="title-text">
         <span class="title"><%= link_to content.title, thing_path(content) if content.try(:title).present? %></span>
       </div>
-      <%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content if content.try(:display_classification_aliases).present? %>
+      <%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content if content.try(:display_classification_aliases, 'tile').present? %>
 
       <div class="thumbnails">
         <% if content.try(:image).is_a?(ActiveRecord::Relation) && content.try(:image).present? %>

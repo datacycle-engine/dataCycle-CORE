@@ -66,9 +66,9 @@ class SplitView {
   }
   availableEditors(selectors = []) {
     let newSelectorString = selectors.map(x => 'div[data-editor=' + x + ']').join(', ');
-    let notInSelector = 'div[data-editor]:not([data-editor="included-object"])';
+    let notInSelector = 'div[data-editor]:not([data-editor="included-object"]) div[data-editor]';
 
-    return this.container.find(newSelectorString).filter((_, elem) => $(elem).parents(notInSelector));
+    return this.container.find(newSelectorString).not(notInSelector);
   }
   setupObjectBrowserButtons() {
     this.availableEditors(['object_browser']).each((_, elem) => {

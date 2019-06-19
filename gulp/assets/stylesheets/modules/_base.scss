@@ -203,6 +203,44 @@ button,
     position: relative;
   }
 
+  .hidden-classifications {
+    text-align: left;
+    .accordion-item {
+      .accordion-content {
+        position: relative;
+        background: none;
+        padding: 0;
+        margin-left: 1.5rem;
+        > .classification {
+          position: relative;
+        }
+      }
+      .accordion-title {
+        display: inline-block;
+        text-align: left;
+        padding: 0.2rem 0;
+        font-size: 1rem;
+        color: $black;
+
+        &::before {
+          font-family: 'FontAwesome';
+          content: '\f107';
+          margin: 0 0.3rem 0 0;
+          position: relative;
+          top: 0;
+          right: 0;
+          left: 0;
+          display: inline-block;
+          text-align: center;
+          width: 1rem;
+        }
+      }
+      &.is-active .accordion-title::before {
+        content: '\f106';
+      }
+    }
+  }
+
   .external-connections {
     border-bottom: 0px;
     margin-top: 1rem;
@@ -228,8 +266,16 @@ button,
     position: relative;
   }
 
-  > .detail-type {
+  > .detail-type,
+  > .hidden-classifications .detail-type {
     text-align: left;
+
+    &.mapped-classification {
+      color: $dark-gray;
+      .tag {
+        background-color: rgba($dark-gray, 0.5);
+      }
+    }
 
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
@@ -938,6 +984,10 @@ body .v-select {
 
   .tag {
     background-color: rgba($dark-gray, 0.8);
+
+    &.mapped {
+      background-color: rgba($dark-gray, 0.5);
+    }
 
     &.has-changed {
       &.removed {
