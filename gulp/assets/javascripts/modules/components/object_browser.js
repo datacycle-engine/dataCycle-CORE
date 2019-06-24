@@ -115,6 +115,7 @@ class ObjectBrowser {
       if (this.validate()) {
         this.setChosen();
         this.overlay.foundation('close');
+        this.element.closest('.form-element').trigger('change');
       }
     });
     this.element.on('dc:update:chosen', (event, data) => {

@@ -327,13 +327,13 @@ module DataCycleCore
             t.schema.dig('properties').sort_by { |_, v| v['sorting'] }.to_h
               .except(*(DataCycleCore.internal_data_attributes + ['id']))
               .select { |k, v|
-                v['type'] != 'computed' &&
+                !v['type'].in?(['computed', 'asset']) &&
                   user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                   user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
                   t.allowed_feature_attribute?(k.attribute_name_from_key) &&
                   (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit'))
               }
-              .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || p_v.blank? }] }
+              .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
           }
           .inject(:&).to_h
       end

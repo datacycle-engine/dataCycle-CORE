@@ -127,7 +127,8 @@ module DataCycleCore
       @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
       @shared_template_features = @watch_list.things.shared_template_features
 
-      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys
+      template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*params['bulk_update']&.keys) }.stringify_keys
+
       object_params = content_params(template_hash)
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], template_hash)
 

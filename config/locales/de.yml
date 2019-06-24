@@ -162,6 +162,7 @@ de:
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
+    bulk_update_check_box_label: '%{data} überschreiben?'
 
   external_connection_states:
     success: Erfolgreich synchronisiert

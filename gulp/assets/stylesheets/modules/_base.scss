@@ -192,6 +192,10 @@ button,
   padding: 4rem 1rem 1rem 1rem;
   margin: 1rem 0 0 0;
 
+  form.button_to {
+    display: inline-block;
+  }
+
   > .title,
   > .name input,
   > .headline_external input,

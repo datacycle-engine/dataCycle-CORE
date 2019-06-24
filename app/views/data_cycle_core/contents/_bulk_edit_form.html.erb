@@ -32,7 +32,7 @@
   </div>
 </section>
 
-<%= form_with url: bulk_update_watch_list_path(watch_list), local: true, method: :patch, class: 'validation-form edit-content-form' do |f| %>
+<%= form_with url: bulk_update_watch_list_path(watch_list), local: true, method: :patch, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
   <%= hidden_field_tag :uuid, watch_list.id %>
   <%= hidden_field_tag :table, watch_list.class.table_name %>
   <%= hidden_field_tag :locale, @locale %>
@@ -43,6 +43,11 @@
         <div class="detail-header editor">
           <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
           <% @shared_properties.presence&.each do |key, prop| %>
+            <div class="bulk-update-check" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
+              <%= check_box_tag "bulk_update[#{key}]" %>
+              <%= label_tag "bulk_update[#{key}]", t('common.bulk_update_check_box_label', locale: DataCycleCore.ui_language, data: prop['label']) %>
+            </div>
+
             <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
               definition: prop,
               value: nil,

@@ -212,6 +212,16 @@ class Validator {
         resolve(this.validateAgbs(validation_container));
       });
     }
+
+    if (
+      this.form.hasClass('bulk-edit-form') &&
+      !$(validation_container)
+        .siblings('.bulk-update-check[data-attribute-key="' + $(validation_container).data('key') + '"]')
+        .find(':checkbox')
+        .prop('checked')
+    )
+      return;
+
     let items = this.findItemsForField(validation_container);
     if (!items.length) return;
     let form_data = items.serializeArray();
