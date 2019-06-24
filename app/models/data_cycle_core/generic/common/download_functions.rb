@@ -4,6 +4,8 @@ module DataCycleCore
   module Generic
     module Common
       module DownloadFunctions
+        require 'hashdiff'
+
         def self.download_data(download_object:, data_id:, data_name:, options:)
           iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel].include?(iteration_strategy)
@@ -23,7 +25,7 @@ module DataCycleCore
 
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
-                    item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[language].to_h, data_hash)
+                    item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash)
                     item.dump[language] = data_hash
                   end
                   item.save!
@@ -71,9 +73,8 @@ module DataCycleCore
                           item_name = data_name.call(item_data)
 
                           item = mongo_item.find_or_initialize_by('external_id': item_id)
-
                           item.dump ||= {}
-                          item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[locale].to_h, item_data)
+                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data)
                           item.dump[locale] = item_data
                           item.save!
                           logging.item_processed(item_name, item_id, item_count, max_string)
@@ -130,7 +131,7 @@ module DataCycleCore
 
                         item_data.each do |language, data_hash|
                           next unless locales.include?(language.to_sym)
-                          item.data_has_changed ||= DataCycleCore::DiffService.dirty?(item.dump[language].to_h, data_hash)
+                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash)
                           item.dump[language] = data_hash
                           logging.item_processed(item_name, item_id, item_count, max_string)
                         end
@@ -167,6 +168,19 @@ module DataCycleCore
           yield
         ensure
           Mongoid.override_database(nil)
+        end
+
+        def self.bson_to_hash(item)
+          return item unless item.is_a?(::Hash)
+          Hash[item.to_a.map { |k, v| [k, v.is_a?(::Hash) ? bson_to_hash(v) : (v.is_a?(::Array) ? v.map { |i| bson_to_hash(i) } : v)] }]
+        end
+
+        def self.diff?(a, b)
+          diff(a, b).count.positive?
+        end
+
+        def self.diff(a, b)
+          ::Hashdiff.diff(a, b, { numeric_tolerance: 0.001 })
         end
       end
     end

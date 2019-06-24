@@ -103,7 +103,7 @@
 
             <div class="v-select">
               <%= f.select :role_id,
-                DataCycleCore::Role.where('rank <= ?', current_user.role.try(:rank)).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]},
+                DataCycleCore::Role.accessible_by(current_ability).order(:rank).collect{|r| [t('roles.'+r.name, locale: DataCycleCore.ui_language), r.id]},
                 {},
                 class: 'single-select',
                 data: {

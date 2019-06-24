@@ -1,0 +1,34 @@
+<% breadcrumb :merge_content, @content, @split_source, @watch_list %>
+
+<% content_for :top_content do %>
+
+  <div class="reveal-blur">
+    <div id="edit-form">
+      <% content_for :form_action do %>
+        <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t("content_type.#{@content.template_name.underscore_blanks}", default: @content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('duplicate.merge', locale: DataCycleCore.ui_language) %>
+      <% end %>
+
+      <% content_for :additional_edit_buttons do %>
+        <%= button_tag tag.i(class: 'fa fa-code-fork', aria_hidden: true),
+          class: 'button-prime merge-with-duplicate',
+          title: t('actions.merge_with_duplicate', locale: DataCycleCore.ui_language),
+          data: {
+            tooltip: true,
+            disable: true,
+            confirm: t('common.merge_warning_html', locale: DataCycleCore.ui_language)
+          } if DataCycleCore::Feature::DuplicateCandidate.enabled? %>
+      <% end %>
+
+      <%= render 'form',
+        key_prefix: 'thing[datahash]',
+        content: @content,
+        watch_list: @watch_list,
+        split_source: @split_source,
+        form_data_attributes: {
+          duplicate_id: @split_source.id
+        },
+        link_action: :merge_with_duplicate %>
+    </div>
+  </div>
+
+<% end %>

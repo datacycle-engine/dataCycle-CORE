@@ -100,15 +100,15 @@ module.exports.initialize = function() {
 
   let show_confirmation = function(event) {
     event.preventDefault();
-    let confirmationModal = new ConfirmationModal(
-      'Filterparameter aktualisieren?',
-      'success',
-      true,
-      () => {
+    let confirmationModal = new ConfirmationModal({
+      text: 'Filterparameter aktualisieren?',
+      confirmationClass: 'success',
+      cancelable: true,
+      confirmationCallback: () => {
         append_stored_filter_data(event);
       },
-      () => $.rails.enableFormElements($(event.currentTarget))
-    );
+      cancelCallback: () => $.rails.enableFormElements($(event.currentTarget))
+    });
   };
 
   let append_stored_filter_data = function(event) {

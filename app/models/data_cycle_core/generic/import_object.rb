@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     class ImportObject < GenericObject
-      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode, :history, :partial_update, :normalizer
+      attr_reader :external_source, :options, :locales, :logging, :source_type, :source_object, :mode, :history, :partial_update, :normalizer, :asset_download
       attr_writer :mode
 
       def initialize(**options)
@@ -23,6 +23,8 @@ module DataCycleCore
         @locales = options[:locales]
         @logging = init_logging(:import)
         @history = options.dig(:history) || false
+        no_asset_download = options.dig(:no_asset_download) || false
+        @asset_download = !no_asset_download
         @mode = options.dig(:import, :mode)&.to_sym || options.dig(:mode)&.to_sym || :incremental
         @partial_update = options.dig(:partial_update) || false
       end

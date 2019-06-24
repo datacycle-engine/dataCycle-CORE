@@ -1,76 +1,57 @@
-<%= render_content_partial 'edit_header_functions', content: content %>
+<%= render_content_partial 'edit_header_functions', content: content, link_action: local_assigns[:link_action] %>
 
-<%= form_for content, url: thing_path(content, watch_list_id: @watch_list), html: {class: 'validation-form edit-content-form'} do |f| %>
-    <%= hidden_field_tag 'uuid', content.id %>
-    <%= hidden_field_tag :table, content.class.table_name %>
-    <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
-    <%= hidden_field_tag 'locale', I18n.locale %>
+<%= form_with url: local_assigns[:form_url] || thing_path(content, watch_list_id: watch_list), local: true, method: :patch, class: 'validation-form edit-content-form', data: local_assigns[:form_data_attributes] do |f| %>
+  <%= hidden_field_tag :uuid, content.id %>
+  <%= hidden_field_tag :table, content.class.table_name %>
+  <%= hidden_field_tag "#{content.class.name.demodulize.underscore}[datahash][creator][]", content.created_by %>
+  <%= hidden_field_tag :locale, @locale %>
+  <%= content_for :additional_form_fields %>
 
-    <% unless @split_source.nil? %>
-        <% I18n.with_locale(@split_source.first_available_locale) do %>
-            <div class="flex-box">
-                <div class="row split-content detail-content">
-                    <%= hidden_field_tag 'splitview', true %>
-                    <% if can?(:subscribe, @split_source) && @split_source.subscriptions.by_user(current_user).size == 0 %>
-                        <div class="subscribe-parent notice"><p>Sie sollten diesen Inhalt (<%= @split_source.template_name%>) abonnieren, um Ihren neu erstellten Inhalt (<%= content.template_name%>) aktuell halten zu können.</p>
-                            <%= link_to "Abonnieren", subscriptions_path(subscribable_id: @split_source.id, subscribable_type: @split_source.class.name), method: :post %>
+  <div class="<%= 'flex-box' if split_source %>">
+    <% if split_source %>
+      <% I18n.with_locale(split_source.first_available_locale(@source_locale)) do %>
+        <div class="row split-content detail-content">
+          <%= hidden_field_tag 'splitview', true %>
 
-                            <button name="button" type="button" class="close-subscribe-notice" data-close="" aria-label="Dismiss Notice"><span aria-hidden="true">×</span></button>
-                        </div>
-                    <% end %>
-                    <div class="show-content">
-                        <div class="detail-header-info">
-                            <%= render 'meta_data', content: @split_source %>
-                        </div>
+          <%= render 'split_source_subscribe_notice', content: content, split_source: split_source if local_assigns[:subscribe_notice] && can?(:subscribe, split_source) && split_source.subscriptions.by_user(current_user).size.zero? && cookies[:subscribe_notice_dismissed].blank? %>
 
-                        <%= render_content_partial 'details', content: @split_source, options: { force_render: true } %>
-
-                    </div>
-                </div>
-        <% end %>
-    <% end %>
-
-    <div class="row<%= ' split-content edit-content' unless @split_source.nil? %>">
-        <div class="column">
-            <div class="detail-header editor">
-
-                <div class="detail-header-info">
-                    <%= render 'meta_data', content: content %>
-                </div>
-
-                <a class="bookmark" href="#">
-                    <span class="bookmarkinfo">zur Recherche hinzufügen</span>
-                    <i class="fa fa-bookmark-o" aria-hidden="true"></i>
-                </a>
-
-                <% if content.schema.present? %>
-
-                    <% validation_properties = ordered_validation_properties(validation: content.schema) %>
-
-                    <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
-
-                    <% if !validation_properties.nil? %>
-
-                        <% validation_properties.each do |key, prop| %>
-
-                            <% value = content.try(key.to_sym) %>
-
-                            <%= render_attribute_editor key: "#{keyPrefix}[#{key}]", definition: prop, value: value, parameters: { options: {} }, content: content %>
-
-                        <% end %>
-
-                    <% end %>
-
-                <% end %>
-
+          <div class="show-content">
+            <div class="detail-header-info">
+              <%= render 'meta_data', content: split_source %>
+              <ul class="split-locales no-bullet">
+                <%= render 'split_locale_links',
+                  locales: available_locales_with_names.except(:all),
+                  prefix: "source-#{split_source.id}-",
+                  content: content,
+                  locale: @locale,
+                  link_action: local_assigns[:link_action] if split_source.translatable? && I18n.available_locales&.many? %>
+              </ul>
+              <%= link_to tag.i(class: 'fa fa-times', aira_hidden: true), edit_thing_path(content, watch_list_id: @watch_list, locale: @locale), title: t('actions.close_source', locale: DataCycleCore.ui_language), data: { tooltip: true }, class: 'close-source-link' %>
             </div>
-        </div>
-    </div>
 
-    <% unless @split_source.nil? %>
+            <%= render_content_partial 'details', content: split_source, options: { force_render: true }, default: true %>
+          </div>
         </div>
+      <% end %>
     <% end %>
 
+    <div class="row <%= 'split-content edit-content' if split_source %>">
+      <div class="column">
+        <div class="detail-header editor">
+          <div class="detail-header-info">
+            <%= render 'meta_data', content: content %>
+          </div>
+
+          <%= render 'data_cycle_core/contents/editors/metadata/finalize', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && current_user.is_rank?(0) && content.indirect_data_links.by_receiver(current_user).valid.exists? %>
+
+          <% ordered_validation_properties(validation: content.schema).presence&.each do |key, prop| %>
+              <%= render_attribute_editor key: "#{key_prefix}[#{key}]", definition: prop, value: content.try(key.to_sym), parameters: { options: {} }, content: content %>
+          <% end %>
+
+        </div>
+      </div>
+    </div>
+  </div>
 <% end %>
 
 <%= content_for :forms %>

@@ -6,6 +6,7 @@ module DataCycleCore
       def initialize(user, session = {})
         can [:show, :find], :object_browser
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
+        can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|
           scope == 'asset' && template&.creatable?(scope)
         end
@@ -18,7 +19,6 @@ module DataCycleCore
               (attribute.key =~ Regexp.union(*DataCycleCore.features.dig(:publication_schedule, :classification_keys))) &&
               !DataCycleCore::Feature::PublicationSchedule.includes_attribute_key(attribute.content, attribute.key)
             )
-
           else
             (
               attribute.content.try(:external_key).blank? ||
@@ -48,23 +48,19 @@ module DataCycleCore
         end
 
         DataCycleCore::DataLink.session_edit_links(session[:can_edit_ids]).each do |link|
-          if link.is_valid? && link.item_type == 'DataCycleCore::WatchList'
-            can [:update, :import], DataCycleCore::Thing do |content|
-              release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
+          next unless link.is_valid?
 
-              if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present?
-                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_status_id.presence&.ids&.include?(release_partner_stage_id)
-              else
-                link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
-              end
-            end
-            can :edit, DataCycleCore::DataAttribute do |a|
-              link.item.watch_list_data_hashes.pluck(:hashable_id).include?(a.content&.id)
-            end
-          elsif link.is_valid?
-            can [:update, :import], link.item_type.constantize, id: link.item_id
-            can :edit, DataCycleCore::DataAttribute do |a|
-              link.item_id == a.content&.id
+          release_partner_stage_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('partner'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } })&.id
+
+          can [:update, :import], DataCycleCore::Thing do |content|
+            if DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present? && link.item_type == 'DataCycleCore::WatchList'
+              link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id) && content.release_status_id.presence&.ids&.include?(release_partner_stage_id)
+            elsif DataCycleCore::Feature::Releasable.allowed?(content) && release_partner_stage_id.present?
+              link.item_id == content.id && content.release_status_id.presence&.ids&.include?(release_partner_stage_id)
+            elsif link.item_type == 'DataCycleCore::WatchList'
+              link.item.watch_list_data_hashes.pluck(:hashable_id).include?(content.id)
+            else
+              link.item_id == content.id
             end
           end
         end

@@ -60,6 +60,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Folders').count)
         assert_equal(1, DataCycleCore::ClassificationAlias.for_tree('Celum - Users').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Celum')
+      end
     end
   end
 end

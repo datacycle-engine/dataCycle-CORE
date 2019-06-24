@@ -27,15 +27,13 @@ module DataCycleCore
           has_many :classification_aliases, through: :classification_groups
           has_many :primary_classification_groups, through: :classifications
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
-          has_many :display_classification_aliases, -> { where('classification_aliases.internal = ?', false).distinct },
-                   through: :classification_groups, source: :classification_alias
 
           # relation content to all other contents
           has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
           has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
-          has_many :content_b, through: :content_content_b
+          has_many :content_b, through: :content_content_a
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
           belongs_to :external_source
@@ -54,6 +52,10 @@ module DataCycleCore
           has_many :indirect_data_links, through: :data_link_content_items
           has_many :data_links, as: :item, dependent: :destroy
         end
+      end
+
+      def display_classification_aliases(context)
+        classification_aliases.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
       end
 
       def assigned_classification_aliases

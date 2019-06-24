@@ -107,7 +107,8 @@ CREATE TABLE public.classification_tree_labels (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     internal boolean DEFAULT false,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    visibility character varying[] DEFAULT '{}'::character varying[]
 );
 
 
@@ -514,6 +515,42 @@ ALTER SEQUENCE public.delayed_jobs_id_seq OWNED BY public.delayed_jobs.id;
 
 
 --
+-- Name: thing_duplicates; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.thing_duplicates (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid,
+    thing_duplicate_id uuid,
+    method character varying,
+    score double precision,
+    false_positive boolean DEFAULT false NOT NULL,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: duplicate_candidates; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.duplicate_candidates AS
+ SELECT thing_duplicates.thing_duplicate_id AS duplicate_id,
+    thing_duplicates.thing_id AS original_id,
+    thing_duplicates.score,
+    thing_duplicates.id AS thing_duplicate_id,
+    thing_duplicates.false_positive
+   FROM public.thing_duplicates
+UNION
+ SELECT thing_duplicates.thing_id AS duplicate_id,
+    thing_duplicates.thing_duplicate_id AS original_id,
+    thing_duplicates.score,
+    thing_duplicates.id AS thing_duplicate_id,
+    thing_duplicates.false_positive
+   FROM public.thing_duplicates;
+
+
+--
 -- Name: external_sources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -647,7 +684,8 @@ CREATE TABLE public.thing_external_systems (
     external_system_id uuid,
     data jsonb,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    status character varying
 );
 
 
@@ -780,23 +818,24 @@ CREATE TABLE public.users (
     role_id uuid,
     notification_frequency character varying DEFAULT 'always'::character varying,
     access_token character varying,
-    type character varying,
+    type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying
 );
 
 
 --
--- Name: watch_list_user_groups; Type: TABLE; Schema: public; Owner: -
+-- Name: watch_list_shares; Type: TABLE; Schema: public; Owner: -
 --
 
-CREATE TABLE public.watch_list_user_groups (
+CREATE TABLE public.watch_list_shares (
     id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    user_group_id uuid,
+    shareable_id uuid,
     watch_list_id uuid,
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    shareable_type character varying DEFAULT 'DataCycleCore::UserGroup'::character varying
 );
 
 
@@ -990,6 +1029,14 @@ ALTER TABLE ONLY public.subscriptions
 
 
 --
+-- Name: thing_duplicates thing_duplicates_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.thing_duplicates
+    ADD CONSTRAINT thing_duplicates_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: thing_external_systems thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1062,10 +1109,10 @@ ALTER TABLE ONLY public.watch_list_data_hashes
 
 
 --
--- Name: watch_list_user_groups watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: watch_list_shares watch_list_user_groups_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.watch_list_user_groups
+ALTER TABLE ONLY public.watch_list_shares
     ADD CONSTRAINT watch_list_user_groups_pkey PRIMARY KEY (id);
 
 
@@ -1659,17 +1706,10 @@ CREATE INDEX index_watch_list_data_hashes_on_watch_list_id ON public.watch_list_
 
 
 --
--- Name: index_watch_list_user_groups_on_user_group_id; Type: INDEX; Schema: public; Owner: -
+-- Name: index_watch_list_shares_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_watch_list_user_groups_on_user_group_id ON public.watch_list_user_groups USING btree (user_group_id);
-
-
---
--- Name: index_watch_list_user_groups_on_watch_list_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_watch_list_user_groups_on_watch_list_id ON public.watch_list_user_groups USING btree (watch_list_id);
+CREATE INDEX index_watch_list_shares_on_watch_list_id ON public.watch_list_shares USING btree (watch_list_id);
 
 
 --
@@ -1698,6 +1738,20 @@ CREATE INDEX name_idx ON public.classification_aliases USING gin (internal_name 
 --
 
 CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btree (parent_classification_alias_id, classification_alias_id);
+
+
+--
+-- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_by_shareable ON public.watch_list_shares USING btree (shareable_id, shareable_type, watch_list_id);
+
+
+--
+-- Name: unique_duplicate_index; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX unique_duplicate_index ON public.thing_duplicates USING btree (thing_id, thing_duplicate_id, method);
 
 
 --
@@ -1847,6 +1901,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190129083607'),
 ('20190312141313'),
 ('20190314094528'),
-('20190325122951');
+('20190325122951'),
+('20190423083517'),
+('20190423103601'),
+('20190520124223'),
+('20190531093158'),
+('20190612084614'),
+('20190613092317');
 
 

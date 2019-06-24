@@ -13,6 +13,6 @@
 # container
   - $$Container
 
-- Rezept-Gänge:
+- Rezept-Gänge | show, edit, tile, api:
 
-- Rezept-Kategorien:
+- Rezept-Kategorien | show, edit, tile, api:

@@ -5,10 +5,12 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
 
-    DataCycleCore.features.each_key do |key|
-      module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
-      include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-    end
+    DataCycleCore.features
+      .select { |_, v| !v.dig(:only_config) == true }
+      .each_key do |key|
+        module_name = ('DataCycleCore::Feature::ControllerFunctions::' + key.to_s.classify).constantize
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+      end
 
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
@@ -104,17 +106,11 @@ module DataCycleCore
       # get show data for split view
       if source_params.present?
         @split_source = DataCycleCore::Thing.find(source_params[:source_id])
-        @split_schema = []
-        @split_source_params = source_params
-
-        if @split_source.present?
-          I18n.with_locale(@split_source.first_available_locale) do
-            @split_schema = @split_source.get_data_hash
-          end
-        end
+        @source_locale = source_params[:source_locale]
       end
 
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
         redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
 
         render && return
@@ -128,6 +124,19 @@ module DataCycleCore
       authorize!(:edit, @content)
 
       redirect_to edit_thing_path(@content, watch_list_params)
+    end
+
+    def split_view
+      @content = DataCycleCore::Thing.find(params[:id])
+      @split_source = DataCycleCore::Thing.find(source_params[:source_id])
+      @source_locale = source_params[:source_locale]
+
+      I18n.with_locale(params[:locale] || @content.first_available_locale) do
+        @locale = I18n.locale
+        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+
+        render(:edit) && return
+      end
     end
 
     def update
@@ -144,9 +153,11 @@ module DataCycleCore
 
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language
 
+        merge_and_remove_duplicate if params[:duplicate_id].present? && self.class.method_defined?(:merge_and_remove_duplicate)
+
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize]
+        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize] && !params[:duplicate_id]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))
@@ -233,17 +244,22 @@ module DataCycleCore
 
       return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
 
-      respond_to(:js)
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        respond_to(:js)
+        render && return
+      end
     end
 
-    # only used in split-view
     def render_embedded_object
       authorize! :edit, DataCycleCore::Thing
 
-      @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
-      @content = DataCycleCore::Thing.find(params[:id])
+      I18n.with_locale(params[:locale] || I18n.locale) do
+        @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
+        @content = DataCycleCore::Thing.find(params[:id])
 
-      respond_to(:js)
+        respond_to(:js)
+        render && return
+      end
     end
 
     def validate
@@ -265,24 +281,26 @@ module DataCycleCore
       @object = DataCycleCore::Thing.find(linked_object_params[:id])
       authorize! :show, @object
 
-      @page = linked_object_params.fetch(:page) { 1 }
+      @page = linked_object_params[:page]&.to_i || 1
 
-      if linked_object_params[:load_more_type] == 'all'
-        @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)
-      else
-        @linked_objects = @object.try(linked_object_params[:key])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
-      end
+      I18n.with_locale(linked_object_params[:locale] || I18n.locale) do
+        if linked_object_params[:load_more_type] == 'all'
+          @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)
+        else
+          @linked_objects = @object.try(linked_object_params[:key])&.where&.not(id: linked_object_params[:load_more_except])&.includes(:translations)&.page(@page)&.per(DataCycleCore.linked_objects_page_size)
+        end
 
-      @params = linked_object_params.to_h
+        @params = linked_object_params.to_h
 
-      respond_to do |format|
-        format.js do
-          if linked_object_params[:load_more_action] == 'object_browser'
-            render :load_more_linked_objects_object_browser
-          elsif linked_object_params[:load_more_action] == 'embedded_object'
-            render :load_more_linked_objects_embedded_object
-          else
-            render :load_more_linked_objects_show
+        respond_to do |format|
+          format.js do
+            if linked_object_params[:load_more_action] == 'object_browser'
+              render(:load_more_linked_objects_object_browser) && return
+            elsif linked_object_params[:load_more_action] == 'embedded_object'
+              render(:load_more_linked_objects_embedded_object) && return
+            else
+              render(:load_more_linked_objects_show) && return
+            end
           end
         end
       end
@@ -367,9 +385,9 @@ module DataCycleCore
 
     def source_params
       if params[:source]
-        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_table)
-      elsif params[:source_id] && params[:source_table]
-        params.permit(:source_id, :source_table)
+        ActionController::Parameters.new(Hash[params[:source].split(',').collect { |x| x.strip.split('=>') }]).permit(:source_id, :source_locale)
+      elsif params[:source_id].present?
+        params.permit(:source_id, :source_locale)
       else
         {}
       end

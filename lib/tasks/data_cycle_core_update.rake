@@ -12,6 +12,7 @@ namespace :data_cycle_core do
         puts 'the following errors were encountered during import:'
         ap errors
       end
+      puts "\n"
     end
 
     desc 'import all external_system configs'
@@ -24,6 +25,7 @@ namespace :data_cycle_core do
         puts 'the following errors were encountered during import:'
         ap errors
       end
+      puts "\n"
     end
 
     desc 'import classifications'
@@ -37,7 +39,7 @@ namespace :data_cycle_core do
         exit(-1)
       end
 
-      puts "\nchecking for unused <Inhaltstypen> classifications"
+      puts 'checking for unused <Inhaltstypen> classifications'
       data = DataCycleCore::MasterData::ImportClassifications.updated_classification_statistics(before_import)
       if data.present?
         puts "\nWARNING: the following classification_aliases are not updated:"
@@ -49,16 +51,21 @@ namespace :data_cycle_core do
       else
         puts('[done] ... looks good')
       end
+      puts "\n"
     end
 
     desc 'import all template definitions'
     task import_templates: [:environment] do
       before_import = Time.zone.now
-      puts 'importing new template definitions'
-      errors, duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
+      puts "importing new template definitions\n"
+      errors, duplicates, mixin_duplicates = DataCycleCore::MasterData::ImportTemplates.import_all
       if duplicates.present?
-        puts 'INFO: the following templates had multiple definitions:'
+        puts 'INFO: the following templates are overwritten:'
         ap duplicates
+      end
+      if mixin_duplicates.present?
+        puts 'INFO: the following mixins are overwritten:'
+        ap mixin_duplicates
       end
       if errors.present?
         puts 'the following errors were encountered during import:'
@@ -78,13 +85,14 @@ namespace :data_cycle_core do
 
       outdated_templates = DataCycleCore::MasterData::ImportTemplates.updated_template_statistics(before_import)
       if outdated_templates.present?
-        puts "\ntemplate_updated_at:"
+        puts "\nWARNING: the following templates are not updated:"
         puts "#{'template_name'.ljust(20)} | #{'template_updated_at'.ljust(38)} | #{'#things'.ljust(12)} | #{'#things_hist'.ljust(12)}"
         puts '-' * 92
         outdated_templates.each do |key, value|
           puts "#{key.to_s.ljust(20)} | #{value[:template_updated_at].to_s(:long_usec).ljust(38)} | #{value[:count].to_s.rjust(12)} | #{value[:count_history].to_s.rjust(12)}"
         end
       end
+      puts "\n"
     end
 
     desc 'delete history of a specific template_name'
@@ -210,6 +218,25 @@ namespace :data_cycle_core do
         end
 
         puts "#{data_object.to_s.ljust(30)} | #{template_name.ljust(25)} | #{search_entries.to_s.rjust(10)} | #{(boost || 'no search').to_s.rjust(10)}"
+      end
+    end
+
+    desc 'auto_tag all images (without Cloud Vision Tags)'
+    task auto_tagging: [:environment] do
+      abort('Feature AutoTagging has to be enabled!') unless DataCycleCore::Feature::AutoTagging.enabled?
+      taggable_templates = ['Bild']
+      tag_property = :cloud_vision_tags
+
+      query = DataCycleCore::Thing.where(template: false, template_name: taggable_templates)
+      max_items = query.count
+
+      puts "AutoTagging all untagged Things with template #{taggable_templates} (#{max_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+      DataCycleCore::ProgressBarService.for_shell(max_items) do |pb|
+        query.find_each do |image|
+          pb.inc
+          next if image.send(tag_property).present?
+          image.auto_tag
+        end
       end
     end
   end

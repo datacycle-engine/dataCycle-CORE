@@ -60,6 +60,10 @@ module DataCycleCore
         assert_equal(1, data.pimcore_city.count)
         assert_equal(1, data.pimcore_categories.count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Pimcore')
+      end
     end
   end
 end

@@ -37,6 +37,7 @@ module DataCycleCore
 
           @classification_trees = @classification_trees
             .accessible_by(current_ability)
+            .joins(:sub_classification_alias)
             .includes(
               sub_classification_alias: {
                 classifications: { primary_classification_alias: :classification_alias_path },
@@ -44,7 +45,7 @@ module DataCycleCore
                 additional_classifications: {},
                 statistics: {}
               }
-            ).order(:created_at)
+            ).order('classification_aliases.internal_name')
             .page(params[:page])
 
           @page = @classification_trees.current_page
@@ -80,12 +81,31 @@ module DataCycleCore
       }.to_json, content_type: 'application/json'
     end
 
+    def find
+      params.permit(:ids)
+
+      query = DataCycleCore::Classification.where(id: params[:ids]).preload(primary_classification_alias: :classification_alias_path)
+
+      # FIXME: Jbuilder Bug: tries to render jbuilder partial
+      render plain: query.map { |c|
+        {
+          classification_id: c.id,
+          classification_alias_id: c.primary_classification_alias.id,
+          name: c.primary_classification_alias.internal_name,
+          title: c.primary_classification_alias.full_path,
+          description: c.primary_classification_alias.description,
+          disabled: !c.primary_classification_alias.assignable
+        }
+      }.to_json, content_type: 'application/json'
+    end
+
     def create
+      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
       permitted_params = params.permit(
         :classification_tree_label_id,
         :classification_tree_id,
-        { classification_tree_label: [:name, :internal] },
-        { classification_alias: [:name, :internal, :description, :assignable] }
+        classification_tree_label: [:name, :internal, visibility: []],
+        classification_alias: [:name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 
       respond_to do |format|
@@ -106,8 +126,14 @@ module DataCycleCore
             end
 
             ActiveRecord::Base.transaction do
-              @classification = DataCycleCore::Classification.create!(name: permitted_params[:classification_alias][:name])
-              @classification_alias = DataCycleCore::ClassificationAlias.create!(permitted_params[:classification_alias])
+              @classification_alias = DataCycleCore::ClassificationAlias.new(permitted_params[:classification_alias].except(:translation))
+              permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+                I18n.with_locale(locale.to_sym) do
+                  @classification_alias.attributes = values
+                end
+              end
+              @classification_alias.save!
+              @classification = DataCycleCore::Classification.create!(name: @classification_alias.internal_name)
               @classification_group = DataCycleCore::ClassificationGroup.create!(
                 classification: @classification,
                 classification_alias: @classification_alias
@@ -124,9 +150,10 @@ module DataCycleCore
     end
 
     def update
+      locale_params = I18n.available_locales.map { |l| [l.to_sym => [:name, :description]] }
       permitted_params = params.permit(
-        classification_tree_label: [:id, :name, :internal],
-        classification_alias: [:id, :name, :internal, :assignable, :description, classification_ids: []]
+        classification_tree_label: [:id, :name, :internal, visibility: []],
+        classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
 
       respond_to do |format|
@@ -140,7 +167,15 @@ module DataCycleCore
             @object.update!(permitted_params[:classification_tree_label])
           else
             @object = DataCycleCore::ClassificationAlias.find(permitted_params[:classification_alias][:id])
-            @object.update!(permitted_params[:classification_alias])
+
+            permitted_params.dig(:classification_alias, :translation).presence&.each do |locale, values|
+              I18n.with_locale(locale.to_sym) do
+                @object.attributes = values
+              end
+            end
+
+            @object.attributes = permitted_params[:classification_alias].except(:translation)
+            @object.save!
           end
         end
       end

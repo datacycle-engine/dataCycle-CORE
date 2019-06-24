@@ -27,6 +27,10 @@ module DataCycleCore
       @duplicate_candidates ||= []
     end
 
+    def duplicate_candidates_with_score
+      @duplicate_candidates_with_score ||= []
+    end
+
     def dynamic_version_definition(name)
       @dynamic_version_definition ||= Hash.new do |h, key|
         h[key.to_s] = asset_contents&.first&.asset_version_definition(key)
@@ -74,6 +78,13 @@ module DataCycleCore
       asset_contents&.first&.asset_version_definition.presence&.each do |version_name, version_options|
         file.dynamic_version(name: version_name.to_sym, options: version_options, delay: true)
       end
+    end
+
+    def duplicate
+      new_asset = dup
+      new_asset.file = file
+      new_asset.save
+      new_asset
     end
 
     private

@@ -13,7 +13,9 @@ module DataCycleCore
           ids = permitted_params.dig(:ids).split(',')
           content = DataCycleCore::Thing.where(id: ids)
 
-          xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, content)
+          deleted_content_ids = (ids - content.map(&:id))
+
+          xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, content, deleted_content_ids)
 
           render xml: xml_content
         end

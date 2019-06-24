@@ -29,7 +29,8 @@ module DataCycleCore
             :external_source,
             :external_systems,
             :parent,
-            display_classification_aliases: :classification_alias_path
+            :primary_classification_aliases,
+            classification_aliases: [:classification_alias_path, :classification_tree_label]
           )
         )
       end
@@ -70,6 +71,30 @@ module DataCycleCore
         )
       end
 
+      def external_system(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists)
+        )
+      end
+
+      def with_content_ids(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing[:id].in(ids))
+        )
+      end
+
+      def not_external_system(ids = nil)
+        return self if ids.blank?
+
+        reflect(
+          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists.not)
+        )
+      end
+
       def creator(ids = nil)
         return self if ids.blank?
 
@@ -104,15 +129,8 @@ module DataCycleCore
       def relation(name = nil)
         return self if name.blank?
 
-        sub_query = Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(content_content)
-          .on(thing[:id].eq(content_content[:content_a_id]))
-          .where(content_content[:relation_a].eq(name))
-
         reflect(
-          @query.where(thing[:id].in(sub_query))
+          @query.where(content_content.where(content_content[:content_a_id].eq(thing[:id]).and(content_content[:relation_a].eq(name))).exists)
         )
       end
 
@@ -207,6 +225,26 @@ module DataCycleCore
         reflect(
           @query.where.not(query_string)
         )
+      end
+
+      def boolean(value, filter_method)
+        if respond_to?(filter_method)
+          send(filter_method, value)
+        else
+          self
+        end
+      end
+
+      def duplicate_candidates(value)
+        if value == 'true'
+          reflect(
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists)
+          )
+        else
+          reflect(
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists.not)
+          )
+        end
       end
 
       def validity_period(d = nil)
@@ -378,6 +416,14 @@ module DataCycleCore
 
       def thing
         DataCycleCore::Thing.arel_table
+      end
+
+      def duplicate_candidate
+        DataCycleCore::Thing::DuplicateCandidate.arel_table
+      end
+
+      def thing_external_system
+        DataCycleCore::ThingExternalSystem.arel_table
       end
     end
   end

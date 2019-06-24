@@ -18,7 +18,7 @@ module DataCycleCore
           errors[:error] << "The data compared are not of the same type. #{schema_a&.dig('name')} =/= #{schema_b&.dig('name')}"
           return self
         end
-        schema_diff = HashDiff.diff(schema_a, schema_b)
+        schema_diff = ::Hashdiff.diff(schema_a, schema_b)
         if schema_diff.size.positive?
           errors[:error] << 'The schema differs between the two received content data. (try to update all schemas)'
           errors[:info] << 'difference in schema: ' + schema_diff.map { |item| item.join(' ') }.join(' | ')

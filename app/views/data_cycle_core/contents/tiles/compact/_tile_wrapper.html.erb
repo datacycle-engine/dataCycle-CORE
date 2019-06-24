@@ -13,8 +13,9 @@
     <div class="content-link">
       <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
       <%= render 'data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition if local_assigns[:tile_links] %>
-      <%= yield_content!(:tile_buttons) %>
 
       <%= yield %>
+
+      <%= yield_content!(:tile_buttons) %>
     </div>
 </li>

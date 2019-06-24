@@ -3,10 +3,11 @@
     :name: tags
     :type: mixin
     :properties:
-      :tags:
-        :label: Tags
+      :keywords_medienarchive:
+        :label: MediaArchive - Tags
         :type: classification
-        :tree_label: Tags
+        :tree_label: MediaArchive - Tags
+        :external: true
         :ui:
           :show:
             :content_area: header
@@ -34,10 +35,26 @@
         :ui:
           :show:
             :content_area: header
+      :asset_collections_celum:
+        :label: Celum - Asset Collection
+        :type: classification
+        :tree_label: Celum - Asset Collections
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :types_of_use_celum:
         :label: Celum - Verwendungsart
         :type: classification
         :tree_label: Celum - Verwendungsart
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :hrs_image_categories:
+        :label: HRS - Image-Categories
+        :type: classification
+        :tree_label: HRS - Image-Categories
         :external: true
         :ui:
           :show:

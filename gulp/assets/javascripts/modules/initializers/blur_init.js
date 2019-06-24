@@ -17,12 +17,12 @@ module.exports.initialize = function() {
     });
   }
 
-  var scroll_top = [];
+  var scrollTop = [];
 
   $(document).on('open.zf.reveal', '.reveal.object-browser-overlay', event => {
     $('.reveal-blur').addClass('show');
     if ($(event.currentTarget).data('overlay') === false) {
-      scroll_top.push($(window).scrollTop());
+      scrollTop.push($(window).scrollTop());
       window.scrollTo(0, 0);
     }
   });
@@ -35,7 +35,7 @@ module.exports.initialize = function() {
         !$('.reveal.object-browser-overlay:visible').not(event.target).length
       )
         $('.reveal-blur').removeClass('show');
-      if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scroll_top.pop());
+      if ($(event.currentTarget).data('overlay') === false) window.scrollTo(0, scrollTop.pop());
     }
   });
 };

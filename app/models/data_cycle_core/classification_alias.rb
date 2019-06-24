@@ -120,6 +120,10 @@ module DataCycleCore
       )
     end
 
+    def self.in_context(context)
+      all.to_a.select { |ca| (Array(ca.classification_tree_label&.visibility) & Array(context)).size.positive? }
+    end
+
     def primary_classification_id
       primary_classification&.id
     end
@@ -162,6 +166,12 @@ module DataCycleCore
         return nil
       else
         template.first
+      end
+    end
+
+    def translated_locales
+      @translated_locales ||= begin
+        (name_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).concat(description_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).uniq
       end
     end
 

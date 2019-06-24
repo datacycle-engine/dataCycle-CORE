@@ -23,12 +23,10 @@ module.exports.initialize = function() {
   });
 
   function init(container = document) {
-    if ($(container).find('form.multi-step').length) {
-      $(container)
-        .find('form.multi-step')
-        .each((index, element) => {
-          new NewContentDialog(element);
-        });
-    }
+    $(container)
+      .find('form.multi-step')
+      .each((index, element) => {
+        new NewContentDialog(element);
+      });
   }
 };

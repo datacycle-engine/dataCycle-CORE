@@ -1,0 +1,26 @@
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'n' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+  <%= hidden_field_tag "f[#{index}][t]", local_assigns[:filter_type] || :boolean %>
+  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <span class="icon"><i class="fa fa-clone" aria-hidden="true"></i></span>
+    <%= hidden_field_tag "f[#{index}][m]", 'n' %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= radio_button_tag "f[#{index}][v]", 'true', (value != 'false') %>
+    <%= label_tag "f_#{index}_v_true", t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= radio_button_tag "f[#{index}][v]", 'false', (value == 'false') %>
+    <%= label_tag "f_#{index}_v_false", t("filter.not_#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

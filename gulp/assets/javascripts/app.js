@@ -8,7 +8,6 @@ var callout_helpers = require('./modules/helpers/callout_helpers');
 var array_helpers = require('./modules/helpers/array_helpers');
 var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
-
 var initializers = [];
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -38,10 +37,12 @@ initializers.push(require('./modules/initializers/htmldiff_init'));
 initializers.push(require('./modules/initializers/remote_render_init'));
 initializers.push(require('./modules/initializers/new_contents_init'));
 initializers.push(require('./modules/initializers/admin_panel_init'));
+initializers.push(require('./modules/initializers/watch_list'));
+initializers.push(require('./modules/initializers/reload_required_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
-initializers.push(require('./modules/initializers/validation_init'));
 initializers.push(require('./modules/initializers/foundation_init'));
+initializers.push(require('./modules/initializers/validation_init'));
 
 $(function() {
   initializers.forEach(element => {
@@ -95,14 +96,14 @@ $(function() {
 
               if (contents !== undefined) {
                 if (contents.title !== undefined) {
-                  $('[data-label="Meta-Titel"] > input[type=text]').trigger('import-data', {
+                  $('[data-label="Meta-Titel"] > input[type=text]').trigger('dc:import:data', {
                     label: 'Meta-Titel',
                     value: contents.title
                   });
                 }
 
                 if (contents.description !== undefined) {
-                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('import-data', {
+                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('dc:import:data', {
                     label: 'Meta-Description',
                     value: contents.description
                   });
@@ -133,7 +134,7 @@ $(function() {
 
                   $('.linked[data-label="Bilder"]')
                     .children('.object-browser')
-                    .trigger('import-data', {
+                    .trigger('dc:import:data', {
                       label: label,
                       external_ids: image_ids
                     });

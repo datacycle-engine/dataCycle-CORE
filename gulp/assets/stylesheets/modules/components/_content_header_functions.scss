@@ -27,12 +27,22 @@
           margin-top: -0.75rem;
           margin-bottom: -0.75rem;
           z-index: 100;
+          outline: none;
           i {
             display: inline-block;
           }
           &:disabled {
-            // background-color: map-get($foundation-palette, alert);
             cursor: not-allowed;
+          }
+        }
+        .merge-with-duplicate ~ .submit {
+          height: 4rem;
+          width: 4rem;
+          margin-top: -0.25rem;
+          margin-bottom: -0.25rem;
+          .fa {
+            font-size: 2rem;
+            line-height: 4rem;
           }
         }
         a {
@@ -68,15 +78,16 @@
           }
         }
       }
-      display: inline-block;
+      display: inline;
       position: relative;
       vertical-align: top;
       > a,
       > .link {
+        display: inline-block;
         color: $body-font-color;
         opacity: 0.3;
         transition: all ease-in-out 0.25s;
-        padding: 0 0.5rem 1rem 0.5rem;
+        padding: 0 0.5rem;
         border: none;
         cursor: pointer;
         line-height: 1.6;

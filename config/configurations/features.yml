@@ -36,6 +36,7 @@
   :enabled: true
   :classification_alias_ids: all
   :external_source: true
+  :external_system: false
   :creator: true
   :classification_tree_ids: all
   :date_range: all
@@ -77,3 +78,6 @@
       :strip: :comments
     :pngquant:
       :speed: 10
+
+:duplicate_candidate:
+  :enabled: false

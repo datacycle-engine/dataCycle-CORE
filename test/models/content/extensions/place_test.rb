@@ -24,7 +24,7 @@ module DataCycleCore
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours'))
       assert_nil(data_set.desc)
-      assert_equal(['address'], data_set.object_browser_fields)
+      assert_equal(['address', 'location'], data_set.object_browser_fields)
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
 
       assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').count)

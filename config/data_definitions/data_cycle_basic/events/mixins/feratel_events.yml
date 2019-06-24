@@ -37,3 +37,12 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_status:
+        :label: Feratel - Status
+        :type: classification
+        :tree_label: Feratel - Status
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header

@@ -7,7 +7,7 @@ module DataCycleCore
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter
         can :manage, :dash_board
         can :become, DataCycleCore::User
-        can :destroy, DataCycleCore::ClassificationTreeLabel
+        can :manage, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
         can :edit, DataCycleCore::DataAttribute
         can :show_admin_panel, DataCycleCore::Thing

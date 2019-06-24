@@ -41,3 +41,6 @@
     - container
   :template: Recherche
   :life_cycle_stage: Recherche
+
+:duplicate_candidate:
+  :enabled: true

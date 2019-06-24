@@ -1,16 +1,17 @@
-var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@params[:key]) %>').parent('.clear-both');
+var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@params[:complete_key]) %>').parent('.clear-both');
 
-<% if @params[:definition][:type] == 'linked' %>
+<% if @params.dig(:definition, :type) == 'linked' %>
   <% content_for :rendered_items do %>
     <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
       <% @linked_objects.each do |content| %>
-        <%= render_linked_partial(key: @params[:key], definition: @params[:definition], parameters: { object: content, options: @params[:options], objects: @params[:objects], object_id: [content.id], tile_links: true }, content: @object) %>
+        <%= render_linked_partial(key: @params[:complete_key], definition: @params[:definition], parameters: { object: content, options: @params[:options], objects: @params[:objects], object_id: [content.id], tile_links: true }, content: @object) %>
       <% end %>
     <% end %>
     <div class="clear-both">
       <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
         @object,
         key: @params[:key],
+        complete_key: @params[:complete_key],
         definition: @params[:definition],
         options: @params[:options],
         page: @params.fetch(:page, 1).to_i + 1,
@@ -18,7 +19,7 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
         locale: (@params[:locale] || I18n.locale)
       ),
       remote: true,
-      id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:key])}",
+      id: "load_more_#{@object&.id}_#{sanitize_to_id(@params[:complete_key])}",
       class: 'load-more-linked-contents button small secondary',
       data: {
         disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"
@@ -26,9 +27,9 @@ var load_more_button = $('#load_more_<%= @object.id %>_<%= sanitize_to_id(@param
     </div>
   <% end %>
 
-  $('<%= j yield :rendered_items %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'object_browser', single: true }).foundation();
+  $('<%= j yield :rendered_items %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'object_browser', single: true }).foundation();
 <% else %>
-  $('<%= j render_attribute_viewer key: @params[:key], definition: @params[:definition], value: @linked_objects, parameters: { options: @params[:options].presence || {} }, content: @object %>').insertAfter(load_more_button).trigger('contents-added', { editor: 'embedded_object', single: false }).foundation();
+  <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
+    $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), page: params.fetch(:page, 1).to_i }, content: @object %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false }).foundation();
+  <% end %>
 <% end %>
-
-load_more_button.remove();

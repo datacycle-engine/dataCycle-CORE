@@ -72,6 +72,11 @@ module DataCycleCore
         DataCycleCore::ClassificationAlias.classification_for_tree_with_name(tree_label, alias_name)
       end
 
+      def load_asset_relation(relation_name)
+        DataCycleCore::Asset.joins(:asset_contents)
+          .find_by(asset_contents: { content_data_id: id, relation: relation_name })
+      end
+
       def as_of(timestamp)
         return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
 

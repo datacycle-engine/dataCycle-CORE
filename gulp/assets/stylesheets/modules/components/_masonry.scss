@@ -18,8 +18,10 @@
   }
 
   .grid-item {
+    position: relative;
     z-index: 1;
     display: none;
+    grid-row-end: span 7;
 
     .content-link {
       padding: 1rem;
@@ -34,12 +36,13 @@
 
       > a {
         line-height: inherit;
+        margin-left: 0.2rem;
       }
 
       > i.fa {
-        color: $dark-gray;
+        color: lighten($black, 10%);
         line-height: inherit;
-
+        margin-left: 0.2rem;
         &.has-tip {
           border: none;
         }

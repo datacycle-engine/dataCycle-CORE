@@ -30,11 +30,17 @@ module DataCycleCore
     test 'create new classification tree' do
       post classifications_path, xhr: true, params: {
         classification_tree_label: {
-          name: 'CLASSIFICATION TREE II'
+          name: 'CLASSIFICATION TREE II',
+          visibility: [
+            'show',
+            'edit'
+          ]
         }
       }
 
-      assert ClassificationTreeLabel.find_by(name: 'CLASSIFICATION TREE II')
+      tree_label = ClassificationTreeLabel.find_by(name: 'CLASSIFICATION TREE II')
+      assert tree_label
+      assert_equal ['show', 'edit'], tree_label.visibility
     end
   end
 end

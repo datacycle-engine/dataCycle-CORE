@@ -90,6 +90,9 @@
       :pimcore_categories:
         :type: mixin
         :name: pimcore_categories
+      :wogehmahin:
+        :type: mixin
+        :name: wogehmahin
       :content_classifications:
         :type: mixin
         :name: content_classifications

@@ -24,10 +24,8 @@ if options[:header_type] == :full
 
   if @mode_parameters.include?('compact')
     classifications = content.classifications.includes(:classification_aliases).map(&:classification_aliases).flatten.uniq
-  else
-    classifications = DataCycleCore.internal_classification_attributes.map { |classification|
-      content.send(classification)&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq if content.respond_to?(classification)
-    }.compact.flatten
+  elsif content.respond_to?('data_type')
+    classifications = content.send('data_type')&.includes(:classification_aliases)&.map(&:classification_aliases)&.flatten&.uniq
   end
 
   json.partial! 'classifications', classification_aliases: classifications, key: 'classifications'

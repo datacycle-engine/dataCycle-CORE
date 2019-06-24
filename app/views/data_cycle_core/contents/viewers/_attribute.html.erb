@@ -1,4 +1,4 @@
-<% if value.present? || options.dig(:force_render).to_s == 'true' %>
+<% if value.present? || options.dig(:force_render).to_s == 'true' || value.is_a?(FalseClass) %>
 
     <% mode = options.fetch(:mode, 'has-changes edit') %>
 
@@ -9,7 +9,7 @@
                 definition.dig('ui', 'show', 'type').try(:underscore),
                 options.dig(:item_diff).present? ? "#{mode}" : "",
                 options.dig('class'),
-            ].reject(&:blank?).join(' ')}", data: (local_assigns[:data_attributes]&.transform_values{ |v| v&.to_s&.html_safe } || {}).merge(label: local_assigns[:data_label] || definition['label']) do %>
+            ].reject(&:blank?).join(' ')}", data: (local_assigns[:data_attributes]&.transform_values{ |v| v&.to_s&.html_safe } || {}).merge(label: local_assigns[:data_label] || definition['label'], key: key) do %>
 
         <% if options.dig(:hide_label).blank? %>
             <span class="detail-label">

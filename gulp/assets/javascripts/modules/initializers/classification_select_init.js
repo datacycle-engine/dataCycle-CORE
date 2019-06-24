@@ -1,4 +1,5 @@
 // Classification Selctor in Edit Forms
+var ConfirmationModal = require('./../components/confirmation_modal');
 require('select2');
 require('select2/i18n/de');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
@@ -6,6 +7,25 @@ var select2_helpers = require('./../helpers/select2_helpers');
 
 module.exports.initialize = function() {
   let init = function(element) {
+    $('.edit-content-form .form-element.classification.check_box > ul.classification-checkbox-list').on(
+      'dc:import:data',
+      function(event, data) {
+        $(event.target)
+          .find('> li > :checkbox')
+          .each((_, item) => {
+            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
+          });
+      }
+    );
+
+    $('.auto-tagging-button').on('click', event => {
+      $(event.target)
+        .closest('.form-element')
+        .find('> .v-select > select')
+        .val(null)
+        .trigger('change');
+    });
+
     $(element)
       .find('.async-select')
       .each(function() {
@@ -14,6 +34,45 @@ module.exports.initialize = function() {
         var alias_ids = $(this).data('alias-ids') || false;
         var max = $(this).data('max');
         var that = this;
+
+        $(this).on('dc:import:data', (event, data) => {
+          if (data.value !== undefined) {
+            let async_select = $(event.target);
+            let value = async_select.val();
+            let diff = data.value.diff(value);
+            if (diff.length) {
+              $.ajax({
+                type: 'GET',
+                url: '/classifications/find',
+                data: {
+                  ids: diff
+                },
+                dataType: 'json',
+                contentType: 'application/json'
+              }).then(data => {
+                data = data.map(value => {
+                  if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
+                  else if (value.classification_id != undefined) value.id = value.classification_id;
+                  return value;
+                });
+
+                data.forEach(element => {
+                  let option = new Option(element.name, element.id, true, true);
+                  option.title = element.title;
+                  async_select.append(option).trigger('change');
+
+                  // manually trigger the `select2:select` event
+                  async_select.trigger({
+                    type: 'select2:select',
+                    params: {
+                      data: element
+                    }
+                  });
+                });
+              });
+            }
+          }
+        });
 
         $(this).select2({
           allowClear: true,
@@ -89,6 +148,17 @@ module.exports.initialize = function() {
         var query = {};
         var tree_label = $(this).data('tree-label');
         var that = this;
+
+        $(this).on('dc:import:data', (event, data) => {
+          if (data.value !== undefined) {
+            let value = $(event.target).val();
+            let diff = data.value.diff(value);
+            if (diff.length)
+              $(event.target)
+                .val(value.concat(diff))
+                .trigger('change');
+          }
+        });
 
         $(this).select2({
           allowClear: true,

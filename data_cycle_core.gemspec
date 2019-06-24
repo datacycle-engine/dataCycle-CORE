@@ -75,7 +75,7 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
   s.add_dependency 'dry-validation', '~> 0.11'
-  s.add_dependency 'hashdiff', '0.3.8'
+  s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
 
   # File Upload
@@ -124,10 +124,14 @@ Gem::Specification.new do |s|
   # Excel Generator
   s.add_dependency 'axlsx_rails'
 
+  # Google Cloud Services
+  s.add_dependency 'google-cloud-translate'
+  s.add_dependency 'google-cloud-vision'
+
   # premailer
   s.add_dependency 'premailer'
   # validation gems
-  s.add_development_dependency 'brakeman', '4.3.0'
+  s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'faker'
   s.add_development_dependency 'fasterer'

@@ -4,6 +4,8 @@ module DataCycleCore
   module Api
     module V2
       class ContentsController < Api::V2::ApiBaseController
+        PUMA_MAX_TIMEOUT = 60
+        # rescue_from Timeout::Error, :with => :rescue_from_timeout
         include DataCycleCore::Filter
         include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
 
@@ -13,12 +15,14 @@ module DataCycleCore
         ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
 
         def index
-          query = build_search_query
-          query = apply_ordering(query)
-
-          @pagination_contents = apply_paging(query)
-          @contents = @pagination_contents
-          render 'index'
+          puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
+            query = apply_ordering(query)
+            @pagination_contents = apply_paging(query)
+            @contents = @pagination_contents
+            render 'index'
+          end
         end
 
         def show

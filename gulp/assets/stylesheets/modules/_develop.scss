@@ -512,17 +512,41 @@ select {
       height: inherit;
     }
 
+    .detail-header {
+      &.editor {
+        margin-top: 0;
+      }
+    }
+
+    .detail-type.object {
+      a.copy-all {
+        width: 2rem;
+        height: 2rem;
+        margin-top: -2.1rem;
+        margin-right: -0.9rem;
+        .fa {
+          font-size: 1.2rem;
+          line-height: 2rem;
+        }
+      }
+    }
+
     .detail-content {
       position: relative;
       padding: 0 1rem;
 
       .show-content {
-        margin-top: 3rem;
         position: relative;
 
         > br {
           display: none;
         }
+      }
+
+      .copy-all {
+        float: right;
+        margin: 0.1rem;
+        z-index: 1;
       }
 
       .copy-to-clipboard {
@@ -550,17 +574,33 @@ select {
     .detail-header-info {
       text-align: left;
       display: flex;
-      width: 100%;
-      left: 0;
-      position: absolute;
-      top: -2rem;
+      max-width: 100%;
       opacity: 0.3;
       transition: opacity 0.3s ease;
+
+      > * {
+        position: relative;
+        margin: 1rem 0 0 0;
+
+        &.close-source-link,
+        &.split-locales > li > a {
+          padding: 0 0.5rem;
+        }
+
+        &.close-source-link {
+          .fa {
+            font-size: 1.2rem;
+            color: $black;
+          }
+        }
+      }
 
       .metadata {
         white-space: nowrap;
         text-overflow: ellipsis;
         overflow: hidden;
+        margin-top: 1rem;
+        flex: auto;
 
         .icon {
           margin-right: 0.2rem;
@@ -568,6 +608,7 @@ select {
 
         > .type {
           margin-right: 0.2rem;
+          font-size: 0.9rem;
         }
 
         .show-history-link {
@@ -620,7 +661,7 @@ select {
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
-        padding-left: 0.5rem;
+        font-size: 0.9rem;
       }
     }
 
@@ -653,11 +694,20 @@ select {
 
         .close-subscribe-notice {
           position: absolute;
-          right: 0.5rem;
+          right: 0;
           top: 0;
           font-size: 2em;
+          padding: 0.1rem;
+
           cursor: pointer;
           color: white;
+
+          span {
+            display: block;
+            height: 2rem;
+            width: 2rem;
+            line-height: 2rem;
+          }
 
           &:hover,
           &:focus {
@@ -1546,7 +1596,8 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button) > .fa {
+[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .merge-with-duplicate)
+  > .fa {
   font-size: inherit;
   line-height: inherit;
 }
@@ -1592,23 +1643,6 @@ select {
 
 .has-tip {
   border: none;
-}
-
-.external-connection-tooltip {
-  > span {
-    display: block;
-    &:not(:first-child) {
-      margin-top: 1rem;
-      padding-top: 1rem;
-      border-top: 1px solid rgba($light-gray, 0.5);
-    }
-  }
-}
-
-.external-connections {
-  border-bottom: dotted 1px;
-  font-weight: normal;
-  margin-top: 0.5rem;
 }
 
 // Normalizer Styles
@@ -1839,13 +1873,14 @@ input.normalized {
 
 /* Lists */
 section.related-objects {
-  margin: 2rem 0 5rem 0;
+  margin-bottom: 3rem;
+
   ul {
     list-style: none;
     margin: 0;
     padding: 0;
     > li {
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       transition: all ease-in-out 0.2s;
       background: lighten($primary-color, 50%);
       -webkit-filter: blur(0);
@@ -1886,4 +1921,169 @@ section.related-objects {
 
 .callout.warning {
   font-style: normal;
+}
+
+section {
+  .horizontal-separator-header {
+    position: relative;
+    display: block;
+    text-align: center;
+    margin-bottom: 1rem;
+    .header-text {
+      position: relative;
+      display: inline-block;
+      margin: 0;
+      background: white;
+      padding: 1rem;
+    }
+
+    &::before {
+      position: absolute;
+      content: '';
+      height: 0;
+      border-bottom: 3px double $dark-gray;
+      right: 0;
+      left: 0;
+      top: 50%;
+    }
+  }
+}
+
+section.duplicate-candidates {
+  margin-bottom: 3rem;
+  .duplicate-info-separator {
+    display: table-row;
+  }
+  .content-link {
+    display: table;
+    width: 100%;
+    height: 100%;
+  }
+  .duplicate-info {
+    display: table-cell;
+    vertical-align: bottom;
+    text-align: center;
+    margin-top: 1rem;
+    border-top: 1px solid $light-gray;
+    padding-top: 5px;
+    min-width: 250px;
+    .duplicate-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      grid-column-gap: 0.5rem;
+      .button {
+        margin: 5px 0 0 0;
+      }
+    }
+  }
+  .content-tiles {
+    .content.image {
+      box-shadow: 0 0 1px rgba($black, 0.8);
+      margin: 0 1rem 1rem 0;
+      width: 250px;
+      max-width: 300px;
+      .thumbnail {
+        box-shadow: none;
+        margin: 0 auto;
+      }
+    }
+  }
+}
+
+button.merge-with-duplicate {
+  height: 5rem;
+  width: 5rem;
+  margin: -0.75rem 0 -0.75rem 0.5rem;
+  float: right;
+  outline: none;
+  z-index: 100;
+  &:focus {
+    outline: none;
+  }
+  &:disabled {
+    cursor: not-allowed;
+  }
+}
+
+.external-source-icon,
+.external-source-icon .fa,
+.external-system-icon,
+.external-system-icon .fa {
+  height: 1.2rem;
+  width: 1rem;
+  font-size: 1rem;
+  line-height: 1.2rem;
+  text-align: center;
+}
+.external-source-icon {
+  margin-left: 4px;
+  .fa-long-arrow-right {
+    top: 2px;
+    left: -4px;
+  }
+}
+
+.external-system-icon {
+  margin-right: 5px;
+  .fa-long-arrow-right {
+    top: 2px;
+    left: 6px;
+  }
+}
+
+.fa-stack {
+  &.external-source-icon,
+  &.external-system-icon {
+    vertical-align: top;
+    color: lighten($black, 10%);
+
+    &.success {
+      color: $success-color;
+    }
+
+    &.pending {
+      color: $primary-color;
+    }
+
+    &.error {
+      color: $warning-color;
+    }
+
+    &.failure {
+      color: $alert-color;
+    }
+  }
+}
+
+.external-connection-tooltip {
+  p {
+    margin: 0;
+    &:not(:first-of-type) {
+      border-top: 1px dashed;
+      padding-top: 0.5rem;
+      margin-top: 0.5rem;
+    }
+  }
+  .external-source-icon,
+  .external-system-icon {
+    height: 1.2rem;
+    width: 1.2rem;
+    line-height: 1rem;
+    margin-right: 0.3rem;
+    .fa {
+      font-size: 1rem;
+    }
+  }
+}
+
+.auto-tagging-button {
+  position: absolute;
+  right: 1rem;
+  top: 0.5rem;
+  z-index: 12;
+  font-size: 1.5rem;
+}
+
+.label {
+  padding: 0;
 }

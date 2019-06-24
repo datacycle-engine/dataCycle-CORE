@@ -16,10 +16,12 @@ module DataCycleCore
 
       attr_accessor :datahash, :webhook_source
 
-      DataCycleCore.features.each_key do |key|
-        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-      end
+      DataCycleCore.features
+        .select { |_, v| !v.dig(:only_config) == true }
+        .each_key do |key|
+          module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
+          include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+        end
       extend  DataCycleCore::Common::ArelBuilder
       include ContentRelations
       extend  ContentFilters
@@ -283,11 +285,6 @@ module DataCycleCore
             raise StandardError, "Template includes wrong definitions for included sub_property #{key}, given: #{item}!"
           end
         }.inject(&:merge)
-      end
-
-      def load_asset_relation(relation_name)
-        DataCycleCore::Asset.joins(:asset_contents)
-          .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
       def set_property_value(property_name, property_definition, value)

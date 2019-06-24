@@ -157,6 +157,23 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    related_items: Verknüpfte Inhalte
+    generated_value_placeholder: Dieser Wert wird automatisch gesetzt
+    merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
+    additional_classifications: weitere Klassifizierungen
+
+  external_connection_states:
+    success: Erfolgreich synchronisiert
+    pending: wird synchronisiert
+    error: 'Es ist ein Fehler aufgetreten.<br>Die Synchronisation wird in bestimmten Intervallen erneut versucht.'
+    failure: 'Es ist ein schwerer Fehler aufgetreten.<br>Der Inhalt kann nich synchronisiert werden.'
+
+  duplicate:
+    candidates: Mögliche Duplikate
+    score: Score
+    merge: zusammenführen
+    merge_content: Inhalte zusammenführen
+    mark_false_positive: kein Duplikat
 
   tile_links:
     details: zur Detailansicht
@@ -176,13 +193,15 @@ de:
     add: Filter hinzufügen
     language: Sprache
     external_source: Externe Quelle
+    external_system: Externe Zielsysteme
     creator: Ersteller
     classification_tree_ids: Klassifizierungsbaum
-    created_at: Erstellt
-    updated_at: Aktualisiert
-    deleted_at: Gelöscht
+    created_at: Erstellungsdatum
+    updated_at: Aktualisierungsdatum
     validity_period: Gültigkeitszeitraum
-    upload_date: Hochgeladen
+    upload_date: Uploaddatum
+    duplicate_candidates: Potentielle Duplikate vorhanden
+    not_duplicate_candidates: keine potentiellen Duplikate vorhanden
 
   terms:
     valid: gültig
@@ -194,7 +213,16 @@ de:
       one: mein
       other: meine
 
+  classification_visibilities:
+    backend: Dashboard
+    show: Detail-Ansicht
+    api: API
+    tile: Kachel
+    show_more: Detail-Ansicht (standardmäßig eingeklappt)
+    edit: Bearbeitungs-Ansicht
+
   actions:
+    new: erstellen
     show: anzeigen
     edit: bearbeiten
     manage: verwalten
@@ -242,6 +270,14 @@ de:
     back_to_select: Zurück zur Auswahl
     delete_translation: 'Übersetzung (%{data}) löschen'
     delete_with_translated_html: 'Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!'
+    discard_changes: Änderungen verwerfen
+    save_changes: Änderungen speichern
+    merge_with_duplicate: Änderungen speichern und Duplikat löschen
+    reload: Seite neu laden
+    redirect_to_login: zur Anmeldung
+    external_edit: In Externem System öffnen
+    open_as_source: Als Vorlage laden
+    close_source: Vorlage schließen
 
   validation:
     errors:
@@ -304,6 +340,10 @@ de:
       no_source: "Keine gültige Vorlage angegeben"
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
+      duplicate:
+        type_mismatch: 'Inhalte unterschiedlichen Typs können nicht zusammengeführt werden!'
+      session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
+      token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -322,9 +362,12 @@ de:
       updated_multiple: "%{data} wurden aktualisiert."
       moved_to: "Inhalt in %{data} verschoben"
       become_user: 'Eingeloggt als %{data}.'
+      duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
+      merged_with_duplicate: Inhalte wurden zusammengeführt
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."
+      content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
@@ -427,14 +470,21 @@ de:
       data_cycle_core/role:
         one: Benutzerrolle
         other: Benutzerrollen
+      data_cycle_core/classification_alias:
+        one: Klassifizierung
+        other: Klassifizierungen
     attributes:
       data_cycle_core/watch_list:
         name: Name
         user_group_ids: Benutzergruppen
+        user_ids: Benutzer
+      data_cycle_core/classification_tree_label:
+        visibility: Sichtbarkeit
       data_cycle_core/classification_alias:
         assignable: Zuweisbar
-        description: Beschreibungstext
+        description: 'Beschreibungstext'
         classification_ids: Klassifizierungs-Mapping
+        internal_name: Sprachneutraler Name
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

@@ -5,9 +5,22 @@ let quill_helpers = require('./../helpers/quill_helpers');
 class Validator {
   constructor(form_element) {
     this.form = $(form_element);
-    this.submit_button = this.form.siblings('.edit-header').find('.submit-edit-form');
-    this.language_menu = this.form.siblings('.edit-header').find('#language-menu');
-    this.agbs_check = this.form.siblings('.edit-header').find('.form-element.agbs');
+    this.submit_button = this.form
+      .siblings('.edit-header')
+      .find('.submit-edit-form')
+      .first();
+    this.merge_duplicate_button = this.form
+      .siblings('.edit-header')
+      .find('.merge-with-duplicate')
+      .first();
+    this.language_menu = this.form
+      .siblings('.edit-header')
+      .find('#locales-menu')
+      .first();
+    this.agbs_check = this.form
+      .siblings('.edit-header')
+      .find('.form-element.agbs')
+      .first();
     this.initial_form_data = [];
     this.submit_form_data = [];
     this.requests = [];
@@ -21,7 +34,19 @@ class Validator {
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submit_button.on('click', () => this.form.trigger('submit'));
+    this.submit_button.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.form.trigger('submit');
+    });
+    this.merge_duplicate_button.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
+      this.form.append(
+        '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
+      );
+      this.form.trigger('submit', { merge_confirm: true });
+    });
     this.form.on('submit', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
@@ -52,14 +77,21 @@ class Validator {
     });
     // language redirect if changes present
     if (this.language_menu.length) {
-      this.language_menu.on('click', '.list-items li a', event => {
+      this.language_menu.on('click', '.list-items > li > a', event => {
         quill_helpers.update_editors(this.form);
         this.submit_form_data = this.form.serializeArray();
         if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
           event.preventDefault();
-          new ConfirmationModal('Wollen Sie speichern und auf die neue Sprache wechseln?', 'success', true, () => {
-            this.form.append('<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">');
-            this.form.trigger('submit');
+          new ConfirmationModal({
+            text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
+            confirmationClass: 'success',
+            cancelable: true,
+            confirmationCallback: () => {
+              this.form.append(
+                '<input type="hidden" name="new_locale" value="' + $(event.target).data('locale') + '">'
+              );
+              this.form.trigger('submit');
+            }
           });
         }
       });
@@ -84,23 +116,16 @@ class Validator {
     return error;
   }
   disable() {
-    $.rails.disableFormElement(
-      this.form
-        .siblings('.edit-header')
-        .find('.submit-edit-form')
-        .first()
-    );
+    $.rails.disableFormElement(this.submit_button);
+    $.rails.disableFormElement(this.merge_duplicate_button);
     $.rails.disableFormElements(this.form);
   }
   enable() {
     if (this.query_count == 0 && !this.form.hasClass('disabled')) {
-      $.rails.enableFormElement(
-        this.form
-          .siblings('.edit-header')
-          .find('.submit-edit-form')
-          .first()
-      );
+      $.rails.enableFormElement(this.submit_button);
+      $.rails.enableFormElement(this.merge_duplicate_button);
       $.rails.enableFormElements(this.form);
+      this.form.find('input#duplicate_id').remove();
     }
   }
   renderErrorMessage(data, validation_container) {
@@ -243,33 +268,71 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitWithWarnings(warnings) {
-    new ConfirmationModal(
-      'Es sind Warnungen vorhanden (' +
-        warnings
-          .closest('.form-element')
-          .map((i, elem) => $(elem).data('label'))
-          .get()
-          .join(', ') +
-        ').<br>Soll der Inhalt trotzdem gespeichert werden?',
-      'warning',
-      true,
-      () => this.submitForm(),
-      () => this.enable()
-    );
+  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false }) {
+    if (confirmations.warnings !== undefined) {
+      return new ConfirmationModal({
+        text:
+          'Es sind Warnungen vorhanden (' +
+          confirmations.warnings
+            .closest('.form-element')
+            .map((i, elem) => $(elem).data('label'))
+            .get()
+            .join(', ') +
+          ').<br>Soll der Inhalt trotzdem gespeichert werden?',
+        confirmationClass: 'warning',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.warnings = undefined;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    if (confirmations.finalize && this.form.find(':input[name="finalize"]:checked').length) {
+      return new ConfirmationModal({
+        text: 'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.finalize = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    if (confirmations.confirm && this.submit_button.data('confirm') !== undefined) {
+      return new ConfirmationModal({
+        text: this.submit_button.data('confirm'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.confirm = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    if (confirmations.merge && this.merge_duplicate_button.data('confirm') !== undefined) {
+      return new ConfirmationModal({
+        text: this.merge_duplicate_button.data('confirm'),
+        confirmationClass: 'alert',
+        cancelable: true,
+        confirmationCallback: () => {
+          confirmations.merge = false;
+          this.submitForm(confirmations);
+        },
+        cancelCallback: () => this.enable()
+      });
+    }
+
+    this.triggerFormSubmit();
   }
-  submitForm() {
+  triggerFormSubmit() {
     if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      this.form.trigger('submit_without_redirect');
-    } else if (this.form.find(':input[name="finalize"]:checked').length) {
-      $(window).off('beforeunload');
-      new ConfirmationModal(
-        'Der Inhalt wird final abgeschickt und <br>kann danach nicht mehr bearbeitet werden.',
-        'success',
-        true,
-        () => this.form.trigger('submit.rails'),
-        () => this.enable()
-      );
+      return this.form.trigger('submit_without_redirect');
     } else {
       $(window).off('beforeunload');
       this.form.trigger('submit.rails');
@@ -290,11 +353,14 @@ class Validator {
         if (this.valid && submit) {
           this.query_count = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          if (warnings.length) {
-            this.submitWithWarnings(warnings);
-          } else {
-            this.submitForm();
-          }
+          let confirmations = {
+            finalize: true,
+            confirm: true,
+            warnings: warnings.length ? warnings : undefined,
+            merge: event_data !== undefined ? event_data.merge_confirm : undefined
+          };
+
+          this.submitForm(confirmations);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });

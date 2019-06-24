@@ -1,0 +1,199 @@
+---
+- :data:
+    :name: Bild
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: entity
+    :boost: 10.0
+    :features:
+      :creatable:
+        :allowed: true
+      :translatable:
+        :allowed: true
+    :api:
+      :type: ImageObject
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :asset:
+        :label: Datei
+        :type: asset
+        :asset_type: image
+        :api:
+          :disabled: true        
+      :alternative_headline:
+        :label: Alt-Label
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :caption:
+        :label: Bildunterschrift
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :content_url:
+        :label: Bild URL
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: content_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
+      :thumbnail_url:
+        :label: Thumbnail URL
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Image
+          :method: thumbnail_url
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :partial: preview_image
+        :api:
+          :minimal: true
+      :url:
+        :label: Inhalt URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :name: sameAs
+      :width:
+        :label: Breite
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: width
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: width
+      :height:
+        :label: Höhe
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Image
+          :method: height
+          :parameters:
+            :0: asset
+        :ui:
+          :show:
+            :options:
+              :data-unit: px
+        :api:
+          :partial: property_value
+          :type: QuantitativeValue
+          :unit_text: pixel
+          :unit_code: E37
+          :transformation:
+            :method: nest
+            :name: height
+      # schema.org: TEXT with KB/MB
+      # data-cycle: Integer (Byte)
+      :content_size:
+        :label: Dateigröße
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: number
+          :module: Utility::Compute::Asset
+          :method: file_size
+          :parameters:
+            :0: asset
+      :file_format:
+        :label: Dateiformat
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Asset
+          :method: file_format
+          :parameters:
+            :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
+      :photographer:
+        :label: Fotograf
+        :type: string
+        :storage_location: value
+        :search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :license_fields:
+        :type: mixin
+        :name: license_fields
+      :tags:
+        :type: mixin
+        :name: tags
+      :cloud_vision:
+        :type: mixin
+        :name: cloud_vision
+      :media_archive:
+        :type: mixin
+        :name: media_archive
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Bild"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

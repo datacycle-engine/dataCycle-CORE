@@ -18,7 +18,7 @@ DataCycleCore::Engine.routes.draw do
   get '/docs', to: 'documentation#show'
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
-    klass: /(image|audio|video|pdf|text_file|asset)/,
+    klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
   }
 
@@ -38,10 +38,10 @@ DataCycleCore::Engine.routes.draw do
   resources :user_groups
 
   scope '(/watch_lists/:watch_list_id)', defaults: { watch_list_id: nil } do
-    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show, :new, :create, :edit, :update, :destroy], controller: :things) do
+    resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), controller: :things) do
       post :import, on: :collection
       get 'history/:history_id', action: :history, on: :member, as: :history
-      get 'compare', on: :member
+      get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
@@ -50,6 +50,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :collection
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
+      get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end
 
@@ -62,6 +63,7 @@ DataCycleCore::Engine.routes.draw do
   scope('files') do
     resources :assets, only: [:index, :show, :create, :update, :destroy] do
       get :find, on: :collection
+      post :duplicate, on: :member
     end
   end
 
@@ -81,6 +83,7 @@ DataCycleCore::Engine.routes.draw do
     patch :update, on: :collection
     delete :destroy, on: :collection
     get :search, on: :collection
+    get :find, on: :collection
     get :download, on: :collection
   end
 
@@ -155,7 +158,7 @@ DataCycleCore::Engine.routes.draw do
       namespace :v3 do
         scope path: '(/:api_subversion)' do
           type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
           resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
             get :gpx, on: :member
@@ -165,7 +168,8 @@ DataCycleCore::Engine.routes.draw do
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
           resources :classification_trees, only: [:index, :show] do
-            get :classifications, on: :member
+            # get :classifications, on: :member
+            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
           end
 
           resources :collections, only: [:index, :show], controller: :watch_lists
@@ -192,4 +196,5 @@ DataCycleCore::Engine.routes.draw do
   get :add_filter, controller: :application
   get :add_tag_group, controller: :application
   post :remote_render, controller: :application
+  get :reload_required, controller: :application
 end

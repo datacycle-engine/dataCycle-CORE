@@ -4,10 +4,13 @@ module DataCycleCore
   module MasterData
     module ImportExternalSystems
       def self.import_all(validation: true, external_system_path: nil)
+        # update all existing Systems with not responding host
+        ActiveRecord::Base.connection.execute("UPDATE external_systems SET credentials = jsonb_set(credentials, '{host}', '\"http://localhost\"'::jsonb, false)")
+
         errors = {}
         external_system_path ||= DataCycleCore.external_systems_path
         if external_system_path.blank?
-          puts '###### external systems not found'
+          puts 'INFO: no external systems found'
           return
         end
 

@@ -4,20 +4,24 @@ module DataCycleCore
   module Api
     module V3
       class ContentsController < ::DataCycleCore::Api::V3::ApiBaseController
+        PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
-        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
 
         def index
-          query = build_search_query
-          query = apply_ordering(query)
+          puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
+          Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
+            query = build_search_query
+            query = apply_ordering(query)
 
-          @pagination_contents = apply_paging(query)
-          @contents = @pagination_contents
-          render 'index'
+            @pagination_contents = apply_paging(query)
+            @contents = @pagination_contents
+            render 'index'
+          end
         end
 
         def show
@@ -86,9 +90,15 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
+              if @mode_parameters.include?('strict')
+                query = query.with_classification_alias_ids_without_recursion(classifications)
+              else
+                query = query.classification_alias_ids(classifications)
+              end
             end
           end
+          query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+
           query
         end
 

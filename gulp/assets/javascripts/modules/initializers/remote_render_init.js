@@ -1,7 +1,7 @@
 // Reveal Blur
 module.exports.initialize = function() {
   $('.remote-render:visible').each((_, element) => {
-    load_remote_partial(element);
+    if (!$(element).closest('.dropdown-pane').length) load_remote_partial(element);
   });
 
   $(document).on('change.zf.tabs', event => {
@@ -14,7 +14,7 @@ module.exports.initialize = function() {
       });
   });
 
-  $(document).on('open.zf.reveal dc:remote:render dc:html:changed', '*', event => {
+  $(document).on('open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown', '*', event => {
     event.stopPropagation();
     $(event.target)
       .find('.remote-render:visible')
@@ -25,7 +25,10 @@ module.exports.initialize = function() {
   });
 
   function load_remote_partial(element) {
-    $(element).html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
+    $(element)
+      .removeClass('remote-render')
+      .addClass('remote-rendering')
+      .html('<div class="loading show"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
 
     $.ajax({
       type: 'POST',

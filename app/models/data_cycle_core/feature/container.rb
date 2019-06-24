@@ -34,7 +34,7 @@ module DataCycleCore
             }
           ]
 
-          return queries unless content.life_cycle_stage_index(DataCycleCore::Feature::IdeaCollection.life_cycle_stage(content))&.<(content.life_cycle_stage_index)
+          return queries unless content.try(:life_cycle_stage_index, DataCycleCore::Feature::IdeaCollection.life_cycle_stage(content))&.<(content.life_cycle_stage_index)
 
           queries.push({
             method_name: 'without_template_names',

@@ -51,6 +51,10 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'See').with_schema_type('Place').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Skigebiet').with_schema_type('Place').count)
       end
+
+      def teardown
+        DataCycleCore::MongoHelper.drop_mongo_db('Bergfex')
+      end
     end
   end
 end

@@ -203,6 +203,55 @@ button,
     position: relative;
   }
 
+  .hidden-classifications {
+    text-align: left;
+    .accordion-item {
+      .accordion-content {
+        position: relative;
+        background: none;
+        padding: 0;
+        margin-left: 1.5rem;
+        > .classification {
+          position: relative;
+        }
+      }
+      .accordion-title {
+        display: inline-block;
+        text-align: left;
+        padding: 0.2rem 0;
+        font-size: 1rem;
+        color: $black;
+
+        &::before {
+          font-family: 'FontAwesome';
+          content: '\f107';
+          margin: 0 0.3rem 0 0;
+          position: relative;
+          top: 0;
+          right: 0;
+          left: 0;
+          display: inline-block;
+          text-align: center;
+          width: 1rem;
+        }
+      }
+      &.is-active .accordion-title::before {
+        content: '\f106';
+      }
+    }
+  }
+
+  .external-connections {
+    border-bottom: 0px;
+    margin-top: 1rem;
+    font-size: 0.9rem;
+    .external-connection {
+      position: relative;
+      display: inline-block;
+      margin: 0 1rem;
+    }
+  }
+
   > .title {
     padding: 0 5rem 1rem 5rem;
   }
@@ -217,8 +266,16 @@ button,
     position: relative;
   }
 
-  > .detail-type {
+  > .detail-type,
+  > .hidden-classifications .detail-type {
     text-align: left;
+
+    &.mapped-classification {
+      color: $dark-gray;
+      .tag {
+        background-color: rgba($dark-gray, 0.5);
+      }
+    }
 
     &.classification .icon,
     &.validity_period .icon.gultigkeitszeitraum {
@@ -269,6 +326,16 @@ button,
     .type {
       display: inline-block;
       transition: opacity ease-in-out 0.25s;
+    }
+  }
+
+  &.editor {
+    .detail-header-info {
+      position: relative;
+      left: 0;
+      top: 0;
+      text-align: left;
+      margin-bottom: 1rem;
     }
   }
 
@@ -480,7 +547,6 @@ button,
 
   &.editor {
     padding: 0 0 30rem 0;
-    margin-top: 3rem;
     background: none;
 
     .translated {
@@ -498,7 +564,7 @@ button,
       }
       &.fixed-split-toolbar {
         position: fixed;
-        top: 182px;
+        top: 190px;
         left: 52%;
         z-index: 13;
       }
@@ -555,12 +621,11 @@ button,
       }
     }
 
-    .detail-header-info {
-      top: -2rem;
-      left: 0.5rem;
-    }
-
     .bookmark {
+      .detail-header-info {
+        top: -2rem;
+        left: 0.5rem;
+      }
       display: none;
     }
 
@@ -681,6 +746,7 @@ button,
 
 .edit-header-functions {
   .form-element.agbs {
+    display: inline;
     .single_error {
       top: auto;
       bottom: -3.3rem;
@@ -918,6 +984,10 @@ body .v-select {
 
   .tag {
     background-color: rgba($dark-gray, 0.8);
+
+    &.mapped {
+      background-color: rgba($dark-gray, 0.5);
+    }
 
     &.has-changed {
       &.removed {
@@ -1214,7 +1284,6 @@ body.login-page {
 
 a[data-toggle] {
   display: inline-block;
-  padding-bottom: 1rem;
   &.has-tip {
     padding-bottom: 0;
   }
@@ -1225,8 +1294,9 @@ a[data-toggle] {
   font-size: 0.8rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
   text-align: center;
-  z-index: 100;
+  z-index: 1006;
   max-width: 300px;
+  top: calc(100% + 1rem) !important;
 
   &::before {
     content: '▲';
@@ -1275,8 +1345,15 @@ a[data-toggle] {
       }
 
       .buttons {
+        position: relative;
+        top: 0;
+        right: 0;
         float: right;
         vertical-align: middle;
+
+        > * {
+          margin-left: 0.3rem;
+        }
 
         span,
         a {
@@ -1360,7 +1437,6 @@ a[data-toggle] {
   &.align-right {
     right: -18px !important;
     left: auto !important;
-    top: 100% !important;
 
     &:before {
       content: '▲';

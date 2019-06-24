@@ -2,7 +2,11 @@
   <div class="row expanded">
     <div class="column edit-header-functions">
       <div class="edit-name">
-        <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
+        <% if content_for?(:form_action) %>
+          <%= content_for(:form_action) %>
+        <% else %>
+          <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
+        <% end %>
       </div>
       <ul>
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
@@ -15,15 +19,17 @@
           </li>
         <% end %>
 
-        <% if content.translatable? && I18n.available_locales&.many? %>
-          <%= render 'edit_locale_links', local_assigns.merge({ locales: available_locales_with_names.except(:all) }) %>
-        <% end %>
+        <%= render 'edit_locale_links',
+          locales: available_locales_with_names.except(:all),
+          content: content,
+          source_locale: @source_locale,
+          link_action: local_assigns[:link_action] if content.translatable? && I18n.available_locales&.many? %>
 
-        <% if can? :index, DataCycleCore::DataLink %>
-          <li class="has-dropdown right"><%= render 'data_links', content: content %></li>
-        <% end %>
+        <%= tag.li render('data_links', content: content), class: 'has-dropdown right' if can? :index, DataCycleCore::DataLink %>
 
         <li class="buttons">
+          <%= yield :additional_edit_buttons %>
+
           <%= button_tag tag.i(class: 'fa fa-exchange', aria_hidden: true),
             class: 'normalize-content-button',
             title: t('common.normalize', locale: DataCycleCore.ui_language),
@@ -32,12 +38,25 @@
               tooltip: true,
               click_open: false,
               url: normalize_thing_path(content),
-              disable_with: "<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
             } if DataCycleCore::Feature::Normalize.enabled? %>
-          <%= link_to previous_authorized_crumb.url do %>
-            <button type="button" class="button discard top" data-tooltip aria-haspopup="true" title="Änderungen verwerfen"><i class="fa fa-times" aria-hidden="true"></i></button>
-          <% end if previous_authorized_crumb.present? %>
-          <button class="button-prime submit submit-edit-form" data-tooltip aria-haspopup="true" title="Änderungen speichern" data-disable-with="<i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"><i class="fa fa-check" aria-hidden="true"></i></button>
+
+          <%= link_to tag.button(
+            tag.i(class: 'fa fa-times', aria_hidden: true),
+            class: 'button discard top',
+            type: :button,
+            title: t('actions.discard_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true
+            }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <%= button_tag tag.i(class: 'fa fa-check', aria_hidden: true),
+            class: 'button-prime submit submit-edit-form',
+            title: t('actions.save_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true,
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            } %>
         </li>
       </ul>
     </div>

@@ -102,6 +102,63 @@ module DataCycleCore
         assert_equal(asset2.id, data.asset.id)
       end
 
+      test 'dont delete asset, when translation of content is destroyed' do
+        asset = upload_asset('test_rgb.jpg')
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        I18n.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)
+          end
+        end
+
+        assert_equal I18n.available_locales.size, test_image.translations.size
+
+        I18n.with_locale(I18n.available_locales.first) do
+          test_image.destroy_content({ destroy_locale: true })
+        end
+
+        assert_equal I18n.available_locales.size - 1, test_image.translations.size
+        assert_equal asset.id, test_image.asset&.id
+      end
+
+      test 'delete asset, if last translation is destroyed' do
+        asset = upload_asset('test_rgb.jpg')
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        I18n.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)
+          end
+        end
+
+        assert_equal I18n.available_locales.size, test_image.translations.size
+
+        I18n.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            test_image.destroy_content({ destroy_locale: true })
+          end
+        end
+
+        assert test_image.destroyed?
+        assert_not Asset.exists?(id: asset.id)
+      end
+
+      test 'delete asset, if content is destroyed' do
+        asset = upload_asset('test_rgb.jpg')
+        test_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset })
+        I18n.available_locales.each do |locale|
+          I18n.with_locale(locale) do
+            test_image.set_data_hash(partial_update: true, data_hash: { name: "Test Bild 1 #{locale}" }.stringify_keys)
+          end
+        end
+
+        assert_equal I18n.available_locales.size, test_image.translations.size
+
+        test_image.destroy_content
+
+        assert test_image.destroyed?
+        assert_not Asset.exists?(id: asset.id)
+      end
+
       def teardown
         @asset.remove_file!
         @asset.destroy!

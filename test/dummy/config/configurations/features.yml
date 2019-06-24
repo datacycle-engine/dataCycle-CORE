@@ -7,7 +7,7 @@
   :enabled: true
 
 :container:
-  :enabled: false
+  :enabled: true
 
 :external_media_archive:
   :enabled: false
@@ -18,4 +18,14 @@
   :endpoint: DataCycleCore::MasterData::Normalizer::Endpoint
 
 :duplicate_content:
+  :enabled: true
+
+:main_filter:
+  :autoload_last_filter: true
+
+:advanced_filter:
+  :boolean:
+    - duplicate_candidates
+
+:duplicate_candidate:
   :enabled: true
