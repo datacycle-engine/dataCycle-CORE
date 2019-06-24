@@ -14,11 +14,13 @@ module DataCycleCore
         end
 
         def self.import_local_asset(utility_object:, options:, credentials:)
-          local_dir = credentials.dig('directory')
+          local_dirs = Array(credentials.dig('directory'))
           asset_type = options.dig(:import, :asset_type).constantize
 
-          raise "Directory: #{local_dir} does not exist" unless File.directory?(local_dir)
-          raise 'Unkown asset type or local dir' unless local_dir.present? && asset_type.present?
+          local_dirs.each do |ld|
+            raise "Directory: #{ld} does not exist" unless File.directory?(ld)
+          end
+          raise 'Unkown asset type or local dir' unless local_dirs.present? && asset_type.present?
 
           init_logging(utility_object) do |logging|
             phase_name = utility_object.source_type.collection_name
@@ -28,7 +30,7 @@ module DataCycleCore
               logging.phase_started(phase_name.to_s)
               durations = []
 
-              Dir[File.join(File.expand_path(local_dir), '**', '*')].each do |p|
+              Dir.glob(local_dirs.map { |ld| File.join(File.expand_path(ld), '**', '*') }).each do |p|
                 durations << Benchmark.realtime do
                   file = File.open(p)
                   title = File.basename(file, '.*')
@@ -41,6 +43,15 @@ module DataCycleCore
                     'name' => title,
                     'asset' => asset_file.id
                   }
+
+                  if options.dig(:import, :tags_from_folders)
+                    image_data['tags'] = Pathname(File.dirname(p).gsub(Regexp.union(local_dirs.map { |ld| File.expand_path(ld) }), '')).each_filename.to_a
+                    process_tags(
+                      utility_object: utility_object,
+                      raw_data: image_data,
+                      options: { import: utility_object.external_source.config.dig('import_config', 'tags')&.deep_symbolize_keys }
+                    )
+                  end
 
                   # update_item
 
@@ -78,12 +89,14 @@ module DataCycleCore
           config = options.dig(:import, :transformations, :asset)
           template = config&.dig(:template) || 'Bild'
 
+          transformation = DataCycleCore::Generic::DataCycleMedia::Transformations.file_to_asset
+
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
               config,
-              raw_data
+              transformation.call(raw_data)
             ).with_indifferent_access,
             local: true
           )
@@ -91,6 +104,27 @@ module DataCycleCore
 
         def self.init_logging(utility_object, &block)
           DataCycleCore::Generic::Common::ImportFunctions.init_logging(utility_object, &block)
+        end
+
+        def self.process_tags(utility_object:, raw_data:, options:)
+          tree_label = options.dig(:import, :tree_label) || 'Tags'
+          keywords = DataCycleCore::Generic::Common::ImportTags.unwind_project_data(
+            raw_data,
+            ['tags'],
+            [],
+            []
+          )
+          return if keywords&.compact.blank?
+
+          keywords.each do |keyword_hash|
+            classification_data = DataCycleCore::Generic::Common::ImportTags.extract_data(options, keyword_hash).merge(tree_name: tree_label)
+            DataCycleCore::Generic::Common::ImportFunctions.import_classification(
+              utility_object: utility_object,
+              classification_data: classification_data,
+              parent_classification_alias: nil,
+              global: true
+            )
+          end
         end
       end
     end

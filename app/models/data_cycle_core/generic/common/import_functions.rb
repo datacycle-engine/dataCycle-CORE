@@ -239,11 +239,11 @@ module DataCycleCore
           end
         end
 
-        def self.import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
-          if classification_data[:external_key].blank?
+        def self.import_classification(utility_object:, classification_data:, parent_classification_alias: nil, global: false)
+          if classification_data[:external_key].blank? || global
             classification = DataCycleCore::Classification
               .find_or_initialize_by(
-                external_source_id: utility_object.external_source.id,
+                external_source_id: global ? nil : utility_object.external_source.id,
                 name: classification_data[:name]
               )
           else
@@ -256,11 +256,11 @@ module DataCycleCore
 
           classification.name = classification_data[:name]
           classification.description = classification_data[:description] if classification_data[:description].present?
-          classification.external_key = classification_data[:external_key]
+          classification.external_key = classification_data[:external_key] unless global
 
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
-              external_source_id: utility_object.external_source.id,
+              external_source_id: global ? nil : utility_object.external_source.id,
               name: classification_data[:name],
               description: classification_data[:description]
             )
@@ -268,11 +268,11 @@ module DataCycleCore
             DataCycleCore::ClassificationGroup.create!(
               classification: classification,
               classification_alias: classification_alias,
-              external_source_id: utility_object.external_source.id
+              external_source_id: global ? nil : utility_object.external_source.id
             )
 
             tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-              external_source_id: utility_object.external_source.id,
+              external_source_id: global ? nil : utility_object.external_source.id,
               name: classification_data[:tree_name]
             ) do |item|
               item.visibility = ['show', 'edit', 'api', 'tile']

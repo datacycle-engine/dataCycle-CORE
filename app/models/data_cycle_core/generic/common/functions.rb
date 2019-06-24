@@ -47,6 +47,17 @@ module DataCycleCore
           data_hash
         end
 
+        def self.tags_to_ids_by_name(data_hash, attribute)
+          if data_hash[attribute].blank?
+            data_hash[attribute] = []
+          else
+            data_hash[attribute] = data_hash[attribute].map { |keyword|
+              DataCycleCore::Classification.where('lower(name) = ?', keyword.downcase)&.first&.id
+            }.reject(&:nil?) || []
+          end
+          data_hash
+        end
+
         def self.category_key_to_ids(data_hash, attribute, data_list, _name, external_source_id, external_prefix, key)
           return data_hash if data_hash.blank? || data_list.blank?
 
