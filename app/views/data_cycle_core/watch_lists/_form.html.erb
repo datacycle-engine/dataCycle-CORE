@@ -50,7 +50,7 @@
 					<div class="v-select">
 						<%= f.label :user_ids, DataCycleCore::WatchList.human_attribute_name(:user_ids, locale: DataCycleCore.ui_language) %>
             <%= hidden_field_tag 'watch_list[user_ids][]', nil, id: 'hidden_watch_list_user_ids' %>
-            <%= select_tag('watch_list[user_ids][]', options_for_select(DataCycleCore::User.where.not(id: current_user&.id).map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
+            <%= select_tag('watch_list[user_ids][]', options_for_select(DataCycleCore::User.includes(:role).where.not(id: current_user&.id, roles: { rank: 0 }).map { |c| [c.full_name, c.id, { title: c.email }] }, content.users.map(&:id)), { multiple: true, class: 'multi-select' }) %>
 					</div>
 				</div>
 
