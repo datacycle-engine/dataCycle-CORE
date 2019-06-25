@@ -57,6 +57,7 @@ module DataCycleCore
 
                 # TODO: (move to Transformations tests)
                 # API: Transformation: additionalProperty
+
                 assert_equal(@content.text, json_data.dig('additionalProperty').detect { |item| item.dig('identifier') == 'text' }.dig('value'))
 
                 # TODO: (move to Transformations tests)
