@@ -24,7 +24,9 @@
             title: t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
               tooltip: true,
-              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+              disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                tag.span(class: 'progress-value') +
+                tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
             } %>
         </li>
       </ul>
@@ -32,7 +34,7 @@
   </div>
 </section>
 
-<%= form_with url: bulk_update_watch_list_path(watch_list), local: true, method: :patch, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
+<%= form_with url: bulk_update_watch_list_path(watch_list), method: :patch, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
   <%= hidden_field_tag :uuid, watch_list.id %>
   <%= hidden_field_tag :table, watch_list.class.table_name %>
   <%= hidden_field_tag :locale, @locale %>

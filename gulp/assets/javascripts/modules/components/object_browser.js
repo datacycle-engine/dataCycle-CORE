@@ -212,6 +212,7 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
+    this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
     this.element

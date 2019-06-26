@@ -1,6 +1,7 @@
 // Form Validator
 let ConfirmationModal = require('./../components/confirmation_modal');
 let quill_helpers = require('./../helpers/quill_helpers');
+var ActionCable = require('actioncable');
 
 class Validator {
   constructor(form_element) {
@@ -341,6 +342,25 @@ class Validator {
     this.triggerFormSubmit();
   }
   triggerFormSubmit() {
+    if (this.form.hasClass('bulk-edit-form')) {
+      let actioncable = ActionCable.createConsumer();
+      let watch_list_id = this.form.find(':hidden#uuid').val();
+      actioncable.subscriptions.create(
+        {
+          channel: 'DataCycleCore::WatchListBulkUpdateChannel',
+          watch_list_id: watch_list_id
+        },
+        {
+          received: data => {
+            this.submit_button.find('.progress-value').text(data.progress + '/' + data.items);
+            this.submit_button
+              .find('.progress-bar > .progress-filled')
+              .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
+          }
+        }
+      );
+    }
+
     if (this.form.closest('.reveal').hasClass('in-object-browser')) {
       return this.form.trigger('submit_without_redirect');
     } else {

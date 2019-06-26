@@ -139,23 +139,28 @@ module DataCycleCore
 
         udpate_items = @watch_list.things.joins(:translations).where(thing_translations: { locale: I18n.locale })
         skip_update_names = (@watch_list.things - udpate_items).map { |c| I18n.with_locale(c.first_available_locale) { c.try(:title) || '__unnamed__' } }
+        item_count = udpate_items.size
 
-        udpate_items.find_each do |content|
+        ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
+        udpate_items.find_each.with_index do |content, index|
           valid = content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
           errors << valid[:error] if valid[:error].present?
-          # sleep 10
-          # render progress
+
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: item_count
         end
 
         if errors.present?
           flash[:error] = errors.join(', ')
         else
-
           flash[:success] = I18n.t :bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language
           flash[:success] += I18n.t :bulk_updated_skipped_html, scope: [:controllers, :info], data: skip_update_names.join(', '), locale: DataCycleCore.ui_language if skip_update_names.present?
         end
 
-        redirect_to(watch_list_path(@watch_list))
+        if params[:new_locale].present?
+          render js: "window.location.replace('#{bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])}')"
+        else
+          render js: "window.location.replace('#{watch_list_path(@watch_list)}')"
+        end
       end
     end
 
