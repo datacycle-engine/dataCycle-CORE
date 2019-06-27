@@ -184,7 +184,7 @@ module DataCycleCore
         reflect(
           DataCycleCore::Thing.joins(:searches)
             .where(searches: {
-              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder('things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : ''))
+              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : '')))
             })
             .order(order_string)
         )
