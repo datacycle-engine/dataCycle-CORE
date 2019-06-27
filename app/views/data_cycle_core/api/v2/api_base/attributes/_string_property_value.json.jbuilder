@@ -32,6 +32,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
       json.set! 'value', value
     end
   else # fallback to regular key/value
-    json.set! key, value
+    key_name = definition.dig('api', 'name') || key
+    json.set! key_name.camelize(:lower), value
   end
 end
