@@ -1,0 +1,62 @@
+---
+- :data:
+    :name: Additional-Property-Creative-Work
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: name
+        :type: string
+        :storage_location: column
+      :text:
+        :label: text
+        :type: string
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :embedded_data:
+        :label: embedded_data
+        :type: embedded
+        :template_name: Additional-Property-Embedded
+
+- :data:
+    :name: Additional-Property-Embedded
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: name
+        :type: string
+        :storage_location: column
+      :add1:
+        :label: add1
+        :type: string
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :add2:
+        :label: add2
+        :type: string
+        :storage_location: value
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty

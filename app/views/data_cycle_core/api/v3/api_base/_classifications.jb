@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-classifications = classification_aliases.map do |item|
+classifications = classification_aliases&.map do |item|
   {
     id: item.id,
     name: item.name(locale: @language) || item.internal_name,

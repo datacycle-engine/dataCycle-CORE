@@ -178,6 +178,11 @@ module DataCycleCore
       creative_work_data_hash
     end
 
+    def additional_property
+      ap_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_additional_property')
+      DataCycleCore::TestPreparations.create_content(template_name: 'Additional-Property-Creative-Work', data_hash: ap_data_hash, user: @user)
+    end
+
     def validity_period
       {
         'valid_from' => 10.days.ago,
