@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'things'].freeze
+      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things'].freeze
 
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact

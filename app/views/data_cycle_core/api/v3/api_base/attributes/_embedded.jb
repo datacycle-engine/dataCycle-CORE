@@ -12,7 +12,8 @@ if content.translations.size > 1 && @include_parameters.include?('translations')
       translated_objects = content.send(key)
       translated_objects.presence&.includes(:translations, :classifications)&.each do |translated_object|
         # add context
-        json[key_new][translation.locale].push render 'content_properties', content: translated_object, options: options
+        # json[key_new][translation.locale].push render 'content_properties', content: translated_object, options: options
+        json[key_new][translation.locale].push render 'content_details', content: translated_object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: object.combined_property_names })
 
         # if translated_object.schema.present?
         #
@@ -31,7 +32,8 @@ else
   value.presence&.includes(:translations, :classifications)&.each do |object|
     I18n.with_locale(object.first_available_locale) do
       # add context
-      json[key_new].push render 'content_properties', content: object, options: options, context: true
+      # json[key_new].push render 'content_properties', content: object, options: options, context: true
+      json[key_new].push render 'content_details', content: object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: object.combined_property_names }), context: true
 
       # if object.schema.present?
       #
