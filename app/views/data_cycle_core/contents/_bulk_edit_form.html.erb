@@ -44,6 +44,7 @@
       <div class="column">
         <div class="detail-header editor">
           <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
+          <%= tag.span(t('controllers.error.no_shared_attributes', locale: DataCycleCore.ui_language), class: 'bulk-no-attributes') %>
           <% @shared_properties.presence&.each do |key, prop| %>
             <div class="bulk-update-check" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
               <%= check_box_tag "bulk_update[#{key}]" %>

@@ -128,12 +128,22 @@ module DataCycleCore
       @shared_template_features = @watch_list.things.shared_template_features
 
       template_hash = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties.slice(*params['bulk_update']&.keys) }.stringify_keys
-
       object_params = content_params(template_hash)
+
+      if object_params.dig(:datahash).blank?
+        flash[:error] = I18n.t(:no_shared_attributes, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list))
+        head(:ok) && return
+      end
+
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], template_hash)
 
       I18n.with_locale(params[:locale]) do
-        redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
+        unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
+          flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
+          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list))
+          head(:ok) && return
+        end
 
         template_hash.dig('properties')&.each_key do |k|
           datahash[k] ||= nil
@@ -200,6 +210,7 @@ module DataCycleCore
 
     def content_params(property_hash)
       datahash = DataCycleCore::DataHashService.get_params_from_hash(property_hash)
+      return {} if params[:thing].blank?
       params.require(:thing).permit(datahash: datahash)
     end
   end
