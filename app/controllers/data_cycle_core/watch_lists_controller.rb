@@ -135,17 +135,19 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         redirect_to(watch_list_path(@watch_list), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
 
-        errors = []
+        template_hash.dig('properties')&.each_key do |k|
+          datahash[k] ||= nil
+        end
 
-        udpate_items = @watch_list.things.joins(:translations).where(thing_translations: { locale: I18n.locale })
-        skip_update_names = (@watch_list.things - udpate_items).map { |c| I18n.with_locale(c.first_available_locale) { c.try(:title) || '__unnamed__' } }
-        item_count = udpate_items.size
+        update_items = @watch_list.things.joins(:translations).where(thing_translations: { locale: I18n.locale })
+        item_count = update_items.size
+        errors = []
+        skip_update_names = @watch_list.things.where.not(id: update_items.ids).map { |c| I18n.with_locale(c.first_available_locale) { c.try(:title) || '__unnamed__' } }
 
         ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: 0, items: item_count
-        udpate_items.find_each.with_index do |content, index|
+        update_items.find_each.with_index do |content, index|
           valid = content.set_data_hash(data_hash: datahash, current_user: current_user, partial_update: true)
           errors << valid[:error] if valid[:error].present?
-
           ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: item_count
         end
 
@@ -157,10 +159,12 @@ module DataCycleCore
         end
 
         if params[:new_locale].present?
-          render js: "window.location.replace('#{bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])}')"
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])
         else
-          render js: "window.location.replace('#{watch_list_path(@watch_list)}')"
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list)
         end
+
+        head :ok
       end
     end
 
@@ -196,8 +200,7 @@ module DataCycleCore
 
     def content_params(property_hash)
       datahash = DataCycleCore::DataHashService.get_params_from_hash(property_hash)
-      translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
-      params.require(:thing).permit(datahash: datahash, translations: translations)
+      params.require(:thing).permit(datahash: datahash)
     end
   end
 end

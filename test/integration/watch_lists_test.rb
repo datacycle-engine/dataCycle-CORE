@@ -139,12 +139,15 @@ module DataCycleCore
           datahash: {
             name: bulk_name
           }
+        },
+        bulk_update: {
+          name: '1'
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
 
-      assert_redirected_to watch_list_path(@watch_list)
+      assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language), flash[:success]
       assert_equal bulk_name, @content.name
 
@@ -154,12 +157,15 @@ module DataCycleCore
           datahash: {
             name: 'New Test Artikel not Bulk Updated'
           }
+        },
+        bulk_update: {
+          name: '1'
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
       }
 
-      assert_redirected_to watch_list_path(@watch_list)
+      assert_response :success
       assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], data: I18n.with_locale(@content.first_available_locale) { @content.name }, locale: DataCycleCore.ui_language), flash[:success]
       assert_equal bulk_name, @content.name
     end
@@ -173,6 +179,9 @@ module DataCycleCore
           datahash: {
             name: bulk_name
           }
+        },
+        bulk_update: {
+          name: '1'
         }
       }, headers: {
         referer: bulk_edit_watch_list_path(@watch_list)
