@@ -17,7 +17,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
         json.set! 'value', value
       end
     end
-  else
+  elsif content.schema.dig('content_type') == 'entity' || options.dig(:content_type) == 'linked'
     json.partial! 'data_cycle_core/api/v2/api_base/headers/property_value', key: key, definition: definition
 
     if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
@@ -31,5 +31,8 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
     else
       json.set! 'value', value
     end
+  else # fallback to regular key/value
+    key_name = definition.dig('api', 'name') || key
+    json.set! key_name.camelize(:lower), value
   end
 end

@@ -10,7 +10,7 @@ module DataCycleCore
 
         def self.file_to_asset
           t(:stringify_keys)
-          .>> t(:tags_to_ids_by_name, 'tags')
+          .>> t(:tags_to_ids_by_name, 'tags', 'Tags')
           .>> t(:strip_all)
         end
       end
