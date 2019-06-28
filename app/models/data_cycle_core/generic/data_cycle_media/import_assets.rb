@@ -47,7 +47,6 @@ module DataCycleCore
                   if options.dig(:import, :tags_from_folders)
                     image_data['tags'] = Pathname(File.dirname(p).gsub(Regexp.union(local_dirs.map { |ld| File.expand_path(ld) }), '')).each_filename.to_a
                     process_tags(
-                      utility_object: utility_object,
                       raw_data: image_data,
                       options: { import: utility_object.external_source.config.dig('import_config', 'tags')&.deep_symbolize_keys }
                     )
@@ -106,7 +105,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.init_logging(utility_object, &block)
         end
 
-        def self.process_tags(utility_object:, raw_data:, options:)
+        def self.process_tags(raw_data:, options:)
           tree_label = options.dig(:import, :tree_label) || 'Tags'
           keywords = DataCycleCore::Generic::Common::ImportTags.unwind_project_data(
             raw_data,
@@ -118,13 +117,56 @@ module DataCycleCore
 
           keywords.each do |keyword_hash|
             classification_data = DataCycleCore::Generic::Common::ImportTags.extract_data(options, keyword_hash).merge(tree_name: tree_label)
-            DataCycleCore::Generic::Common::ImportFunctions.import_classification(
-              utility_object: utility_object,
-              classification_data: classification_data,
-              parent_classification_alias: nil,
-              global: true
+            import_classification(
+              classification_data: classification_data
             )
           end
+        end
+
+        def self.import_classification(classification_data:, parent_classification_alias: nil)
+          classification = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) = ?', classification_data[:name].downcase).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: classification_data[:tree_name] } } }).first_or_initialize do |c|
+            c.name = classification_data[:name]
+            c.description = classification_data[:description] if classification_data[:description].present?
+          end
+
+          if classification.new_record?
+            classification_alias = DataCycleCore::ClassificationAlias.create!(
+              name: classification_data[:name],
+              description: classification_data[:description]
+            )
+
+            DataCycleCore::ClassificationGroup.create!(
+              classification: classification,
+              classification_alias: classification_alias
+            )
+
+            tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
+              name: classification_data[:tree_name]
+            ) do |item|
+              item.visibility = ['show', 'edit', 'api', 'tile']
+            end
+
+            DataCycleCore::ClassificationTree.create!(
+              {
+                classification_tree_label: tree_label,
+                parent_classification_alias: parent_classification_alias,
+                sub_classification_alias: classification_alias
+              }
+            )
+          else
+            primary_classification_alias = classification.primary_classification_alias
+            primary_classification_alias.name = classification_data[:name]
+            primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
+            primary_classification_alias.save!
+
+            classification_tree = primary_classification_alias.classification_tree
+            classification_tree.parent_classification_alias = parent_classification_alias
+            classification_tree.save!
+
+            classification_alias = primary_classification_alias
+          end
+          classification.save!
+          classification_alias
         end
       end
     end

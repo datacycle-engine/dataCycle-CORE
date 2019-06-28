@@ -47,13 +47,11 @@ module DataCycleCore
           data_hash
         end
 
-        def self.tags_to_ids_by_name(data_hash, attribute)
+        def self.tags_to_ids_by_name(data_hash, attribute, tree_label)
           if data_hash[attribute].blank?
             data_hash[attribute] = []
           else
-            data_hash[attribute] = data_hash[attribute].map { |keyword|
-              DataCycleCore::Classification.where('lower(name) = ?', keyword.downcase)&.first&.id
-            }.reject(&:nil?) || []
+            data_hash[attribute] = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).ids
           end
           data_hash
         end
