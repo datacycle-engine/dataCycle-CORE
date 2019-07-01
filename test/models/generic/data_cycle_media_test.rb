@@ -21,10 +21,7 @@ module DataCycleCore
       end
 
       def teardown
-        DataCycleCore::Asset.find_each do |asset|
-          asset.remove_file!
-          asset.destroy!
-        end
+        DataCycleCore::Asset.find_each(&:remove_file!)
       end
     end
   end
