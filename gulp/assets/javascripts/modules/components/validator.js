@@ -78,9 +78,6 @@ class Validator {
             this.submitButton
               .find('.progress-bar > .progress-filled')
               .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
-          } else if (data.redirectPath !== undefined) {
-            this.bulkUpdateChannel.unsubscribe();
-            window.location.href = data.redirectPath;
           }
         }
       }

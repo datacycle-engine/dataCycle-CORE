@@ -110,6 +110,9 @@ module DataCycleCore
 
     def bulk_edit
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      authorize!(:bulk_edit, @watch_list)
+
       @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
       @shared_template_features = @watch_list.things.shared_template_features
 
@@ -124,6 +127,9 @@ module DataCycleCore
 
     def bulk_update
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      authorize!(:bulk_edit, @watch_list)
+
       @shared_properties = @watch_list.things.shared_ordered_properties(current_user)
       @shared_template_features = @watch_list.things.shared_template_features
 
@@ -132,8 +138,7 @@ module DataCycleCore
 
       if object_params.dig(:datahash).blank?
         flash[:error] = I18n.t(:no_shared_attributes, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-        ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list))
-        head(:ok) && return
+        render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
       end
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], template_hash)
@@ -141,8 +146,7 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
           flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
-          ActionCable.server.broadcast("bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list))
-          head(:ok) && return
+          render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
         end
 
         template_hash.dig('properties')&.each_key do |k|
@@ -169,12 +173,10 @@ module DataCycleCore
         end
 
         if params[:new_locale].present?
-          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])
+          render(js: "window.location.href = '#{bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])}';") && return
         else
-          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirectPath: watch_list_path(@watch_list)
+          render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
         end
-
-        head :ok
       end
     end
 

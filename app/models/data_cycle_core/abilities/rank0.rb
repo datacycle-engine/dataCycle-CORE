@@ -68,8 +68,6 @@ module DataCycleCore
         can :print, DataCycleCore::Thing do |content|
           ['entity'].include?(content.schema['content_type'])
         end
-
-        can :bulk_edit, DataCycleCore::WatchList
       end
     end
   end
