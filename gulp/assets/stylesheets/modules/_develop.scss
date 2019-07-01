@@ -2087,3 +2087,20 @@ button.merge-with-duplicate {
 .label {
   padding: 0;
 }
+
+.bulk-update-check {
+  text-align: left;
+  margin-bottom: 0.1rem;
+
+  input[type='checkbox'] {
+    min-width: 0;
+    cursor: pointer;
+  }
+
+  label {
+    position: relative;
+    top: 0;
+    left: 0;
+    margin: 0;
+  }
+}

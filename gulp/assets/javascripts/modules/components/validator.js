@@ -1,31 +1,35 @@
 // Form Validator
 let ConfirmationModal = require('./../components/confirmation_modal');
-let quill_helpers = require('./../helpers/quill_helpers');
+let QuillHelpers = require('./../helpers/quill_helpers');
+let ActionCable = require('actioncable');
 
 class Validator {
-  constructor(form_element) {
-    this.form = $(form_element);
-    this.submit_button = this.form
+  constructor(formElement) {
+    this.form = $(formElement);
+    this.submitButton = this.form
       .siblings('.edit-header')
       .find('.submit-edit-form')
       .first();
-    this.merge_duplicate_button = this.form
+    this.mergeDuplicateButton = this.form
       .siblings('.edit-header')
       .find('.merge-with-duplicate')
       .first();
-    this.language_menu = this.form
+    this.languageMenu = this.form
       .siblings('.edit-header')
       .find('#locales-menu')
       .first();
-    this.agbs_check = this.form
+    this.agbsCheck = this.form
       .siblings('.edit-header')
       .find('.form-element.agbs')
       .first();
-    this.initial_form_data = [];
-    this.submit_form_data = [];
+    this.initialFormData = [];
+    this.submitFormData = [];
     this.requests = [];
-    this.query_count = 0;
+    this.queryCount = 0;
     this.valid = true;
+    this.uuid = this.form.find(':hidden#uuid').val();
+    this.actionCable;
+    this.bulkUpdateChannel;
     this.addEventHandlers();
   }
   addEventHandlers() {
@@ -34,26 +38,50 @@ class Validator {
     this.form.on('remove-submit-button-errors', '.validation-container', event =>
       this.removeSubmitButtonErrors($(event.currentTarget))
     );
-    this.submit_button.on('click', event => {
+    this.submitButton.on('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.form.trigger('submit');
     });
-    this.merge_duplicate_button.on('click', event => {
+    this.mergeDuplicateButton.on('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
       this.form.append(
         '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
       );
-      this.form.trigger('submit', { merge_confirm: true });
+      this.form.trigger('submit', { mergeConfirm: true });
     });
     this.form.on('submit', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
     }
     this.form.on('click', '.close-error', this.closeError.bind(this));
-    this.agbs_check.on('click', '.close-error', this.closeError.bind(this));
-    this.agbs_check.on('change', this.validateSingle.bind(this));
+    this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
+    this.agbsCheck.on('change', this.validateSingle.bind(this));
+
+    if (this.form.hasClass('bulk-edit-form')) {
+      this.initActionCable();
+    }
+  }
+  initActionCable() {
+    this.actionCable = ActionCable.createConsumer();
+    this.bulkUpdateChannel = this.actionCable.subscriptions.create(
+      {
+        channel: 'DataCycleCore::WatchListBulkUpdateChannel',
+        watch_list_id: this.uuid
+      },
+      {
+        received: data => {
+          if (!this.submitButton.prop('disabled')) this.disable();
+          if (data.progress !== undefined) {
+            this.submitButton.find('.progress-value').text(data.progress + '/' + data.items);
+            this.submitButton
+              .find('.progress-bar > .progress-filled')
+              .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
+          }
+        }
+      }
+    );
   }
   closeError(event) {
     event.preventDefault();
@@ -67,20 +95,19 @@ class Validator {
   }
   finalizeUpdate() {}
   pageLeaveWarning() {
-    quill_helpers.update_editors(this.form);
-    this.initial_form_data = this.form.serializeArray();
+    QuillHelpers.update_editors(this.form);
+    this.initialFormData = this.form.serializeArray();
     $(window).on('beforeunload', event => {
-      quill_helpers.update_editors(this.form);
-      this.submit_form_data = this.form.serializeArray();
-      if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data))
+      QuillHelpers.update_editors(this.form);
+      this.submitFormData = this.form.serializeArray();
+      if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
-    // language redirect if changes present
-    if (this.language_menu.length) {
-      this.language_menu.on('click', '.list-items > li > a', event => {
-        quill_helpers.update_editors(this.form);
-        this.submit_form_data = this.form.serializeArray();
-        if (this.initial_form_data.length !== 0 && !this.initial_form_data.equal_to(this.submit_form_data)) {
+    if (this.languageMenu.length) {
+      this.languageMenu.on('click', '.list-items > li > a', event => {
+        QuillHelpers.update_editors(this.form);
+        this.submitFormData = this.form.serializeArray();
+        if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
           new ConfirmationModal({
             text: 'Wollen Sie speichern und auf die neue Sprache wechseln?',
@@ -97,58 +124,58 @@ class Validator {
       });
     }
   }
-  validateAgbs(validation_container) {
+  validateAgbs(validationContainer) {
     let error = {
       error: {},
       warning: {}
     };
-    let agbs = $(validation_container).find(':checkbox[name="accept_agbs"]');
+    let agbs = $(validationContainer).find(':checkbox[name="accept_agbs"]');
     if (agbs.length && !agbs.prop('checked')) {
-      $(validation_container)
-        .append(this.renderErrorMessage({ error: { agbs: ['AGBs müssen akzeptiert werden!'] } }, validation_container))
+      $(validationContainer)
+        .append(this.renderErrorMessage({ error: { agbs: ['AGBs müssen akzeptiert werden!'] } }, validationContainer))
         .addClass('has-error');
       error.error = {
         agbs: ['AGBs müssen akzeptiert werden!']
       };
     } else {
-      this.removeSubmitButtonErrors(validation_container);
+      this.removeSubmitButtonErrors(validationContainer);
     }
     return error;
   }
   disable() {
-    $.rails.disableFormElement(this.submit_button);
-    $.rails.disableFormElement(this.merge_duplicate_button);
+    $.rails.disableFormElement(this.submitButton);
+    $.rails.disableFormElement(this.mergeDuplicateButton);
     $.rails.disableFormElements(this.form);
   }
   enable() {
-    if (this.query_count == 0 && !this.form.hasClass('disabled')) {
-      $.rails.enableFormElement(this.submit_button);
-      $.rails.enableFormElement(this.merge_duplicate_button);
+    if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
+      $.rails.enableFormElement(this.submitButton);
+      $.rails.enableFormElement(this.mergeDuplicateButton);
       $.rails.enableFormElements(this.form);
       this.form.find('input#duplicate_id').remove();
     }
   }
-  renderErrorMessage(data, validation_container) {
+  renderErrorMessage(data, validationContainer) {
     let out = '';
     let item_id = '';
-    let item_label = $(validation_container)
+    let item_label = $(validationContainer)
       .find('label')
       .first();
     let button_text = '';
-    if (validation_container != null && $(validation_container).data('id') != undefined)
-      item_id = $(validation_container).data('id') + '_error';
-    else if (validation_container != null && $(item_label).attr('for') != undefined)
+    if (validationContainer != null && $(validationContainer).data('id') != undefined)
+      item_id = $(validationContainer).data('id') + '_error';
+    else if (validationContainer != null && $(item_label).attr('for') != undefined)
       item_id = $(item_label).attr('for') + '_error';
     if ($('#' + item_id).length != 0) return '';
     button_text = '<span id="button_' + item_id + '" class="tooltip-error">';
     out = "<span id='" + item_id + "' class='single_error'>";
     for (let key in data.error) {
       if (
-        ($(validation_container).data('id') != undefined &&
-          $(validation_container)
+        ($(validationContainer).data('id') != undefined &&
+          $(validationContainer)
             .data('id')
             .search(new RegExp(key, 'i')) != -1) ||
-        ($(validation_container).data('id') == undefined &&
+        ($(validationContainer).data('id') == undefined &&
           $(item_label).attr('for') != undefined &&
           $(item_label)
             .attr('for')
@@ -161,9 +188,9 @@ class Validator {
     out += '<i class="fa fa-times close-error" aria-hidden="true"></i></span>';
     if ($(out).text().length == 0) return '';
     if (this.form.hasClass('edit-content-form')) {
-      this.submit_button.addClass('alert');
-      $('#' + this.submit_button.data('toggle') + ' #button_' + item_id).remove();
-      $('#' + this.submit_button.data('toggle')).append(button_text + '</span>');
+      this.submitButton.addClass('alert');
+      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
+      $('#' + this.submitButton.data('toggle')).append(button_text + '</span>');
     }
     return out;
   }
@@ -175,29 +202,29 @@ class Validator {
     if (item != null && $(item).data('id') != undefined) item_id = $(item).data('id') + '_error';
     else if (item != null && $(item_label).attr('for') != undefined) item_id = $(item_label).attr('for') + '_error';
     if (item == null) {
-      this.submit_button.removeClass('alert');
-      $('#' + this.submit_button.data('toggle') + ' .tooltip-error').remove();
+      this.submitButton.removeClass('alert');
+      $('#' + this.submitButton.data('toggle') + ' .tooltip-error').remove();
     } else {
-      $('#' + this.submit_button.data('toggle') + ' #button_' + item_id).remove();
-      if ($('#' + this.submit_button.data('toggle') + ' .tooltip-error').length == 0) {
-        this.submit_button.removeClass('alert');
+      $('#' + this.submitButton.data('toggle') + ' #button_' + item_id).remove();
+      if ($('#' + this.submitButton.data('toggle') + ' .tooltip-error').length == 0) {
+        this.submitButton.removeClass('alert');
       }
     }
   }
-  resetField(validation_container) {
-    $(validation_container)
+  resetField(validationContainer) {
+    $(validationContainer)
       .children('.single_error')
       .remove();
-    $(validation_container).removeClass('has-error');
+    $(validationContainer).removeClass('has-error');
   }
-  findItemsForField(validation_container) {
+  findItemsForField(validationContainer) {
     let items = [];
-    if ($(validation_container).data('key') != undefined) {
-      items = $(validation_container).find('[name^="' + $(validation_container).data('key') + '"]');
-    } else if ($(validation_container).children('label').length) {
-      items = $(validation_container).find(
+    if ($(validationContainer).data('key') != undefined) {
+      items = $(validationContainer).find('[name^="' + $(validationContainer).data('key') + '"]');
+    } else if ($(validationContainer).children('label').length) {
+      items = $(validationContainer).find(
         '#' +
-          $(validation_container)
+          $(validationContainer)
             .children('label')
             .first()
             .prop('for')
@@ -205,14 +232,24 @@ class Validator {
     }
     return items;
   }
-  validateItem(validation_container) {
-    this.resetField(validation_container);
-    if ($(validation_container).hasClass('agbs')) {
+  validateItem(validationContainer) {
+    this.resetField(validationContainer);
+    if ($(validationContainer).hasClass('agbs')) {
       return new Promise((resolve, reject) => {
-        resolve(this.validateAgbs(validation_container));
+        resolve(this.validateAgbs(validationContainer));
       });
     }
-    let items = this.findItemsForField(validation_container);
+
+    if (
+      this.form.hasClass('bulk-edit-form') &&
+      !$(validationContainer)
+        .siblings('.bulk-update-check[data-attribute-key="' + $(validationContainer).data('key') + '"]')
+        .find(':checkbox')
+        .prop('checked')
+    )
+      return;
+
+    let items = this.findItemsForField(validationContainer);
     if (!items.length) return;
     let form_data = items.serializeArray();
     if (form_data.length == 0) {
@@ -244,25 +281,25 @@ class Validator {
             .prop('id')
             .search(new RegExp(Object.keys(data.error).join('|'), 'i')) != -1
         ) {
-          $(validation_container)
-            .append(this.renderErrorMessage(data, validation_container))
+          $(validationContainer)
+            .append(this.renderErrorMessage(data, validationContainer))
             .addClass('has-error');
         }
       } else {
-        this.removeSubmitButtonErrors(validation_container);
+        this.removeSubmitButtonErrors(validationContainer);
       }
     });
   }
   validateForm(event, data) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    quill_helpers.update_editors(event.target);
+    QuillHelpers.update_editors(event.target);
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
     $(event.target)
       .find('.validation-container:visible')
-      .add(this.agbs_check)
+      .add(this.agbsCheck)
       .each((i, elem) => {
         this.requests.push(this.validateItem(elem));
       });
@@ -302,9 +339,9 @@ class Validator {
       });
     }
 
-    if (confirmations.confirm && this.submit_button.data('confirm') !== undefined) {
+    if (confirmations.confirm && this.submitButton.data('confirm') !== undefined) {
       return new ConfirmationModal({
-        text: this.submit_button.data('confirm'),
+        text: this.submitButton.data('confirm'),
         confirmationClass: 'alert',
         cancelable: true,
         confirmationCallback: () => {
@@ -315,9 +352,9 @@ class Validator {
       });
     }
 
-    if (confirmations.merge && this.merge_duplicate_button.data('confirm') !== undefined) {
+    if (confirmations.merge && this.mergeDuplicateButton.data('confirm') !== undefined) {
       return new ConfirmationModal({
-        text: this.merge_duplicate_button.data('confirm'),
+        text: this.mergeDuplicateButton.data('confirm'),
         confirmationClass: 'alert',
         cancelable: true,
         confirmationCallback: () => {
@@ -338,26 +375,26 @@ class Validator {
       this.form.trigger('submit.rails');
     }
   }
-  resolveRequests(submit = false, event_data = undefined) {
-    this.query_count++;
+  resolveRequests(submit = false, eventData = undefined) {
+    this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];
     Promise.all(requests).then(
       values => {
-        this.query_count--;
+        this.queryCount--;
         this.valid = true;
         let error = this.form.find('.single_error').first();
         values.filter(Boolean).forEach(validation => {
           if (Object.keys(validation.error).length) this.valid = false;
         });
         if (this.valid && submit) {
-          this.query_count = 0;
+          this.queryCount = 0;
           let warnings = this.form.find('.form-element .warning.counter');
           let confirmations = {
             finalize: true,
             confirm: true,
             warnings: warnings.length ? warnings : undefined,
-            merge: event_data !== undefined ? event_data.merge_confirm : undefined
+            merge: eventData !== undefined ? eventData.mergeConfirm : undefined
           };
 
           this.submitForm(confirmations);
@@ -367,11 +404,11 @@ class Validator {
           }
         }
         if (!(this.valid && submit)) this.enable();
-        if (this.valid && event_data !== undefined && event_data.success_callback !== undefined) {
-          event_data.success_callback();
+        if (this.valid && eventData !== undefined && eventData.success_callback !== undefined) {
+          eventData.success_callback();
         }
-        if (!this.valid && event_data !== undefined && event_data.error_callback !== undefined) {
-          event_data.error_callback();
+        if (!this.valid && eventData !== undefined && eventData.error_callback !== undefined) {
+          eventData.error_callback();
         }
         // scroll to step in multi-step form
         if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {
@@ -379,15 +416,15 @@ class Validator {
         }
       },
       error => {
-        this.query_count--;
-        let button_text =
+        this.queryCount--;
+        let buttonText =
           '<span id="button_server_error" class="tooltip-error">' +
           '<strong>Fehler:</strong><br>' +
           error.statusText +
           '<br></span>';
         this.enable();
-        this.submit_button.addClass('alert');
-        $('#' + this.submit_button.data('toggle')).append(button_text);
+        this.submitButton.addClass('alert');
+        $('#' + this.submitButton.data('toggle')).append(buttonText);
       }
     );
   }
