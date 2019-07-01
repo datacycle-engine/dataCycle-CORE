@@ -47,6 +47,15 @@ module DataCycleCore
           data_hash
         end
 
+        def self.tags_to_ids_by_name(data_hash, attribute, tree_label)
+          if data_hash[attribute].blank?
+            data_hash[attribute] = []
+          else
+            data_hash[attribute] = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where('lower(classifications.name) IN (?)', data_hash[attribute]&.map(&:downcase)).where(primary_classification_alias: { classification_trees: { classification_tree_labels: { name: tree_label } } }).ids
+          end
+          data_hash
+        end
+
         def self.category_key_to_ids(data_hash, attribute, data_list, _name, external_source_id, external_prefix, key)
           return data_hash if data_hash.blank? || data_list.blank?
 

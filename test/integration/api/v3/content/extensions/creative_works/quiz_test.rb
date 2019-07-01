@@ -81,6 +81,8 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'Question',
                     'contentType' => 'Frage',
+                    'identifier' => question.id,
+                    'inLanguage' => 'de',
                     'headline' => question.name,
                     'text' => question.text,
                     'acceptedAnswer' => question.accepted_answer.map do |accepted_answer|
@@ -88,6 +90,8 @@ module DataCycleCore
                         '@context' => 'http://schema.org',
                         '@type' => 'Answer',
                         'contentType' => 'Antwort',
+                        'identifier' => accepted_answer.id,
+                        'inLanguage' => 'de',
                         'text' => accepted_answer.text
                       }
                     end,
@@ -96,6 +100,8 @@ module DataCycleCore
                         '@context' => 'http://schema.org',
                         '@type' => 'Answer',
                         'contentType' => 'Antwort',
+                        'identifier' => accepted_answer.id,
+                        'inLanguage' => 'de',
                         'text' => accepted_answer.text
                       }
                     end
@@ -136,8 +142,40 @@ module DataCycleCore
                 api_v3_json = JSON.parse(response.body)
 
                 excepted_params = ['@id', 'author', 'about', 'image', 'contentLocation']
+                questions_v3 = @content.question.map do |question|
+                  {
+                    '@context' => 'http://schema.org',
+                    '@type' => 'Question',
+                    'contentType' => 'Frage',
+                    'identifier' => question.id,
+                    'inLanguage' => 'de',
+                    'headline' => question.name,
+                    'text' => question.text,
+                    'acceptedAnswer' => question.accepted_answer.map do |accepted_answer|
+                      {
+                        '@context' => 'http://schema.org',
+                        '@type' => 'Answer',
+                        'contentType' => 'Antwort',
+                        'identifier' => accepted_answer.id,
+                        'inLanguage' => 'de',
+                        'text' => accepted_answer.text
+                      }
+                    end,
+                    'suggestedAnswer' => question.suggested_answer.map do |accepted_answer|
+                      {
+                        '@context' => 'http://schema.org',
+                        '@type' => 'Answer',
+                        'contentType' => 'Antwort',
+                        'identifier' => accepted_answer.id,
+                        'inLanguage' => 'de',
+                        'text' => accepted_answer.text
+                      }
+                    end
+                  }
+                end
 
-                assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
+                assert_equal(api_v3_json.except('hasPart', *excepted_params), api_v2_json.except('hasPart', *excepted_params))
+                assert_equal(api_v3_json['hasPart'].first.except(*excepted_params), questions_v3.first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('author').first.except(*excepted_params), api_v2_json.dig('author').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('about').first.except(*excepted_params), api_v2_json.dig('about').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))

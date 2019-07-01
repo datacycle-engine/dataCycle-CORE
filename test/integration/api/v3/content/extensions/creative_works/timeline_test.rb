@@ -81,6 +81,8 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'CreativeWork',
                     'contentType' => 'Zeitleiste-Eintrag',
+                    'identifier' => timeline_item.id,
+                    'inLanguage' => 'de',
                     'name' => timeline_item.name,
                     'description' => timeline_item.description,
                     'temporalCoverage' => [timeline_item.temporal_coverage.valid_from, timeline_item.temporal_coverage.valid_until].map(&:iso8601).join('/')
@@ -122,7 +124,8 @@ module DataCycleCore
 
                 excepted_params = ['@id', 'author', 'about', 'image', 'contentLocation']
 
-                assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
+                assert_equal(api_v3_json.except('hasPart', *excepted_params), api_v2_json.except('hasPart', *excepted_params))
+                assert_equal(api_v3_json['hasPart'].first.except('identifier', 'inLanguage', *excepted_params), api_v2_json['hasPart'].first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('author').first.except(*excepted_params), api_v2_json.dig('author').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('about').first.except(*excepted_params), api_v2_json.dig('about').first.except(*excepted_params))
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))

@@ -72,6 +72,8 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
+                    'inLanguage' => 'de',
+                    'identifier' => sub_event.id,
                     'name' => sub_event.name,
                     'description' => sub_event.description,
                     'sameAs' => sub_event.url,
@@ -160,7 +162,37 @@ module DataCycleCore
 
                 excepted_params = ['@id', 'image', 'location']
 
-                assert_equal(api_v3_json.except(*excepted_params), api_v2_json.except(*excepted_params))
+                v3_subevents = @content.sub_event.map do |sub_event|
+                  {
+                    '@context' => 'http://schema.org',
+                    '@type' => 'Event',
+                    'contentType' => 'SubEvent',
+                    'inLanguage' => 'de',
+                    'identifier' => sub_event.id,
+                    'name' => sub_event.name,
+                    'description' => sub_event.description,
+                    'sameAs' => sub_event.url,
+                    'startDate' => sub_event.event_period.start_date.to_s(:iso8601),
+                    'endDate' => sub_event.event_period.end_date.to_s(:iso8601)
+                  }
+                end
+                v2_subevents = v3_subevents.map do |sub_event|
+                  sub_event.except('identifier', 'inLanguage')
+                end
+                convert_api_v2_json = api_v2_json
+                convert_api_v2_json['subEvent'].map do |item|
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                end
+                convert_api_v3_json = api_v3_json
+                convert_api_v3_json['subEvent'].map do |item|
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                end
+
+                assert_equal(api_v3_json.except('subEvent', *excepted_params), api_v2_json.except('subEvent', *excepted_params))
+                assert_equal(convert_api_v2_json.dig('subEvent').map { |item| item.except(*excepted_params) }, v2_subevents.map { |item| item.except(*excepted_params) })
+                assert_equal(convert_api_v3_json.dig('subEvent').map { |item| item.except(*excepted_params) }, v3_subevents.map { |item| item.except(*excepted_params) })
                 assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
               end
             end
