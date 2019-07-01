@@ -68,4 +68,6 @@ Rails.application.configure do
 
   config.action_mailer.default_url_options = { host: 'localhost:3000', protocol: 'http' }
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
+  config.action_cable.url = "#{config.force_ssl ? 'wss' : 'ws'}://#{config.action_mailer.default_url_options&.dig(:host)}/cable"
+  config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
 end
