@@ -1,0 +1,36 @@
+<?xml version="1.0"?>
+
+<rdf:RDF
+  xmlns:rdf="http://schema.org"
+  xmlns:ct="http://schema.org/rdf/">
+
+<% @classification_aliases&.each do |classification_alias| %>
+  <rdf:Classification>
+    <ct:id>
+      <%= classification_alias.id %>
+    </ct:id>
+    <ct:name>
+      <%= classification_alias.name(locale: @language) || classification_alias.try(:internal_name) %>
+    </ct:name>
+    <% if classification_alias.description(locale: @language).present? %>
+      <ct:description>
+        <%= classification_alias.description(locale: @language)%>
+      </ct:description>
+    <% end %>
+    <% unless @mode_parameters.include?('minimal') %>
+      <ct:anchestor>
+        <% classification_alias&.ancestors.each do |ancestor| %>
+          <rdf:Classification>
+            <ct:id>
+              <%= ancestor.id %>
+            </ct:id>
+            <ct:name>
+              <%= ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%>
+            </ct:name>
+          </rdf:Classification>
+        <% end %>
+      </ct:anchestor>
+    <% end %>
+  </rdf:Classification>
+<% end %>
+</rdf:RDF>
