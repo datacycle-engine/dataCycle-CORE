@@ -137,7 +137,7 @@ module DataCycleCore
       object_params = content_params(template_hash)
 
       if object_params.dig(:datahash).blank?
-        flash[:error] = I18n.t(:no_shared_attributes, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+        flash[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
         render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
       end
 

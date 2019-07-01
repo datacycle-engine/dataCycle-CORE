@@ -348,6 +348,7 @@ de:
       session_expired: Die Sitzung ist abgelaufen, bitte melden Sie sich erneut an.
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
+      no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
