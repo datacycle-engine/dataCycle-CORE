@@ -64,6 +64,7 @@ module DataCycleCore
 
       @language = filter.language
       @stored_filters = filter.parameters || []
+      @order_string = filter.parameters.find { |f| f['t'] == 'order' }&.dig('v')
 
       filter.apply
     end

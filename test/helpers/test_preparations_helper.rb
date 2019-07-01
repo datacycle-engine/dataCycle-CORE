@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module TestPreparations
-    CONTENT_TABLES = [:creative_works, :events, :places, :persons, :organizations, :things, :users].freeze
+    CONTENT_TABLES = [:creative_works, :events, :organizations, :persons, :places, :products, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
@@ -14,7 +14,8 @@ module DataCycleCore
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
                 'google_business_primary_category', 'google_business_additional_categories', 'feratel_status'],
-        person: []
+        person: [],
+        products: []
       }.freeze
 
     @dummy_data_hash =
@@ -23,10 +24,15 @@ module DataCycleCore
         events: {},
         places: {},
         persons: {},
+        products: {},
         organizations: {},
         things: {},
         users: {}
       }
+
+    def self.dummy_data_hash
+      @dummy_data_hash
+    end
 
     # only for local testing
     def self.cli_options

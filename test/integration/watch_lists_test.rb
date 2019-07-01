@@ -11,7 +11,8 @@ module DataCycleCore
       @routes = Engine.routes
       @content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
       @watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
-      sign_in(User.find_by(email: 'tester@datacycle.at'))
+      @current_user = User.find_by(email: 'tester@datacycle.at')
+      sign_in(@current_user)
     end
 
     test 'create Watchlist' do
@@ -111,6 +112,85 @@ module DataCycleCore
       assert_equal response.content_type, 'application/json'
       json_data = JSON.parse response.body
       assert_equal json_data.dig('collection', 'items').size, 0
+    end
+
+    test 'bulk edit all watch_list items' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).keys
+
+      get bulk_edit_watch_list_path(@watch_list), params: {}, headers: {
+        referer: watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+
+      shared_ordered_properties.except('release_status_id').each do |property|
+        assert_select ".form-element.#{property}"
+      end
+    end
+
+    test 'bulk update all watch_list items' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      bulk_name = 'Test Artikel Bulk Update 1'
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'de',
+        thing: {
+          datahash: {
+            name: bulk_name
+          }
+        },
+        bulk_update: {
+          name: '1'
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal bulk_name, @content.name
+
+      patch bulk_update_watch_list_path(@watch_list), params: {
+        locale: 'en',
+        thing: {
+          datahash: {
+            name: 'New Test Artikel not Bulk Updated'
+          }
+        },
+        bulk_update: {
+          name: '1'
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal I18n.t(:bulk_updated, scope: [:controllers, :success], locale: DataCycleCore.ui_language) + I18n.t(:bulk_updated_skipped_html, scope: [:controllers, :info], data: I18n.with_locale(@content.first_available_locale) { @content.name }, locale: DataCycleCore.ui_language), flash[:success]
+      assert_equal bulk_name, @content.name
+    end
+
+    test 'validate (bulk update) watch_list items' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      bulk_name = 'Test Artikel Bulk Update 1'
+
+      post validate_watch_list_path(@watch_list), xhr: true, params: {
+        thing: {
+          datahash: {
+            name: bulk_name
+          }
+        },
+        bulk_update: {
+          name: '1'
+        }
+      }, headers: {
+        referer: bulk_edit_watch_list_path(@watch_list)
+      }
+
+      assert_response :success
+      assert_equal 'application/json', response.content_type
+      json_data = JSON.parse response.body
+      assert json_data['error'].blank?
     end
   end
 end

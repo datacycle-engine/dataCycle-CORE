@@ -1,5 +1,5 @@
 <%
-    related_objects = content.related_to&.uniq {|item| item.id}
+    related_objects = content&.related_to&.uniq {|item| item.id}
     grouped_objects = related_objects&.group_by { |d| d[:template_name] }
     if related_objects.count.positive?
 %>

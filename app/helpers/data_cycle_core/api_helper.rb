@@ -5,7 +5,7 @@ module DataCycleCore
     include DataHashHelper
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
-      return if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
+      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       api_version = @api_version || 2
       partials = [
@@ -35,12 +35,6 @@ module DataCycleCore
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
       "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
-    end
-
-    private
-
-    def visible_classification_tree?(tree_label, scopes)
-      (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility) & Array(scopes)).size.positive?
     end
   end
 end
