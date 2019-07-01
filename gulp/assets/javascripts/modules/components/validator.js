@@ -80,7 +80,7 @@ class Validator {
               .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
           } else if (data.redirectPath !== undefined) {
             this.bulkUpdateChannel.unsubscribe();
-            window.location.replace(data.redirectPath);
+            window.location.href = data.redirectPath;
           }
         }
       }
