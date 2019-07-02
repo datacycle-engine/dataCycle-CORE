@@ -113,12 +113,11 @@ module DataCycleCore
       max_cardinality = Path.all.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
 
       joins(:classification_alias_path).order(
-        ActiveRecord::Base.send(:sanitize_sql_for_order,
-                                Arel.sql(
-                                  (1..max_cardinality).map { |c|
-                                    "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
-                                  }.join(' + ') + ' DESC'
-                                ))
+        Arel.sql(
+          (1..max_cardinality).map { |c|
+            "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
+          }.join(' + ') + ' DESC'.to_s
+        )
       )
     end
 
