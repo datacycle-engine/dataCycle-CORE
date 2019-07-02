@@ -113,6 +113,7 @@ module.exports.initialize = function() {
 
   let append_stored_filter_data = function(event) {
     event.preventDefault();
+
     let form = $('#search-form');
     $(form).prop('action', $(event.currentTarget).prop('action'));
     $(form).prop('method', $(event.currentTarget).prop('method'));
@@ -121,20 +122,30 @@ module.exports.initialize = function() {
         .find('input[type=hidden]')
         .clone()
     );
-    $(form).append(
-      '<input type="hidden" name="stored_filter[name]" value="' +
-        $(event.currentTarget)
-          .find('#stored_filter_name')
-          .val() +
-        '">'
-    );
-    $(form).append(
-      '<input type="hidden" name="stored_filter[system]" value="' +
-        $(event.currentTarget)
-          .find('#stored_filter_system')
-          .is(':checked') +
-        '">'
-    );
+    if ($(event.currentTarget).find('#stored_filter_name').length)
+      $(form).append(
+        '<input type="hidden" name="stored_filter[name]" value="' +
+          $(event.currentTarget)
+            .find('#stored_filter_name')
+            .val() +
+          '">'
+      );
+    if ($(event.currentTarget).find('#stored_filter_system').length)
+      $(form).append(
+        '<input type="hidden" name="stored_filter[system]" value="' +
+          $(event.currentTarget)
+            .find('#stored_filter_system')
+            .is(':checked') +
+          '">'
+      );
+    if ($(event.currentTarget).find('#add-items-to-watch-list-select').length)
+      $(form).append(
+        '<input type="hidden" name="watch_list_id" value="' +
+          $(event.currentTarget)
+            .find('#add-items-to-watch-list-select')
+            .val() +
+          '">'
+      );
     form.submit();
   };
 
@@ -166,4 +177,6 @@ module.exports.initialize = function() {
       );
     });
   });
+
+  $('#add-items-to-watch-list-form').on('submit', append_stored_filter_data);
 };
