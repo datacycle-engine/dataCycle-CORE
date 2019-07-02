@@ -192,5 +192,30 @@ module DataCycleCore
       json_data = JSON.parse response.body
       assert json_data['error'].blank?
     end
+
+    test 'add search items to watch_list' do
+      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'Zweiter Inhalt' })
+      @watch_list.things << content2
+
+      assert @watch_list.things.ids.include?(content2.id)
+
+      post add_to_watchlist_stored_filters_path, params: {
+        f: {
+          s: {
+            n: 'Suchbegriff',
+            t: 'fulltext_search',
+            v: @content.title
+          }
+        },
+        watch_list_id: @watch_list.id
+      }, headers: {
+        referer: root_path
+      }
+
+      assert_redirected_to root_path
+      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language), flash[:notice]
+      assert @watch_list.things.ids.include?(@content.id)
+      assert @watch_list.things.ids.include?(content2.id)
+    end
   end
 end
