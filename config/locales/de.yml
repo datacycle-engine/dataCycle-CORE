@@ -281,6 +281,8 @@ de:
     open_as_source: Als Vorlage laden
     close_source: Vorlage schließen
     bulk_edit: im Bulk bearbeiten
+    add_items_to_watch_list: 'zu %{data} hinzufügen'
+    add: hinzufügen
 
   validation:
     errors:

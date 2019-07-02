@@ -106,15 +106,8 @@ module DataCycleCore
       def watch_list_id(id = nil)
         return self if id.blank?
 
-        sub_query = Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(watch_list_data_hash)
-          .on(thing[:id].eq(watch_list_data_hash[:hashable_id]))
-          .where(watch_list_data_hash[:watch_list_id].eq(id))
-
         reflect(
-          @query.where(thing[:id].in(sub_query))
+          @query.where(watch_list_data_hash.where(watch_list_data_hash[:hashable_id].eq(thing[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists)
         )
       end
 

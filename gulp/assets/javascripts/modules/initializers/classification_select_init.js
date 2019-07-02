@@ -160,6 +160,13 @@ module.exports.initialize = function() {
           }
         });
 
+        $(this).on('dc:create:option', (event, data) => {
+          let newOption = new Option(data.text, data.id, false, false);
+          $(event.currentTarget)
+            .append(newOption)
+            .trigger('change');
+        });
+
         $(this).select2({
           allowClear: true,
           width: '100%',

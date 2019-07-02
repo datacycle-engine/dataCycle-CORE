@@ -16,3 +16,5 @@ $('.add-watchlist').each(function () {
 
 $('.add-watchlist-to-menu input[type="text"]').val('');
 $('<%= escape_javascript(render 'data_cycle_core/application/watch_lists/readable_link', watch_list: @watch_list) %>').appendTo($('.add-watchlist-to-menu').siblings('.list-items')).trigger('dc:watchlist:calculate_even');
+
+$('#add-items-to-watch-list-select').trigger('dc:create:option', { text: '<%= @watch_list.name %>', id: '<%= @watch_list.id %>' });
