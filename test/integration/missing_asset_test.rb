@@ -37,12 +37,14 @@ module DataCycleCore
       }
       assert_response :success
       assert_equal 'image/jpeg', response.header['Content-Type']
+      assert_equal file_name, response.header['Content-Disposition']&.split(';')&.last&.remove('filename=', '"')&.squish
 
       get image.file.url, params: {}, headers: {
         referer: root_path
       }
       assert_response :success
       assert_equal 'image/jpeg', response.header['Content-Type']
+      assert_equal file_name, response.header['Content-Disposition']&.split(';')&.last&.remove('filename=', '"')&.squish
     end
 
     test 'return 404 for missing files' do

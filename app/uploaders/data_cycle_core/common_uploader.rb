@@ -26,6 +26,18 @@ module DataCycleCore
       end
     end
 
+    def file_name
+      @file_name ||= begin
+        content = model&.things&.first
+
+        return "#{File.basename(model.name.to_s, '.*')}.#{file&.extension || File.extname(model.name.to_s).delete('.')}" if content.nil?
+
+        I18n.with_locale(content.first_available_locale) do
+          "#{(content.title.presence || File.basename(model.name.to_s, '.*'))}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
+        end
+      end
+    end
+
     def filename
       return unless original_filename
       if model && model&.read_attribute(mounted_as).present?
