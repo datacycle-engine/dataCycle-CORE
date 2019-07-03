@@ -17,24 +17,12 @@ module DataCycleCore
     end
 
     def url
-      content = model&.things&.first
-
-      return "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}" if content.nil?
-
-      I18n.with_locale(content.first_available_locale) do
-        "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{(content.title.presence || File.basename(model.name.to_s, '.*')).underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
-      end
+      "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
     end
 
     def file_name
       @file_name ||= begin
-        content = model&.things&.first
-
-        return "#{File.basename(model.name.to_s, '.*')}.#{file&.extension || File.extname(model.name.to_s).delete('.')}" if content.nil?
-
-        I18n.with_locale(content.first_available_locale) do
-          "#{(content.title.presence || File.basename(model.name.to_s, '.*'))}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
-        end
+        "#{File.basename(model.name.to_s, '.*')}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
       end
     end
 
