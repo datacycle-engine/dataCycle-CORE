@@ -730,7 +730,8 @@ CREATE TABLE public.thing_histories (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying
+    content_type character varying,
+    representation_of_id uuid
 );
 
 
@@ -1508,6 +1509,13 @@ CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id_and_external_system
 --
 
 CREATE UNIQUE INDEX index_thing_histories_on_id ON public.thing_histories USING btree (id);
+
+
+--
+-- Name: index_thing_histories_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histories USING btree (representation_of_id);
 
 
 --
