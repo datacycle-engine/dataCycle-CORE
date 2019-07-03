@@ -12,6 +12,7 @@ module DataCycleCore
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
     has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
     has_many :things_deleted, class_name: 'DataCycleCore::Thing', foreign_key: :deleted_by
+    has_many :represented_by, class_name: 'DataCycleCore::Thing', foreign_key: :representation_of_id
     has_many :thing_histories_created, class_name: 'DataCycleCore::Thing::History', foreign_key: :created_by
     has_many :thing_histories_updated, class_name: 'DataCycleCore::Thing::History', foreign_key: :updated_by
     has_many :thing_histories_deleted, class_name: 'DataCycleCore::Thing::History', foreign_key: :deleted_by

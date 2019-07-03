@@ -13,6 +13,7 @@ module DataCycleCore
         can :show_admin_panel, DataCycleCore::Thing
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
+        can :show_representation_of, DataCycleCore::User
       end
     end
   end
