@@ -1,6 +1,6 @@
 <% default_options = {
     hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
-    combined_attributes: content.combined_property_names
+    combined_attributes: [] # content.combined_property_names
    }
    options = default_options.merge(defined?(options) ? options || {} : {})
 %>
