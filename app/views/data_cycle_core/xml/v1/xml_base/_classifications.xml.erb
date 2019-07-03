@@ -19,7 +19,7 @@
     <% end %>
     <% unless @mode_parameters.include?('minimal') %>
       <ct:anchestor>
-        <% classification_alias&.ancestors.each do |ancestor| %>
+        <% classification_alias&.ancestors&.each do |ancestor| %>
           <rdf:Classification>
             <ct:id>
               <%= ancestor.id %>

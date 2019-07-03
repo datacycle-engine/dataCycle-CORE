@@ -4,6 +4,8 @@ module DataCycleCore
   module Xml
     module V1
       class XmlBaseController < ::DataCycleCore::Api::V3::ApiBaseController
+        helper DataCycleCore::XmlHelper
+
         private
 
         def access_denied(exception)

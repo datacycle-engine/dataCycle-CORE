@@ -69,6 +69,10 @@ module DataCycleCore
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
     end
 
+    def self.from_tree(tree_name)
+      for_tree(tree_name)
+    end
+
     def self.without_deleted
       where(deleted_at: nil)
     end
