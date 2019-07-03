@@ -65,7 +65,6 @@ class Validator {
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
-  finalizeUpdate() {}
   pageLeaveWarning() {
     quill_helpers.update_editors(this.form);
     this.initial_form_data = this.form.serializeArray();
