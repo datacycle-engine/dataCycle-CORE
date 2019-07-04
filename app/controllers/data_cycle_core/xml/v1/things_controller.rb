@@ -3,7 +3,7 @@
 module DataCycleCore
   module Xml
     module V1
-      class ThingsController < ::DataCycleCore::Api::V1::ContentsController
+      class ThingsController < ::DataCycleCore::Xml::V1::ContentsController
       end
     end
   end

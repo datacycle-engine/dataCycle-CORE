@@ -9,7 +9,7 @@
       <schema:<%=key_new.camelize(:lower)%>>
       <% content.translations.each do |translation| %>
         <% I18n.with_locale(translation.locale) do %>
-          < <%=translation.locale%> ><%=content.send(key)%> </ <%=translation.locale%>>
+          < <%=translation.locale%> ><%=content.send(key).to_s.html_safe%> </ <%=translation.locale%>>
         <% end %>
       <% end %>
     <% else %>
@@ -21,11 +21,11 @@
     <schema:<%=key_new.camelize(:lower)%>>
       <% content.translations.each do |translation| %>
         <% I18n.with_locale(translation.locale) do %>
-          < <%=translation.locale%> ><%=content.send(key)%> </ <%=translation.locale%>>
+          < <%=translation.locale%> ><%=content.send(key).to_s.html_safe%> </ <%=translation.locale%>>
         <% end %>
       <% end %>
     </schema:<%=key_new.camelize(:lower)%>>
   <% else %>
-    <schema:<%=key_new.camelize(:lower)%>><%=value%></schema:<%=key_new.camelize(:lower)%>>
+    <schema:<%=key_new.camelize(:lower)%>><%=value.to_s.html_safe%></schema:<%=key_new.camelize(:lower)%>>
   <% end %>
 <% end %>

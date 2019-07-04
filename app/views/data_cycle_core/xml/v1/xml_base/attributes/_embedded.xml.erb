@@ -1,0 +1,39 @@
+<% if value.present? && definition.dig('xml', 'disabled').blank? %>
+  <% key_new = definition.dig('api', 'name') || key.camelize(:lower) %>
+  <schema: <%=key_new.pluralize%>>
+  <% if content.translations.size > 1 && @include_parameters.include?('translations') %>
+    <% content.translations.each do |translation| %>
+      <% I18n.with_locale(translation.locale) do %>
+        < <%=translation.locale%> >
+        <% translated_objects = content.send(key) %>
+        <% translated_object = translated_objects.presence&.includes(:translations, :classifications)%>
+        <% if translated_object.schema.present? %>
+          <schema:<%=key_new%>>
+          <%= render *content_partial('context', { content: translated_object }) %>
+          <% ordered_validation_properties(validation: translated_object.schema).each do |key, prop| %>
+            <% object_value = translated_object.try(key.to_sym) %>
+            <% partial_params = xml_attribute(key: key, definition: prop, value: object_value, parameters: { options: options }, content: translated_object) %>
+            <%= render *partial_params unless partial_params.nil? %>
+          <% end %>
+          </schema:<%=key_new%>>
+        <% end %>
+        </ <%=translation.locale%> >
+      <% end %>
+    <% end %>
+  <% else %>
+    <% object = value.presence&.includes(:translations, :classifications)%>
+    <% I18n.with_locale(object.first_available_locale) do %>
+      <% if object.schema.present? %>
+        <schema:<%=key_new%>>
+        <%= render *content_partial('context', content: object) %>
+        <% ordered_validation_properties(validation: object.schema).each do |key, prop| %>
+          <% object_value = object.try(key.to_sym) %>
+          <% partial_params = xml_attribute(key: key, definition: prop, value: object_value, parameters: { options: options }, content: object) %>
+          <%= render *partial_params unless partial_params.nil? %>
+        <% end %>
+        </schema:<%=key_new%>>
+      <% end %>
+    <% end %>
+  <% end %>
+  </schema: <%=key_new.pluralize%>>
+<% end %>
