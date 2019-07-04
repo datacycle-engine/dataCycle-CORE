@@ -177,6 +177,7 @@ DataCycleCore::Engine.routes.draw do
           end
 
           resources :collections, only: [:index, :show], controller: :watch_lists
+          resources :users, only: [:index], controller: :users
 
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
