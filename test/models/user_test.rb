@@ -41,6 +41,20 @@ module DataCycleCore
       it 'return des correct role' do
         assert_equal(admin_user.role, admin_user.send(:set_default_role))
       end
+
+      it 'has many representations' do
+        person = DataCycleCore::DummyDataHelper.create_data('person')
+
+        admin_user.represented_by << person
+
+        assert_includes admin_user.represented_by, person
+        assert_equal admin_user, person.representation_of
+        assert_nil person.histories.last.representation_of
+
+        person.set_data_hash(data_hash: { given_name: 'Maxi' }.stringify_keys, current_user: admin_user, partial_update: true)
+
+        assert_equal admin_user, person.histories.first.representation_of
+      end
     end
   end
 end

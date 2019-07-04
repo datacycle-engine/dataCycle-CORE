@@ -36,7 +36,6 @@
 
   .inner {
     position: relative;
-    overflow: hidden;
 
     > div,
     > span {
@@ -46,6 +45,10 @@
 
       &:not(:last-child):not(.has-parent) {
         padding-bottom: 0.5rem;
+      }
+      &.with-dropdown-pane {
+        position: relative;
+        overflow: unset;
       }
     }
   }

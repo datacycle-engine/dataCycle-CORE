@@ -38,6 +38,9 @@
         line-height: inherit;
         margin-left: 0.2rem;
         vertical-align: middle;
+        &[data-toggle] {
+          cursor: help;
+        }
       }
 
       > i.fa {
@@ -77,10 +80,14 @@
     }
 
     .dropdown-pane {
-      right: -22px !important;
+      left: -22px !important;
 
-      &:before {
-        right: 11px;
+      &.align-right {
+        left: auto !important;
+        right: -22px !important;
+        &:before {
+          right: 11px;
+        }
       }
     }
 

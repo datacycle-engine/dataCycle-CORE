@@ -8,14 +8,14 @@
         <%= link_to(
           tag.i(
             class: 'fa fa-link',
-            aria_hidden: true,
-            title: "#{content.representation_of.full_name} <#{content.representation_of.email}>",
+            aria_hidden: true
+          ),
+          users_path(q: content.representation_of.email),
+          target: :_blank,
+          title: "#{content.representation_of.full_name} <#{content.representation_of.email}>",
             data: {
               tooltip: true
             }
-          ),
-          users_path(q: content.representation_of.email),
-          target: :_blank
         ) if can?(:show_representation_of, DataCycleCore::User) && content.representation_of.present? %>
     </div>
 </div>
