@@ -1,36 +1,32 @@
-<?xml version="1.0"?>
 
-<rdf:RDF
-  xmlns:rdf="http://schema.org"
-  xmlns:ct="http://schema.org/rdf/">
-
-<% @classification_aliases&.each do |classification_alias| %>
-  <rdf:Classification>
-    <ct:id>
+<schema:<%=key%>>
+<% classification_aliases&.each do |classification_alias| %>
+  <schema:Classification>
+    <schema:id>
       <%= classification_alias.id %>
-    </ct:id>
-    <ct:name>
+    </schema:id>
+    <schema:name>
       <%= classification_alias.name(locale: @language) || classification_alias.try(:internal_name) %>
-    </ct:name>
+    </schema:name>
     <% if classification_alias.description(locale: @language).present? %>
-      <ct:description>
+      <schema:description>
         <%= classification_alias.description(locale: @language)%>
-      </ct:description>
+      </schema:description>
     <% end %>
     <% unless @mode_parameters.include?('minimal') %>
-      <ct:anchestor>
+      <schema:anchestor>
         <% classification_alias&.ancestors&.each do |ancestor| %>
-          <rdf:Classification>
-            <ct:id>
+          <schema:Classification>
+            <schema:id>
               <%= ancestor.id %>
-            </ct:id>
-            <ct:name>
+            </schema:id>
+            <schema:name>
               <%= ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%>
-            </ct:name>
-          </rdf:Classification>
+            </schema:name>
+          </schema:Classification>
         <% end %>
-      </ct:anchestor>
+      </schema:anchestor>
     <% end %>
-  </rdf:Classification>
+  </schema:Classification>
 <% end %>
-</rdf:RDF>
+</schema:<%=key%>>
