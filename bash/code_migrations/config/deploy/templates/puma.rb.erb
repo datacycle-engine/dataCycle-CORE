@@ -1,0 +1,46 @@
+#!/usr/bin/env puma
+
+directory '<%= current_path %>'
+rackup "<%= fetch(:puma_rackup) %>"
+environment '<%= fetch(:puma_env) %>'
+<% if fetch(:puma_tag) %>
+tag '<%= fetch(:puma_tag) %>'
+<% end %>
+pidfile "<%= fetch(:puma_pid) %>"
+state_path "<%= fetch(:puma_state) %>"
+stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
+
+<% threads_count = Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
+threads <%= threads_count %>,<%= threads_count %>
+
+<%= puma_plugins %>
+
+<%= puma_bind %>
+<% if fetch(:puma_control_app) %>
+activate_control_app "<%= fetch(:puma_default_control_app) %>"
+<% end %>
+workers <%= Integer(ENV.fetch("WEB_CONCURRENCY", fetch(:puma_env).to_s == 'production' ? 0 : 1)) %>
+<% if fetch(:puma_worker_timeout) %>
+worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
+<% end %>
+
+<% if puma_daemonize? %>
+daemonize
+<% end %>
+
+preload_app!
+
+before_fork do
+  ActiveRecord::Base.connection_pool.disconnect!
+  <% if fetch(:puma_worker_killer, true) && fetch(:puma_env).to_s != 'production' %>
+  require 'puma_worker_killer'
+
+  PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours
+  <% end %>
+end
+
+on_worker_boot do
+  ActiveSupport.on_load(:active_record) do
+    ActiveRecord::Base.establish_connection
+  end
+end
