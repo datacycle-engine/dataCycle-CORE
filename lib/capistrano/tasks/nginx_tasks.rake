@@ -23,7 +23,7 @@ namespace :datacycle do
 
     desc 'Reload Nginx'
     task :reload do
-      on roles(fetch(:delayed_job_roles)) do
+      on roles(:all) do
         execute 'sudo service nginx reload', raise_on_non_zero_exit: false
       end
     end

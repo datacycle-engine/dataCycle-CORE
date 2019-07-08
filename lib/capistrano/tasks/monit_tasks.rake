@@ -23,7 +23,7 @@ namespace :datacycle do
 
     desc 'Reload Monit to see all the jobs'
     task :reload do
-      on roles(fetch(:delayed_job_roles)) do
+      on roles(:all) do
         execute 'sudo monit reload', raise_on_non_zero_exit: false
       end
     end
