@@ -128,8 +128,13 @@ Gem::Specification.new do |s|
   s.add_dependency 'google-cloud-translate'
   s.add_dependency 'google-cloud-vision'
 
+  # OmniAuth
+  s.add_dependency 'omniauth'
+  s.add_dependency 'omniauth_openid_connect'
+
   # premailer
   s.add_dependency 'premailer'
+
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'

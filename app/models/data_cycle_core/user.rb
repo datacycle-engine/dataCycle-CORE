@@ -2,7 +2,7 @@
 
 module DataCycleCore
   class User < ApplicationRecord
-    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: [:openid_connect]
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -63,6 +63,19 @@ module DataCycleCore
       return unless contents.size.positive?
 
       SubscriptionMailer.notify(self, contents).deliver_later
+    end
+
+    def self.from_omniauth(auth)
+      return if auth&.info&.email.blank?
+
+      new_user = find_or_initialize_by(email: auth.info.email) do |user|
+        user.password = Devise.friendly_token
+      end
+      new_user.provider = auth.provider
+      new_user.uid = auth.uid
+      new_user.external = true
+      new_user.save
+      new_user
     end
 
     private
