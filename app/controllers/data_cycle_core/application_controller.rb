@@ -9,11 +9,7 @@ module DataCycleCore
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
     def after_sign_in_path_for(_resource)
-      if current_user.can?(:index, :backend)
-        session['user_return_to'] || root_path
-      else
-        session['user_return_to'] || info_path
-      end
+      session['user_return_to'] || current_user.can?(:index, :backend) ? root_path : info_path
     end
 
     def load_watch_lists
