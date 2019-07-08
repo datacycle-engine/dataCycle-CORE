@@ -29,6 +29,8 @@ module DataCycleCore
 
     before_create :set_default_role
 
+    delegate :can?, :cannot?, to: :ability
+
     def recoverable?
       !(external? || is_rank?(0))
     end
@@ -67,6 +69,10 @@ module DataCycleCore
 
     def set_default_role
       self.role ||= DataCycleCore::Role.find_by(name: 'standard')
+    end
+
+    def ability
+      @ability ||= DataCycleCore::Ability.new(self)
     end
   end
 end

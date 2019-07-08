@@ -20,6 +20,9 @@
 :duplicate_content:
   :enabled: true
 
+:releasable:
+  :enabled: true
+
 :main_filter:
   :autoload_last_filter: true
 

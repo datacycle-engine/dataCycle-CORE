@@ -57,6 +57,7 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
+    post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
 
@@ -76,6 +77,9 @@ DataCycleCore::Engine.routes.draw do
   resources :watch_lists do
     delete :remove_item, on: :member
     get :add_item, on: :member
+    get :bulk_edit, on: :member
+    patch :bulk_update, on: :member
+    post :validate, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -173,6 +177,7 @@ DataCycleCore::Engine.routes.draw do
           end
 
           resources :collections, only: [:index, :show], controller: :watch_lists
+          resources :users, only: [:index], controller: :users
 
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key

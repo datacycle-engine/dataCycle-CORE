@@ -8,7 +8,7 @@ module DataCycleCore
 
     def show
       authorize! :show, :object_browser
-      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
+      @content = DataCycleCore::Thing.find_by(id: permitted_params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = permitted_params[:content_id] } if permitted_params[:content_id].present?
       I18n.with_locale(permitted_params[:locale] || I18n.locale) do
         @definition = permitted_params.dig(:definition)
         template_name = @definition.dig(:template_name)

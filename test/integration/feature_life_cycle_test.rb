@@ -29,5 +29,23 @@ module DataCycleCore
 
       assert @content.reload.life_cycle_stage?(@stages.values.last[:id])
     end
+
+    test 'change life_cycle_stage to idea_collection stage' do
+      @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'LifeCycleTestContainer' })
+
+      patch update_life_cycle_thing_path(@container), params: {
+        life_cycle: {
+          id: DataCycleCore::Feature::IdeaCollection.life_cycle_stage,
+          name: DataCycleCore::Feature::IdeaCollection.life_cycle_stage_name
+        }
+      }, headers: {
+        referer: thing_path(@container)
+      }
+
+      assert_redirected_to thing_path(@container)
+      follow_redirect!
+
+      assert @container.reload.life_cycle_stage?(DataCycleCore::Feature::IdeaCollection.life_cycle_stage)
+    end
   end
 end

@@ -3,6 +3,21 @@ var DataCycleNormalizer = require('./../components/normalizer');
 
 // Add Validation to Form Elements
 module.exports.initialize = function() {
+  // multi-edit
+  $(document).on('change', '.bulk-edit-form .editor > .form-element', event => {
+    let updateCheckbox = $(event.currentTarget)
+      .siblings('.bulk-update-check[data-attribute-key="' + $(event.currentTarget).data('key') + '"]')
+      .find(':checkbox');
+    if (
+      $(event.currentTarget)
+        .find(':input')
+        .serializeArray()
+        .some(elem => elem.value && elem.value.length)
+    )
+      updateCheckbox.prop('checked', true);
+    else updateCheckbox.prop('checked', false);
+  });
+
   let validation_forms = [];
 
   function init(container = document) {

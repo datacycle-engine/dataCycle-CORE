@@ -54,7 +54,7 @@ module DataCycleCore
         end
 
         def access_denied(exception)
-          render status: :access_denied, json: { "error": exception.message }
+          render status: :unauthorized, json: { "error": exception.message }
         end
 
         def not_found(exception)

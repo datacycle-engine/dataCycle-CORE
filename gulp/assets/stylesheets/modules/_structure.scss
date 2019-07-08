@@ -243,7 +243,7 @@ button.button-prime {
     position: relative;
     display: block;
     line-height: 5rem;
-    font-size: 3rem;
+    font-size: 3.5rem;
   }
 
   &:focus,
@@ -258,6 +258,11 @@ button.button-prime {
   &.small {
     height: 3rem;
     width: 3rem;
+
+    &[disabled] {
+      cursor: not-allowed;
+      opacity: 0.25;
+    }
 
     i {
       line-height: 3rem;
