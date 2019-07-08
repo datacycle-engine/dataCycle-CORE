@@ -10,26 +10,21 @@ pidfile "<%= fetch(:puma_pid) %>"
 state_path "<%= fetch(:puma_state) %>"
 stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
-threads 1,<%= Integer(ENV.fetch('RAILS_MAX_THREADS', 5)) %>
-
-<%= puma_plugins %>
+threads 1,<%= Integer(fetch(:rails_max_threads, 5)) %>
 
 <%= puma_bind %>
 <% if fetch(:puma_control_app) %>
 activate_control_app "<%= fetch(:puma_default_control_app) %>"
 <% end %>
-workers <%= Integer(ENV.fetch("WEB_CONCURRENCY", fetch(:puma_env).to_s == 'production' ? 0 : 1)) %>
+workers <%= Integer(fetch(:rails_max_workers, 5)) %>
 <% if fetch(:puma_worker_timeout) %>
 worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
 <% end %>
 
-<% if puma_daemonize? %>
+<% if fetch(:puma_daemonize) %>
 daemonize
 <% end %>
 
-<% if fetch(:puma_restart_command) %>
-restart_command '<%= fetch(:puma_restart_command) %>'
-<% end %>
 preload_app!
 
 before_fork do

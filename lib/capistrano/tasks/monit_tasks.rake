@@ -15,8 +15,8 @@ namespace :datacycle do
             template = ERB.new(File.new(core_file_path).read).result(binding)
           end
           target_file_name = "#{fetch(:application)}-#{template_name}"
-          upload! StringIO.new(template), "/tmp/my_awesome_test/#{target_file_name}"
-          # execute "sudo mv /tmp/my_awesome_test/#{target_file_name} /etc/monit/conf.d/#{target_file_name}"
+          upload! StringIO.new(template), "/tmp/#{target_file_name}"
+          execute "sudo mv /tmp/#{target_file_name} /etc/monit/conf.d/#{target_file_name}"
         end
       end
     end

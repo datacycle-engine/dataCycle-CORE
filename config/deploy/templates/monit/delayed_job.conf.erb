@@ -2,7 +2,7 @@
 # Service name: delayed_job_<%= fetch(:application) %>
 #
 <% 2.times do |num| %>
-check delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
+check file delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
   with path "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
   if size = 0 then
   exec "/bin/rm <%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
