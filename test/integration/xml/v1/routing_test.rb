@@ -48,103 +48,105 @@ module DataCycleCore
           end
         end
 
-        # test '/api/v2/contents/deleted w/o any results' do
-        #   get api_v2_contents_deleted_path
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal 0, json_data['data'].length
-        #   assert_equal 0, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/creative_works' do
-        #   get api_v2_creative_works_path
-        #   count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'CreativeWork' }).count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/places' do
-        #   get api_v2_places_path
-        #   count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Place' }).count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/events' do
-        #   get api_v2_events_path
-        #   count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Event' }).count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/persons' do
-        #   get api_v2_persons_path
-        #   count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Person' }).count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/organizations' do
-        #   get api_v2_organizations_path
-        #   count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Organization' }).count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        # end
-        #
-        # test '/api/v2/classification_trees' do
-        #   get api_v2_classification_trees_path
-        #
-        #   count = DataCycleCore::ClassificationTreeLabel.all.count
-        #
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal count, json_data['data'].length
-        #   assert_equal count, json_data['meta']['total'].to_i
-        #   assert_equal true, json_data['links'].present?
-        #
-        #   test_classification = json_data['data'].detect { |a| a['name'] == 'Tags' }['id']
-        #
-        #   get api_v2_classification_tree_path(id: test_classification)
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal test_classification, json_data['data']['id']
-        #
-        #   get classifications_api_v2_classification_tree_path(id: test_classification)
-        #   assert_response :success
-        #   assert_equal response.content_type, 'application/json'
-        #   json_data = JSON.parse response.body
-        #   assert_equal true, json_data['meta']['total'].positive?
-        # end
+        test '/xml/v1/creative_works' do
+          get xml_v1_creative_works_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'CreativeWork' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+        end
+
+        test '/xml/v1/places' do
+          get xml_v1_places_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Place' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+        end
+
+        test '/xml/v1/events' do
+          get xml_v1_events_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Event' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+        end
+
+        test '/xml/v1/persons' do
+          get xml_v1_persons_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Person' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+        end
+
+        test '/xml/v1/organizations' do
+          get xml_v1_organizations_path
+          count = DataCycleCore::Filter::Search.new.where(searches: { schema_type: 'Organization' }).count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+        end
+
+        test '/xml/v1/thing Xml for article' do
+          name = "test_artikel_#{Time.now.getutc.to_i}"
+          post things_path, params: {
+            thing: {
+              datahash: {
+                name: name
+              }
+            },
+            table: 'things',
+            template: 'Artikel',
+            locale: 'de'
+          }
+          assert_equal('Artikel wurde erfolgreich erstellt.', flash[:notice])
+
+          content = DataCycleCore::Thing.find_by(name: name)
+
+          get xml_v1_thing_path(id: content)
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
+          assert_equal(name, xml_data.dig('RDF', 'thing', 'name'))
+        end
+
+        test '/xml/v1/classification_trees' do
+          get xml_v1_classification_trees_path
+
+          count = DataCycleCore::ClassificationTreeLabel.all.count
+
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Nokogiri::XML(response.body)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'ClassificationTree' }.size)
+
+          hash = Hash.from_xml(xml_data.to_xml)
+          test_classification = hash.dig('RDF', 'ClassificationTree').detect { |item| item['name'] == 'Tags' }.dig('id')
+
+          get xml_v1_classification_tree_path(id: test_classification)
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
+          assert_equal(test_classification, xml_data.dig('RDF', 'ClassificationTree', 'id'))
+
+          get classifications_xml_v1_classification_tree_path(id: test_classification)
+          assert_response :success
+          assert_equal response.content_type, 'application/xml'
+          xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
+          assert_equal(true, xml_data.dig('RDF', 'Classifications', 'Classification').count.positive?)
+        end
       end
     end
   end

@@ -69,7 +69,7 @@ module DataCycleCore
             ).order(:deleted_at)
           end
 
-          @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
+          @classification_aliases = @classification_aliases.order(:internal_name)
         end
 
         def prepare_url_parameters

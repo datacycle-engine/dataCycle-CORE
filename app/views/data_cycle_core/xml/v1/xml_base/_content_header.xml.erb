@@ -10,9 +10,9 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 
 <% unless options[:header_type] == :overlay %>
   <%= render *content_partial('context', content: content) %>
-
-  <schema:identifier> <%= content.id %> </schema:identifier>
-  <schema:url> <%= send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {}) %> </schema:url>
+  <schema:id><%=xml_v1_thing_url(id: content)%></schema:id>
+  <schema:identifier><%=content.id%></schema:identifier>
+  <schema:url><%=send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})%></schema:url>
 
 <% end %>
 
