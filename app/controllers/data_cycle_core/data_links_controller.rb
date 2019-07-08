@@ -15,7 +15,7 @@ module DataCycleCore
 
       sign_in(link.receiver) if link.creator.role.rank > link.receiver.role.rank
 
-      link.update_attribute(:seen_at, Time.zone.now)
+      link.update_column(:seen_at, Time.zone.now)
 
       if link.permissions == 'write' && link.item.class.table_name == 'things'
         redirect_to edit_polymorphic_path(link.item, split_params)
