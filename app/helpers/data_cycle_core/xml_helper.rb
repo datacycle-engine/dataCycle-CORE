@@ -34,7 +34,8 @@ module DataCycleCore
       partials = [
         "#{content_parameter}_#{parameters[:content].template_name.underscore}_#{partial}",
         "#{content_parameter}_#{partial}",
-        "content_#{partial}"
+        "content_#{partial}",
+        partial
       ]
       xml_version = @xml_version || 1
       xml_partials_prefix = "data_cycle_core/xml/v#{xml_version}/xml_base/"
@@ -47,6 +48,7 @@ module DataCycleCore
         next unless lookup_context.exists?(partial, [prefix], true)
         return prefix + partial
       end
+      puts "could not find partial for parameters -> partials: #{partials}, prefix: #{prefix}"
     end
 
     def xml_cache_key(item, language, include_parameters, mode_parameters, xml_subversion = nil)

@@ -7,7 +7,7 @@
 
 <%= render *content_partial('header', { content: content, options: options }) %>
 
-<%#= render *render_partial('container_parent_properties'), content: content, options: options, cache: true if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present? %>
+<%= render *content_partial('container_parent_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present? %>
 
 <% if content.translations.size > 1 && @include_parameters.include?('translations') %>
   <schema:inLanguage><%= content.translated_locales %></schema:inLanguage>
@@ -15,12 +15,12 @@
   <schema:inLanguage><%= content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale %></schema:inLanguage>
 <% end %>
 
-<%#= render render_partial('container_children_properties'), content: content, options: options, cache: true if DataCycleCore::Feature::Container.enabled? && content.content_type?('container') %>
+<%= render *content_partial('container_children_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container') %>
 
 <%= render *content_partial('properties', { content: content, options: options }) %>
 
-<%#= render render_partial('overlay_properties'), content: content, options: options, cache: true %>
+<%= render *content_partial('overlay_properties', { content: content, options: options }) %>
 
-<%#= render render_partial('combined_properties'), content: content, options: options, cache: true %>
+<%#= render render_partial('combined_properties'), content: content, options: options %>
 
 <%= render *content_partial('footer', { content: content, options: options }) %>
