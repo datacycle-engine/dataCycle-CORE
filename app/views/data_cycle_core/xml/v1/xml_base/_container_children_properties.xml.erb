@@ -5,7 +5,7 @@
 
   <schema:hasPart>
   <% related_objects.each do |part| %>
-    <%= render content_partial('details', content: part, options: options.merge({ disable_parent: true }))
+    <%= render *content_partial('details', content: part, options: options.merge({ disable_parent: true }))%>
   <% end %>
   </schema:hasPart>
 <% end %>

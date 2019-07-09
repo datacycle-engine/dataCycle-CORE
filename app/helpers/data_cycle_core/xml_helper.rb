@@ -26,11 +26,7 @@ module DataCycleCore
     end
 
     def content_partial(partial, parameters)
-      if parameters[:content].class.class_name.underscore == 'thing'
-        content_parameter = parameters[:content].schema['schema_type'].underscore
-      else
-        content_parameter = parameters[:content].class.class_name.underscore
-      end
+      content_parameter = parameters[:content].class.class_name.underscore
       partials = [
         "#{content_parameter}_#{parameters[:content].template_name.underscore}_#{partial}",
         "#{content_parameter}_#{partial}",
@@ -48,12 +44,12 @@ module DataCycleCore
         next unless lookup_context.exists?(partial, [prefix], true)
         return prefix + partial
       end
-      puts "could not find partial for parameters -> partials: #{partials}, prefix: #{prefix}"
+      # puts "could not find partial for parameters -> partials: #{partials}, prefix: #{prefix}"
     end
 
-    def xml_cache_key(item, language, include_parameters, mode_parameters, xml_subversion = nil)
-      "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
-    end
+    # def xml_cache_key(item, language, include_parameters, mode_parameters, xml_subversion = nil)
+    #   "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
+    # end
 
     private
 

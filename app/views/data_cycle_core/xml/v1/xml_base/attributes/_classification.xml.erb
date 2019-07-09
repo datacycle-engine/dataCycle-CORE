@@ -1,11 +1,11 @@
 <% unless @mode_parameters.include?('compact') %>
   <% classification_aliases = content.send(key).includes(:classification_aliases).map(&:classification_aliases).flatten.uniq %>
-  <% if classification_aliases.present? && definition.dig('api', 'disabled').blank? %>
-    <% key_new = definition.dig('api', 'name') || key.camelize(:lower) %>
+  <% if classification_aliases.present? && definition.dig('xml', 'disabled').blank? %>
+    <% key_new = definition.dig('xml', 'name') || key.camelize(:lower) %>
     <% if definition.dig('xml', 'transformation', 'method') == 'serialize' && definition.dig('xml', 'transformation', 'name') == 'string' %>
       <schema:<%=key_new%>>
       <% classification_aliases.each do |classification_alias| %>
-        <schema:type><%=definition.dig('api', 'type') || 'Enumeration'%></schema:type>
+        <schema:type><%=definition.dig('xml', 'type') || 'Enumeration'%></schema:type>
         <schema:name><%=classification_alias.name%></schema:name>
       <% end %>
       </schema:<%=key_new%>>
