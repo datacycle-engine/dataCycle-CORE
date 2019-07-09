@@ -12,7 +12,7 @@ module DataCycleCore
           else
             @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
           end
-          @watch_lists = apply_paging(@watch_lists)
+          @watch_lists
         end
 
         # method to show a particular WatchList
