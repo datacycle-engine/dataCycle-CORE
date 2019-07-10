@@ -1,8 +1,6 @@
 <% if value.present? && definition.dig('xml', 'disabled').blank? %>
   <% key_new = definition.dig('xml', 'name') || key %>
-  <%#= puts "#{key_new} / #{value} / #{definition}" %>
   <% if definition.dig('xml', 'transformation', 'method') == 'nest' && definition.dig('xml', 'transformation', 'name').present? %>
-    <%#= puts 'if in _default'%>
     <schema:<%= definition.dig('xml', 'transformation', 'name')%>>
     <% if definition.dig('xml', 'transformation', 'type').present? %>
       <schema:type><%=definition.dig('xml', 'transformation', 'type')%></schema:type>
@@ -20,7 +18,6 @@
     </schema:<%=key_new.camelize(:lower)%>>
     </schema:<%=definition.dig('xml', 'transformation', 'name')%>>
   <% elsif content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
-    <%#= puts 'elseif in _default'%>
     <schema:<%=key_new.camelize(:lower)%>>
       <% content.translations.each do |translation| %>
         <% I18n.with_locale(translation.locale) do %>
@@ -29,8 +26,6 @@
       <% end %>
     </schema:<%=key_new.camelize(:lower)%>>
   <% else %>
-    <%#= puts 'else in _default'%>
-    <%#= puts "<schema:#{key_new.camelize(:lower)}>#{value.to_s.html_safe}</schema:#{key_new.camelize(:lower)}>"%>
     <schema:<%=key_new.camelize(:lower)%>><%=value.to_s.html_safe%></schema:<%=key_new.camelize(:lower)%>>
   <% end %>
 <% end %>
