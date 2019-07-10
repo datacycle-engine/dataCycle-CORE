@@ -62,12 +62,10 @@ namespace :datacycle do
     task :configs_exists do
       on roles(:all) do
         print_message 'checking for config files'
-        file_paths = ['/tmp/my_awesome_test/wuhu.txt']
-        file_paths.each do | file_path |
-          unless test("[ -f #{file_path} ]")
-            puts "### config file does not exists: #{file_path}"
-          end
-        end
+        invoke 'datacycle:logrotate:validate_config'
+        invoke 'datacycle:duplicity:validate_config'
+        invoke 'datacycle:monit:validate_config'
+        invoke 'datacycle:nginx:validate_config'
       end
     end
 
@@ -77,6 +75,18 @@ namespace :datacycle do
       puts ''
       puts "############### #{msg}"
       puts ''
+    end
+
+    def remote_config_file_exists(target_file_name, task_name)
+      on roles(:all) do
+        with rails_env: fetch(:rails_env) do
+          if test("[ -f #{target_file_name} ]")
+            puts "### #{task_name} config file exist: #{target_file_name}"
+          else
+            puts "### #{task_name} config file does not exist: #{target_file_name}"
+          end
+        end
+      end
     end
   end
 end

@@ -21,10 +21,22 @@ namespace :datacycle do
       end
     end
 
-    desc 'Reload Monit to see all the jobs'
+    desc 'Reload monit to see all the jobs'
     task :reload do
       on roles(:all) do
         execute 'sudo monit reload', raise_on_non_zero_exit: false
+      end
+    end
+
+    desc 'validate the monit config files for the application'
+    task :validate_config do
+      on roles(:all) do
+        with rails_env: fetch(:rails_env) do
+          ['delayed_job.conf', 'puma.conf']. each do |template_name|
+            target_file_name = "/etc/monit/conf.d/#{fetch(:application)}-#{template_name}"
+            remote_config_file_exists(target_file_name, 'monit')
+          end
+        end
       end
     end
   end

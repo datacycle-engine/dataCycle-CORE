@@ -27,5 +27,11 @@ namespace :datacycle do
         execute 'sudo service nginx reload', raise_on_non_zero_exit: false
       end
     end
+
+    desc 'validate the nginx config file for the application'
+    task :validate_config do
+      target_file_name = "/etc/nginx/conf.d/#{fetch(:server_name)}"
+      remote_config_file_exists(target_file_name, 'nginx')
+    end
   end
 end

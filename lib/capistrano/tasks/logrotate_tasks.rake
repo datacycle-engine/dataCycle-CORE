@@ -20,5 +20,11 @@ namespace :datacycle do
         end
       end
     end
+
+    desc 'validate the logrotate config file for the application'
+    task :validate_config do
+      target_file_name = "/etc/logrotate.d/#{fetch(:application)}"
+      remote_config_file_exists(target_file_name, 'logrotate')
+    end
   end
 end
