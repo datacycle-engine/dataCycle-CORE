@@ -27,13 +27,5 @@ namespace :datacycle do
         execute 'sudo service nginx reload', raise_on_non_zero_exit: false
       end
     end
-
-    private
-
-    def print_message(msg)
-      puts ''
-      puts "############### #{msg}"
-      puts ''
-    end
   end
 end

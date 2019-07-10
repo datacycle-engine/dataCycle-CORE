@@ -38,13 +38,5 @@ namespace :datacycle do
         invoke 'puma:restart'
       end
     end
-
-    private
-
-    def print_message(msg)
-      puts ''
-      puts "############### #{msg}"
-      puts ''
-    end
   end
 end

@@ -70,5 +70,13 @@ namespace :datacycle do
         end
       end
     end
+
+    private
+
+    def print_message(msg)
+      puts ''
+      puts "############### #{msg}"
+      puts ''
+    end
   end
 end
