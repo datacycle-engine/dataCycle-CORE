@@ -49,6 +49,7 @@ module DataCycleCore
           })
           assert_response(:success)
 
+          # read wattch_list with one data entry
           get(xml_v1_collection_path(@watch_list))
           assert_response(:success)
           assert_equal(response.content_type, 'application/xml')

@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: video
         :api:
-          :disabled: true        
+          :disabled: true
       :caption:
         :label: Alt-Label
         :type: string
@@ -80,6 +80,8 @@
         :validations:
           :format: url
         :api:
+          :name: sameAs
+        :xml:
           :name: sameAs
       :width:
         :label: Breite

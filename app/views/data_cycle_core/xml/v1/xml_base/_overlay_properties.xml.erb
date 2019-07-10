@@ -3,6 +3,6 @@
 
   <% next if data.blank? %>
   <% data.each do |item| %>
-    <% render content_partial('details', content: item, options: options.merge({ header_type: :overlay })) %>
+    <%= render *content_partial('properties', { content: item, options: options.merge(overlay_attributes: []) })%>
   <% end %>
 <% end %>

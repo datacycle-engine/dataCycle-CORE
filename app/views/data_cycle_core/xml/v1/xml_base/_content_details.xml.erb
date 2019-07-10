@@ -1,8 +1,12 @@
-<% default_options = {
-    hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
-    combined_attributes: [] # content.combined_property_names
-   }
-   options = default_options.merge(defined?(options) ? options || {} : {})
+<%
+    overlay_attribute = DataCycleCore::Feature::OverlayAttributeService.call(content)
+    overlay_attributes = overwritten_properties(content, overlay_attribute.first)
+    default_options = {
+      hidden_attributes: overlay_attribute,
+      overlay_attributes: overlay_attributes,
+      combined_attributes: [] # content.combined_property_names
+    }
+    options = default_options.merge(defined?(options) ? options || {} : {})
 %>
 
 <%= render *content_partial('header', { content: content, options: options }) %>
@@ -17,9 +21,9 @@
 
 <%= render *content_partial('container_children_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container') %>
 
-<%= render *content_partial('properties', { content: content, options: options }) %>
-
 <%= render *content_partial('overlay_properties', { content: content, options: options }) %>
+
+<%= render *content_partial('properties', { content: content, options: options }) %>
 
 <%#= render render_partial('combined_properties'), content: content, options: options %>
 

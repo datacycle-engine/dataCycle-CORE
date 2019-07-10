@@ -73,6 +73,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       :content_location:
         :label: Veranstaltungsort
         :type: linked

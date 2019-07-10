@@ -1,11 +1,12 @@
 <% unless content.schema.nil? %>
 
   <% ordered_validation_properties(validation: content.schema).each do |key, prop| %>
-    <% next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('xml', 'minimal')) %>
+    <%#= puts "key: #{key} --> #{content.template_name} --> #{options}" %>
+    <% next if options[:hidden_attributes].include?(key) || options[:combined_attributes].include?(key) || options[:overlay_attributes].include?(key) || (@mode_parameters.include?('minimal') && !prop.dig('xml', 'minimal')) %>
     <% value = content.try(key.to_sym) %>
 
     <% partial_load = xml_attribute(key: key, definition: prop, value: value, parameters: { options: options }, content: content) %>
-    <%#= puts "  key: #{key} --> #{prop.dig('type')} --> #{partial_load&.first}" %>
+    <%#= puts "key: #{key}/ #{value} --> #{prop.dig('type')} --> #{partial_load&.first}" %>
     <%= render *partial_load unless partial_load&.first.nil? %>
   <% end %>
 

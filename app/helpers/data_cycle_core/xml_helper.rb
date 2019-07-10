@@ -51,6 +51,14 @@ module DataCycleCore
     #   "xml_#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{xml_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
     # end
 
+    def overwritten_properties(content, overlay_name)
+      return [] if overlay_name.blank? || content.send(overlay_name).blank?
+      overlay = content.send(overlay_name).first
+      overlay.property_names.map { |item|
+        item if overlay.try(:send, item).present?
+      }.compact.uniq - ['id']
+    end
+
     private
 
     def visible_classification_tree?(tree_label, scopes)
