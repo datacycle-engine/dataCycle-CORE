@@ -58,12 +58,17 @@ namespace :datacycle do
       end
     end
 
-    private
-
-    def print_message(msg)
-      puts ''
-      puts "############### #{msg}"
-      puts ''
+    desc 'update project config files: update monit + nginx config files'
+    task :configs_exists do
+      on roles(:all) do
+        print_message 'checking for config files'
+        file_paths = ['/tmp/my_awesome_test/wuhu.txt']
+        file_paths.each do | file_path |
+          unless test("[ -f #{file_path} ]")
+            puts "### config file does not exists: #{file_path}"
+          end
+        end
+      end
     end
   end
 end
