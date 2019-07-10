@@ -46,6 +46,7 @@ namespace :datacycle do
         invoke('datacycle:monit:deploy_config', 'puma.conf')
         invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
         # invoke('datacycle:nginx:deploy_config', 'production.conf')
+        invoke 'datacycle:logrotate:deploy_config'
 
         print_message 'Update puma config'
         invoke 'datacycle:puma:deploy_config'

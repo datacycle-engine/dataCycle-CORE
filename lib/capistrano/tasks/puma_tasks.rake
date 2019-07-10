@@ -17,8 +17,8 @@ namespace :datacycle do
           set :rails_max_workers, rails_max_workers
 
           template_name = 'puma.rb'
-          core_file_path = Dir.pwd + "/vendor/gems/data-cycle-core/config/deploy/templates/#{template_name}.erb"
-          file_path = Dir.pwd + "/config/deploy/templates/#{template_name}.erb"
+          core_file_path = Dir.pwd + "/vendor/gems/data-cycle-core/config/deploy/templates/puma/#{template_name}.erb"
+          file_path = Dir.pwd + "/config/deploy/templates/puma/#{template_name}.erb"
           if File.exist?(file_path)
             template = ERB.new(File.new(file_path).read).result(binding)
           else
