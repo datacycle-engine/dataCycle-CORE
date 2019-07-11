@@ -62,7 +62,7 @@ module DataCycleCore
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
-      @data_link.update_attribute(:valid_until, 1.minute.ago)
+      @data_link.update_column(:valid_until, 1.minute.ago)
 
       redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
