@@ -8,12 +8,12 @@ module DataCycleCore
 
         private
 
-        def access_denied(exception)
-          render 'error', error: exception.message, status: :access_denied
+        def access_denied(_exception)
+          render 'error', locals: { error: 'you need to be logged in to export xml data.', status: :access_denied }
         end
 
         def not_found(exception)
-          render 'error', error: exception.message, status: :not_found
+          render 'error', locals: { error: exception.message, status: :not_found }
         end
 
         def set_default_response_format
