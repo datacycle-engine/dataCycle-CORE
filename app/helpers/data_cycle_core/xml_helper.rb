@@ -59,6 +59,10 @@ module DataCycleCore
       }.compact.uniq - ['id']
     end
 
+    def normalize_string(data)
+      Nokogiri::HTML.fragment(data)&.to_xhtml
+    end
+
     private
 
     def visible_classification_tree?(tree_label, scopes)

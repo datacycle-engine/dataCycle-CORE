@@ -7,7 +7,7 @@
         <schema: <%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
-            <schema:<%=translation.locale%>><%=html_escape_once(content.try(key)&.try(o_key).to_s).html_safe%></schema:<%=translation.locale%>>
+            <schema:<%=translation.locale%>><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%></schema:<%=translation.locale%>>
           <% end %>
         <% end %>
         </schema: <%=o_key_name.camelize(:lower)%>>
@@ -32,7 +32,7 @@
         <schema:<%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
-            < <%=translation.locale%> ><%=html_escape_once(content.try(key)&.try(o_key).to_s).html_safe%> </ <%=translation.locale%> >
+            < <%=translation.locale%> ><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%> </ <%=translation.locale%> >
           <% end %>
         <% end %>
         </schema:<%=o_key_name.camelize(:lower)%>>
