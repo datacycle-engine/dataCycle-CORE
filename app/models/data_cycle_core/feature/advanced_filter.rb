@@ -14,7 +14,7 @@ module DataCycleCore
 
         def classification_alias_ids(value)
           if value == 'all'
-            DataCycleCore::ClassificationTreeLabel.all.pluck(:name).map do |c|
+            DataCycleCore::ClassificationTreeLabel.where.not(name: 'Ländercodes').pluck(:name).map do |c|
               [
                 I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
                 'classification_alias_ids',
