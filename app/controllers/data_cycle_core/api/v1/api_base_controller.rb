@@ -4,14 +4,17 @@ module DataCycleCore
   module Api
     module V1
       class ApiBaseController < ActionController::API
+        include ActionController::MimeResponds
         include ActionController::Caching
         include ActionView::Rendering
         include CanCan::ControllerAdditions
+        include ActiveSupport::Rescuable
+        include DataCycleCore::ErrorHandler
         helper DataCycleCore::ApiHelper
 
         unless Rails.env.development?
-          include ActiveSupport::Rescuable
-          rescue_from CanCan::AccessDenied, with: :access_denied
+          rescue_from ActionController::UnknownFormat, with: :not_acceptable
+          rescue_from CanCan::AccessDenied, with: :unauthorized
           rescue_from ActiveRecord::RecordNotFound, with: :not_found
         end
 
@@ -44,14 +47,6 @@ module DataCycleCore
 
           raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
           sign_in user, store: false
-        end
-
-        def access_denied(exception)
-          render status: :access_denied, json: { "error": exception.message }
-        end
-
-        def not_found(exception)
-          render status: :not_found, json: { "error": exception.message }
         end
 
         def set_default_response_format

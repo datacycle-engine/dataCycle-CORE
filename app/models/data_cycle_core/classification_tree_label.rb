@@ -24,7 +24,7 @@ module DataCycleCore
         joins(:classification_tree).where(classification_trees: { parent_classification_alias_id: nil })
       end
     end
-    has_one :statistics, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label # rubocop:disable Rails/HasManyOrHasOneDependent
+    has_one :statistics, -> { readonly }, class_name: 'Statistics', foreign_key: 'id', inverse_of: :classification_tree_label
 
     def create_classification_alias(*classification_attributes)
       parent_classification_alias = nil
@@ -75,11 +75,11 @@ module DataCycleCore
 
           next unless include_contents
 
-          classification_alias.classifications.map(&:classification_contents).flatten.each do |content_relation|
-            content_relation.content_data.translations.each do |content_translation|
+          classification_alias.classifications.includes(things: :translations).map(&:things).flatten.each do |content|
+            content&.translations&.each do |content_translation|
               row = Array.new(classification_alias.ancestors.count + 1)
               row += [
-                content_relation.content_data.template_name,
+                content.template_name,
                 content_translation.locale,
                 content_translation.name
               ]
