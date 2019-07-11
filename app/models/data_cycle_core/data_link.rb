@@ -54,7 +54,7 @@ module DataCycleCore
           item.set_data_hash(data_hash: { DataCycleCore::Feature::Releasable.allowed_attribute_keys(item).first => [release_partner_stage_id] }, current_user: creator, partial_update: true, prevent_history: true)
         end
       elsif item.is_a?(DataCycleCore::WatchList) && release_partner_stage_id.present?
-        item.watch_list_data_hashes.includes(:hashable).map(&:hashable).each do |content|
+        item.things.includes(:classification_aliases, :translations).find_each do |content|
           next unless DataCycleCore::Feature::Releasable.allowed?(content) && !content.release_status_id&.ids&.include?(release_partner_stage_id)
 
           I18n.with_locale(content.first_available_locale) do

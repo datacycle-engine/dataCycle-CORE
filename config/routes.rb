@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords' }
+                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -177,6 +177,7 @@ DataCycleCore::Engine.routes.draw do
           end
 
           resources :collections, only: [:index, :show], controller: :watch_lists
+          resources :users, only: [:index], controller: :users
 
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key

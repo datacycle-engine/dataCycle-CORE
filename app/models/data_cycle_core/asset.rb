@@ -84,7 +84,7 @@ module DataCycleCore
       new_asset = dup
       new_asset.file = file
       new_asset.save
-      new_asset
+      new_asset.persisted? ? new_asset : nil
     end
 
     private

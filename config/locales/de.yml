@@ -848,3 +848,5 @@ de:
   errors:
     messages:
       extension_white_list_error: Ungültiger Dateityp
+  exceptions:
+    action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
