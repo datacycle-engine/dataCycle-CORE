@@ -25,7 +25,8 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server')
     ].freeze
   else
     config.default_template_paths = [
