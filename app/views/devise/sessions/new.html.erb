@@ -75,6 +75,7 @@
 
                         <% end %>
 
+                        <%= link_to "Sign in with Feratel IdentityServer", '/users/auth/openid_connect' if ENV['OMNIAUTH_OPENID_CONNECT_ISSUER'].present? %>
                     </div>
                 </li>
 

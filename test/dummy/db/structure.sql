@@ -450,8 +450,7 @@ CREATE TABLE public.things (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying,
-    representation_of_id uuid
+    content_type character varying
 );
 
 
@@ -1611,13 +1610,6 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 
 
 --
--- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_things_on_representation_of_id ON public.things USING btree (representation_of_id);
-
-
---
 -- Name: index_things_on_schema_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1918,7 +1910,6 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190531093158'),
 ('20190612084614'),
 ('20190613092317'),
-('20190703082641'),
 ('20190704114636');
 
 

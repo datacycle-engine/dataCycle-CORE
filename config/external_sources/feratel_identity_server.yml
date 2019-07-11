@@ -1,0 +1,64 @@
+---
+name: Feratel Identity Server
+credentials:
+  host: https://apiidentitytest.deskline.net
+  grant_type: password
+  username: PixelPointAdmin
+  password: orplW4juKe
+  client_options:
+    identifier: data_cycle_test
+    secret: secret
+    host: identitytest.deskline.net
+    scheme: https
+    port: 443
+    authorization_endpoint: /connect/authorize
+    token_endpoint: /connect/token
+default_options:
+  locales: [de]
+config:
+  download_config:
+    users:
+      sorting: 1
+      source_type: users
+      endpoint: DataCycleCore::Generic::FeratelIdentityServer::Endpoint
+      download_strategy: DataCycleCore::Generic::FeratelIdentityServer::DownloadUsers
+    claims:
+      sorting: 2
+      source_type: claims
+      endpoint: DataCycleCore::Generic::FeratelIdentityServer::Endpoint
+      download_strategy: DataCycleCore::Generic::FeratelIdentityServer::DownloadClaims
+    clients:
+      sorting: 3
+      source_type: clients
+      endpoint: DataCycleCore::Generic::FeratelIdentityServer::Endpoint
+      download_strategy: DataCycleCore::Generic::FeratelIdentityServer::DownloadClients
+    scopes:
+      sorting: 4
+      source_type: scopes
+      endpoint: DataCycleCore::Generic::FeratelIdentityServer::Endpoint
+      download_strategy: DataCycleCore::Generic::FeratelIdentityServer::DownloadScopes
+    tokens:
+      sorting: 5
+      source_type: tokens
+      endpoint: DataCycleCore::Generic::FeratelIdentityServer::Endpoint
+      download_strategy: DataCycleCore::Generic::FeratelIdentityServer::DownloadTokens
+  import_config:
+    user_tags:
+      sorting: 1
+      source_type: users
+      import_strategy: DataCycleCore::Generic::FeratelIdentityServer::ImportTags
+      tree_label: Feratel Identity Server Keywords
+      external_id_prefix: Feratel Identity Server
+    user_claims:
+      sorting: 2
+      source_type: users
+      import_strategy: DataCycleCore::Generic::FeratelIdentityServer::ImportClaims
+      tree_label: Feratel Identity Server Claims
+      external_id_prefix: Feratel Identity Server Claim
+    users:
+      sorting: 3
+      source_type: users
+      import_strategy: DataCycleCore::Generic::FeratelIdentityServer::ImportUsers
+      transformations:
+        user:
+          template: Organization
