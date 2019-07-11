@@ -6,7 +6,7 @@
       <schema:<%=key_new%>>
       <% classification_aliases.each do |classification_alias| %>
         <schema:type><%=definition.dig('xml', 'type') || 'Enumeration'%></schema:type>
-        <schema:name><%=classification_alias.name%></schema:name>
+        <schema:name><%=html_escape_once(classification_alias.name).html_safe%></schema:name>
       <% end %>
       </schema:<%=key_new%>>
     <% else %>

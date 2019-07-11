@@ -130,22 +130,22 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'ClassificationTree' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'classificationTree' }.size)
 
           hash = Hash.from_xml(xml_data.to_xml)
-          test_classification = hash.dig('RDF', 'ClassificationTree').detect { |item| item['name'] == 'Tags' }.dig('id')
+          test_classification = hash.dig('RDF', 'classificationTree').detect { |item| item['name'] == 'Tags' }.dig('id')
 
           get xml_v1_classification_tree_path(id: test_classification)
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
-          assert_equal(test_classification, xml_data.dig('RDF', 'ClassificationTree', 'id'))
+          assert_equal(test_classification, xml_data.dig('RDF', 'classificationTree', 'id'))
 
           get classifications_xml_v1_classification_tree_path(id: test_classification)
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml)
-          assert_equal(true, xml_data.dig('RDF', 'Classifications', 'Classification').count.positive?)
+          assert_equal(true, xml_data.dig('RDF', 'classifications', 'classification').count.positive?)
         end
       end
     end

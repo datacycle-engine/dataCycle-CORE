@@ -7,7 +7,7 @@
         <schema: <%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
-            <schema:<%=translation.locale%>><%=content.try(key)&.try(o_key).to_s.html_safe %></schema:<%=translation.locale%>>
+            <schema:<%=translation.locale%>><%=html_escape_once(content.try(key)&.try(o_key).to_s).html_safe%></schema:<%=translation.locale%>>
           <% end %>
         <% end %>
         </schema: <%=o_key_name.camelize(:lower)%>>
@@ -29,13 +29,13 @@
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
         <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
-        <schema: <%=o_key_name.camelize(:lower) %> >
+        <schema:<%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
-            < <%=translation.locale%> > <%=content.try(key)&.try(o_key).to_s.html_safe %> </ <%=translation.locale%> >
+            < <%=translation.locale%> ><%=html_escape_once(content.try(key)&.try(o_key).to_s).html_safe%> </ <%=translation.locale%> >
           <% end %>
         <% end %>
-        </schema: <%=o_key_name.camelize(:lower) %> >
+        </schema:<%=o_key_name.camelize(:lower)%>>
       <% end %>
     <% else %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>

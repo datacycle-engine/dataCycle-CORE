@@ -45,7 +45,7 @@ module DataCycleCore
                 address = { 'type' => 'PostalAddress' }.merge(postal_address)
                 assert_equal(address, xml_data.dig('address'))
                 assert_equal(contact_info, xml_data.dig('contactInfo'))
-                assert_equal(@content.country_code.first.name, xml_data.dig('countryCode', 'Classification', 'name'))
+                assert_equal(@content.country_code.first.name, xml_data.dig('countryCode', 'classification', 'name'))
 
                 assert_equal(@content.image.first.id, xml_data.dig('image', 'thing', 'identifier'))
               end

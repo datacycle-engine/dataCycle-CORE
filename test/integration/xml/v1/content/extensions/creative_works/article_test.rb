@@ -53,7 +53,7 @@ module DataCycleCore
                 assert_equal(@content.content_location.first.id, xml_data.dig('contentLocation', 'thing', 'identifier'))
 
                 # check for tag classification and keyword transformation
-                assert_equal(@content.tags.first.name, xml_data.dig('tags', 'Classification', 'name'))
+                assert_equal(@content.tags.first.name, xml_data.dig('tags', 'classification', 'name'))
                 assert_equal(@content.tags.first.name, xml_data.dig('keywords'))
                 assert_equal(@content.keywords, xml_data.dig('keywords'))
               end
