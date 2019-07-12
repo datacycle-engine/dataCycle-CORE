@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://schema.org"
+  xmlns:schema="http://schema.org/Thing/">
+
+  <% @contents&.each do |item| %>
+    <% I18n.with_locale(item.first_available_locale(@language)) do %>
+      <%= render *content_partial('details', content: item) %>
+    <% end %>
+  <% end %>
+
+</rdf:RDF>

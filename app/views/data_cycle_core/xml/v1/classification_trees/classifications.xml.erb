@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://schema.org"
+  xmlns:schema="http://schema.org/Thing/">
+  <%= render render_partial('classifications'), classification_aliases: @classification_aliases, key: 'classifications', cache: true %>
+</rdf:RDF>

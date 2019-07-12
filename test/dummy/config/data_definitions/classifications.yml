@@ -47,11 +47,11 @@
   - $$Öffnungszeit - Zeitspanne
   - $$EventSchedule
 
-- Geschlecht | show, edit, api, tile:
+- Geschlecht | show, edit, api, tile, xml:
   - Männlich | Male
   - Weiblich | Female
 
-- Wochentage | show, edit, api, tile:
+- Wochentage | show, edit, api, tile, xml:
   - Montag
   - Dienstag
   - Mittwoch
@@ -60,7 +60,7 @@
   - Samstag
   - Sonntag
 
-- Monate | show, edit, api, tile:
+- Monate | show, edit, api, tile, xml:
   - Januar
   - Februar
   - März
@@ -74,7 +74,7 @@
   - November
   - Dezember
 
-- Feratel - Veranstaltungstags | show, edit, api, tile:
+- Feratel - Veranstaltungstags | show, edit, api, tile, xml:
   - $$Top-Event
   - $$Local
   - $$Town
@@ -82,50 +82,50 @@
   - $$Subregion
   - $$Country
 
-- Tags | show, edit, api, tile:
+- Tags | show, edit, api, tile, xml:
   - Tag 1
   - Tag 2
   - Tag 3:
     - Nested Tag 1
     - Nested Tag 2
 
-- Ausgabekanäle | show, edit, api, tile:
+- Ausgabekanäle | show, edit, api, tile, xml:
   - Web
   - Print
   - Social Media
 
-- Rezept-Gänge | show, edit, api, tile:
+- Rezept-Gänge | show, edit, api, tile, xml:
   - $$Rezept-Gang 1
   - $$Rezept-Gang 2
 
-- Rezept-Kategorien | show, edit, api, tile:
+- Rezept-Kategorien | show, edit, api, tile, xml:
   - $$Rezept-Kategorie 1
   - $$Rezept-Kategorie 2
 
-- Inhaltspools | show, edit, api, tile:
+- Inhaltspools | show, edit, api, tile, xml:
   - $$Vorschläge
   - $$Recherche
   - $$Aktuelle Inhalte
   - $$Archiv
 
-- Release-Stati | show, edit, api, tile:
+- Release-Stati | show, edit, api, tile, xml:
   - $$freigegeben
   - $$beim Partner
   - $$in Review
   - $$archiviert
 
-- POI - Kategorien | show, edit, api, tile:
+- POI - Kategorien | show, edit, api, tile, xml:
 
-- Märkte | show, edit, api, tile:
+- Märkte | show, edit, api, tile, xml:
   - Markt 1
   - Markt 2
   - Markt 3
 
-- Feratel - Status | show, edit, api, tile:
+- Feratel - Status | show, edit, api, tile, xml:
   - $$Aktiv
   - $$Inaktiv
 
-- Ländercodes | show, edit, api, tile:
+- Ländercodes | show, edit, api, tile, xml:
   - AF | Afghanistan
   - EG | Ägypten
   - AL | Albanien
