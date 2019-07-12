@@ -39,22 +39,36 @@ namespace :datacycle do
       end
     end
 
-    desc 'update project config files: update monit + nginx config files'
-    task :update_configs do
+    desc 'update project config files before 5_2_3 deployment'
+    task :update_configs_before_deploy do
       on roles(:all) do
-        print_message 'Uploading config files'
-        invoke('datacycle:monit:deploy_config', 'puma.conf')
-        invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
-        # invoke('datacycle:nginx:deploy_config', 'production.conf')
-        invoke 'datacycle:logrotate:deploy_config'
-
         print_message 'Update puma config'
         invoke 'datacycle:puma:deploy_config'
         invoke 'datacycle:puma:restart'
 
+        print_message 'Uploading config files'
+        invoke 'datacycle:logrotate:deploy_config'
+      end
+    end
+
+    desc 'update project config files: update monit + nginx config files'
+    task :update_configs do
+      on roles(:all) do
+        print_message 'Update puma config'
+        invoke 'datacycle:puma:deploy_config'
+        invoke 'datacycle:puma:restart'
+
+        print_message 'Uploading config files'
+        invoke('datacycle:monit:deploy_config', 'puma.conf')
+        invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
+        invoke 'datacycle:logrotate:deploy_config'
+
         print_message 'Reloading services'
-        # invoke 'datacycle:nginx:reload'
         invoke 'datacycle:monit:reload'
+
+        # invoke('datacycle:nginx:deploy_config', 'production.conf')
+        # invoke 'datacycle:nginx:reload'
+        # invoke 'datacycle:duplicity:deploy_config'
       end
     end
 
@@ -63,9 +77,10 @@ namespace :datacycle do
       on roles(:all) do
         print_message 'checking for config files'
         invoke 'datacycle:logrotate:validate_config'
-        invoke 'datacycle:duplicity:validate_config'
         invoke 'datacycle:monit:validate_config'
-        invoke 'datacycle:nginx:validate_config'
+
+        # invoke 'datacycle:nginx:validate_config'
+        # invoke 'datacycle:duplicity:validate_config'
       end
     end
 

@@ -29,7 +29,7 @@ namespace :datacycle do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
           ['backup.sh', 'filelist.txt']. each do |template_name|
-            target_file_name = "/home/#{fetch(:deploy_user)}/scripts/#{template_name}"
+            target_file_name = "/home/#{fetch(:deploy_user)}/scripts/#{fetch(:application)}-#{template_name}"
             remote_config_file_exists(target_file_name, 'duplicity')
           end
         end
