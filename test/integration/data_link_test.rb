@@ -50,8 +50,46 @@ module DataCycleCore
       follow_redirect!
 
       get edit_polymorphic_path(readonly_content)
-      assert_equal I18n.t(:no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language), flash[:alert]
-      assert_redirected_to thing_path(readonly_content)
+      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_language), flash[:alert]
+      assert_redirected_to info_path
+    end
+
+    test 'create new external link for content and existing user' do
+      @data_link.destroy
+      user = User.find_by(email: 'guest@datacycle.at')
+      readonly_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel not editable' })
+
+      post data_links_path, params: {
+        data_link: {
+          receiver: {
+            id: user.id,
+            email: user.email
+          },
+          valid_from: Time.zone.now,
+          valid_until: Time.zone.tomorrow,
+          permissions: 'write',
+          item_id: @content.id,
+          item_type: @content.class.name,
+          comment: 'Testkommentar'
+        }
+      }, headers: {
+        referer: polymorphic_path(@content)
+      }
+      follow_redirect!
+
+      data_link = @content.data_links.includes(:receiver).find_by(users: { email: user['email'] })
+
+      assert data_link
+
+      logout
+
+      get data_link_path(data_link)
+      assert_redirected_to edit_thing_path(@content)
+      follow_redirect!
+
+      get edit_polymorphic_path(readonly_content)
+      assert_equal I18n.t(:all, scope: [:unauthorized, :manage], locale: DataCycleCore.ui_language), flash[:alert]
+      assert_redirected_to info_path
     end
 
     test 'create new external link for watch_list' do
@@ -110,6 +148,23 @@ module DataCycleCore
       assert_response :success
     end
 
+    test 'update external link for content' do
+      patch data_link_path(@data_link), params: {
+        data_link: {
+          valid_from: Time.zone.now,
+          valid_until: Time.zone.tomorrow,
+          comment: 'Testkommentar 2'
+        }
+      }, headers: {
+        referer: polymorphic_path(@content)
+      }
+      follow_redirect!
+
+      @data_link.reload
+      assert @content.data_links.includes(:receiver).find_by(users: { email: @data_link.receiver.email })
+      assert_equal 'Testkommentar 2', @data_link.comment
+    end
+
     test 'lock external link' do
       delete data_link_path(@data_link), params: {}, headers: {
         referer: thing_path(@content)
@@ -120,9 +175,7 @@ module DataCycleCore
       logout
 
       get data_link_path(@data_link)
-      assert_redirected_to root_path
-      follow_redirect!
-      assert_redirected_to new_user_session_path
+      assert_redirected_to info_path
     end
 
     test 'can only edit owned data_links' do

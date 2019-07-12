@@ -115,6 +115,7 @@ class ObjectBrowser {
       if (this.validate()) {
         this.setChosen();
         this.overlay.foundation('close');
+        this.element.closest('.form-element').trigger('change');
       }
     });
     this.element.on('dc:update:chosen', (event, data) => {
@@ -211,6 +212,7 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
+    this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
     this.element

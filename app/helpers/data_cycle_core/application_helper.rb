@@ -90,18 +90,6 @@ module DataCycleCore
       ].reject(&:blank?).flatten
     end
 
-    def feature_attributes(content, prefix = '')
-      DataCycleCore.features
-        .select { |_, v| !v.dig(:only_config) == true }
-        .keys
-        .map { |f| "DataCycleCore::Feature::#{f.to_s.classify}".constantize.try("#{prefix}attribute_keys", content) }
-        .flatten
-    end
-
-    def allowed_feature_attribute?(key, content)
-      feature_attributes(content).include?(key) ? feature_attributes(content, 'allowed_').include?(key) : true
-    end
-
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
       if value.is_a? Hash
         return_html = ''
@@ -174,9 +162,12 @@ module DataCycleCore
 
     def render_attribute_editor(key:, definition:, value:, parameters: { options: {} }, content: nil, scope: :edit)
       parameters[:options] ||= {}
+
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
+
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
+
+      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
@@ -199,8 +190,9 @@ module DataCycleCore
     end
 
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
-      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && allowed_feature_attribute?(key.attribute_name_from_key, content)
-      return if definition['type'] == 'classification' && !visible_classification_tree?(definition['tree_label'], scope.to_s)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
+
+      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
@@ -372,10 +364,6 @@ module DataCycleCore
 
         return partial
       end
-    end
-
-    def visible_classification_tree?(tree_label, scopes)
-      (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: tree_label)&.visibility) & Array(scopes)).size.positive?
     end
   end
 end
