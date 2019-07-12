@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'rack/oauth2'
 
 module DataCycleCore
   module Generic
