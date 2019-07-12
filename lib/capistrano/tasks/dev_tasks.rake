@@ -44,7 +44,6 @@ namespace :datacycle do
       on roles(:all) do
         print_message 'Update puma config'
         invoke 'datacycle:puma:deploy_config'
-        invoke 'datacycle:puma:restart'
 
         print_message 'Uploading config files'
         invoke 'datacycle:logrotate:deploy_config'
