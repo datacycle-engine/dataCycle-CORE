@@ -94,8 +94,8 @@ module DataCycleCore
       end
 
       def teardown
+        return if @image.id.blank?
         @image.remove_file!
-        @image.destroy!
         DataCycleCore::ImageUploader.enable_processing = false
       end
     end

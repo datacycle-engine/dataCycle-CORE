@@ -44,7 +44,7 @@ module DataCycleCore
         reflect(
           @query.where(
             search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
-            .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
+              .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
           )
         )
       end
@@ -177,9 +177,9 @@ module DataCycleCore
         reflect(
           DataCycleCore::Thing.joins(:searches)
             .where(searches: {
-              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : '')))
+              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
             })
-            .order(order_string)
+            .order(order_string.present? ? Arel.sql(order_string) : order_string)
         )
       end
 
@@ -316,19 +316,21 @@ module DataCycleCore
       end
 
       def self.get_order_by_query_string(search)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.boost DESC, things.updated_at DESC') if search.blank?
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank?
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(
           :sanitize_sql_array,
           [
-            "things.boost * (
+            Arel.sql(
+              "things.boost * (
               8 * similarity(searches.classification_string, :search_string) +
               4 * similarity(searches.headline, :search_string) +
               2 * ts_rank_cd(searches.words, plainto_tsquery('simple', :search),16) +
               1 * similarity(searches.full_text, :search_string))
               DESC NULLS LAST,
-              things.updated_at DESC",
+              things.updated_at DESC"
+            ),
             search_string: "%#{search_string}%",
             search: (search || '').squish
           ]
@@ -351,8 +353,8 @@ module DataCycleCore
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
           .where(
             classification[:deleted_at].eq(nil)
-            .and(classification_group[:deleted_at].eq(nil))
-            .and(classification_alias[:deleted_at].eq(nil))
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
           )
       end
 
@@ -372,8 +374,8 @@ module DataCycleCore
           .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
           .where(
             classification[:deleted_at].eq(nil)
-            .and(classification_group[:deleted_at].eq(nil))
-            .and(classification_alias[:deleted_at].eq(nil))
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
           )
       end
 

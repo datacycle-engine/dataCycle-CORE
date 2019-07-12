@@ -8,3 +8,4 @@ Delayed::Worker.sleep_delay = 60
 Delayed::Worker.delay_jobs = !Rails.env.test?
 Delayed::Worker.default_queue_name = 'default'
 Delayed::Worker.raise_signal_exceptions = :term
+Delayed::Worker.logger = Logger.new(Rails.root.join('log', 'delayed_job.log'))

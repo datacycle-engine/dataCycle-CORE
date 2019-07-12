@@ -2,13 +2,14 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.5.1
-  TargetRailsVersion: 5.1
+  TargetRubyVersion: 2.6.3
+  TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   Exclude:
     - 'node_modules/**/*'
     - 'tmp/**/*'
     - 'cache/**/*'
+    - 'bash/**/*'
 
 Rails:
   Enabled: true
