@@ -4,7 +4,7 @@ module DataCycleCore
   module Xml
     module V1
       class ContentsController < ::DataCycleCore::Xml::V1::XmlBaseController
-        PUMA_MAX_TIMEOUT = 60
+        PUMA_MAX_TIMEOUT = 600
         include DataCycleCore::Filter
         before_action :prepare_url_parameters
 
