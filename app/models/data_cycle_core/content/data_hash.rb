@@ -233,7 +233,7 @@ module DataCycleCore
       def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
         available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
-        data = parse_embedded_content(input_data) || []
+        data = input_data || []
 
         data.each_index do |index|
           item = data[index]
@@ -269,18 +269,6 @@ module DataCycleCore
           item = DataCycleCore::Thing.find_by(id: key)
           item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
           item.destroy
-        end
-      end
-
-      def parse_embedded_content(a)
-        if a.is_a?(ActiveRecord::Relation)
-          a.ids.map { |item| { 'id' => item } }
-        elsif a.is_a?(::String)
-          { 'id' => a }
-        elsif a.is_a?(::Array) && a.present? && a.first.is_a?(::String)
-          a.map { |item| { 'id' => item } }
-        else
-          a
         end
       end
 
