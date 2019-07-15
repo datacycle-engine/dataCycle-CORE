@@ -144,7 +144,7 @@ module DataCycleCore
       def save_values(key, value, properties)
         case properties['storage_location']
         when 'column'
-          send("#{key}=", normalize_value(value, properties))
+          save_to_column(key, value, properties)
         when 'value'
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
@@ -152,10 +152,14 @@ module DataCycleCore
         end
       end
 
+      def save_to_column(key, value, properties)
+        send("#{key}=", normalize_value(value, properties))
+      end
+
       def normalize_value(value, properties)
         norm_value = value
         if properties.key?('default_value') && value.blank?
-          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value'])
+          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
             norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
           else
             norm_value = properties['default_value']
@@ -170,8 +174,7 @@ module DataCycleCore
         save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object'
         save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
-        # set to json field (could be empty)
-        if send(location.to_s).blank?
+        if send(location.to_s).blank? # set to json field (could be empty)
           send("#{location}=", { key => save_data })
         else
           send(location.to_s).method('[]=').call(key, save_data)
@@ -186,7 +189,7 @@ module DataCycleCore
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
             data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]))
           elsif data_definitions[key]['storage_location'] == 'column'
-            send("#{key}=", normalize_value(data&.dig(key), data_definitions[key]))
+            save_to_column(key, data&.dig(key), data_definitions[key])
           end
         end
         data_hash

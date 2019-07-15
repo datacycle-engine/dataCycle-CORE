@@ -181,6 +181,7 @@
              :class: daterange
          :show:
            :type: date
+        :default_value: '{{Time.zone.now.beginning_of_day}}'           
       :author:
         :label: Fotograf
         :type: linked

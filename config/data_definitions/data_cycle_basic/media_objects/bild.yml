@@ -158,6 +158,7 @@
         :label: Hochgeladen am
         :type: datetime
         :storage_location: value
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
       :photographer:
         :label: Fotograf
         :type: string
