@@ -2,8 +2,9 @@
 
 module DataCycleCore
   class ExternalSystem < ApplicationRecord
-    has_many :thing_external_systems, dependent: :destroy
-    has_many :things, through: :thing_external_systems
+    has_many :external_system_syncs, dependent: :destroy
+    has_many :things, through: :external_system_syncs, source: :syncable, source_type: 'DataCycleCore::Thing'
+    has_many :users, through: :external_system_syncs, source: :syncable, source_type: 'DataCycleCore::User'
 
     def push_config
       config&.dig('push_config')&.symbolize_keys

@@ -41,5 +41,5 @@ DataCycleCore.setup do |config|
     ].freeze
   end
 
-  config.webhooks = ['Local-Text-File']
+  config.webhooks = ENV['WEBHOOKS']&.split(',')&.map(&:squish)
 end

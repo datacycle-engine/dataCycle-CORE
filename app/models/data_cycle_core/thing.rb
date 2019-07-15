@@ -48,8 +48,8 @@ module DataCycleCore
 
     content_relations table_name: table_name
 
-    has_many :thing_external_systems, dependent: :destroy
-    has_many :external_systems, through: :thing_external_systems
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_systems, through: :external_system_syncs
 
     def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|

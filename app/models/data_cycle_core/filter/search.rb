@@ -75,7 +75,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:thing_id].eq(thing[:id]))).exists)
         )
       end
 
@@ -91,7 +91,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists.not)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:thing_id].eq(thing[:id]))).exists.not)
         )
       end
 
@@ -417,8 +417,8 @@ module DataCycleCore
         DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
 
-      def thing_external_system
-        DataCycleCore::ThingExternalSystem.arel_table
+      def external_system_sync
+        DataCycleCore::ExternalSystemSync.arel_table
       end
     end
   end

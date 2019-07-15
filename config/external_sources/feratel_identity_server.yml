@@ -5,6 +5,7 @@ credentials:
   grant_type: password
   username: PixelPointAdmin
   password: orplW4juKe
+  external_system: Feratel Identity Server
   client_options:
     identifier: data_cycle_test
     secret: secret
@@ -62,3 +63,4 @@ config:
       transformations:
         user:
           template: Organization
+  api_strategy: DataCycleCore::Api::FeratelIdentityServerExternalSource

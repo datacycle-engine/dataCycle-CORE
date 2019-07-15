@@ -51,7 +51,7 @@ module DataCycleCore
 
       render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless any_authenticity_token_valid? || Rails.env.test?
 
-      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if DataCycleCore::Thing.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
+      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
 
       head :no_content
     end
@@ -79,7 +79,7 @@ module DataCycleCore
     end
 
     def reload_params
-      params.permit(:id, :datestring)
+      params.permit(:id, :table, :datestring)
     end
   end
 end

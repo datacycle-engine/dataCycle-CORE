@@ -566,6 +566,22 @@ CREATE TABLE public.external_sources (
 
 
 --
+-- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.external_system_syncs (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    syncable_id uuid,
+    external_system_id uuid,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    status character varying,
+    syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying
+);
+
+
+--
 -- Name: external_systems; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -671,21 +687,6 @@ CREATE TABLE public.subscriptions (
     subscribable_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
-
-
---
--- Name: thing_external_systems; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.thing_external_systems (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    thing_id uuid,
-    external_system_id uuid,
-    data jsonb,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    status character varying
 );
 
 
@@ -1039,10 +1040,10 @@ ALTER TABLE ONLY public.thing_duplicates
 
 
 --
--- Name: thing_external_systems thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: external_system_syncs thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.thing_external_systems
+ALTER TABLE ONLY public.external_system_syncs
     ADD CONSTRAINT thing_external_systems_pkey PRIMARY KEY (id);
 
 
@@ -1414,6 +1415,13 @@ CREATE UNIQUE INDEX index_external_sources_on_id ON public.external_sources USIN
 
 
 --
+-- Name: index_external_system_syncs_on_syncable_external_system; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id);
+
+
+--
 -- Name: index_external_systems_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1495,13 +1503,6 @@ CREATE INDEX index_subscriptions_on_subscribable_type ON public.subscriptions US
 --
 
 CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree (user_id);
-
-
---
--- Name: index_thing_external_systems_on_thing_id_and_external_system_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id_and_external_system_id ON public.thing_external_systems USING btree (thing_id, external_system_id);
 
 
 --
@@ -1910,6 +1911,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190531093158'),
 ('20190612084614'),
 ('20190613092317'),
-('20190704114636');
+('20190704114636'),
+('20190712074413');
 
 

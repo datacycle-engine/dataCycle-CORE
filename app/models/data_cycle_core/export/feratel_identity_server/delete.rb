@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Export
+    module FeratelIdentityServer
+      module Delete
+        include Functions
+
+        def self.process(utility_object:, data:)
+          return if data.blank?
+          Functions.delete(utility_object: utility_object, data: data)
+        end
+
+        def self.filter(_data, _external_system)
+          false
+        end
+      end
+    end
+  end
+end

@@ -2,7 +2,11 @@
 
 module DataCycleCore
   class User < ApplicationRecord
+    include Content::ExternalData
+
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: [:openid_connect]
+
+    attr_accessor :raw_password, :skip_callbacks
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -27,16 +31,23 @@ module DataCycleCore
     has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
     has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_systems, through: :external_system_syncs
+
     before_create :set_default_role
 
     delegate :can?, :cannot?, to: :ability
+
+    after_create_commit :execute_create_webhooks, unless: :skip_callbacks
+    after_update_commit :execute_update_webhooks, unless: :skip_callbacks
+    after_destroy_commit :execute_delete_webhooks, unless: :skip_callbacks
 
     def recoverable?
       !(external? || is_rank?(0))
     end
 
     def full_name
-      name || "#{given_name} #{family_name}".presence || '__unnamed_user__'
+      (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
     end
 
     def default_filter(filters = [])
@@ -86,6 +97,19 @@ module DataCycleCore
 
     def ability
       @ability ||= DataCycleCore::Ability.new(self)
+    end
+
+    def execute_create_webhooks
+      Webhook::Create.execute_all(self)
+    end
+
+    def execute_update_webhooks
+      binding.pry
+      Webhook::Update.execute_all(self)
+    end
+
+    def execute_delete_webhooks
+      Webhook::Delete.execute_all(self)
     end
   end
 end
