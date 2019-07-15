@@ -3,7 +3,6 @@
   definition: definition,
   value: value,
   options: options do %>
-
     <div class="inner">
         <div class="thumb">
             <% if content.try(:content_url).present? %>
@@ -16,4 +15,4 @@
         </div>
     </div>
 
-<% end if content.try(:asset).blank? %>
+<% end %>

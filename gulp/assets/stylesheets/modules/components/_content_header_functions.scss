@@ -127,7 +127,7 @@
       position: relative;
       vertical-align: top;
       > a,
-      > .link {
+      > .link{
         display: inline-block;
         color: $body-font-color;
         opacity: 0.3;
@@ -140,6 +140,9 @@
           opacity: 1;
           color: lighten($body-font-color, 30%);
         }
+      }
+      > .link > a {
+        color: $body-font-color;
       }
     }
   }

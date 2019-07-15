@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: image
         :api:
-          :disabled: true        
+          :disabled: true
       :alternative_headline:
         :label: Alt-Label
         :type: string
@@ -85,6 +85,8 @@
         :validations:
           :format: url
         :api:
+          :name: sameAs
+        :xml:
           :name: sameAs
       :width:
         :label: Breite

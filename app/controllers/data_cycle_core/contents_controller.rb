@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentsController < ApplicationController
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
+    include DataCycleCore::ErrorHandler
 
     DataCycleCore.features
       .select { |_, v| !v.dig(:only_config) == true }
@@ -14,7 +15,7 @@ module DataCycleCore
 
     before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
-    rescue_from ActiveRecord::RecordNotFound, with: :record_not_found
+    rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def index
       redirect_back(fallback_location: root_path)
@@ -111,7 +112,7 @@ module DataCycleCore
 
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
         @locale = I18n.locale
-        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        authorize!(:edit, @content)
 
         render && return
       end
@@ -133,7 +134,7 @@ module DataCycleCore
 
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
         @locale = I18n.locale
-        redirect_to(thing_path(@content, watch_list_params), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:edit, @content)
+        authorize!(:edit, @content)
 
         render(:edit) && return
       end
@@ -142,7 +143,7 @@ module DataCycleCore
     def update
       @content = DataCycleCore::Thing.find(params[:id])
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
-        redirect_to(thing_path(@content), alert: (I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language)) && return unless can?(:update, @content)
+        authorize!(:update, @content)
 
         object_params = content_params(@content.template_name)
         datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], @content.schema)
@@ -330,15 +331,12 @@ module DataCycleCore
       render json: @asset
     end
 
-    def record_not_found
-      raise DataCycleCore::Error::RecordNotFoundError, 'DataCycle Record Not Found'
-    end
-
     private
 
     def set_watch_list
       watch_list = DataCycleCore::WatchList.find(params[:watch_list_id]) if params[:watch_list_id]
-      @watch_list = watch_list if can?(:manage, watch_list)
+      authorize! :show, watch_list
+      @watch_list = watch_list
     end
 
     def path_params

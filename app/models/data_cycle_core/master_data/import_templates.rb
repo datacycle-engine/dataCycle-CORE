@@ -243,6 +243,7 @@ module DataCycleCore
           optional(:validations) { hash? }
           optional(:ui) { hash? }
           optional(:api) { hash? }
+          optional(:xml) { hash? }
           optional(:search) { bool? }
           optional(:normalize).schema do
             required(:id) do

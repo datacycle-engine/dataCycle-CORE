@@ -69,6 +69,10 @@ module DataCycleCore
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
     end
 
+    def self.from_tree(tree_name)
+      for_tree(tree_name)
+    end
+
     def self.without_deleted
       where(deleted_at: nil)
     end
@@ -110,13 +114,14 @@ module DataCycleCore
     def self.order_by_similarity(term)
       term = ActiveRecord::Base.connection.quote(term)
 
-      max_cardinality = Path.all.pluck('MAX(CARDINALITY(full_path_names))').max
+      max_cardinality = Path.all.pluck(Arel.sql('MAX(CARDINALITY(full_path_names))')).max
 
       joins(:classification_alias_path).order(
-        ActiveRecord::Base.send(:sanitize_sql_for_order,
-                                (1..max_cardinality).map { |c|
-                                  "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
-                                }.join(' + ') + ' DESC')
+        Arel.sql(
+          (1..max_cardinality).map { |c|
+            "COALESCE(10 ^ #{max_cardinality - c} * (1 - (full_path_names[#{c}] <-> #{term})), 0)"
+          }.join(' + ') + ' DESC'.to_s
+        )
       )
     end
 

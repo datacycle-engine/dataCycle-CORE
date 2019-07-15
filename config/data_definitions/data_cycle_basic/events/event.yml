@@ -89,6 +89,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       :same_as:
         :label: Link
         :type: string
@@ -102,6 +104,8 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+        :xml:
+          :name: link
       :image:
         :label: Bilder
         :type: linked

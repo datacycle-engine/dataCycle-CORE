@@ -29,6 +29,20 @@
                               .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
                               .join('<br />') %>
                         </li>
+                        <li>
+                            <span class="link" aria_hidden="true">
+                              <%= link_to api_v2_collection_path(api_subversion: nil, id: @watch_list),
+                                          class: 'copy-to-clipboard',
+                                          data: {
+                                              tooltip: true,
+                                              value: api_v2_collection_url(api_subversion: nil, id: @watch_list)
+                                          },
+                                          title: t('actions.copy_to_clipboard',
+                                          locale: DataCycleCore.ui_language) do %>
+                                <i class="fa fa-clipboard" aria-hidden="true"></i>
+                              <% end %>
+                            </span>
+                        </li>
                         <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
                         <li class="buttons">
                             <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>

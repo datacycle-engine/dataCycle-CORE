@@ -23,11 +23,11 @@
   - $$Publikations-Plan
   - $$EventSchedule
 
-- Geschlecht | show, edit, tile, api:
+- Geschlecht | show, edit, tile, api, xml:
   - Männlich | Male
   - Weiblich | Female
 
-- Wochentage | show, edit, tile, api:
+- Wochentage | show, edit, tile, api, xml:
   - Montag
   - Dienstag
   - Mittwoch
@@ -36,7 +36,7 @@
   - Samstag
   - Sonntag
 
-- Monate | show, edit, tile, api:
+- Monate | show, edit, tile, api, xml:
   - Januar
   - Februar
   - März
@@ -50,22 +50,22 @@
   - November
   - Dezember
 
-- Tags | show, edit, tile, api:
+- Tags | show, edit, tile, api, xml:
   - Tag 1
   - Tag 2
 
-- Ausgabekanäle | show, edit, tile, api:
+- Ausgabekanäle | show, edit, tile, api, xml:
   - Web
   - Print
   - Social Media
 
-- POI - Kategorien | show, edit, tile, api:
+- POI - Kategorien | show, edit, tile, api, xml:
 
-- Rechte | show, edit, tile, api:
+- Rechte | show, edit, tile, api, xml:
 
-- MediaArchive - Tags | show, edit, tile, api:
+- MediaArchive - Tags | show, edit, tile, api, xml:
 
-- Feratel - Veranstaltungstags | show, edit, tile, api:
+- Feratel - Veranstaltungstags | show, edit, tile, api, xml:
   - $$Top-Event
   - $$Local
   - $$Town
@@ -73,11 +73,11 @@
   - $$Subregion
   - $$Country
 
-- Feratel - Status | show, edit, tile, api:
+- Feratel - Status | show, edit, tile, api, xml:
   - $$Aktiv
   - $$Inaktiv
 
-- Ländercodes | show, edit, tile, api:
+- Ländercodes | show, edit, tile, api, xml:
   - AF | Afghanistan
   - EG | Ägypten
   - AL | Albanien

@@ -1,0 +1,8 @@
+<% DataCycleCore::Feature::OverlayAttributeService.call(content).each do |property| %>
+  <% data = content.try(:send, property).includes(:translations, :classifications) %>
+
+  <% next if data.blank? %>
+  <% data.each do |item| %>
+    <%= render *content_partial('properties', { content: item, options: options.merge(overlay_attributes: []) })%>
+  <% end %>
+<% end %>

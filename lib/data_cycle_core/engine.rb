@@ -140,7 +140,7 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'tile']
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile']
   end
 
   def self.setup
@@ -183,6 +183,7 @@ module DataCycleCore
     # ! when set to true regression with translated jsonb fields occurs
     # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
     config.i18n.fallbacks = false
+    config.action_view.form_with_generates_remote_forms = true
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|

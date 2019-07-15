@@ -1,0 +1,14 @@
+# Monit configuration for Delayed::Job
+# Service name: delayed_job_<%= fetch(:application) %>
+#
+<% 2.times do |num| %>
+check file delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
+  with path "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
+  if size = 0 then
+  exec "/bin/rm <%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
+
+check process delayed_job_<%= fetch(:application) %>_<%= num %>
+  with pidfile "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
+  start program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=mailers:1 --pool=*:1 start'"
+  stop program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=mailers:1 --pool=*:1 stop'"
+<% end %>

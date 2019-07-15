@@ -3,13 +3,18 @@
 module DataCycleCore
   class ApplicationController < ActionController::Base
     include DataCycleCore::ParamsResolver
+    include DataCycleCore::ErrorHandler
     protect_from_forgery with: :exception
     before_action :load_watch_lists
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
 
+    rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
+    rescue_from CanCan::AccessDenied, with: :unauthorized
+    rescue_from ActionController::BadRequest, with: :bad_request
+
     def after_sign_in_path_for(_resource)
-      session['user_return_to'] || current_user.can?(:index, :backend) ? root_path : info_path
+      session['user_return_to'] || authorized_root_path
     end
 
     def load_watch_lists
@@ -56,18 +61,6 @@ module DataCycleCore
       head :no_content
     end
 
-    rescue_from CanCan::AccessDenied do |exception|
-      respond_to do |format|
-        format.json { head :forbidden, content_type: 'text/html' }
-        format.js   { head :forbidden, content_type: 'text/html' }
-        if current_user&.is_rank?(0)
-          format.html { redirect_back fallback_location: info_path, alert: exception.message }
-        else
-          format.html { redirect_back fallback_location: root_path, alert: exception.message }
-        end
-      end
-    end
-
     private
 
     def better_errors_hack
@@ -80,6 +73,14 @@ module DataCycleCore
 
     def reload_params
       params.permit(:id, :table, :datestring)
+    end
+
+    def authorized_root_path
+      if can?(:index, :backend)
+        root_path
+      else
+        info_path
+      end
     end
   end
 end

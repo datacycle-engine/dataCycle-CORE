@@ -2,13 +2,13 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' }
+                     controllers: { passwords: 'data_cycle_core/passwords', omniauth_callbacks: 'data_cycle_core/omniauth_callbacks', sessions: 'data_cycle_core/sessions' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
   end
 
-  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'creative_works'].freeze
+  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('/users/sign_in')
@@ -182,6 +182,28 @@ DataCycleCore::Engine.routes.draw do
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
           end
+        end
+      end
+    end
+  end
+
+  defaults format: :xml do
+    namespace :xml do
+      namespace :v1 do
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+
+          # probably kill later
+          resources :classification_trees, only: [:index, :show] do
+            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          end
+
+          resources :collections, only: [:index, :show], controller: :watch_lists
         end
       end
     end

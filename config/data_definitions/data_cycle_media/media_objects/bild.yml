@@ -86,6 +86,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
         # :versions:
         #   :thumb_large:
         #     - remove_animation
@@ -221,7 +223,7 @@
         :name: additional_media_properties
       :additional_image_properties:
         :type: mixin
-        :name: additional_image_properties        
+        :name: additional_image_properties
       :tags:
         :type: mixin
         :name: tags
