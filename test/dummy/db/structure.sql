@@ -450,7 +450,8 @@ CREATE TABLE public.things (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying
+    content_type character varying,
+    representation_of_id uuid
 );
 
 
@@ -730,7 +731,8 @@ CREATE TABLE public.thing_histories (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying
+    content_type character varying,
+    representation_of_id uuid
 );
 
 
@@ -1513,6 +1515,13 @@ CREATE UNIQUE INDEX index_thing_histories_on_id ON public.thing_histories USING 
 
 
 --
+-- Name: index_thing_histories_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histories USING btree (representation_of_id);
+
+
+--
 -- Name: index_thing_histories_on_thing_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1608,6 +1617,13 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON publi
 --
 
 CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
+
+
+--
+-- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_representation_of_id ON public.things USING btree (representation_of_id);
 
 
 --
@@ -1911,7 +1927,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190531093158'),
 ('20190612084614'),
 ('20190613092317'),
+<<<<<<< HEAD
 ('20190704114636'),
 ('20190712074413');
+=======
+('20190703082641');
+>>>>>>> representation_of
 
 
