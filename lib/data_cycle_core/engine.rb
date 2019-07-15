@@ -183,6 +183,7 @@ module DataCycleCore
     # ! when set to true regression with translated jsonb fields occurs
     # !!!!!!!!!!!!!!!! do not switch on !!!!!!!!!!!!!!!!
     config.i18n.fallbacks = false
+    config.action_view.form_with_generates_remote_forms = true
 
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
