@@ -1,0 +1,129 @@
+<% if content.present? %>
+
+    <div class="detail-content imageobject">
+
+        <div class="row align-center">
+
+            <div class="image">
+                <% if content.try(:thumbnail_url).present? %>
+
+                    <div class="image-container stripes">
+                        <%= render_attribute_viewer key: 'thumbnail_url',
+                                                    definition: content.schema['properties']['thumbnail_url'],
+                                                    value: content.thumbnail_url,
+                                                    parameters: { options: {} },
+                                                    content: content %>
+                    </div>
+                <% end %>
+                <div class="image-data">
+                    <h5>Details</h5>
+                    <dl>
+                        <% ['alternative_headline', 'caption', 'description'].each do |property_name| %>
+                            <% next if content.try(property_name.to_sym).blank? %>
+                            <dd>
+                                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.schema['properties'][property_name],
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: { options: {} },
+                                                            content: content %>
+                            </dd>
+                        <% end %>
+
+                        <% ['content_location', 'comment', 'source', 'image_id', 'visibility'].each do |property_name| %>
+                            <% next if content.try(property_name.to_sym).blank? %>
+                            <dd>
+                                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.schema['properties'][property_name],
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: {options: {}},
+                                                            content: content %>
+                            </dd>
+                        <% end %>
+
+                        <dt>
+                            <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+                        </dt>
+
+                        <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+                            <% next if content.try(property_name.to_sym).blank? %>
+                            <dd>
+                                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.schema['properties'][property_name],
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: {options: {}},
+                                                            content: content %>
+                            </dd>
+                        <% end %>
+
+                        <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
+                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
+                            <dd>
+                                <%= render_attribute_viewer key: 'restrictions',
+                                                            definition: content.schema['properties']['restrictions'],
+                                                            value: content.restrictions,
+                                                            parameters: { options: {hide_label: true}},
+                                                            content: content %>
+                            </dd>
+                        <% end %>
+
+                        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
+                        <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
+                            <strong>Format:</strong> <%= content.file_format %>
+                        </dd>
+
+                        <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+                            <% next if content.try(property_name.to_sym).blank? %>
+                            <dd>
+                                <%= render_attribute_viewer key: property_name,
+                                                            definition: content.schema['properties'][property_name],
+                                                            value: content.try(property_name.to_sym),
+                                                            parameters: {options: {}},
+                                                            content: content %>
+                            </dd>
+                        <% end %>
+
+                        <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Bild-URLs</dt>
+                        <dd>
+
+                            <% if content.try(:content_url).present? %>
+
+                                <a class="button button-small" href="<%= content.content_url %>" target="_blank">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    &ensp;
+                                    <%= t('details.bild.download_original', locale: DataCycleCore.ui_language) %>
+                                </a>
+                                <br />
+                            <% end %>
+
+                            <% if content.try(:thumbnail_url).present? %>
+
+                                <a class="button button-small" href="<%= content.thumbnail_url %>" target="_blank">
+                                    <i class="fa fa-download" aria-hidden="true"></i>
+                                    &ensp;
+                                    <%= t('details.bild.download_thumbnail', locale: DataCycleCore.ui_language) %>
+                                </a>
+                                <br />
+
+                            <% end %>
+
+                            <% if content.try(:url).present? %>
+
+                                <a class="button button-small" href="<%= content.url %>" target="_blank">
+                                    <i class="fa fa-external-link" aria-hidden="true"></i>
+
+                                    <%= t('details.bild.open_url', locale: DataCycleCore.ui_language) %>
+                                </a>
+                            <% end %>
+
+                        </dd>
+                    </dl>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+<% end %>
