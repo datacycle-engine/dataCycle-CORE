@@ -144,7 +144,7 @@ module DataCycleCore
       def save_values(key, value, properties)
         case properties['storage_location']
         when 'column'
-          send("#{key}=", normalize_string(value, properties))
+          send("#{key}=", normalize_value(value, properties))
         when 'value'
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
@@ -152,15 +152,23 @@ module DataCycleCore
         end
       end
 
-      def normalize_string(value, properties)
-        return DataCycleCore::MasterData::DataConverter.string_to_string(value) if properties['type'] == 'string'
-        value
+      def normalize_value(value, properties)
+        norm_value = value
+        if properties.key?('default_value') && value.blank?
+          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value'])
+            norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
+          else
+            norm_value = properties['default_value']
+          end
+        end
+        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
+        norm_value
       end
 
       def save_to_jsonb(key, data, properties, location)
         save_data = data.deep_dup
-        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash)
-        save_data = convert_to_string(properties['type'], save_data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
+        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object'
+        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
         # set to json field (could be empty)
         if send(location.to_s).blank?
@@ -172,14 +180,13 @@ module DataCycleCore
 
       def set_data_tree_hash(data, data_definitions, location)
         data_hash = {}
-        return if data.blank?
         data_definitions.each_key do |key|
           if data_definitions[key]['type'] == 'object'
-            data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
+            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location)
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-            data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key])
+            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]))
           elsif data_definitions[key]['storage_location'] == 'column'
-            send("#{key}=", normalize_string(data[key], data_definitions[key]))
+            send("#{key}=", normalize_value(data&.dig(key), data_definitions[key]))
           end
         end
         data_hash
