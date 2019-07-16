@@ -35,7 +35,7 @@ module DataCycleCore
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
-    # remove all files older than 1 hour
+    # remove all files older than 2 hours
     def cleanup_files(dir)
       max_age = 2
       pattern = '*.zip'
