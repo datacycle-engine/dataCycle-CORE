@@ -179,12 +179,6 @@ module DataCycleCore
       def self.validate_property
         Dry::Validation.Schema do
           configure do
-            def valid_classification?(_value)
-              # TODO: check if required ? (external categories can not be found before import)
-              # ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
-              true
-            end
-
             def valid_linked_language?(value)
               value.in?(['all', 'same'])
             end
@@ -216,8 +210,6 @@ module DataCycleCore
                     embedded_object: "type must be 'embedded'. either define a stored_filter, or a template_name",
                     linked_object: "type must be 'linked'. either define a stored_filter, or a template_name",
                     asset_relation: "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'",
-                    classification_relation: "type must be 'classification' and classification_tree one of: #{DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte']}",
-                    valid_classification?: 'specified default_value could not be found in classification_aliases',
                     instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
                     valid_compute_config?: 'module and method combination not found.',
                     valid_linked_language?: 'must be all or same.',
@@ -241,6 +233,7 @@ module DataCycleCore
             str? & included_in?(['column', 'value', 'translated_value'])
           end
           optional(:validations) { hash? }
+          optional(:default_value) { str? } # the default_value is set if no value is given. for classifications. for plain values supports also evaluated code in double curly braces {{...}}
           optional(:ui) { hash? }
           optional(:api) { hash? }
           optional(:xml) { hash? }
@@ -294,7 +287,6 @@ module DataCycleCore
 
           # for type classification
           optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
-          optional(:default_value) { str? & valid_classification? } # the default_value is set if no value is given
           optional(:not_translated) { bool? } # true -> classification only exists in german
           optional(:external) { bool? } # true -> only imported can not be manually edited
           optional(:global) { bool? } # true -> edit is allowed for imported data
