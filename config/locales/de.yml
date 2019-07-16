@@ -222,6 +222,7 @@ de:
     tile: Kachel
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    filter: Erweiterte Dashboard-Filter
 
   actions:
     new: erstellen
