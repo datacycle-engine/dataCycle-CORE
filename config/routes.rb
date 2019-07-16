@@ -80,6 +80,7 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
+    delete :bulk_delete, on: :member
   end
 
   resources :classifications, only: [:index, :create] do

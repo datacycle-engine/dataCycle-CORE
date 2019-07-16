@@ -180,6 +180,34 @@ module DataCycleCore
       end
     end
 
+    def bulk_delete
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize!(:bulk_delete, @watch_list)
+      things_external = @watch_list.things.any? { |t| t.external_source_id.present? }
+
+      if things_external
+        flash[:error] = I18n.t(:external_items, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+        render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+      end
+
+      unless can?(:bulk_delete, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
+        flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
+        render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+      end
+
+      delete_items = @watch_list.things.joins(:translations).where(external_source_id: nil)
+      delete_count = delete_items.count
+
+      ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}_#{current_user.id}", progress: 0, items: delete_count
+      delete_items.find_each.with_index do |content, index|
+        content.destroy_content
+        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}_#{current_user.id}", progress: index + 1, items: delete_count
+      end
+
+      flash[:success] = I18n.t :bulk_deleted, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+      render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+    end
+
     def validate
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       @shared_properties = @watch_list.things.shared_ordered_properties(current_user)

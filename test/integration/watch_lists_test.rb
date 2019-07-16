@@ -114,6 +114,15 @@ module DataCycleCore
       assert_equal json_data.dig('collection', 'items').size, 0
     end
 
+    test 'bulk delete all watch_list items' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+
+      delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+      assert_response :success
+
+      assert_equal(0, @watch_list.things.count)
+    end
+
     test 'bulk edit all watch_list items' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
       shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).keys
