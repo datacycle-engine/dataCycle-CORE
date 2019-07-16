@@ -275,7 +275,7 @@ module DataCycleCore
               external_source_id: utility_object.external_source.id,
               name: classification_data[:tree_name]
             ) do |item|
-              item.visibility = ['show', 'edit', 'api', 'tile']
+              item.visibility = DataCycleCore.classification_visibilities.except('show_more')
             end
 
             DataCycleCore::ClassificationTree.create!(

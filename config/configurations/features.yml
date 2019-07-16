@@ -41,7 +41,7 @@
   :external_source: true
   :external_system: false
   :creator: true
-  :classification_tree_ids: all
+  :classification_tree_ids: true
   :date_range: all
   :validity_period: true
 
