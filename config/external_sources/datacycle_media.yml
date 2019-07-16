@@ -2,7 +2,8 @@
 name: DataCycle - Media
 credentials:
   storage_type: local
-  directory: ./test/fixtures/files
+#  directory: ./test/fixtures/files
+  directory: ./tmp/import_files/files
 #  directory: /home/pixelpoint/data_cycle_core/media
   delete: false
 config:
@@ -19,6 +20,7 @@ config:
       source_type: images
       asset_type: DataCycleCore::Image
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      tags_from_folders: true
       transformations:
         asset:
           template: Bild

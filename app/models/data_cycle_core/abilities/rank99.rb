@@ -13,6 +13,10 @@ module DataCycleCore
         can :show_admin_panel, DataCycleCore::Thing
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
+        can :download, DataCycleCore::Thing do |content|
+          DataCycleCore::Feature::Download.allowed?(content)
+        end
+        can :download, DataCycleCore::WatchList
       end
     end
   end

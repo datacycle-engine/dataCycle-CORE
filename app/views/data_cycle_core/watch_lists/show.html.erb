@@ -80,6 +80,10 @@
                 </div>
             <% end %>
 
+            <%= link_to download_watch_list_path(@watch_list), class:'button-prime small download-content-link', data: { tooltip: true }, title: t('actions.download_asset', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+                <i class="fa fa-download" aria-hidden="true"></i>
+            <% end if can? :download, @watch_list %>
+
             <div class="edit">
               <% bulk_editable = @watch_list.things.all? { |t| can?(:edit, t) } %>
               <%= button_to bulk_edit_watch_list_path(@watch_list),
