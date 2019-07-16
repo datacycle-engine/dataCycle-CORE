@@ -40,9 +40,9 @@ module DataCycleCore
 
     delegate :can?, :cannot?, to: :ability
 
-    after_create_commit :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, unless: :skip_callbacks
-    after_destroy_commit :execute_delete_webhooks, unless: :skip_callbacks
+    after_create :execute_create_webhooks, unless: :skip_callbacks
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & ['access_token', 'email', 'encrypted_password', 'external', 'family_name', 'given_name', 'name', 'notification_frequency', 'provider', 'role_id']).present? }
+    after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     def recoverable?
       !(external? || is_rank?(0))
@@ -87,6 +87,7 @@ module DataCycleCore
       new_user.provider = auth.provider
       new_user.uid = auth.uid
       new_user.external = true
+      new_user.skip_callbacks = true
       new_user.save
       new_user
     end
@@ -106,7 +107,6 @@ module DataCycleCore
     end
 
     def execute_update_webhooks
-      binding.pry
       Webhook::Update.execute_all(self)
     end
 

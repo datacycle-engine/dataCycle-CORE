@@ -5,15 +5,15 @@ module DataCycleCore
     module FeratelIdentityServer
       module Processing
         def self.process_user(utility_object, raw_data, config)
-          valid = DataCycleCore::Generic::Common::ImportFunctions.process_step(
+          content = DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::FeratelIdentityServer::Transformations.user_to_organization(utility_object),
             default: { template: 'Organization' },
             config: config
           )
-          binding.pry
-          valid
+          content.update(representation_of: DataCycleCore::User.find_by(provider: 'openid_connect', uid: content.external_key)) if content.external_key.present?
+          content
         end
       end
     end

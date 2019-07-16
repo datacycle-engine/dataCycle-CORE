@@ -37,7 +37,7 @@ module DataCycleCore
 
           api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
           strategy = api_strategy&.constantize&.new(external_source, nil, nil, nil)
-          strategy.update Array(@response)
+          strategy.update [@response]
         end
 
         def perform
