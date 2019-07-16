@@ -19,14 +19,11 @@ describe DataCycleCore::MasterData::Differs::Geographic do
     end
 
     it 'properly diffs equal geographic points' do
-      a = RGeo::Geographic.simple_mercator_factory.point(10, 20)
-      a_string = a.to_s
-      [
-        [a, a],
-        [a_string, a],
-        [a, a_string]
-      ].each do |item|
-        assert_nil(subject.new(item[0], item[1]).diff_hash)
+      a_val = RGeo::Geographic.simple_mercator_factory.point(10, 20)
+      a_string = a_val.to_s
+      [[a_val, a_val], [a_string, a_val], [a_val, a_string]].each do |a, b|
+        assert_nil(subject.new(a, b).diff_hash)
+        assert_nil(subject.new(a, b, template_hash).diff_hash)
       end
     end
 
