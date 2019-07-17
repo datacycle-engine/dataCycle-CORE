@@ -19,7 +19,8 @@ DataCycleCore::Engine.routes.draw do
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    file: /.*/
   }
 
   get '/schema', to: 'schema#index'
@@ -80,6 +81,7 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
+    delete :bulk_delete, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
