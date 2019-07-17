@@ -106,15 +106,8 @@ module DataCycleCore
       def watch_list_id(id = nil)
         return self if id.blank?
 
-        sub_query = Arel::SelectManager.new
-          .project(thing[:id])
-          .from(thing)
-          .join(watch_list_data_hash)
-          .on(thing[:id].eq(watch_list_data_hash[:hashable_id]))
-          .where(watch_list_data_hash[:watch_list_id].eq(id))
-
         reflect(
-          @query.where(thing[:id].in(sub_query))
+          @query.where(watch_list_data_hash.where(watch_list_data_hash[:hashable_id].eq(thing[:id]).and(watch_list_data_hash[:watch_list_id].eq(id))).exists)
         )
       end
 
@@ -183,7 +176,9 @@ module DataCycleCore
 
         reflect(
           DataCycleCore::Thing.joins(:searches)
-            .where(searches: { id: @query.select('DISTINCT ON (things.id) searches.id').except(:order, :limit, :offset) })
+            .where(searches: {
+              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, 'things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : '')))
+            })
             .order(order_string)
         )
       end

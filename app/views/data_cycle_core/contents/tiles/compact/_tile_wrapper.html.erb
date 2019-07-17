@@ -11,7 +11,7 @@
     object.hard_content_warnings? ? 'hard-warnings' : nil
   ].compact.join(' ') %>" data-id="<%= local_assigns[:object_id] || object.id %>">
     <div class="content-link">
-      <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+      <%= hidden_field_tag key, object.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" if local_assigns[:edit_buttons] %>
       <%= render 'data_cycle_core/contents/viewers/shared/buttons', content: object, definition: definition if local_assigns[:tile_links] %>
 
       <%= yield %>

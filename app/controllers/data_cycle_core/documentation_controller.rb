@@ -2,6 +2,9 @@
 
 module DataCycleCore
   class DocumentationController < ApplicationController
+    include DataCycleCore::ErrorHandler
+    rescue_from ActionController::UnknownFormat, with: :not_acceptable
+
     def show
       @markdown = render_markdown
     end

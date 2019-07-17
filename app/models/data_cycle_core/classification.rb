@@ -7,9 +7,9 @@ module DataCycleCore
     acts_as_paranoid
 
     has_many :classification_contents, dependent: :destroy
-    has_many :things, through: :classification_contents, source: 'content_data', source_type: 'DataCycleCore::Thing'
+    has_many :things, through: :classification_contents, source: 'content_data'
     has_many :classification_content_histories, class_name: 'DataCycleCore::ClassificationContent::History'
-    has_many :thing_histories, through: :classification_content_histories, source: 'content_data_history', source_type: 'DataCycleCore::Thing::History'
+    has_many :thing_histories, through: :classification_content_histories, source: 'content_data_history'
 
     has_many :classification_groups, dependent: :destroy
     has_many :classification_aliases, through: :classification_groups
