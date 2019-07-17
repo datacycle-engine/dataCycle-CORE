@@ -186,9 +186,8 @@ module DataCycleCore
           comment: 'hahaha, i hacked the link'
         }
       }, headers: {
-        referer: thing_path(@content)
+        referer: thing_url(@content)
       }
-
       assert_redirected_to thing_path(@content)
       assert_equal I18n.t('unauthorized.manage.all', locale: DataCycleCore.ui_language), flash[:alert]
       assert_nil @data_link.reload.comment

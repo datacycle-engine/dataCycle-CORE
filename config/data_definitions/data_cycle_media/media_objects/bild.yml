@@ -86,6 +86,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
         # :versions:
         #   :thumb_large:
         #     - remove_animation
@@ -179,6 +181,7 @@
              :class: daterange
          :show:
            :type: date
+        :default_value: '{{Time.zone.now.beginning_of_day}}'           
       :author:
         :label: Fotograf
         :type: linked
@@ -221,7 +224,7 @@
         :name: additional_media_properties
       :additional_image_properties:
         :type: mixin
-        :name: additional_image_properties        
+        :name: additional_image_properties
       :tags:
         :type: mixin
         :name: tags

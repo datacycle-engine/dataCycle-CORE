@@ -95,12 +95,4 @@ namespace :review do
       print_message 'dev database: upload complete'
     end
   end
-
-  private
-
-  def print_message(msg)
-    puts ''
-    puts "############### #{msg}"
-    puts ''
-  end
 end

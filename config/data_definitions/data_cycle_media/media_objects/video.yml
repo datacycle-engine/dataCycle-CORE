@@ -81,6 +81,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       :width:
         :label: Breite
         :storage_location: value
@@ -204,7 +206,7 @@
         :name: additional_media_properties
       :additional_video_properties:
         :type: mixin
-        :name: additional_video_properties        
+        :name: additional_video_properties
       :tags:
         :type: mixin
         :name: tags

@@ -36,7 +36,6 @@ module DataCycleCore
             req.params['page[size]'] = @per
             req.params['page[cursor]'] = page
           end
-
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
         end

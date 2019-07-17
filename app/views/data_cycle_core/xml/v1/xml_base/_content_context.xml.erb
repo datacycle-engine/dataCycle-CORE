@@ -1,0 +1,3 @@
+<schema:context><%='http://schema.org'%></schema:context>
+<schema:type><%=content.schema.dig('xml', 'type') || content.try(:schema_type) || content.class.name.demodulize%></schema:type>
+<schema:contentType><%=content.template_name%></schema:contentType>

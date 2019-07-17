@@ -5,6 +5,7 @@ SET client_encoding = 'UTF8';
 SET standard_conforming_strings = on;
 SELECT pg_catalog.set_config('search_path', '', false);
 SET check_function_bodies = false;
+SET xmloption = content;
 SET client_min_messages = warning;
 SET row_security = off;
 
@@ -1907,6 +1908,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190520124223'),
 ('20190531093158'),
 ('20190612084614'),
-('20190613092317');
+('20190613092317'),
+('20190716081614');
 
 

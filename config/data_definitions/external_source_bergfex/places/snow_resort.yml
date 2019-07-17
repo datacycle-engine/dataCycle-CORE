@@ -191,6 +191,8 @@
         :storage_location: translated_value
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       :condition_avalanche_warning_level:
         :label: "Lawinenwarnlevel"
         :type: classification

@@ -61,6 +61,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:

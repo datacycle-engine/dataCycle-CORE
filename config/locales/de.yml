@@ -222,6 +222,7 @@ de:
     tile: Kachel
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    filter: Erweiterte Dashboard-Filter
 
   actions:
     new: erstellen
@@ -850,3 +851,7 @@ de:
       extension_white_list_error: Ungültiger Dateityp
   exceptions:
     action_controller/invalid_authenticity_token: Ungültiges oder fehlendes CSRF-Token, bitte erneut anmelden
+
+  details:
+    bild:
+      open_url: URL öffnen

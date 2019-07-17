@@ -1,4 +1,4 @@
-- Inhaltstypen:
+- Inhaltstypen | filter:
   - $$Text:
     - $$Biografie
     - $$Interview
@@ -13,6 +13,6 @@
 # container
   - $$Container
 
-- Rezept-Gänge | show, edit, tile, api:
+- Rezept-Gänge | all:
 
-- Rezept-Kategorien | show, edit, tile, api:
+- Rezept-Kategorien | all:

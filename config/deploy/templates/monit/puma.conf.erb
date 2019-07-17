@@ -1,0 +1,7 @@
+# Monit configuration for Puma
+# Service name: puma-<%= fetch(:application) %>
+#
+check process puma_<%= fetch(:application) %>
+  with pidfile "<%= File.join(fetch(:deploy_to), '/shared/tmp/pids/puma.pid') %>"
+  start program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec puma -C <%= File.join(fetch(:deploy_to), '/shared/puma.rb') %> --daemon'"
+  stop program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec pumactl -S <%= File.join(fetch(:deploy_to), '/shared/tmp/pids/puma.state') %> -F <%= File.join(fetch(:deploy_to), '/shared/puma.rb') %> stop'"

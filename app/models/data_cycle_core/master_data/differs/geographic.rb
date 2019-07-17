@@ -8,9 +8,9 @@ module DataCycleCore
           1e-6
         end
 
-        def diff(a, b, _template)
-          geo_a = DataCycleCore::MasterData::DataConverter.string_to_geographic(a)
-          geo_b = DataCycleCore::MasterData::DataConverter.string_to_geographic(b)
+        def diff(a, b, template)
+          geo_a = DataCycleCore::MasterData::DataConverter.string_to_geographic(a || load_value(template&.dig('default_value')))
+          geo_b = DataCycleCore::MasterData::DataConverter.string_to_geographic(b || load_value(template&.dig('default_value')))
           @diff_hash = generic_diff(geo_a, geo_b, method(:geo_comp).to_proc)
         end
 
