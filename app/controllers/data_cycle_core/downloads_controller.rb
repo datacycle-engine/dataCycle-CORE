@@ -17,7 +17,6 @@ module DataCycleCore
 
     def watch_lists
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      authorize! :download, @watch_list
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
@@ -38,9 +37,9 @@ module DataCycleCore
       download_zip(@stored_filter, download_items)
     end
 
-    def current_ability
-      DataCycleCore::Ability.new(current_user, session)
-    end
+    # def current_ability
+    #   DataCycleCore::Ability.new(current_user, session)
+    # end
 
     private
 
