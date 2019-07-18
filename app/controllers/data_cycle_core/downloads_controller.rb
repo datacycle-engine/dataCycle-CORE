@@ -6,6 +6,8 @@ module DataCycleCore
     include DataCycleCore::ErrorHandler
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
+    before_action :authenticate
+
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
     def things
@@ -15,6 +17,7 @@ module DataCycleCore
 
     def watch_lists
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download, @watch_list
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
@@ -25,7 +28,7 @@ module DataCycleCore
 
     def stored_filters
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      # raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
+      raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
       items = @stored_filter.apply
 
       download_items = items.to_a.select do |thing|
@@ -33,6 +36,21 @@ module DataCycleCore
       end
 
       download_zip(@stored_filter, download_items)
+    end
+
+    def current_ability
+      DataCycleCore::Ability.new(current_user, session)
+    end
+
+    private
+
+    def authenticate
+      return if current_user
+
+      user = User.find_by(access_token: params[:token]) if params[:token].present?
+
+      raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
+      sign_in user, store: false
     end
   end
 end
