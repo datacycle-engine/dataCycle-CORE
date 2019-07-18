@@ -205,7 +205,7 @@ module DataCycleCore
       delete_count = delete_items.count
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
-      delete_items.find_each.with_index do |_content, index|
+      delete_items.find_each.with_index do |content, index|
         content.destroy_content
         ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
       end
