@@ -33,6 +33,15 @@ module DataCycleCore
       end
     end
 
+    def included_linked?(name, linked_list)
+      return if linked_list.blank?
+      linked_list.map { |item| item.first == name }.inject(&:|)
+    end
+
+    def subtree_for(name, linked_list)
+      linked_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    end
+
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
       "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
     end
