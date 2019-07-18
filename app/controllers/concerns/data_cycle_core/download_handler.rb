@@ -27,7 +27,11 @@ module DataCycleCore
           items.each do |content|
             mime_type = content.asset.file.content_type
             file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
-            zipfile.add("#{content.title.blank? ? File.basename(content.asset.file.path) : content.title.parameterize(separator: '_')}#{file_extension}", content.asset.file.path)
+            file_name = (content.title.blank? ? File.basename(content.asset.file.path) : content.title.parameterize(separator: '_')).to_s
+
+            file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
+
+            zipfile.add("#{file_name}#{file_extension}", content.asset.file.path)
           end
         end
       end
