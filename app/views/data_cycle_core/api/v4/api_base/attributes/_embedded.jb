@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+key_new = definition.dig('api', 'name') || key.camelize(:lower)
+# json.set! key_new do
+
+if content.translations.size > 1 && @include_parameters.include?('translations')
+  content.translations.each do |translation|
+    I18n.with_locale(translation.locale) do
+      json[key_new] = { translation.locale => [] }
+      translated_objects = content.send(key)
+      translated_objects.presence&.includes(:translations, :classifications)&.each do |translated_object|
+        json[key_new][translation.locale].push render 'content_details', content: translated_object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: object.combined_property_names })
+      end
+    end
+  end
+else
+  json[key_new] = []
+  value.presence&.includes(:translations, :classifications)&.each do |object|
+    I18n.with_locale(object.first_available_locale) do
+      json[key_new].push render 'content_details', content: object, options: options.merge({ header_type: :embedded_to_linked, combined_attributes: object.combined_property_names }), context: true
+    end
+  end
+end
+
+json

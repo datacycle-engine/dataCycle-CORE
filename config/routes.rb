@@ -184,6 +184,11 @@ DataCycleCore::Engine.routes.draw do
           end
         end
       end
+      namespace :v4 do
+        scope path: '(/:api_subversion)' do
+          resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+        end
+      end
     end
   end
 
