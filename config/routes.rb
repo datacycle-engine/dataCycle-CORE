@@ -45,6 +45,7 @@ DataCycleCore::Engine.routes.draw do
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
+      get :download, on: :member
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -68,6 +69,12 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
+  resource :downloads, only: [] do
+    get '/things(/:id)', on: :member, action: 'things'
+    get '/stored_filters(/:id)', on: :member, action: 'stored_filters'
+    get '/watch_lists(/:id)', on: :member, action: 'watch_lists'
+  end
+
   resources :data_links do
     post :send_mail, on: :member
     get :download, on: :member
@@ -80,6 +87,7 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
+    get :download, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
