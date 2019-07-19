@@ -51,6 +51,8 @@ module DataCycleCore
     has_many :thing_external_systems, dependent: :destroy
     has_many :external_systems, through: :thing_external_systems
 
+    has_many :events, as: :eventable, dependent: :destroy
+
     def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|
         "'#{id}'"
@@ -121,6 +123,10 @@ module DataCycleCore
 
     def cache_key
       [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
+    end
+
+    def locked?
+      lock.present?
     end
   end
 end

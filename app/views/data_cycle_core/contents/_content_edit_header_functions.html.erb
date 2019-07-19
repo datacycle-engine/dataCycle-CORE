@@ -50,12 +50,17 @@
               tooltip: true
             }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
 
-          <%= button_tag tag.i(class: 'fa fa-check', aria_hidden: true),
-            class: 'button-prime submit submit-edit-form',
+          <%= button_tag tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') + tag.i(class: 'fa fa-check', aria_hidden: true),
+            class: 'button-prime submit submit-edit-form content-lock',
             title: t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
               tooltip: true,
-              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true),
+              lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+              lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
+              locked_until: content&.locked_until&.to_i,
+              lock_renew_path: renew_content_lock_thing_path(content),
+              lock_content_id: content&.id
             } %>
         </li>
       </ul>

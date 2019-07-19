@@ -27,6 +27,8 @@ module DataCycleCore
     has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
     has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
+    has_many :events, dependent: :destroy
+
     before_create :set_default_role
 
     delegate :can?, :cannot?, to: :ability

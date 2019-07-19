@@ -34,7 +34,17 @@
         <i class="fa fa-location-arrow" aria-hidden="true"></i>
     <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-    <%= link_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+    <% content_locked = content.try(:lock).present? && content.lock.user != current_user %>
+    <%= button_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale),
+      disabled: content_locked,
+      method: :get,
+      class:'button-prime small edit-content-link',
+      data: {
+        tooltip: true,
+        allow_html: true,
+        locked_until: content&.lock&.updated_at&.utc&.+(30.minutes)&.to_i
+      },
+      title: t('actions.edit', locale: DataCycleCore.ui_language) + (content_locked ? "<br><br><i>#{t('common.content_locked', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: DataCycleCore.ui_language)}</i>" : '') do %>
         <i class="fa fa-pencil" aria-hidden="true"></i>
     <% end if can? :edit, content %>
 
@@ -45,7 +55,7 @@
                     tooltip: true,
                     confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
                 },
-                title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+                title: t('actions.delete', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
         <i class="fa fa-trash-o" aria-hidden="true"></i>
     <% end if can? :destroy, content %>
 </div>

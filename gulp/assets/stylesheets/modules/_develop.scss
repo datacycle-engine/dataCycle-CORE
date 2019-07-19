@@ -2159,3 +2159,29 @@ button.button-prime.small.bulk-delete-button {
     }
   }
 }
+
+.pie-timer {
+  position: absolute;
+  top: 0;
+  left: 0;
+  height: 100%;
+  width: 100%;
+  z-index: 1;
+  background-color: inherit;
+  border-radius: 50%;
+  background-image: linear-gradient(to right, transparent 50%, $alert-color 0);
+
+  .pie-filler {
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 50%;
+    height: 100%;
+    border-radius: 0 100% 100% 0 / 50%;
+    background-color: inherit;
+    transform-origin: left;
+    &.greater180 {
+      background-color: $alert-color;
+    }
+  }
+}

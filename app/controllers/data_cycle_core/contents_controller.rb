@@ -5,6 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
+    include ActionView::Helpers::DateHelper
 
     DataCycleCore.features
       .select { |_, v| !v.dig(:only_config) == true }
