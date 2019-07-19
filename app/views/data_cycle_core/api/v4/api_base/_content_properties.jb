@@ -5,9 +5,8 @@ unless content.schema.nil?
   context ||= false
 
   json.merge! render 'content_context', content: content if context
-
   ordered_validation_properties(validation: content.schema).each do |key, prop|
-    # next if prop.dig('api', 'disabled')
+    next if prop.dig('api', 'disabled') | prop.dig('type') == 'linked' # ignore linked disabled
 
     value = content.try(key.to_sym)
     next if value.blank?
