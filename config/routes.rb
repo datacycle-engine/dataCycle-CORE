@@ -22,7 +22,8 @@ DataCycleCore::Engine.routes.draw do
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
   }
 
-  get '/schema', to: 'schema#index'
+  resources :schema, controller: 'schema', only: [:index, :show]
+  # get '/schema', to: 'schema#index'
 
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'

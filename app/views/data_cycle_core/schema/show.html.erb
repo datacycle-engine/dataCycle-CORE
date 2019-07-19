@@ -1,0 +1,73 @@
+<% breadcrumb :schema, autoroot: false %>
+
+<main>
+  <h1 typeof="rdfs:Class" resource="<%= schema_url(@schema.dig('api', 'type')) %>">
+    <%= @schema.dig('api', 'type') %>
+  </h1>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Property</th>
+        <th>Expected Type</th>
+        <th>Description</th>
+      </tr>
+    </thead>
+
+    <thead>
+      <th colspan="3">
+        Properties from <a href="<%= schema_path(@schema.dig('api', 'type')) %>"><%= @schema.dig('api', 'type') %></a>
+      </th>
+    </thead>
+
+    <tbody>
+      <%
+        range_resolver = lambda do |definition|
+          if definition.dig('api', 'type')
+            definition.dig('api', 'type')
+          elsif definition['type'] == 'embedded'
+            DataCycleCore::Thing.where(template: true, template_name: definition['template_name']).first.schema.then { |schema|
+              [
+                schema.dig('api', 'type'),
+                schema['schema_type']
+              ]
+            }.reject(&:blank?).first.then { |type| schema_path(type) }
+          else
+            case definition.dig('compute', 'type') || definition['type']
+            when 'string'
+              '//schema.org/Text'
+            when 'datetime'
+              '//schema.org/DateTime'
+            when 'number'
+              '//schema.org/Number'
+            when 'linked'
+              '//schema.org/Thing'
+            else
+              definition['type']
+            end
+          end
+        end
+      %>
+      <% @schema['properties']
+          .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
+          .reject { |_, definition| definition.dig('api', 'disabled') }
+          .map { |key, definition|
+            {
+              domain: @schema.dig('api', 'type') || @schema['schema_type'],
+              label: key.camelize(:lower),
+              range: range_resolver.call(definition),
+              comment: nil
+            }
+          }.sort_by { |definition| [definition[:domain], definition[:label]] }
+          .each do |definition| %>
+        <tr>
+          <th><%= definition[:label] %></th>
+          <td>
+            <a href="<%= definition[:range] %>"><%= definition[:range].split('/').last %></a>
+          </td>
+          <td></td>
+        </tr>
+      <% end %>
+    </tbody>
+  </table>
+</main>

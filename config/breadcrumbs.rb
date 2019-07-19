@@ -120,5 +120,7 @@ end
 
 # Schema
 crumb :schema do
-  link t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language), '#', authorized: false
+  link t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language), schema_path, authorized: params[:id].present?
+
+  link params[:id], '#', authorized: false if params[:id].present?
 end
