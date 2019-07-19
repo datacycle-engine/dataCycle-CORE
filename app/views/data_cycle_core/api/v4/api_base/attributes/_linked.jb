@@ -18,7 +18,7 @@ if data.present?
       end
 
     else
-      render 'content_header', content: item, options: options.merge({ header_type: :linked })
+      render 'content_header', content: item, options: options.merge({ header_type: :compact })
     end
   end
 

@@ -9,10 +9,11 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 json = {}
 
 if options[:header_type] != :overlay
-  json.merge! render 'content_context', content: content
+  json.merge!(render('content_context', content: content)) if options[:header_type] == :full
   json['@id'] = send("api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url", @api_subversion, content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
-  json['identifier'] = content.id
-  json['url'] = send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
+  json['contentType'] = content.template_name
+  # json['identifier'] = content.id
+  # json['url'] = send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
 end
 
 json
