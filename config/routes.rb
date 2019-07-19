@@ -181,6 +181,8 @@ DataCycleCore::Engine.routes.draw do
           get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
+          get 'authorize/download_token', to: 'contents#download_token'
+
           resources :classification_trees, only: [:index, :show] do
             # get :classifications, on: :member
             get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'

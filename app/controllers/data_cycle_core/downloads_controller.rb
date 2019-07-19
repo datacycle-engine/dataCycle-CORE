@@ -47,9 +47,18 @@ module DataCycleCore
       return if current_user
 
       user = User.find_by(access_token: params[:token]) if params[:token].present?
+      if user
+        sign_in user, store: false
+        return
+      end
+
+      temp_token = Rails.cache.exist?("download_#{params[:download_token]}") if params[:download_token].present?
+      if temp_token
+        DataCycleCore::Download.remove_token(key: "download_#{params[:download_token]}")
+        return
+      end
 
       raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
-      sign_in user, store: false
     end
   end
 end
