@@ -1,8 +1,0 @@
-# frozen_string_literal: true
-
-{
-  '@context': 'http://schema.org',
-  'contentType': content.template_name,
-  'identifier': content.id,
-  'url': send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
-}
