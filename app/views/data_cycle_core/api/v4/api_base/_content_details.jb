@@ -11,8 +11,6 @@ json.merge! render 'content_header', content: content, options: options
 
 # json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 
-# for now support just one language
-json['inLanguage'] = content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale
 # json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 json.merge! render 'content_properties', content: content, options: options
 

@@ -3,6 +3,5 @@
 {
   '@context': 'http://schema.org',
   '@type': content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize,
-  'url': send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {}),
-  'identifier': content.id
+  'url': send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
 }
