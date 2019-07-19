@@ -74,10 +74,12 @@ class Validator {
         received: data => {
           if (!this.submitButton.prop('disabled')) this.disable();
           if (data.progress !== undefined) {
-            this.submitButton.find('.progress-value').text(data.progress + '/' + data.items);
-            this.submitButton
-              .find('.progress-bar > .progress-filled')
-              .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
+            let progress = Math.round((data.progress * 100) / data.items);
+            this.submitButton.find('.progress-value').text(progress + '%');
+            this.submitButton.find('.progress-bar > .progress-filled').css('width', 'calc(' + progress + '% - 1rem)');
+          }
+          if (data.redirect_path !== undefined) {
+            window.location.href = data.redirect_path;
           }
         }
       }
