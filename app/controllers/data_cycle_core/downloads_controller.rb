@@ -27,7 +27,6 @@ module DataCycleCore
 
     def stored_filters
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
       items = @stored_filter.apply
 
       download_items = items.to_a.select do |thing|
