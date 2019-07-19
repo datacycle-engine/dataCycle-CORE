@@ -21,45 +21,7 @@
     </thead>
 
     <tbody>
-      <%
-        range_resolver = lambda do |definition|
-          if definition.dig('api', 'type')
-            definition.dig('api', 'type')
-          elsif definition['type'] == 'embedded'
-            DataCycleCore::Thing.where(template: true, template_name: definition['template_name']).first.schema.then { |schema|
-              [
-                schema.dig('api', 'type'),
-                schema['schema_type']
-              ]
-            }.reject(&:blank?).first.then { |type| schema_path(type) }
-          else
-            case definition.dig('compute', 'type') || definition['type']
-            when 'string'
-              '//schema.org/Text'
-            when 'datetime'
-              '//schema.org/DateTime'
-            when 'number'
-              '//schema.org/Number'
-            when 'linked'
-              '//schema.org/Thing'
-            else
-              definition['type']
-            end
-          end
-        end
-      %>
-      <% @schema['properties']
-          .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
-          .reject { |_, definition| definition.dig('api', 'disabled') }
-          .map { |key, definition|
-            {
-              domain: @schema.dig('api', 'type') || @schema['schema_type'],
-              label: key.camelize(:lower),
-              range: range_resolver.call(definition),
-              comment: nil
-            }
-          }.sort_by { |definition| [definition[:domain], definition[:label]] }
-          .each do |definition| %>
+      <% @template_schema.property_definitions.each do |definition| %>
         <tr>
           <th><%= definition[:label] %></th>
           <td>
