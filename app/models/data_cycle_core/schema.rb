@@ -3,10 +3,39 @@
 module DataCycleCore
   class Schema
     class Template
+      class Error < StandardError
+        attr_reader :details
+
+        def initialize(message, details = nil)
+          super(message)
+
+          @details = details
+        end
+
+        def message
+          super + "\nERROR:\n#{details.awesome_inspect}"
+        end
+      end
+
       include Rails.application.routes.url_helpers
+
+      DEFAULT_CONTENT_TABLE = 'things'
 
       def initialize(template_schema)
         @template_schema = template_schema
+      end
+
+      def self.load_tempate(path, template_index = 0)
+        template = YAML.safe_load(File.open(path), [Symbol])[template_index]
+
+        template[:data] = DataCycleCore::MasterData::ImportTemplates.transform_schema(schema: template[:data].dup,
+                                                                                      content_table: DEFAULT_CONTENT_TABLE,
+                                                                                      mixins: nil)
+        errors = DataCycleCore::MasterData::ImportTemplates.validate(template)
+
+        raise Error.new("'#{path}' contains invalid content template", errors) if errors.present?
+
+        new(template[:data].as_json)
       end
 
       def property_definitions
