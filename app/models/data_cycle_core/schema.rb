@@ -15,7 +15,7 @@ module DataCycleCore
           .reject { |_, definition| definition.dig('api', 'disabled') }
           .map { |key, definition|
             {
-              domain: @template_schema.dig('api', 'type') || @schema['schema_type'],
+              domain: @template_schema.dig('api', 'type') || @template_schema['schema_type'],
               label: key.camelize(:lower),
               range: resolve_range(definition),
               comment: nil
