@@ -21,11 +21,7 @@ module DataCycleCore
 
       DEFAULT_CONTENT_TABLE = 'things'
 
-      def initialize(template_schema)
-        @template_schema = template_schema
-      end
-
-      def self.load_tempate(path, template_index = 0)
+      def self.load_template(path, template_index = 0)
         template = YAML.safe_load(File.open(path), [Symbol])[template_index]
 
         template[:data] = DataCycleCore::MasterData::ImportTemplates.transform_schema(schema: template[:data].dup,
@@ -38,13 +34,25 @@ module DataCycleCore
         new(template[:data].as_json)
       end
 
+      def clone_with_schema(schema = nil)
+        clone.tap { |t| t.schema = schema }
+      end
+
+      def template_name
+        @template_schema['name']
+      end
+
+      def schema_name
+        @template_schema.dig('api', 'type') || @template_schema['schema_type']
+      end
+
       def property_definitions
         @template_schema['properties']
           .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
           .reject { |_, definition| definition.dig('api', 'disabled') }
           .map { |key, definition|
             {
-              domain: @template_schema.dig('api', 'type') || @template_schema['schema_type'],
+              domain: schema_name,
               label: key.camelize(:lower),
               range: resolve_range(definition),
               comment: nil
@@ -52,18 +60,24 @@ module DataCycleCore
           }.sort_by { |definition| [definition[:domain], definition[:label]] }
       end
 
+      protected
+
+      attr_writer :schema
+
       private
+
+      def initialize(template_schema, schema: nil)
+        @template_schema = template_schema
+        @schema = schema
+      end
 
       def resolve_range(definition)
         if definition.dig('api', 'type')
           definition.dig('api', 'type')
         elsif definition['type'] == 'embedded'
-          DataCycleCore::Thing.find_by(template: true, template_name: definition['template_name']).schema.then { |schema|
-            [
-              schema.dig('api', 'type'),
-              schema['schema_type']
-            ]
-          }.reject(&:blank?).first.then { |type| "/schema/#{type}" }
+          raise 'Cannot resolve embedded templates without schema' if @schema.nil?
+
+          "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
         else
           case definition.dig('compute', 'type') || definition['type']
           when 'string'
@@ -87,6 +101,34 @@ module DataCycleCore
 
     def self.templates_with_content_type(content_type)
       DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", content_type)
+    end
+
+    def self.count_templates(path)
+      YAML.safe_load(File.open(path), [Symbol]).count
+    end
+
+    def self.load_schema(paths)
+      new(
+        Array(paths).map { |path|
+          (0..(count_templates(path) - 1)).map { |template_index| Template.load_template(path, template_index) }
+        }.flatten
+      )
+    end
+
+    attr_reader :templates
+
+    def template_by_template_name(template_name)
+      @templates.find { |t| t.template_name == template_name }.clone_with_schema(self)
+    end
+
+    def template_by_schema_name(schema_name)
+      @templates.find { |t| t.schema_name == schema_name }.clone_with_schema(self)
+    end
+
+    private
+
+    def initialize(templates)
+      @templates = templates
     end
   end
 end

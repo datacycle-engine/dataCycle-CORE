@@ -7,7 +7,7 @@ require 'minitest/autorun'
 describe DataCycleCore::Schema::Template do
   describe 'for simple properties' do
     subject do
-      DataCycleCore::Schema::Template.load_tempate(
+      DataCycleCore::Schema::Template.load_template(
         File.expand_path('../../data_types/simple_valid_templates/AllSimplePropertyTypes.yml', __dir__)
       )
     end
@@ -42,6 +42,21 @@ describe DataCycleCore::Schema::Template do
 
       string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
       string_property[:range].must_equal('//schema.org/Number')
+    end
+  end
+
+  describe 'for simple embedded container' do
+    subject do
+      DataCycleCore::Schema.load_schema(
+        File.expand_path('../../data_types/simple_valid_templates/SimpleEmbeddedContainer.yml', __dir__)
+      ).template_by_schema_name('Thing_ActingAsEmbeddedContainer')
+    end
+
+    it 'should contain correct property definition for "embedded"' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'embedded' }
+
+      string_property[:domain].must_equal('Thing_ActingAsEmbeddedContainer')
+      string_property[:range].must_equal('/schema/Thing_SimpleEmbedded')
     end
   end
 end
