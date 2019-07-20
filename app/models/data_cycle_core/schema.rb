@@ -78,6 +78,10 @@ module DataCycleCore
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
 
           "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
+        elsif definition['type'] == 'linked'
+          raise 'Cannot resolve embedded templates without schema' if @schema.nil?
+
+          "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
         else
           case definition.dig('compute', 'type') || definition['type']
           when 'string'

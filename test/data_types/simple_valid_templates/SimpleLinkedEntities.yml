@@ -1,0 +1,24 @@
+---
+- :data:
+    :name: Simple Linked Entity One
+    :type: object
+    :content_type: entity
+    :schema_type: Thing_SimpleEntityLinkedOne
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :linked:
+        :label: Simple Linked Entity
+        :type: linked
+        :template_name: Simple Linked Entity Two
+
+- :data:
+    :name: Simple Linked Entity Two
+    :type: object
+    :content_type: entity
+    :schema_type: Thing_SimpleEntityLinkedTwo
+    :properties:
+      :id:
+        :label: id
+        :type: key

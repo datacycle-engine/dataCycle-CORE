@@ -59,4 +59,19 @@ describe DataCycleCore::Schema::Template do
       string_property[:range].must_equal('/schema/Thing_SimpleEmbedded')
     end
   end
+
+  describe 'for simple linked entites' do
+    subject do
+      DataCycleCore::Schema.load_schema(
+        File.expand_path('../../data_types/simple_valid_templates/SimpleLinkedEntities.yml', __dir__)
+      ).template_by_schema_name('Thing_SimpleEntityLinkedOne')
+    end
+
+    it 'should contain correct property definition for "linked"' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'linked' }
+
+      string_property[:domain].must_equal('Thing_SimpleEntityLinkedOne')
+      string_property[:range].must_equal('/schema/Thing_SimpleEntityLinkedTwo')
+    end
+  end
 end
