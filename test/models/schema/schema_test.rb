@@ -1,20 +1,29 @@
 # frozen_string_literal: true
 
 require 'test_helper'
+require 'minitest/spec'
 require 'minitest/autorun'
 
-module DataCycleCore
-  class SchemaTest < ActiveSupport::TestCase
-    test 'DataCycleCore::Schema should provide list of available content types' do
-      assert_equal(['container', 'entity', 'embedded'].sort, DataCycleCore::Schema.content_types.sort)
-    end
+describe DataCycleCore::Schema do
+  subject do
+    DataCycleCore::Schema.load_schema(
+      File.expand_path('../../data_types/simple_valid_templates/RandomContainersAndEntites.yml', __dir__)
+    )
+  end
 
-    test 'DataCycleCore::Schema should provide list of templates for given content type' do
-      assert_includes(DataCycleCore::Schema.templates_with_content_type('container').map(&:template_name), 'Container')
+  it 'should should provide list of available content types' do
+    subject.content_types.sort.must_equal(['container', 'entity'])
+  end
 
-      assert_includes(DataCycleCore::Schema.templates_with_content_type('entity').map(&:template_name), 'Artikel')
-      assert_includes(DataCycleCore::Schema.templates_with_content_type('entity').map(&:template_name), 'Örtlichkeit')
-      assert_includes(DataCycleCore::Schema.templates_with_content_type('entity').map(&:template_name), 'Event')
-    end
+  it 'should should provide list of container templates' do
+    subject.templates_with_content_type('container').map(&:schema_name).sort.must_equal(
+      ['ContainerOne', 'ContainerTwo', 'ContainerThree'].sort
+    )
+  end
+
+  it 'should should provide list of entity templates' do
+    subject.templates_with_content_type('entity').map(&:schema_name).sort.must_equal(
+      ['EntityOne', 'EntityTwo', 'EntityThree', 'EntityFour'].sort
+    )
   end
 end

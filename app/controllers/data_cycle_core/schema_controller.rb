@@ -3,6 +3,8 @@
 module DataCycleCore
   class SchemaController < ApplicationController
     def index
+      @schema = Schema.load_schema_from_database
+
       respond_to do |format|
         format.xlsx
         format.any
@@ -10,15 +12,12 @@ module DataCycleCore
     end
 
     def show
-      @schema = Thing.where(template: true).where("schema -> 'api' ->> 'type' = ?", params[:id]).first&.schema
+      @schema = Schema.load_schema_from_database
 
-      @schema = Thing.where(template: true, template_name: params[:id]).first&.schema if @schema.nil?
+      @template_schema = @schema.template_by_schema_name(params[:id])
+      @template_schema = @schema.template_by_template_name(params[:id]) if @template_schema.nil?
 
-      raise ActiveRecord::RecordNotFound, "Couldn't find template '#{params[:id]}'" if @schema.nil?
-
-      redirect_to schema_path(id: @schema.dig('api', 'type')) if @schema.dig('api', 'type') && @schema.dig('api', 'type') != params[:id]
-
-      @template_schema = Schema::Template.new(@schema)
+      raise ActiveRecord::RecordNotFound, "Couldn't find template '#{params[:id]}'" if @template_schema.nil?
     end
   end
 end

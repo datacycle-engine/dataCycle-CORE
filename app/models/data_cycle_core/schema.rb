@@ -21,6 +21,11 @@ module DataCycleCore
 
       DEFAULT_CONTENT_TABLE = 'things'
 
+      def initialize(template_schema, schema: nil)
+        @template_schema = template_schema
+        @schema = schema
+      end
+
       def self.load_template(path, template_index = 0)
         template = YAML.safe_load(File.open(path), [Symbol])[template_index]
 
@@ -46,6 +51,10 @@ module DataCycleCore
         @template_schema.dig('api', 'type') || @template_schema['schema_type']
       end
 
+      def content_type
+        @template_schema['content_type']
+      end
+
       def property_definitions
         @template_schema['properties']
           .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
@@ -65,11 +74,6 @@ module DataCycleCore
       attr_writer :schema
 
       private
-
-      def initialize(template_schema, schema: nil)
-        @template_schema = template_schema
-        @schema = schema
-      end
 
       def resolve_range(definition)
         if definition.dig('api', 'type')
@@ -107,6 +111,12 @@ module DataCycleCore
       DataCycleCore::Thing.where(template: true).where("schema ->> 'content_type' = ?", content_type)
     end
 
+    def self.load_schema_from_database
+      new(
+        DataCycleCore::Thing.where(template: true).map { |t| Template.new(t.schema) }
+      )
+    end
+
     def self.count_templates(path)
       YAML.safe_load(File.open(path), [Symbol]).count
     end
@@ -121,12 +131,20 @@ module DataCycleCore
 
     attr_reader :templates
 
+    def content_types
+      @templates.map(&:content_type).uniq
+    end
+
+    def templates_with_content_type(content_type)
+      @templates.select { |t| t.content_type == content_type }
+    end
+
     def template_by_template_name(template_name)
-      @templates.find { |t| t.template_name == template_name }.clone_with_schema(self)
+      @templates.find { |t| t.template_name == template_name }&.clone_with_schema(self)
     end
 
     def template_by_schema_name(schema_name)
-      @templates.find { |t| t.schema_name == schema_name }.clone_with_schema(self)
+      @templates.find { |t| t.schema_name == schema_name }&.clone_with_schema(self)
     end
 
     private
