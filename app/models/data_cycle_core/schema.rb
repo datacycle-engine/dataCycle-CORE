@@ -60,13 +60,17 @@ module DataCycleCore
           .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
           .reject { |_, definition| definition.dig('api', 'disabled') }
           .map { |key, definition|
-            {
-              domain: schema_name,
-              label: key.camelize(:lower),
-              range: resolve_range(definition),
-              comment: nil
-            }
-          }.sort_by { |definition| [definition[:domain], definition[:label]] }
+            if definition['type'] == 'object'
+              Template.new(definition).property_definitions.map { |d| d.merge({ domain: schema_name }) }
+            else
+              {
+                domain: schema_name,
+                label: key.camelize(:lower),
+                range: resolve_range(definition),
+                comment: nil
+              }
+            end
+          }.flatten.sort_by { |definition| [definition[:domain], definition[:label]] }
       end
 
       protected

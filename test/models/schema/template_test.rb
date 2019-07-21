@@ -81,4 +81,33 @@ describe DataCycleCore::Schema::Template do
       string_property[:range].must_equal('//schema.org/Thing')
     end
   end
+
+  describe 'for simple embedded object' do
+    subject do
+      DataCycleCore::Schema.load_schema(
+        File.expand_path('../../data_types/simple_valid_templates/EntityWithNestedObject.yml', __dir__)
+      ).template_by_schema_name('Thing_Container')
+    end
+
+    it 'should expand nested properties' do
+      subject.property_definitions.count.must_equal(2)
+      subject.property_definitions.map { |d| d[:label] }.sort.must_equal(
+        ['someProperty', 'anotherProperty'].sort
+      )
+    end
+
+    it 'should contain correct property definition for "someProperty"' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'someProperty' }
+
+      string_property[:domain].must_equal('Thing_Container')
+      string_property[:range].must_equal('//schema.org/Text')
+    end
+
+    it 'should contain correct property definition for "anotherProperty"' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'anotherProperty' }
+
+      string_property[:domain].must_equal('Thing_Container')
+      string_property[:range].must_equal('//schema.org/Number')
+    end
+  end
 end
