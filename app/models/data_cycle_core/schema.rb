@@ -78,10 +78,12 @@ module DataCycleCore
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
 
           "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
-        elsif definition['type'] == 'linked'
+        elsif definition['type'] == 'linked' && definition['template_name'].present?
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
 
           "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
+        elsif definition['type'] == 'linked'
+          '//schema.org/Thing'
         else
           case definition.dig('compute', 'type') || definition['type']
           when 'string'
@@ -90,8 +92,6 @@ module DataCycleCore
             '//schema.org/DateTime'
           when 'number'
             '//schema.org/Number'
-          when 'linked'
-            '//schema.org/Thing'
           else
             definition['type']
           end

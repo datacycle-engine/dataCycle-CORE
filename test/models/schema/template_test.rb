@@ -67,11 +67,18 @@ describe DataCycleCore::Schema::Template do
       ).template_by_schema_name('Thing_SimpleEntityLinkedOne')
     end
 
-    it 'should contain correct property definition for "linked"' do
-      string_property = subject.property_definitions.find { |d| d[:label] == 'linked' }
+    it 'should contain correct property definition for linked properties based on templates' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithTemplate' }
 
       string_property[:domain].must_equal('Thing_SimpleEntityLinkedOne')
       string_property[:range].must_equal('/schema/Thing_SimpleEntityLinkedTwo')
+    end
+
+    it 'should contain correct property definition for linked properties based on templates' do
+      string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithStoredFilter' }
+
+      string_property[:domain].must_equal('Thing_SimpleEntityLinkedOne')
+      string_property[:range].must_equal('//schema.org/Thing')
     end
   end
 end

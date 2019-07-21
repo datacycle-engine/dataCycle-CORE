@@ -8,10 +8,15 @@
       :id:
         :label: id
         :type: key
-      :linked:
+      :linked_with_template:
         :label: Simple Linked Entity
         :type: linked
         :template_name: Simple Linked Entity Two
+      :linked_with_stored_filter:
+        :label: Simple Linked Entity Based On Stored Filter
+        :type: linked
+        :stored_filter:
+          -
 
 - :data:
     :name: Simple Linked Entity Two
