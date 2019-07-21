@@ -19,7 +19,8 @@ DataCycleCore::Engine.routes.draw do
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    file: /.*/
   }
 
   get '/schema', to: 'schema#index'
@@ -89,6 +90,7 @@ DataCycleCore::Engine.routes.draw do
     patch :bulk_update, on: :member
     post :validate, on: :member
     get :download, on: :member
+    delete :bulk_delete, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -179,6 +181,8 @@ DataCycleCore::Engine.routes.draw do
 
           get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+
+          get 'authorize/download_token', to: 'contents#download_token'
 
           resources :classification_trees, only: [:index, :show] do
             # get :classifications, on: :member

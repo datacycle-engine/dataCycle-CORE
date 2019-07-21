@@ -139,7 +139,8 @@ module DataCycleCore
 
       if object_params.dig(:datahash).blank?
         flash[:error] = I18n.t(:no_selected_attributes, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-        render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+        ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        return head(:ok)
       end
 
       datahash = DataCycleCore::DataHashService.flatten_datahash_value(object_params[:datahash], template_hash)
@@ -147,7 +148,8 @@ module DataCycleCore
       I18n.with_locale(params[:locale]) do
         unless can?(:bulk_edit, @watch_list) && @watch_list.things.all? { |t| can?(:update, t) }
           flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
-          render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+          return head(:ok)
         end
 
         template_hash.dig('properties')&.each_key do |k|
@@ -174,11 +176,45 @@ module DataCycleCore
         end
 
         if params[:new_locale].present?
-          render(js: "window.location.href = '#{bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale])}';") && return
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: bulk_edit_watch_list_path(@watch_list, locale: params[:new_locale], flash: flash.to_hash)
         else
-          render(js: "window.location.href = '#{watch_list_path(@watch_list)}';") && return
+          ActionCable.server.broadcast "bulk_update_#{@watch_list.id}_#{current_user.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
         end
+
+        return head(:ok)
       end
+    end
+
+    def bulk_delete
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize!(:bulk_delete, @watch_list)
+      things_external = @watch_list.things.any? { |t| t.external_source_id.present? }
+
+      if things_external
+        flash[:error] = I18n.t(:external_items, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
+        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        return head(:ok)
+      end
+
+      unless can?(:bulk_delete, @watch_list) && @watch_list.things.all? { |t| can?(:destroy, t) }
+        flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
+        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+        return head(:ok)
+      end
+
+      delete_items = @watch_list.things.joins(:translations).where(external_source_id: nil)
+      delete_count = delete_items.count
+
+      ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
+      delete_items.find_each.with_index do |content, index|
+        content.destroy_content
+        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
+      end
+
+      flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], locale: DataCycleCore.ui_language)
+
+      ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
+      head(:ok)
     end
 
     def validate

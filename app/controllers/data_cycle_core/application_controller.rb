@@ -8,6 +8,7 @@ module DataCycleCore
     before_action :load_watch_lists
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
+    before_action :flashes_from_params, if: -> { params[:flash].present? }
 
     rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
     rescue_from CanCan::AccessDenied, with: :unauthorized
@@ -81,6 +82,17 @@ module DataCycleCore
       else
         info_path
       end
+    end
+
+    def flash_params
+      params.require(:flash).permit(:success, :notice, :alert, :error)
+    end
+
+    def flashes_from_params
+      flash_params.each do |k, v|
+        flash[k] = v
+      end
+      redirect_to request.path, params: params.delete(:flash)
     end
   end
 end

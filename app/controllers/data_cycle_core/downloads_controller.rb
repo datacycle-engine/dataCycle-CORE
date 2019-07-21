@@ -27,7 +27,6 @@ module DataCycleCore
 
     def stored_filters
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
       items = @stored_filter.apply
 
       download_items = items.to_a.select do |thing|
@@ -47,9 +46,18 @@ module DataCycleCore
       return if current_user
 
       user = User.find_by(access_token: params[:token]) if params[:token].present?
+      if user
+        sign_in user, store: false
+        return
+      end
+
+      temp_token = Rails.cache.exist?("download_#{params[:download_token]}") if params[:download_token].present?
+      if temp_token
+        DataCycleCore::Download.remove_token(key: "download_#{params[:download_token]}")
+        return
+      end
 
       raise CanCan::AccessDenied, 'invalid or missing authentication token' unless user
-      sign_in user, store: false
     end
   end
 end

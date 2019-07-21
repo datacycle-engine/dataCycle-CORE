@@ -17,6 +17,7 @@ module DataCycleCore
           DataCycleCore::Feature::Download.allowed?(content)
         end
         can :download, DataCycleCore::WatchList
+        can :bulk_delete, DataCycleCore::WatchList
       end
     end
   end
