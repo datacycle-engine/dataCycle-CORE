@@ -13,6 +13,10 @@ module DataCycleCore
         def locked_until
           lock&.updated_at&.utc&.+(DataCycleCore::Feature::ContentLock.lock_length.seconds)
         end
+
+        def locked?
+          lock.present?
+        end
       end
     end
   end

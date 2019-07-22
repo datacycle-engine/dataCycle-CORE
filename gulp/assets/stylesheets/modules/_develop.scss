@@ -2160,28 +2160,94 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-.pie-timer {
-  position: absolute;
-  top: 0;
-  left: 0;
-  height: 100%;
-  width: 100%;
-  z-index: 1;
-  background-color: inherit;
-  border-radius: 50%;
-  background-image: linear-gradient(to right, transparent 50%, $alert-color 0);
-
-  .pie-filler {
+.button-prime.content-lock {
+  > i.fa {
+    z-index: 1;
+  }
+  .pie-timer {
     position: absolute;
     top: 0;
-    left: 50%;
-    width: 50%;
+    left: 0;
     height: 100%;
-    border-radius: 0 100% 100% 0 / 50%;
-    background-color: inherit;
-    transform-origin: left;
-    &.greater180 {
+    width: 100%;
+    z-index: 1;
+    background-color: transparent;
+    border-radius: 50%;
+
+    .pie-filler {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+      height: 100%;
+      border-radius: 0 100% 100% 0 / 50%;
+      background-color: inherit;
+      transform-origin: left;
+      &.greater180 {
+        background-color: transparent;
+      }
+    }
+    &.alert {
+      background: transparent;
+      .pie-filler.greater180 {
+        background: transparent;
+      }
+    }
+  }
+  .pie-text {
+    color: white;
+    z-index: 0;
+    position: absolute;
+    right: 50%;
+    top: 1rem;
+    height: 3rem;
+    padding: 0;
+    background: inherit;
+    border-bottom-left-radius: 1.5rem;
+    border-top-left-radius: 1.5rem;
+    line-height: 3rem;
+    transition: all 0.3s;
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    &.show {
+      width: auto;
+      padding: 0 calc(50% + 1rem) 0 1rem;
+    }
+    &.alert {
       background-color: $alert-color;
+    }
+  }
+  &.editable-lock,
+  &.content-locked {
+    &:hover {
+      .pie-text {
+        width: auto;
+        padding: 0 calc(50% + 1rem) 0 1rem;
+      }
+    }
+    &.edit-content-link {
+      &:hover {
+        opacity: 0.9;
+      }
+      .pie-text {
+        top: 0;
+      }
+    }
+    .pie-timer {
+      background-color: inherit;
+      background-image: linear-gradient(to right, transparent 50%, $warning-color 0);
+      .pie-filler.greater180 {
+        background-color: $warning-color;
+      }
+    }
+  }
+  &.editable-lock {
+    .pie-timer.alert {
+      background-image: linear-gradient(to right, transparent 50%, $alert-color 0);
+      .pie-filler.greater180 {
+        background-color: $alert-color;
+      }
     }
   }
 }

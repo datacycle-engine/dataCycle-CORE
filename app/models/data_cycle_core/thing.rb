@@ -124,9 +124,5 @@ module DataCycleCore
     def cache_key
       [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
     end
-
-    def locked?
-      lock.present?
-    end
   end
 end

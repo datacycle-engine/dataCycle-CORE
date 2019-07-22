@@ -58,6 +58,7 @@ class Validator {
     this.form.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
+    this.form.on('dc:form:disable', this.disable.bind(this));
 
     if (this.form.hasClass('bulk-edit-form')) {
       this.initActionCable();
