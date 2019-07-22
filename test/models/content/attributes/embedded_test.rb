@@ -94,8 +94,9 @@ module DataCycleCore
             prevent_history: true
           )
 
-          returned_data_hash = data_set.get_data_hash
+          assert_equal(data_set.template_name, data_set.embedded_creative_work.first.parent_templates.first.template_name)
 
+          returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
             'embedded_creative_work' => [
               DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({ 'linked_place' => [linked_id] }),

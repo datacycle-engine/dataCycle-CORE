@@ -51,6 +51,8 @@ module DataCycleCore
           has_many :data_link_content_items, as: :content
           has_many :indirect_data_links, through: :data_link_content_items
           has_many :data_links, as: :item, dependent: :destroy
+
+          has_many :asset_contents, dependent: :destroy, as: :content_data
         end
       end
 

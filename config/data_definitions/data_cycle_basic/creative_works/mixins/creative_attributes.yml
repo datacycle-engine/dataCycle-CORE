@@ -68,6 +68,8 @@
           :format: url
         :api:
           :name: sameAs
+        :xml:
+          :name: sameAs
       :keywords:
         :label: Keywords
         :storage_location: translated_value

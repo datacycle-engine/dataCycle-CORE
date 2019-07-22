@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<rdf:RDF
+  xmlns:rdf="http://schema.org"
+  xmlns:schema="http://schema.org/Thing/">
+
+  <schema:collections>
+    <% @watch_lists.each do |item| %>
+      <schema:collection>
+        <schema:id><%=item.id%></schema:id>
+        <schema:name><%=item.name%></schema:name>
+        <schema:url><%=xml_v1_collection_url(@api_subversion, id: item.id)%></schema:url>
+        <schema:item_count><%=item.watch_list_data_hashes.count%></schema:item_count>
+      </schema:collection>
+    <% end %>
+  </schema:collections>
+</rdf:RDF>

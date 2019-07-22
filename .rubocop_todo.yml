@@ -20,45 +20,24 @@ Lint/NestedMethodDefinition:
     - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
     - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
 
-# TODO: check after import refactoring
 Lint/UnusedMethodArgument:
   Exclude:
-    - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/bergfex_v2/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/download.rb'
-    - 'app/models/data_cycle_core/generic/import.rb'
-    - 'app/models/data_cycle_core/generic/event_database/import_keywords.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/import_keywords.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/eyebase/import.rb'
     - 'app/models/data_cycle_core/generic/google_places/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/google_places/import.rb'
-    - 'app/models/data_cycle_core/generic/xamoom/import_tags.rb'
+    - 'app/models/data_cycle_core/generic/eyebase/endpoint.rb'
     - 'app/models/data_cycle_core/generic/xamoom/import_spots.rb'
-    - 'app/models/data_cycle_core/generic/feratel/import_facilities.rb'
-    - 'app/models/data_cycle_core/generic/feratel/import_infrastructure_types.rb'
-    - 'app/models/data_cycle_core/generic/feratel/import_places.rb'
-    - 'app/models/data_cycle_core/generic/feratel/endpoint.rb'
-    - 'app/models/data_cycle_core/generic/outdoor_active/import_tours.rb'
-    - 'app/models/data_cycle_core/generic/outdoor_active/import_places.rb'
-    - 'app/models/data_cycle_core/generic/outdoor_active/import_pois.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import_keywords.rb'
-    - 'app/models/data_cycle_core/content/content_relations.rb'
+    - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
 
 #######################################################
 ########## Naming
 
-# TODO: check after develop merge
 Naming/PredicateName:
   Exclude:
     - 'app/models/data_cycle_core/content/extensions/content.rb'
-    - 'app/models/data_cycle_core/content/data_hash.rb'
     - 'app/models/data_cycle_core/data_link.rb'
     - 'app/models/data_cycle_core/user.rb'
     - 'app/models/data_cycle_core/content/data_hash_utility.rb'
     - 'app/models/data_cycle_core/content/content_relations.rb'
 
-# TODO: check after develop merge
 Naming/AccessorMethodName:
   Exclude:
     - 'app/controllers/data_cycle_core/data_links_controller.rb'
@@ -66,12 +45,10 @@ Naming/AccessorMethodName:
 #######################################################
 ########## Rails
 
-# TODO: refactor breadcrumbs + flash_messages
 Rails/OutputSafety:
   Exclude:
     - 'app/helpers/data_cycle_core/application_helper.rb'
     - 'app/helpers/data_cycle_core/data_hash_helper.rb'
-    - 'app/models/data_cycle_core/content/extentions/thing.rb'
 
 Rails/HasManyOrHasOneDependent:
   Exclude:
@@ -116,10 +93,6 @@ Rails/Output:
     - 'app/models/data_cycle_core/update/base.rb'
     - 'app/services/data_cycle_core/progress_bar_service.rb'
 
-# Rails/ReflectionClassName:
-#   Exclude:
-#     - 'app/models/data_cycle_core/content/content_relations.rb'
-
 Rails/SkipsModelValidations:
   Exclude:
     - 'app/controllers/data_cycle_core/data_links_controller.rb'
@@ -128,11 +101,6 @@ Rails/SkipsModelValidations:
     - 'app/models/data_cycle_core/data_link.rb'
     - 'app/controllers/data_cycle_core/creative_works_controller.rb'
     - 'db/migrate/*'
-
-Rails/ActiveRecordAliases:
-  Exclude:
-    - 'app/controllers/data_cycle_core/classifications_controller.rb'
-    - 'app/controllers/data_cycle_core/watch_lists_controller.rb'
 
 Rails/TimeZone:
   Exclude:
@@ -150,10 +118,3 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
     - 'app/models/data_cycle_core/content/content.rb'
-
-#######################################################
-########## Transproc
-
-Style/RescueModifier:
-  Exclude:
-    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'

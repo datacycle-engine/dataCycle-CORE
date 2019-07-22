@@ -70,7 +70,7 @@ module DataCycleCore
         query2 = query2.where(id: content_ids)
       end
 
-      @contents = query2.order("(#{value_storage_location} ->> 'publish_at')::timestamptz ASC").page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+      @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::timestamptz ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
 
       @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
 

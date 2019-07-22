@@ -27,7 +27,7 @@
         :type: asset
         :asset_type: image
         :api:
-          :disabled: true        
+          :disabled: true
       :alternative_headline:
         :label: Alt-Label
         :type: string
@@ -85,6 +85,8 @@
         :validations:
           :format: url
         :api:
+          :name: sameAs
+        :xml:
           :name: sameAs
       :width:
         :label: Breite
@@ -156,6 +158,7 @@
         :label: Hochgeladen am
         :type: datetime
         :storage_location: value
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
       :photographer:
         :label: Fotograf
         :type: string

@@ -8,7 +8,7 @@ DataCycleCore::Engine.routes.draw do
     root 'backend#index', as: :authenticated_root
   end
 
-  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'creative_works'].freeze
+  CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
   root to: redirect('/users/sign_in')
@@ -19,10 +19,12 @@ DataCycleCore::Engine.routes.draw do
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    file: /.*/
   }
 
   get '/schema', to: 'schema#index'
+  get '/schema/:id', to: 'schema#show', as: :schema_details
 
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
@@ -45,6 +47,7 @@ DataCycleCore::Engine.routes.draw do
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
+      get :download, on: :member
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -68,6 +71,12 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
+  resource :downloads, only: [] do
+    get '/things(/:id)', on: :member, action: 'things'
+    get '/stored_filters(/:id)', on: :member, action: 'stored_filters'
+    get '/watch_lists(/:id)', on: :member, action: 'watch_lists'
+  end
+
   resources :data_links do
     post :send_mail, on: :member
     get :download, on: :member
@@ -80,6 +89,8 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
+    get :download, on: :member
+    delete :bulk_delete, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -171,6 +182,8 @@ DataCycleCore::Engine.routes.draw do
           get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
+          get 'authorize/download_token', to: 'contents#download_token'
+
           resources :classification_trees, only: [:index, :show] do
             # get :classifications, on: :member
             get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
@@ -182,6 +195,28 @@ DataCycleCore::Engine.routes.draw do
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
           end
+        end
+      end
+    end
+  end
+
+  defaults format: :xml do
+    namespace :xml do
+      namespace :v1 do
+        scope path: '(/:api_subversion)' do
+          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+
+          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+
+          # probably kill later
+          resources :classification_trees, only: [:index, :show] do
+            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          end
+
+          resources :collections, only: [:index, :show], controller: :watch_lists
         end
       end
     end

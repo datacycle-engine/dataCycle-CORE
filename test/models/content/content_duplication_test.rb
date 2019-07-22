@@ -190,10 +190,8 @@ module DataCycleCore
       end
 
       def teardown
-        return if @local_image&.file.blank?
-
+        return if @local_image&.id.blank?
         @local_image.remove_file!
-        @local_image.destroy!
       end
     end
   end

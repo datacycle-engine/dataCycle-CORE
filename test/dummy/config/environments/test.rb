@@ -31,6 +31,9 @@ Rails.application.configure do
     config.cache_store = :null_store
   end
 
+  # Store uploaded files on the local file system in a temporary directory
+  # config.active_storage.service = :test
+
   # Show full error reports.
   config.action_controller.perform_caching = false
 

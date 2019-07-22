@@ -23,11 +23,11 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.5.1'
+  s.required_ruby_version = '~> 2.6.3'
 
   # rails
   # s.add_dependency 'jquery-rails'
-  s.add_dependency 'rails', '~> 5.1.6.1'
+  s.add_dependency 'rails', '~> 5.2.3'
   s.add_dependency 'rake'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
@@ -118,7 +118,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'web-console'
 
   s.add_dependency 'dotenv-rails'
-  s.add_dependency 'puma', '~> 3.11.0'
+  s.add_dependency 'puma', '~> 3.12.1'
   s.add_dependency 'puma_worker_killer'
 
   # Excel Generator
@@ -135,7 +135,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'bundler-audit'
   s.add_development_dependency 'faker'
   s.add_development_dependency 'fasterer'
-  s.add_development_dependency 'gemsurance'
+  # s.add_development_dependency 'gemsurance'
   s.add_development_dependency 'rubocop', '~> 0.63.1'
   # s.add_development_dependency 'capybara'
   # s.add_development_dependency 'selenium-webdriver'
