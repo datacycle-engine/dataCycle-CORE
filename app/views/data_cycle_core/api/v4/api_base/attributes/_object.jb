@@ -2,7 +2,7 @@
 
 json ||= {}
 
-key_name = definition.dig('api', 'name') || key
+key_name = definition.dig('api', 'name') || key.camelize(:lower)
 
 if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
   translated_properties = {}
