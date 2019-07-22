@@ -71,6 +71,27 @@ namespace :datacycle do
       end
     end
 
+    desc 'initialize configs'
+    task :init_configs do
+      on roles(:all) do
+        print_message 'Update puma config'
+        invoke 'datacycle:puma:deploy_config'
+        invoke 'datacycle:puma:restart'
+
+        print_message 'Uploading config files'
+        invoke('datacycle:monit:deploy_config', 'puma.conf')
+        invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
+        invoke 'datacycle:logrotate:deploy_config'
+
+        print_message 'Reloading services'
+        invoke 'datacycle:monit:reload'
+
+        invoke('datacycle:nginx:deploy_config', 'production.conf')
+        invoke 'datacycle:nginx:reload'
+        invoke 'datacycle:duplicity:deploy_config'
+      end
+    end
+
     desc 'update project config files: update monit + nginx config files'
     task :configs_exists do
       on roles(:all) do
