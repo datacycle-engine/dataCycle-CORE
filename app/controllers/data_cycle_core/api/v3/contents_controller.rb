@@ -48,6 +48,11 @@ module DataCycleCore
           @contents = apply_paging(deleted_contents)
         end
 
+        def download_token
+          token = DataCycleCore::Download.temp_token(user: current_user)
+          render plain: { 'token' => token }.to_json, content_type: 'application/json'
+        end
+
         def permitted_parameter_keys
           # json-api: fields, sort
           super + [
