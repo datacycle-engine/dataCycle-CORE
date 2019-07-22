@@ -163,6 +163,7 @@ de:
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update_check_box_label: '%{data} überschreiben?'
+    watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -284,6 +285,7 @@ de:
     bulk_edit: im Bulk bearbeiten
     add_items_to_watch_list: 'zu %{data} hinzufügen'
     add: hinzufügen
+    delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
 
   validation:
     errors:
@@ -352,6 +354,7 @@ de:
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
+      external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -373,6 +376,7 @@ de:
       duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
       merged_with_duplicate: Inhalte wurden zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
+      bulk_deleted: Inhalte wurden gelöscht
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."

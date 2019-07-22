@@ -3,3 +3,9 @@
 #  :v2:
 #    :subversions:
 #      - 'test'
+:templates:
+  :media_objects:
+    :Bild:
+      :features:
+        :download:
+          :allowed: true

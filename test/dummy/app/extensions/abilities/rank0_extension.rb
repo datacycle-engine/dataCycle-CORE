@@ -7,6 +7,7 @@ module Abilities
 
       can :show_history, DataCycleCore::StoredFilter
       can :bulk_edit, DataCycleCore::WatchList
+      can :bulk_delete, DataCycleCore::WatchList
     end
   end
 end

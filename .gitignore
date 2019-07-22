@@ -6,6 +6,7 @@ test/dummy/db/*.sqlite3-journal
 test/dummy/log/*.log
 test/dummy/tmp/
 test/dummy/public/eyebase/*
+test/dummy/public/downloads/*
 tmp/
 .byebug_history
 .irb-history
