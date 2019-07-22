@@ -155,6 +155,7 @@ module DataCycleCore
         classification_tree_label: [:id, :name, :internal, visibility: []],
         classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
+      permitted_params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
 
       respond_to do |format|
         format.html do

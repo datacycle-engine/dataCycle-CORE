@@ -192,7 +192,7 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
 
-      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? [scope.to_s, 'show_more'] : scope.to_s)
+      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
