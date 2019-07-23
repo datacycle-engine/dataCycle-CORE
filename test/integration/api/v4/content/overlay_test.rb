@@ -51,7 +51,6 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data = JSON.parse(response.body)
-
           header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content_overlay)
           assert_equal(header, data)
@@ -68,6 +67,13 @@ module DataCycleCore
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
           assert_equal(api_v4_thing_url(id: overlay_image.id), json_data.dig('image', 0, '@id'))
           assert_equal(api_v4_thing_url(id: overlay_place.id), json_data.dig('location', 0, '@id'))
+
+          # attribute link is rendered in additionalProperty
+          assert(json_data.dig('additionalProperty').present?)
+          assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
+          assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
+          assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))
+          assert_equal(@content_overlay.same_as, json_data.dig('additionalProperty', 0, 'value'))
         end
       end
     end
