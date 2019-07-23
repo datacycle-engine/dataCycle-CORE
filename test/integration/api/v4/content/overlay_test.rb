@@ -9,6 +9,7 @@ module DataCycleCore
       class IncludeTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
+        include DataCycleCore::ApiV4Helper
 
         setup do
           @routes = Engine.routes
@@ -50,6 +51,14 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data = JSON.parse(response.body)
+
+          header = json_data.slice(*full_header_attributes)
+          data = full_header_data(@content_overlay)
+          assert_equal(header, data)
+
+          ['image', 'sub_event', 'location'].each do |embedded|
+            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+          end
 
           # content data
           assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))

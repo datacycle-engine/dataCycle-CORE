@@ -27,8 +27,8 @@ module DataCycleCore
 
           # full header of main item
           header = json_data.slice(*full_header_attributes)
-          content_data = full_header_data(@content_tour)
-          assert_equal(header, content_data)
+          data = full_header_data(@content_tour)
+          assert_equal(header, data)
 
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay']).each do |embedded|
@@ -45,8 +45,8 @@ module DataCycleCore
 
           # full header of main item
           header = json_data.slice(*full_header_attributes)
-          content_data = full_header_data(@content_tour)
-          assert_equal(header, content_data)
+          data = full_header_data(@content_tour)
+          assert_equal(header, data)
 
           # all embedded/linked have at least a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'schedule']).each do |embedded|
