@@ -77,7 +77,7 @@ module DataCycleCore
       end
 
       def related_to
-        content_a&.map(&:related_object)
+        content_a&.map(&:related_object).compact
       end
 
       def related_object
