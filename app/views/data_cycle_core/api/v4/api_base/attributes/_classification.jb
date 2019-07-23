@@ -6,14 +6,8 @@ classification_aliases = content.send(key).includes(:classification_aliases).map
 if classification_aliases.present?
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
   json[key_new] = classification_aliases
-    .map { |classification_alias| classification_alias.description || classification_alias.name || classification_aliases.internal_name }
+    .map { |classification_alias| classification_alias.description || classification_alias.name || classification_alias.internal_name }
     .join(', ')
-  # json[key_new] = classification_aliases.map do |classification_alias|
-  #   {
-  #     '@type' => definition.dig('api', 'type') || 'Enumeration',
-  #     'name' => classification_alias.description || classification_alias.name || classification_aliases.internal_name
-  #   }
-  # end
 end
 
 json
