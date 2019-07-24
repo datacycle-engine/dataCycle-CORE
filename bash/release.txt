@@ -3,13 +3,12 @@ DataCycleCreativeContent;git@git.pixelpoint.biz:data-cycle/data-cycle-creative-c
 DataCycleKlagenfurt;git@git.pixelpoint.biz:data-cycle/data-cycle-klagenfurt.git
 DataCycleMedia;git@git.pixelpoint.biz:data-cycle/data-cycle-media.git
 DataCycleNLW;git@git.pixelpoint.biz:data-cycle/data-cycle-nlw.git
-DataCycleOeWein;git@git.pixelpoint.biz/data-cycle/data-cycle-oewein.git
+DataCycleOeWein;git@git.pixelpoint.biz:data-cycle/data-cycle-oewein.git
 DataCyclePorcia;git@git.pixelpoint.biz:data-cycle/data-cycle-porcia.git
 DataCyclePublicPixel;git@git.pixelpoint.biz:data-cycle/data-cycle-public-pixel.git
-DataCycleRamsau;git@git.pixelpoint.biz:data-cycle/data-cycle-ramsau.git
 DataCycleRegionWoerthersee;git@git.pixelpoint.biz:data-cycle/data-cycle-region-woerthersee.git
 DataCycleThermostar;git@git.pixelpoint.biz:data-cycle/data-cycle-thermostar.git
-DataCycleVtgBodensee;git@git.pixelpoint.biz/data-cycle/data-cycle-vtg-bodensee.git
+DataCycleVtgBodensee;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg-bodensee.git
 DataCycleRegionSpielberg;git@git.pixelpoint.biz:data-cycle/data-cycle-region-spielberg.git
 DataCycleFeuerberg;git@git.pixelpoint.biz:data-cycle/feuerberg.git
 DataCycleDonauTouristik;git@git.pixelpoint.biz:data-cycle/donau-touristik.git
