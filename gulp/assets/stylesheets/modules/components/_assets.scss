@@ -214,6 +214,9 @@ ul.asset-list {
 
 // File Upload Reveal
 .asset-upload-reveal {
+  > h2 {
+    height: 3.5rem;
+  }
   .upload-file {
     display: none;
   }
@@ -223,11 +226,10 @@ ul.asset-list {
   }
 
   .uploader-flex {
-    display: flex;
-    flex-flow: column;
-    height: calc(100vh - 6rem);
+    overflow: auto;
+    height: calc(100vh - 10rem);
+    padding-right: 0.5rem;
     .content-upload-form {
-      overflow-y: auto;
       .buttons {
         position: absolute;
         display: flex;
@@ -252,6 +254,9 @@ ul.asset-list {
   .accordion {
     .accordion-item {
       padding: 0;
+      &:first-child {
+        margin-top: 0;
+      }
       &.is-active {
         .accordion-title {
           border-bottom: 1px solid rgba($dark-gray, 0.25);
