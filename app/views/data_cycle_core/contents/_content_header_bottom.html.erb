@@ -34,25 +34,29 @@
         <i class="fa fa-location-arrow" aria-hidden="true"></i>
     <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-    <% content_locked = content.try(:lock).present? && content.lock.user != current_user %>
-    <%= button_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale),
-      disabled: content_locked,
-      method: :get,
-      class: "button-prime small edit-content-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked' if content_locked}",
-      data: {
-        tooltip: true,
-        allow_html: true
-      }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
-        lock_length: DataCycleCore::Feature::ContentLock.lock_length,
-        locked_until: content&.locked_until&.to_i,
-        lock_content_id: content&.id
-      } : {}),
-      title: t('actions.edit', locale: DataCycleCore.ui_language) + (content_locked ? t('common.content_locked', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: DataCycleCore.ui_language) : '') do %>
-      <% if DataCycleCore::Feature::ContentLock.enabled? %>
-        <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+    <% if can? :edit, content %>
+      <% content_locked = DataCycleCore::Feature::ContentLock.enabled? && content.try(:lock).present? && content.lock.user != current_user %>
+      <span title="<%= t('actions.edit', locale: DataCycleCore.ui_language) + (content_locked ? "<span class='content-locked-text'><br><br><i>#{t('common.content_locked_html', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: DataCycleCore.ui_language)}</i></span>" : '') %>" data-tooltip data-allow-html="true">
+      <%= button_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale),
+        disabled: content_locked,
+        method: :get,
+        class: "button-prime small edit-content-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked' if content_locked}",
+        data: {
+          disable: true
+        }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+          lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+          lock_content_id: content&.id,
+          lock_user_id: current_user.id
+        } : {}).merge(content&.locked? ? {
+          locked_until: { content.lock.id => content&.locked_until&.to_i }
+        } : {}) do %>
+        <% if DataCycleCore::Feature::ContentLock.enabled? %>
+          <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+        <% end %>
+        <i class="fa fa-pencil" aria-hidden="true"></i>
       <% end %>
-      <i class="fa fa-pencil" aria-hidden="true"></i>
-    <% end if can? :edit, content %>
+      </span>
+    <% end %>
 
     <%= link_to thing_path(content, watch_list_id: @watch_list),
                 method: :delete,

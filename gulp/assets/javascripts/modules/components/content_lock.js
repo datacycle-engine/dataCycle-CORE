@@ -7,16 +7,16 @@ class ContentLock {
   constructor(button) {
     this.button = $(button);
     this.editable = this.button.hasClass('editable-lock');
-    this.lockedUntilString = parseInt(this.button.data('locked-until'));
-    this.lockedUntil = new Date(this.lockedUntilString * 1000);
+    this.lockedUntil = {};
     this.lockLength = parseInt(this.button.data('lock-length'));
     this.lockRenewBefore = parseInt(this.button.data('lock-renew-before'));
-    this.lockCheckInterval = 1; // Math.max(this.lockLength / 360, 1);
+    this.buttonDataDisableWith = this.button.data('disable-with');
+    this.lockCheckInterval = 1;
     this.lockStateInterval;
     this.renewNotified = false;
-    this.renewPath = this.button.data('lock-renew-path');
-    this.unlockPath = this.button.data('lock-unlock-path');
-    this.uuid = this.button.data('lock-content-id');
+    this.lockPath = this.button.data('lock-path');
+    this.oldLockPath = this.uuid = this.button.data('lock-content-id');
+    this.userId = this.button.data('lock-user-id');
     this.actionCable;
     this.lockContentChannel;
     this.confirmationModal = null;
@@ -26,12 +26,14 @@ class ContentLock {
     this.setup();
   }
   setup() {
+    this.calculateLockedUntil(this.button.data('locked-until'));
+
     this.button.on('click', '.pie-text', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
     });
 
-    this.button.on('mouseenter', '.pie-text', event => {
+    this.button.closest('.edit-header').on('mouseenter', event => {
       this.button.find('.pie-text').removeClass('show');
     });
 
@@ -41,12 +43,21 @@ class ContentLock {
     this.lockStateInterval = setInterval(this.checkLockState.bind(this), this.lockCheckInterval * 1000);
 
     if (this.editable) {
-      $(window).on('beforeunload', event => {
-        let data = new FormData();
-        data.append(this.csrfParam, this.csrfToken);
-        navigator.sendBeacon(this.unlockPath, data);
-      });
+      $(window).on('unload', this.leavePage.bind(this));
     }
+  }
+  leavePage(event) {
+    this.lockContentChannel.unsubscribe();
+    let data = new FormData();
+    data.append(this.csrfParam, this.csrfToken);
+    navigator.sendBeacon(this.lockPath, data);
+  }
+  calculateLockedUntil(lockedUntil = {}) {
+    for (let key in lockedUntil) {
+      if (lockedUntil.hasOwnProperty(key)) lockedUntil[key] = new Date((parseInt(lockedUntil[key]) - 5) * 1000);
+    }
+
+    Object.assign(this.lockedUntil, lockedUntil);
   }
   initActionCable() {
     this.actionCable = ActionCable.createConsumer();
@@ -57,26 +68,52 @@ class ContentLock {
       },
       {
         received: data => {
-          if (data.create && data.locked_until !== undefined) this.lockContent(data.locked_until, data.button_text);
-          else if (data.locked_until !== undefined) this.renewLock(data.locked_until);
-          else if (data.remove_lock) this.unlockButton();
+          if (data.create && data.locked_until !== undefined && data.user_id != this.userId && !this.editable)
+            this.newLock(data.lock_id, data.locked_until, data.button_text);
+          else if (
+            data.locked_until !== undefined &&
+            ((data.user_id != this.userId && !this.editable) || (data.user_id == this.userId && this.editable))
+          )
+            this.renewLock(data.lock_id, data.locked_until);
+          else if (data.remove_lock && data.user_id != this.userId && !this.editable) this.unlockButton(data.lock_id);
+          else if (data.remove_lock && data.user_id == this.userId && this.editable) this.lockEditor(data.lock_id);
         }
       }
     );
   }
-  lockContent(lockedUntil, buttonText = '') {
-    this.lockedUntil = new Date(parseInt(lockedUntil) * 1000);
-    $('#' + this.button.data('toggle')).append(buttonText);
+  newLock(lockId, lockedUntil, buttonText = '') {
+    let isFirst = Object.keys(this.lockedUntil).length === 0 && this.lockedUntil.constructor === Object;
+    this.calculateLockedUntil({ [lockId]: lockedUntil });
 
-    this.checkLockState();
-    this.button.prop('disabled', true).addClass('content-locked');
-    this.lockStateInterval = setInterval(this.checkLockState.bind(this), this.lockCheckInterval * 1000);
+    if (
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length &&
+      !$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).length
+    ) {
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text')
+        .first()
+        .before(buttonText);
+    } else if (!$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length) {
+      $('#' + this.button.closest('.has-tip').data('toggle')).append(buttonText);
+    }
+
+    if (isFirst) {
+      this.button.prop('disabled', true).addClass('content-locked');
+      this.checkLockState();
+      this.lockStateInterval = setInterval(this.checkLockState.bind(this), this.lockCheckInterval * 1000);
+    }
   }
   renderCountDown(diffSeconds) {
     this.button.find('.pie-text').text(DurationHelpers.seconds_to_human_time(diffSeconds));
-    $('#' + this.button.data('toggle'))
-      .find('.locked-until')
-      .text(Math.ceil(diffSeconds / 60) + 'min');
+
+    for (let [key, value] of Object.entries(this.lockedUntil)) {
+      $(
+        '#' +
+          this.button.closest('.has-tip').data('toggle') +
+          ' .content-locked-text#content-lock-' +
+          key +
+          ' .locked-until'
+      ).text(Math.max(0, parseInt((value - Date.now()) / (1000 * 60))) + 'min');
+    }
 
     let degree = 360 - parseInt((diffSeconds * 360) / this.lockLength);
     if (degree > 180) {
@@ -92,7 +129,10 @@ class ContentLock {
     }
   }
   checkLockState() {
-    let diffSeconds = Math.max(0, parseInt((this.lockedUntil - Date.now()) / 1000));
+    let diffSeconds = Math.max(
+      0,
+      parseInt((Math.max.apply(null, Object.values(this.lockedUntil)) - Date.now()) / 1000)
+    );
     let diffMinutes = parseInt(diffSeconds / 60);
 
     this.renderCountDown(diffSeconds);
@@ -120,44 +160,52 @@ class ContentLock {
   }
   triggerRenewLock() {
     this.removeConfirmationModal(null);
-    $.get(this.renewPath).fail(() => {
+    $.ajax({
+      url: this.lockPath,
+      type: 'PATCH'
+    }).fail(() => {
       console.log('error renewing the lock');
     });
   }
-  renewLock(lockedUntil) {
-    this.lockedUntil = new Date(parseInt(lockedUntil) * 1000);
+  renewLock(lockId, lockedUntil) {
+    this.calculateLockedUntil({ [lockId]: lockedUntil });
     this.renewNotified = false;
     this.button.find('.pie-text').removeClass('show');
   }
-  lockEditor() {
-    clearInterval(this.lockStateInterval);
-    this.lockContentChannel.unsubscribe();
+  lockEditor(lockId) {
+    delete this.lockedUntil[lockId];
 
-    this.button.find('.pie-timer, .pie-text').addClass('alert');
-    this.button
-      .find('.pie-text')
-      .addClass('show')
-      .text('Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.');
+    if (Object.keys(this.lockedUntil).length === 0 && this.lockedUntil.constructor === Object) {
+      clearInterval(this.lockStateInterval);
 
-    if (this.confirmationModal !== null) this.confirmationModal.overlay.foundation('close');
-    this.button
-      .removeAttr('data-disable-with')
-      .removeData('disable-with')
-      .prop('disabled', true);
-    this.button
-      .closest('.edit-header')
-      .siblings('form')
-      .trigger('dc:form:disable');
+      this.button.find('.pie-timer, .pie-text').addClass('alert');
+      this.button
+        .find('.pie-text')
+        .addClass('show')
+        .text('Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.');
+
+      if (this.confirmationModal !== null) this.confirmationModal.overlay.foundation('close');
+      this.button
+        .removeAttr('data-disable-with')
+        .removeData('disable-with')
+        .prop('disabled', true);
+      this.button
+        .closest('.edit-header')
+        .siblings('form')
+        .trigger('dc:form:disable');
+    }
   }
   removeConfirmationModal(_) {
     this.confirmationModal = null;
   }
-  unlockButton() {
-    clearInterval(this.lockStateInterval);
-    this.button.prop('disabled', false).removeClass('content-locked');
-    $('#' + this.button.data('toggle'))
-      .find('.content-locked-text')
-      .remove();
+  unlockButton(lockId) {
+    delete this.lockedUntil[lockId];
+    $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).remove();
+
+    if (Object.keys(this.lockedUntil).length === 0 && this.lockedUntil.constructor === Object) {
+      clearInterval(this.lockStateInterval);
+      this.button.prop('disabled', false).removeClass('content-locked');
+    }
   }
 }
 

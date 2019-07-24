@@ -2136,6 +2136,7 @@ button.button-prime.small.bulk-delete-button {
     text-align: left;
     overflow: hidden;
     transition: all 0.25s;
+    visibility: hidden;
 
     .progress-filled {
       display: block;
@@ -2155,6 +2156,7 @@ button.button-prime.small.bulk-delete-button {
   }
   &:hover {
     .progress-bar {
+      visibility: visible;
       width: calc(100vw - 4.5rem);
     }
   }
@@ -2226,7 +2228,8 @@ button.button-prime.small.bulk-delete-button {
         padding: 0 calc(50% + 1rem) 0 1rem;
       }
     }
-    &.edit-content-link {
+    &.edit-content-link,
+    &.bulk-edit-link {
       &:hover {
         opacity: 0.9;
       }
@@ -2244,9 +2247,19 @@ button.button-prime.small.bulk-delete-button {
   }
   &.editable-lock {
     .pie-timer.alert {
+      background-color: $alert-color;
       background-image: linear-gradient(to right, transparent 50%, $alert-color 0);
       .pie-filler.greater180 {
         background-color: $alert-color;
+      }
+    }
+  }
+  &.content-locked {
+    .pie-timer {
+      background-color: $warning-color;
+      background-image: linear-gradient(to right, transparent 50%, $primary-color 0);
+      .pie-filler.greater180 {
+        background-color: $primary-color;
       }
     }
   }

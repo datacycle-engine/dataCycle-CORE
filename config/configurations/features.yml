@@ -84,5 +84,5 @@
 
 :content_lock:
   :enabled: false
-  :lock_length: <%= 30.seconds %>
-  :lock_renew_before: <%= 5.seconds %>
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
