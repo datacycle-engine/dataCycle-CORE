@@ -18,7 +18,7 @@ if data.present?
         end
       end
     elsif !options[:field_filter]
-      render 'content_header_minimal', content: item, options: { fields: new_fields }
+      render 'content_header_minimal', content: item, options: { fields: new_fields, field_filter: options[:field_filter] }
     end
   }.compact
 end
