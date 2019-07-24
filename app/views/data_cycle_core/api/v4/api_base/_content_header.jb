@@ -8,7 +8,7 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 json = {}
 
 unless options[:header_type] == :overlay # rubocop:disable Stype/IfUnlessModifier
-  json.merge! render 'content_header_minimal', content: content, options: { fields: options[:fields] }
+  json.merge! render 'content_header_minimal', content: content, options: { fields: options[:fields], field_filter: options[:field_filter] }
 end
 
 if options[:header_type] == :full
