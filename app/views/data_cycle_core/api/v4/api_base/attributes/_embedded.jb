@@ -13,12 +13,12 @@ if data.present?
         new_include = subtree_for(key_new, options[:include])
         Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, new_include, new_fields, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
           I18n.with_locale(item.first_available_locale(@language)) do
-            render 'content_details', content: item, options: { include: new_include, fields: new_fields }
+            render 'content_details', content: item, options: { include: new_include, fields: new_fields, field_filter: options[:field_filter] }
           end
         end
       end
-    elsif !options[:field_filter] || select_attributes(new_fields).include?('@id') || select_attributes(new_fields).include?('@type')
-      render 'content_header', content: item, options: options.merge({ header_type: :compact, fields: new_fields })
+    elsif !options[:field_filter]
+      render 'content_header_minimal', content: item, options: { fields: new_fields }
     end
   }.compact
 end

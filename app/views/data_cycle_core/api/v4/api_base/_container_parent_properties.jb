@@ -13,8 +13,8 @@ if content&.parent && content&.parent&.content_type?('container') && options.dig
         end
       end
     end
-  elsif !options[:field_filter] || select_attributes(new_fields).include?('@id') || select_attributes(new_fields).include?('@type')
-    json['isPartOf'] = render 'content_header', content: data, options: options.merge({ disable_children: true, header_type: :compact, fields: new_fields })
+  elsif !options[:field_filter]
+    json['isPartOf'] = render 'content_header_minimal', content: data, options: { fields: new_fields }
   end
 end
 
