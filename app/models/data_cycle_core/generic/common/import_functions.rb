@@ -47,10 +47,7 @@ module DataCycleCore
 
           if config&.dig(:asset_type).present?
             if utility_object.asset_download
-              Array(content.asset).map do |item|
-                item&.remove_file!
-                item&.destroy!
-              end
+              content.asset&.remove_file!
 
               asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
               asset.save!
