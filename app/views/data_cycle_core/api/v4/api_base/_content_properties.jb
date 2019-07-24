@@ -1,7 +1,8 @@
 # frozen_string_literal: true
 
+json ||= {}
+
 unless content.schema.nil?
-  json ||= {}
 
   ordered_validation_properties(validation: content.schema).each do |key, prop|
     next if prop.dig('api', 'disabled') && !prop.dig('type') == 'linked' # ignore linked disabled (legacy of bidirectional links)

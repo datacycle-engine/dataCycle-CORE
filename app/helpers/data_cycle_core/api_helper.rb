@@ -33,13 +33,17 @@ module DataCycleCore
       end
     end
 
-    def included_linked?(name, linked_list)
-      return if linked_list.blank?
-      linked_list.map { |item| item.first == name }.inject(&:|)
+    def included_attribute?(name, attribute_list)
+      return if attribute_list.blank?
+      attribute_list.map { |item| item.first == name }.inject(&:|)
     end
 
-    def subtree_for(name, linked_list)
-      linked_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    def subtree_for(name, attribute_list)
+      attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    end
+
+    def select_attributes(attribute_list)
+      attribute_list.map(&:first).compact
     end
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)

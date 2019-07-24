@@ -32,7 +32,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :language, :include, :format]
+          super + [:id, :language, :include, :fields, :format]
         end
 
         private
@@ -92,15 +92,16 @@ module DataCycleCore
 
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
-          @include_parameters = parse_include_params(permitted_params.dig(:include))
+          @include_parameters = parse_tree_params(permitted_params.dig(:include))
+          @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
         end
 
-        def parse_include_params(raw_include)
-          return [] if raw_include&.strip.blank?
-          raw_include.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
+        def parse_tree_params(raw_params)
+          return [] if raw_params&.strip.blank?
+          raw_params.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
         end
       end
     end

@@ -8,7 +8,6 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 json = {}
 
 unless options[:header_type] == :overlay
-  # json.merge!(render('content_context', content: content)) if options[:header_type] == :full
   json['@id'] = send("api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url", @api_subversion, content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
   json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
 end
