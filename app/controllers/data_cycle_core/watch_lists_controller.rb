@@ -3,10 +3,11 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
 
     before_action :authenticate_user! # from devise (authenticate)
-    load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item] # from cancancan (authorize)
+    load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item, :download] # from cancancan (authorize)
 
     def index
       @contents = current_user.watch_lists.page(params[:page])
@@ -236,6 +237,17 @@ module DataCycleCore
       valid = validator.validate(datahash, template_hash)
 
       render json: valid.to_json
+    end
+
+    def download
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download, @watch_list
+
+      download_items = @watch_list.things.all.to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_zip(@watch_list, download_items)
     end
 
     private

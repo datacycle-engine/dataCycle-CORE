@@ -19,6 +19,7 @@ config:
       source_type: images
       asset_type: DataCycleCore::Image
       import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+      tags_from_folders: true
       transformations:
         asset:
           template: Bild

@@ -12,7 +12,7 @@ module DataCycleCore
 
         def normalize(id, data_list, comment = 'data_cycle')
           return if data_list.blank?
-          load_data(id || SecureRandom.uuid, comment, data_list)
+          load_data(id.presence || SecureRandom.uuid, comment, data_list)
         end
 
         def load_data(id, comment, data_list)

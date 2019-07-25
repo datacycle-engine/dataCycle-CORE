@@ -1,6 +1,9 @@
 :publication_schedule:
   :enabled: false
 
+:download:
+  :enabled: false
+
 :overlay:
   :enabled: false
   :attribute_keys:

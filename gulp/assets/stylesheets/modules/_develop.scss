@@ -966,12 +966,11 @@ video {
   text-align: right;
 }
 
-.link {
+a.link {
   cursor: pointer;
   color: $body-font-color;
   transition: all ease-in-out 0.25s;
   padding: 0 0 0.5rem 1rem;
-  cursor: pointer;
 }
 
 #show-history {
