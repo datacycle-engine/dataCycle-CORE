@@ -135,6 +135,8 @@ module DataCycleCore
         key: 'content_location',
         load_more_action: 'show',
         locale: 'de',
+        content_id: @content.id,
+        content_type: 'things',
         page: 2
       }, headers: {
         referer: thing_path(@content)
@@ -147,6 +149,8 @@ module DataCycleCore
         key: 'content_location',
         load_more_action: 'show',
         locale: 'de',
+        content_id: @content.id,
+        content_type: 'things',
         page: 3
       }, headers: {
         referer: thing_path(@content)
