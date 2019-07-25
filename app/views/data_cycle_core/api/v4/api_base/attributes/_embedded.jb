@@ -20,7 +20,7 @@ if data.present?
     elsif !options[:field_filter]
       render 'content_header_minimal', content: item, options: { fields: new_fields, field_filter: options[:field_filter] }
     end
-  }.compact
+  }.compact.presence
 end
 
-json
+json.compact
