@@ -62,8 +62,8 @@
               lock_content_id: content&.id,
               lock_user_id: current_user.id
             } : {}).merge(content&.locked? ? {
-              locked_until: { content.lock.id => content&.locked_until&.to_i },
-              lock_path: content_lock_path(content.lock),
+              locks: { content.lock.id => content&.locked_until&.to_i },
+              lock_path: content_locks_path,
             } : {}) %>
         </li>
       </ul>

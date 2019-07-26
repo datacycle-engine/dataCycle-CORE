@@ -104,9 +104,11 @@
                     disable: true
                   }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
                     lock_length: DataCycleCore::Feature::ContentLock.lock_length,
-                    locked_until: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
                     lock_content_id: @watch_list&.id,
-                    lock_user_id: current_user.id
+                    lock_user_id: current_user.id,
+                    lock_check_path: check_lock_watch_list_path(@watch_list)
+                  } : {}).merge(content_locks.present? ? {
+                    locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
                   } : {}) do %>
                   <% if DataCycleCore::Feature::ContentLock.enabled? %>
                     <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>

@@ -8,21 +8,33 @@ module DataCycleCore
     before_action :authenticate_user!
 
     def update
-      @content_lock = DataCycleCore::ContentLock.find(params[:id])
+      return(head :ok) if lock_params[:lock_ids].blank?
 
-      return(head :ok) unless @content_lock.user == current_user
+      @content_locks = DataCycleCore::ContentLock.where(id: lock_params[:lock_ids])
 
-      @content_lock&.touch
+      return(head :ok) unless @content_locks.all? { |l| l.user == current_user }
+
+      @content_locks.find_each(&:touch)
+
       head :ok
     end
 
     def destroy
-      @content_lock = DataCycleCore::ContentLock.find(params[:id])
+      return(head :ok) if lock_params[:lock_ids].blank?
 
-      return(head :ok) unless @content_lock.user == current_user
+      @content_locks = DataCycleCore::ContentLock.where(id: lock_params[:lock_ids])
 
-      @content_lock.destroy
+      return(head :ok) unless @content_locks.all? { |l| l.user == current_user }
+
+      @content_locks.find_each(&:destroy)
+
       head :ok
+    end
+
+    private
+
+    def lock_params
+      params.permit(lock_ids: [])
     end
   end
 end
