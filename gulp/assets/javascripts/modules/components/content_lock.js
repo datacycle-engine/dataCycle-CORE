@@ -1,6 +1,5 @@
 // Content Lock
 let ConfirmationModal = require('./../components/confirmation_modal');
-let ActionCable = require('actioncable');
 let DurationHelpers = require('./../helpers/duration_helpers');
 
 class ContentLock {
@@ -18,17 +17,14 @@ class ContentLock {
     this.uuid = this.button.data('lock-content-id');
     this.userId = this.button.data('lock-user-id');
     this.checkLockPath = this.button.data('lock-check-path');
-    this.actionCable;
     this.lockContentChannel;
     this.confirmationModal = null;
-    this.csrfToken = document.querySelector('meta[name=csrf-token]').getAttribute('content');
-    this.csrfParam = document.querySelector('meta[name=csrf-param]').getAttribute('content');
     this.removableLockIds = [];
+    this.editOffset = 5;
 
     this.setup();
   }
   setup() {
-    console.log('setup');
     this.initActionCable();
     this.calculateLockedUntil(this.button.data('locks'));
 
@@ -40,9 +36,6 @@ class ContentLock {
     this.button.closest('.edit-header').on('mouseenter', event => {
       this.button.find('.pie-text').removeClass('show');
     });
-
-    console.log(this.locks);
-    console.log(Object.keys(this.locks).length !== 0 && this.locks.constructor === Object);
 
     if (Object.keys(this.locks).length !== 0 && this.locks.constructor === Object) {
       this.checkLockState();
@@ -57,27 +50,16 @@ class ContentLock {
   }
   checkInitialLockState() {
     $.getJSON(this.checkLockPath).done(data => {
-      console.log(data);
-      if (data !== undefined && data.locks !== undefined) {
-        this.updateLocks(data.locks, data.texts);
-      } else if (data !== undefined) {
-        for (let key in this.locks) {
-          if (this.locks.hasOwnProperty(key)) this.unlockButton(key);
-        }
-      }
+      if (data !== undefined) this.updateLocks(data.locks, data.texts);
     });
   }
   updateLocks(newLocks = {}, texts = {}) {
-    console.log('new locks fail');
-    console.log(newLocks);
-    this.locks = {};
-    // this.calculateLockedUntil(newLocks);
-    console.log(this.locks);
+    for (let key in this.locks) {
+      if (this.locks.hasOwnProperty(key)) this.unlockButton(key);
+    }
 
     if (Object.keys(newLocks).length !== 0 && newLocks.constructor === Object) {
       for (let key in newLocks) {
-        console.log('new lock imported');
-        console.log(key, newLocks[key]);
         if (newLocks.hasOwnProperty(key)) this.newLock(key, newLocks[key], texts[key]);
       }
     }
@@ -86,11 +68,12 @@ class ContentLock {
     this.removableLockIds = Object.keys(this.locks);
   }
   leavePage(event) {
-    console.log('leave Page');
-
     this.lockContentChannel.unsubscribe();
     let data = new FormData();
-    data.append(this.csrfParam, this.csrfToken);
+    data.append(
+      document.querySelector('meta[name=csrf-param]').getAttribute('content'),
+      document.querySelector('meta[name=csrf-token]').getAttribute('content')
+    );
     this.removableLockIds.forEach(lock_id => {
       data.append('lock_ids[]', lock_id);
     });
@@ -98,25 +81,20 @@ class ContentLock {
     navigator.sendBeacon(this.lockPath, data);
   }
   calculateLockedUntil(lockedUntil = {}) {
-    console.log(lockedUntil);
-
     for (let key in lockedUntil) {
-      if (lockedUntil.hasOwnProperty(key)) lockedUntil[key] = new Date((parseInt(lockedUntil[key]) - 5) * 1000);
+      if (lockedUntil.hasOwnProperty(key)) lockedUntil[key] = new Date(parseInt(lockedUntil[key]) * 1000);
     }
 
     Object.assign(this.locks, lockedUntil);
   }
   initActionCable() {
-    console.log('init ActionCable');
-    this.actionCable = ActionCable.createConsumer();
-    this.lockContentChannel = this.actionCable.subscriptions.create(
+    this.lockContentChannel = window.actionCable.subscriptions.create(
       {
         channel: 'DataCycleCore::ContentLockChannel',
         content_id: this.uuid
       },
       {
         received: data => {
-          console.log(data);
           if (data.create && data.locked_until !== undefined && !this.editable)
             this.newLock(data.lock_id, data.locked_until, data.button_text);
           else if (data.locked_until !== undefined) this.renewLock(data.lock_id, data.locked_until);
@@ -127,8 +105,6 @@ class ContentLock {
     );
   }
   newLock(lockId, lockedUntil, buttonText = '') {
-    console.log('new Lock');
-    console.log(lockId, lockedUntil, buttonText);
     let isFirst = Object.keys(this.locks).length === 0 && this.locks.constructor === Object;
     this.calculateLockedUntil({ [lockId]: lockedUntil });
 
@@ -150,7 +126,6 @@ class ContentLock {
     }
   }
   renderCountDown(diffSeconds) {
-    console.log('render Countdown');
     this.button.find('.pie-text').text(DurationHelpers.seconds_to_human_time(diffSeconds));
 
     for (let key in this.locks) {
@@ -161,7 +136,7 @@ class ContentLock {
             ' .content-locked-text#content-lock-' +
             key +
             ' .locked-until'
-        ).text(Math.max(0, parseInt((this.locks[key] - Date.now()) / (1000 * 60))) + 'min');
+        ).text(Math.max(0, Math.round(parseFloat((this.locks[key] - Date.now()) / (1000 * 60)))) + 'min');
       }
     }
 
@@ -179,13 +154,11 @@ class ContentLock {
     }
   }
   checkLockState() {
-    console.log('check lock state');
-    let diffSeconds = Math.max(0, parseInt((Math.max.apply(null, Object.values(this.locks)) - Date.now()) / 1000));
+    let diffSeconds = this.checkActiveLocks();
     let diffMinutes = parseInt(diffSeconds / 60);
+    console.log(diffSeconds);
 
-    this.renderCountDown(diffSeconds);
-    if (diffSeconds <= 0 && this.editable) return this.lockEditor();
-    else if (diffSeconds <= 0) return this.unlockButton();
+    if (diffSeconds > 0) this.renderCountDown(diffSeconds);
 
     if (!this.renewNotified && this.editable && diffSeconds <= this.lockRenewBefore) {
       this.button.find('.pie-text').addClass('show');
@@ -206,6 +179,19 @@ class ContentLock {
       });
     }
   }
+  checkActiveLocks() {
+    let max = 0;
+    for (let key in this.locks) {
+      if (!this.locks.hasOwnProperty(key)) continue;
+
+      let rest = Math.max(0, parseInt((this.locks[key] - Date.now()) / 1000)) - (this.editable ? this.editOffset : 0);
+      if (this.editable && rest <= 0) this.lockEditor(key);
+      else if (rest <= 0) this.unlockButton(key);
+
+      if (rest > max) max = rest;
+    }
+    return max;
+  }
   triggerRenewLock() {
     this.removeConfirmationModal(null);
     $.ajax({
@@ -219,22 +205,18 @@ class ContentLock {
     });
   }
   renewLock(lockId, lockedUntil) {
-    console.log('renew lock');
     this.calculateLockedUntil({ [lockId]: lockedUntil });
     this.renewNotified = false;
     this.button.find('.pie-text').removeClass('show');
   }
   lockEditor(lockId) {
-    console.log('lock Editor');
-    console.log(this.locks);
-    console.log(Object.keys(this.locks).length === 0 && this.locks.constructor === Object);
-
     delete this.locks[lockId];
 
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {
       clearInterval(this.lockStateInterval);
 
       this.button.find('.pie-timer, .pie-text').addClass('alert');
+      console.log('show alert');
       this.button
         .find('.pie-text')
         .addClass('show')
@@ -252,14 +234,9 @@ class ContentLock {
     }
   }
   removeConfirmationModal(_) {
-    console.log('remove Confirmation Modal');
     this.confirmationModal = null;
   }
   unlockButton(lockId) {
-    console.log('unlock Button');
-    console.log(this.locks);
-    console.log(Object.keys(this.locks).length === 0 && this.locks.constructor === Object);
-
     delete this.locks[lockId];
     $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).remove();
 

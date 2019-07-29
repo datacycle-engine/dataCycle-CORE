@@ -95,7 +95,7 @@
 
                 <span title="<%= t('actions.bulk_edit', locale: DataCycleCore.ui_language) +
                   (bulk_locked ? t('common.bulk_edit_locked_html', locale: DataCycleCore.ui_language) : '') +
-                  (content_locks.present? ? safe_join(content_locks.map{ |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.eventable&.first_available_locale){ cl.eventable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text') }) : '') %>" data-tooltip data-allow-html="true">
+                  (content_locks.present? ? safe_join(content_locks.map{ |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale){ cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text') }) : '') %>" data-tooltip data-allow-html="true">
                 <%= button_to bulk_edit_watch_list_path(@watch_list),
                   method: :get,
                   disabled: bulk_locked || content_locks.present?,

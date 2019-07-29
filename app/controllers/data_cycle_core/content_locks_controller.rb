@@ -4,6 +4,7 @@ module DataCycleCore
   class ContentLocksController < ApplicationController
     include DataCycleCore::ErrorHandler
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
+    rescue_from ActionController::InvalidAuthenticityToken, with: :hopefully_not_triggered
 
     before_action :authenticate_user!
 
@@ -32,6 +33,10 @@ module DataCycleCore
     end
 
     private
+
+    def hopefully_not_triggered
+      raise 'Content Lock destroy/update failed - Browser Windows closed'
+    end
 
     def lock_params
       params.permit(lock_ids: [])

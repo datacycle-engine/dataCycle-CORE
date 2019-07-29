@@ -28,6 +28,22 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    activitiable_type character varying,
+    activitiable_id uuid,
+    user_id uuid,
+    activity_type character varying,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -552,21 +568,6 @@ UNION
 
 
 --
--- Name: events; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.events (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    eventable_type character varying,
-    eventable_id uuid,
-    user_id uuid,
-    event_type character varying,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
-);
-
-
---
 -- Name: external_sources; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -877,6 +878,14 @@ ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -986,14 +995,6 @@ ALTER TABLE ONLY public.delayed_jobs
 
 ALTER TABLE ONLY public.data_links
     ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
-
-
---
--- Name: events events_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.events
-    ADD CONSTRAINT events_pkey PRIMARY KEY (id);
 
 
 --
@@ -1268,6 +1269,27 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
+
+--
+-- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activities USING btree (activity_type, updated_at);
+
+
+--
+-- Name: index_activities_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1426,27 +1448,6 @@ CREATE INDEX index_data_links_on_item_id ON public.data_links USING btree (item_
 --
 
 CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (item_type);
-
-
---
--- Name: index_events_on_event_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_event_type_and_updated_at ON public.events USING btree (event_type, updated_at);
-
-
---
--- Name: index_events_on_eventable_type_and_eventable_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_eventable_type_and_eventable_id ON public.events USING btree (eventable_type, eventable_id);
-
-
---
--- Name: index_events_on_user_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX index_events_on_user_id ON public.events USING btree (user_id);
 
 
 --

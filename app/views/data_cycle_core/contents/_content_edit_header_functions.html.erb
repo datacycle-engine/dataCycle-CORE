@@ -50,7 +50,7 @@
               tooltip: true
             }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
 
-          <%= button_tag (DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : '') + tag.i(class: 'fa fa-check', aria_hidden: true),
+          <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
             class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
             title: t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
@@ -61,7 +61,7 @@
               lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
               lock_content_id: content&.id,
               lock_user_id: current_user.id
-            } : {}).merge(content&.locked? ? {
+            } : {}).merge(DataCycleCore::Feature::ContentLock.enabled? && content&.locked? ? {
               locks: { content.lock.id => content&.locked_until&.to_i },
               lock_path: content_locks_path,
             } : {}) %>

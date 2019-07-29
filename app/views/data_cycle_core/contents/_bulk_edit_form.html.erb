@@ -21,12 +21,14 @@
 
           <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
 
-          <%= button_tag (DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : '') + tag.i(class: 'fa fa-check', aria_hidden: true),
+          <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
             class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
             title: t('actions.save_changes', locale: DataCycleCore.ui_language),
             data: {
               tooltip: true,
-              disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+              disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                tag.span(class: 'progress-value') +
+                tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
             }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
               lock_length: DataCycleCore::Feature::ContentLock.lock_length,
               lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,

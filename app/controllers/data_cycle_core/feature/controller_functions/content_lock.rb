@@ -40,7 +40,7 @@ module DataCycleCore
           @watch_list = DataCycleCore::WatchList.find(params[:id])
 
           content_locks = @watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse!
-          content_texts = safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.eventable&.first_available_locale) { cl.eventable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text') })
+          content_texts = content_locks.map { |cl| [cl.id, tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text')] }.to_h
 
           render json: { locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h, texts: content_texts }.to_json
         end
@@ -50,7 +50,7 @@ module DataCycleCore
         def check_lock_state
           @content ||= DataCycleCore::Thing.find(params[:id])
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if @content.locked? && @content.lock.user != current_user
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if @content.locked? && @content.lock.user != current_user
 
           @content.lock.destroy if @content.locked?
           @content.reload_lock
@@ -61,7 +61,7 @@ module DataCycleCore
           @content ||= DataCycleCore::Thing.find(params[:id])
 
           if @content.locked? && @content.lock.user != current_user
-            redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return
+            redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return
           elsif @content.locked?
             @content.lock.destroy
           end
@@ -72,7 +72,7 @@ module DataCycleCore
           @contents = @watch_list.things
           content_locks = @contents.includes(:lock).map(&:lock).compact
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
 
           content_locks.each(&:destroy) if content_locks.present?
           @contents.find_each do |c|
@@ -86,7 +86,7 @@ module DataCycleCore
           @contents = @watch_list.things
           content_locks = @contents.includes(:lock).map(&:lock).compact
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
 
           content_locks.each(&:destroy) if content_locks.present?
         end
