@@ -3,6 +3,15 @@
 
 :download:
   :enabled: false
+  :dependencies:
+    - serialize
+
+:serialize:
+  :enabled: false
+  :serializers:
+    :asset: false
+    :json: false
+    :xml: false
 
 :overlay:
   :enabled: false

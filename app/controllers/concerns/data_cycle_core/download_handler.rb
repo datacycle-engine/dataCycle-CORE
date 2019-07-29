@@ -4,10 +4,21 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_single(content)
-      mime_type = content.asset.file.content_type
-      file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
-      download_file = content.asset.file.path
+    def download_single(content, serialize_format)
+      serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
+      mime_type = serializer.mime_type(content)
+      file_extension = serializer.file_extension(mime_type)
+
+      if serialize_format == 'asset'
+        download_file = serializer.serialize(content)
+      else
+        file_contents = serializer.serialize(content)
+        download_dir = Rails.root.join('public', 'downloads')
+        download_file = File.join(download_dir, download_file_name(content) + file_extension)
+        File.open(File.join(download_file), 'w') do |f|
+          f.write file_contents
+        end
+      end
 
       send_file download_file, filename: "#{download_file_name(content)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
@@ -42,7 +53,7 @@ module DataCycleCore
     # remove all files older than 2 hours
     def cleanup_files(dir)
       max_age = 2
-      pattern = '*.zip'
+      pattern = '*.*'
       logger.info "DataCycleCore::DownloadHanlder: directory does not exist: #{dir}" unless File.directory?(dir)
 
       Dir.glob(File.join(File.expand_path(dir), pattern)).each do |file_name|

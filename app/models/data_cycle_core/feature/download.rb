@@ -5,7 +5,7 @@ module DataCycleCore
     class Download < Base
       class << self
         def allowed?(content = nil)
-          enabled? && configuration(content).dig('allowed') && content.respond_to?(:asset) && content.asset&.file.present?
+          enabled? && configuration(content).dig('allowed')
         end
       end
     end

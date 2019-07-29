@@ -6,6 +6,13 @@
 :download:
   :enabled: true
 
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: true
+    :json: true
+    :xml: true
+
 :overlay:
   :enabled: true
 

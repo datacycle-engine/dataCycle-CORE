@@ -47,7 +47,7 @@ DataCycleCore::Engine.routes.draw do
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :gpx, on: :member
-      get :download, on: :member
+      get 'download/:serialize_format', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection

@@ -8,8 +8,10 @@ module DataCycleCore
 
         def download
           @object = DataCycleCore::Thing.find_by(id: params[:id])
+          serialize_format = params[:serialize_format]
+
           authorize! :download, @object
-          download_single(@object)
+          download_single(@object, serialize_format)
         end
       end
     end
