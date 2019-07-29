@@ -13,7 +13,7 @@ namespace :dc do
         json_data = JSON.parse(session.response.body)
         pages = json_data.dig('meta', 'pages').to_i
         (2..pages).to_a.each do |page|
-          break if pages > 10
+          break if page > 10
           puts "loading endpoint: #{filter.name} #{filter.id} (page #{page})"
           session.get("/api/v4/endpoints/#{filter.id}?token=#{api_token}&page[number]=#{page}")
         end
