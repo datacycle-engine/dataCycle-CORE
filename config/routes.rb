@@ -199,13 +199,10 @@ DataCycleCore::Engine.routes.draw do
       end
       namespace :v4 do
         scope path: '(/:api_subversion)' do
+          # get 'things/search', to: 'contents#index', as: 'contents_search' # done by things endpoint!
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
 
-          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
-
-          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-
+          get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show], controller: :watch_lists
         end
       end

@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json = {
-  data: @watch_lists.map do |item|
+  '@graph' => @watch_lists.map do |item|
     {
       id: item.id,
       name: item.name,

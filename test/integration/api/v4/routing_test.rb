@@ -35,8 +35,26 @@ module DataCycleCore
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse response.body
+          json_data = JSON.parse(response.body)
           assert_equal(api_v4_thing_url(id: @test_content.id), json_data['@id'])
+        end
+
+        test '/api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
+          get api_v4_stored_filter_path(id: SecureRandom.uuid)
+
+          assert_response :not_found
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['error'], json_data.keys)
+        end
+
+        test '/api/v4/collections/:uuid with random :uuid responds with 404' do
+          get api_v4_collection_path(id: SecureRandom.uuid)
+
+          assert_response :not_found
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['error'], json_data.keys)
         end
       end
     end
