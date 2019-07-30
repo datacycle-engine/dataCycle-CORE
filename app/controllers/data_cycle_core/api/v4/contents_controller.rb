@@ -30,6 +30,20 @@ module DataCycleCore
           index
         end
 
+        def deleted
+          deleted_contents = DataCycleCore::Thing::History.where(
+            DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
+          )
+
+          if permitted_params.dig(:filter, :deleted_since)
+            deleted_contents = deleted_contents.where(
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+            )
+          end
+
+          @contents = apply_paging(deleted_contents)
+        end
+
         def permitted_parameter_keys
           # json-api: fields, sort
           super + [:id, :language, :include, :fields, :format]
@@ -51,6 +65,9 @@ module DataCycleCore
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language.split(',')
           query = filter.apply
+
+          query = apply_event_query_filters(query)
+          query = apply_place_query_filters(query)
 
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
@@ -75,6 +92,7 @@ module DataCycleCore
         end
 
         def apply_event_query_filters(query)
+          return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
           if permitted_params&.dig(:filter, :from).present?
             query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
           else
@@ -86,8 +104,8 @@ module DataCycleCore
         end
 
         def apply_place_query_filters(query)
-          query = query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f)) if permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
-          query
+          return query unless permitted_params&.dig(:filter, :box).present? && permitted_params&.dig(:filter, :box)&.split(',')&.size == 4
+          query.within_box(*permitted_params[:filter][:box].split(',').map(&:to_f))
         end
 
         def prepare_url_parameters
