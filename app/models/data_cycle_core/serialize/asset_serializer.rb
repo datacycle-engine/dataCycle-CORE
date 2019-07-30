@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def serialize(content)
-          content.asset.file.path
+          content.asset.file
         end
       end
     end

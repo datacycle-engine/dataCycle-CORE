@@ -12,7 +12,11 @@ module DataCycleCore
 
     def things
       @object = DataCycleCore::Thing.find_by(id: params[:id])
-      download_single(@object)
+      serialize_format = params[:serialize_format] || 'asset'
+
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Serialize.allowed_serializer?(@object, serialize_format)
+
+      download_single(@object, serialize_format)
     end
 
     def watch_lists

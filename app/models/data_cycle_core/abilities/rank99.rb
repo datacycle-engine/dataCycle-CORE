@@ -14,7 +14,7 @@ module DataCycleCore
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
         can :download, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content)
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.dependencies_allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).size.positive?
         end
         can [:download, :bulk_edit, :bulk_delete], DataCycleCore::WatchList
       end

@@ -3,6 +3,19 @@
 
 :download:
   :enabled: false
+  :collections:
+    :watch_list:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
+    :stored_filter:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
   :dependencies:
     - serialize
 

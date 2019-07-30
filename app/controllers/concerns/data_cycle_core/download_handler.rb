@@ -8,15 +8,15 @@ module DataCycleCore
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
+      serialized_content = serializer.serialize(content)
 
-      if serialize_format == 'asset'
-        download_file = serializer.serialize(content)
+      if serialized_content.is_a?(DataCycleCore::CommonUploader)
+        download_file = serialized_content.path
       else
-        file_contents = serializer.serialize(content)
         download_dir = Rails.root.join('public', 'downloads')
         download_file = File.join(download_dir, download_file_name(content) + file_extension)
         File.open(File.join(download_file), 'w') do |f|
-          f.write file_contents
+          f.write serialized_content
         end
       end
 

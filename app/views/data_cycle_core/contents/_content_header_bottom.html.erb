@@ -34,7 +34,7 @@
         <i class="fa fa-location-arrow" aria-hidden="true"></i>
     <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
 
-    <%= render 'downloads', content: content if DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.dependencies_allowed?(content) %>
+    <%= render 'downloads', content: content if can?(:download, content) %>
 
     <%= link_to edit_thing_path(content, watch_list_id: @watch_list, locale: I18n.locale), class:'button-prime small edit-content-link', data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
         <i class="fa fa-pencil" aria-hidden="true"></i>
