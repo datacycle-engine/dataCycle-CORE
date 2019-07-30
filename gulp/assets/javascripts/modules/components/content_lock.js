@@ -156,7 +156,6 @@ class ContentLock {
   checkLockState() {
     let diffSeconds = this.checkActiveLocks();
     let diffMinutes = parseInt(diffSeconds / 60);
-    console.log(diffSeconds);
 
     if (diffSeconds > 0) this.renderCountDown(diffSeconds);
 
@@ -216,7 +215,6 @@ class ContentLock {
       clearInterval(this.lockStateInterval);
 
       this.button.find('.pie-timer, .pie-text').addClass('alert');
-      console.log('show alert');
       this.button
         .find('.pie-text')
         .addClass('show')
