@@ -63,7 +63,7 @@ module DataCycleCore
           json_data = load_api_data(fields, includes)
 
           assert_equal(['image'], json_data.keys)
-          assert_equal(['headline'], json_data.dig('image', 0).keys)
+          assert_equal(['name'], json_data.dig('image', 0).keys)
           assert_equal(@overlay_image.name, json_data.dig('image', 0, 'headline'))
         end
 
