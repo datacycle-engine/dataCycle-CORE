@@ -64,7 +64,7 @@ module DataCycleCore
 
           assert_equal(['image'], json_data.keys)
           assert_equal(['name'], json_data.dig('image', 0).keys)
-          assert_equal(@overlay_image.name, json_data.dig('image', 0, 'headline'))
+          assert_equal(@overlay_image.name, json_data.dig('image', 0, 'name'))
         end
 
         test 'testing EventOverlay with fields and include parameter (field not in includes --> no data)' do
