@@ -33,13 +33,20 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :caption:
         :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
       :description:
-        :label: Teasertext
+        :label: Beschreibung (ALT-Label)
         :type: string
         :storage_location: column
         :search: true

@@ -36,7 +36,7 @@
 
     <%= link_to download_thing_path(content), class:'button-prime small download-content-link', data: { tooltip: true }, title: t('actions.download_asset', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
         <i class="fa fa-download" aria-hidden="true"></i>
-    <% end if can? :download, content %>
+    <% end if DataCycleCore::Feature::Download.enabled? && can?(:download, content) %>
 
     <% if can? :edit, content %>
       <% content_locked = DataCycleCore::Feature::ContentLock.enabled? && content.try(:lock).present? %>

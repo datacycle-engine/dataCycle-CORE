@@ -1,0 +1,25 @@
+# frozen_string_literal: true
+
+default_options = {
+  header_type: :full
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+json = {}
+
+unless options[:header_type] == :overlay # rubocop:disable Style/IfUnlessModifier
+  json.merge! render 'content_header_minimal', content: content, options: { fields: options[:fields], field_filter: options[:field_filter] }
+end
+
+if options[:header_type] == :full
+  json['@context'] = 'http://schema.org'
+  json['contentType'] = content.template_name
+  json['identifier'] = content.id
+  json['url'] = send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
+
+  # for now support just one language
+  json['inLanguage'] = content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale
+  json.delete('inLanguage') if json['inLanguage'].nil?
+end
+
+json
