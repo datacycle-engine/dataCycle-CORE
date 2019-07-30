@@ -157,6 +157,7 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
