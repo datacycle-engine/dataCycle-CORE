@@ -58,7 +58,7 @@ module DataCycleCore
         end
 
         test 'testing EventOverlay with fields and include parameter (one included data)' do
-          fields = ['image.headline']
+          fields = ['image.name']
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
@@ -68,7 +68,7 @@ module DataCycleCore
         end
 
         test 'testing EventOverlay with fields and include parameter (field not in includes --> no data)' do
-          fields = ['image.headline', 'name']
+          fields = ['image.name', 'name']
           includes = ['location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
