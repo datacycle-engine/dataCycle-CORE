@@ -72,7 +72,7 @@ module DataCycleCore
           @contents = @watch_list.things
           content_locks = @contents.includes(:lock).map(&:lock).compact
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: content_locks.find { |c| c.user != current_user }.user&.full_name, data: distance_of_time_in_words(content_locks.find { |c| c.user != current_user }.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
 
           content_locks.each(&:destroy) if content_locks.present?
           @contents.find_each do |c|
@@ -86,7 +86,7 @@ module DataCycleCore
           @contents = @watch_list.things
           content_locks = @contents.includes(:lock).map(&:lock).compact
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: content_locks.find { |c| c.user != current_user }.user&.full_name, data: distance_of_time_in_words(content_locks.find { |c| c.user != current_user }.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
 
           content_locks.each(&:destroy) if content_locks.present?
         end

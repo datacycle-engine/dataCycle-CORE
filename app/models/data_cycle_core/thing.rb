@@ -23,6 +23,7 @@ module DataCycleCore
 
       belongs_to :original, class_name: 'DataCycleCore::Thing'
       belongs_to :duplicate, class_name: 'DataCycleCore::Thing'
+      belongs_to :thing_duplicate
 
       def self.with_fp
         unscope(where: :false_positive)
