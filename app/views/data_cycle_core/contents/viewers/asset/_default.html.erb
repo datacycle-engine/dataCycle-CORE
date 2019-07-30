@@ -29,6 +29,10 @@
             <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns.dig(:options, :prefix) %><%= asset.id %>-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true">
               <h5><%= t('common.duplicates_exist', data: asset.duplicate_candidates.size, count: asset.duplicate_candidates.size, locale: DataCycleCore.ui_language) %></h5>
 
+              <% if cannot?(:create_duplicate, asset) %>
+                <p class="content-warning-text alert"><%= t('common.cant_create_duplicate', locale: DataCycleCore.ui_language) %></p>
+              <% end %>
+
               <ul class="list-items duplicates-list no-bullet">
                 <% asset.duplicate_candidates.each do |duplicate| %>
                   <li>
