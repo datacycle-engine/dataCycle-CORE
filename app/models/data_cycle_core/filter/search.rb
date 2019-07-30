@@ -233,11 +233,11 @@ module DataCycleCore
       def duplicate_candidates(value)
         if value == 'true'
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists)
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists)
           )
         else
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists.not)
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists.not)
           )
         end
       end
