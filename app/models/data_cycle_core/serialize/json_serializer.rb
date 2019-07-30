@@ -19,6 +19,15 @@ module DataCycleCore
             layout: false
           )
         end
+
+        def serialize_watchlist(watch_list)
+          pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
+          DataCycleCore::Api::V3::WatchListsController.render(
+            assigns: { contents: pagination_contents, watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [], api_version: 3 },
+            template: 'data_cycle_core/api/v3/watch_lists/show',
+            layout: false
+          )
+        end
       end
     end
   end

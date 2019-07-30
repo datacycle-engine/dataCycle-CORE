@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def enabled_serializers
-          configuration.dig('serializers')
+          configuration.dig('serializers').select { |_, v| v.present? }
         end
       end
     end

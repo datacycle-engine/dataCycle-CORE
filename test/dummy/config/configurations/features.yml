@@ -5,6 +5,12 @@
 
 :download:
   :enabled: true
+  :collections:
+    :watch_list:
+      :enabled: true
+      :serializers:
+        :json: true
+        :xml: true
 
 :serialize:
   :enabled: true

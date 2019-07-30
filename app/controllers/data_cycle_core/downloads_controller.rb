@@ -21,15 +21,26 @@ module DataCycleCore
 
     def watch_lists
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+      serialize_format = params[:serialize_format]
+
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.watchlist_enabled? || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
+
+      download_watchlist(@watch_list, serialize_format)
+    end
+
+    def watch_list_collections
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Download.watchlist_enabled?
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
       end
 
-      download_zip(@watch_list, download_items)
+      download_collection(@watch_list, download_items)
     end
 
-    def stored_filters
+    def stored_filter_collections
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       items = @stored_filter.apply
 
@@ -37,12 +48,8 @@ module DataCycleCore
         DataCycleCore::Feature::Download.allowed?(thing)
       end
 
-      download_zip(@stored_filter, download_items)
+      download_collection(@stored_filter, download_items)
     end
-
-    # def current_ability
-    #   DataCycleCore::Ability.new(current_user, session)
-    # end
 
     private
 

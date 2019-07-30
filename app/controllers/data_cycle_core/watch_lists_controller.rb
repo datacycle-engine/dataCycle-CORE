@@ -239,13 +239,20 @@ module DataCycleCore
 
     def download
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+      serialize_format = params[:serialize_format]
       authorize! :download, @watch_list
+      download_watchlist(@watch_list, serialize_format)
+    end
+
+    def download_zip
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download_zip, @watch_list
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_zip(@watch_list, download_items)
+      download_collection(@watch_list, download_items)
     end
 
     private

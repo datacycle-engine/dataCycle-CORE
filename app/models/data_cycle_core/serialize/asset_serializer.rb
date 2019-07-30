@@ -5,7 +5,7 @@ module DataCycleCore
     class AssetSerializer
       class << self
         def mime_type(content)
-          content.asset.file.content_type
+          content.asset&.file&.content_type
         end
 
         def file_extension(mime_type)
@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def serialize(content)
-          content.asset.file
+          content.asset&.file
         end
       end
     end

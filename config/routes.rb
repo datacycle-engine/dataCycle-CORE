@@ -73,8 +73,10 @@ DataCycleCore::Engine.routes.draw do
 
   resource :downloads, only: [] do
     get '/things(/:id)(/:serialize_format)', on: :member, action: 'things'
-    get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
     get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
+    get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
+    get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
+    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
   end
 
   resources :data_links do
@@ -89,7 +91,8 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
-    get :download, on: :member
+    get :download_zip, on: :member
+    get 'download/:serialize_format', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
 

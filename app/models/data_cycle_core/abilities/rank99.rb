@@ -14,9 +14,15 @@ module DataCycleCore
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
         can :download, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.dependencies_allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).size.positive?
+          DataCycleCore::Feature::Download.allowed?(content)
         end
-        can [:download, :bulk_edit, :bulk_delete], DataCycleCore::WatchList
+        can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
+        can [:download], DataCycleCore::WatchList do |_watch_list|
+          DataCycleCore::Feature::Download.watchlist_enabled? && DataCycleCore::Feature::Download.available_collection_serializers('watch_list').size.positive?
+        end
+        can [:download_zip], DataCycleCore::WatchList do |_watch_list|
+          DataCycleCore::Feature::Download.watchlist_enabled?
+        end
       end
     end
   end
