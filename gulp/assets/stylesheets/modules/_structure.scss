@@ -218,6 +218,7 @@ button.button-prime {
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+  line-height: 5rem;
   padding: 0;
 
   &.alert {
@@ -243,6 +244,8 @@ button.button-prime {
     position: relative;
     display: block;
     line-height: 5rem;
+    height: 100%;
+    width: 100%;
     font-size: 3.5rem;
   }
 

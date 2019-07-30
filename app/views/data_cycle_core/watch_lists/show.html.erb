@@ -89,17 +89,34 @@
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               <% end if can?(:edit, @watch_list) %>
 
-              <% bulk_editable = @watch_list.things.all? { |t| can?(:edit, t) } %>
-              <%= button_to bulk_edit_watch_list_path(@watch_list),
-                method: :get,
-                class: 'button-prime small bulk-edit-link',
-                title: t('actions.bulk_edit', locale: DataCycleCore.ui_language) + (bulk_editable ? '' : t('common.bulk_edit_locked_html', locale: DataCycleCore.ui_language)),
-                data: {
-                  tooltip: true,
-                  allow_html: true
-                }, disabled: !bulk_editable do %>
-                <i class="fa fa-pencil-square-o"></i>
-              <% end if can?(:bulk_edit, @watch_list) %>
+              <% if can? :bulk_edit, @watch_list %>
+                <% bulk_locked = @watch_list.things.any? { |t| cannot?(:edit, t) } %>
+                <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? @watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
+
+                <span title="<%= t('actions.bulk_edit', locale: DataCycleCore.ui_language) +
+                  (bulk_locked ? t('common.bulk_edit_locked_html', locale: DataCycleCore.ui_language) : '') +
+                  (content_locks.present? ? safe_join(content_locks.map{ |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale){ cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text') }) : '') %>" data-tooltip data-allow-html="true">
+                <%= button_to bulk_edit_watch_list_path(@watch_list),
+                  method: :get,
+                  disabled: bulk_locked || content_locks.present?,
+                  class: "button-prime small bulk-edit-link #{'bulk_locked' if bulk_locked} #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked' if content_locks.present?}",
+                  data: {
+                    disable: true
+                  }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+                    lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+                    lock_content_id: @watch_list&.id,
+                    lock_user_id: current_user.id,
+                    lock_check_path: check_lock_watch_list_path(@watch_list)
+                  } : {}).merge(content_locks.present? ? {
+                    locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+                  } : {}) do %>
+                  <% if DataCycleCore::Feature::ContentLock.enabled? %>
+                    <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+                  <% end %>
+                  <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+                <% end %>
+                </span>
+              <% end %>
 
               <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { tooltip: true, confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
                   <i class="fa fa-trash-o" aria-hidden="true"></i>

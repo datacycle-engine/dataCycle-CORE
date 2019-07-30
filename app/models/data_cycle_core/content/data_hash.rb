@@ -28,7 +28,7 @@ module DataCycleCore
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
-        @data_hash = data_hash.clone
+        @data_hash = data_hash.clone.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history

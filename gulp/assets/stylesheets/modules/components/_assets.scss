@@ -37,6 +37,20 @@
   }
 }
 
+.asset-selector-reveal .asset-list li {
+  .content-warning {
+    font-size: 2rem;
+    &.alert {
+      font-size: 4.5rem;
+    }
+  }
+  .content-warning-text.alert {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: $alert-color;
+  }
+}
+
 ul.asset-list {
   display: flex;
   flex-flow: row wrap;
@@ -157,17 +171,6 @@ ul.asset-list {
       img {
         max-height: 300px;
       }
-    }
-    .content-warning {
-      font-size: 2.5rem;
-      &.alert {
-        font-size: 4.5rem;
-      }
-    }
-    .content-warning-text.alert {
-      font-size: 1.1rem;
-      font-weight: bold;
-      color: $alert-color;
     }
   }
 

@@ -44,3 +44,6 @@
 
 :duplicate_candidate:
   :enabled: true
+
+:content_lock:
+  :enabled: true

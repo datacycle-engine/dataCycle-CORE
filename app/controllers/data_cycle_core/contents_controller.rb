@@ -102,7 +102,7 @@ module DataCycleCore
     end
 
     def edit
-      @content = DataCycleCore::Thing.find(params[:id])
+      @content ||= DataCycleCore::Thing.find(params[:id])
 
       # get show data for split view
       if source_params.present?
@@ -141,7 +141,7 @@ module DataCycleCore
     end
 
     def update
-      @content = DataCycleCore::Thing.find(params[:id])
+      @content ||= DataCycleCore::Thing.find(params[:id])
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
         authorize!(:update, @content)
 
