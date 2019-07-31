@@ -243,7 +243,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
       authorize! :download, @watch_list
-      download_watchlist(@watch_list, serialize_format)
+      download_watch_list(@watch_list, serialize_format)
     end
 
     def download_zip

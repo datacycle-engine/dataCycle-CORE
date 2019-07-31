@@ -23,7 +23,7 @@ module DataCycleCore
           )&.to_xml
         end
 
-        def serialize_watchlist(watch_list)
+        def serialize_watch_list(watch_list)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::WatchListsController.render(
               assigns: { watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [] },

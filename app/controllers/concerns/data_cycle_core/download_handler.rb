@@ -20,17 +20,17 @@ module DataCycleCore
       send_file download_file, filename: "#{download_file_name(content)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
-    def download_watchlist(watchlist, serialize_format)
+    def download_watch_list(watch_list, serialize_format)
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
-      mime_type = serializer.mime_type(watchlist)
+      mime_type = serializer.mime_type(watch_list)
       file_extension = serializer.file_extension(mime_type)
-      serialized_content = serializer.serialize_watchlist(watchlist)
+      serialized_content = serializer.serialize_watch_list(watch_list)
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serialized_content
 
-      download_file = create_download_file(serialized_content, watchlist, file_extension)
+      download_file = create_download_file(serialized_content, watch_list, file_extension)
 
-      send_file download_file, filename: "#{download_file_name(watchlist)}#{file_extension}", disposition: 'attachment', type: mime_type
+      send_file download_file, filename: "#{download_file_name(watch_list)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
     def download_stored_filter(stored_filter, serialize_format)
