@@ -157,6 +157,7 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
@@ -164,6 +165,8 @@ de:
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update_check_box_label: '%{data} überschreiben?'
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
 
   external_connection_states:
     success: Erfolgreich synchronisiert

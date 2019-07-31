@@ -47,6 +47,7 @@ require 'helpers/test_preparations_helper'
 require 'helpers/dummy_data_helper'
 require 'helpers/data_helper'
 require 'helpers/mongo_helper'
+require 'helpers/api_v4_helper'
 
 if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
   Rails.backtrace_cleaner.remove_silencers!

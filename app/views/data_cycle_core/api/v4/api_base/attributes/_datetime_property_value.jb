@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+property_header = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
+property_header.merge({ 'value' => value })

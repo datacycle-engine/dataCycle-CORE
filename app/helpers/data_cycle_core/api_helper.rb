@@ -33,8 +33,21 @@ module DataCycleCore
       end
     end
 
+    def included_attribute?(name, attribute_list)
+      return if attribute_list.blank?
+      attribute_list.map { |item| item.first == name }.inject(&:|)
+    end
+
+    def subtree_for(name, attribute_list)
+      attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    end
+
+    def select_attributes(attribute_list)
+      attribute_list.map(&:first).compact
+    end
+
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
-      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
+      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters.sort.join('_')}"
     end
   end
 end

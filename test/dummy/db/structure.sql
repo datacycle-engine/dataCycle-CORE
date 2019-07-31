@@ -28,6 +28,22 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    activitiable_type character varying,
+    activitiable_id uuid,
+    user_id uuid,
+    activity_type character varying,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -862,6 +878,14 @@ ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public
 
 
 --
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: ar_internal_metadata ar_internal_metadata_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1242,6 +1266,27 @@ CREATE INDEX extid_extkey_del_idx ON public.classifications USING btree (deleted
 --
 
 CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm_ops);
+
+
+--
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
+
+--
+-- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activities USING btree (activity_type, updated_at);
+
+
+--
+-- Name: index_activities_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
 
 
 --
@@ -1909,6 +1954,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190531093158'),
 ('20190612084614'),
 ('20190613092317'),
-('20190716081614');
+('20190716081614'),
+('20190716130050');
 
 

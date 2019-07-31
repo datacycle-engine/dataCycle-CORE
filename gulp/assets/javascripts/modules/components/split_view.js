@@ -2,6 +2,7 @@
 class SplitView {
   constructor(container = document) {
     this.container = $(container);
+    this.submitButton = this.container.closest('edit-form').find('.edit-header .submit-edit-form');
     this.selectors = [
       '> .object-browser',
       '> .embedded-object',
@@ -231,6 +232,8 @@ class SplitView {
       .trigger('click');
   }
   copyContents(value, label, key) {
+    if ($('.edit-header .submit-edit-form').prop('disabled')) return;
+
     let target = $('.flex-box .edit-content [data-key="' + key + '"]');
 
     target.find(this.selectors.join(', ')).trigger('dc:import:data', {
