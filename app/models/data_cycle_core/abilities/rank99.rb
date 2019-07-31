@@ -13,15 +13,15 @@ module DataCycleCore
         can :show_admin_panel, DataCycleCore::Thing
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
+        can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
         end
-        can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
         can [:download], DataCycleCore::WatchList do |_watch_list|
-          DataCycleCore::Feature::Download.watchlist_enabled? && DataCycleCore::Feature::Download.available_collection_serializers('watch_list').size.positive?
+          DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list')
         end
         can [:download_zip], DataCycleCore::WatchList do |_watch_list|
-          DataCycleCore::Feature::Download.watchlist_enabled?
+          DataCycleCore::Feature::Download.collection_enabled?('watch_list')
         end
       end
     end

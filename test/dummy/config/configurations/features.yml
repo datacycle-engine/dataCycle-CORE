@@ -10,7 +10,7 @@
       :enabled: true
       :serializers:
         :json: true
-        :xml: true
+        :xml: false
 
 :serialize:
   :enabled: true

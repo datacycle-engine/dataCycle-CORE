@@ -8,17 +8,21 @@ module DataCycleCore
           enabled? && configuration(content).dig('allowed') && DataCycleCore::Feature::Download.dependencies_allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).size.positive?
         end
 
-        def available_collection_serializers(type)
-          enabled_serializers = DataCycleCore::Feature::Serialize.enabled_serializers
-          enabled_collection_serializers(type).select { |k, _| enabled_serializers.dig(k) }
+        def collection_enabled?(type)
+          enabled? && configuration.dig('collections', type, 'enabled')
         end
 
-        def watchlist_enabled?
-          enabled? && configuration.dig('collections', 'watch_list', 'enabled')
+        def collection_serializer_enabled?(type)
+          enabled? && collection_enabled?(type) && enabled_collection_serializers(type).size.positive?
         end
 
         def enabled_collection_serializers(type)
           configuration.dig('collections', type, 'serializers').select { |_, v| v.present? }
+        end
+
+        def available_collection_serializers(type)
+          enabled_serializers = DataCycleCore::Feature::Serialize.enabled_serializers
+          enabled_collection_serializers(type).select { |k, _| enabled_serializers.dig(k) }
         end
       end
     end

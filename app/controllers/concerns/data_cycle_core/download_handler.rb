@@ -6,6 +6,9 @@ module DataCycleCore
 
     def download_single(content, serialize_format)
       serializer = serializer_for_content(content, serialize_format)
+
+      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serializer
+
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
       serialized_content = serializer.serialize(content)
@@ -94,7 +97,8 @@ module DataCycleCore
     end
 
     def serializer_for_content(content, serialize_format = nil)
-      return ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if serialize_format.present? && DataCycleCore::Feature::Serialize.allowed_serializer?(content, serialize_format)
+      return if content.blank?
+      ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if serialize_format.present? && DataCycleCore::Feature::Serialize.allowed_serializer?(content, serialize_format)
     end
   end
 end

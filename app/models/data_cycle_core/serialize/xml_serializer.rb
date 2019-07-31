@@ -13,19 +13,25 @@ module DataCycleCore
         end
 
         def serialize(content)
-          DataCycleCore::Xml::V1::ContentsController.render(
-            assigns: { content: content, language: 'de', include_parameters: [], mode_parameters: [] },
-            template: 'data_cycle_core/xml/v1/contents/show',
-            layout: false
-          )
+          Nokogiri::XML(
+            DataCycleCore::Xml::V1::ContentsController.render(
+              assigns: { content: content, language: 'de', include_parameters: [], mode_parameters: [] },
+              template: 'data_cycle_core/xml/v1/contents/show',
+              layout: false
+            ),
+            &:noblanks
+          )&.to_xml
         end
 
         def serialize_watchlist(watch_list)
-          DataCycleCore::Xml::V1::WatchListsController.render(
-            assigns: { watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [] },
-            template: 'data_cycle_core/xml/v1/watch_lists/show',
-            layout: false
-          )
+          Nokogiri::XML(
+            DataCycleCore::Xml::V1::WatchListsController.render(
+              assigns: { watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [] },
+              template: 'data_cycle_core/xml/v1/watch_lists/show',
+              layout: false
+            ),
+            &:noblanks
+          )&.to_xml
         end
       end
     end

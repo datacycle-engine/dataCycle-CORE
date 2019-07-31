@@ -5,7 +5,7 @@ module DataCycleCore
     class Serialize < Base
       class << self
         def available_serializers(content = nil)
-          configuration(content).dig('serializers').select { |k, _v| enabled_serializers.dig(k) }
+          configuration(content).dig('serializers').select { |k, _| enabled_serializers.dig(k) }
         end
 
         def allowed_serializer?(content, serializer)
