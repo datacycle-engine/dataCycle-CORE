@@ -4,7 +4,7 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_single(content, serialize_format)
+    def download_content(content, serialize_format)
       serializer = serializer_for_content(content, serialize_format)
 
       redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serializer

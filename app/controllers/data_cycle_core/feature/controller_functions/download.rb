@@ -11,7 +11,7 @@ module DataCycleCore
           serialize_format = params[:serialize_format]
 
           authorize! :download, @object
-          download_single(@object, serialize_format)
+          download_content(@object, serialize_format)
         end
       end
     end

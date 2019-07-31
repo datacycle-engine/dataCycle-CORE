@@ -16,7 +16,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Serialize.allowed_serializer?(@object, serialize_format)
 
-      download_single(@object, serialize_format)
+      download_content(@object, serialize_format)
     end
 
     def watch_lists
