@@ -249,12 +249,13 @@ module DataCycleCore
     def download_zip
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       authorize! :download_zip, @watch_list
+      serialize_format = params[:serialize_format].select { |_, v| v.to_i.positive? }&.keys
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_collection(@watch_list, download_items)
+      download_collection(@watch_list, download_items, serialize_format)
     end
 
     private
@@ -264,7 +265,7 @@ module DataCycleCore
     end
 
     def hashable_params
-      params.permit(:hashable_id, :hashable_type)
+      params.permit(:hashable_id, :hashable_type, serialize_format: [])
     end
 
     def content_params(property_hash)

@@ -1,0 +1,27 @@
+
+<%= form_with url: download_zip_watch_list_path(watch_list.id),
+              method: :get,
+              local: true do %>
+
+    <div class="form-crumbs"></div>
+
+    <fieldset class="active template">
+        <legend>Format</legend>
+        <div class="form-element">
+            <%= label_tag "format", 'format' %>
+            <% DataCycleCore::Feature::Serialize.enabled_serializers.each_key do |serializer_key| %>
+                <div>
+                    <%= check_box_tag "serialize_format[#{serializer_key}]" %>
+                    <%= label_tag "serialize_format[#{serializer_key}]", "#{serializer_key}" %>
+                </div>
+            <% end %>
+        </div>
+    </fieldset>
+
+    <div class="buttons">
+        <%= button_tag 'download',
+                       type: :submit,
+                       class: "button submit" %>
+    </div>
+
+<% end %>

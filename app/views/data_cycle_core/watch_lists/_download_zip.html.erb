@@ -1,0 +1,19 @@
+<a data-toggle="download_zip_<%= watch_list.id %>" class="button-prime small download-content-link" title="ZIP" data-tooltip>
+    <i class="fa fa-download" aria-hidden="true"></i>
+</a>
+
+<div class="reveal download-content-reveal"
+     id="download_zip_<%= watch_list.id %>"
+     data-reveal>
+    <h3 class="new_content_form_title"><%= t('common.download_content', locale: DataCycleCore.ui_language) %></h3>
+
+    <div class="new-content-form remote-render"
+         id="<%= watch_list.id %>_download_zip"
+         data-remote-path="data_cycle_core/application/downloads/zip"
+         data-remote-options="<%= to_query_params({watch_list: watch_list}).to_json %>">
+    </div>
+
+    <button class="close-button" data-close aria-label="Close modal" type="button">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>

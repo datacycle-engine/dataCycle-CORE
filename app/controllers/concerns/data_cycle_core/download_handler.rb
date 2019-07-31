@@ -30,7 +30,7 @@ module DataCycleCore
       send_file download_file, filename: "#{download_file_name(watchlist)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
-    def download_collection(collection, items)
+    def download_collection(collection, items, serialize_format)
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
@@ -41,19 +41,24 @@ module DataCycleCore
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           items.each do |content|
-            serializer = serializer_for_content(content)
-            mime_type = serializer.mime_type(content)
-            file_extension = serializer.file_extension(mime_type)
-            serialized_content = serializer.serialize(content)
+            serialize_format.each do |format|
+              serializer = serializer_for_content(content, format)
 
-            next unless serialized_content
+              next unless serializer
 
-            download_file = create_download_file(serialized_content, content, file_extension)
+              mime_type = serializer.mime_type(content)
+              file_extension = serializer.file_extension(mime_type)
+              serialized_content = serializer.serialize(content)
 
-            file_name = download_file_name(content)
-            file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
+              next unless serialized_content
 
-            zipfile.add("#{file_name}#{file_extension}", download_file)
+              download_file = create_download_file(serialized_content, content, file_extension)
+
+              file_name = download_file_name(content)
+              file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
+
+              zipfile.add("#{file_name}#{file_extension}", download_file)
+            end
           end
         end
       end
@@ -89,14 +94,7 @@ module DataCycleCore
     end
 
     def serializer_for_content(content, serialize_format = nil)
-      return ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if serialize_format.present?
-
-      serializers = DataCycleCore::Feature::Serialize.available_serializers(content)
-      return ('DataCycleCore::Serialize::' + first_available_serializer(serializers).classify + 'Serializer').constantize if serializers.size.positive?
-    end
-
-    def first_available_serializer(serializers)
-      serializers.first[0].to_s
+      return ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if serialize_format.present? && DataCycleCore::Feature::Serialize.allowed_serializer?(content, serialize_format)
     end
   end
 end
