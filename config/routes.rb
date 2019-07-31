@@ -78,9 +78,9 @@ DataCycleCore::Engine.routes.draw do
   resource :downloads, only: [] do
     get '/things(/:id)(/:serialize_format)', on: :member, action: 'things'
     get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
+    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
     get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
     get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
-    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
   end
 
   resources :data_links do

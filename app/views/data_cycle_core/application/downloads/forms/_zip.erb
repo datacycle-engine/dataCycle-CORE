@@ -1,18 +1,16 @@
-
-<%= form_with url: download_zip_watch_list_path(watch_list.id),
+<%= form_with url: polymorphic_path([:download_zip, content]),
               method: :get,
               local: true do %>
 
     <div class="form-crumbs"></div>
 
     <fieldset class="active template">
-        <legend>Format</legend>
+        <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <%= label_tag "format", 'format' %>
             <% DataCycleCore::Feature::Serialize.enabled_serializers.each_key do |serializer_key| %>
                 <div>
                     <%= check_box_tag "serialize_format[#{serializer_key}]" %>
-                    <%= label_tag "serialize_format[#{serializer_key}]", "#{serializer_key}" %>
+                    <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
                 </div>
             <% end %>
         </div>

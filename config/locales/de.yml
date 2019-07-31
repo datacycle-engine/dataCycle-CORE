@@ -168,6 +168,7 @@ de:
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     download:
+      :available_formats: Verfügbare Formate
       :asset: Datei
       :json: Json-Format
       :xml: XML-Format
@@ -271,6 +272,7 @@ de:
     open_asset: "Datei öffnen"
     download: "herunterlanden"
     download_content: "Inhalt herunterladen"
+    download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."

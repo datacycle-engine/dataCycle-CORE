@@ -23,16 +23,16 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
 
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.watchlist_enabled? || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
 
       download_watchlist(@watch_list, serialize_format)
     end
 
     def watch_list_collections
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Download.watchlist_enabled?
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Download.collection_enabled?('watch_list')
 
-      serialize_format = params[:serialize_format].split(',')
+      serialize_format = params[:serialize_format]&.split(',')
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
