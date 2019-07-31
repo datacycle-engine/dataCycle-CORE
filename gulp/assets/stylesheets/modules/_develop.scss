@@ -2266,12 +2266,16 @@ button.button-prime.small.bulk-delete-button {
 
 
 .download-content-reveal {
-    .download-content-link {
-      border-bottom: 1px solid $light-gray;
-      display: block;
-      padding: 1rem 0;
-      span {
-        margin-left: 0.5rem;
-      }
+  .download-content-link {
+    border-bottom: 1px solid $light-gray;
+    display: block;
+    padding: 1rem 0;
+    span {
+      margin-left: 0.5rem;
     }
   }
+}
+.stored-searches-list ul li.content-item span.buttons{
+  max-width: 5.5rem;
+  text-align: right;
+}

@@ -28,6 +28,16 @@ module DataCycleCore
             layout: false
           )
         end
+
+        def serialize_stored_filter(stored_filter)
+          contents = stored_filter.apply
+          pagination_contents = contents.page(1).per(contents.count)
+          DataCycleCore::Api::V3::ContentsController.render(
+            assigns: { contents: pagination_contents, language: 'de', include_parameters: [], mode_parameters: [], api_version: 3 },
+            template: 'data_cycle_core/api/v3/contents/index',
+            layout: false
+          )
+        end
       end
     end
   end

@@ -11,6 +11,11 @@
       :serializers:
         :json: true
         :xml: true
+    :stored_filter:
+      :enabled: true
+      :serializers:
+        :json: true
+        :xml: true
 
 :serialize:
   :enabled: true

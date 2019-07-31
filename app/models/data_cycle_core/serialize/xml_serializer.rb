@@ -33,6 +33,19 @@ module DataCycleCore
             &:noblanks
           )&.to_xml
         end
+
+        def serialize_stored_filter(stored_filter)
+          contents = stored_filter.apply
+          pagination_contents = contents.page(1).per(contents.count)
+          Nokogiri::XML(
+            DataCycleCore::Xml::V1::ContentsController.render(
+              assigns: { contents: pagination_contents, language: 'de', include_parameters: [], mode_parameters: [] },
+              template: 'data_cycle_core/xml/v1/contents/index',
+              layout: false
+            ),
+            &:noblanks
+          )&.to_xml
+        end
       end
     end
   end

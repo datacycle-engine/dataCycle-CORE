@@ -23,7 +23,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
 
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
 
       download_watchlist(@watch_list, serialize_format)
     end
@@ -41,11 +41,20 @@ module DataCycleCore
       download_collection(@watch_list, download_items, serialize_format)
     end
 
+    def stored_filters
+      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
+      serialize_format = params[:serialize_format]
+
+      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('stored_filter').dig(serialize_format).blank?
+
+      download_stored_filter(@stored_filter, serialize_format)
+    end
+
     def stored_filter_collections
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       items = @stored_filter.apply
 
-      serialize_format = params[:serialize_format].split(',')
+      serialize_format = params[:serialize_format]&.split(',')
 
       download_items = items.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)

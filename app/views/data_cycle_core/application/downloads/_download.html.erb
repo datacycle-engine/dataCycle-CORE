@@ -1,4 +1,7 @@
-<a data-toggle="download_<%= content.id %>" class="button-prime small download-content-link" title="<%= t('actions.download_content', locale: DataCycleCore.ui_language) %>" data-tooltip>
+<a data-toggle="download_<%= content.id %>"
+    class="<%= 'button-prime small ' unless content.class.to_s == 'DataCycleCore::StoredFilter' %>download-content-link"
+    title="<%= t('actions.download_content', locale: DataCycleCore.ui_language) %>"
+    data-tooltip>
     <i class="fa fa-download" aria-hidden="true"></i>
 </a>
 

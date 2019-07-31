@@ -33,6 +33,19 @@ module DataCycleCore
       send_file download_file, filename: "#{download_file_name(watchlist)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
+    def download_stored_filter(stored_filter, serialize_format)
+      serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
+      mime_type = serializer.mime_type(stored_filter)
+      file_extension = serializer.file_extension(mime_type)
+      serialized_content = serializer.serialize_stored_filter(stored_filter)
+
+      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serialized_content
+
+      download_file = create_download_file(serialized_content, stored_filter, file_extension)
+
+      send_file download_file, filename: "#{download_file_name(stored_filter)}#{file_extension}", disposition: 'attachment', type: mime_type
+    end
+
     def download_collection(collection, items, serialize_format)
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)

@@ -20,9 +20,9 @@
           </span>
         </li>
       <% end %>
-      <% if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
+      <%# if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
         <li class="more-link"><%= link_to '...', stored_filters_path %></li>
-      <% end %>
+      <%# end %>
     </ul>
   </div>
 </div>
