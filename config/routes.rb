@@ -211,7 +211,7 @@ DataCycleCore::Engine.routes.draw do
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show], controller: :watch_lists
 
-          resources :users, only: [:index], controller: :users
+          resources :users, only: [:index, :create], controller: :users
         end
       end
     end
