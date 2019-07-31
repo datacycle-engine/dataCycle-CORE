@@ -92,7 +92,11 @@ module DataCycleCore
       return ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize if serialize_format.present?
 
       serializers = DataCycleCore::Feature::Serialize.available_serializers(content)
-      return ('DataCycleCore::Serialize::' + serializers.first[0].to_s.classify + 'Serializer').constantize if serializers.size.positive?
+      return ('DataCycleCore::Serialize::' + first_available_serializer(serializers).classify + 'Serializer').constantize if serializers.size.positive?
+    end
+
+    def first_available_serializer(serializers)
+      serializers.first[0].to_s
     end
   end
 end
