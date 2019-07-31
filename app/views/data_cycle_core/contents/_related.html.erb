@@ -1,11 +1,11 @@
 <%
-    related_objects = content&.related_to&.uniq {|item| item.id}
-    grouped_objects = related_objects&.group_by { |d| d[:template_name] }
-    if related_objects.count.positive?
+    related_objects = content&.related_contents&.includes(:translations)&.order(:template_name)
+    grouped_objects = related_objects&.group_by(&:template_name)
+    if related_objects.present?
 %>
 <section class="related-objects">
     <span class="horizontal-separator-header">
-      <h4 class="header-text"><%= t('common.related_items', locale: DataCycleCore.ui_language) %> (<%= related_objects.count %>)</h4>
+      <h4 class="header-text"><%= t('common.related_items', locale: DataCycleCore.ui_language) %> (<%= related_objects.size %>)</h4>
     </span>
 
     <ul class="list">
