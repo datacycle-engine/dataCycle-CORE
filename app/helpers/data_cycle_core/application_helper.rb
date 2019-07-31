@@ -157,6 +157,8 @@ module DataCycleCore
         )
       end
 
+      partials = partials.map { |p| "data_cycle_core/contents/#{p}" }
+
       render_first_existing_partial(partials, parameters)
     end
 
