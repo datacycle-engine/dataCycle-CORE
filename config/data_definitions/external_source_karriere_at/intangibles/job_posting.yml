@@ -43,16 +43,16 @@
           :transformation:
             :method: combine
             :name: additionalProperty
-      :same_as:
-        :label: Link
-        :type: string
-        :storage_location: value
+      # :same_as:
+      #   :label: Link
+      #   :type: string
+      #   :storage_location: value
       :potential_action:
         :label: GoogleAnalytics Link
         :type: object
         :storage_location: translated_value
         :api:
-          :type: Action
+          :type: ViewAction
         :properties:
           :name:
             :label: Name

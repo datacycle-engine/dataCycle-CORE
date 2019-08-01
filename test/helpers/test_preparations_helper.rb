@@ -22,10 +22,11 @@ module DataCycleCore
       {
         creative_works: {},
         events: {},
+        intangible: {},
+        organizations: {},
         places: {},
         persons: {},
         products: {},
-        organizations: {},
         things: {},
         users: {}
       }
