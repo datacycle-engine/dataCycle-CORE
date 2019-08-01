@@ -211,6 +211,8 @@ DataCycleCore::Engine.routes.draw do
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show], controller: :watch_lists
 
+          post '/auth/login', to: 'authentication#login'
+          post '/auth/logout', to: 'authentication#logout'
           resources :users, only: [:index, :create], controller: :users
         end
       end

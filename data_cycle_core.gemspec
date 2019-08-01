@@ -52,6 +52,7 @@ Gem::Specification.new do |s|
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
+  s.add_dependency 'jwt'
   # authorization
   s.add_dependency 'cancancan'
   # pagination

@@ -5,7 +5,6 @@ module DataCycleCore
     module V4
       class UsersController < ::DataCycleCore::Api::V4::ContentsController
         before_action :prepare_url_parameters
-        skip_before_action :authenticate, only: :create
 
         def index
           @user_data = current_user
@@ -14,20 +13,23 @@ module DataCycleCore
         end
 
         def create
-          @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params)
-          @user.access_token = SecureRandom.hex
+          @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params)
+          @user.role = DataCycleCore::Role.find_by(rank: DataCycleCore.features.dig(:user_api, :default_rank))
+          @user.jti = SecureRandom.uuid
 
           if @user.save
-            render json: @user
+            render json: @user.as_json(only: Array(DataCycleCore.features.dig(:user_api, :user_params)) + [:id]).transform_keys { |k| k.camelize(:lower) }.merge({
+              token: DataCycleCore::JsonWebToken.encode(user_id: @user.id, jti: @user.jti)
+            }), status: :created
           else
-            render json: { errors: @user.errors }
+            render json: { errors: @user.errors }, status: :unprocessable_entity
           end
         end
 
         private
 
-        def permitted_params
-          params.require(controller_name.singularize.to_sym).permit(:email, :family_name, :given_name, :name, :notification_frequency, :default_locale, :password, :password_confirmation, :current_password)
+        def user_params
+          params.require(controller_name.singularize.to_sym).permit(DataCycleCore.features.dig(:user_api, :user_params))
         end
       end
     end

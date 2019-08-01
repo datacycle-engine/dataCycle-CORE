@@ -24,7 +24,5 @@ module Dummy
     config.assets.paths << Rails.root.join('..', '..', 'lib', 'assets', 'fonts')
 
     config.time_zone = 'Vienna'
-    config.action_cable.url = "#{config.force_ssl ? 'wss' : 'ws'}://#{config.action_mailer.default_url_options&.dig(:host)}/cable"
-    config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
   end
 end
