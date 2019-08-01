@@ -158,6 +158,8 @@ module DataCycleCore
         )
       end
 
+      partials = partials.map { |p| "data_cycle_core/contents/#{p}" }
+
       render_first_existing_partial(partials, parameters)
     end
 
@@ -320,13 +322,14 @@ module DataCycleCore
     private
 
     def render_first_existing_partial(partials, parameters)
-      partials.each_with_index do |partial, idx|
-        logger.debug "  Try rendering partial #{partial} ..."
+      partials.each do |partial|
+        logger.debug("  Try rendering partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+
+        logger.debug "  Rendered partial #{partial}"
         return render(partial, parameters)
-      rescue ActionView::MissingTemplate => e
-        logger.debug "  Try rendering partial #{partial} ... [NOT FOUND]"
-        raise e if idx == partials.size - 1
       end
+
+      nil
     end
 
     def alert_box(value, alert_class, closable)
