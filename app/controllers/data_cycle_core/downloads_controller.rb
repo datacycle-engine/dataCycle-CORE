@@ -13,26 +13,26 @@ module DataCycleCore
     def things
       @object = DataCycleCore::Thing.find_by(id: params[:id])
       serialize_format = params[:serialize_format] || 'asset'
-
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Serialize.allowed_serializer?(@object, serialize_format)
-
       download_content(@object, serialize_format)
     end
 
     def watch_lists
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
-
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
-
       download_watch_list(@watch_list, serialize_format)
+    end
+
+    def stored_filters
+      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
+      serialize_format = params[:serialize_format]
+      download_stored_filter(@stored_filter, serialize_format)
     end
 
     def watch_list_collections
       @watch_list = DataCycleCore::WatchList.find(params[:id])
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' unless DataCycleCore::Feature::Download.collection_enabled?('watch_list')
-
       serialize_format = params[:serialize_format]&.split(',')
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
@@ -41,21 +41,13 @@ module DataCycleCore
       download_collection(@watch_list, download_items, serialize_format)
     end
 
-    def stored_filters
-      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      serialize_format = params[:serialize_format]
-
-      raise ActiveRecord::RecordNotFound, 'invalid serialization format' if !DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('stored_filter').dig(serialize_format).blank?
-
-      download_stored_filter(@stored_filter, serialize_format)
-    end
-
     def stored_filter_collections
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
-      items = @stored_filter.apply
-
       serialize_format = params[:serialize_format]&.split(',')
 
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('stored_filter', serialize_format)
+
+      items = @stored_filter.apply
       download_items = items.to_a.select do |thing|
         DataCycleCore::Feature::Download.allowed?(thing)
       end

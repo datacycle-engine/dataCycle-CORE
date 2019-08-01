@@ -7,13 +7,14 @@ module DataCycleCore
     def download_content(content, serialize_format)
       serializer = serializer_for_content(content, serialize_format)
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serializer
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
 
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
+
       serialized_content = serializer.serialize(content)
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serialized_content
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serialized_content
 
       download_file = create_download_file(serialized_content, content, file_extension)
 
@@ -21,12 +22,15 @@ module DataCycleCore
     end
 
     def download_watch_list(watch_list, serialize_format)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" if !DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('watch_list').dig(serialize_format).blank?
+
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
       mime_type = serializer.mime_type(watch_list)
       file_extension = serializer.file_extension(mime_type)
+
       serialized_content = serializer.serialize_watch_list(watch_list)
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serialized_content
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serialized_content
 
       download_file = create_download_file(serialized_content, watch_list, file_extension)
 
@@ -34,12 +38,15 @@ module DataCycleCore
     end
 
     def download_stored_filter(stored_filter, serialize_format)
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" if !DataCycleCore::Feature::Download.collection_serializer_enabled?('stored_filter') || serialize_format.blank? || DataCycleCore::Feature::Download.available_collection_serializers('stored_filter').dig(serialize_format).blank?
+
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
       mime_type = serializer.mime_type(stored_filter)
       file_extension = serializer.file_extension(mime_type)
+
       serialized_content = serializer.serialize_stored_filter(stored_filter)
 
-      redirect_back(fallback_location: root_path, alert: (I18n.t :no_source, scope: [:controllers, :warnings], locale: DataCycleCore.ui_language)) && return unless serialized_content
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serialized_content
 
       download_file = create_download_file(serialized_content, stored_filter, file_extension)
 
@@ -64,6 +71,7 @@ module DataCycleCore
 
               mime_type = serializer.mime_type(content)
               file_extension = serializer.file_extension(mime_type)
+
               serialized_content = serializer.serialize(content)
 
               next unless serialized_content
@@ -81,6 +89,8 @@ module DataCycleCore
 
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
+
+    protected
 
     # remove all files older than 2 hours
     def cleanup_files(dir)

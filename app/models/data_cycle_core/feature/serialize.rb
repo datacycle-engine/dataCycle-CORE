@@ -15,6 +15,13 @@ module DataCycleCore
         def enabled_serializers
           configuration.dig('serializers').select { |_, v| v.present? }
         end
+
+        def enabled_serializer?(serializer)
+          serializer&.each do |format|
+            return true if enabled_serializers.dig(format)
+          end
+          false
+        end
       end
     end
   end

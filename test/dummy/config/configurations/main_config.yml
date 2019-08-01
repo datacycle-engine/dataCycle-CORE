@@ -4,8 +4,13 @@
       :features:
         :creatable:
           :allowed: true
+        :download:
+          :allowed: true
         :serialize:
           :allowed: true
+          :serializers:
+            :xml: true
+            :json: true
   :media_objects:
     :Bild:
       :features:

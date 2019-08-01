@@ -251,6 +251,8 @@ module DataCycleCore
       authorize! :download_zip, @watch_list
       serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
 
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+
       download_items = @watch_list.things.all.to_a.select do |thing|
         can? :download, thing
       end

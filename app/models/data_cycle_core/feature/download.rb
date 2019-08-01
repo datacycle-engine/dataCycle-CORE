@@ -24,6 +24,13 @@ module DataCycleCore
           enabled_serializers = DataCycleCore::Feature::Serialize.enabled_serializers
           enabled_collection_serializers(type).select { |k, _| enabled_serializers.dig(k) }
         end
+
+        def valid_collection_format?(collection_name, serialize_format)
+          (
+            collection_enabled?(collection_name) &&
+            DataCycleCore::Feature::Serialize.enabled_serializer?(serialize_format)
+          )
+        end
       end
     end
   end
