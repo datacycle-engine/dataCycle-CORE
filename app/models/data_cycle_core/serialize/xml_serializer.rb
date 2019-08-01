@@ -14,7 +14,10 @@ module DataCycleCore
 
         def serialize(content)
           Nokogiri::XML(
-            DataCycleCore::Xml::V1::ContentsController.render(
+            DataCycleCore::Xml::V1::ContentsController.renderer.new(
+              http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+              https: Rails.application.config.force_ssl
+            ).render(
               assigns: { content: content, language: 'de', include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/show',
               layout: false
@@ -25,7 +28,10 @@ module DataCycleCore
 
         def serialize_watch_list(watch_list)
           Nokogiri::XML(
-            DataCycleCore::Xml::V1::WatchListsController.render(
+            DataCycleCore::Xml::V1::WatchListsController.renderer.new(
+              http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+              https: Rails.application.config.force_ssl
+            ).render(
               assigns: { watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/watch_lists/show',
               layout: false
@@ -38,7 +44,10 @@ module DataCycleCore
           contents = stored_filter.apply
           pagination_contents = contents.page(1).per(contents.count)
           Nokogiri::XML(
-            DataCycleCore::Xml::V1::ContentsController.render(
+            DataCycleCore::Xml::V1::ContentsController.renderer.new(
+              http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+              https: Rails.application.config.force_ssl
+            ).render(
               assigns: { contents: pagination_contents, language: 'de', include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/index',
               layout: false

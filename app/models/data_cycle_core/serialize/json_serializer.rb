@@ -13,7 +13,10 @@ module DataCycleCore
         end
 
         def serialize(content)
-          DataCycleCore::Api::V3::ContentsController.render(
+          DataCycleCore::Api::V3::ContentsController.renderer.new(
+            http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+            https: Rails.application.config.force_ssl
+          ).render(
             assigns: { content: content, language: 'de', include_parameters: [], mode_parameters: [], api_version: 3 },
             template: 'data_cycle_core/api/v3/contents/show',
             layout: false
@@ -22,7 +25,10 @@ module DataCycleCore
 
         def serialize_watch_list(watch_list)
           pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
-          DataCycleCore::Api::V3::WatchListsController.render(
+          DataCycleCore::Api::V3::WatchListsController.renderer.new(
+            http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+            https: Rails.application.config.force_ssl
+          ).render(
             assigns: { contents: pagination_contents, watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [], api_version: 3 },
             template: 'data_cycle_core/api/v3/watch_lists/show',
             layout: false
@@ -32,7 +38,10 @@ module DataCycleCore
         def serialize_stored_filter(stored_filter)
           contents = stored_filter.apply
           pagination_contents = contents.page(1).per(contents.count)
-          DataCycleCore::Api::V3::ContentsController.render(
+          DataCycleCore::Api::V3::ContentsController.renderer.new(
+            http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
+            https: Rails.application.config.force_ssl
+          ).render(
             assigns: { contents: pagination_contents, language: 'de', include_parameters: [], mode_parameters: [], api_version: 3 },
             template: 'data_cycle_core/api/v3/contents/index',
             layout: false
