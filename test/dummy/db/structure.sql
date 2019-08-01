@@ -837,7 +837,8 @@ CREATE TABLE public.users (
     access_token character varying,
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
-    default_locale character varying DEFAULT 'de'::character varying
+    default_locale character varying DEFAULT 'de'::character varying,
+    jti character varying NOT NULL
 );
 
 
@@ -1717,6 +1718,13 @@ CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
 
 
 --
+-- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
+
+
+--
 -- Name: index_users_on_reset_password_token; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1955,6 +1963,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190612084614'),
 ('20190613092317'),
 ('20190716081614'),
-('20190716130050');
+('20190716130050'),
+('20190801120456');
 
 

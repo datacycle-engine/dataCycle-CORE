@@ -89,3 +89,14 @@
   :enabled: false
   :lock_length: <%= 30.minutes %>
   :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :only_config: true
+  :default_rank: 0
+  :user_params:
+    - email
+    - given_name
+    - family_name
+    - default_locale
+    - password
+    - password_confirmation
