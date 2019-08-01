@@ -72,9 +72,6 @@
   :enabled: false
   :attribute_keys:
 
-:gpx_converter:
-  :enabled: true
-
 :external_media_archive:
   :enabled: false
   :template_mapping:
