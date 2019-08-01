@@ -31,6 +31,13 @@ module DataCycleCore
             DataCycleCore::Feature::Serialize.enabled_serializer?(serialize_format)
           )
         end
+
+        def valid_collection_serializer_format?(collection_name, serialize_format)
+          (
+            collection_serializer_enabled?(collection_name) &&
+            available_collection_serializers(collection_name)&.dig(serialize_format)&.present?
+          )
+        end
       end
     end
   end

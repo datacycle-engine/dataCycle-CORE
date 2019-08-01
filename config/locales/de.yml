@@ -170,7 +170,7 @@ de:
     download:
       :available_formats: Verfügbare Formate
       :asset: Datei
-      :json: Json-Format
+      :json: JSON-Format
       :xml: XML-Format
 
   external_connection_states:
