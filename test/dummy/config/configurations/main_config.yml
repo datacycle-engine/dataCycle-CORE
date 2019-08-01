@@ -11,6 +11,7 @@
           :serializers:
             :xml: true
             :json: true
+            :gpx: true
   :media_objects:
     :Bild:
       :features:

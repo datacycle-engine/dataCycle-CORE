@@ -24,6 +24,7 @@
   :serializers:
     :asset: false
     :json: false
+    :gpx: true
     :xml: false
 
 :overlay:

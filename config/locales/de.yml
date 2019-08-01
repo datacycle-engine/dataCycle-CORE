@@ -171,6 +171,7 @@ de:
       :available_formats: Verfügbare Formate
       :asset: Datei
       :json: JSON-Format
+      :gpx: GPX-Datei
       :xml: XML-Format
 
   external_connection_states:
