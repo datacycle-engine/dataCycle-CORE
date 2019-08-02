@@ -17,7 +17,7 @@ module DataCycleCore
       test 'render gpx for place' do
         place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'place3'))
 
-        get download_thing_path(place), params: {serialize_format: 'gpx'}, headers: {
+        get download_thing_path(place), params: { serialize_format: 'gpx' }, headers: {
           referer: thing_path(place)
         }
 
@@ -31,7 +31,7 @@ module DataCycleCore
       test 'render gpx for tour' do
         tour = DataCycleCore::TestPreparations.create_content(template_name: 'Tour', data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'tour1'))
 
-        get download_thing_path(tour), params: {serialize_format: 'gpx'}, headers: {
+        get download_thing_path(tour), params: { serialize_format: 'gpx' }, headers: {
           referer: thing_path(tour)
         }
 
