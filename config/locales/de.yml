@@ -333,6 +333,7 @@ de:
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
