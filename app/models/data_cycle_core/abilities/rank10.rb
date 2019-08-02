@@ -33,6 +33,9 @@ module DataCycleCore
         can :destroy, DataCycleCore::ClassificationAlias do |c|
           c.external_source_id.nil? && !c.internal && !c.sub_classification_alias&.any?(&:internal) && !c.sub_classification_alias&.any?(&:external_source_id)
         end
+        can :download, DataCycleCore::Thing do |content|
+          DataCycleCore::Feature::Download.allowed?(content)
+        end
       end
     end
   end

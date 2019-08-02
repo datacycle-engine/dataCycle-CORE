@@ -3,6 +3,12 @@
   :classification_keys:
     - output_channel
 
+:download:
+  :enabled: true
+
+:serialize:
+  :enabled: true
+
 :overlay:
   :enabled: true
 

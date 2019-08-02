@@ -14,9 +14,6 @@ module DataCycleCore
         can :destroy, DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
         can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
-        can :download, DataCycleCore::Thing do |content|
-          DataCycleCore::Feature::Download.allowed?(content)
-        end
         can :download_zip, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.collection_enabled?('content')
         end
