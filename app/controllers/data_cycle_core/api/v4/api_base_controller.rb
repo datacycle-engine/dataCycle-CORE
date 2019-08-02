@@ -21,7 +21,7 @@ module DataCycleCore
 
               raise CanCan::AccessDenied, 'not implemented yet' if @decoded[:iss] != DataCycleCore::JsonWebToken::ISSUER
 
-              @user = User.find_by(id: @decoded[:user_id], jti: @decoded[:jti])
+              @user = User.find_by(id: @decoded[:user_id], jti: @decoded[:jti]) if @decoded[:jti].present?
             rescue JWT::DecodeError, JSON::ParserError => e
               raise CanCan::AccessDenied, e.message
             end

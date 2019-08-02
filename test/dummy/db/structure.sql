@@ -838,7 +838,7 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    jti character varying NOT NULL
+    jti character varying
 );
 
 
