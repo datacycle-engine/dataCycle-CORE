@@ -17,16 +17,19 @@ module DataCycleCore
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
         end
-        can [:download], DataCycleCore::WatchList do |_watch_list|
+        can :download_zip, DataCycleCore::Thing do |_content|
+          DataCycleCore::Feature::Download.collection_enabled?('content')
+        end
+        can :download, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list')
         end
-        can [:download_zip], DataCycleCore::WatchList do |_watch_list|
+        can :download_zip, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_enabled?('watch_list')
         end
-        can [:download], DataCycleCore::StoredFilter do |_stored_filter|
+        can :download, DataCycleCore::StoredFilter do |_stored_filter|
           DataCycleCore::Feature::Download.collection_serializer_enabled?('stored_filter')
         end
-        can [:download_zip], DataCycleCore::StoredFilter do |_stored_filter|
+        can :download_zip, DataCycleCore::StoredFilter do |_stored_filter|
           DataCycleCore::Feature::Download.collection_enabled?('stored_filter')
         end
       end

@@ -31,6 +31,20 @@ module DataCycleCore
       download_stored_filter(@stored_filter, serialize_format, [languages])
     end
 
+    def thing_collections
+      @object = DataCycleCore::Thing.find(params[:id])
+      serialize_format = params[:serialize_format]&.split(',')
+      languages = params[:language]&.split(',')
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('content', serialize_format)
+
+      download_items = ([@object] + @object.content_b_linked).to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_collection(@object, download_items, serialize_format, languages)
+    end
+
     def watch_list_collections
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]&.split(',')

@@ -46,6 +46,7 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
+      get :download_zip, on: :member
       get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
@@ -78,6 +79,7 @@ DataCycleCore::Engine.routes.draw do
 
   resource :downloads, only: [] do
     get '/things(/:id)(/:serialize_format)', on: :member, action: 'things'
+    get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
     get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
     get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
     get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'

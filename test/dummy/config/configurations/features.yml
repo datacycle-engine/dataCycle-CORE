@@ -6,6 +6,8 @@
 :download:
   :enabled: true
   :collections:
+    :content:
+      :enabled: true
     :watch_list:
       :enabled: true
       :serializers:

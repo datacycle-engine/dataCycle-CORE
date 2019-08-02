@@ -4,6 +4,8 @@
 :download:
   :enabled: false
   :collections:
+    :content:
+      :enabled: false
     :watch_list:
       :enabled: false
       :serializers:
