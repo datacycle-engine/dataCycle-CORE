@@ -19,7 +19,7 @@ module DataCycleCore
         end
 
         def logout
-          current_user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
+          current_user.update_column(:jti, nil) # rubocop:disable Rails/SkipsModelValidations
 
           head :no_content
         end
