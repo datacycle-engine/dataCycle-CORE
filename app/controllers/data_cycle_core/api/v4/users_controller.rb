@@ -14,11 +14,20 @@ module DataCycleCore
 
         def create
           @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params)
-          @user.role = DataCycleCore::Role.find_by(rank: DataCycleCore.features.dig(:user_api, :default_rank))
+          rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
+
+          if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)
+            rank = role_params[:rank].to_i
+          elsif role_params[:rank].present?
+            render(json: { errors: { rank: [I18n.t('validation.errors.rank_not_allowed', locale: DataCycleCore.ui_language)] } }, status: :unprocessable_entity) && return
+          end
+
+          @user.role = DataCycleCore::Role.find_by(rank: rank)
           @user.jti = SecureRandom.uuid
 
           if @user.save
             render json: @user.as_json(only: Array(DataCycleCore.features.dig(:user_api, :user_params)) + [:id]).transform_keys { |k| k.camelize(:lower) }.merge({
+              rank: @user.role&.rank,
               token: DataCycleCore::JsonWebToken.encode(user_id: @user.id, jti: @user.jti)
             }), status: :created
           else
@@ -30,6 +39,10 @@ module DataCycleCore
 
         def user_params
           params.require(controller_name.singularize.to_sym).permit(DataCycleCore.features.dig(:user_api, :user_params))
+        end
+
+        def role_params
+          params.require(controller_name.singularize.to_sym).permit(:rank)
         end
       end
     end

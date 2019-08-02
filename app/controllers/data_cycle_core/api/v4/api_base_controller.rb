@@ -17,9 +17,12 @@ module DataCycleCore
 
           if request.headers['Authorization'].present?
             authenticate_or_request_with_http_token do |token|
-              @decoded = JsonWebToken.decode(token)
+              @decoded = DataCycleCore::JsonWebToken.decode(token)
+
+              raise CanCan::AccessDenied, 'not implemented yet' if @decoded[:iss] != DataCycleCore::JsonWebToken::ISSUER
+
               @user = User.find_by(id: @decoded[:user_id], jti: @decoded[:jti])
-            rescue JWT::DecodeError => e
+            rescue JWT::DecodeError, JSON::ParserError => e
               raise CanCan::AccessDenied, e.message
             end
           elsif params[:token].present?

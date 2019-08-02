@@ -92,7 +92,10 @@
 
 :user_api:
   :only_config: true
+  :expiration_time: <%= 24.hours %>
   :default_rank: 0
+  :allowed_ranks:
+    - 0
   :user_params:
     - email
     - given_name
@@ -100,3 +103,5 @@
     - default_locale
     - password
     - password_confirmation
+  :issuer: datacycle.at
+
