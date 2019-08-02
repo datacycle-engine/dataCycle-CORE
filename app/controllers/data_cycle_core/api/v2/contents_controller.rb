@@ -52,7 +52,7 @@ module DataCycleCore
 
         def gpx
           @object = DataCycleCore::Thing.find_by(id: params[:id])
-          download_content(@object, 'gpx')
+          download_content(@object, 'gpx', nil)
         end
 
         def permitted_parameter_keys
