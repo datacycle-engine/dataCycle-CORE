@@ -9,9 +9,10 @@ module DataCycleCore
         def download
           @object = DataCycleCore::Thing.find_by(id: params[:id])
           serialize_format = params[:serialize_format]
+          languages = params[:language]
 
           authorize! :download, @object
-          download_content(@object, serialize_format)
+          download_content(@object, serialize_format, languages)
         end
       end
     end

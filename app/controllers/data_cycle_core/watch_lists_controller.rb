@@ -242,14 +242,16 @@ module DataCycleCore
     def download
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
+      languages = params[:language]
       authorize! :download, @watch_list
-      download_watch_list(@watch_list, serialize_format)
+      download_watch_list(@watch_list, serialize_format, languages)
     end
 
     def download_zip
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       authorize! :download_zip, @watch_list
       serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = params[:language]
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
 
@@ -257,7 +259,7 @@ module DataCycleCore
         can? :download, thing
       end
 
-      download_collection(@watch_list, download_items, serialize_format)
+      download_collection(@watch_list, download_items, serialize_format, languages)
     end
 
     private

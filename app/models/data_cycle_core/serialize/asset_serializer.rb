@@ -4,6 +4,10 @@ module DataCycleCore
   module Serialize
     class AssetSerializer
       class << self
+        def translatable?
+          false
+        end
+
         def mime_type(content)
           content.asset&.file&.content_type
         end
@@ -12,7 +16,7 @@ module DataCycleCore
           Rack::Mime::MIME_TYPES.invert[mime_type]
         end
 
-        def serialize(content)
+        def serialize(content, _language)
           content.asset&.file
         end
       end

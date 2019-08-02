@@ -4,6 +4,10 @@ module DataCycleCore
   module Serialize
     class GpxSerializer
       class << self
+        def translatable?
+          false
+        end
+
         def mime_type(_content)
           'gpx/xml'
         end
@@ -12,7 +16,7 @@ module DataCycleCore
           '.gpx'
         end
 
-        def serialize(content)
+        def serialize(content, _language)
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.gpx(version: '1.1', creator: 'dataCycle', xmlns: 'http://www.topografix.com/GPX/1/1') do
               xml.metadata do

@@ -1,4 +1,4 @@
-<%= form_with url: polymorphic_path([:download_zip, content]),
+<%= form_with url: polymorphic_path([:download, content]),
               method: :get,
               local: true do %>
 
@@ -14,7 +14,7 @@
                                    I18n.locale
                                ),
                                {
-                                   multiple: true,
+                                   multiple: false,
                                    class: 'multi-select'
                                }
                     ) %>
@@ -25,9 +25,11 @@
     <fieldset class="active template">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <% DataCycleCore::Feature::Serialize.enabled_serializers.each_key do |serializer_key| %>
+            <% available_download_serializers(content).each_key do |serializer_key| %>
                 <div>
-                    <%= check_box_tag "serialize_format[#{serializer_key}]" %>
+
+                    <%= radio_button_tag "serialize_format", serializer_key, true %>
+                    <%#= radio_button_tag "f[#{index}][v]", 'true', (value != 'false') %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
                 </div>
             <% end %>
@@ -41,3 +43,4 @@
     </div>
 
 <% end %>
+

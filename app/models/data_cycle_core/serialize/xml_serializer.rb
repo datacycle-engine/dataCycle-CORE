@@ -4,6 +4,10 @@ module DataCycleCore
   module Serialize
     class XmlSerializer
       class << self
+        def translatable?
+          true
+        end
+
         def mime_type(_content)
           'application/xml'
         end
@@ -12,13 +16,13 @@ module DataCycleCore
           '.xml'
         end
 
-        def serialize(content)
+        def serialize(content, language)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::ContentsController.renderer.new(
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { content: content, language: 'de', include_parameters: [], mode_parameters: [] },
+              assigns: { content: content, language: language, include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/show',
               layout: false
             ),
@@ -26,13 +30,13 @@ module DataCycleCore
           )&.to_xml
         end
 
-        def serialize_watch_list(watch_list)
+        def serialize_watch_list(watch_list, language)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::WatchListsController.renderer.new(
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { watch_list: watch_list, language: 'de', include_parameters: [], mode_parameters: [] },
+              assigns: { watch_list: watch_list, language: language, include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/watch_lists/show',
               layout: false
             ),
@@ -40,7 +44,7 @@ module DataCycleCore
           )&.to_xml
         end
 
-        def serialize_stored_filter(stored_filter)
+        def serialize_stored_filter(stored_filter, language)
           contents = stored_filter.apply
           pagination_contents = contents.page(1).per(contents.count)
           Nokogiri::XML(
@@ -48,7 +52,7 @@ module DataCycleCore
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { contents: pagination_contents, language: 'de', include_parameters: [], mode_parameters: [] },
+              assigns: { contents: pagination_contents, language: language, include_parameters: [], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/index',
               layout: false
             ),

@@ -4,28 +4,29 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_content(content, serialize_format)
+    def download_content(content, serialize_format, languages)
       serializer = serializer_for_content(content, serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
 
-      download_generic(content, serializer)
+      download_generic(content, serializer, languages)
     end
 
-    def download_watch_list(watch_list, serialize_format)
+    def download_watch_list(watch_list, serialize_format, languages)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('watch_list', serialize_format)
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
 
-      download_generic(watch_list, serializer, :serialize_watch_list)
+      download_generic(watch_list, serializer, languages, :serialize_watch_list)
     end
 
-    def download_stored_filter(stored_filter, serialize_format)
+    def download_stored_filter(stored_filter, serialize_format, languages)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('stored_filter', serialize_format)
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
 
-      download_generic(stored_filter, serializer, :serialize_stored_filter)
+      download_generic(stored_filter, serializer, languages, :serialize_stored_filter)
     end
 
-    def download_collection(collection, items, serialize_format)
+    def download_collection(collection, items, serialize_format, languages)
+      languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
@@ -36,24 +37,27 @@ module DataCycleCore
       unless File.exist?(zipfile_fullname)
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           items.each do |content|
-            serialize_format.each do |format|
-              serializer = serializer_for_content(content, format)
+            languages.each do |language|
+              next unless content.translated_locales.include?(language.to_sym)
+              serialize_format.each do |format|
+                serializer = serializer_for_content(content, format)
 
-              next unless serializer
+                next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-              mime_type = serializer.mime_type(content)
-              file_extension = serializer.file_extension(mime_type)
+                mime_type = serializer.mime_type(content)
+                file_extension = serializer.file_extension(mime_type)
 
-              serialized_content = serializer.serialize(content)
+                serialized_content = serializer.serialize(content, language)
 
-              next unless serialized_content
+                next unless serialized_content
 
-              download_file = create_download_file(serialized_content, content, file_extension)
+                download_file = create_download_file(serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
-              file_name = download_file_name(content)
-              file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
+                file_name = download_file_name(content, serializer.translatable? ? language : nil)
+                file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
 
-              zipfile.add("#{file_name}#{file_extension}", download_file)
+                zipfile.add("#{file_name}#{file_extension}", download_file)
+              end
             end
           end
         end
@@ -64,16 +68,17 @@ module DataCycleCore
 
     protected
 
-    def download_generic(content, serializer, serialize_method = :serialize)
-      serialized_content = serializer.try(serialize_method, content)
+    def download_generic(content, serializer, languages, serialize_method = :serialize)
+      language = languages&.first&.to_sym || I18n.locale
+      serialized_content = serializer.try(serialize_method, content, language)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
 
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
 
-      download_file = create_download_file(serialized_content, content, file_extension)
+      download_file = create_download_file(serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
-      send_file download_file, filename: "#{download_file_name(content)}#{file_extension}", disposition: 'attachment', type: mime_type
+      send_file download_file, filename: "#{download_file_name(content, serializer.translatable? ? language : nil)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
     # remove all files older than 2 hours
@@ -87,19 +92,20 @@ module DataCycleCore
       end
     end
 
-    def create_download_file(serialized_content, content, file_extension)
+    def create_download_file(serialized_content, content, file_extension, language)
       return serialized_content.path if serialized_content.is_a?(DataCycleCore::CommonUploader)
 
       download_dir = Rails.root.join('public', 'downloads')
-      download_file = File.join(download_dir, download_file_name(content) + file_extension)
+      download_file = File.join(download_dir, download_file_name(content, language) + file_extension)
       File.open(File.join(download_file), 'w') do |f|
         f.write serialized_content
       end
       download_file
     end
 
-    def download_file_name(content)
+    def download_file_name(content, language)
       content_title = content.try(:title) || content.try(:name)
+      content_title += "_#{language}" if language.present?
       (content_title.blank? ? File.basename(content.try(:asset)&.file&.path) : content_title.parameterize(separator: '_')).to_s
     end
 

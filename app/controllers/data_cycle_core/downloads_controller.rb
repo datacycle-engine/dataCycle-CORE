@@ -13,24 +13,28 @@ module DataCycleCore
     def things
       @object = DataCycleCore::Thing.find_by(id: params[:id])
       serialize_format = params[:serialize_format] || 'asset'
-      download_content(@object, serialize_format)
+      languages = params[:language]
+      download_content(@object, serialize_format, [languages])
     end
 
     def watch_lists
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]
-      download_watch_list(@watch_list, serialize_format)
+      languages = params[:language]
+      download_watch_list(@watch_list, serialize_format, [languages])
     end
 
     def stored_filters
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       serialize_format = params[:serialize_format]
-      download_stored_filter(@stored_filter, serialize_format)
+      languages = params[:language]
+      download_stored_filter(@stored_filter, serialize_format, [languages])
     end
 
     def watch_list_collections
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]&.split(',')
+      languages = params[:language]&.split(',')
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
 
@@ -38,12 +42,13 @@ module DataCycleCore
         DataCycleCore::Feature::Download.allowed?(thing)
       end
 
-      download_collection(@watch_list, download_items, serialize_format)
+      download_collection(@watch_list, download_items, serialize_format, languages)
     end
 
     def stored_filter_collections
       @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
       serialize_format = params[:serialize_format]&.split(',')
+      languages = params[:language]&.split(',')
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('stored_filter', serialize_format)
 
@@ -52,7 +57,7 @@ module DataCycleCore
         DataCycleCore::Feature::Download.allowed?(thing)
       end
 
-      download_collection(@stored_filter, download_items, serialize_format)
+      download_collection(@stored_filter, download_items, serialize_format, languages)
     end
 
     private

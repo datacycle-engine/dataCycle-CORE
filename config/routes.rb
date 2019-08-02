@@ -46,7 +46,7 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
-      get 'download/:serialize_format', on: :member, action: :download, as: 'download'
+      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -60,7 +60,7 @@ DataCycleCore::Engine.routes.draw do
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
     get :download_zip, on: :member
-    get 'download/:serialize_format', on: :member, action: :download, as: 'download'
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
@@ -97,7 +97,7 @@ DataCycleCore::Engine.routes.draw do
     patch :bulk_update, on: :member
     post :validate, on: :member
     get :download_zip, on: :member
-    get 'download/:serialize_format', on: :member, action: :download, as: 'download'
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
 
