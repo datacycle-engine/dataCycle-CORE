@@ -18,6 +18,13 @@
           - Zeitleiste
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id

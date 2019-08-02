@@ -17,8 +17,8 @@ module DataCycleCore
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
         end
-        can :download_zip, DataCycleCore::Thing do |_content|
-          DataCycleCore::Feature::Download.collection_enabled?('content')
+        can :download_zip, DataCycleCore::Thing do |content|
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.collection_enabled?('content')
         end
         can :download, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list')

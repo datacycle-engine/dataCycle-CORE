@@ -8,6 +8,14 @@
     :features:
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :properties:
       :id:
         :label: id

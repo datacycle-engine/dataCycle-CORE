@@ -4,41 +4,6 @@
       :features:
         :creatable:
           :allowed: true
-        :download:
-          :allowed: true
-        :serialize:
-          :allowed: true
-          :serializers:
-            :xml: true
-            :json: true
-            :gpx: true
-  :media_objects:
-    :Bild:
-      :features:
-        :download:
-          :allowed: true
-        :serialize:
-          :allowed: true
-          :serializers:
-            :asset: true
-    :PDF:
-      :features:
-        :download:
-          :allowed: true
-        :serialize:
-          :allowed: true
-        :serializers:
-          :asset: true
-  :creative_works:
-    :Artikel:
-      :features:
-        :download:
-          :allowed: true
-        :serialize:
-          :allowed: true
-          :serializers:
-            :xml: true
-            :json: true
 :api:
   :v2:
     :subversions:

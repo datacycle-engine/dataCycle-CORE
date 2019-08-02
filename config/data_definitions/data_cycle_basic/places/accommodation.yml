@@ -10,6 +10,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :api:
       :type: LodgingBusiness
     :properties:

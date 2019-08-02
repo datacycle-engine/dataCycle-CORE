@@ -10,6 +10,12 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
     :api:
       :type: AudioObject
     :properties:
