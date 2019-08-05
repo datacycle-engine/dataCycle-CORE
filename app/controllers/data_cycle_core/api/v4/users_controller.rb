@@ -28,7 +28,7 @@ module DataCycleCore
           if @user.save
             render json: @user.as_json(only: Array(DataCycleCore.features.dig(:user_api, :user_params)) + [:id]).transform_keys { |k| k.camelize(:lower) }.merge({
               rank: @user.role&.rank,
-              token: DataCycleCore::JsonWebToken.encode(user_id: @user.id, jti: @user.jti)
+              token: DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti })
             }), status: :created
           else
             render json: { errors: @user.errors }, status: :unprocessable_entity
