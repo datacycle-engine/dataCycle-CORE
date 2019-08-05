@@ -307,6 +307,18 @@ module DataCycleCore
       end
     end
 
+    def load_more_related
+      @content = DataCycleCore::Thing.find(params[:id])
+      authorize! :show, @content
+
+      @page = (params[:page] || 1).to_i
+
+      @related_objects = @content.related_contents.includes(:translations).order(:template_name, :id).page(@page).per(DataCycleCore.linked_objects_page_size)
+      @last_group = params[:last_group]
+
+      respond_to :js
+    end
+
     def upload
       return if asset_params[:file].blank?
 
