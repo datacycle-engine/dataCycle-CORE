@@ -11,10 +11,10 @@ module DataCycleCore
 
           @user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
 
-          time = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
-          token = DataCycleCore::JsonWebToken.encode({ user_id: @user.id, jti: @user.jti }, time.to_i)
+          valid_until = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
+          token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)
 
-          render json: { token: token, exp: time.strftime('%m-%d-%Y %H:%M'),
+          render json: { token: token, exp: valid_until.strftime('%m-%d-%Y %H:%M'),
                          email: @user.email }, status: :ok
         end
 
