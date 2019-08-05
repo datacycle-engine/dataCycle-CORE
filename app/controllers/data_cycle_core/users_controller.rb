@@ -34,7 +34,7 @@ module DataCycleCore
     end
 
     def create_user
-      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params)
+      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params.merge(creator: current_user))
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language

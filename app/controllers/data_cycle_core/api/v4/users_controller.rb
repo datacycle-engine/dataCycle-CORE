@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def create
-          @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params)
+          @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params.merge(creator: current_user))
           rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
 
           if role_params[:rank].present? && DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(role_params[:rank].to_i)

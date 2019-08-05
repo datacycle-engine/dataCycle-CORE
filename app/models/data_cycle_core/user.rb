@@ -28,6 +28,8 @@ module DataCycleCore
     has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
     has_many :activities, dependent: :destroy
+    belongs_to :creator, class_name: 'DataCycleCore::User'
+    has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
 
     before_create :set_default_role
 
