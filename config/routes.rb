@@ -46,6 +46,7 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
+      get :load_more_related, on: :member
       get :gpx, on: :member
       get :download, on: :member
       get :create_duplication, on: :member
