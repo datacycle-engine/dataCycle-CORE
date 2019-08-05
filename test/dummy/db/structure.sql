@@ -838,7 +838,8 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    jti character varying
+    jti character varying,
+    creator_id uuid
 );
 
 
@@ -1701,6 +1702,13 @@ CREATE INDEX index_user_groups_on_id ON public.user_groups USING btree (id);
 --
 
 CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
+
+
+--
+-- Name: index_users_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_creator_id ON public.users USING btree (creator_id);
 
 
 --

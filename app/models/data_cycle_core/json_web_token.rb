@@ -18,8 +18,14 @@ module DataCycleCore
       header_fields = JSON.parse(Base64.decode64(token.split('.').first))
       payload = JSON.parse(Base64.decode64(token.split('.')[1]))
       algorithm = header_fields['alg'] if ALGORITHMS.include?(header_fields['alg'])
-      secret = SECRET_KEY
-      secret = OpenSSL::PKey::RSA.new(PUBLIC_KEYS[payload['iss']]) if algorithm&.start_with?('RS') && PUBLIC_KEYS[payload['iss']].present?
+
+      if algorithm&.start_with?('RS')
+        secret = PUBLIC_KEYS[payload['iss']].present? ? OpenSSL::PKey::RSA.new(PUBLIC_KEYS[payload['iss']]) : nil
+      else
+        secret = SECRET_KEY
+      end
+
+      raise JWT::DecodeError, 'secret cannot be blank' if secret.blank?
 
       decoded = JWT.decode(token, secret, true, { algorithm: algorithm }).first
       HashWithIndifferentAccess.new decoded
