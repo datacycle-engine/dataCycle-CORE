@@ -38,6 +38,50 @@
 }
 
 .asset-selector-reveal .asset-list li {
+  .inner > span.asset-duplicate-warning {
+    display: block;
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0;
+    > a[data-toggle] {
+      padding: 0;
+    }
+    > .dropdown-pane {
+      max-width: 250px;
+      right: -9px !important;
+      top: calc(100% + 1rem) !important;
+      &::before {
+        font-size: 22px;
+        width: 1.2rem;
+      }
+      &.align-top {
+        top: auto !important;
+        bottom: calc(100% + 1rem) !important;
+      }
+    }
+    ul.duplicates-list {
+      display: flex;
+      flex-flow: row wrap;
+      > li {
+        flex: auto;
+        width: 90px;
+        max-width: 100px;
+        margin: 0.1rem;
+        background: white;
+        > a {
+          > img {
+            box-shadow: 0 0 5px $dark-gray;
+            transition: box-shadow 0.3s;
+          }
+          &:hover {
+            > img {
+              box-shadow: 0 0 7px $primary-color;
+            }
+          }
+        }
+      }
+    }
+  }
   .content-warning {
     font-size: 2rem;
     &.alert {
@@ -122,47 +166,7 @@ ul.asset-list {
         margin-left: 0.5rem;
       }
       &.asset-duplicate-warning {
-        position: absolute;
-        right: 0.5rem;
-        bottom: 0;
-        > a[data-toggle] {
-          padding: 0;
-        }
-        > .dropdown-pane {
-          max-width: 250px;
-          right: -9px !important;
-          top: calc(100% + 1rem) !important;
-          &::before {
-            font-size: 22px;
-            width: 1.2rem;
-          }
-          &.align-top {
-            top: auto !important;
-            bottom: calc(100% + 1rem) !important;
-          }
-        }
-        ul.duplicates-list {
-          display: flex;
-          flex-flow: row wrap;
-          > li {
-            flex: auto;
-            width: 90px;
-            max-width: 100px;
-            margin: 0.1rem;
-            background: white;
-            > a {
-              > img {
-                box-shadow: 0 0 5px $dark-gray;
-                transition: box-shadow 0.3s;
-              }
-              &:hover {
-                > img {
-                  box-shadow: 0 0 7px $primary-color;
-                }
-              }
-            }
-          }
-        }
+        display: none;
       }
     }
     .inner > .thumb {

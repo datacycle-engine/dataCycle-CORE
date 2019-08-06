@@ -58,8 +58,10 @@ module DataCycleCore
     def search
       params.permit(:q, :max, :tree_label)
 
-      query = if params[:tree_label].present?
+      query = if params[:tree_label].present? && params[:tree_label] == 'Inhaltstypen'
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
+              elsif params[:tree_label].present?
+                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])
               else
                 DataCycleCore::ClassificationAlias.all
               end
