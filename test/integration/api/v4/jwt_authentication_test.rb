@@ -129,6 +129,45 @@ module DataCycleCore
           assert_response 200
           assert_equal response.content_type, 'application/json'
         end
+
+        test '/api/v4/users - login or create user on authenticate' do
+          user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
+            email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
+          })
+          rsa_private = OpenSSL::PKey::RSA.generate 2048
+          rsa_public = rsa_private.public_key
+
+          DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
+
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data }, alg: 'RS256', key: rsa_private)
+
+          get api_v4_users_path, headers: {
+            Authorization: "Bearer #{token}"
+          }, params: {}
+
+          assert_response 200
+
+          assert_equal response.content_type, 'application/json'
+          json_data = JSON.parse(response.body)
+          assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
+          assert DataCycleCore::User.where(email: user_data['email']).exists?
+
+          user_data['family_name'] = 'Tester2'
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data }, alg: 'RS256', key: rsa_private)
+
+          get api_v4_users_path, headers: {
+            Authorization: "Bearer #{token}"
+          }, params: {}
+
+          assert_response 200
+
+          assert_equal response.content_type, 'application/json'
+          json_data = JSON.parse(response.body)
+          assert_equal user_data['email'], json_data.dig('@graph', 'userData', 'email')
+          assert_equal user_data['family_name'], DataCycleCore::User.find_by(email: user_data['email']).family_name
+
+          DataCycleCore.features[:user_api].delete(:public_keys)
+        end
       end
     end
   end
