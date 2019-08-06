@@ -2,7 +2,7 @@
   :enabled: false
 
 :download:
-  :enabled: false
+  :enabled: true
   :collections:
     :content:
       :enabled: false
@@ -22,7 +22,7 @@
     - serialize
 
 :serialize:
-  :enabled: false
+  :enabled: true
   :serializers:
     :asset: false
     :json: false

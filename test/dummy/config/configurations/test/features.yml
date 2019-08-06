@@ -5,9 +5,26 @@
 
 :download:
   :enabled: true
+  :collections:
+    :content:
+      :enabled: false
+    :watch_list:
+      :enabled: false
+      :serializers:
+        :json: false
+        :xml: false
+    :stored_filter:
+      :enabled: false
+      :serializers:
+        :json: false
+        :xml: false
 
 :serialize:
   :enabled: true
+  :serializers:
+    :asset: false
+    :json: false
+    :xml: false
 
 :overlay:
   :enabled: true
