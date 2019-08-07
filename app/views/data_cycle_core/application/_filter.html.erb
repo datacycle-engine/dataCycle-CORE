@@ -46,7 +46,7 @@
                           <% if can?(:advanced_filter, :backend) %>
                             <div class="add-advanced-filter-container">
                               <%= select_tag :add_advanced_filter,
-                                options_for_select(filter[:advanced].presence&.sort),
+                                grouped_options_for_select(filter[:advanced].presence&.sort&.group_by{ |f| f[1] }&.transform_keys { |k| t("filter_groups.#{k}", default: k, locale: DataCycleCore.ui_language) }),
                                 prompt: t("filter.add", locale: DataCycleCore.ui_language),
                                 class: 'single-select',
                                 data: {
