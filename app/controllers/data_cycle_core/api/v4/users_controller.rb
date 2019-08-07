@@ -13,6 +13,8 @@ module DataCycleCore
         end
 
         def create
+          authorize! :create_user, current_user
+
           @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(user_params.merge(creator: current_user))
           rank = DataCycleCore.features.dig(:user_api, :default_rank).to_i
 
