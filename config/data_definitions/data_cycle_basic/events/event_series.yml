@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Event
+    :name: Eventserie
     :type: object
     :schema_type: Event
     :boost: 100.0
@@ -26,50 +26,6 @@
       :validity_period:
         :type: mixin
         :name: validity_period
-      :event_period:
-        :label: Veranstaltungszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: start_date
-            :to: end_date
-        :ui:
-          :edit:
-            :type: daterange
-          :show:
-            :content_area: header
-        :properties:
-          :start_date:
-            :label: Startzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventstart
-              :type: datetime
-          :end_date:
-            :label: Endzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventend
-              :type: datetime
       :description:
         :label: Beschreibung
         :type: string
@@ -119,21 +75,16 @@
         :api:
           :name: location
       :sub_event:
-        :label: Veranstaltungsdaten
-        :type: embedded
-        :template_name: SubEvent
+        :label: Veranstaltungen
+        :type: linked
+        :template_name: Event
+        :inverse_of: super_event
+        :link_direction: inverse
       :event_schedule:
         :label: Event-Schedule
         :type: embedded
         :template_name: EventSchedule
         :translated: true
-      :super_event:
-        :label: Veranstaltungsserie
-        :type: linked
-        :template_name: Eventserie
-        :validations:
-          :max: 1
-        :inverse_of: sub_event
       :performer:
         :label: Ausführende Person/Organisation
         :type: linked
@@ -154,17 +105,11 @@
               :aliases:
                 - Person
                 - Organisation
-      :potential_action:
-        :label: Link mit weiterführenden Infos
-        :type: string
-        :storage_location: translated_value
-        :api:
-          :type: ViewAction
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltung"
+        :default_value: "Veranstaltungsserie"
       :content_classifications:
         :type: mixin
         :name: content_classifications
