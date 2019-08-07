@@ -33,7 +33,7 @@ module DataCycleCore
             token: @current_user.access_token
           }, headers: {}
 
-          assert_response 200
+          assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
 
@@ -49,7 +49,7 @@ module DataCycleCore
             password: @user_data[:password]
           }
 
-          assert_response 200
+          assert_response :success
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
 
@@ -68,7 +68,7 @@ module DataCycleCore
             password: @user_data[:password]
           }
 
-          assert_response 200
+          assert_response :success
 
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
@@ -92,7 +92,7 @@ module DataCycleCore
             password: @user_data[:password]
           }
 
-          assert_response 200
+          assert_response :success
 
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
@@ -113,7 +113,7 @@ module DataCycleCore
             token: @current_user.access_token
           }, headers: {}
 
-          assert_response 201
+          assert_response :created
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
 
@@ -126,8 +126,18 @@ module DataCycleCore
             Authorization: "Bearer #{new_token}"
           }, params: {}
 
-          assert_response 200
+          assert_response :success
           assert_equal response.content_type, 'application/json'
+
+          user_data['email'] = "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
+
+          post api_v4_users_path, headers: {
+            Authorization: "Bearer #{new_token}"
+          }, params: {
+            user: user_data
+          }
+
+          assert_response :unauthorized
         end
 
         test '/api/v4/users - login or create user on authenticate' do
@@ -145,7 +155,7 @@ module DataCycleCore
             Authorization: "Bearer #{token}"
           }, params: {}
 
-          assert_response 200
+          assert_response :success
 
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
@@ -159,7 +169,7 @@ module DataCycleCore
             Authorization: "Bearer #{token}"
           }, params: {}
 
-          assert_response 200
+          assert_response :success
 
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
