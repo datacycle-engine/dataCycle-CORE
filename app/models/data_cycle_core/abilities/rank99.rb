@@ -10,7 +10,7 @@ module DataCycleCore
         can :manage, DataCycleCore::ClassificationTreeLabel
         can :manage, DataCycleCore::ClassificationAlias
         can :edit, DataCycleCore::DataAttribute
-        can [:update,:destroy,:show_admin_panel], DataCycleCore::Thing
+        can [:update, :destroy, :show_admin_panel], DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
