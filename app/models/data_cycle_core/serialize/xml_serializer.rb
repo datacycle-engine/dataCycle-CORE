@@ -22,7 +22,7 @@ module DataCycleCore
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { content: content, language: language, include_parameters: [], mode_parameters: [] },
+              assigns: { content: content, language: language, include_parameters: ['linked'], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/show',
               layout: false
             ),
@@ -36,7 +36,7 @@ module DataCycleCore
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { watch_list: watch_list, language: language, include_parameters: [], mode_parameters: [] },
+              assigns: { watch_list: watch_list, language: language, include_parameters: ['linked'], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/watch_lists/show',
               layout: false
             ),
@@ -52,7 +52,7 @@ module DataCycleCore
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
               https: Rails.application.config.force_ssl
             ).render(
-              assigns: { contents: pagination_contents, language: language, include_parameters: [], mode_parameters: [] },
+              assigns: { contents: pagination_contents, language: language, include_parameters: ['linked'], mode_parameters: [] },
               template: 'data_cycle_core/xml/v1/contents/index',
               layout: false
             ),
