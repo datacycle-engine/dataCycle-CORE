@@ -33,7 +33,7 @@
         :api:
           :name: hasPart
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Quiz"
@@ -95,7 +95,7 @@
         :type: embedded
         :template_name: Antwort
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Frage"
@@ -129,7 +129,7 @@
         :validations:
           :max: 1
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Antwort"

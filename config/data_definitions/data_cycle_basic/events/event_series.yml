@@ -5,21 +5,15 @@
     :schema_type: Event
     :boost: 100.0
     :content_type: entity
+    :api:
+      :type: EventSeries
     :features:
-      :overlay:
-        :allowed: true
       :translatable:
         :allowed: true
     :properties:
       :id:
         :label: id
         :type: key
-      :overlay:
-        :label: Overlay
-        :type: embedded
-        :template_name: EventOverlay
-        :validations:
-          :max: 1
       :title:
         :type: mixin
         :name: title
@@ -36,77 +30,18 @@
             :type: text_editor
             :options:
               :data-size: basic
-      :url:
-        :label: Inhalt URL
-        :type: string
-        :storage_location: translated_value
-        :external: true
-        :validations:
-          :format: url
-        :api:
-          :name: sameAs
-        :xml:
-          :name: sameAs
-      :same_as:
-        :label: Link
-        :type: string
-        :storage_location: translated_value
-        :validations:
-          :format: url
-        :api:
-          :name: link
-          :partial: property_value
-          :type: PropertyValue
-          :transformation:
-            :method: combine
-            :name: additionalProperty
-        :xml:
-          :name: link
       :image:
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :content_location:
-        :label: Veranstaltungsort
-        :type: linked
-        :template_name: Örtlichkeit
-        :validations:
-          :max: 1
-        :api:
-          :name: location
       :sub_event:
         :label: Veranstaltungen
         :type: linked
         :template_name: Event
         :inverse_of: super_event
         :link_direction: inverse
-      :event_schedule:
-        :label: Event-Schedule
-        :type: embedded
-        :template_name: EventSchedule
-        :translated: true
-      :performer:
-        :label: Ausführende Person/Organisation
-        :type: linked
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-      :organizer:
-        :label: Veranstalter
-        :type: linked
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Veranstaltungsserie"
@@ -116,15 +51,6 @@
       :meta_data:
         :type: mixin
         :name: meta_data
-      :event_db:
-        :type: mixin
-        :name: event_db
-      :v_ticket:
-        :type: mixin
-        :name: v_ticket
-      :feratel_events:
-        :type: mixin
-        :name: feratel_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

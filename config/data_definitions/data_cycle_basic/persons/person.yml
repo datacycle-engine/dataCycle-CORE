@@ -67,7 +67,7 @@
             :method: serialize
             :name: string
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Person"

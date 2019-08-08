@@ -131,8 +131,6 @@
         :label: Veranstaltungsserie
         :type: linked
         :template_name: Eventserie
-        :validations:
-          :max: 1
         :inverse_of: sub_event
       :performer:
         :label: Ausführende Person/Organisation
@@ -154,6 +152,10 @@
               :aliases:
                 - Person
                 - Organisation
+      :offers:
+        :label: Angebote
+        :type: linked
+        :template_name: Event-Ticket-Angebot
       :potential_action:
         :label: Link mit weiterführenden Infos
         :type: string
@@ -161,7 +163,7 @@
         :api:
           :type: ViewAction
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Veranstaltung"
