@@ -16,6 +16,8 @@
         :allowed: true
         :serializers:
           :asset: true
+          :json: true
+          :xml: true
     :api:
     :api:
       :type: VideoObject
