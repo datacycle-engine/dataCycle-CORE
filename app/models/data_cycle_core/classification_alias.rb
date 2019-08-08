@@ -63,6 +63,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
+    after_update :invalidate_cache
 
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
@@ -197,6 +198,13 @@ module DataCycleCore
       primary_classification.tap do |c|
         c.name = name
         c.save!
+      end
+    end
+
+    def invalidate_cache
+      return unless saved_changes?
+      primary_classification&.things&.ids&.each do |item_id|
+        Rails.cache.delete_matched("*DataCycleCore::Thing_#{item_id}*")
       end
     end
   end
