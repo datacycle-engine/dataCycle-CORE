@@ -65,8 +65,10 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :classification_tree_labels, only: :show
 
-  resource :content_locks, only: :update do
-    post :destroy, on: :collection
+  defaults format: :json do
+    resource :content_locks, only: :update do
+      post :destroy, on: :collection
+    end
   end
 
   scope('files') do

@@ -15,7 +15,7 @@ class ContentLock {
     this.renewNotified = false;
     this.lockPath = this.button.data('lock-path');
     this.uuid = this.button.data('lock-content-id');
-    this.userId = this.button.data('lock-user-id');
+    this.token = this.button.data('lock-token');
     this.checkLockPath = this.button.data('lock-check-path');
     this.lockContentChannel;
     this.confirmationModal = null;
@@ -43,7 +43,6 @@ class ContentLock {
     }
 
     if (this.editable) {
-      $(window).on('beforeunload', this.setRemoveableLocks.bind(this));
       $(window).on('unload', this.leavePage.bind(this));
     }
     if (!this.editable) this.checkInitialLockState();
@@ -64,20 +63,10 @@ class ContentLock {
       }
     }
   }
-  setRemoveableLocks() {
-    this.removableLockIds = Object.keys(this.locks);
-  }
   leavePage(event) {
     this.lockContentChannel.unsubscribe();
     let data = new FormData();
-    data.append(
-      document.querySelector('meta[name=csrf-param]').getAttribute('content'),
-      document.querySelector('meta[name=csrf-token]').getAttribute('content')
-    );
-    this.removableLockIds.forEach(lock_id => {
-      data.append('lock_ids[]', lock_id);
-    });
-
+    data.append('token', this.token);
     navigator.sendBeacon(this.lockPath, data);
   }
   calculateLockedUntil(lockedUntil = {}) {
@@ -97,7 +86,7 @@ class ContentLock {
         received: data => {
           if (data.create && data.locked_until !== undefined && !this.editable)
             this.newLock(data.lock_id, data.locked_until, data.button_text);
-          else if (data.locked_until !== undefined) this.renewLock(data.lock_id, data.locked_until);
+          else if (data.locked_until !== undefined) this.renewLock(data.lock_id, data.locked_until, data.token);
           else if (data.remove_lock && !this.editable) this.unlockButton(data.lock_id);
           else if (data.remove_lock && this.editable) this.lockEditor(data.lock_id);
         }
@@ -196,15 +185,16 @@ class ContentLock {
     $.ajax({
       url: this.lockPath,
       data: {
-        lock_ids: Object.keys(this.locks)
+        token: this.token
       },
       type: 'PATCH'
     }).fail(() => {
       console.log('error renewing the lock');
     });
   }
-  renewLock(lockId, lockedUntil) {
+  renewLock(lockId, lockedUntil, token) {
     this.calculateLockedUntil({ [lockId]: lockedUntil });
+    this.token = token;
     this.renewNotified = false;
     this.button.find('.pie-text').removeClass('show');
   }

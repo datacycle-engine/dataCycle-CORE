@@ -55,6 +55,7 @@ module DataCycleCore
           @content.lock.destroy if @content.locked?
           @content.reload_lock
           @content.create_lock(user: current_user)
+          @lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
         end
 
         def update_lock_state
@@ -79,6 +80,7 @@ module DataCycleCore
             c.reload_lock
             c.create_lock(user: current_user)
           end
+          @lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, lock_ids: Array(@contents.includes(:lock).map { |c| c.lock&.id }) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
         end
 
         def update_lock_states

@@ -122,24 +122,27 @@
                   <i class="fa fa-trash-o" aria-hidden="true"></i>
               <% end if can? :destroy, @watch_list %>
 
-              <% things_external = @watch_list.things.any?{ |t| t.external_source_id.present? } %>
-                <%= button_to bulk_delete_watch_list_path(@watch_list),
-                  method: :delete,
-                  remote: true,
-                  class: 'button-prime small alert bulk-delete-button',
-                  title: t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) + (things_external ? t('common.watch_list_external_things_locked_html', locale: DataCycleCore.ui_language) : ''),
-                  data: {
-                    tooltip: true,
-                    confirm: "#{t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language)}?",
-                    allow_html: true,
-                    id: @watch_list.id,
-                    disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
-                      tag.span(class: 'progress-value') +
-                      tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
-                  },
-                  disabled: things_external do %>
-                  <i class="fa fa-trash" aria_hidden="true"></i>
-                <% end if can?(:bulk_delete, @watch_list) %>
+              <% if can?(:bulk_delete, @watch_list) %>
+                <% things_external = @watch_list.things.any?{ |t| t.external_source_id.present? } %>
+
+                <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) + (things_external ? t('common.watch_list_external_things_locked_html', locale: DataCycleCore.ui_language) : '') %>" data-tooltip="true" data-allow-html="true">
+                  <%= button_to bulk_delete_watch_list_path(@watch_list),
+                    method: :delete,
+                    remote: true,
+                    class: 'button-prime small alert bulk-delete-button',
+                    data: {
+                      confirm: "#{t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language)}?",
+                      id: @watch_list.id,
+                      disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                        tag.span(class: 'progress-value') +
+                        tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+                    },
+                    disabled: things_external do %>
+                    <i class="fa fa-trash" aria_hidden="true"></i>
+                  <% end %>
+                </span>
+              <% end %>
+
             </div>
 
         </div>
