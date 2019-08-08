@@ -269,11 +269,17 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            thing[:id].in(
-              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
-            )
+            join_classification_trees_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_tree[:classification_tree_label_id].in(ids))).exists
           )
         )
+
+        # reflect(
+        #   @query.where(
+        #     thing[:id].in(
+        #       join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+        #     )
+        #   )
+        # )
       end
 
       def not_classification_tree_ids(ids = nil)
@@ -293,9 +299,7 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            thing[:id].in(
-              join_classification_alias.where(classification_alias[:id].in(ids))
-            )
+            join_classification_alias_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_alias[:id].in(ids))).exists
           )
         )
       end
@@ -372,6 +376,40 @@ module DataCycleCore
           .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
           .join(classification_tree)
           .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_alias_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
           .where(
             classification[:deleted_at].eq(nil)
               .and(classification_group[:deleted_at].eq(nil))

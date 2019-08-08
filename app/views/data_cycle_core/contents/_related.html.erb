@@ -1,49 +1,9 @@
-<%
-    related_objects = content&.related_contents&.includes(:translations)&.order(:template_name)
-    grouped_objects = related_objects&.group_by(&:template_name)
-    if related_objects.present?
-%>
 <section class="related-objects">
     <span class="horizontal-separator-header">
-      <h4 class="header-text"><%= t('common.related_items', locale: DataCycleCore.ui_language) %> (<%= related_objects.size %>)</h4>
+      <h4 class="header-text"><%= t('common.related_items', locale: DataCycleCore.ui_language) %> (<%= content.related_contents.size %>)</h4>
     </span>
 
     <ul class="list">
-        <% grouped_objects.presence&.each do |group| %>
-
-            <li class="grouped_by">
-                <span>
-                    <%= render 'data_cycle_core/contents/lists/attributes/type', item: group.second.first, group_count: group.second.count %>
-                    <%#= group.first %>
-                </span>
-
-                <ul>
-                    <% group.second.presence&.each do |item| %>
-                    <li class="<%= [
-                                       'list-item',
-                                       'content',
-                                       item.class.name.demodulize.underscore.dasherize,
-                                       item.schema_type&.underscore&.dasherize,
-                                       item.template_name.underscore.dasherize,
-                                       (item.hard_content_warnings? ? 'hard-warnings' : nil)
-                                   ].compact.join(' ') %>" data-id="<%= [item.id] %>">
-
-                        <%= render_first_existing_partial [
-                                                              "data_cycle_core/contents/viewers/lists/#{item.template_name.underscore_blanks}",
-                                                              "data_cycle_core/contents/viewers/lists/#{item.schema_type.underscore_blanks}",
-                                                              'data_cycle_core/contents/viewers/lists/default'
-                                                          ], local_assigns.merge({content: item})
-                        %>
-                    </li>
-                    <% end %>
-                </ul>
-
-
-            </li>
-
-
-
-        <% end %>
+      <%= render 'data_cycle_core/contents/related_groups', content: content, related_objects: content&.related_contents&.includes(:translations)&.order(:template_name, :id).page(1)&.per(DataCycleCore.linked_objects_page_size) %>
     </ul>
 </section>
-<% end %>

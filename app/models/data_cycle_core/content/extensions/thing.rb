@@ -8,7 +8,7 @@ module DataCycleCore
 
         def title
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Product'
+          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
             name
           when 'Person'
             "#{given_name} #{family_name}"
@@ -19,7 +19,7 @@ module DataCycleCore
 
         def desc
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork'
+          when 'Organization', 'Event', 'CreativeWork', 'Intangible'
             description
           when 'Person'
             content&.dig('job_title')
@@ -29,7 +29,7 @@ module DataCycleCore
         def object_browser_fields
           # title is shown by default
           case schema_type
-          when 'Organization', 'Event', 'CreativeWork', 'Product'
+          when 'Organization', 'Event', 'CreativeWork', 'Product', 'Intangible'
             []
           when 'Person'
             ['honorific_prefix', 'job_title', 'contact_info']

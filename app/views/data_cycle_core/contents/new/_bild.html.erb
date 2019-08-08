@@ -63,9 +63,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
-
-
+                                } if template.schema.dig('properties', 'tags').present? %>
   </fieldset>
 
   <fieldset>

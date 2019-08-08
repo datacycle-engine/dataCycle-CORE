@@ -48,6 +48,19 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
+    def filterable_classification_aliases(allowed_labels, excluded = [])
+      query = DataCycleCore::ClassificationAlias
+        .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
+                    sub_classification_alias: [
+                      sub_classification_alias: :sub_classification_alias
+                    ]
+                  ])
+        .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
+      query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+
+      query.group_by { |ca| ca.classification_tree_label&.name }
+    end
+
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
       query = query.where(template: true)
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|

@@ -1874,6 +1874,11 @@ input.normalized {
 section.related-objects {
   margin-bottom: 3rem;
 
+  .load-more-related-button {
+    display: block;
+    text-align: center;
+  }
+
   ul {
     list-style: none;
     margin: 0;
@@ -2261,6 +2266,12 @@ button.button-prime.small.bulk-delete-button {
         background-color: $primary-color;
       }
     }
+  }
+}
+
+.hard-warnings {
+  .content-warning {
+    color: $alert-color;
   }
 }
 
