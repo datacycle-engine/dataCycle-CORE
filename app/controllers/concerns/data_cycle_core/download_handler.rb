@@ -96,6 +96,7 @@ module DataCycleCore
       return serialized_content.path if serialized_content.is_a?(DataCycleCore::CommonUploader)
 
       download_dir = Rails.root.join('public', 'downloads')
+      Dir.mkdir(download_dir) unless File.exist?(download_dir)
       download_file = File.join(download_dir, download_file_name(content, language) + file_extension)
       File.open(File.join(download_file), 'w') do |f|
         f.write serialized_content
