@@ -111,7 +111,11 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item', 'Id')].reject(&:blank?) })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
-          .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate', 'Addresses', 'Documents', 'feratel_documents', 'Facilities', 'CustomAttributes', 'Location', 'Towns', 'Position'])
+          .>> t(:add_field, 'connected_entries', ->(s) { s.dig('ConnectedEntries', 'ConnectedEntry').is_a?(Hash) ? [s.dig('ConnectedEntries', 'ConnectedEntry')] : s.dig('ConnectedEntries', 'ConnectedEntry') })
+          .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventServiceProvider' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
+          .>> t(:add_links, 'connected_content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
+          .>> t(:merge_array_values, 'content_location', 'connected_content_location')
+          .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate', 'Addresses', 'Documents', 'feratel_documents', 'Facilities', 'CustomAttributes', 'Location', 'Towns', 'Position', 'connected_entries', 'connected_content_location'])
           .>> t(:strip_all)
         end
 
