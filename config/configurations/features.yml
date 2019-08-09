@@ -91,6 +91,7 @@
   :lock_renew_before: <%= 5.minutes %>
 
 :user_api:
+  :enabled: false
   :only_config: true
   :expiration_time: <%= 24.hours %>
   :default_rank: 0

@@ -33,9 +33,15 @@ class ContentLock {
       event.stopImmediatePropagation();
     });
 
-    this.button.closest('.edit-header').on('mouseenter', event => {
-      this.button.find('.pie-text').removeClass('show');
-    });
+    if (this.editable) {
+      this.button.closest('.edit-header').on('mouseenter', event => {
+        this.button.removeClass('show-pie-text');
+      });
+    } else {
+      this.button.closest('span').on('mouseleave', event => {
+        this.button.removeClass('show-pie-text');
+      });
+    }
 
     if (Object.keys(this.locks).length !== 0 && this.locks.constructor === Object) {
       this.checkLockState();
@@ -107,7 +113,7 @@ class ContentLock {
     } else if (!$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length) {
       $('#' + this.button.closest('.has-tip').data('toggle')).append(buttonText);
     }
-    this.button.prop('disabled', true).addClass('content-locked');
+    this.button.prop('disabled', true).addClass('content-locked show-pie-text');
 
     if (isFirst) {
       this.checkLockState();
@@ -149,7 +155,7 @@ class ContentLock {
     if (diffSeconds > 0) this.renderCountDown(diffSeconds);
 
     if (!this.renewNotified && this.editable && diffSeconds <= this.lockRenewBefore) {
-      this.button.find('.pie-text').addClass('show');
+      this.button.addClass('show-pie-text');
       this.renewNotified = true;
       this.confirmationModal = new ConfirmationModal({
         text:
@@ -196,7 +202,7 @@ class ContentLock {
     this.calculateLockedUntil({ [lockId]: lockedUntil });
     this.token = token;
     this.renewNotified = false;
-    this.button.find('.pie-text').removeClass('show');
+    this.button.removeClass('show-pie-text');
   }
   lockEditor(lockId) {
     delete this.locks[lockId];
@@ -206,8 +212,8 @@ class ContentLock {
 
       this.button.find('.pie-timer, .pie-text').addClass('alert');
       this.button
+        .addClass('show-pie-text')
         .find('.pie-text')
-        .addClass('show')
         .text('Der Inhalt wurde wieder freigegeben und kann nicht mehr gespeichert werden.');
 
       if (this.confirmationModal !== null) this.confirmationModal.overlay.foundation('close');
@@ -230,7 +236,7 @@ class ContentLock {
 
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {
       clearInterval(this.lockStateInterval);
-      this.button.prop('disabled', false).removeClass('content-locked');
+      this.button.prop('disabled', false).removeClass('content-locked show-pie-text');
     }
   }
 }

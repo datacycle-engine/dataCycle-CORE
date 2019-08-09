@@ -99,7 +99,7 @@
                 <%= button_to bulk_edit_watch_list_path(@watch_list),
                   method: :get,
                   disabled: bulk_locked || content_locks.present?,
-                  class: "button-prime small bulk-edit-link #{'bulk_locked' if bulk_locked} #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked' if content_locks.present?}",
+                  class: "button-prime small bulk-edit-link #{'bulk_locked' if bulk_locked} #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
                   data: {
                     disable: true
                   }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {

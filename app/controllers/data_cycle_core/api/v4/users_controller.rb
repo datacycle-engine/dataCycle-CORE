@@ -5,6 +5,7 @@ module DataCycleCore
     module V4
       class UsersController < ::DataCycleCore::Api::V4::ContentsController
         before_action :prepare_url_parameters
+        before_action :check_feature_enabled, except: :index
 
         def index
           @user_data = current_user
@@ -45,6 +46,10 @@ module DataCycleCore
 
         def role_params
           params.require(controller_name.singularize.to_sym).permit(:rank)
+        end
+
+        def check_feature_enabled
+          raise CanCan::AccessDenied, 'feature not activated' unless DataCycleCore.features.dig(:user_api, :enabled)
         end
       end
     end
