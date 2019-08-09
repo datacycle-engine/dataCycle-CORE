@@ -32,10 +32,10 @@
             }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
               lock_length: DataCycleCore::Feature::ContentLock.lock_length,
               lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
-              lock_content_id: watch_list&.id,
-              lock_user_id: current_user.id
+              lock_content_id: watch_list&.id
             } : {}).merge(content_locks.present? ? {
               locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+              lock_token: @lock_token,
               lock_path: content_locks_path,
             } : {}) %>
         </li>

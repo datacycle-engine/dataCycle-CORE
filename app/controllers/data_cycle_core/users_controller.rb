@@ -34,7 +34,7 @@ module DataCycleCore
     end
 
     def create_user
-      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params)
+      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params.merge(creator: current_user))
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
@@ -118,7 +118,7 @@ module DataCycleCore
 
     def permitted_params
       allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :type, :external, user_group_ids: []]
-      allowed_params.push(:password, :password_confirmation, :current_password) unless params[controller_name.singularize.to_sym].blank? || params[controller_name.singularize.to_sym][:password].blank? || params[controller_name.singularize.to_sym][:password_confirmation].blank?
+      allowed_params.push(:password, :password_confirmation, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present? && params.dig(controller_name.singularize.to_sym, :password_confirmation).present?
       params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end
 

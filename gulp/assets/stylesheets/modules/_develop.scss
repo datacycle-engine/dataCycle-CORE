@@ -2200,6 +2200,19 @@ button.button-prime.small.bulk-delete-button {
       }
     }
   }
+  &.show-pie-text,
+  &.editable-lock:hover,
+  &.content-locked:hover {
+    .pie-text {
+      width: auto;
+      padding: 0 calc(50% + 1rem) 0 1rem;
+    }
+
+    &.edit-content-link,
+    &.bulk-edit-link {
+      opacity: 0.9;
+    }
+  }
   .pie-text {
     color: white;
     z-index: 0;
@@ -2216,31 +2229,19 @@ button.button-prime.small.bulk-delete-button {
     width: 0;
     overflow: hidden;
     white-space: nowrap;
-    &.show {
-      width: auto;
-      padding: 0 calc(50% + 1rem) 0 1rem;
-    }
     &.alert {
       background-color: $alert-color;
     }
   }
+  &.edit-content-link,
+  &.bulk-edit-link {
+    .pie-text {
+      top: 0;
+    }
+  }
+
   &.editable-lock,
   &.content-locked {
-    &:hover {
-      .pie-text {
-        width: auto;
-        padding: 0 calc(50% + 1rem) 0 1rem;
-      }
-    }
-    &.edit-content-link,
-    &.bulk-edit-link {
-      &:hover {
-        opacity: 0.9;
-      }
-      .pie-text {
-        top: 0;
-      }
-    }
     .pie-timer {
       background-color: inherit;
       background-image: linear-gradient(to right, transparent 50%, $warning-color 0);

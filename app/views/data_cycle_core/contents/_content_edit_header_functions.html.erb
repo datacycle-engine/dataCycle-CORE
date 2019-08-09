@@ -59,10 +59,10 @@
             }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
               lock_length: DataCycleCore::Feature::ContentLock.lock_length,
               lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
-              lock_content_id: content&.id,
-              lock_user_id: current_user.id
+              lock_content_id: content&.id
             } : {}).merge(DataCycleCore::Feature::ContentLock.enabled? && content&.locked? ? {
               locks: { content.lock.id => content&.locked_until&.to_i },
+              lock_token: @lock_token,
               lock_path: content_locks_path,
             } : {}) %>
         </li>

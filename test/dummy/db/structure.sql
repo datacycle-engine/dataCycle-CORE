@@ -837,7 +837,9 @@ CREATE TABLE public.users (
     access_token character varying,
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
-    default_locale character varying DEFAULT 'de'::character varying
+    default_locale character varying DEFAULT 'de'::character varying,
+    jti character varying,
+    creator_id uuid
 );
 
 
@@ -1430,6 +1432,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 
 
 --
+-- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
+
+
+--
 -- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1703,6 +1712,13 @@ CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
 
 
 --
+-- Name: index_users_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_creator_id ON public.users USING btree (creator_id);
+
+
+--
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1714,6 +1730,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 --
 
 CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
+
+
+--
+-- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
 
 
 --
@@ -1955,6 +1978,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190612084614'),
 ('20190613092317'),
 ('20190716081614'),
-('20190716130050');
+('20190716130050'),
+('20190801120456'),
+('20190805085313');
 
 

@@ -65,8 +65,10 @@ DataCycleCore::Engine.routes.draw do
   end
   resources :classification_tree_labels, only: :show
 
-  resource :content_locks, only: :update do
-    post :destroy, on: :collection
+  defaults format: :json do
+    resource :content_locks, only: :update do
+      post :destroy, on: :collection
+    end
   end
 
   scope('files') do
@@ -211,7 +213,9 @@ DataCycleCore::Engine.routes.draw do
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show], controller: :watch_lists
 
-          resources :users, only: [:index], controller: :users
+          post '/auth/login', to: 'authentication#login'
+          post '/auth/logout', to: 'authentication#logout'
+          resources :users, only: [:index, :create], controller: :users
         end
       end
     end
