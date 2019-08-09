@@ -58,7 +58,6 @@ module DataCycleCore
         end
 
         test '/api/v4/auth/login - login with JWT, signed with Secret' do
-          @current_user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, jti: @current_user.jti })
 
           post api_v4_auth_login_path, headers: {
@@ -75,6 +74,30 @@ module DataCycleCore
 
           assert json_data['token'].present?
           assert_equal @user_data['email'], json_data['email']
+        end
+
+        test '/api/v4/auth/login - login with token in header as Authorization Bearer -> Unauthorized' do
+          get api_v4_users_path, headers: {
+            Authorization: "Bearer #{@current_user.access_token}"
+          }, params: {}
+
+          assert_response :unauthorized
+        end
+
+        test '/api/v4/auth/login - login with token in header as Authorization -> Unauthorized' do
+          get api_v4_users_path, headers: {
+            Authorization: @current_user.access_token
+          }, params: {}
+
+          assert_response :unauthorized
+        end
+
+        test '/api/v4/auth/login - login with token in header as Token -> Unauthorized' do
+          get api_v4_users_path, headers: {
+            Token: @current_user.access_token
+          }, params: {}
+
+          assert_response :unauthorized
         end
 
         test '/api/v4/auth/login - login with JWT, signed with Private Key ' do
