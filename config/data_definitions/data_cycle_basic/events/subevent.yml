@@ -75,12 +75,14 @@
           :name: sameAs
         :xml:
           :name: sameAs
-      :location:
+      :content_location:
         :label: Veranstaltungsort
         :type: linked
         :template_name: Örtlichkeit
         :validations:
           :max: 1
+        :api:
+          :name: location
       :data_type:
         :label: Inhaltstyp
         :type: classification

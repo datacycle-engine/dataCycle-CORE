@@ -17,7 +17,7 @@ module DataCycleCore
           .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
           .>> t(:category_key_to_ids, 'categories', ->(s) { s.dig('categories') }, 'name', external_source_id, 'CATEGORY:', 'id')
           .>> t(:rename_keys, 'categories' => 'event_category')
-          .>> t(:add_link, 'location', DataCycleCore::Thing, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
           .>> t(:add_link, 'image', DataCycleCore::Thing, external_source_id, ->(s) { "IMAGE:#{s.dig('image', 'id')}" })
           .>> t(:reject_keys, ['sub_events'])
           .>> t(:compact)
