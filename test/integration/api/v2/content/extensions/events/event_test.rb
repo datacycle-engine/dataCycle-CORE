@@ -64,7 +64,7 @@ module DataCycleCore
 
                 # TODO: check image rendering via minimal or linked
                 assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
-                assert_equal(@content.content_location.first.id, json_data.dig('location').first.dig('identifier'))
+                assert_equal(@content.location.first.id, json_data.dig('location').first.dig('identifier'))
 
                 # sub_events
                 sub_events = @content.sub_event.map do |sub_event|
@@ -97,7 +97,7 @@ module DataCycleCore
                       'name' => 'overlay_name',
                       'description' => '<p>overlay_description</p>',
                       'image' => [overlay_image.id],
-                      'content_location' => [overlay_place.id],
+                      'location' => [overlay_place.id],
                       'url' => 'https://overlay.url.com',
                       'event_period' => {
                         'start_date' => '2019-11-10T00:00:00.000+01:00',

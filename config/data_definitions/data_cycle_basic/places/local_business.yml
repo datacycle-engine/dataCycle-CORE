@@ -64,13 +64,6 @@
       :outdoor_active_external_system:
         :type: mixin
         :name: outdoor_active_external_system
-      :poi_category:
-        :label: Kategorie
-        :type: classification
-        :tree_label: "POI - Kategorien"
-        :ui:
-          :show:
-            :content_area: header
       :potential_actions:
         :type: mixin
         :name: potential_actions

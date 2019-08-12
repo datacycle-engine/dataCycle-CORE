@@ -110,12 +110,10 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :content_location:
+      :location:
         :label: Veranstaltungsort
         :type: linked
         :template_name: Örtlichkeit
-        :api:
-          :name: location
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
@@ -160,6 +158,7 @@
         :type: string
         :storage_location: translated_value
         :api:
+          :partial: action
           :type: ViewAction
       :data_type:
         :label: Inhaltstyp
