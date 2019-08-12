@@ -70,7 +70,7 @@
             :options:
               :data-size: full
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: Öffnungszeit
@@ -108,7 +108,7 @@
             :options:
               :placeholder: hh:mm
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: Öffnungszeit - Zeitspanne
@@ -197,7 +197,7 @@
             :options:
               :placeholder: hh:mm:ss
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Öffnungszeit - Simple"

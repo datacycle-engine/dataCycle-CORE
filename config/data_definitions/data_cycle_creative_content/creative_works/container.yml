@@ -45,7 +45,7 @@
             :options:
               :data-size: basic
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Container"

@@ -1,14 +1,14 @@
 ---
 - :data:
-    :name: Organization
+    :name: Eventserie
     :type: object
-    :schema_type: Organization
+    :schema_type: Event
+    :boost: 100.0
     :content_type: entity
-    :boost: 1.0
+    :api:
+      :type: EventSeries
     :features:
       :translatable:
-        :allowed: true
-      :creatable:
         :allowed: true
     :properties:
       :id:
@@ -17,14 +17,11 @@
       :title:
         :type: mixin
         :name: title
-      :postal_address:
+      :validity_period:
         :type: mixin
-        :name: postal_address
-      :contact_info:
-        :type: mixin
-        :name: contact_info
+        :name: validity_period
       :description:
-        :label: Text
+        :label: Beschreibung
         :type: string
         :storage_location: column
         :search: true
@@ -32,16 +29,22 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: full
+              :data-size: basic
       :image:
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :sub_event:
+        :label: Veranstaltungen
+        :type: linked
+        :template_name: Event
+        :inverse_of: super_event
+        :link_direction: inverse
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Organisation"
+        :default_value: "Veranstaltungsserie"
       :content_classifications:
         :type: mixin
         :name: content_classifications

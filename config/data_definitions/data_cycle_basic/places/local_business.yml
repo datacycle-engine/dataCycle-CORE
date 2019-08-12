@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: POI
+    :name: LocalBusiness
     :type: object
     :schema_type: Place
     :content_type: entity
@@ -12,8 +12,6 @@
         :allowed: true
       :translatable:
         :allowed: true
-    :api:
-      :type: TouristAttraction
     :properties:
       :id:
         :label: id
@@ -66,13 +64,6 @@
       :outdoor_active_external_system:
         :type: mixin
         :name: outdoor_active_external_system
-      :poi_category:
-        :label: Kategorie
-        :type: classification
-        :tree_label: "POI - Kategorien"
-        :ui:
-          :show:
-            :content_area: header
       :potential_actions:
         :type: mixin
         :name: potential_actions
@@ -80,7 +71,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "POI"
+        :default_value: "LocalBusiness"
       :feratel:
         :type: mixin
         :name: feratel_categories

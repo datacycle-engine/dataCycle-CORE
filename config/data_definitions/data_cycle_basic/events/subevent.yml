@@ -75,16 +75,14 @@
           :name: sameAs
         :xml:
           :name: sameAs
-      :content_location:
+      :location:
         :label: Veranstaltungsort
         :type: linked
         :template_name: Örtlichkeit
         :validations:
           :max: 1
-        :api:
-          :name: location
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Veranstaltungstermin"
