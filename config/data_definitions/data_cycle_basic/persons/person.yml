@@ -17,6 +17,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PersonOverlay
+        :validations:
+          :max: 1
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
