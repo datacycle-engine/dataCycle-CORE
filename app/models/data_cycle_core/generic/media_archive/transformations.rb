@@ -91,7 +91,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:underscore_keys)
           .>> t(:reject_keys, ['id'])
-          .>> t(:add_link, 'works_for', DataCycleCore::Thing, external_source_id, ->(s) { Digest::SHA1.hexdigest(s.dig('works_for', 'name')) }, ->(s) { s&.dig('works_for', 'name').present? })
+          .>> t(:add_link, 'member_of', DataCycleCore::Thing, external_source_id, ->(s) { Digest::SHA1.hexdigest(s.dig('member_of', 'name')) }, ->(s) { s&.dig('member_of', 'name').present? })
           .>> t(:strip_all)
           .>> t(:compact)
         end

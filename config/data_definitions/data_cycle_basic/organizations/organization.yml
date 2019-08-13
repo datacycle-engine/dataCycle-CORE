@@ -37,6 +37,18 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :member:
+        :label: Mitglieder
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :inverse_of: member_of
+        :link_direction: inverse
       :data_type:
         :label: Inhaltstyp
         :type: classification

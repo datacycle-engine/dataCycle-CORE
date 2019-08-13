@@ -72,6 +72,11 @@
           :transformation:
             :method: serialize
             :name: string
+      :member_of:
+        :label: Organisation
+        :type: linked
+        :template_name: Organization
+        :inverse_of: member
       :data_type:
         :label: Inhaltstyp
         :type: classification

@@ -21,6 +21,8 @@ if data.present?
       render 'content_header_minimal', content: item, options: { fields: new_fields, field_filter: options[:field_filter] }
     end
   }.compact.presence
+
+  json[key_new] = json[key_new]&.map { |o| o.dig(definition.dig('api', 'transformation', 'key')) }&.compact.presence if definition.dig('api', 'transformation', 'method') == 'map' && definition.dig('api', 'transformation', 'key').present?
 end
 
 json.compact
