@@ -79,15 +79,16 @@ module DataCycleCore
     def authenticate
       return if current_user
 
-      user = User.find_by(access_token: params[:token]) if params[:token].present?
-      if user
-        sign_in user, store: false
-        return
+      if params[:token].present?
+        user = User.find_by(access_token: params[:token])
+      elsif params[:download_token].present? && Rails.cache.exist?("download_#{params[:download_token]}")
+        user = User.find(Rails.cache.read("download_#{params[:download_token]}"))
+        DataCycleCore::Download.remove_token(key: "download_#{params[:download_token]}")
       end
 
-      temp_token = Rails.cache.exist?("download_#{params[:download_token]}") if params[:download_token].present?
-      if temp_token
-        DataCycleCore::Download.remove_token(key: "download_#{params[:download_token]}")
+      if user
+        sign_in user, store: false
+        @current_user = user
         return
       end
 
