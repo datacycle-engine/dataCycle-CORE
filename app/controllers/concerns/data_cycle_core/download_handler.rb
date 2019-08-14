@@ -51,7 +51,7 @@ module DataCycleCore
 
                 next unless serialized_content
 
-                download_file = create_download_file(serialized_content, content, file_extension, serializer.translatable? ? language : nil)
+                download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
                 file_name = download_file_name(content, serializer.translatable? ? language : nil)
                 file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
@@ -78,7 +78,7 @@ module DataCycleCore
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
 
-      download_file = create_download_file(serialized_content, content, file_extension, serializer.translatable? ? language : nil)
+      download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
       content.activities.create(user: @current_user, activity_type: 'download')
       send_file download_file, filename: "#{download_file_name(content, serializer.translatable? ? language : nil)}#{file_extension}", disposition: 'attachment', type: mime_type
@@ -95,13 +95,14 @@ module DataCycleCore
       end
     end
 
-    def create_download_file(serialized_content, content, file_extension, language)
+    def create_download_file(serializer, serialized_content, content, file_extension, language)
       return serialized_content.path if serialized_content.is_a?(DataCycleCore::CommonUploader)
 
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       download_file = File.join(download_dir, download_file_name(content, language) + file_extension)
-      File.open(File.join(download_file), 'w') do |f|
+      file_mode = 'wb' if serializer.respond_to?(:remote?) && serializer.remote?(content)
+      File.open(File.join(download_file), file_mode || 'w') do |f|
         f.write serialized_content
       end
       download_file

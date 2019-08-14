@@ -8,8 +8,12 @@ module DataCycleCore
           false
         end
 
+        def remote?(content)
+          content.asset&.file.blank? && content.content_url.present?
+        end
+
         def mime_type(content)
-          content.asset&.file&.content_type
+          content.asset&.file&.content_type || content.file_format
         end
 
         def file_extension(mime_type)
@@ -17,7 +21,15 @@ module DataCycleCore
         end
 
         def serialize(content, _language)
-          content.asset&.file
+
+          return content.asset&.file if content.asset&.file.present?
+
+          if remote?(content)
+            conn = Faraday.new
+            response = conn.get content.content_url
+            return response.body if response.status == 200
+          end
+
         end
       end
     end
