@@ -85,13 +85,12 @@ module DataCycleCore
       test 'extend content lock' do
         @content.create_lock(user: @current_user)
         updated_at = @content.lock.updated_at
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
 
         travel 1.minute
 
         patch content_locks_path, xhr: true, as: :json, params: {
-          lock_ids: [
-            @content.lock.id
-          ]
+          token: lock_token
         }, headers: {
           referer: edit_thing_path(@content)
         }
@@ -107,12 +106,13 @@ module DataCycleCore
         travel 1.minute
 
         logout
-        sign_in(User.find_by(email: 'admin@datacycle.at'))
+        new_user = User.find_by(email: 'admin@datacycle.at')
+        sign_in(new_user)
+
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
 
         patch content_locks_path, xhr: true, as: :json, params: {
-          lock_ids: [
-            @content.lock.id
-          ]
+          token: lock_token
         }, headers: {
           referer: edit_thing_path(@content)
         }
@@ -124,10 +124,10 @@ module DataCycleCore
       test 'remove content lock' do
         @content.create_lock(user: @current_user)
 
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+
         post content_locks_path, xhr: true, as: :json, params: {
-          lock_ids: [
-            @content.lock.id
-          ]
+          token: lock_token
         }, headers: {
           referer: edit_thing_path(@content)
         }
@@ -140,12 +140,13 @@ module DataCycleCore
         @content.create_lock(user: @current_user)
 
         logout
-        sign_in(User.find_by(email: 'admin@datacycle.at'))
+        new_user = User.find_by(email: 'admin@datacycle.at')
+        sign_in(new_user)
+
+        lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: new_user.id, lock_ids: Array(@content.lock&.id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
 
         post content_locks_path, xhr: true, as: :json, params: {
-          lock_ids: [
-            @content.lock.id
-          ]
+          token: lock_token
         }, headers: {
           referer: edit_thing_path(@content)
         }
