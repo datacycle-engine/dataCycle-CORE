@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module TestPreparations
-    CONTENT_TABLES = [:creative_works, :events, :organizations, :persons, :places, :products, :things, :users].freeze
+    CONTENT_TABLES = [:creative_works, :events, :organizations, :persons, :places, :products, :intangibles, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
@@ -22,7 +22,7 @@ module DataCycleCore
       {
         creative_works: {},
         events: {},
-        intangible: {},
+        intangibles: {},
         organizations: {},
         places: {},
         persons: {},
