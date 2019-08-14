@@ -221,7 +221,7 @@
         :type: mixin
         :name: media_archive
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Video"

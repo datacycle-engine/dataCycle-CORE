@@ -33,7 +33,11 @@ module DataCycleCore
         },
         'holiday_themes' => [],
         'feratel_event_tags' => [],
-        'event_schedule' => []
+        'event_schedule' => [],
+        'organizer' => [],
+        'performer' => [],
+        'super_event' => [],
+        'offers' => []
       }
       returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)

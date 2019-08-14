@@ -10,11 +10,11 @@ module DataCycleCore
       api_version = @api_version || 2
       partials = [
         key.underscore.to_s,
-        "#{definition['type'].underscore}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
-        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        "#{definition.try(:[], 'compute').try(:[], 'type').try(:underscore)}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
-        definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
-        definition['type'].underscore.to_s,
+        "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
+        "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+        "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
+        definition&.dig('compute', 'type')&.underscore,
+        definition['type'].underscore,
         'default'
       ].reject(&:blank?)
 
@@ -43,7 +43,7 @@ module DataCycleCore
     end
 
     def select_attributes(attribute_list)
-      attribute_list.map(&:first).compact
+      Array(attribute_list).map(&:first).compact
     end
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)

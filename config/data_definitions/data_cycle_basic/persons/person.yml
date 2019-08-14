@@ -24,6 +24,12 @@
       :title:
         :type: mixin
         :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: PersonOverlay
+        :validations:
+          :max: 1
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
@@ -73,8 +79,13 @@
           :transformation:
             :method: serialize
             :name: string
+      :member_of:
+        :label: Organisation
+        :type: linked
+        :template_name: Organization
+        :inverse_of: member
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Person"

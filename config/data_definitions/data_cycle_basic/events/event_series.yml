@@ -1,43 +1,22 @@
 ---
 - :data:
-    :name: Container
+    :name: Eventserie
     :type: object
-    :schema_type: CreativeWork
-    :content_type: container
-    :boost: 10000.0
+    :schema_type: Event
+    :boost: 100.0
+    :content_type: entity
+    :api:
+      :type: EventSeries
     :features:
-      :container:
-        :allowed_templates:
-          - Angebot
-          - Artikel
-          - Biografie
-          - Interview
-          - Quiz
-          - Rezept
-          - SocialMediaPosting
-          - Zeitleiste
-      :creatable:
+      :translatable:
         :allowed: true
-      :download:
-        :allowed: true
-      :serialize:
-        :allowed: true
-        :serializers:
-          :xml: true
-          :json: true
     :properties:
       :id:
         :label: id
         :type: key
-      :name:
-        :label: Titel
-        :type: string
-        :storage_location: column
-        :search: true
-        :validations:
-          :required: true
-        :api:
-          :name: headline
+      :title:
+        :type: mixin
+        :name: title
       :validity_period:
         :type: mixin
         :name: validity_period
@@ -51,11 +30,21 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :sub_event:
+        :label: Veranstaltungen
+        :type: linked
+        :template_name: Event
+        :inverse_of: super_event
+        :link_direction: inverse
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Container"
+        :default_value: "Veranstaltungsserie"
       :content_classifications:
         :type: mixin
         :name: content_classifications

@@ -70,3 +70,6 @@
 
 :content_lock:
   :enabled: true
+
+:user_api:
+  :enabled: true

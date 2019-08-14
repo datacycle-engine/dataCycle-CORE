@@ -16,4 +16,12 @@
                               parameters: {
                                 options: local_assigns[:options]
                               } %>
+
+  <%= render_attribute_editor key: 'thing[datahash][member_of]',
+                              definition: template.schema.dig('properties', 'member_of').deep_reject{ |k, v| k == 'readonly' },
+                              value: nil,
+                              content: template,
+                              parameters: {
+                                options: local_assigns[:options]
+                              } %>
 </fieldset>

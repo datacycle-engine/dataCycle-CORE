@@ -135,7 +135,7 @@
         :type: mixin
         :name: tags
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Audio"

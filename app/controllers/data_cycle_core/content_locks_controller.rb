@@ -4,16 +4,16 @@ module DataCycleCore
   class ContentLocksController < ApplicationController
     include DataCycleCore::ErrorHandler
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
-    rescue_from ActionController::InvalidAuthenticityToken, with: :hopefully_not_triggered
-
-    before_action :authenticate_user!
+    rescue_from CanCan::AccessDenied, with: :unauthorized
+    skip_before_action :verify_authenticity_token
+    before_action :authenticate
 
     def update
-      return(head :ok) if lock_params[:lock_ids].blank?
+      return(head :no_content) if @decoded[:lock_ids].blank?
 
-      @content_locks = DataCycleCore::ContentLock.where(id: lock_params[:lock_ids])
+      @content_locks = DataCycleCore::ContentLock.where(id: @decoded[:lock_ids])
 
-      return(head :ok) unless @content_locks.all? { |l| l.user == current_user }
+      return(head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
 
       @content_locks.find_each(&:touch)
 
@@ -21,11 +21,11 @@ module DataCycleCore
     end
 
     def destroy
-      return(head :ok) if lock_params[:lock_ids].blank?
+      return(head :no_content) if @decoded[:lock_ids].blank?
 
-      @content_locks = DataCycleCore::ContentLock.where(id: lock_params[:lock_ids])
+      @content_locks = DataCycleCore::ContentLock.where(id: @decoded[:lock_ids])
 
-      return(head :ok) unless @content_locks.all? { |l| l.user == current_user }
+      return(head :no_content) unless @content_locks.includes(:user).all? { |l| l.user == current_user }
 
       @content_locks.find_each(&:destroy)
 
@@ -38,8 +38,15 @@ module DataCycleCore
       raise 'Content Lock destroy/update failed - Browser Windows closed'
     end
 
-    def lock_params
-      params.permit(lock_ids: [])
+    def authenticate
+      raise CanCan::AccessDenied, 'invalid or missing authentication token' if params[:token].blank?
+
+      @decoded = DataCycleCore::JsonWebToken.decode(params[:token])
+      @user = DataCycleCore::User.find(@decoded[:user_id])
+
+      sign_in @user, store: false
+    rescue JWT::DecodeError, JSON::ParserError => e
+      raise CanCan::AccessDenied, e.message
     end
   end
 end

@@ -56,7 +56,7 @@
         :type: mixin
         :name: content_classifications
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Lift"
