@@ -21,15 +21,12 @@ module DataCycleCore
         end
 
         def serialize(content, _language)
-
           return content.asset&.file if content.asset&.file.present?
+          return unless remote?(content)
 
-          if remote?(content)
-            conn = Faraday.new
-            response = conn.get content.content_url
-            return response.body if response.status == 200
-          end
-
+          conn = Faraday.new
+          response = conn.get content.content_url
+          return response.body if response.status == 200
         end
       end
     end
