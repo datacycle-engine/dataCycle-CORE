@@ -30,6 +30,8 @@ module DataCycleCore
       include Extensions::Content
       include Extensions::ContentWarnings
 
+      after_save :reload_memoized
+
       def method_missing(name, *args, &block)
         property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
         if property_definition && name.to_s.ends_with?('=')
@@ -228,23 +230,27 @@ module DataCycleCore
       end
 
       def get_property_value(property_name, property_definition)
-        if plain_property_names.include?(property_name)
-          load_json_attribute(property_name, property_definition)
-        elsif included_property_names.include?(property_name)
-          load_included_data(property_name, property_definition)
-        elsif classification_property_names.include?(property_name)
-          load_classifications(property_name)
-        elsif linked_property_names.include?(property_name)
-          load_linked_objects(property_name)
-        elsif embedded_property_names.include?(property_name)
-          load_embedded_objects(property_name)
-        elsif asset_property_names.include?(property_name)
-          load_asset_relation(property_name)
-        elsif computed_property_names.include?(property_name)
-          load_computed_attribute(property_name, property_definition)
-        else
-          raise NotImplementedError
+        @get_property_value ||= Hash.new do |h, key|
+          h[key] =
+            if plain_property_names.include?(key[0])
+              load_json_attribute(key[0], key[1])
+            elsif included_property_names.include?(key[0])
+              load_included_data(key[0], key[1])
+            elsif classification_property_names.include?(key[0])
+              load_classifications(key[0])
+            elsif linked_property_names.include?(key[0])
+              load_linked_objects(key[0])
+            elsif embedded_property_names.include?(key[0])
+              load_embedded_objects(key[0])
+            elsif asset_property_names.include?(key[0])
+              load_asset_relation(key[0])
+            elsif computed_property_names.include?(key[0])
+              load_computed_attribute(key[0], key[1])
+            else
+              raise NotImplementedError
+            end
         end
+        @get_property_value[[property_name, property_definition]]
       end
 
       def load_json_attribute(property_name, property_definition)
@@ -291,6 +297,7 @@ module DataCycleCore
         raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
         send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
              (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+        reload_memoized [property_name, property_definition]
       end
 
       def convert_to_type(type, value)
@@ -348,6 +355,16 @@ module DataCycleCore
 
       def self.shared_template_features
         all.map { |t| t.schema['features'].to_a }.inject(:&).to_h
+      end
+
+      private
+
+      def reload_memoized(key = nil)
+        return unless instance_variable_defined?(:@get_property_value)
+
+        @get_property_value.delete(key) && return if key.present?
+
+        remove_instance_variable(:@get_property_value) if instance_variable_defined?(:@get_property_value)
       end
     end
   end
