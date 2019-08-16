@@ -250,7 +250,7 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition]]
+        @get_property_value[[property_name, property_definition, I18n.locale]]
       end
 
       def load_json_attribute(property_name, property_definition)
