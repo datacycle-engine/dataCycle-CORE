@@ -46,7 +46,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :language, :include, :fields, :format]
+          super + [:id, :language, :include, :fields, :format, { filter: [{ classifications: [] }] }]
         end
 
         private
@@ -79,7 +79,7 @@ module DataCycleCore
             permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              if @mode_parameters.include?('strict')
+              if @mode_parameters&.include?('strict')
                 query = query.with_classification_alias_ids_without_recursion(classifications)
               else
                 query = query.classification_alias_ids(classifications)
