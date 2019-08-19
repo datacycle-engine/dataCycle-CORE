@@ -29,10 +29,10 @@ module DataCycleCore
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
 
           # relation content to all other contents
-          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+          has_many :content_content_b, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_content_a, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
           has_many :content_b, through: :content_content_a
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
@@ -53,6 +53,7 @@ module DataCycleCore
           has_many :data_links, as: :item, dependent: :destroy
 
           has_many :asset_contents, dependent: :destroy, as: :content_data
+          has_many :assets, through: :asset_contents
         end
       end
 
@@ -76,13 +77,24 @@ module DataCycleCore
         content_content_a.exists?
       end
 
-      def related_to
-        content_a&.map(&:related_object)&.compact
-      end
+      def related_contents
+        tree_query = <<-SQL
+          WITH RECURSIVE content_tree(id) AS (
+              SELECT things.id
+              FROM things
+              INNER JOIN content_contents ON things.id = content_contents.content_a_id
+              WHERE content_contents.content_b_id = '#{id}'
+            UNION ALL
+              SELECT things.id
+              FROM things
+              INNER JOIN content_contents ON things.id = content_contents.content_a_id
+              INNER JOIN content_tree ON content_tree.id = content_contents.content_b_id
+              WHERE things.content_type = 'embedded'
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
 
-      def related_object
-        return self unless content_type?('embedded')
-        content_a&.first&.send(:related_object)
+        self.class.where("things.id IN (#{tree_query})")
       end
     end
   end

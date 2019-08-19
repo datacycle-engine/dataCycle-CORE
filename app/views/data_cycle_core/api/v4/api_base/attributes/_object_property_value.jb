@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+property_header = render "data_cycle_core/api/v#{@api_version}/api_base/property_value_header", key: key, definition: definition
+
+non_translated_properties = {}
+
+ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+  partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
+  non_translated_properties.merge!(render(*partial_params)) unless partial_params.nil?
+end
+
+property_header.merge(non_translated_properties)

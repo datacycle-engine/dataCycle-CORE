@@ -966,12 +966,11 @@ video {
   text-align: right;
 }
 
-.link {
+a.link {
   cursor: pointer;
   color: $body-font-color;
   transition: all ease-in-out 0.25s;
   padding: 0 0 0.5rem 1rem;
-  cursor: pointer;
 }
 
 #show-history {
@@ -1875,6 +1874,11 @@ input.normalized {
 section.related-objects {
   margin-bottom: 3rem;
 
+  .load-more-related-button {
+    display: block;
+    text-align: center;
+  }
+
   ul {
     list-style: none;
     margin: 0;
@@ -2136,6 +2140,7 @@ button.button-prime.small.bulk-delete-button {
     text-align: left;
     overflow: hidden;
     transition: all 0.25s;
+    visibility: hidden;
 
     .progress-filled {
       display: block;
@@ -2155,7 +2160,118 @@ button.button-prime.small.bulk-delete-button {
   }
   &:hover {
     .progress-bar {
+      visibility: visible;
       width: calc(100vw - 4.5rem);
     }
+  }
+}
+
+.button-prime.content-lock {
+  > i.fa {
+    z-index: 1;
+  }
+  .pie-timer {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    z-index: 1;
+    background-color: transparent;
+    border-radius: 50%;
+
+    .pie-filler {
+      position: absolute;
+      top: 0;
+      left: 50%;
+      width: 50%;
+      height: 100%;
+      border-radius: 0 100% 100% 0 / 50%;
+      background-color: inherit;
+      transform-origin: left;
+      &.greater180 {
+        background-color: transparent;
+      }
+    }
+    &.alert {
+      background: transparent;
+      .pie-filler.greater180 {
+        background: transparent;
+      }
+    }
+  }
+  &.show-pie-text,
+  &.editable-lock:hover,
+  &.content-locked:hover {
+    .pie-text {
+      width: auto;
+      padding: 0 calc(50% + 1rem) 0 1rem;
+    }
+
+    &.edit-content-link,
+    &.bulk-edit-link {
+      opacity: 0.9;
+    }
+  }
+  .pie-text {
+    color: white;
+    z-index: 0;
+    position: absolute;
+    right: 50%;
+    top: 1rem;
+    height: 3rem;
+    padding: 0;
+    background: inherit;
+    border-bottom-left-radius: 1.5rem;
+    border-top-left-radius: 1.5rem;
+    line-height: 3rem;
+    transition: all 0.3s;
+    width: 0;
+    overflow: hidden;
+    white-space: nowrap;
+    &.alert {
+      background-color: $alert-color;
+    }
+  }
+  &.edit-content-link,
+  &.bulk-edit-link {
+    .pie-text {
+      top: 0;
+    }
+  }
+
+  &.editable-lock,
+  &.content-locked {
+    .pie-timer {
+      background-color: inherit;
+      background-image: linear-gradient(to right, transparent 50%, $warning-color 0);
+      .pie-filler.greater180 {
+        background-color: $warning-color;
+      }
+    }
+  }
+  &.editable-lock {
+    .pie-timer.alert {
+      background-color: $alert-color;
+      background-image: linear-gradient(to right, transparent 50%, $alert-color 0);
+      .pie-filler.greater180 {
+        background-color: $alert-color;
+      }
+    }
+  }
+  &.content-locked {
+    .pie-timer {
+      background-color: $warning-color;
+      background-image: linear-gradient(to right, transparent 50%, $primary-color 0);
+      .pie-filler.greater180 {
+        background-color: $primary-color;
+      }
+    }
+  }
+}
+
+.hard-warnings {
+  .content-warning {
+    color: $alert-color;
   }
 }

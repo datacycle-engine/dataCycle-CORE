@@ -46,6 +46,7 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
+      get :load_more_related, on: :member
       get :gpx, on: :member
       get :download, on: :member
       get :create_duplication, on: :member
@@ -63,6 +64,12 @@ DataCycleCore::Engine.routes.draw do
     post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
+
+  defaults format: :json do
+    resource :content_locks, only: :update do
+      post :destroy, on: :collection
+    end
+  end
 
   scope('files') do
     resources :assets, only: [:index, :show, :create, :update, :destroy] do
@@ -195,6 +202,20 @@ DataCycleCore::Engine.routes.draw do
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
           end
+        end
+      end
+      namespace :v4 do
+        scope path: '(/:api_subversion)' do
+          # get 'things/search', to: 'contents#index', as: 'contents_search' # done by things endpoint!
+          get 'things/deleted(/:type)', to: 'contents#deleted', as: 'contents_deleted'
+          resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+
+          get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
+          resources :collections, only: [:index, :show], controller: :watch_lists
+
+          post '/auth/login', to: 'authentication#login'
+          post '/auth/logout', to: 'authentication#logout'
+          resources :users, only: [:index, :create], controller: :users
         end
       end
     end

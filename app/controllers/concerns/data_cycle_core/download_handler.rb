@@ -9,7 +9,7 @@ module DataCycleCore
       file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
       download_file = content.asset.file.path
 
-      send_file download_file, filename: "#{content.title.blank? ? 'unkown_title' : content.title.parameterize(separator: '_')}#{file_extension}", disposition: 'attachment', type: mime_type
+      send_file download_file, filename: "#{download_file_name(content)}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
     def download_zip(collection, items)
@@ -27,7 +27,7 @@ module DataCycleCore
           items.each do |content|
             mime_type = content.asset.file.content_type
             file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
-            file_name = (content.title.blank? ? File.basename(content.asset.file.path) : content.title.parameterize(separator: '_')).to_s
+            file_name = download_file_name(content)
 
             file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
 
@@ -48,6 +48,10 @@ module DataCycleCore
       Dir.glob(File.join(File.expand_path(dir), pattern)).each do |file_name|
         File.delete(file_name) if ((Time.zone.now - File.ctime(file_name)) / 1.hour) > max_age
       end
+    end
+
+    def download_file_name(content)
+      (content.title.blank? ? File.basename(content.asset.file.path) : content.title.parameterize(separator: '_')).to_s
     end
   end
 end

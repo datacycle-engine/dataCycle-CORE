@@ -16,7 +16,7 @@ namespace :datacycle do
             end
             target_file_name = "#{fetch(:application)}-#{template_name}"
             upload! StringIO.new(template), "/tmp/#{target_file_name}"
-            execute "sudo mkdir -p /home/#{fetch(:deploy_user)}/scripts" if template_name == 'backup.sh'
+            execute "mkdir -p /home/#{fetch(:deploy_user)}/scripts" if template_name == 'backup.sh'
             execute "sudo mv /tmp/#{target_file_name} /home/#{fetch(:deploy_user)}/scripts/#{target_file_name}"
             execute "sudo chmod +x /home/#{fetch(:deploy_user)}/scripts/#{target_file_name}" if template_name == 'backup.sh'
           end

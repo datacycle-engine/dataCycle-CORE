@@ -1,0 +1,4 @@
+# frozen_string_literal: true
+
+key_new = definition.dig('api', 'name') || key
+{ key_new.camelize(:lower) => value }

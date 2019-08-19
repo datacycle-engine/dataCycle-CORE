@@ -1,7 +1,6 @@
 // Form Validator
 let ConfirmationModal = require('./../components/confirmation_modal');
 let QuillHelpers = require('./../helpers/quill_helpers');
-let ActionCable = require('actioncable');
 
 class Validator {
   constructor(formElement) {
@@ -28,7 +27,6 @@ class Validator {
     this.queryCount = 0;
     this.valid = true;
     this.uuid = this.form.find(':hidden#uuid').val();
-    this.actionCable;
     this.bulkUpdateChannel;
     this.addEventHandlers();
   }
@@ -58,14 +56,14 @@ class Validator {
     this.form.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
+    this.form.on('dc:form:disable', this.disable.bind(this));
 
-    if (this.form.hasClass('bulk-edit-form')) {
+    if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
     }
   }
   initActionCable() {
-    this.actionCable = ActionCable.createConsumer();
-    this.bulkUpdateChannel = this.actionCable.subscriptions.create(
+    this.bulkUpdateChannel = window.actionCable.subscriptions.create(
       {
         channel: 'DataCycleCore::WatchListBulkUpdateChannel',
         watch_list_id: this.uuid

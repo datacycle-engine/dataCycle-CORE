@@ -108,6 +108,10 @@ module DataCycleCore
           enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
         end
 
+        def serial_events(lang: :de)
+          enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
+        end
+
         def enumerate_items(type, xpath, lang: :de)
           Enumerator.new do |yielder|
             item_ids = []
@@ -352,6 +356,12 @@ module DataCycleCore
 
               yield(xml)
             end
+          end
+        end
+
+        def create_serial_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.SerialEvents('Show' => true)
           end
         end
 

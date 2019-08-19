@@ -84,3 +84,25 @@
 
 :duplicate_candidate:
   :enabled: false
+
+:content_lock:
+  :enabled: false
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :enabled: false
+  :only_config: true
+  :expiration_time: <%= 24.hours %>
+  :default_rank: 0
+  :allowed_ranks:
+    - 0
+  :user_params:
+    - email
+    - given_name
+    - family_name
+    - default_locale
+    - password
+    - password_confirmation
+  :issuer: datacycle.at
+

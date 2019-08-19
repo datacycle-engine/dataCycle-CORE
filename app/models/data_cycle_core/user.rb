@@ -27,6 +27,10 @@ module DataCycleCore
     has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
     has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
+    has_many :activities, dependent: :destroy
+    belongs_to :creator, class_name: 'DataCycleCore::User'
+    has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
+
     before_create :set_default_role
 
     delegate :can?, :cannot?, to: :ability
@@ -63,6 +67,28 @@ module DataCycleCore
       return unless contents.size.positive?
 
       SubscriptionMailer.notify(self, contents).deliver_later
+    end
+
+    def update_with_token(token)
+      if token.dig(:user, :rank).present?
+        rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
+      end
+
+      self.attributes = token.dig(:user).slice(*DataCycleCore.features.dig(:user_api, :user_params)).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
+      save
+      self
+    end
+
+    def self.find_with_token(token)
+      if token[:iss] == DataCycleCore::JsonWebToken::ISSUER && token[:jti].present?
+        User.find_by(id: token[:user_id], jti: token[:jti])
+      elsif token[:token].present?
+        User.find_by(access_token: token[:token])
+      elsif token[:user_id].present?
+        User.find_by(id: token[:user_id])
+      elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
+        User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
+      end
     end
 
     private

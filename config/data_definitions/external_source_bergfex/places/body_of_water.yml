@@ -96,7 +96,7 @@
         :type: string
         :storage_location: translated_value
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Badeseen"

@@ -7,6 +7,8 @@ default_options = {
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 (content.linked_property_names - options[:hidden_attributes]).each do |property|
+  next if content.schema&.dig('properties', property, 'link_direction') == 'inverse'
+
   data = content.send(property).includes(:translations, :classifications)
 
   next if data.empty?

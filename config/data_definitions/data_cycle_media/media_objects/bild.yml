@@ -33,13 +33,20 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :caption:
         :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
       :description:
-        :label: Teasertext
+        :label: Beschreibung (ALT-Label)
         :type: string
         :storage_location: column
         :search: true
@@ -181,7 +188,7 @@
              :class: daterange
          :show:
            :type: date
-        :default_value: '{{Time.zone.now.beginning_of_day}}'           
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
       :author:
         :label: Fotograf
         :type: linked
@@ -193,7 +200,7 @@
                 - Person
                 - Organisation
       :copyright_holder:
-        :label: Copyright - Inhaber
+        :label: Rechteinhaber
         :type: linked
         :stored_filter:
           -
@@ -232,7 +239,7 @@
         :type: mixin
         :name: cloud_vision
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Bild"

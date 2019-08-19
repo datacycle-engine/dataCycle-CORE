@@ -157,6 +157,7 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
@@ -164,6 +165,8 @@ de:
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update_check_box_label: '%{data} überschreiben?'
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -205,6 +208,14 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+
+  filter_groups:
+    classification_alias_ids: nach Klassifizierungen filtern...
+    classification_tree_ids: nach Klassifizierungsbaum filtern...
+    creator: nach Personen filtern...
+    external_source: nach Externer Verknüpfung filtern...
+    validity_period: nach Zeitraum filtern...
+    date_range: nach Datum filtern...
 
   terms:
     valid: gültig
@@ -330,6 +341,7 @@ de:
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -597,7 +609,7 @@ de:
         one: Gepeicherte Suche
         other: Gespeicherte Suchen
       show_all_saved: Alle Gespeicherten Suchen ansehen
-      show_search_history: Gesammten Verlauf ansehen
+      show_search_history: Gesamten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
     watch_list:

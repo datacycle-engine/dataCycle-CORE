@@ -4,6 +4,8 @@ module DataCycleCore
   class WatchListsController < ApplicationController
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
+    include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
+
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item, :download] # from cancancan (authorize)
 
@@ -110,7 +112,7 @@ module DataCycleCore
     end
 
     def bulk_edit
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @watch_list ||= DataCycleCore::WatchList.find(params[:id])
 
       authorize!(:bulk_edit, @watch_list)
 
@@ -127,7 +129,7 @@ module DataCycleCore
     end
 
     def bulk_update
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @watch_list ||= DataCycleCore::WatchList.find(params[:id])
 
       authorize!(:bulk_edit, @watch_list)
 

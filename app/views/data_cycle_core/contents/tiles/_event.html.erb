@@ -8,7 +8,7 @@
             <%= render 'data_cycle_core/contents/tiles/attributes/parent', item: item.parent if item.try(:parent).present? %>
             <%= render 'data_cycle_core/contents/tiles/attributes/title', local_assigns if item.try(:title).present? %>
 
-            <%= render 'data_cycle_core/contents/tiles/attributes/event_period', local_assigns %>
+            <%= render 'data_cycle_core/contents/tiles/attributes/event_period', local_assigns if item.try(:event_period).present? %>
 
             <%= render 'data_cycle_core/contents/tiles/attributes/description', local_assigns if item.try(:desc).present? %>
 
