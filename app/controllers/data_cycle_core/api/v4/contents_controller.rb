@@ -11,7 +11,7 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query
+            query = build_search_query.includes(:translations)
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
