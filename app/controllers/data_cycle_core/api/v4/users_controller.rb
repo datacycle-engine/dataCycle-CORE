@@ -41,11 +41,11 @@ module DataCycleCore
         private
 
         def user_params
-          params.require(controller_name.singularize.to_sym).permit(DataCycleCore.features.dig(:user_api, :user_params))
+          params.permit(DataCycleCore.features.dig(:user_api, :user_params))
         end
 
         def role_params
-          params.require(controller_name.singularize.to_sym).permit(:rank)
+          params.permit(:rank)
         end
 
         def check_feature_enabled
