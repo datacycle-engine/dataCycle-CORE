@@ -202,11 +202,11 @@ module DataCycleCore
     end
 
     def invalidate_things_cache
-      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache), queue: 'cache_invalidation', priority: 10
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache)
     end
 
     def invalidate_cache
-      primary_classification&.things&.ids&.each do |item_id|
+      primary_classification&.things&.ids&.uniq&.each do |item_id|
         Rails.cache.delete_matched("*DataCycleCore::Thing_#{item_id}*")
       end
     end

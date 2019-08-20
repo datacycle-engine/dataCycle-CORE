@@ -97,7 +97,8 @@ Gem::Specification.new do |s|
   # cron jobs gem
   s.add_dependency 'whenever'
   # redis
-  s.add_dependency 'redis-rails'
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
