@@ -15,7 +15,7 @@ module DataCycleCore
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)
 
           render json: { token: token, exp: valid_until.strftime('%m-%d-%Y %H:%M'),
-                         email: @user.email }, status: :ok
+                         email: @user.email, givenName: @user.given_name, familyName: @user.family_name }, status: :ok
         end
 
         def logout
