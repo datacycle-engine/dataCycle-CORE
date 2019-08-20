@@ -32,6 +32,7 @@ PATH
       google-cloud-vision
       gretel
       hashdiff (>= 0.4.0)
+      hiredis
       image_optim
       image_optim_pack
       jbuilder
@@ -53,7 +54,7 @@ PATH
       rails-html-sanitizer (>= 1.0.4)
       rake
       redcarpet
-      redis-rails
+      redis
       rgeo
       rgeo-geojson
       ruby-progressbar
@@ -187,15 +188,15 @@ GEM
       addressable
     daemons (1.3.1)
     debug_inspector (0.0.3)
-    delayed_job (4.1.7)
-      activesupport (>= 3.0, < 5.3)
+    delayed_job (4.1.8)
+      activesupport (>= 3.0, < 6.1)
     delayed_job_active_record (4.1.3)
       activerecord (>= 3.0, < 5.3)
       delayed_job (>= 3.0, < 5)
-    devise (4.6.2)
+    devise (4.7.0)
       bcrypt (~> 3.0)
       orm_adapter (~> 0.1)
-      railties (>= 4.1.0, < 6.0)
+      railties (>= 4.1.0)
       responders
       warden (~> 1.2.3)
     docile (1.3.2)
@@ -280,11 +281,12 @@ GEM
       signet (~> 0.7)
     gretel (3.0.9)
       rails (>= 3.1.0)
-    grpc (1.22.0)
+    grpc (1.23.0)
       google-protobuf (~> 3.8)
       googleapis-common-protos-types (~> 1.0)
     hashdiff (1.0.0)
     hashery (2.1.2)
+    hiredis (0.6.3)
     htmlentities (4.3.4)
     i18n (1.6.0)
       concurrent-ruby (~> 1.0)
@@ -294,7 +296,7 @@ GEM
       image_size (>= 1.5, < 3)
       in_threads (~> 1.3)
       progress (~> 3.0, >= 3.0.1)
-    image_optim_pack (0.5.6.20190728)
+    image_optim_pack (0.6.0)
       fspath (>= 2.1, < 4)
       image_optim (~> 0.19)
     image_size (2.0.2)
@@ -345,7 +347,7 @@ GEM
     mini_mime (1.0.2)
     mini_portile2 (2.4.0)
     minitest (5.11.3)
-    mongo (2.9.0)
+    mongo (2.10.0)
       bson (>= 4.4.2, < 5.0.0)
     mongoid (7.0.4)
       activemodel (>= 5.1, < 6.0.0)
@@ -421,22 +423,6 @@ GEM
     rb-readline (0.5.5)
     redcarpet (3.5.0)
     redis (4.1.2)
-    redis-actionpack (5.0.2)
-      actionpack (>= 4.0, < 6)
-      redis-rack (>= 1, < 3)
-      redis-store (>= 1.1.0, < 2)
-    redis-activesupport (5.0.7)
-      activesupport (>= 3, < 6)
-      redis-store (>= 1.3, < 2)
-    redis-rack (2.0.5)
-      rack (>= 1.5, < 3)
-      redis-store (>= 1.2, < 2)
-    redis-rails (5.0.2)
-      redis-actionpack (>= 5.0, < 6)
-      redis-activesupport (>= 5.0, < 6)
-      redis-store (>= 1.2, < 2)
-    redis-store (1.6.0)
-      redis (>= 2.2, < 5)
     request_store (1.4.1)
       rack (>= 1.4)
     responders (3.0.0)
