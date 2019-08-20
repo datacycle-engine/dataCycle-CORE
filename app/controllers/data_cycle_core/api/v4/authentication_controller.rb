@@ -7,7 +7,7 @@ module DataCycleCore
         def login
           @user = User.find_by(email: login_params[:email])
 
-          raise CanCan::AccessDenied, 'invalid or missing authentication token' unless @user&.valid_password?(params[:password])
+          raise CanCan::AccessDenied, 'wrong email/password' unless @user&.valid_password?(params[:password])
 
           @user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
 
@@ -15,7 +15,7 @@ module DataCycleCore
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)
 
           render json: { token: token, exp: valid_until.strftime('%m-%d-%Y %H:%M'),
-                         email: @user.email }, status: :ok
+                         email: @user.email, givenName: @user.given_name, familyName: @user.family_name }, status: :ok
         end
 
         def logout

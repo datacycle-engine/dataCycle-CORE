@@ -51,9 +51,11 @@ module DataCycleCore
         end
 
         define_method :full_filename do |for_file|
-          file_ext = File.extname(for_file)
-          basename = File.basename(for_file, file_ext)
-          "#{version_name}_#{basename}.#{options&.select { |o| o.is_a?(Array) && o[0] == 'convert' }&.dig(0, 1) || file_ext.delete('.')}"
+          basename = File.basename(for_file, File.extname(for_file))
+          file_ext = options&.select { |o| o.is_a?(Array) && o[0] == 'convert' }&.dig(0, 1) || MIME::Types.type_for(for_file).first.preferred_extension
+          file_ext = MIME::Types[self.class::DEFAULT_MIME_TYPE].first.preferred_extension if options&.include?('convert_for_web') && self.class::WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+
+          "#{version_name}_#{basename}.#{file_ext}"
         end
       end
     end

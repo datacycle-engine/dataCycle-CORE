@@ -6,13 +6,21 @@ module DataCycleCore
   class ImageUploader < CommonUploader
     include CarrierWave::MiniMagick
 
+    WEB_SAVE_MIME_TYPES = [
+      'image/gif',
+      'image/png',
+      'image/jpeg'
+    ].freeze
+
+    DEFAULT_MIME_TYPE = 'image/jpeg'
+
     process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
     version :thumb_preview do
       process :remove_animation
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
-      process colorspace: 'RGB'
+      process colorspace: 'sRGB'
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
       process :set_phash
 
@@ -73,6 +81,13 @@ module DataCycleCore
         end
         img = yield(img) if block_given?
         img
+      end
+    end
+
+    def convert_for_web
+      manipulate! do |img|
+        img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
+        img.density 96
       end
     end
   end

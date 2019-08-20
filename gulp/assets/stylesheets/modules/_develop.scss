@@ -740,6 +740,9 @@ select {
 // Thumbnails in Grid Items
 .data-cycle-object {
   .inner {
+    .image-thumbnail {
+      text-align: center;
+    }
     .infoRow {
       white-space: nowrap;
       overflow: hidden;

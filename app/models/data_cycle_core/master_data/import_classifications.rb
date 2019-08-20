@@ -70,10 +70,8 @@ module DataCycleCore
 
         if find_alias.count.positive?
           updated_data = find_alias.first
-          updated_data.seen_at = Time.zone.now
-          updated_data.internal = internal
-          updated_data.description = description if description.present?
-          updated_data.save
+          update_hash = { seen_at: Time.zone.now, internal: internal, description: description || updated_data.description }
+          updated_data.update(update_hash)
         else
           # new Alias, create respective tree-entry
           updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now, description: description)
@@ -113,10 +111,8 @@ module DataCycleCore
           end
         else
           classification = find_classification.first
-          classification.name = data
-          classification.description = description if description.present?
-          classification.seen_at = Time.zone.now
-          classification.save
+          update_hash = { name: data, seen_at: Time.zone.now, description: description || classification.description }
+          classification.update(update_hash)
         end
       end
 

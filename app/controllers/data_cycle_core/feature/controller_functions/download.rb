@@ -9,7 +9,13 @@ module DataCycleCore
         def download
           @object = DataCycleCore::Thing.find_by(id: params[:id])
           authorize! :download, @object
-          download_single(@object)
+          download_single(@object, download_params[:version])
+        end
+
+        private
+
+        def download_params
+          params.permit(:version)
         end
       end
     end

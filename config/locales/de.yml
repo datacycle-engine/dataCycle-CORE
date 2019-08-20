@@ -274,6 +274,7 @@ de:
     geocode: "Geokoordinaten von %{title} übernehmen"
     open_asset: "Datei öffnen"
     download_asset: "Datei herunterladen"
+    download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche

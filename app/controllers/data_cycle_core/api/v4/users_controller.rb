@@ -13,6 +13,12 @@ module DataCycleCore
           @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability).where("'#{current_user.id}' = ANY (api_users)")
         end
 
+        def show
+          @user = DataCycleCore::User.find(params[:id])
+
+          render json: @user.as_json(only: Array(DataCycleCore.features.dig(:user_api, :user_params)) + [:id]).transform_keys { |k| k.camelize(:lower) }
+        end
+
         def create
           authorize! :create_user, current_user
 
@@ -41,11 +47,11 @@ module DataCycleCore
         private
 
         def user_params
-          params.require(controller_name.singularize.to_sym).permit(DataCycleCore.features.dig(:user_api, :user_params))
+          params.permit(DataCycleCore.features.dig(:user_api, :user_params))
         end
 
         def role_params
-          params.require(controller_name.singularize.to_sym).permit(:rank)
+          params.permit(:rank)
         end
 
         def check_feature_enabled

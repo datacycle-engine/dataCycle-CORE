@@ -165,6 +165,14 @@
         :label: Hochgeladen am
         :type: datetime
         :storage_location: value
+        :ui:
+         :edit:
+           :type: date
+           :options:
+             :placeholder: tt.mm.jjjj
+             :class: daterange
+         :show:
+           :type: date
         :default_value: '{{Time.zone.now.beginning_of_day}}'
       :photographer:
         :label: Fotograf

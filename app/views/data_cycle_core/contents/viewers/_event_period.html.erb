@@ -1,25 +1,25 @@
-<% if !content.event_period.try(:start_date).nil? || !content.event_period.try(:end_date).nil? %>
+<% if !value.try(:start_date).nil? || !value.try(:end_date).nil? %>
 
     <div class="event_period">
         <i class="fa fa-calendar" aria-hidden="true"></i>
-        <% unless content.event_period.try(:start_date).nil? %>
+        <% unless value.try(:start_date).nil? %>
             <%= t('terms.from', locale: DataCycleCore.ui_language) %>
             <span class="date">
-                <% if content.event_period.start_date.to_s(:time) == '00:00' %>
-                    <strong><%= l(content.event_period.start_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
+                <% if value.start_date.to_s(:time) == '00:00' %>
+                    <strong><%= l(value.start_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
                 <% else %>
-                    <strong><%= l(content.event_period.start_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
+                    <strong><%= l(value.start_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
                 <% end %>
             </span>
         <% end %>
 
-        <% unless content.event_period.try(:end_date).nil? %>
+        <% unless value.try(:end_date).nil? %>
             <%= t('terms.until', locale: DataCycleCore.ui_language) %>
             <span class="date">
-                <% if content.event_period.end_date.to_s(:time) == '00:00' %>
-                    <strong><%= l(content.event_period.end_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
+                <% if value.end_date.to_s(:time) == '00:00' %>
+                    <strong><%= l(value.end_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
                 <% else %>
-                    <strong><%= l(content.event_period.end_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
+                    <strong><%= l(value.end_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
                 <% end %>
             </span>
         <% end %>
