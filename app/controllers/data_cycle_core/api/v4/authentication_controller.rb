@@ -7,7 +7,7 @@ module DataCycleCore
         def login
           @user = User.find_by(email: login_params[:email])
 
-          raise CanCan::AccessDenied, 'invalid or missing authentication token' unless @user&.valid_password?(params[:password])
+          raise CanCan::AccessDenied, 'wrong email/password' unless @user&.valid_password?(params[:password])
 
           @user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
 
