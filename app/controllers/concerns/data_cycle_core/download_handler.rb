@@ -4,12 +4,16 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_single(content)
-      mime_type = content.asset.file.content_type
-      file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
-      download_file = content.asset.file.path
+    def download_single(content, version = nil)
+      asset_version = version.blank? ? content.asset.file : content.asset.try(version, recreate: true)
 
-      send_file download_file, filename: "#{download_file_name(content)}#{file_extension}", disposition: 'attachment', type: mime_type
+      raise ActiveRecord::RecordNotFound, 'Invalid Version' if asset_version.nil?
+
+      mime_type = asset_version.content_type
+      file_extension = Rack::Mime::MIME_TYPES.invert[mime_type]
+      download_file = asset_version.path
+
+      send_file download_file, filename: "#{download_file_name(content)}#{'_' + version.to_s if version.present?}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
     def download_zip(collection, items)
