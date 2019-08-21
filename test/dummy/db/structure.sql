@@ -841,9 +841,6 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    provider character varying,
-    uid character varying
-    default_locale character varying DEFAULT 'de'::character varying,
     jti character varying,
     creator_id uuid
 );
@@ -1368,6 +1365,13 @@ CREATE INDEX index_classification_groups_on_classification_id ON public.classifi
 
 
 --
+-- Name: index_classification_groups_on_classification_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_groups_on_classification_id_and_created_at ON public.classification_groups USING btree (classification_id, created_at);
+
+
+--
 -- Name: index_classification_groups_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1396,10 +1400,24 @@ CREATE UNIQUE INDEX index_classification_tree_labels_on_id ON public.classificat
 
 
 --
+-- Name: index_classification_tree_labels_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_tree_labels_on_name ON public.classification_tree_labels USING btree (name);
+
+
+--
 -- Name: index_classification_trees_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_trees_on_classification_alias_id ON public.classification_trees USING btree (classification_alias_id);
+
+
+--
+-- Name: index_classification_trees_on_classification_tree_label_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_trees_on_classification_tree_label_id ON public.classification_trees USING btree (classification_tree_label_id);
 
 
 --
@@ -1673,6 +1691,13 @@ CREATE UNIQUE INDEX index_things_on_external_source_id_and_external_key ON publi
 --
 
 CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
+
+
+--
+-- Name: index_things_on_is_part_of; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
 
 
 --
@@ -1998,7 +2023,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190612084614'),
 ('20190613092317'),
 ('20190703082641'),
-('20190704114636'),
-('20190712074413');
+('20190712074413'),
+('20190716081614'),
+('20190716130050'),
+('20190801120456'),
+('20190805085313'),
+('20190821101746');
 
 
