@@ -8,10 +8,6 @@
             <h1><%= t('welcome', locale: DataCycleCore.ui_language) %></h1>
         </div>
 
-        <div class="columns text-center">
-          <%= link_to "Sign in with Feratel IdentityServer", '/users/auth/openid_connect', method: :post, class: 'button' if ENV['OMNIAUTH_OPENID_CONNECT_ISSUER'].present? %>
-        </div>
-
         <div class="columns">
 
             <ul class="accordion" data-accordion>

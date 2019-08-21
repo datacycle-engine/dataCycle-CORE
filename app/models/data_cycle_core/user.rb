@@ -4,7 +4,7 @@ module DataCycleCore
   class User < ApplicationRecord
     include Content::ExternalData
 
-    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable, :omniauthable, omniauth_providers: [:openid_connect]
+    devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
 
     attr_accessor :raw_password, :skip_callbacks
 

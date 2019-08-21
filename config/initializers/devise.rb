@@ -18,30 +18,6 @@ Devise.setup do |config|
   config.lock_strategy = :none
   config.unlock_strategy = :none
 
-  if ENV['OMNIAUTH_OPENID_CONNECT_ISSUER'].present?
-    # Feratel Client settings
-    #
-    # Client Id = identifier
-    # Secrets = secret
-    # Client flow -> authorization_code
-    # Tokens -> Allow access token via browser
-    # Redirect Uris = dataCycle callback URI / ENV['OMNIAUTH_OPENID_CONNECT_REDIRECT_URI']
-
-    require 'omniauth_openid_connect'
-    config.omniauth :openid_connect, {
-      name: :openid_connect,
-      scope: [:openid, :profile],
-      response_type: :code,
-      issuer: ENV['OMNIAUTH_OPENID_CONNECT_ISSUER'],
-      discovery: true,
-      client_options: {
-        identifier: ENV['OMNIAUTH_OPENID_CONNECT_CLIENT_ID'],
-        secret: ENV['OMNIAUTH_OPENID_CONNECT_CLIENT_SECRET'],
-        redirect_uri: ENV['OMNIAUTH_OPENID_CONNECT_REDIRECT_URI']
-      }
-    }
-  end
-
   config.warden do |manager|
     manager.default_strategies(scope: :user).unshift :guest_user
   end
