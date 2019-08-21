@@ -13,24 +13,14 @@ module DataCycleCore
         end
 
         def classification_alias_ids(value)
-          if value == 'all'
-            DataCycleCore::ClassificationTreeLabel.where.not(name: 'Ländercodes').pluck(:name).map do |c|
-              [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
-                'classification_alias_ids',
-                data: { name: c }
-              ]
-            end
-          elsif value.is_a?(Array)
-            value.map do |c|
-              [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
-                'classification_alias_ids',
-                data: { name: c }
-              ]
-            end
-          else
-            []
+          return [] unless value
+
+          DataCycleCore::ClassificationTreeLabel.where('? = ANY(classification_tree_labels.visibility)', 'filter').pluck(:name).map do |c|
+            [
+              I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
+              'classification_alias_ids',
+              data: { name: c }
+            ]
           end
         end
 
@@ -77,17 +67,15 @@ module DataCycleCore
         end
 
         def default(key, value)
-          if value
+          return [] unless value
+
+          [
             [
-              [
-                I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: DataCycleCore.ui_language),
-                key,
-                data: { name: key.capitalize }
-              ]
+              I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: DataCycleCore.ui_language),
+              key,
+              data: { name: key.capitalize }
             ]
-          else
-            []
-          end
+          ]
         end
       end
     end

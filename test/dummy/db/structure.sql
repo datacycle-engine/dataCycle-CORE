@@ -28,6 +28,22 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    activitiable_type character varying,
+    activitiable_id uuid,
+    user_id uuid,
+    activity_type character varying,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -827,6 +843,9 @@ CREATE TABLE public.users (
     default_locale character varying DEFAULT 'de'::character varying,
     provider character varying,
     uid character varying
+    default_locale character varying DEFAULT 'de'::character varying,
+    jti character varying,
+    creator_id uuid
 );
 
 
@@ -864,6 +883,14 @@ CREATE TABLE public.watch_lists (
 --
 
 ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
+
+
+--
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
 
 
 --
@@ -1250,6 +1277,27 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
+
+--
+-- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activities USING btree (activity_type, updated_at);
+
+
+--
+-- Name: index_activities_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1387,6 +1435,13 @@ CREATE INDEX index_classifications_on_external_source_id ON public.classificatio
 --
 
 CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING btree (id);
+
+
+--
+-- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
 
 
 --
@@ -1677,6 +1732,13 @@ CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
 
 
 --
+-- Name: index_users_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_creator_id ON public.users USING btree (creator_id);
+
+
+--
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1688,6 +1750,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 --
 
 CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
+
+
+--
+-- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
 
 
 --

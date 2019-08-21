@@ -130,20 +130,25 @@ module DataCycleCore
     test 'test query for boolean -> duplicate_candidates' do
       DataCycleCore::ImageUploader.enable_processing = true
       assert DataCycleCore::Feature::DuplicateCandidate.enabled?
-      image1 = upload_image 'test_rgb.jpg'
-      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: image1.id })
-      image2 = upload_image 'test_rgb.png'
-      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: image2.id })
+      asset1 = upload_image 'test_rgb.jpg'
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 1', asset: asset1.id })
+      asset2 = upload_image 'test_rgb.png'
+      DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 2', asset: asset2.id })
+      asset3 = upload_image 'test_rgb.jpg'
+      image3 = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: { name: 'Test Bild 3', asset: asset3.id })
+
       DataCycleCore::Thing
         .where(template: false, external_source_id: nil, external_key: nil, template_name: 'Bild')
         .where.not(content_type: 'embedded')
         .find_each(&:create_duplicate_candidates)
 
+      image3.duplicate_candidates.each { |t| t.thing_duplicate.update(false_positive: true) }
+
       items = DataCycleCore::Filter::Search.new(:de).boolean('true', 'duplicate_candidates')
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
-      assert_equal(6, items.count)
+      assert_equal(7, items.count)
       DataCycleCore::ImageUploader.enable_processing = false
     end
 

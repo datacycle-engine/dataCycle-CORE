@@ -60,7 +60,7 @@ module DataCycleCore
 
         def self.parse_opening_hours(data)
           return if data.blank?
-          DataCycleCore::Generic::Common::OpeningHours.new(data, format: :google, options: { wrong_time_format: true }).to_opening_hours_specifications
+          DataCycleCore::Generic::Common::OpeningHours.new(data, format: :google).to_opening_hours_specifications
         end
       end
     end

@@ -47,10 +47,7 @@ module DataCycleCore
 
           if config&.dig(:asset_type).present?
             if utility_object.asset_download
-              Array(content.asset).map do |item|
-                item&.remove_file!
-                item&.destroy!
-              end
+              content.asset&.remove_file!
 
               asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
               asset.save!
@@ -275,7 +272,7 @@ module DataCycleCore
               external_source_id: utility_object.external_source.id,
               name: classification_data[:tree_name]
             ) do |item|
-              item.visibility = ['show', 'edit', 'api', 'tile']
+              item.visibility = DataCycleCore.classification_visibilities.except('show_more')
             end
 
             DataCycleCore::ClassificationTree.create!(

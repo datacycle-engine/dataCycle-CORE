@@ -36,7 +36,7 @@ module DataCycleCore
 
       assert_redirected_to thing_path(@content)
       follow_redirect!
-      assert_equal DataCycleCore::Feature::Releasable.get_stage('partner'), @content.reload.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.first&.name
+      assert_equal DataCycleCore::Feature::Releasable.get_stage('partner'), @content.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.reload&.first&.name
     end
 
     test 'change release status after finished editing content' do
@@ -55,7 +55,7 @@ module DataCycleCore
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
-      assert_equal DataCycleCore::Feature::Releasable.get_stage('review'), @content.reload.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.first&.name
+      assert_equal DataCycleCore::Feature::Releasable.get_stage('review'), @content.try(DataCycleCore::Feature::Releasable.allowed_attribute_keys(@content)&.first)&.reload&.first&.name
     end
   end
 end

@@ -23,6 +23,7 @@ module DataCycleCore
 
       belongs_to :original, class_name: 'DataCycleCore::Thing'
       belongs_to :duplicate, class_name: 'DataCycleCore::Thing'
+      belongs_to :thing_duplicate
 
       def self.with_fp
         unscope(where: :false_positive)
@@ -50,6 +51,8 @@ module DataCycleCore
 
     has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
     has_many :external_systems, through: :external_system_syncs
+
+    has_many :activities, as: :activitiable, dependent: :destroy
 
     def self.with_classification_alias_ids(classification_alias_ids)
       classification_alias_ids = Array(classification_alias_ids).map { |id|

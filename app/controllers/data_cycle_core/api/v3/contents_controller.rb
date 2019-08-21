@@ -48,6 +48,11 @@ module DataCycleCore
           @contents = apply_paging(deleted_contents)
         end
 
+        def download_token
+          token = DataCycleCore::Download.temp_token(user: current_user)
+          render plain: { 'token' => token }.to_json, content_type: 'application/json'
+        end
+
         def permitted_parameter_keys
           # json-api: fields, sort
           super + [
@@ -67,7 +72,7 @@ module DataCycleCore
           stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
+            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users.to_a + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new

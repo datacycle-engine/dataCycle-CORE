@@ -33,6 +33,11 @@ module DataCycleCore
           data_hash.merge(new_hash)
         end
 
+        def self.merge_array_values(data_hash, key, merge_key)
+          data_hash[key] = Array(data_hash[key]) | Array(data_hash[merge_key])
+          data_hash
+        end
+
         def self.tags_to_ids(data_hash, attribute, external_source_id, external_prefix)
           if data_hash[attribute].blank?
             data_hash[attribute] = []

@@ -52,6 +52,7 @@ Gem::Specification.new do |s|
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
+  s.add_dependency 'jwt'
   # authorization
   s.add_dependency 'cancancan'
   # pagination
@@ -96,7 +97,8 @@ Gem::Specification.new do |s|
   # cron jobs gem
   s.add_dependency 'whenever'
   # redis
-  s.add_dependency 'redis-rails'
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'

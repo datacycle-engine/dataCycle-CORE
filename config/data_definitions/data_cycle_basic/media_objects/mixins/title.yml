@@ -15,4 +15,4 @@
             :disabled: true
         :api:
           :minimal: true
-          :name: headline
+          :partial: media_title

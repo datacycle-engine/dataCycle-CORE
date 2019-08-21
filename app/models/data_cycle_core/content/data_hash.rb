@@ -23,12 +23,13 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
-        @data_hash = data_hash.clone
+        @data_hash = data_hash.clone.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
@@ -109,6 +110,16 @@ module DataCycleCore
 
       private
 
+      def invalidate_content_a_cache
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache)
+      end
+
+      def invalidate_cache
+        related_contents.ids.each do |item_id|
+          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+        end
+      end
+
       def notify_subscribers
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|
           DataCycleCore::SubscriptionMailer.notify(subscription.user, [self]).deliver_later
@@ -144,7 +155,7 @@ module DataCycleCore
       def save_values(key, value, properties)
         case properties['storage_location']
         when 'column'
-          send("#{key}=", normalize_string(value, properties))
+          save_to_column(key, value, properties)
         when 'value'
           save_to_jsonb(key, value, properties, 'metadata')
         when 'translated_value'
@@ -152,18 +163,29 @@ module DataCycleCore
         end
       end
 
-      def normalize_string(value, properties)
-        return DataCycleCore::MasterData::DataConverter.string_to_string(value) if properties['type'] == 'string'
-        value
+      def save_to_column(key, value, properties)
+        send("#{key}=", normalize_value(value, properties))
+      end
+
+      def normalize_value(value, properties)
+        norm_value = value
+        if properties.key?('default_value') && value.blank?
+          if properties['default_value'].is_a?(String) && /{{.*}}/.match?(properties['default_value']) # eval code enclosed in double curly braces: {{ ... }}
+            norm_value = eval(properties['default_value'][2..-3]) # rubocop:disable Security/Eval
+          else
+            norm_value = properties['default_value']
+          end
+        end
+        return DataCycleCore::MasterData::DataConverter.string_to_string(norm_value) if properties['type'] == 'string'
+        norm_value
       end
 
       def save_to_jsonb(key, data, properties, location)
         save_data = data.deep_dup
-        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object' && data.is_a?(::Hash)
-        save_data = convert_to_string(properties['type'], save_data) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
+        save_data = set_data_tree_hash(save_data, properties['properties'], location) if properties['type'] == 'object'
+        save_data = convert_to_string(properties['type'], normalize_value(save_data, properties)) if PLAIN_PROPERTY_TYPES.include?(properties['type'])
 
-        # set to json field (could be empty)
-        if send(location.to_s).blank?
+        if send(location.to_s).blank? # set to json field (could be empty)
           send("#{location}=", { key => save_data })
         else
           send(location.to_s).method('[]=').call(key, save_data)
@@ -172,14 +194,13 @@ module DataCycleCore
 
       def set_data_tree_hash(data, data_definitions, location)
         data_hash = {}
-        return if data.blank?
         data_definitions.each_key do |key|
           if data_definitions[key]['type'] == 'object'
-            data_hash[key] = set_data_tree_hash(data[key], data_definitions[key]['properties'], location)
+            data_hash[key] = set_data_tree_hash(data&.dig(key), data_definitions[key]['properties'], location)
           elsif (data_definitions[key]['storage_location'] == 'value' && location == 'metadata') || (data_definitions[key]['storage_location'] == 'translated_value' && location == 'content')
-            data_hash[key] = convert_to_string(data_definitions[key]['type'], data[key])
+            data_hash[key] = convert_to_string(data_definitions[key]['type'], normalize_value(data&.dig(key), data_definitions[key]))
           elsif data_definitions[key]['storage_location'] == 'column'
-            send("#{key}=", normalize_string(data[key], data_definitions[key]))
+            save_to_column(key, data&.dig(key), data_definitions[key])
           end
         end
         data_hash
@@ -226,7 +247,7 @@ module DataCycleCore
       def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
         available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
-        data = parse_embedded_content(input_data) || []
+        data = input_data || []
 
         data.each_index do |index|
           item = data[index]
@@ -262,18 +283,6 @@ module DataCycleCore
           item = DataCycleCore::Thing.find_by(id: key)
           item.destroy_children(current_user: @current_user, save_time: @save_time, destroy_locale: false)
           item.destroy
-        end
-      end
-
-      def parse_embedded_content(a)
-        if a.is_a?(ActiveRecord::Relation)
-          a.ids.map { |item| { 'id' => item } }
-        elsif a.is_a?(::String)
-          { 'id' => a }
-        elsif a.is_a?(::Array) && a.present? && a.first.is_a?(::String)
-          a.map { |item| { 'id' => item } }
-        else
-          a
         end
       end
 

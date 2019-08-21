@@ -93,7 +93,6 @@ module DataCycleCore
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
     self.features = {}
 
@@ -140,7 +139,7 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile']
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile', 'filter']
   end
 
   def self.setup

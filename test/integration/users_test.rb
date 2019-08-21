@@ -9,7 +9,8 @@ module DataCycleCore
 
     setup do
       @routes = Engine.routes
-      sign_in(User.find_by(email: 'tester@datacycle.at'))
+      @current_user = User.find_by(email: 'tester@datacycle.at')
+      sign_in(@current_user)
     end
 
     test 'user does not exist' do
@@ -48,7 +49,7 @@ module DataCycleCore
     end
 
     test 'create new user' do
-      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').merge({
+      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
         email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
         role_id: DataCycleCore::Role.find_by(rank: 5)&.id
       })
@@ -63,6 +64,9 @@ module DataCycleCore
       assert_equal I18n.t(:created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
       assert_select 'li.grid-item .inner .description', user[:email]
+      created_user = DataCycleCore::User.find_by(email: user[:email])
+      assert_equal @current_user.id, created_user.creator.id
+      assert_equal [created_user.id], @current_user.created_users.ids
     end
 
     test 'update existing user' do

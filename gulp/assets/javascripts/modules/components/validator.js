@@ -1,7 +1,6 @@
 // Form Validator
 let ConfirmationModal = require('./../components/confirmation_modal');
 let QuillHelpers = require('./../helpers/quill_helpers');
-let ActionCable = require('actioncable');
 
 class Validator {
   constructor(formElement) {
@@ -28,7 +27,6 @@ class Validator {
     this.queryCount = 0;
     this.valid = true;
     this.uuid = this.form.find(':hidden#uuid').val();
-    this.actionCable;
     this.bulkUpdateChannel;
     this.addEventHandlers();
   }
@@ -58,14 +56,14 @@ class Validator {
     this.form.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
+    this.form.on('dc:form:disable', this.disable.bind(this));
 
-    if (this.form.hasClass('bulk-edit-form')) {
+    if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
     }
   }
   initActionCable() {
-    this.actionCable = ActionCable.createConsumer();
-    this.bulkUpdateChannel = this.actionCable.subscriptions.create(
+    this.bulkUpdateChannel = window.actionCable.subscriptions.create(
       {
         channel: 'DataCycleCore::WatchListBulkUpdateChannel',
         watch_list_id: this.uuid
@@ -74,10 +72,12 @@ class Validator {
         received: data => {
           if (!this.submitButton.prop('disabled')) this.disable();
           if (data.progress !== undefined) {
-            this.submitButton.find('.progress-value').text(data.progress + '/' + data.items);
-            this.submitButton
-              .find('.progress-bar > .progress-filled')
-              .css('width', 'calc(' + (data.progress * 100) / data.items + '% - 1rem)');
+            let progress = Math.round((data.progress * 100) / data.items);
+            this.submitButton.find('.progress-value').text(progress + '%');
+            this.submitButton.find('.progress-bar > .progress-filled').css('width', 'calc(' + progress + '% - 1rem)');
+          }
+          if (data.redirect_path !== undefined) {
+            window.location.href = data.redirect_path;
           }
         }
       }

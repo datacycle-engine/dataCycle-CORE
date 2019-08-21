@@ -47,6 +47,19 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
+    def filterable_classification_aliases(allowed_labels, excluded = [])
+      query = DataCycleCore::ClassificationAlias
+        .includes(:classification_tree_label, :parent_classification_alias, sub_classification_alias: [
+                    sub_classification_alias: [
+                      sub_classification_alias: :sub_classification_alias
+                    ]
+                  ])
+        .where(classification_tree_labels: { name: allowed_labels }, classification_trees: { parent_classification_alias: nil })
+      query = query.where.not(classification_tree_labels: { name: 'Inhaltstypen' }).or(query.where.not(internal_name: excluded))
+
+      query.group_by { |ca| ca.classification_tree_label&.name }
+    end
+
     def new_content_select_options(query: DataCycleCore::Thing.all, query_methods: [], content: nil, scope: nil, limit: nil, ordered_array: nil)
       query = query.where(template: true)
       query_methods.presence&.map(&:stringify_keys)&.each do |query_method|
@@ -148,14 +161,16 @@ module DataCycleCore
       raise "try to render content_partial that is not a thing: #{partial} || #{parameters}" unless ['thing', 'thing_history'].include?(parameters[:content].class.class_name.underscore)
 
       partials = [
-        "content_#{partial}"
+        'content'
       ]
       unless parameters[:default]
         partials.unshift(
-          "#{parameters[:content].template_name.parameterize(separator: '_')}_#{partial}",
-          "#{parameters[:content].schema['schema_type'].underscore}_#{partial}"
+          parameters[:content].template_name.underscore_blanks,
+          parameters[:content].schema_type.underscore_blanks
         )
       end
+
+      partials = partials.map { |p| "data_cycle_core/contents/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters)
     end
@@ -175,8 +190,8 @@ module DataCycleCore
         partials = [
           key.attribute_name_from_key,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition&.dig('ui', 'edit', 'type')&.underscore}",
-          definition['type'].underscore.to_s
+          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}",
+          definition['type'].underscore_blanks.to_s
         ]
       end
 
@@ -192,33 +207,34 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
 
-      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
+      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
       if definition&.dig('ui', 'show', 'partial').present?
         partials = [definition&.dig('ui', 'show', 'partial')]
       else
         partials = [
-          key.underscore.to_s,
+          key.attribute_name_from_key.to_s,
           feature_templates(key, definition, content),
-          "#{definition['type'].underscore}_#{definition&.dig('ui', 'show', 'type')&.underscore}",
-          "#{definition['type'].underscore}_#{definition&.dig('validations', 'format')&.underscore}",
-          definition.dig('compute', 'type')&.underscore&.to_s,
-          definition['type'].underscore.to_s
+          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'show', 'type')&.underscore_blanks}",
+          "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
+          definition.dig('compute', 'type')&.underscore_blanks&.to_s,
+          definition['type'].underscore_blanks.to_s
         ]
       end
 
       partials = partials.reject(&:blank?).flatten.map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
       parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
+
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
     def render_attribute_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
-        key.underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'history').try(:[], 'type').try(:underscore).to_s,
-        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        definition['type'].underscore.to_s
+        key.attribute_name_from_key,
+        definition&.dig('ui', 'history', 'type')&.underscore_blanks,
+        "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
+        definition['type'].underscore_blanks
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/#{p}" }
       begin
         render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
@@ -229,9 +245,8 @@ module DataCycleCore
 
     def render_linked_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
-        key.underscore.to_s,
-        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
-        content.try(:schema_type)&.underscore,
+        key.attribute_name_from_key,
+        definition&.dig('template_name')&.underscore_blanks,
         'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/viewers/linked/#{p}" }
@@ -241,9 +256,9 @@ module DataCycleCore
 
     def render_linked_history_viewer(key:, definition:, value:, parameters: {}, content: nil)
       partials = [
-        key.underscore.to_s,
-        definition.try(:[], 'ui').try(:[], 'show').try(:[], 'type').try(:underscore).to_s,
-        definition.try(:[], 'template_name').try(:parameterize).try(:underscore),
+        key.attribute_name_from_key,
+        definition&.dig('ui', 'show', 'type')&.underscore_blanks,
+        definition.dig('template_name')&.underscore_blanks,
         'thing',
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/history/linked/#{p}" }
@@ -253,7 +268,7 @@ module DataCycleCore
 
     def render_asset_editor(key:, value:, definition:, parameters: {}, content: nil)
       partials = [
-        definition.try(:[], 'asset_type').to_s.try(:underscore),
+        definition.dig('asset_type')&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/asset/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
@@ -268,7 +283,7 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def content_tile(item:, parameters: {})
+    def render_content_tile(item:, parameters: {})
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
@@ -276,7 +291,7 @@ module DataCycleCore
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
 
-      return first_existing_partial(partials), parameters.merge({ item: item })
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
     def render_linked_partial(key:, definition:, parameters: {}, content: nil)
@@ -319,13 +334,14 @@ module DataCycleCore
     private
 
     def render_first_existing_partial(partials, parameters)
-      partials.each_with_index do |partial, idx|
-        logger.debug "  Try rendering partial #{partial} ..."
+      partials.each do |partial|
+        logger.debug("  Try rendering partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+
+        logger.debug "  Rendered partial #{partial}"
         return render(partial, parameters)
-      rescue ActionView::MissingTemplate => e
-        logger.debug "  Try rendering partial #{partial} ... [NOT FOUND]"
-        raise e if idx == partials.size - 1
       end
+
+      nil
     end
 
     def alert_box(value, alert_class, closable)
@@ -356,14 +372,6 @@ module DataCycleCore
 
     def yield_content!(content_key)
       view_flow.content.delete(content_key)
-    end
-
-    def first_existing_partial(partials)
-      partials.each_with_index do |partial, _idx|
-        next unless lookup_context.exists?(partial, [], true)
-
-        return partial
-      end
     end
   end
 end

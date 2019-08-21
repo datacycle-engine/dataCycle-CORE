@@ -157,12 +157,16 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
     additional_classifications: weitere Klassifizierungen
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update_check_box_label: '%{data} überschreiben?'
+    watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -205,6 +209,16 @@ de:
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
 
+  filter_groups:
+    classification_alias_ids: nach Klassifizierungen filtern...
+    classification_tree_ids: nach Klassifizierungsbaum filtern...
+    creator: nach Personen filtern...
+    external_source: nach Externer Quellen filtern...
+    external_system: nach Externer Verknüpfungen filtern...
+    validity_period: nach Zeitraum filtern...
+    date_range: nach Datum filtern...
+    boolean: nach booleschen Kriterien filtern...
+
   terms:
     valid: gültig
     from: von
@@ -222,6 +236,7 @@ de:
     tile: Kachel
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
+    filter: Erweiterte Dashboard-Filter
 
   actions:
     new: erstellen
@@ -261,6 +276,7 @@ de:
     geocode: "Geokoordinaten von %{title} übernehmen"
     open_asset: "Datei öffnen"
     download_asset: "Datei herunterladen"
+    download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
@@ -283,6 +299,7 @@ de:
     bulk_edit: im Bulk bearbeiten
     add_items_to_watch_list: 'zu %{data} hinzufügen'
     add: hinzufügen
+    delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
 
   validation:
     errors:
@@ -327,6 +344,7 @@ de:
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -351,6 +369,7 @@ de:
       token_invalid: Die Sitzung ist abgelaufen, bitte laden Sie die Seite neu.
       no_shared_attributes: Es gibt keine Attribute, die bei allen Inhalten vorkommen
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
+      external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
     success:
       created: "%{data} wurde erfolgreich erstellt."
       ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
@@ -372,6 +391,7 @@ de:
       duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
       merged_with_duplicate: Inhalte wurden zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
+      bulk_deleted: Inhalte wurden gelöscht
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."
@@ -593,7 +613,7 @@ de:
         one: Gepeicherte Suche
         other: Gespeicherte Suchen
       show_all_saved: Alle Gespeicherten Suchen ansehen
-      show_search_history: Gesammten Verlauf ansehen
+      show_search_history: Gesamten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
     watch_list:
