@@ -130,10 +130,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'google-cloud-translate'
   s.add_dependency 'google-cloud-vision'
 
-  # OmniAuth
-  s.add_dependency 'omniauth-rails_csrf_protection' # TODO: replace with omniauth once https://github.com/omniauth/omniauth/pull/809 is resolved
-  s.add_dependency 'omniauth_openid_connect'
-
   # premailer
   s.add_dependency 'premailer'
 
