@@ -182,6 +182,9 @@
       :feratel_events:
         :type: mixin
         :name: feratel_events
+      :hrs_dd_events:
+        :type: mixin
+        :name: hrs_dd_events
       :additional_properties:
         :type: mixin
         :name: additional_properties
