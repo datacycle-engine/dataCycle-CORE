@@ -6,24 +6,14 @@ module DataCycleCore
       class Endpoint
         AccessToken = Struct.new(:token, :type, :expiration_time)
 
-        attr_reader :client, :host, :pages
+        attr_reader :client_options, :host, :pages
 
-        def initialize(grant_type:, client_options:, host:, **options)
-          raise 'grant_type cannot be blank' if grant_type.blank?
+        def initialize(client_options:, host:, **_options)
           raise 'client_options cannot be blank' if client_options.blank?
           raise 'host cannot be blank' if host.blank?
 
           @host = host
-          @client = Rack::OAuth2::Client.new(client_options.deep_symbolize_keys)
-
-          case grant_type
-          when 'password'
-            @client.resource_owner_credentials = options[:username], options[:password]
-          when 'authorization_code'
-            @client.authorization_code = options[:authorization_code]
-          when 'refresh_token'
-            @client.refresh_token = options[:refresh_token]
-          end
+          @client_options = client_options
         end
 
         def access_token
@@ -111,10 +101,16 @@ module DataCycleCore
         end
 
         def refresh_access_token
-          return if @client.blank?
+          response = Faraday.new(url: URI.join("#{@client_options['scheme']}://#{@client_options['host']}", @client_options['token_endpoint'])).post do |req|
+            req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            req.body = URI.encode_www_form(@client_options.slice('username', 'password', 'client_id', 'client_secret', 'grant_type'))
+          end
 
-          token = @client.access_token!
-          @access_token = AccessToken.new(token.access_token, token.token_type, (Time.zone.now + token.expires_in.seconds))
+          raise "Error connecting to '#{response.env.url.host}'" unless response.success?
+
+          data = JSON.parse(response.body)
+
+          @access_token = AccessToken.new(data['access_token'], data['token_type'], (Time.zone.now + data['expires_in'].seconds))
         end
       end
     end

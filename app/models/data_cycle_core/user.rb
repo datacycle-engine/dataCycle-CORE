@@ -87,7 +87,11 @@ module DataCycleCore
         rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
       end
 
-      self.attributes = token.dig(:user).slice(*DataCycleCore.features.dig(:user_api, :user_params)).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
+      user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
+      authorized_attributes = Array(user_keys.select { |_, v| v.nil? }.keys)
+      authorized_attributes.concat(Array(user_keys.compact.keys.map { |k| "#{k}Ids" }))
+
+      self.attributes = token.dig(:user).slice(*authorized_attributes).deep_transform_keys(&:underscore).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
       save
       self
     end

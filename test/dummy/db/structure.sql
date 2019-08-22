@@ -841,6 +841,8 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
+    provider character varying,
+    uid character varying,
     jti character varying,
     creator_id uuid
 );
@@ -2023,6 +2025,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190612084614'),
 ('20190613092317'),
 ('20190703082641'),
+('20190704114636'),
 ('20190712074413'),
 ('20190716081614'),
 ('20190716130050'),
