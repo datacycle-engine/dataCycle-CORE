@@ -12,6 +12,7 @@ module DataCycleCore
         can :edit, DataCycleCore::DataAttribute
         can [:update, :destroy, :show_admin_panel], DataCycleCore::Thing
         can :show_related, DataCycleCore::Thing
+        can :show_representation_of, DataCycleCore::User
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
         end
