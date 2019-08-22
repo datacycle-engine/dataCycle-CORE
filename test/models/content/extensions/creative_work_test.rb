@@ -24,8 +24,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_datetime,
+          'valid_until' => '2017-06-01'.to_datetime
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
@@ -37,8 +37,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_datetime,
+          'valid_until' => '2017-06-01'.to_datetime
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
@@ -52,8 +52,8 @@ module DataCycleCore
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
-          'valid_from' => '2017-05-01'.in_time_zone,
-          'valid_until' => '2017-06-01'.in_time_zone
+          'valid_from' => '2017-05-01'.to_datetime,
+          'valid_until' => '2017-06-01'.to_datetime
         }
       }
       data_set.set_data_hash(data_hash: test_hash)
