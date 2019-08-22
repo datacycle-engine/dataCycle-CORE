@@ -10,6 +10,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
             translated_objects = content.send(key)
             json.array!(translated_objects.presence&.includes(:translations, :classifications)) do |translated_object|
               if translated_object.schema.present?
+                json.set! 'identifier', translated_object.id
                 json.content_partial! 'context', content: translated_object
                 ordered_validation_properties(validation: translated_object.schema).each do |key, prop|
                   object_value = translated_object.try(key.to_sym)
@@ -25,6 +26,7 @@ render 'data_cycle_core/api/v2/api_base/attribute', key: key, definition: defini
       json.array!(value.presence&.includes(:translations, :classifications)) do |object|
         I18n.with_locale(object.first_available_locale) do
           if object.schema.present?
+            json.set! 'identifier', object.id
             json.content_partial! 'context', content: object
             ordered_validation_properties(validation: object.schema).each do |key, prop|
               object_value = object.try(key.to_sym)

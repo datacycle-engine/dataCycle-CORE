@@ -34,6 +34,7 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
     'nl-BE': "flämisch"
+    zh: chinesisch
 
   roles:
     super_admin: Administrator (DataCycle)
