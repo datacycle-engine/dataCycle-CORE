@@ -73,7 +73,6 @@ module DataCycleCore
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
                     'name' => sub_event.name,
-                    'identifier' => sub_event.id,
                     'description' => sub_event.description,
                     'sameAs' => sub_event.url,
                     'startDate' => sub_event.event_period.start_date,

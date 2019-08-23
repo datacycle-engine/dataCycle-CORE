@@ -172,22 +172,22 @@ module DataCycleCore
                     'name' => sub_event.name,
                     'description' => sub_event.description,
                     'sameAs' => sub_event.url,
-                    'startDate' => sub_event.event_period.start_date,
-                    'endDate' => sub_event.event_period.end_date
+                    'startDate' => sub_event.event_period.start_date.to_s(:iso8601),
+                    'endDate' => sub_event.event_period.end_date.to_s(:iso8601)
                   }
                 end
                 v2_subevents = v3_subevents.map do |sub_event|
-                  sub_event.except('inLanguage')
+                  sub_event.except('identifier', 'inLanguage')
                 end
                 convert_api_v2_json = api_v2_json
                 convert_api_v2_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].to_datetime
-                  item['endDate'] = item['endDate'].to_datetime
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
                 end
                 convert_api_v3_json = api_v3_json
                 convert_api_v3_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].to_datetime
-                  item['endDate'] = item['endDate'].to_datetime
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
                 end
 
                 assert_equal(api_v3_json.except('subEvent', *excepted_params), api_v2_json.except('subEvent', *excepted_params))
