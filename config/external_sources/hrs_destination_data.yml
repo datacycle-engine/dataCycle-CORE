@@ -1,7 +1,7 @@
 ---
 name: HRS destination-data
 credentials:
-  host: https://destination-data.hrs-ds.com
+  host: https://destination-data.oms-ds.com
   end_point: api
   api_key: fafb190b8509c203cc1cfd95d937d101
 default_options:
@@ -14,8 +14,13 @@ config:
       endpoint: DataCycleCore::Generic::HrsDestinationData::Endpoint
       download_strategy: DataCycleCore::Generic::HrsDestinationData::Download
   import_config:
+    classifications:
+      sorting: 1
+      source_type: events
+      import_strategy: DataCycleCore::Generic::HrsDestinationData::ImportClassifications
     events:
       sorting: 10
       source_type: events
       import_strategy: DataCycleCore::Generic::HrsDestinationData::ImportEvents
       transformations:
+        event:
