@@ -19,7 +19,7 @@ describe DataCycleCore::MasterData::Differs::Datetime do
     end
 
     it 'properly diffs equal datetimes' do
-      a = '2018-01-01'.to_datetime
+      a = '2018-01-01'.in_time_zone
       [
         [a, a],
         [a.to_s, a],
@@ -32,14 +32,14 @@ describe DataCycleCore::MasterData::Differs::Datetime do
     end
 
     it 'recognizes a deleted value' do
-      a = '2018-01-01'.to_datetime
+      a = '2018-01-01'.in_time_zone
       [a, a.to_s, a.inspect, a.send(:to_time), a.to_datetime].each do |item|
         assert_equal(['-', a], subject.new(item, nil).diff_hash)
       end
     end
 
     it 'recognizes an inserted value' do
-      a = '2018-01-01'.to_datetime
+      a = '2018-01-01'.in_time_zone
       [a, a.to_s, a.inspect, a.send(:to_time), a.to_datetime].each do |item|
         assert_equal(['+', a], subject.new(nil, item, template_hash).diff_hash)
         assert_equal(['+', a], subject.new(nil, item).diff_hash)
@@ -47,7 +47,7 @@ describe DataCycleCore::MasterData::Differs::Datetime do
     end
 
     it 'handles default_values correctly' do
-      date = '2018-01-01'.to_datetime
+      date = '2018-01-01'.in_time_zone
       hash = template_hash.deep_dup
       hash['default_value'] = date.to_s
       [[nil, date], [date, nil], [date.to_s, nil], [nil, date.to_s]].each do |a, b|
@@ -56,9 +56,9 @@ describe DataCycleCore::MasterData::Differs::Datetime do
     end
 
     it 'handles eval default_values correctly' do
-      date = '2018-01-01'.to_datetime
+      date = '2018-01-01'.in_time_zone
       hash = template_hash.deep_dup
-      hash['default_value'] = '{{ "2018-01-01".to_datetime.to_s(:db) }}'
+      hash['default_value'] = '{{ "2018-01-01".in_time_zone }}'
       [[nil, date], [date, nil], [date.to_s, nil], [nil, date.to_s]].each do |a, b|
         assert_nil(subject.new(a, b, hash).diff_hash)
       end

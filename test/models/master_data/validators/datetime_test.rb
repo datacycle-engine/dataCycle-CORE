@@ -62,7 +62,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
         Time.zone.now,
         '01.01.2000'.to_datetime,
         '2020-01-01'.to_datetime,
-        Time.utc(2000).to_datetime.to_s(:db)
+        Time.utc(2000).in_time_zone
       ]
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash)
@@ -81,7 +81,7 @@ describe DataCycleCore::MasterData::Validators::Datetime do
     end
 
     it 'rejects datetimes before specified min datetime' do
-      test_cases = ['01.01.2017'.to_datetime, '01.01.2017'.to_datetime.to_s(:db), '01.01.2017']
+      test_cases = ['01.01.2017'.to_datetime, '01.01.2017'.to_datetime.in_time_zone, '01.01.2017']
       test_cases.each do |test_case|
         validator = subject.new(test_case, template_hash2)
         assert_equal(1, validator.error[:error].size)

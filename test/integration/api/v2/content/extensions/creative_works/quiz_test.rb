@@ -82,15 +82,13 @@ module DataCycleCore
                     '@type' => 'Question',
                     'contentType' => 'Frage',
                     'headline' => question.name,
-                    'identifier' => question.id,
                     'text' => question.text,
                     'acceptedAnswer' => question.accepted_answer.map do |accepted_answer|
                       {
                         '@context' => 'http://schema.org',
                         '@type' => 'Answer',
                         'contentType' => 'Antwort',
-                        'text' => accepted_answer.text,
-                        'identifier' => accepted_answer.id
+                        'text' => accepted_answer.text
                       }
                     end,
                     'suggestedAnswer' => question.suggested_answer.map do |accepted_answer|
@@ -98,7 +96,6 @@ module DataCycleCore
                         '@context' => 'http://schema.org',
                         '@type' => 'Answer',
                         'contentType' => 'Antwort',
-                        'identifier' => accepted_answer.id,
                         'text' => accepted_answer.text
                       }
                     end

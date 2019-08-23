@@ -102,8 +102,8 @@ module DataCycleCore
           'updated_at' => '2017-07-01'.to_datetime.to_s(:db),
           'description' => 'wtf is going on???',
           'validity_period' => {
-            'valid_from' => '2017-06-01'.to_datetime,
-            'valid_until' => '2017-07-01'.to_datetime
+            'valid_from' => '2017-06-01'.in_time_zone,
+            'valid_until' => '2017-07-01'.in_time_zone
           }
         }
       }
