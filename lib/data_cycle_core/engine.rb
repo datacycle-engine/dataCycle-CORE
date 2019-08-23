@@ -112,7 +112,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = []
+    self.webhooks = Array.wrap(ENV['WEBHOOKS']&.split(',')&.map(&:squish))
 
     # template directories
     mattr_accessor :template_path
