@@ -2041,7 +2041,6 @@ button.merge-with-duplicate {
 .fa-stack {
   &.external-source-icon,
   &.external-system-icon {
-    vertical-align: top;
     color: lighten($black, 10%);
 
     &.success {
@@ -2109,6 +2108,15 @@ button.merge-with-duplicate {
     top: 0;
     left: 0;
     margin: 0;
+  }
+}
+
+a {
+  &.alert {
+    color: $alert-color;
+  }
+  &.success {
+    color: $success-color;
   }
 }
 

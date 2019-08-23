@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ThingExternalSystem < ApplicationRecord
-    belongs_to :thing
+  class ExternalSystemSync < ApplicationRecord
+    belongs_to :syncable, polymorphic: true
     belongs_to :external_system
 
     def external_url

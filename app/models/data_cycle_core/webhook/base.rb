@@ -29,7 +29,7 @@ module DataCycleCore
         return unless webhook&.dig(:strategy)
 
         export_class = webhook.dig(:strategy).constantize
-        return [external_system, export_class] if export_class.filter(data, external_system)
+        return [external_system, export_class] if data&.model_name&.in?(Array(external_system.push_config.dig(:allowed_models) || 'DataCycleCore::Thing')) && export_class.filter(data, external_system)
         nil
       end
 

@@ -1,0 +1,35 @@
+---
+- :data:
+    :name: content_classifications
+    :type: mixin
+    :properties:
+      :tags:
+        :label: Tags
+        :type: classification
+        :tree_label: Tags
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_identity_keywords:
+        :label: Feratel Identity Server Keywords
+        :type: classification
+        :tree_label: Feratel Identity Server Keywords
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_identity_claims:
+        :label: Feratel Identity Server Claims
+        :type: classification
+        :tree_label: Feratel Identity Server Claims
+        :ui:
+          :show:
+            :content_area: header
+      :output_channel:
+        :label: Ausgabekanal
+        :type: classification
+        :tree_label: Ausgabekanäle
+        :global: true
+        :ui:
+          :show:
+            :content_area: header

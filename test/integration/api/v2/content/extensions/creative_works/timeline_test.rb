@@ -82,6 +82,7 @@ module DataCycleCore
                     '@type' => 'CreativeWork',
                     'contentType' => 'Zeitleiste-Eintrag',
                     'name' => timeline_item.name,
+                    'identifier' => timeline_item.id,
                     'description' => timeline_item.description,
                     'temporalCoverage' => [timeline_item.temporal_coverage.valid_from, timeline_item.temporal_coverage.valid_until].map(&:iso8601).join('/')
                   }

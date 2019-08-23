@@ -83,6 +83,7 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'LocationFeatureSpecification',
                     'contentType' => 'Skigebiet - Addon',
+                    'identifier' => addon.id,
                     'headline' => addon.name,
                     'value' => addon.text
                   }

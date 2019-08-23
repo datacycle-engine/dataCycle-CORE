@@ -103,8 +103,8 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'start_date').in_time_zone.to_s, xml_data.dig('eventPeriod', 'startDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'end_date').in_time_zone.to_s, xml_data.dig('eventPeriod', 'endDate'))
+                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'start_date').to_datetime, xml_data.dig('eventPeriod', 'startDate'))
+                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'end_date').to_datetime, xml_data.dig('eventPeriod', 'endDate'))
                 assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
                 assert_equal(data_hash.dig('overlay').first.dig('url'), xml_data.dig('sameAs'))

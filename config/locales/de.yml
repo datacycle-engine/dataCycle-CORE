@@ -533,6 +533,7 @@ de:
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+        represented_by: Repräsentiert durch
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
