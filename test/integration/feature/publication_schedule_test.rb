@@ -42,7 +42,7 @@ module DataCycleCore
 
         assert_redirected_to thing_path(@content, locale: I18n.locale)
         assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
-        assert_equal 2, @content.reload.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first).size
+        assert_equal 2, @content.try(DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first).reload.size
       end
 
       test 'search publication schedules' do
