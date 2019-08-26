@@ -2,7 +2,11 @@
 
 module DataCycleCore
   class User < ApplicationRecord
+    include Content::ExternalData
+
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+
+    attr_accessor :raw_password, :skip_callbacks
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -12,9 +16,11 @@ module DataCycleCore
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
     has_many :things_updated, class_name: 'DataCycleCore::Thing', foreign_key: :updated_by
     has_many :things_deleted, class_name: 'DataCycleCore::Thing', foreign_key: :deleted_by
+    has_many :represented_by, class_name: 'DataCycleCore::Thing', foreign_key: :representation_of_id
     has_many :thing_histories_created, class_name: 'DataCycleCore::Thing::History', foreign_key: :created_by
     has_many :thing_histories_updated, class_name: 'DataCycleCore::Thing::History', foreign_key: :updated_by
     has_many :thing_histories_deleted, class_name: 'DataCycleCore::Thing::History', foreign_key: :deleted_by
+    has_many :histories_represented_by, class_name: 'DataCycleCore::Thing::History', foreign_key: :representation_of_id
 
     has_many :user_group_users, dependent: :destroy
     has_many :user_groups, through: :user_group_users
@@ -27,6 +33,9 @@ module DataCycleCore
     has_many :watch_list_shares, as: :shareable, dependent: :destroy, inverse_of: :shareable
     has_many :shared_watch_lists, through: :watch_list_shares, source: :watch_list
 
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_systems, through: :external_system_syncs
+
     has_many :activities, dependent: :destroy
     belongs_to :creator, class_name: 'DataCycleCore::User'
     has_many :created_users, class_name: 'DataCycleCore::User', foreign_key: :creator_id
@@ -35,12 +44,16 @@ module DataCycleCore
 
     delegate :can?, :cannot?, to: :ability
 
+    after_create :execute_create_webhooks, unless: :skip_callbacks
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & ['access_token', 'email', 'encrypted_password', 'external', 'family_name', 'given_name', 'name', 'notification_frequency', 'provider', 'role_id']).present? }
+    after_destroy :execute_delete_webhooks, unless: :skip_callbacks
+
     def recoverable?
       !(external? || is_rank?(0))
     end
 
     def full_name
-      name || "#{given_name} #{family_name}".presence || '__unnamed_user__'
+      (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
     end
 
     def default_filter(filters = [])
@@ -74,7 +87,11 @@ module DataCycleCore
         rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
       end
 
-      self.attributes = token.dig(:user).slice(*DataCycleCore.features.dig(:user_api, :user_params)).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
+      user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
+      authorized_attributes = Array(user_keys.select { |_, v| v.nil? }.keys)
+      authorized_attributes.concat(Array(user_keys.compact.keys.map { |k| "#{k}Ids" }))
+
+      self.attributes = token.dig(:user).slice(*authorized_attributes).deep_transform_keys(&:underscore).merge(rank.present? ? { role: DataCycleCore::Role.find_by(rank: rank) } : {})
       save
       self
     end
@@ -99,6 +116,18 @@ module DataCycleCore
 
     def ability
       @ability ||= DataCycleCore::Ability.new(self)
+    end
+
+    def execute_create_webhooks
+      Webhook::Create.execute_all(self)
+    end
+
+    def execute_update_webhooks
+      Webhook::Update.execute_all(self)
+    end
+
+    def execute_delete_webhooks
+      Webhook::Delete.execute_all(self)
     end
   end
 end

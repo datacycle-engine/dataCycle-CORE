@@ -449,6 +449,13 @@ $filter-border: #aaa;
         display: inline-block;
         flex: 1;
         white-space: nowrap;
+        .title {
+          white-space: normal;
+        }
+        > .title {
+          white-space: nowrap;
+          word-break: break-word;
+        }
       }
     }
 

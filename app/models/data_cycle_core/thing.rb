@@ -49,8 +49,8 @@ module DataCycleCore
 
     content_relations table_name: table_name
 
-    has_many :thing_external_systems, dependent: :destroy
-    has_many :external_systems, through: :thing_external_systems
+    has_many :external_system_syncs, as: :syncable, dependent: :destroy, inverse_of: :syncable
+    has_many :external_systems, through: :external_system_syncs
 
     has_many :activities, as: :activitiable, dependent: :destroy
 

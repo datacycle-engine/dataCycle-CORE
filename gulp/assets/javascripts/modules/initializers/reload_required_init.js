@@ -7,6 +7,9 @@ module.exports.initialize = function() {
     let id = $('.edit-content-form')
       .find(':input[name="uuid"]')
       .val();
+    let table = $('.edit-content-form')
+      .find(':input[name="table"]')
+      .val();
 
     addReloadTimeout();
 
@@ -20,6 +23,7 @@ module.exports.initialize = function() {
               url: '/reload_required',
               data: {
                 id: id,
+                table: table,
                 datestring: today.toISOString()
               },
               dataType: 'json',

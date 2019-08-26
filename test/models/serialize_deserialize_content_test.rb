@@ -14,7 +14,7 @@ module DataCycleCore
       )
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
+      assert_equal('DateTime', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo.class.to_s)
     end
@@ -29,7 +29,7 @@ module DataCycleCore
       )
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
+      assert_equal('DateTime', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo2.class.to_s)
       assert_equal('String', data.text2.class.to_s)
@@ -50,7 +50,7 @@ module DataCycleCore
       )
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.data_untrans.datum_untrans.class.to_s)
+      assert_equal('DateTime', data.data_untrans.datum_untrans.class.to_s)
       assert_equal('TrueClass', data.data_untrans.bool_untrans.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_untrans.geo_untrans.class.to_s)
       assert_equal('String', data.data_untrans.text_untrans.class.to_s)
@@ -71,7 +71,7 @@ module DataCycleCore
       )
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.data_trans.datum_trans.class.to_s)
+      assert_equal('DateTime', data.data_trans.datum_trans.class.to_s)
       assert_equal('TrueClass', data.data_trans.bool_trans.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_trans.geo_trans.class.to_s)
       assert_equal('String', data.data_trans.text_trans.class.to_s)
@@ -90,7 +90,7 @@ module DataCycleCore
       data.set_data_hash(data_hash: data_hash)
 
       assert_equal(::String, data.name.class)
-      assert_equal('ActiveSupport::TimeWithZone', data.datum.class.to_s)
+      assert_equal('DateTime', data.datum.class.to_s)
       assert_equal('TrueClass', data.bool.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo.class.to_s)
     end
@@ -113,7 +113,7 @@ module DataCycleCore
       data.save
 
       assert_equal(::String, data.name.class)
-      assert_equal('ActiveSupport::TimeWithZone', data.datum2.class.to_s)
+      assert_equal('DateTime', data.datum2.class.to_s)
       assert_equal('TrueClass', data.bool2.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.geo2.class.to_s)
     end
@@ -137,7 +137,7 @@ module DataCycleCore
       data.set_data_hash(data_hash: data_hash)
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.data_untrans.datum_untrans.class.to_s)
+      assert_equal('DateTime', data.data_untrans.datum_untrans.class.to_s)
       assert_equal('TrueClass', data.data_untrans.bool_untrans.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_untrans.geo_untrans.class.to_s)
       assert_equal('String', data.data_untrans.text_untrans.class.to_s)
@@ -162,7 +162,7 @@ module DataCycleCore
       data.set_data_hash(data_hash: data_hash)
       data.save
 
-      assert_equal('ActiveSupport::TimeWithZone', data.data_trans.datum_trans.class.to_s)
+      assert_equal('DateTime', data.data_trans.datum_trans.class.to_s)
       assert_equal('TrueClass', data.data_trans.bool_trans.class.to_s)
       assert_equal('RGeo::Geographic::SphericalPointImpl', data.data_trans.geo_trans.class.to_s)
       assert_equal('String', data.data_trans.text_trans.class.to_s)
