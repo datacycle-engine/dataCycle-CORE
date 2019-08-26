@@ -6,7 +6,7 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Api::V3::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
-        include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
+        include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
@@ -46,6 +46,11 @@ module DataCycleCore
           end
 
           @contents = apply_paging(deleted_contents)
+        end
+
+        def gpx
+          @object = DataCycleCore::Thing.find_by(id: params[:id])
+          download_content(@object, 'gpx', nil)
         end
 
         def download_token

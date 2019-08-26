@@ -47,8 +47,8 @@ DataCycleCore::Engine.routes.draw do
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
       get :load_more_related, on: :member
-      get :gpx, on: :member
-      get :download, on: :member
+      get :download_zip, on: :member
+      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -61,6 +61,8 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
@@ -79,9 +81,12 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resource :downloads, only: [] do
-    get '/things(/:id)', on: :member, action: 'things'
-    get '/stored_filters(/:id)', on: :member, action: 'stored_filters'
-    get '/watch_lists(/:id)', on: :member, action: 'watch_lists'
+    get '/things(/:id)(/:serialize_format)', on: :member, action: 'things'
+    get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
+    get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
+    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
+    get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
+    get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
   end
 
   resources :data_links do
@@ -96,7 +101,8 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
-    get :download, on: :member
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
 

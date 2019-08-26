@@ -45,6 +45,10 @@
                     <% end %>
                   <% end %>
 
+                  <%= render 'data_cycle_core/application/downloads/download_zip', content: stored_search if can?(:download_zip, stored_search) %>
+
+                  <%= render 'data_cycle_core/application/downloads/download', content: stored_search if can?(:download, stored_search) %>
+
                   <% if can?(:create_api, stored_search) %>
                     <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" title="<%= t('common.change_api_access', locale: DataCycleCore.ui_language) %>" data-tooltip>
                       <i class="fa fa-pencil" aria-hidden="true"></i>

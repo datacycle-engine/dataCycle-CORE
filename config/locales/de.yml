@@ -168,6 +168,12 @@ de:
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    download:
+      :available_formats: Verfügbare Formate
+      :asset: Datei
+      :json: JSON-Format
+      :gpx: GPX-Datei
+      :xml: XML-Format
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -276,6 +282,9 @@ de:
     move: verschieben
     geocode: "Geokoordinaten von %{title} übernehmen"
     open_asset: "Datei öffnen"
+    download: "herunterlanden"
+    download_content: "Inhalt herunterladen"
+    download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."

@@ -2,6 +2,7 @@
 
 module DataCycleCore
   module ApplicationHelper
+    include DownloadHelpers
     DEFAULT_KEY_MATCHING = {
       alert: :alert,
       notice: :success,
