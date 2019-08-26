@@ -29,10 +29,10 @@ module DataCycleCore
           has_many :primary_classification_aliases, through: :primary_classification_groups, source: :classification_alias
 
           # relation content to all other contents
-          has_many :content_content_b, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
+          has_many :content_content_b, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_b_id', dependent: :destroy, inverse_of: :content_b
           has_many :content_a, through: :content_content_b
           has_many :content_content_b_history, class_name: 'DataCycleCore::ContentContent::History', as: :content_b_history, dependent: :destroy
-          has_many :content_content_a, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
+          has_many :content_content_a, -> { order(order_a: :asc) }, class_name: 'DataCycleCore::ContentContent', foreign_key: 'content_a_id', dependent: :destroy, inverse_of: :content_a
           has_many :content_b, through: :content_content_a
           has_many :content_b_linked, -> { where.not(content_type: 'embedded') }, through: :content_content_a, source: :content_b
           has_many :content_b_embedded, -> { where(content_type: 'embedded') }, through: :content_content_a, source: :content_b
@@ -42,6 +42,7 @@ module DataCycleCore
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'
+          belongs_to :representation_of, foreign_key: :representation_of_id, class_name: 'DataCycleCore::User'
 
           belongs_to :parent, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :children, touch: false
           has_many :children, class_name: self_class, foreign_key: 'is_part_of', inverse_of: :parent, dependent: :destroy
@@ -55,6 +56,7 @@ module DataCycleCore
           has_many :data_links, as: :item, dependent: :destroy
 
           has_many :asset_contents, dependent: :destroy, as: :content_data
+          has_many :assets, through: :asset_contents
         end
       end
 

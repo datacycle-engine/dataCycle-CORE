@@ -13,7 +13,7 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
 
-    before_action :authenticate_user!, :set_watch_list
+    prepend_before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
 

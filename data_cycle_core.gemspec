@@ -97,7 +97,8 @@ Gem::Specification.new do |s|
   # cron jobs gem
   s.add_dependency 'whenever'
   # redis
-  s.add_dependency 'redis-rails'
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
   # redcarpet (for rendering markdown)
   s.add_dependency 'redcarpet'
@@ -131,6 +132,7 @@ Gem::Specification.new do |s|
 
   # premailer
   s.add_dependency 'premailer'
+
   # validation gems
   s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'

@@ -35,7 +35,7 @@ module DataCycleCore
           comment: 'Testkommentar'
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: polymorphic_url(@content)
       }
       follow_redirect!
 
@@ -73,7 +73,7 @@ module DataCycleCore
           comment: 'Testkommentar'
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: polymorphic_url(@content)
       }
       follow_redirect!
 
@@ -113,7 +113,7 @@ module DataCycleCore
           comment: 'Testkommentar'
         }
       }, headers: {
-        referer: polymorphic_path(watch_list)
+        referer: polymorphic_url(watch_list)
       }
       follow_redirect!
 
@@ -124,7 +124,7 @@ module DataCycleCore
         hashable_id: watch_list_content.id,
         hashable_type: watch_list_content.class.name
       }, headers: {
-        referer: root_path
+        referer: root_url
       }
 
       assert_response 200
@@ -133,7 +133,7 @@ module DataCycleCore
         hashable_id: watch_list_content.id,
         hashable_type: watch_list_content.class.name
       }, headers: {
-        referer: root_path
+        referer: root_url
       }
 
       assert_response 200
@@ -156,7 +156,7 @@ module DataCycleCore
           comment: 'Testkommentar 2'
         }
       }, headers: {
-        referer: polymorphic_path(@content)
+        referer: polymorphic_url(@content)
       }
       follow_redirect!
 
@@ -167,7 +167,7 @@ module DataCycleCore
 
     test 'lock external link' do
       delete data_link_path(@data_link), params: {}, headers: {
-        referer: thing_path(@content)
+        referer: thing_url(@content)
       }
       assert_redirected_to thing_path(@content)
       follow_redirect!
@@ -204,7 +204,7 @@ module DataCycleCore
         },
         finalize: true
       }, headers: {
-        referer: edit_thing_path(@content)
+        referer: edit_thing_url(@content)
       }
 
       assert_redirected_to thing_path(@content, locale: I18n.locale)

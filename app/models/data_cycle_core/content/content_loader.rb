@@ -35,27 +35,22 @@ module DataCycleCore
 
       def load_relation(relation_a, relation_b, same_language, inverse = false)
         if inverse
-          relation_name = :content_content_a
-          content_id_sym = :content_b_id
+          relation_name = :content_a
           relation_a_name = relation_b
           relation_b_name = relation_a
         else
-          relation_name = :content_content_b
-          content_id_sym = :content_a_id
+          relation_name = :content_b
           relation_a_name = relation_a
           relation_b_name = relation_b
         end
-        relation_contents = DataCycleCore::Thing
-          .joins(relation_name)
-          .where({
-            content_contents: {
-              content_id_sym => id,
-              relation_a: relation_a_name,
-              relation_b: relation_b_name
-            }
-          })
+
+        relation_contents = send(relation_name).where(content_contents: {
+          relation_a: relation_a_name,
+          relation_b: relation_b_name
+        })
+
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
-        relation_contents.order('content_contents.order_a ASC')
+        relation_contents
       end
 
       def load_classifications(relation_name)

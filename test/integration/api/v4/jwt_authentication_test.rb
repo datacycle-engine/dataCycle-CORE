@@ -131,10 +131,7 @@ module DataCycleCore
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at"
           })
 
-          post api_v4_users_path, params: {
-            user: user_data,
-            token: @current_user.access_token
-          }, headers: {}
+          post api_v4_users_path, params: user_data.merge(token: @current_user.access_token), headers: {}
 
           assert_response :created
           assert_equal response.content_type, 'application/json'
@@ -156,9 +153,7 @@ module DataCycleCore
 
           post api_v4_users_path, headers: {
             Authorization: "Bearer #{new_token}"
-          }, params: {
-            user: user_data
-          }
+          }, params: user_data
 
           assert_response :unauthorized
         end
@@ -186,7 +181,7 @@ module DataCycleCore
           assert DataCycleCore::User.where(email: user_data['email']).exists?
 
           user_data['family_name'] = 'Tester2'
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data }, alg: 'RS256', key: rsa_private)
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.camelize(:lower) } }, alg: 'RS256', key: rsa_private)
 
           get api_v4_users_path, headers: {
             Authorization: "Bearer #{token}"

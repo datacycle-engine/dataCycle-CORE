@@ -14,7 +14,7 @@
 
         <%= render 'header_properties', content: content %>
 
-        <% content.assigned_classification_aliases.in_context('show_more').group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
+        <% content.assigned_classification_aliases.includes(:classification_tree_label).in_context('show_more').group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
           <% content_for :mapped_hidden_classifications do %>
             <div data-label="<%= tree.name %>" class="detail-type classification">
                 <span class="detail-label">
@@ -35,7 +35,7 @@
           <% end %>
         <% end %>
 
-        <% content.mapped_classification_aliases.group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
+        <% content.mapped_classification_aliases.includes(:classification_tree_label).group_by(&:classification_tree_label).each do |tree, classification_aliases| %>
           <% content_for (tree.visibility.include?('show') ? :mapped_classifications : (tree.visibility.include?('show_more') ? :mapped_hidden_classifications : nil)) do %>
             <div data-label="<%= tree.name %>" class="detail-type classification mapped-classification">
                 <span class="detail-label">

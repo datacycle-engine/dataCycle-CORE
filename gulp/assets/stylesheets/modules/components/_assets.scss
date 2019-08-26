@@ -38,6 +38,18 @@
 }
 
 .asset-selector-reveal .asset-list li {
+  &.locked {
+    .inner {
+      .asset-type,
+      .asset-upload-date,
+      .asset-title,
+      .thumb {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+  }
+
   .inner > span.asset-duplicate-warning {
     display: block;
     position: absolute;
@@ -140,18 +152,6 @@ ul.asset-list {
       font-size: 1.2rem;
       margin-left: 5px;
       color: $alert-color;
-    }
-
-    &.locked {
-      .inner {
-        .asset-type,
-        .asset-upload-date,
-        .asset-title,
-        .thumb {
-          opacity: 0.5;
-          pointer-events: none;
-        }
-      }
     }
 
     .inner > span {

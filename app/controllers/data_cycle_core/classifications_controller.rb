@@ -68,7 +68,7 @@ module DataCycleCore
       query = query.search(params[:q])
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
-      query = query.preload(:classifications, :classification_alias_path)
+      query = query.preload(:primary_classification, :classification_alias_path)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|

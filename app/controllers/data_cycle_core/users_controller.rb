@@ -17,7 +17,7 @@ module DataCycleCore
         .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
         .map { |c| "users.#{c.name}" }
 
-      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins)
+      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
 
       query = query.where(locked_at: nil) unless current_user.has_rank?(10)
 
@@ -35,6 +35,7 @@ module DataCycleCore
 
     def create_user
       @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params.merge(creator: current_user))
+      @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
@@ -48,21 +49,22 @@ module DataCycleCore
     end
 
     def update
-      authorize! :set_role, @user if permitted_params[:role_id].present?
+      @permitted_params = permitted_params
+      authorize! :set_role, @user if @permitted_params[:role_id].present?
       authorize! :generate_access_token, @user if params.dig(:user, :access_token).present?
 
-      method = current_user == @user && permitted_params[:password].present? ? 'update_with_password' : 'update'
+      method = current_user == @user && @permitted_params[:password].present? ? 'update_with_password' : 'update'
 
       if params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '1' && @user.access_token.blank?
-        @user.update(access_token: SecureRandom.hex)
+        @permitted_params[:access_token] = SecureRandom.hex
       elsif params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '0'
-        @user.update(access_token: nil)
+        @permitted_params[:access_token] = nil
       end
 
-      if @user.send(method, permitted_params)
+      if @user.send(method, @permitted_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
 
-        bypass_sign_in(@user) if current_user == @user && !permitted_params[:password].nil?
+        bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
           redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))

@@ -221,7 +221,7 @@ DataCycleCore::Engine.routes.draw do
 
           post '/auth/login', to: 'authentication#login'
           post '/auth/logout', to: 'authentication#logout'
-          resources :users, only: [:index, :create], controller: :users
+          resources :users, only: [:index, :show, :create], controller: :users
         end
       end
     end

@@ -25,7 +25,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'asset').present? %>
 
   </fieldset>
 
@@ -38,7 +38,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'name').present? %>
 
     <%= render_attribute_editor key: 'thing[datahash][caption]',
                                 definition: template.schema.dig('properties', 'caption').deep_reject{ |k, v| k == 'readonly' },
@@ -46,7 +46,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'caption').present? %>
 
     <%= render_attribute_editor key: 'thing[datahash][description]',
                                 definition: template.schema.dig('properties', 'description').deep_reject{ |k, v| k == 'readonly' },
@@ -54,7 +54,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'description').present? %>
 
     <%= render_attribute_editor key: 'thing[datahash][tags]',
                                 definition: template.schema.dig('properties', 'tags').deep_reject{ |k, v| k == 'readonly' },
@@ -62,7 +62,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'tags').present? %>
 
 
   </fieldset>
@@ -76,7 +76,7 @@
                                 content: template,
                                 parameters: {
                                   options: local_assigns[:options]
-                                } %>
+                                } if template.schema.dig('properties', 'validity_period').present? %>
   </fieldset>
 
   <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>

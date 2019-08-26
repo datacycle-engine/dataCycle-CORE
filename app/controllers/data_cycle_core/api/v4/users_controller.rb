@@ -13,6 +13,20 @@ module DataCycleCore
           @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability).where("'#{current_user.id}' = ANY (api_users)")
         end
 
+        def show
+          @user = DataCycleCore::User.find(params[:id])
+          authorize! :show, @user
+
+          render json: @user.as_json(
+            only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
+            include: {
+              role: {
+                only: [:name, :rank]
+              }
+            }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+          ).deep_transform_keys { |k| k.camelize(:lower) }
+        end
+
         def create
           authorize! :create_user, current_user
 
@@ -29,10 +43,16 @@ module DataCycleCore
           @user.jti = SecureRandom.uuid
 
           if @user.save
-            render json: @user.as_json(only: Array(DataCycleCore.features.dig(:user_api, :user_params)) + [:id]).transform_keys { |k| k.camelize(:lower) }.merge({
-              rank: @user.role&.rank,
+            render json: @user.as_json(
+              only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
+              include: {
+                role: {
+                  only: [:name, :rank]
+                }
+              }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+            ).merge({
               token: DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti })
-            }), status: :created
+            }).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else
             render json: { errors: @user.errors }, status: :unprocessable_entity
           end
@@ -41,11 +61,15 @@ module DataCycleCore
         private
 
         def user_params
-          params.require(controller_name.singularize.to_sym).permit(DataCycleCore.features.dig(:user_api, :user_params))
+          user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
+          authorized_params = Array(user_keys.select { |_, v| v.nil? }.keys)
+          authorized_params.concat(Array(user_keys.compact.map { |k, _| { "#{k}Ids" => [] } }))
+
+          params.permit(authorized_params).transform_keys(&:underscore)
         end
 
         def role_params
-          params.require(controller_name.singularize.to_sym).permit(:rank)
+          params.permit(:rank)
         end
 
         def check_feature_enabled

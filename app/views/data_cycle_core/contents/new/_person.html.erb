@@ -7,7 +7,7 @@
                               content: template,
                               parameters: {
                                 options: local_assigns[:options]
-                              } %>
+                              } if template.schema.dig('properties', 'given_name').present? %>
 
   <%= render_attribute_editor key: 'thing[datahash][family_name]',
                               definition: template.schema.dig('properties', 'family_name').deep_reject{ |k, v| k == 'readonly' },
@@ -15,7 +15,7 @@
                               content: template,
                               parameters: {
                                 options: local_assigns[:options]
-                              } %>
+                              } if template.schema.dig('properties', 'family_name').present? %>
 
   <%= render_attribute_editor key: 'thing[datahash][member_of]',
                               definition: template.schema.dig('properties', 'member_of').deep_reject{ |k, v| k == 'readonly' },
@@ -23,5 +23,5 @@
                               content: template,
                               parameters: {
                                 options: local_assigns[:options]
-                              } %>
+                              } if template.schema.dig('properties', 'member_of').present? %>
 </fieldset>

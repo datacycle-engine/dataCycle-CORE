@@ -5,7 +5,7 @@
         <%= form_tag(url, method: :get) do %>
 
             <% sources = [] %>
-            <% contents.each do |content| %>
+            <% contents.includes(:translations).each do |content| %>
                 <% I18n.with_locale(content.first_available_locale) do %>
                     <% sources.push(["#{content.title} (#{content.template_name}, #{I18n.locale})", content.id]) %>
                 <% end %>

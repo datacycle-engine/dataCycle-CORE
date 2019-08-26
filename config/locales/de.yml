@@ -34,6 +34,7 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
     'nl-BE': "flämisch"
+    zh: chinesisch
 
   roles:
     super_admin: Administrator (DataCycle)
@@ -219,9 +220,11 @@ de:
     classification_alias_ids: nach Klassifizierungen filtern...
     classification_tree_ids: nach Klassifizierungsbaum filtern...
     creator: nach Personen filtern...
-    external_source: nach Externer Verknüpfung filtern...
+    external_source: nach Externer Quellen filtern...
+    external_system: nach Externer Verknüpfungen filtern...
     validity_period: nach Zeitraum filtern...
     date_range: nach Datum filtern...
+    boolean: nach booleschen Kriterien filtern...
 
   terms:
     valid: gültig
@@ -283,6 +286,7 @@ de:
     download_content: "Inhalt herunterladen"
     download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
+    download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
@@ -538,6 +542,7 @@ de:
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+        represented_by: Repräsentiert durch
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname

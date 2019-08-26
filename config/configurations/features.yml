@@ -120,11 +120,11 @@
   :allowed_ranks:
     - 0
   :user_params:
-    - email
-    - given_name
-    - family_name
-    - default_locale
-    - password
-    - password_confirmation
+    :email:
+    :given_name:
+    :family_name:
+    :default_locale:
+    :password:
+    :password_confirmation:
   :issuer: datacycle.at
 
