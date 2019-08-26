@@ -47,6 +47,8 @@ module DataCycleCore
                 mime_type = serializer.mime_type(content)
                 file_extension = serializer.file_extension(mime_type)
 
+                next unless file_extension
+
                 serialized_content = serializer.serialize(content, language)
 
                 next unless serialized_content
@@ -77,6 +79,8 @@ module DataCycleCore
 
       mime_type = serializer.mime_type(content)
       file_extension = serializer.file_extension(mime_type)
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless file_extension
 
       download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
