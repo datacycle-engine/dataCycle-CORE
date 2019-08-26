@@ -58,15 +58,17 @@ module DataCycleCore
     def search
       params.permit(:q, :max, :tree_label)
 
-      query = if params[:tree_label].present?
+      query = if params[:tree_label].present? && params[:tree_label] == 'Inhaltstypen'
                 DataCycleCore::ClassificationAlias.for_tree(params[:tree_label]).where.not(name: DataCycleCore.excluded_filter_classifications)
+              elsif params[:tree_label].present?
+                DataCycleCore::ClassificationAlias.for_tree(params[:tree_label])
               else
                 DataCycleCore::ClassificationAlias.all
               end
       query = query.search(params[:q])
       query = query.order_by_similarity(params[:q])
       query = query.limit(params[:max].try(:to_i) || DEFAULT_CLASSIFICATION_SEARCH_LIMIT)
-      query = query.preload(:classifications, :classification_alias_path)
+      query = query.preload(:primary_classification, :classification_alias_path)
 
       # FIXME: Jbuilder Bug: tries to render jbuilder partial
       render plain: query.map { |a|
@@ -155,6 +157,7 @@ module DataCycleCore
         classification_tree_label: [:id, :name, :internal, visibility: []],
         classification_alias: [:id, :name, :internal, :assignable, :description, translation: locale_params, classification_ids: []]
       )
+      permitted_params.dig(:classification_tree_label, :visibility)&.delete_if(&:blank?)
 
       respond_to do |format|
         format.html do

@@ -19,10 +19,12 @@ DataCycleCore::Engine.routes.draw do
 
   get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
-    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/
+    id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
+    file: /.*/
   }
 
   get '/schema', to: 'schema#index'
+  get '/schema/:id', to: 'schema#show', as: :schema_details
 
   get  '/info', to: 'frontend#info'
   get  '/settings', to: 'backend#settings'
@@ -44,7 +46,9 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
-      get :gpx, on: :member
+      get :load_more_related, on: :member
+      get :download_zip, on: :member
+      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -57,15 +61,32 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
+
+  defaults format: :json do
+    resource :content_locks, only: :update do
+      post :destroy, on: :collection
+    end
+  end
 
   scope('files') do
     resources :assets, only: [:index, :show, :create, :update, :destroy] do
       get :find, on: :collection
       post :duplicate, on: :member
     end
+  end
+
+  resource :downloads, only: [] do
+    get '/things(/:id)(/:serialize_format)', on: :member, action: 'things'
+    get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
+    get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
+    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
+    get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
+    get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
   end
 
   resources :data_links do
@@ -80,6 +101,9 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
+    delete :bulk_delete, on: :member
   end
 
   resources :classifications, only: [:index, :create] do
@@ -171,6 +195,8 @@ DataCycleCore::Engine.routes.draw do
           get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
           get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
+          get 'authorize/download_token', to: 'contents#download_token'
+
           resources :classification_trees, only: [:index, :show] do
             # get :classifications, on: :member
             get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
@@ -182,6 +208,20 @@ DataCycleCore::Engine.routes.draw do
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
           end
+        end
+      end
+      namespace :v4 do
+        scope path: '(/:api_subversion)' do
+          # get 'things/search', to: 'contents#index', as: 'contents_search' # done by things endpoint!
+          get 'things/deleted(/:type)', to: 'contents#deleted', as: 'contents_deleted'
+          resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+
+          get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
+          resources :collections, only: [:index, :show], controller: :watch_lists
+
+          post '/auth/login', to: 'authentication#login'
+          post '/auth/logout', to: 'authentication#logout'
+          resources :users, only: [:index, :show, :create], controller: :users
         end
       end
     end

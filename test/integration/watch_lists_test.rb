@@ -114,6 +114,32 @@ module DataCycleCore
       assert_equal json_data.dig('collection', 'items').size, 0
     end
 
+    test 'bulk delete all watch_list items' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      items_before = @watch_list.things.count
+
+      delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+      assert_response :success
+
+      items_after = @watch_list.things.count
+      assert_equal(0, items_after)
+      assert(items_before != items_after)
+    end
+
+    test 'bulk delete all watch_list_items, fails because one item is external' do
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
+      content2 = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+      content2.external_source_id = SecureRandom.uuid
+      content2.save!
+      DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: content2.id, hashable_type: content2.class.name)
+      items_before = @watch_list.things.count
+
+      delete bulk_delete_watch_list_path(@watch_list), params: {}, headers: { referer: watch_list_path(@watch_list) }
+      assert_response :success
+
+      assert_equal(items_before, @watch_list.things.count)
+    end
+
     test 'bulk edit all watch_list items' do
       DataCycleCore::WatchListDataHash.find_or_create_by(watch_list_id: @watch_list.id, hashable_id: @content.id, hashable_type: @content.class.name)
       shared_ordered_properties = @watch_list.things.shared_ordered_properties(@current_user).keys

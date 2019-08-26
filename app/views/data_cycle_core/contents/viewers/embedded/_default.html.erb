@@ -34,7 +34,7 @@
                 <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
                 <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
-                <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]", definition: prop, value: object_value, parameters: { options: object_options }, content: object %>
+                <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]", definition: prop, value: object_value, parameters: { options: object_options, parent: object }, content: content %>
 
             <% end %>
 
@@ -46,9 +46,11 @@
 
 <div class="clear-both">
     <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
-      content,
+      local_assigns[:parent] || content,
       key: key.attribute_name_from_key,
       complete_key: key,
+      content_id: content&.id,
+      content_type: content&.class&.table_name,
       definition: definition,
       options: options,
       page: local_assigns.fetch(:page, 1).to_i + 1,

@@ -10,6 +10,13 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -114,8 +121,6 @@
         :label: Veranstaltungsort
         :type: linked
         :template_name: Örtlichkeit
-        :validations:
-          :max: 1
         :api:
           :name: location
       :sub_event:
@@ -127,8 +132,45 @@
         :type: embedded
         :template_name: EventSchedule
         :translated: true
+      :super_event:
+        :label: Veranstaltungsserie
+        :type: linked
+        :template_name: Eventserie
+        :inverse_of: sub_event
+      :performer:
+        :label: Ausführende Person/Organisation
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :organizer:
+        :label: Veranstalter
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - LocalBusiness
+      :offers:
+        :label: Angebote
+        :type: linked
+        :template_name: Event-Ticket-Angebot
+      :potential_action:
+        :label: Link mit weiterführenden Infos
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :partial: action
+          :type: ViewAction
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Veranstaltung"

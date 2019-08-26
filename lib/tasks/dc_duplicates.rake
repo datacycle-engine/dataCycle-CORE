@@ -10,12 +10,16 @@ namespace :dc do
       total_items = data_object.size
 
       puts "RECREATE Duplicate Candidates (#{total_items}) - (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
+
+      duplicate_count = 0
       DataCycleCore::ProgressBarService.for_shell(total_items) do |pb|
         data_object.find_each do |content|
           pb.inc
-          content.create_duplicate_candidates
+          duplicate_count += content.create_duplicate_candidates&.size.to_i
         end
       end
+
+      puts "RECREATED Duplicate Candidates - #{duplicate_count} duplicates found"
     end
   end
 end

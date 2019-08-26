@@ -214,10 +214,11 @@ button.button-prime {
   background-color: map-get($foundation-palette, primary);
   border-radius: 50%;
   outline: none;
-  box-shadow: 1px 3px 5px 0px rgba(0, 1, 1, 0.38);
+  box-shadow: 1px 2px 5px 0px rgba($black, 0.3);
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+  line-height: 5rem;
   padding: 0;
 
   &.alert {
@@ -243,6 +244,8 @@ button.button-prime {
     position: relative;
     display: block;
     line-height: 5rem;
+    height: 100%;
+    width: 100%;
     font-size: 3.5rem;
   }
 

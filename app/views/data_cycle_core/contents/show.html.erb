@@ -29,11 +29,13 @@
     <%= render_content_partial 'details', content: @content %>
     <%= render 'duplicate_candidates', content: @content if DataCycleCore::Feature::DuplicateCandidate.enabled? && can?(:merge_duplicates, @content) && @content.duplicates.any? %>
 
-    <div id="related-contents-<%= @content&.id %>"
-      class="remote-render"
-      data-remote-path="data_cycle_core/contents/related"
-      data-remote-options="<%= to_query_params({content: @content, options: options ||= {}}).to_json %>">
-    </div>
+    <% if @content.related_contents.exists? %>
+      <div id="related-contents-<%= @content&.id %>"
+        class="remote-render"
+        data-remote-path="data_cycle_core/contents/related"
+        data-remote-options="<%= to_query_params({content: @content, options: options ||= {}}).to_json %>">
+      </div>
+    <% end %>
 <% end %>
 
 <% content_for :admin_panel do %>

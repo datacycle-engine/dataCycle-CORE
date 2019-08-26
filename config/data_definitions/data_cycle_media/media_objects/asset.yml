@@ -8,6 +8,14 @@
     :features:
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
     :api:
       :type: MediaObject
     :properties:
@@ -91,9 +99,9 @@
         :name: additional_media_properties
       :additional_asset_properties:
         :type: mixin
-        :name: additional_asset_properties  
+        :name: additional_asset_properties
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Datei"

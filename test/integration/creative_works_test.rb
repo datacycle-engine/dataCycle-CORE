@@ -135,6 +135,8 @@ module DataCycleCore
         key: 'content_location',
         load_more_action: 'show',
         locale: 'de',
+        content_id: @content.id,
+        content_type: 'things',
         page: 2
       }, headers: {
         referer: thing_path(@content)
@@ -147,6 +149,8 @@ module DataCycleCore
         key: 'content_location',
         load_more_action: 'show',
         locale: 'de',
+        content_id: @content.id,
+        content_type: 'things',
         page: 3
       }, headers: {
         referer: thing_path(@content)
@@ -239,6 +243,34 @@ module DataCycleCore
       # }
       # assert response.body.exclude?('load-more-linked-contents')
       # assert(response.body.include?(quotations.dig(10, :text)))
+    end
+
+    test 'load related contents' do
+      poi = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: { name: 'TestPOI' })
+      contents = []
+      11.times do |i|
+        contents.push(DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: "TestArtikel_#{i}", content_location: [poi.id] }))
+      end
+
+      contents.sort_by!(&:id)
+
+      assert_equal 11, poi.related_contents.size
+
+      get load_more_related_thing_path(poi), xhr: true, params: {
+        page: 2
+      }, headers: {
+        referer: thing_path(poi)
+      }
+      assert response.body.include?('load-more-related-button')
+      assert(contents[5..9].all? { |s| I18n.with_locale(s.first_available_locale) { response.body.include?(s.title) } })
+      assert(I18n.with_locale(contents.last.first_available_locale) { response.body.exclude?(contents.last.title) })
+
+      get load_more_related_thing_path(poi), xhr: true, params: {
+        page: 3
+      }, headers: {
+        referer: thing_path(poi)
+      }
+      assert(I18n.with_locale(contents.last.first_available_locale) { response.body.include?(contents.last.title) })
     end
   end
 end

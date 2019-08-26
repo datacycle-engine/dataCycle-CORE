@@ -29,7 +29,7 @@ module DataCycleCore
       assert_redirected_to thing_path(@content, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @content.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
-      assert_equal 6, @content.reload.timeline_item.size
+      assert_equal 6, @content.timeline_item.reload.size
     end
 
     test 'update content -> update embedded object (Zeitleiste)' do
@@ -59,7 +59,7 @@ module DataCycleCore
       assert_redirected_to thing_path(content_with_timeline_item, locale: I18n.locale)
       assert_equal I18n.t(:updated, scope: [:controllers, :success], data: content_with_timeline_item.template_name, locale: DataCycleCore.ui_language), flash[:success]
       follow_redirect!
-      assert_equal 'Updated Zeitleiste 1', content_with_timeline_item.reload.timeline_item.first.name
+      assert_equal 'Updated Zeitleiste 1', content_with_timeline_item.timeline_item.reload.first.name
     end
 
     test 'render new embedded object (Zeitleiste in Artikel)' do

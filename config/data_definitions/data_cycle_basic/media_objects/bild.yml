@@ -10,6 +10,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
     :api:
       :type: ImageObject
     :properties:
@@ -33,13 +41,20 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :caption:
         :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
       :description:
-        :label: Teasertext
+        :label: Beschreibung (ALT-Label)
         :type: string
         :storage_location: column
         :search: true
@@ -158,6 +173,14 @@
         :label: Hochgeladen am
         :type: datetime
         :storage_location: value
+        :ui:
+         :edit:
+           :type: date
+           :options:
+             :placeholder: tt.mm.jjjj
+             :class: daterange
+         :show:
+           :type: date
         :default_value: '{{Time.zone.now.beginning_of_day}}'
       :photographer:
         :label: Fotograf
@@ -187,7 +210,7 @@
         :type: mixin
         :name: media_archive
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Bild"

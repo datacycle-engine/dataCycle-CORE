@@ -1,6 +1,34 @@
 :publication_schedule:
   :enabled: false
 
+:download:
+  :enabled: true
+  :collections:
+    :content:
+      :enabled: false
+    :watch_list:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
+    :stored_filter:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
+  :dependencies:
+    - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: false
+    :json: false
+    :gpx: true
+    :xml: false
+
 :overlay:
   :enabled: false
   :attribute_keys:
@@ -46,9 +74,6 @@
   :enabled: false
   :attribute_keys:
 
-:gpx_converter:
-  :enabled: true
-
 :external_media_archive:
   :enabled: false
   :template_mapping:
@@ -81,3 +106,25 @@
 
 :duplicate_candidate:
   :enabled: false
+
+:content_lock:
+  :enabled: false
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :enabled: false
+  :only_config: true
+  :expiration_time: <%= 24.hours %>
+  :default_rank: 0
+  :allowed_ranks:
+    - 0
+  :user_params:
+    :email:
+    :given_name:
+    :family_name:
+    :default_locale:
+    :password:
+    :password_confirmation:
+  :issuer: datacycle.at
+

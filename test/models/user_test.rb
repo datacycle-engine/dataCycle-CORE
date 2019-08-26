@@ -16,7 +16,7 @@ module DataCycleCore
       end
 
       it 'has a full_name' do
-        assert_equal("#{admin_user.given_name} #{admin_user.family_name}", admin_user.full_name)
+        assert_equal("#{admin_user.given_name} #{admin_user.family_name}".squish, admin_user.full_name)
       end
 
       it 'has a rank sufficient for all roles' do

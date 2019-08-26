@@ -9,11 +9,13 @@
     - $$POI
     - $$Tour
     - $$Unterkunft
+    - $$LocalBusiness
   - $$Text:
     - $$Artikel
   - $$Organisation
   - $$Person
   - $$Veranstaltung
+  - $$Veranstaltungsserie
 # embedded
   - $$Veranstaltungstermin
   - $$Öffnungszeit
@@ -22,6 +24,7 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$EventSchedule
+  - $$Angebot
 
 - Geschlecht | all:
   - Männlich | Male

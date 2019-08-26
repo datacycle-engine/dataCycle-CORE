@@ -8,7 +8,9 @@ var callout_helpers = require('./modules/helpers/callout_helpers');
 var array_helpers = require('./modules/helpers/array_helpers');
 var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
+let ActionCable = require('actioncable');
 var initializers = [];
+window.actionCable = ActionCable.createConsumer();
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));
 initializers.push(require('./modules/initializers/quill_init'));
@@ -39,6 +41,8 @@ initializers.push(require('./modules/initializers/new_contents_init'));
 initializers.push(require('./modules/initializers/admin_panel_init'));
 initializers.push(require('./modules/initializers/watch_list'));
 initializers.push(require('./modules/initializers/reload_required_init'));
+initializers.push(require('./modules/initializers/bulk_delete_init'));
+initializers.push(require('./modules/initializers/content_lock_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));

@@ -23,12 +23,13 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
-        @data_hash = data_hash.clone
+        @data_hash = data_hash.clone.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
@@ -108,6 +109,16 @@ module DataCycleCore
       end
 
       private
+
+      def invalidate_content_a_cache
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache)
+      end
+
+      def invalidate_cache
+        related_contents.ids.each do |item_id|
+          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+        end
+      end
 
       def notify_subscribers
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|

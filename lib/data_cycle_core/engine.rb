@@ -82,7 +82,7 @@ module DataCycleCore
     # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource']
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource', 'DataCycleCore::Api::FeratelIdentityServerExternalSource']
 
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt']
@@ -93,7 +93,6 @@ module DataCycleCore
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
     self.features = {}
 
@@ -113,7 +112,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = []
+    self.webhooks = Array.wrap(ENV['WEBHOOKS']&.split(',')&.map(&:squish))
 
     # template directories
     mattr_accessor :template_path

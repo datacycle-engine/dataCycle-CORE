@@ -3,7 +3,7 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things'].freeze
+      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things', 'intangibles'].freeze
 
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
@@ -93,7 +93,7 @@ module DataCycleCore
       def self.transform_schema(content_table: nil, schema: {}, mixins:)
         schema[:boost] = schema[:boost] || 1.0
         schema[:features] = transform_features(schema: schema, content_table: content_table)
-        schema[:properties] = transform_properties(property_hash: schema[:properties], content_table: content_table, mixins: mixins)
+        schema[:properties] = transform_properties(schema: schema, content_table: content_table, mixins: mixins)
         schema
       end
 
@@ -102,10 +102,11 @@ module DataCycleCore
         schema.dig(:features) || {}
       end
 
-      def self.transform_properties(property_hash: {}, content_table: nil, mixins: nil)
-        new_properties = {}
+      def self.transform_properties(schema: {}, content_table: nil, mixins: nil)
+        new_properties = {}.with_indifferent_access
         sorting = 1
-        property_hash.each do |property_name, property_value|
+
+        schema[:properties].each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
             if !content_table.nil? && mixins.dig(content_table.to_sym, property_value[:name].to_sym).present?
@@ -126,11 +127,12 @@ module DataCycleCore
             new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
           end
         end
-        new_properties
+
+        new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_table, schema.dig(:name), :properties) || {})
       end
 
       def self.add_sorting(hash, sorting)
-        hash[:properties] = transform_properties(property_hash: hash[:properties]) if hash[:type] == 'object' && hash.key?(:properties).present?
+        hash[:properties] = transform_properties(schema: hash) if hash[:type] == 'object' && hash.key?(:properties).present?
         return apply_sorting(hash, sorting), sorting + 1
       end
 

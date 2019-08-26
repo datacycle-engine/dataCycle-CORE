@@ -37,6 +37,76 @@
   }
 }
 
+.asset-selector-reveal .asset-list li {
+  &.locked {
+    .inner {
+      .asset-type,
+      .asset-upload-date,
+      .asset-title,
+      .thumb {
+        opacity: 0.5;
+        pointer-events: none;
+      }
+    }
+  }
+
+  .inner > span.asset-duplicate-warning {
+    display: block;
+    position: absolute;
+    right: 0.5rem;
+    bottom: 0;
+    > a[data-toggle] {
+      padding: 0;
+    }
+    > .dropdown-pane {
+      max-width: 250px;
+      right: -9px !important;
+      top: calc(100% + 1rem) !important;
+      &::before {
+        font-size: 22px;
+        width: 1.2rem;
+      }
+      &.align-top {
+        top: auto !important;
+        bottom: calc(100% + 1rem) !important;
+      }
+    }
+    ul.duplicates-list {
+      display: flex;
+      flex-flow: row wrap;
+      > li {
+        flex: auto;
+        width: 90px;
+        max-width: 100px;
+        margin: 0.1rem;
+        background: white;
+        > a {
+          > img {
+            box-shadow: 0 0 5px $dark-gray;
+            transition: box-shadow 0.3s;
+          }
+          &:hover {
+            > img {
+              box-shadow: 0 0 7px $primary-color;
+            }
+          }
+        }
+      }
+    }
+  }
+  .content-warning {
+    font-size: 2rem;
+    &.alert {
+      font-size: 4.5rem;
+    }
+  }
+  .content-warning-text.alert {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: $alert-color;
+  }
+}
+
 ul.asset-list {
   display: flex;
   flex-flow: row wrap;
@@ -84,18 +154,6 @@ ul.asset-list {
       color: $alert-color;
     }
 
-    &.locked {
-      .inner {
-        .asset-type,
-        .asset-upload-date,
-        .asset-title,
-        .thumb {
-          opacity: 0.5;
-          pointer-events: none;
-        }
-      }
-    }
-
     .inner > span {
       display: block;
       &.asset-title {
@@ -108,47 +166,7 @@ ul.asset-list {
         margin-left: 0.5rem;
       }
       &.asset-duplicate-warning {
-        position: absolute;
-        right: 0.5rem;
-        bottom: 0;
-        > a[data-toggle] {
-          padding: 0;
-        }
-        > .dropdown-pane {
-          max-width: 250px;
-          right: -9px !important;
-          top: calc(100% + 1rem) !important;
-          &::before {
-            font-size: 22px;
-            width: 1.2rem;
-          }
-          &.align-top {
-            top: auto !important;
-            bottom: calc(100% + 1rem) !important;
-          }
-        }
-        ul.duplicates-list {
-          display: flex;
-          flex-flow: row wrap;
-          > li {
-            flex: auto;
-            width: 90px;
-            max-width: 100px;
-            margin: 0.1rem;
-            background: white;
-            > a {
-              > img {
-                box-shadow: 0 0 5px $dark-gray;
-                transition: box-shadow 0.3s;
-              }
-              &:hover {
-                > img {
-                  box-shadow: 0 0 7px $primary-color;
-                }
-              }
-            }
-          }
-        }
+        display: none;
       }
     }
     .inner > .thumb {
@@ -214,6 +232,9 @@ ul.asset-list {
 
 // File Upload Reveal
 .asset-upload-reveal {
+  > h2 {
+    height: 3.5rem;
+  }
   .upload-file {
     display: none;
   }
@@ -223,11 +244,10 @@ ul.asset-list {
   }
 
   .uploader-flex {
-    display: flex;
-    flex-flow: column;
-    height: calc(100vh - 6rem);
+    overflow: auto;
+    height: calc(100vh - 10rem);
+    padding-right: 0.5rem;
     .content-upload-form {
-      overflow-y: auto;
       .buttons {
         position: absolute;
         display: flex;
@@ -252,6 +272,9 @@ ul.asset-list {
   .accordion {
     .accordion-item {
       padding: 0;
+      &:first-child {
+        margin-top: 0;
+      }
       &.is-active {
         .accordion-title {
           border-bottom: 1px solid rgba($dark-gray, 0.25);

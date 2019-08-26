@@ -8,6 +8,7 @@ module DataCycleCore
     before_action :load_watch_lists
     before_action :load_stored_filters
     before_action :better_errors_hack, if: -> { Rails.env.development? }
+    before_action :flashes_from_params, if: -> { params[:flash].present? }
 
     rescue_from ActionController::InvalidAuthenticityToken, with: :unprocessable_entity
     rescue_from CanCan::AccessDenied, with: :unauthorized
@@ -56,7 +57,7 @@ module DataCycleCore
 
       render(json: { error: I18n.t(:token_invalid, scope: [:controllers, :error], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return unless any_authenticity_token_valid? || Rails.env.test?
 
-      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if DataCycleCore::Thing.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
+      render(json: { error: I18n.t(:content_updated, scope: [:controllers, :info], locale: DataCycleCore.ui_language), confirmation_text: I18n.t(:reload, scope: [:actions], locale: DataCycleCore.ui_language) }) && return if "DataCycleCore::#{reload_params[:table]&.classify || 'Thing'}".safe_constantize&.find_by(id: reload_params[:id])&.updated_at&.>(reload_params[:datestring])
 
       head :no_content
     end
@@ -72,7 +73,7 @@ module DataCycleCore
     end
 
     def reload_params
-      params.permit(:id, :datestring)
+      params.permit(:id, :table, :datestring)
     end
 
     def authorized_root_path
@@ -81,6 +82,17 @@ module DataCycleCore
       else
         info_path
       end
+    end
+
+    def flash_params
+      params.require(:flash).permit(:success, :notice, :alert, :error)
+    end
+
+    def flashes_from_params
+      flash_params.each do |k, v|
+        flash[k] = v
+      end
+      redirect_to request.path, params: params.delete(:flash)
     end
   end
 end

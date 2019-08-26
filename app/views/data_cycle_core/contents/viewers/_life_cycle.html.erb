@@ -13,7 +13,8 @@
           title: t('actions.move_to', data: stage_name, locale: DataCycleCore.ui_language),
           data: {
             tooltip: true,
-            confirm: local_assigns.dig(:confirm, stage_name.to_sym)
+            confirm: local_assigns.dig(:confirm, stage_name.to_sym),
+            disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw') + stage_name
           }) do %>
           <%= stage_name %>
         <% end %>

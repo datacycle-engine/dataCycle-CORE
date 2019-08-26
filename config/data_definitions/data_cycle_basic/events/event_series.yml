@@ -1,0 +1,56 @@
+---
+- :data:
+    :name: Eventserie
+    :type: object
+    :schema_type: Event
+    :boost: 100.0
+    :content_type: entity
+    :api:
+      :type: EventSeries
+    :features:
+      :translatable:
+        :allowed: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :sub_event:
+        :label: Veranstaltungen
+        :type: linked
+        :template_name: Event
+        :inverse_of: super_event
+        :link_direction: inverse
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Veranstaltungsserie"
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
