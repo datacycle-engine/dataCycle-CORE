@@ -4,11 +4,10 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_content(content, serialize_format, languages)
+    def download_content(content, serialize_format, languages, version)
       serializer = serializer_for_content(content, serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
-
-      download_generic(content, serializer, languages)
+      download_generic(content, serializer, languages, version)
     end
 
     def download_watch_list(watch_list, serialize_format, languages)

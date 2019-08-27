@@ -27,14 +27,28 @@
         <div class="form-element">
             <% available_download_serializers(content).each_key do |serializer_key| %>
                 <div>
-
                     <%= radio_button_tag "serialize_format", serializer_key, true %>
-                    <%#= radio_button_tag "f[#{index}][v]", 'true', (value != 'false') %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
                 </div>
             <% end %>
         </div>
     </fieldset>
+
+    <% if available_download_serializers(content).key?('asset') %>
+        <fieldset class="active version">
+            <legend><%= t('common.download.available_versions', locale: DataCycleCore.ui_language) %></legend>
+            <div class="form-element">
+
+                <% ([:original] + content.asset&.versions&.keys).each do |version| %>
+                    <div>
+                        <%= radio_button_tag "version", version, true %>
+                        <%= label_tag "version[#{version}]", "#{t("common.download.version.#{version}", locale: DataCycleCore.ui_language)}" %>
+                    </div>
+                <% end %>
+
+            </div>
+        </fieldset>
+    <% end %>
 
     <div class="buttons">
         <%= button_tag 'download',

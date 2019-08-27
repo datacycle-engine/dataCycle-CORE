@@ -30,6 +30,22 @@ module DataCycleCore
       end
     end
 
+    version :web do
+      process :remove_animation
+      process :convert_for_web
+      process resize_to_limit: [2048, 2048]
+      process colorspace: 'sRGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+
+      def full_filename(for_file)
+        basename = File.basename(for_file, File.extname(for_file))
+        file_ext = MIME::Types.type_for(for_file).first.preferred_extension
+        file_ext = MIME::Types[self.class::DEFAULT_MIME_TYPE].first.preferred_extension if self.class::WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+
+        "#{version_name}_#{basename}.#{file_ext}"
+      end
+    end
+
     def url
       content = model&.things&.first
 
