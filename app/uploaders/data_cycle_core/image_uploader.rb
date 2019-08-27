@@ -32,15 +32,16 @@ module DataCycleCore
 
     version :web do
       process :remove_animation
-      process :convert_for_web
       process resize_to_limit: [2048, 2048]
+      process :convert_for_web
       process colorspace: 'sRGB'
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+      process :set_content_type
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
         file_ext = MIME::Types.type_for(for_file).first.preferred_extension
-        file_ext = MIME::Types[self.class::DEFAULT_MIME_TYPE].first.preferred_extension if self.class::WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+        file_ext = MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension if WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
 
         "#{version_name}_#{basename}.#{file_ext}"
       end
@@ -88,6 +89,12 @@ module DataCycleCore
       manipulate! do |img, index|
         img if index.to_i.zero?
       end
+    end
+
+    def set_content_type
+      mime_type = MIME::Types.type_for(current_path).first
+      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
+      file.instance_variable_set(:@content_type, mime_type.to_s)
     end
 
     def colorspace(cs)

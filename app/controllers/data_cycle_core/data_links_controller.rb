@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class DataLinksController < ApplicationController
+    include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
+
     before_action :authenticate_user!, except: [:show, :get_text_file] # from devise (authenticate)
     load_and_authorize_resource except: [:show, :get_text_file] # from cancancan (authorize)
 
@@ -19,10 +21,13 @@ module DataCycleCore
 
       if link.writable? && link.item.is_a?(DataCycleCore::Thing)
         redirect_to edit_polymorphic_path(link.item, split_params)
-      elsif link.downloadable? && link.item.is_a?(DataCycleCore::Thing)
-        download_content(link.item, 'asset')
-      elsif link.downloadable? && link.item.is_a?(DataCycleCore::WatchList)
-        download_watch_list(link.item, 'asset')
+      elsif link.downloadable? && link.item_type == 'DataCycleCore::Thing'
+        download_content(link.item, 'asset', nil, nil)
+      elsif link.downloadable? && link.item_type == 'DataCycleCore::WatchList'
+        download_items = link.item.things.to_a.select do |thing|
+          DataCycleCore::Feature::Download.allowed?(thing)
+        end
+        download_collection(link.item, download_items, ['asset'], nil, nil)
       else
         redirect_to polymorphic_path(link.item)
       end

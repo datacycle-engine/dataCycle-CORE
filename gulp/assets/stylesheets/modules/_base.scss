@@ -1437,6 +1437,10 @@ a[data-toggle] {
       text-overflow: ellipsis;
       display: inline-block;
       vertical-align: middle;
+      .fa {
+        font-size: 0.9rem;
+        vertical-align: middle;
+      }
     }
   }
 

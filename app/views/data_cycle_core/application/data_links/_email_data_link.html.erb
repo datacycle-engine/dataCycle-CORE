@@ -3,9 +3,9 @@
   <%= render 'data_cycle_core/data_links/form', local_assigns %>
 <% else %>
   <li class="<%= "invalid" unless data_link.is_valid? %>" id="data-link-<%= data_link.id %>">
-    <span class="email" title="<%= data_link.receiver&.email %>"><%= data_link.receiver&.email %></span>
+    <span class="email" title="<%= data_link.receiver&.email %>"><%= data_link_permission_icon(data_link.permissions) %><%= data_link.receiver&.email %></span>
     <span class="buttons">
-      <span class="copy-to-clipboard" data-value="<%= data_link_url(data_link, source_table: @split_source&.class&.table_name, source_id: @split_source&.id) %>">
+      <span class="copy-to-clipboard" title="<%= t('actions.copy_to_clipboard', locale: DataCycleCore.ui_language) %>" data-tooltip data-value="<%= data_link_url(data_link, source_table: @split_source&.class&.table_name, source_id: @split_source&.id) %>">
         <i class="fa fa-clipboard" aria-hidden="true"></i>
       </span>
       <% unless data_link.creator == current_user %>

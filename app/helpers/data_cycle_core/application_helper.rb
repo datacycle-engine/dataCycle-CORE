@@ -29,6 +29,17 @@ module DataCycleCore
       end
     end
 
+    def data_link_permission_icon(permission)
+      case permission
+      when 'download'
+        tag.i(class: 'fa fa-download', aria_hidden: true)
+      when 'read'
+        tag.i(class: 'fa fa-eye', aria_hidden: true)
+      when 'write'
+        tag.i(class: 'fa fa-pencil', aria_hidden: true)
+      end
+    end
+
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'dataCycle'
@@ -330,6 +341,16 @@ module DataCycleCore
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/new/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ template: template }))
+    end
+
+    def link_to_condition(condition, name, options = {}, html_options = {}, &block)
+      if condition
+        link_to(name, options, html_options, &block)
+      elsif block_given?
+        block.arity <= 1 ? capture(name, &block) : capture(name, options, html_options, &block)
+      else
+        ERB::Util.html_escape(name)
+      end
     end
 
     private
