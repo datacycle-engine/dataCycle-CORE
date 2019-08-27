@@ -26,16 +26,16 @@
     <%= f.date_field :valid_from, {placeholder: "tt.mm.jjjj", label: false} %> -
     <%= f.date_field :valid_until, {placeholder: "tt.mm.jjjj", label: false} %>
     <%= f.label :permissions, DataCycleCore::DataLink.human_attribute_name("permissions", locale: DataCycleCore.ui_language) %>
-    <%= f.radio_button(:permissions, 'read', checked: true, label: false) %>
-    <%= f.label :permissions_read, DataCycleCore::DataLink.human_attribute_name(:permissions_read, locale: DataCycleCore.ui_language) %>
-
-    <% if (
+    <% data_link_modes = [OpenStruct.new(type: :read)] %>
+    <% data_link_modes.push(OpenStruct.new(type: :write)) if (
       content.is_a?(DataCycleCore::WatchList) &&
       content.try(:watch_list_data_hashes)&.includes(:hashable)&.all? { |data_hash| can?(:edit, data_hash.hashable) } &&
       can?(:add_item, content)
     ) || can?(:edit, content) %>
-      <%= f.radio_button(:permissions, 'write', label: false) %>
-      <%= f.label :permissions_write, DataCycleCore::DataLink.human_attribute_name(:permissions_write, locale: DataCycleCore.ui_language) %>
+    <% data_link_modes.unshift(OpenStruct.new(type: :download)) if (content.is_a?(DataCycleCore::WatchList) && can?(:download_zip, content)) || (content.is_a?(DataCycleCore::Thing) && can?(:download, content)) %>
+    <%= f.collection_radio_buttons(:permissions, data_link_modes, :type, :type, { checked: data_link.permissions&.to_sym || :read }) do |b| %>
+      <%= b.radio_button %>
+      <%= b.label { DataCycleCore::DataLink.human_attribute_name("permissions_#{b.text}", locale: DataCycleCore.ui_language) } %>
     <% end %>
 
     <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
@@ -69,10 +69,19 @@
     <%= f.text_area :comment, class: "large-textfield", label: false %>
 
     <div class="buttons">
+      <%= f.button t('actions.save_without_send', locale: DataCycleCore.ui_language),
+        class: "button submit-button",
+        name: :send,
+        value: 0,
+        data: {
+          disable_with: "#{t('actions.save_without_send', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
+        } %>
       <%= f.button t('actions.save_and_send', locale: DataCycleCore.ui_language),
         class: "button submit-button",
+        name: :send,
+        value: 1,
         data: {
-          disable_with: "#{t('actions.save_and_send', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-3x fa-fw'></i>"
+          disable: true
         } %>
     </div>
   <% end %>

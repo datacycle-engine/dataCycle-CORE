@@ -72,7 +72,7 @@
 
         <%= render 'validity_period', dataCycleObject: content %>
 
-        <%= render_first_existing_partial(["data_cycle_core/contents/viewers/#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first}", 'data_cycle_core/contents/viewers/life_cycle'], { content: content }) %>
+        <%= render_first_existing_partial(["data_cycle_core/contents/viewers/#{DataCycleCore::Feature::LifeCycle.allowed_attribute_keys(content)&.first}", 'data_cycle_core/contents/viewers/life_cycle'], { content: content }) if can?(:show, DataCycleCore::Feature::LifeCycle.data_attribute(content)) %>
 
         <%= render_content_partial 'header_bottom', content: content %>
     </div>

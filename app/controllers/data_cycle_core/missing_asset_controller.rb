@@ -16,7 +16,7 @@ module DataCycleCore
 
       raise ActiveRecord::RecordNotFound if @asset_path.blank?
 
-      headers['ETag'] = %("#{File.mtime(@asset_path)}-#{File.size(@asset_path)}")
+      headers['ETag'] = %("#{File.mtime(@asset_path)}-#{@asset_version.try(:size)}")
       headers['Last-Modified'] = File.mtime(@asset_path).httpdate
       send_file @asset_path, disposition: 'inline', filename: @asset_version.file_name, type: @asset_version.content_type
     end

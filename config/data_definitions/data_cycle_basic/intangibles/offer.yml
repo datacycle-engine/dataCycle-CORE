@@ -42,7 +42,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: Angebot
+        :default_value: Event-Ticket-Angebot
       :meta_data:
         :type: mixin
         :name: meta_data
