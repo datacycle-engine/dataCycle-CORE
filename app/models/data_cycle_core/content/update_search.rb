@@ -91,7 +91,7 @@ module DataCycleCore
 
       def append_hash(hash, add_hash)
         return hash if add_hash.blank?
-        hash.keys.each do |key|
+        hash.each_key do |key|
           hash[key] = [hash[key], add_hash[key]].join(' ')
         end
         hash
