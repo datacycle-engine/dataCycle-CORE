@@ -15,11 +15,13 @@
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
       :price:
         :label: Preis
         :type: string
         :storage_type: string
         :storage_location: translated_value
+        :search: true
       :url:
         :label: Angebots URL
         :type: string

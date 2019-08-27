@@ -65,6 +65,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :validations:
           :required: true
         :api:
@@ -73,6 +74,7 @@
         :label: Fließtext
         :type: string
         :storage_location: translated_value
+        :search: true
         :ui:
           :edit:
             :type: text_editor
@@ -115,6 +117,7 @@
         :label: Antwort
         :type: string
         :storage_location: translated_value
+        :search: true
         :validations:
           :required: true
         :ui:
