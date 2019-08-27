@@ -25,7 +25,7 @@
       <% end %>
       <% if can?(:edit, data_link) %>
         <span class="send-link-button" data-open="data-link-overlay-<%= data_link.id || "new" %>" title="<%= t('actions.edit', locale: DataCycleCore.ui_language) %>" data-tooltip><i class="fa fa-pencil" aria-hidden="true"></i></span>
-        <%= link_to '<i class="fa fa-ban" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link', title: t('actions.lock', locale: DataCycleCore.ui_language), data: { tooltip: true } if data_link.is_valid? %>
+        <%= link_to '<i class="fa fa-lock" aria-hidden="true"></i>'.html_safe, data_link, method: :delete, class: 'invalidate-data-link', title: t('actions.lock', locale: DataCycleCore.ui_language), data: { tooltip: true } if data_link.is_valid? %>
         <%= render 'data_cycle_core/data_links/form', local_assigns %>
       <% end %>
     </span>
