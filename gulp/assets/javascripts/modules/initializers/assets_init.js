@@ -28,6 +28,21 @@ module.exports.initialize = function() {
       .each((index, element) => {
         asset_uploaders.push(new AssetUploader(element));
       });
+
+    toggleAssetVersion();
+    $('.download-content-reveal .active.serialize_formats input').on('change', event => {
+        event.preventDefault();
+        toggleAssetVersion();
+      });
+
+  }
+
+  function toggleAssetVersion(){
+    if ($('.download-content-reveal .active.serialize_formats #serialize_format_asset').is(':checked')){
+      $('.download-content-reveal .active.version').removeClass('hidden');
+    }else{
+      $('.download-content-reveal .active.version').addClass('hidden');
+    }
   }
 
   init();

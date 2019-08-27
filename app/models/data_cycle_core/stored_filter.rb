@@ -5,6 +5,8 @@ module DataCycleCore
     scope :by_user, ->(user) { where user: user }
     belongs_to :user
 
+    has_many :activities, as: :activitiable, dependent: :destroy
+
     # Mögliche Filter-Parameter: c, t, v, m, n
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'

@@ -14,7 +14,6 @@
     }
 
     .header .header_main td {
-      width: 33%;
       background: #333333;
       text-align: center;
     }
@@ -26,6 +25,10 @@
       width: 120px;
       height: 65px;
       margin: 0 auto;
+    }
+
+    .show-for-print {
+      display: none;
     }
 
     .header .header_bottom td {
@@ -49,13 +52,9 @@
       </tr>
 
       <tr class="header_main">
-        <td width="33%"></td>
-
-        <td width="34%" align="center">
-          <img border="0" width="120" height="65" src="<%= image_url('eml-datacycle.png') %>" alt="dataCycle Logo">
+        <td colspan="3" width="100%" align="center">
+          <%= render 'data_cycle_core/application/logo', inverted: true, options: { style: 'height: 65px;' }, email: true %>
         </td>
-
-        <td width="33%"></td>
       </tr>
 
       <tr class="header_bottom">

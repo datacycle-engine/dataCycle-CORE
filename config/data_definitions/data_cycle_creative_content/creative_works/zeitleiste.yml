@@ -10,6 +10,13 @@
         :allowed: true
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -63,6 +70,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :validations:
           :required: true
       :temporal_coverage:

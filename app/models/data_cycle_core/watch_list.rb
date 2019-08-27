@@ -17,6 +17,8 @@ module DataCycleCore
     has_many :data_links, as: :item, dependent: :destroy
     has_many :valid_write_links, -> { valid.writable }, class_name: 'DataCycleCore::DataLink', as: :item
 
+    has_many :activities, as: :activitiable, dependent: :destroy
+
     def valid_write_links?
       valid_write_links.present?
     end

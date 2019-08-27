@@ -11,6 +11,7 @@ module DataCycleCore
       create_content('Artikel', { name: 'HEADLINE 2', tags: get_classification_ids('Tags', ['Tag 2', 'Nested Tag 1']) })
       create_content('Artikel', { name: 'HEADLINE 3', tags: get_classification_ids('Tags', ['Tag 3', 'Tag 2']) })
       create_content('Örtlichkeit', { name: 'PLACE 1', location: RGeo::Geographic.spherical_factory(srid: 4326).point(10, 10) })
+      create_content('Event', { name: 'DDD', overlay: [{ name: 'EEE' }], sub_event: [{ name: 'FFF' }] })
 
       validity_period = { valid_from: DateTime.current.beginning_of_day.to_s, valid_until: DateTime.current.end_of_day.to_s }
       multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
@@ -53,6 +54,15 @@ module DataCycleCore
       assert_equal(2, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').distinct_by_content_id.first.available_locales.count)
     end
 
+    test 'finds embedded_data' do
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de]).fulltext_search('EEE').count)
+      assert_equal(1, DataCycleCore::Filter::Search.new([:de]).fulltext_search('FFF').count)
+    end
+
+    test 'no search entries' do
+      assert_equal(0, DataCycleCore::Thing.joins(:searches).where(content_type: 'embedded').count)
+    end
+
     test 'supplies a valid ranking' do
       search_for = 'AAA'
       order_string = DataCycleCore::Filter::Search.get_order_by_query_string(search_for)
@@ -79,7 +89,7 @@ module DataCycleCore
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
-      assert_equal(4, items.count)
+      assert_equal(5, items.count)
     end
 
     # test 'test method only_frontend_valid (excludes places)' do
@@ -100,7 +110,7 @@ module DataCycleCore
       assert_equal(1, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_external_source(external_source_id)
-      assert_equal(5, items.count)
+      assert_equal(6, items.count)
     end
 
     test 'test query for creator' do
@@ -112,7 +122,7 @@ module DataCycleCore
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(:de)
         .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
-      assert_equal(6, items.count)
+      assert_equal(7, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
@@ -121,7 +131,7 @@ module DataCycleCore
 
     test 'test query for validity_period' do
       items = DataCycleCore::Filter::Search.new(:de).validity_period({ from: Date.current, until: Date.current })
-      assert_equal(6, items.count)
+      assert_equal(7, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
       assert_equal(0, items.count)
@@ -148,7 +158,7 @@ module DataCycleCore
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
-      assert_equal(7, items.count)
+      assert_equal(8, items.count)
       DataCycleCore::ImageUploader.enable_processing = false
     end
 
@@ -158,7 +168,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_classification_tree_ids(tree_label_id)
-      assert_equal(3, items.count)
+      assert_equal(4, items.count)
     end
 
     test 'has method to include joined tables' do

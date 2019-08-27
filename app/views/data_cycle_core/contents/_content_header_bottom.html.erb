@@ -1,14 +1,6 @@
 <div class="edit">
     <%= yield :buttons %>
 
-    <%= link_to download_thing_path(content), class:'button-prime small download-content-link', data: { tooltip: true }, title: t('actions.download_asset', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
-        <i class="fa fa-download" aria-hidden="true"></i>
-    <% end if DataCycleCore::Feature::Download.enabled? && can?(:download, content) %>
-
-    <%= link_to gpx_thing_path(content), class: 'button-prime small gpx-content-link', data: { tooltip: true }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-        <i class="fa fa-location-arrow" aria-hidden="true"></i>
-    <% end if DataCycleCore::Feature::GpxConverter.enabled? && content.respond_to?(:create_gpx) && content.geo_properties.present? %>
-
     <%= link_to create_duplication_thing_path(content),
                 method: :get,
                 class: 'button-prime small',
@@ -37,6 +29,10 @@
         <% end %>
         <%= render 'move_to_container_overlay', content: content %>
     <% end %>
+
+    <%= render 'data_cycle_core/application/downloads/download_zip', content: content if can?(:download_zip, content) %>
+
+    <%= render 'data_cycle_core/application/downloads/download', content: content if can?(:download, content) %>
 
     <% if can? :edit, content %>
       <% content_locked = DataCycleCore::Feature::ContentLock.enabled? && content.try(:lock).present? %>

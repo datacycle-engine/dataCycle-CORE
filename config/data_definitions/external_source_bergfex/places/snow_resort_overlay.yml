@@ -12,6 +12,7 @@
         :label: Name
         :type: string
         :storage_location: column
+        :search: true
       :link_url:
         :label: Link
         :type: string

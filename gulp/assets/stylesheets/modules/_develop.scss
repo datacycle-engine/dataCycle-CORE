@@ -1599,7 +1599,7 @@ select {
 }
 
 [data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .merge-with-duplicate, .bulk-delete-button)
-  > .fa {
+> .fa {
   font-size: inherit;
   line-height: inherit;
 }
@@ -2284,5 +2284,30 @@ button.button-prime.small.bulk-delete-button {
 .hard-warnings {
   .content-warning {
     color: $alert-color;
+  }
+}
+
+
+.download-content-reveal {
+  .download-content-link {
+    border-bottom: 1px solid $light-gray;
+    display: block;
+    padding: 1rem 0;
+    span {
+      margin-left: 0.5rem;
+    }
+  }
+}
+.stored-searches-list ul li.content-item span.buttons{
+  max-width: 5.5rem;
+  text-align: right;
+}
+
+.download-content-reveal{
+  .active.version{
+    display: block;
+    &.hidden{
+      display: none;
+    }
   }
 }
