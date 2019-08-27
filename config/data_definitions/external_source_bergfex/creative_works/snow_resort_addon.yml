@@ -14,6 +14,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :api:
           :minimal: true
           :name: headline
@@ -21,6 +22,7 @@
         :label: Text
         :type: string
         :storage_location: value
+        :search: true
         :api:
           :minimal: true
           :name: value

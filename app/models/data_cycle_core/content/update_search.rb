@@ -13,46 +13,15 @@ module DataCycleCore
         end
       end
 
-      # def update_search(language)
-      #   return if search_property_names.blank?
-      #
-      #   search_record = DataCycleCore::Search.find_or_initialize_by(
-      #     content_data_id: id,
-      #     content_data_type: self.class.to_s,
-      #     locale: language.to_s
-      #   )
-      #   search_record.full_text = (search_property_names - ['headline'])&.map { |item| send(item) }&.join(' ')&.gsub(/[']/, "''") || ''
-      #   search_record.words = (search_record.full_text + (send('headline')&.gsub(/[']/, "''") || ''))&.gsub(/\s/, ' ') || ''
-      #   search_record.headline = self&.headline&.gsub(/[']/, "''") || ''
-      #   search_record.data_type = template_name
-      #   search_record.classification_string = display_classification_aliases('tile')&.pluck(:name)&.try(:join, ' ')&.try(:gsub, /[']/, "''") || ''
-      #   search_record.all_text = [search_record.headline, search_record.classification_string, search_record.full_text].join(' ')
-      #   validity_data = validity_period if respond_to?(:validity_period)
-      #   search_record.validity_period = get_validity(validity_data || nil)
-      #   search_record.boost = schema['boost'] || 1.0
-      #   search_record.save
-      # end
-
       def update_search(language)
-        return if search_property_names.blank?
+        return if search_property_names.blank? || content_type == 'embedded'
 
         I18n.with_locale(language) do
-          full_text = DataCycleCore::MasterData::DataConverter.string_to_string(search_property_names.map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
-          full_text = '' if full_text.nil?
-          full_text_most = DataCycleCore::MasterData::DataConverter.string_to_string((search_property_names - ['headline']).map { |item| send(item) }.join(' ').gsub(/[']/, "''"))
-          full_text_most = '' if full_text_most.nil?
-          headline = try('send', 'title')
-          headline = DataCycleCore::MasterData::DataConverter.string_to_string(headline.gsub(/[']/, "''")) unless headline.nil?
-          headline = '' if headline.nil?
-          classification_string = [
-            display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
-          ].compact.join(' ')
-          all_text = [headline, classification_string, full_text].join(' ')
+          search_data = walk_embedded_data(self)
+
           # TODO: remove hardcoded metadata
-          validity_hash = metadata.nil? ? nil : metadata['validity_period']
-          validity_string = get_validity(validity_hash)
-          boost = schema['boost'] || 1.0
+          validity_string = get_validity(metadata&.dig('validity_period'))
+          boost = schema.dig('boost') || 1.0
           schema_type = schema.dig('schema_type')
 
           connection = ActiveRecord::Base.connection
@@ -63,14 +32,14 @@ module DataCycleCore
             ( DEFAULT,
               '#{id}',
               '#{language}',
-              to_tsvector('simple', '#{full_text}'),
-              '#{full_text_most}',
+              to_tsvector('simple', '#{search_data[:full_text]}'),
+              '#{search_data[:full_text]}',
               '#{created_at}',
               '#{Time.zone.now.to_s(:long_usec)}',
-              '#{headline}',
-              '#{classification_string}',
+              '#{search_data[:headline]}',
+              '#{search_data[:classification_string]}',
               '#{template_name}',
-              '#{all_text}',
+              '#{search_data[:all_text]}',
               '#{validity_string}',
               #{boost},
               '#{schema_type}'
@@ -92,6 +61,40 @@ module DataCycleCore
           EOS
           connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         end
+      end
+
+      def walk_embedded_data(object)
+        string_hash = parse_search_data(object)
+        object.embedded_property_names.each do |embedded_name|
+          object.try('send', embedded_name)&.each do |embedded_object|
+            embedded_string_hash = walk_embedded_data(embedded_object)
+            string_hash = append_hash(string_hash, embedded_string_hash)
+          end
+        end
+        string_hash
+      end
+
+      def parse_search_data(object)
+        string_hash = {}
+        string_hash[:full_text] = DataCycleCore::MasterData::DataConverter.string_to_string(object.search_property_names.map { |item| object.send(item) }.join(' ').gsub(/[']/, "''"))
+        string_hash[:full_text] = '' if string_hash[:full_text].nil?
+        string_hash[:headline] = object.try('send', 'title')
+        string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/[']/, "''")) unless string_hash[:headline].nil?
+        string_hash[:headline] = '' if string_hash[:headline].nil?
+        string_hash[:classification_string] = [
+          object.display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+          object.display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+        ].compact.join(' ')
+        string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')
+        string_hash
+      end
+
+      def append_hash(hash, add_hash)
+        return hash if add_hash.blank?
+        hash.each_key do |key|
+          hash[key] = [hash[key], add_hash[key]].join(' ')
+        end
+        hash
       end
     end
   end
