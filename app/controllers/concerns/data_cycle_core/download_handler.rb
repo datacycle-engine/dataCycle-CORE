@@ -31,7 +31,7 @@ module DataCycleCore
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
       cleanup_files(download_dir)
 
-      zipfile_name = "#{collection.id}-#{Time.now.to_i}.zip"
+      zipfile_name = "#{collection.name.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
       zipfile_fullname = File.join(download_dir, zipfile_name)
 
       unless File.exist?(zipfile_fullname)
