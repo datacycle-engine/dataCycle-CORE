@@ -43,9 +43,9 @@ module DataCycleCore
       @data_link.receiver = @receiver
       @data_link.save
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :saved_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def update
@@ -55,9 +55,9 @@ module DataCycleCore
 
       @data_link.update(create_link_params)
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :updated_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def destroy
@@ -89,6 +89,10 @@ module DataCycleCore
 
     def split_params
       params.permit(:source_table, :source_id)
+    end
+
+    def send_email_params
+      params.permit(:send)
     end
 
     def url_split_params
