@@ -4,9 +4,10 @@ module DataCycleCore
   module MasterData
     module ImportClassifications
       def self.import_all(_validation: true, classification_paths: nil)
-        classification_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        classification_paths ||= Array(DataCycleCore.default_template_paths).flatten.uniq.compact
+        project_classification_path = DataCycleCore.template_path
 
-        if classification_paths.blank?
+        if classification_paths.blank? && project_classification_path.blank?
           puts '###### classifications not found'
           return
         end
@@ -17,11 +18,34 @@ module DataCycleCore
           file = classification_path + 'classifications.yml'
           next unless File.exist?(file)
           tree_array = YAML.safe_load(File.open(file.to_s), [Symbol])
-          merged_data_trees.deep_merge!(iterate_array(tree_array))
+          tree_hash = iterate_array(tree_array)
+          merged_data_trees = merge_trees(merged_data_trees, tree_hash)
         end
+
+        if project_classification_path.present? && File.exist?(project_classification_path += 'classifications.yml')
+          tree_array = YAML.safe_load(File.open(project_classification_path.to_s), [Symbol])
+          tree_hash = iterate_array(tree_array)
+          merged_data_trees = merge_trees(merged_data_trees, tree_hash, true)
+        end
+
         return_data = iterate_tree_hash(merged_data_trees)
         check_features
         return_data
+      end
+
+      def self.merge_trees(merged_hash, tree, replace_keys = false)
+        tree.each do |key, sub_tree|
+          next if sub_tree.blank?
+          old_hash = merged_hash.select { |k, _| k.split('|').first.squish == key.split('|').first.squish }
+          old_value = merged_hash.delete(old_hash&.keys&.first)
+
+          if replace_keys && key.exclude?('Inhaltstypen')
+            merged_hash[key] = sub_tree
+          else
+            merged_hash[key] = old_value&.values&.first.present? ? merge_trees(old_value, sub_tree) : sub_tree
+          end
+        end
+        merged_hash
       end
 
       def self.iterate_array(array)
@@ -63,13 +87,20 @@ module DataCycleCore
       def self.save_data(data, parent, internal, description)
         find_alias = DataCycleCore::ClassificationAlias
           .joins(:classification_tree)
-          .where(
+          .find_by(
             classification_aliases: { name: data },
             classification_trees: { classification_tree_label_id: @label_id, parent_classification_alias_id: parent }
           )
 
-        if find_alias.count.positive?
-          updated_data = find_alias.first
+        puts "WARNING: Duplicate ClassificationAlias '#{data}' found, check classification.yml to fix this" if DataCycleCore::ClassificationAlias
+          .joins(:classification_tree)
+          .where(
+            classification_aliases: { name: data },
+            classification_trees: { classification_tree_label_id: @label_id }
+          ).where.not(classification_trees: { parent_classification_alias_id: parent }).exists?
+
+        if find_alias.present?
+          updated_data = find_alias
           update_hash = { seen_at: Time.zone.now, internal: internal, description: description || updated_data.description }
           updated_data.update(update_hash)
         else
