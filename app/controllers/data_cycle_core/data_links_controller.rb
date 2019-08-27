@@ -17,8 +17,12 @@ module DataCycleCore
 
       link.update_column(:seen_at, Time.zone.now)
 
-      if link.permissions == 'write' && link.item.class.table_name == 'things'
+      if link.writable? && link.item.is_a?(DataCycleCore::Thing)
         redirect_to edit_polymorphic_path(link.item, split_params)
+      elsif link.downloadable? && link.item.is_a?(DataCycleCore::Thing)
+        download_content(link.item, 'asset')
+      elsif link.downloadable? && link.item.is_a?(DataCycleCore::WatchList)
+        download_watch_list(link.item, 'asset')
       else
         redirect_to polymorphic_path(link.item)
       end
