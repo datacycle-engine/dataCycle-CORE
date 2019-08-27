@@ -7,24 +7,24 @@ module DataCycleCore
     def download_content(content, serialize_format, languages, version)
       serializer = serializer_for_content(content, serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
-      download_generic(content, serializer, languages, version)
+      download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: :serialize)
     end
 
-    def download_watch_list(watch_list, serialize_format, languages)
+    def download_watch_list(watch_list, serialize_format, languages, version = nil)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('watch_list', serialize_format)
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
 
-      download_generic(watch_list, serializer, languages, :serialize_watch_list)
+      download_generic(content: watch_list, serializer: serializer, languages: languages, version: version, serialize_method: :serialize_watch_list)
     end
 
-    def download_stored_filter(stored_filter, serialize_format, languages)
+    def download_stored_filter(stored_filter, serialize_format, languages, version = nil)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_serializer_format?('stored_filter', serialize_format)
       serializer = ('DataCycleCore::Serialize::' + serialize_format.to_s.classify + 'Serializer').constantize
 
-      download_generic(stored_filter, serializer, languages, :serialize_stored_filter)
+      download_generic(content: stored_filter, serializer: serializer, languages: languages, version: version, serialize_method: :serialize_stored_filter)
     end
 
-    def download_collection(collection, items, serialize_format, languages)
+    def download_collection(collection, items, serialize_format, languages, version = nil)
       languages ||= [I18n.locale]
       download_dir = Rails.root.join('public', 'downloads')
       Dir.mkdir(download_dir) unless File.exist?(download_dir)
@@ -43,12 +43,12 @@ module DataCycleCore
 
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-                mime_type = serializer.mime_type(content)
+                mime_type = serializer.mime_type(content, version)
                 file_extension = serializer.file_extension(mime_type)
 
                 next unless file_extension
 
-                serialized_content = serializer.serialize(content, language)
+                serialized_content = serializer.serialize(content, language, version)
 
                 next unless serialized_content
 
@@ -71,12 +71,12 @@ module DataCycleCore
 
     protected
 
-    def download_generic(content, serializer, languages, serialize_method = :serialize)
+    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize)
       language = languages&.first&.to_sym || I18n.locale
-      serialized_content = serializer.try(serialize_method, content, language)
+      serialized_content = serializer.try(serialize_method, content, language, version)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
 
-      mime_type = serializer.mime_type(content)
+      mime_type = serializer.mime_type(content, version)
       file_extension = serializer.file_extension(mime_type)
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless file_extension
@@ -84,7 +84,7 @@ module DataCycleCore
       download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
       content.activities.create(user: @current_user, activity_type: 'download')
-      send_file download_file, filename: "#{download_file_name(content, serializer.translatable? ? language : nil)}#{file_extension}", disposition: 'attachment', type: mime_type
+      send_file download_file, filename: "#{download_file_name(content, serializer.translatable? ? language : nil)}#{version.present? ? '-' + version.parameterize(separator: '_') : ''}#{file_extension}", disposition: 'attachment', type: mime_type
     end
 
     # remove all files older than 2 hours

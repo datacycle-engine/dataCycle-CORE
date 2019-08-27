@@ -8,7 +8,7 @@ module DataCycleCore
           true
         end
 
-        def mime_type(_content)
+        def mime_type(_content, _version)
           'application/json'
         end
 
@@ -16,7 +16,7 @@ module DataCycleCore
           '.json'
         end
 
-        def serialize(content, language)
+        def serialize(content, language, _version)
           DataCycleCore::Api::V3::ContentsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
             https: Rails.application.config.force_ssl
@@ -27,7 +27,7 @@ module DataCycleCore
           )
         end
 
-        def serialize_watch_list(watch_list, language)
+        def serialize_watch_list(watch_list, language, _version)
           pagination_contents = watch_list.watch_list_data_hashes.order(created_at: :desc).page(1).per(watch_list.watch_list_data_hashes.count)
           DataCycleCore::Api::V3::WatchListsController.renderer.new(
             http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -39,7 +39,7 @@ module DataCycleCore
           )
         end
 
-        def serialize_stored_filter(stored_filter, language)
+        def serialize_stored_filter(stored_filter, language, _version)
           contents = stored_filter.apply
           pagination_contents = contents.page(1).per(contents.count)
           DataCycleCore::Api::V3::ContentsController.renderer.new(

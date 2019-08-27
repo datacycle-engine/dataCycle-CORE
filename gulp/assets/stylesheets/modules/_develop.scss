@@ -2302,3 +2302,12 @@ button.button-prime.small.bulk-delete-button {
   max-width: 5.5rem;
   text-align: right;
 }
+
+.download-content-reveal{
+  .active.version{
+    display: block;
+    &.hidden{
+      display: none;
+    }
+  }
+}

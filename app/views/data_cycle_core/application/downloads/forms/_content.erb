@@ -22,7 +22,7 @@
         </div>
     </fieldset>
 
-    <fieldset class="active template">
+    <fieldset class="active serialize_formats">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
             <% available_download_serializers(content).each_key do |serializer_key| %>
@@ -35,7 +35,7 @@
     </fieldset>
 
     <% if available_download_serializers(content).key?('asset') %>
-        <fieldset class="active version">
+        <fieldset class="active version hidden">
             <legend><%= t('common.download.available_versions', locale: DataCycleCore.ui_language) %></legend>
             <div class="form-element">
 
