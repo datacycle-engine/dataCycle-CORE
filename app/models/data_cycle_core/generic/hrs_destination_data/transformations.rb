@@ -61,7 +61,7 @@ module DataCycleCore
           return nil if dates.size < 2
           dates.map do |date_string|
             date = date_string.in_time_zone
-            end_date = date.end_of_day
+            end_date = date
             end_date = date + event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
             {
               'event_period' => {
