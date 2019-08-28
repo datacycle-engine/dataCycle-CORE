@@ -52,6 +52,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :content_classifications:
         :type: mixin
         :name: content_classifications
