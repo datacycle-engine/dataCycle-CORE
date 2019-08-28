@@ -111,7 +111,7 @@ module DataCycleCore
       private
 
       def invalidate_content_a_cache
-        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache)
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
       end
 
       def invalidate_cache
