@@ -27,6 +27,13 @@ module DataCycleCore
             rescue JWT::DecodeError, JSON::ParserError => e
               raise CanCan::AccessDenied, e.message
             end
+          elsif params[:jwtToken].present?
+            begin
+              @decoded = DataCycleCore::JsonWebToken.decode(params[:jwtToken])
+              @user = DataCycleCore::User.find_with_token(@decoded)
+            rescue JWT::DecodeError, JSON::ParserError => e
+              raise CanCan::AccessDenied, e.message
+            end
           elsif params[:token].present?
             @user = User.find_by(access_token: params[:token])
           end

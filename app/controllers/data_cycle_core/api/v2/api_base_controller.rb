@@ -42,7 +42,7 @@ module DataCycleCore
         end
 
         def current_ability
-          @current_ability ||= DataCycleCore::Ability.new(current_user, session)
+          @current_ability ||= (current_user ? DataCycleCore::Ability.new(current_user, session) : nil)
         end
 
         private

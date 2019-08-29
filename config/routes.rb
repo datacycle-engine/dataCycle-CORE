@@ -217,7 +217,10 @@ DataCycleCore::Engine.routes.draw do
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
 
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
-          resources :collections, only: [:index, :show], controller: :watch_lists
+          resources :collections, only: [:index, :show, :create], controller: :watch_lists do
+            post :add_item, on: :member
+            get :download_and_reset, on: :member
+          end
 
           post '/auth/login', to: 'authentication#login'
           post '/auth/logout', to: 'authentication#logout'
