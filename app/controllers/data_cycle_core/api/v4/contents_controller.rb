@@ -46,7 +46,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :language, :include, :fields, :format, { filter: [{ classifications: [] }] }]
+          super + [:id, :language, :q, :include, :fields, :format, { filter: [{ classifications: [] }] }]
         end
 
         private
