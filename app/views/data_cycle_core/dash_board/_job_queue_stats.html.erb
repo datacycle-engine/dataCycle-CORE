@@ -1,12 +1,21 @@
 <div class="card" style="width: 300px; background-color:white;">
     <div class="card-divider">
-        <h5>queued data jobs</h5>
+        <h5>queued delayed jobs</h5>
     </div>
     <div class="card-section">
         <ul>
-            <% @stat_job_queue.each do |job| %>
-                <%= content_tag(:li, "#{job['status']}<br/> #{job['job']}-#{truncate(job['ref_id'],  length: 12)} <br/> #{job['created_at']}".html_safe)%>
-            <% end %>
+          <% @stat_job_queue.pop.each do |queue, count| %>
+            <%= content_tag(:li, "#{queue}: #{count}") %>
+          <% end %>
         </ul>
+        <% if @stat_job_queue.size.positive? %>
+          <br/>
+          queued import tasks:
+          <ul>
+              <% @stat_job_queue.each do |job| %>
+                  <%= content_tag(:li, ("#{job['status']}<br/> " + truncate([job['job'], job['ref_id']].compact.join('-'), length: 24) + "<br/> #{job['created_at']}").html_safe)%>
+              <% end %>
+          </ul>
+        <% end %>
     </div>
 </div>

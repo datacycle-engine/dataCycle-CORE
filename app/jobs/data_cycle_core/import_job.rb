@@ -36,6 +36,10 @@ module DataCycleCore
       # end
     end
 
+    def queue_name
+      'importers'
+    end
+
     def perform(uuid)
       pid = Process.fork do
         ExternalSource.find(uuid).import
