@@ -6,7 +6,7 @@ module DataCycleCore
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks
 
-    queue_as :default
+    queue_as :importers
 
     after_enqueue do |_|
       job_record = Delayed::Job.find(@provider_job_id)
@@ -35,10 +35,6 @@ module DataCycleCore
       #   external_source.last_download = Time.zone.now
       #   external_source.save
       # end
-    end
-
-    def queue_name
-      'importers'
     end
 
     def perform(uuid)
