@@ -24,7 +24,7 @@ set :delayed_job_pools, {
   'mailers' => 1,
   'importers' => 1,
   'carrierwave' => 1,
-  'cache_invalidation, search_update' => 1,
+  'cache_invalidation,search_update' => 1,
   '*' => 1
 }
 
