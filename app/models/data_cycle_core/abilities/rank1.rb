@@ -15,7 +15,7 @@ module DataCycleCore
         can :read, DataCycleCore::StoredFilter, system: true
         can :api, DataCycleCore::StoredFilter, api: true, user: user
         can :api, DataCycleCore::StoredFilter, ['api = ? AND ? = ANY(api_users)', true, user.id] do |sf|
-          sf.api && sf.api_users.include?(user.id)
+          sf.api && sf.api_users&.include?(user.id)
         end
         can :read, [DataCycleCore::Subscription, :publication]
         can [:subscribe, :history], DataCycleCore::Thing
