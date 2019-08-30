@@ -14,8 +14,18 @@ module DataCycleCore
           valid_until = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti }, exp: valid_until)
 
-          render json: { token: token, exp: valid_until.strftime('%m-%d-%Y %H:%M'),
-                         email: @user.email, givenName: @user.given_name, familyName: @user.family_name }, status: :ok
+          render json: {
+            token: token,
+            exp: valid_until.strftime('%m-%d-%Y %H:%M'),
+            user: @user.as_json(
+              only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
+              include: {
+                role: {
+                  only: [:name, :rank]
+                }
+              }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+            )
+          }.deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :ok
         end
 
         def logout
