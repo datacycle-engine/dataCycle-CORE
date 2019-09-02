@@ -30,6 +30,9 @@
         :template_name: PersonOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :honorific_prefix:
         :label: "Anrede / Titel"
         :type: string
@@ -89,9 +92,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Person"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
