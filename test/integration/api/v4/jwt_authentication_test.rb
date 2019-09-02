@@ -38,7 +38,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal @user_data['email'], json_data['email']
+          assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           new_token = json_data['token']
 
@@ -54,7 +54,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal @user_data['email'], json_data['email']
+          assert_equal @user_data['email'], json_data.dig('user', 'email')
         end
 
         test '/api/v4/auth/login - login with JWT, signed with Secret' do
@@ -73,7 +73,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal @user_data['email'], json_data['email']
+          assert_equal @user_data['email'], json_data.dig('user', 'email')
         end
 
         test '/api/v4/auth/login - login with token in header as Authorization Bearer -> Unauthorized' do
@@ -121,7 +121,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal @user_data['email'], json_data['email']
+          assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           DataCycleCore.features[:user_api].delete(:public_keys)
         end
@@ -131,14 +131,14 @@ module DataCycleCore
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at"
           })
 
-          post api_v4_users_path, params: user_data.merge(token: @current_user.access_token), headers: {}
+          post api_v4_users_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
 
           assert_response :created
           assert_equal response.content_type, 'application/json'
           json_data = JSON.parse(response.body)
 
           assert json_data['token'].present?
-          assert_equal user_data['email'], json_data['email']
+          assert_equal user_data['email'], json_data.dig('email')
 
           new_token = json_data['token']
 
@@ -153,7 +153,7 @@ module DataCycleCore
 
           post api_v4_users_path, headers: {
             Authorization: "Bearer #{new_token}"
-          }, params: user_data
+          }, params: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }
 
           assert_response :unauthorized
         end
@@ -167,7 +167,7 @@ module DataCycleCore
 
           DataCycleCore.features[:user_api][:public_keys] = { 'datacycle.at': rsa_public.to_s }
 
-          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data }, alg: 'RS256', key: rsa_private)
+          token = DataCycleCore::JsonWebToken.encode(payload: { user: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) } }, alg: 'RS256', key: rsa_private)
 
           get api_v4_users_path, headers: {
             Authorization: "Bearer #{token}"

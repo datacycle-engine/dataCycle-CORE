@@ -161,7 +161,7 @@ module DataCycleCore
 
         tree_label.external_source_id = external_source_id
         tree_label.save
-        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id)
+        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id) # rubocop:disable Rails/SkipsModelValidations
       end
     end
   end
