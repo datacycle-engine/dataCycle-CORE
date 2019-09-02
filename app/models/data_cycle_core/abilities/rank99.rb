@@ -14,6 +14,7 @@ module DataCycleCore
         can :show_related, DataCycleCore::Thing
         can :show_representation_of, DataCycleCore::User
         can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
+        can :api, DataCycleCore::StoredFilter
       end
     end
   end
