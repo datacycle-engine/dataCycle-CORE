@@ -51,6 +51,7 @@ module DataCycleCore
 
         def self.to_image
           t(:stringify_keys)
+          .>> t(:add_field, 'name', ->(s) { s.dig('headline') })
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('url') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('identifier') })

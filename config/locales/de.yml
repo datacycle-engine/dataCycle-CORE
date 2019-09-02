@@ -418,6 +418,7 @@ de:
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
+      running: "Job befindet sich bereits in der Job-Queue."
   activerecord:
     errors:
       messages:

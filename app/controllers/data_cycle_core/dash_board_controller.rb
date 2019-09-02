@@ -14,17 +14,25 @@ module DataCycleCore
 
     def download
       @uuid = params[:uuid]
-      DownloadJob.perform_later(@uuid)
-      name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @uuid, locked_at: nil)
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+      else
+        DownloadJob.perform_later(@uuid)
+        name = ExternalSource.where(id: @uuid).first.name
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+      end
       redirect_to admin_path
     end
 
     def import
       @uuid = params[:uuid]
-      ImportJob.perform_later(@uuid)
-      name = ExternalSource.where(id: @uuid).first.name
-      flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @uuid, locked_at: nil)
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+      else
+        ImportJob.perform_later(@uuid)
+        name = ExternalSource.where(id: @uuid).first.name
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+      end
       redirect_to admin_path
     end
 
