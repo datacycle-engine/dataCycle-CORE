@@ -10,6 +10,15 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
+    :api:
     :api:
       :type: VideoObject
     :properties:

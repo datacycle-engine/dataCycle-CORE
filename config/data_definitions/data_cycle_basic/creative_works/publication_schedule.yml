@@ -23,7 +23,6 @@
           :show:
             :type: date
       :output_channel:
-        :tree_label: Themenbereiche
         :label: Ausgabekanäle
         :type: classification
         :tree_label: Ausgabekanäle

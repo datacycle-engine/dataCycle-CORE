@@ -7,7 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         # rescue_from Timeout::Error, :with => :rescue_from_timeout
         include DataCycleCore::Filter
-        include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
+        include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
         before_action :prepare_url_parameters
 
@@ -48,6 +48,11 @@ module DataCycleCore
           end
 
           @contents = apply_paging(deleted_contents)
+        end
+
+        def gpx
+          @object = DataCycleCore::Thing.find_by(id: params[:id])
+          download_content(@object, 'gpx', nil)
         end
 
         def permitted_parameter_keys

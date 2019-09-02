@@ -10,6 +10,13 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -182,6 +189,9 @@
       :feratel_events:
         :type: mixin
         :name: feratel_events
+      :hrs_dd_events:
+        :type: mixin
+        :name: hrs_dd_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

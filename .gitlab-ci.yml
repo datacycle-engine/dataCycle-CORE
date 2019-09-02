@@ -34,7 +34,8 @@ before_script:
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
 
   - cd $CI_PROJECT_DIR
-  - mkdir log
+  - mkdir -p log
+  - mkdir -p test/dummy/public/downloads
 
 cache:
   key: application-cache

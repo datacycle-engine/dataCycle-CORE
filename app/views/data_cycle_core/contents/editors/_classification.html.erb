@@ -14,17 +14,17 @@
 
   <div class="v-select">
       <% classification_items = DataCycleCore::ClassificationTreeLabel
+        .includes(:classification_aliases)
         .find_by(name: definition['tree_label'])
-        &.classification_trees
+        &.classification_aliases
         &.includes(
-          :parent_classification_alias, sub_classification_alias: [
-            :classifications, :classification_alias_path, sub_classification_alias: [
-              :classifications, :classification_alias_path, sub_classification_alias: [
-                :classifications, :classification_alias_path, :sub_classification_alias
-              ]
+          :primary_classification, :classification_alias_path, sub_classification_alias: [
+            :primary_classification, :classification_alias_path, sub_classification_alias: [
+              :primary_classification, :classification_alias_path, :sub_classification_alias
             ]
           ]
-        ) %>
+        )
+        &.order(internal_name: :asc) %>
       <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
           <%= select_tag(
             key,
@@ -58,17 +58,17 @@
       <% else %>
           <% available_items = classification_items&.map { |c|
             [
-              c.sub_classification_alias.try(:internal_name),
-              c.sub_classification_alias&.primary_classification.try(:id),
+              c.try(:internal_name),
+              c&.primary_classification.try(:id),
               {
                 title: [
-                  c.sub_classification_alias.full_path,
-                  c.sub_classification_alias.description
+                  c.full_path,
+                  c.description
                 ].reject(&:blank?).join("\n\n"),
                 data: {
-                  title: c.sub_classification_alias.full_path,
+                  title: c.full_path,
                 },
-                disabled: !c.sub_classification_alias.assignable
+                disabled: !c.assignable
               }
             ]
           } %>

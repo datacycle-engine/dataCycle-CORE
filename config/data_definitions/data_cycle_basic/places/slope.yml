@@ -12,6 +12,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :api:
       :type: TouristAttraction
     :properties:
@@ -44,6 +52,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :content_classifications:
         :type: mixin
         :name: content_classifications

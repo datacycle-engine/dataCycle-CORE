@@ -3,8 +3,8 @@
 
 <% I18n.with_locale(content.first_available_locale) do %>
 
-    <%= link_to thing_path(content), data: {tooltip: true}, title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
+    <%= link_to_condition can?(:show, content), thing_path(content), data: {tooltip: true}, title: t('actions.show', locale: DataCycleCore.ui_language).capitalize, target: :_blank, class: "show-link" do %>
         <%= tag.span "#{content.try(:title).presence || '__NO TITLE__'} (#{I18n.locale.to_s})", class: 'name' %>
-    <% end if can?(:show, content) %>
+    <% end %>
 
 <% end %>

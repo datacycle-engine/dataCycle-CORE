@@ -638,7 +638,7 @@ button,
     .input input,
     .string:not(.date, .name, .datetime, .headline, .headline_external, .text_editor) input,
     input.single_date,
-    .single_date input,
+    .single_date input.form-control,
     .number input {
       padding: 2.5rem 1rem 2rem 1rem;
       line-height: initial;
@@ -1437,6 +1437,10 @@ a[data-toggle] {
       text-overflow: ellipsis;
       display: inline-block;
       vertical-align: middle;
+      .fa {
+        font-size: 0.9rem;
+        vertical-align: middle;
+      }
     }
   }
 

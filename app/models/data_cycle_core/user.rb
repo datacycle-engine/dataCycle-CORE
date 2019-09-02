@@ -5,6 +5,7 @@ module DataCycleCore
     include Content::ExternalData
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :omniauthable, omniauth_providers: Devise.omniauth_configs.keys if Devise.try(:omniauth_configs).present?
 
     attr_accessor :raw_password, :skip_callbacks
 
@@ -80,6 +81,20 @@ module DataCycleCore
       return unless contents.size.positive?
 
       SubscriptionMailer.notify(self, contents).deliver_later
+    end
+
+    def self.from_omniauth(auth)
+      return if auth&.info&.email.blank?
+
+      new_user = find_or_initialize_by(email: auth.info.email) do |user|
+        user.password = Devise.friendly_token
+      end
+      new_user.provider = auth.provider
+      new_user.uid = auth.uid
+      new_user.external = true
+      new_user.skip_callbacks = true
+      new_user.save
+      new_user
     end
 
     def update_with_token(token)

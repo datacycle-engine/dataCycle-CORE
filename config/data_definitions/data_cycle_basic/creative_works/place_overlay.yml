@@ -13,10 +13,12 @@
         :type: string
         :storage_type: string
         :storage_location: column
+        :search: true
       :description:
         :label: Beschreibung
         :type: string
         :storage_location: column
+        :search: true
         :ui:
           :edit:
             :type: text_editor

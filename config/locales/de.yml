@@ -168,6 +168,17 @@ de:
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    download:
+      :available_formats: Verfügbare Formate
+      :available_versions: Verfügbare Datei Versionen
+      :asset: Datei
+      :json: JSON-Format
+      :gpx: GPX-Datei
+      :xml: XML-Format
+      :version:
+        :original: Original
+        :thumb_preview: Thumbnail
+        :web: Web
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -264,7 +275,8 @@ de:
     duplicate_content: "duplizieren"
     read: lesen
     write: schreiben
-    save_and_send: "Speichern und Senden"
+    save_and_send: Senden
+    save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung abschließen
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
@@ -276,6 +288,9 @@ de:
     move: verschieben
     geocode: "Geokoordinaten von %{title} übernehmen"
     open_asset: "Datei öffnen"
+    download: "herunterlanden"
+    download_content: "Inhalt herunterladen"
+    download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."
@@ -380,7 +395,9 @@ de:
       addedTo: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "E-Mail wurde versandt."
+      saved: "Externer Link wurde erstellt."
       saved_and_sent: "Externer Link wurde erstellt und verschickt."
+      updated: "Externer Link wurde aktualisiert."
       updated_and_sent: "Externer Link wurde aktualisiert und verschickt."
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
@@ -571,8 +588,9 @@ de:
         validity_period: Gültigkeitszeitraum (von - bis)
         valid_from: Gültig von
         valid_until: bis
-        permissions_read: "Lesen"
-        permissions_write: "Bearbeiten"
+        permissions_download: herunterladen
+        permissions_read: lesen
+        permissions_write: bearbeiten
         text_file: "Weitere Infos (PDF)"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
@@ -587,6 +605,7 @@ de:
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
+
   data_cycle_core:
     administration: 'Administration'
     user_settings: Benutzeraktionen
@@ -620,6 +639,10 @@ de:
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
+    data_links:
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor."
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback."
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und dieser Inhalt steht nun zum Download bereit."
 
     documentation:
       root: Dokumentation

@@ -46,7 +46,7 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: fields, sort
-          super + [:id, :language, :include, :fields, :format, { filter: [{ classifications: [] }] }]
+          super + [:id, :language, :q, :include, :fields, :format, { filter: [{ classifications: [] }] }]
         end
 
         private
@@ -59,7 +59,7 @@ module DataCycleCore
           stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users.to_a + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
+            authorize! :api, @stored_filter
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new

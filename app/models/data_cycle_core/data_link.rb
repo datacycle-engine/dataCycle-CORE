@@ -38,6 +38,14 @@ module DataCycleCore
       permissions == 'write'
     end
 
+    def readable?
+      permissions == 'read'
+    end
+
+    def downloadable?
+      permissions == 'download'
+    end
+
     def is_valid?
       !valid_from.presence&.>(Time.zone.now.round) && !valid_until.presence&.<(Time.zone.now.round)
     end

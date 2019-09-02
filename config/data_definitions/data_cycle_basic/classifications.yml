@@ -10,6 +10,7 @@
     - $$Tour
     - $$Unterkunft
     - $$LocalBusiness
+    - $$Gastronomischer Betrieb
   - $$Text:
     - $$Artikel
   - $$Organisation
@@ -24,7 +25,7 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$EventSchedule
-  - $$Angebot
+  - $$Event-Ticket-Angebot
 
 - Geschlecht | all:
   - Männlich | Male

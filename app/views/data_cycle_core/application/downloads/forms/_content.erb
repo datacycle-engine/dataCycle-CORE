@@ -1,0 +1,60 @@
+<%= form_with url: polymorphic_path([:download, content]),
+              method: :get,
+              local: true do %>
+
+    <div class="form-crumbs"></div>
+
+    <fieldset class="active template">
+        <legend><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></legend>
+        <div class="form-element">
+            <div class="v-select white">
+                <%= select_tag('language[]',
+                               options_for_select(
+                                   available_locales_for_select(content),
+                                   I18n.locale
+                               ),
+                               {
+                                   multiple: false,
+                                   class: 'multi-select'
+                               }
+                    ) %>
+            </div>
+        </div>
+    </fieldset>
+
+    <fieldset class="active serialize_formats">
+        <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
+        <div class="form-element">
+            <% available_download_serializers(content).each_key do |serializer_key| %>
+                <div>
+                    <%= radio_button_tag "serialize_format", serializer_key, true %>
+                    <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
+                </div>
+            <% end %>
+        </div>
+    </fieldset>
+
+    <% if available_download_serializers(content).key?('asset') %>
+        <fieldset class="active version hidden">
+            <legend><%= t('common.download.available_versions', locale: DataCycleCore.ui_language) %></legend>
+            <div class="form-element">
+
+                <% ([:original] + content.asset&.versions&.keys).each do |version| %>
+                    <div>
+                        <%= radio_button_tag "version", version, true %>
+                        <%= label_tag "version[#{version}]", "#{t("common.download.version.#{version}", locale: DataCycleCore.ui_language)}" %>
+                    </div>
+                <% end %>
+
+            </div>
+        </fieldset>
+    <% end %>
+
+    <div class="buttons">
+        <%= button_tag 'download',
+                       type: :submit,
+                       class: "button submit" %>
+    </div>
+
+<% end %>
+

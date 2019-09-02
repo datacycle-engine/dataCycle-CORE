@@ -68,6 +68,10 @@ module DataCycleCore
         can :print, DataCycleCore::Thing do |content|
           ['entity'].include?(content.schema['content_type'])
         end
+        can :api, DataCycleCore::StoredFilter, api: true, user: user
+        can :api, DataCycleCore::StoredFilter, ['api = ? AND ? = ANY(api_users)', true, user.id] do |sf|
+          sf.api && sf.api_users&.include?(user.id)
+        end
       end
     end
   end

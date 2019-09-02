@@ -6,12 +6,20 @@
     :content_type: entity
     :boost: 10.0
     :features:
-      :overlay:
-        :allowed: true
       :geocode:
+        :allowed: true
+      :overlay:
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :properties:
       :id:
         :label: id
@@ -42,6 +50,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
