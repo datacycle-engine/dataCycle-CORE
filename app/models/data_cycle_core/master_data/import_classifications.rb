@@ -4,48 +4,38 @@ module DataCycleCore
   module MasterData
     module ImportClassifications
       def self.import_all(_validation: true, classification_paths: nil)
-        classification_paths ||= Array(DataCycleCore.default_template_paths).flatten.uniq.compact
-        project_classification_path = DataCycleCore.template_path
+        classification_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
 
-        if classification_paths.blank? && project_classification_path.blank?
-          puts '###### classifications not found'
-          return
-        end
+        return puts('###### classifications not found') if classification_paths.blank?
 
         merged_data_trees = {}
+        inhaltstypen_trees = []
 
         classification_paths.each do |classification_path|
           file = classification_path + 'classifications.yml'
           next unless File.exist?(file)
           tree_array = YAML.safe_load(File.open(file.to_s), [Symbol])
           tree_hash = iterate_array(tree_array)
-          merged_data_trees = merge_trees(merged_data_trees, tree_hash)
-        end
-
-        if project_classification_path.present? && File.exist?(project_classification_path += 'classifications.yml')
-          tree_array = YAML.safe_load(File.open(project_classification_path.to_s), [Symbol])
-          tree_hash = iterate_array(tree_array)
-          merged_data_trees = merge_trees(merged_data_trees, tree_hash, true)
+          merged_data_trees, inhaltstypen_trees = merge_trees(merged_data_trees, tree_hash, inhaltstypen_trees)
         end
 
         return_data = iterate_tree_hash(merged_data_trees)
+        inhaltstypen_trees.each do |inhaltstypen_tree|
+          return_data.merge!(iterate_tree_hash(inhaltstypen_tree))
+        end
         check_features
         return_data
       end
 
-      def self.merge_trees(merged_hash, tree, replace_keys = false)
-        tree.each do |key, sub_tree|
-          next if sub_tree.blank?
+      def self.merge_trees(merged_hash, tree, inhaltstypen_trees)
+        tree.select { |k, _| k.exclude?('Inhaltstypen') }.each do |key, sub_tree|
           old_hash = merged_hash.select { |k, _| k.split('|').first.squish == key.split('|').first.squish }
-          old_value = merged_hash.delete(old_hash&.keys&.first)
+          merged_hash.delete(old_hash&.keys&.first)
 
-          if replace_keys && key.exclude?('Inhaltstypen')
-            merged_hash[key] = sub_tree
-          else
-            merged_hash[key] = old_value&.values&.first.present? ? merge_trees(old_value, sub_tree) : sub_tree
-          end
+          merged_hash[key] = sub_tree
         end
-        merged_hash
+
+        return merged_hash, inhaltstypen_trees.push(tree.select { |k, _| k.include?('Inhaltstypen') })
       end
 
       def self.iterate_array(array)
@@ -78,9 +68,9 @@ module DataCycleCore
           split_data = k.split('|').map(&:squish)
           name = split_data[0]
           description = split_data[1]
-          current_id = save_data(name, parent, internal, description)
+          current_alias = save_data(name, parent, internal, description)
 
-          walk_tree_hash(v, current_id) if v.is_a?(Hash)
+          walk_tree_hash(v, current_alias) if v.is_a?(Hash)
         end
       end
 
@@ -89,33 +79,29 @@ module DataCycleCore
           .joins(:classification_tree)
           .find_by(
             classification_aliases: { name: data },
-            classification_trees: { classification_tree_label_id: @label_id, parent_classification_alias_id: parent }
+            classification_trees: { classification_tree_label_id: @label_id }
           )
 
-        puts "WARNING: Duplicate ClassificationAlias '#{data}' found, check classification.yml to fix this" if DataCycleCore::ClassificationAlias
-          .joins(:classification_tree)
-          .where(
-            classification_aliases: { name: data },
-            classification_trees: { classification_tree_label_id: @label_id }
-          ).where.not(classification_trees: { parent_classification_alias_id: parent }).exists?
+        puts "WARNING: Duplicate ClassificationAlias '#{"#{parent&.internal_name} -> " unless parent.nil?}#{data}' found, check classification.yml" if find_alias.present? && find_alias&.parent_classification_alias&.id != parent&.id
 
         if find_alias.present?
           updated_data = find_alias
           update_hash = { seen_at: Time.zone.now, internal: internal, description: description || updated_data.description }
+          updated_data.classification_tree&.update(parent_classification_alias_id: parent&.id)
           updated_data.update(update_hash)
         else
           # new Alias, create respective tree-entry
           updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now, description: description)
           DataCycleCore::ClassificationTree.find_or_create_by(
             classification_alias_id: updated_data.id,
-            parent_classification_alias_id: parent,
+            parent_classification_alias_id: parent&.id,
             classification_tree_label_id: @label_id
           ) do |tree_entry|
             tree_entry.seen_at = Time.zone.now
           end
         end
         upsert_classification(data, updated_data.id, description)
-        updated_data.id
+        updated_data
       end
 
       def self.get_label(label)
@@ -175,7 +161,7 @@ module DataCycleCore
 
         tree_label.external_source_id = external_source_id
         tree_label.save
-        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id) # rubocop:disable Rails/SkipsModelValidations
+        DataCycleCore::ClassificationAlias.for_tree(tree_name).update_all(external_source_id: external_source_id)
       end
     end
   end
