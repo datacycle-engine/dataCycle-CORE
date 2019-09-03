@@ -24,6 +24,9 @@
       :title:
         :type: mixin
         :name: title
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -61,9 +64,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Organisation"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
