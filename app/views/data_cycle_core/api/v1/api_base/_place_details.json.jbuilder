@@ -13,7 +13,7 @@ options[:hidden_attributes] += [
   'address_locality', 'street_address', 'postal_code', 'address_country'
 ]
 
-json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
+json.partial! 'untranslated_properties', content: content, locale: content.translations&.first&.locale || I18n.locale, options: options
 
 if ['address_locality', 'street_address', 'postal_code', 'address_country'].map { |k| content.send(k) }.join.present?
   json.set! 'address' do

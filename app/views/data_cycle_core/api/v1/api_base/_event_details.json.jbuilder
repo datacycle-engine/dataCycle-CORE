@@ -11,7 +11,7 @@ json.content_partial! 'header', content: content, options: options
 json.set! 'startDate', content.start_date if content.start_date.present?
 json.set! 'endDate', content.end_date if content.end_date.present?
 
-json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
+json.partial! 'untranslated_properties', content: content, locale: content.translations&.first&.locale || I18n.locale, options: options
 
 if content.translations.size == 1
   json.set! 'inLanguage', content.translations.first.locale
