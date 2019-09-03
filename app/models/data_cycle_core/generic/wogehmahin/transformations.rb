@@ -12,6 +12,7 @@ module DataCycleCore
 
         def self.to_poi(external_source_id)
           t(:stringify_keys)
+          .>> t(:add_field, 'name', ->(s) { s.dig('betriebsname') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('identifier') })
           .>> t(:reject_keys, ['owners', 'languages', 'Genusslust', 'identifier'])
           .>> t(:add_field, 'street_address', ->(s) { s.dig('address', 'address') })
