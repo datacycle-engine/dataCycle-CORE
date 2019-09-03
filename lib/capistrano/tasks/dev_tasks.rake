@@ -54,8 +54,8 @@ namespace :datacycle do
     task :update_configs do
       on roles(:all) do
         print_message 'Update puma config'
-        invoke 'datacycle:puma:deploy_config'
-        invoke 'datacycle:puma:restart'
+        # invoke 'datacycle:puma:deploy_config'
+        # invoke 'datacycle:puma:restart'
 
         print_message 'Uploading config files'
         invoke('datacycle:monit:deploy_config', 'puma.conf')

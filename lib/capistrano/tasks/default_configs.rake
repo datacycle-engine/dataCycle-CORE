@@ -21,7 +21,8 @@ namespace :datacycle do
 
       set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
-      append :linked_dirs, 'node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads'
+      append :linked_files, '.env'
+      append :linked_dirs, 'node_modules', 'vendor/gems/data-cycle-core/node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads'
 
       namespace :deploy do
         before 'assets:precompile', 'deploy:npm'
@@ -29,6 +30,7 @@ namespace :datacycle do
         after 'assets:precompile', 'deploy:iconfonts'
 
         after 'deploy:migrate', 'datacycle:dev:update_project'
+        before 'puma:restart', 'datacycle:puma:deploy_config'
         after 'deploy:cleanup', 'datacycle:dev:update_configs'
 
         before 'deploy:reverted', 'deploy:npm'
