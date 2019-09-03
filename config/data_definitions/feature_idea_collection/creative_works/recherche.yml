@@ -32,6 +32,9 @@
         :ui:
           :show:
             :disabled: true
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :text:
         :label: Recherchedaten
         :type: string
@@ -42,9 +45,6 @@
             :type: text_editor
             :options:
               :data-size: full
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :data_type:
         :label: Inhaltstyp
         :type: classification

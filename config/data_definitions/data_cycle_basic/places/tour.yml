@@ -29,6 +29,9 @@
         :template_name: TourOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :description:
         :label: Beschreibung
         :type: string
@@ -181,9 +184,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Tour"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
