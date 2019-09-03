@@ -50,7 +50,7 @@ namespace :datacycle do
       end
     end
 
-    desc 'update project config files: update monit + nginx config files'
+    desc 'update project config files: update monit + puma'
     task :update_configs do
       on roles(:all) do
         print_message 'Update puma config'
@@ -60,7 +60,7 @@ namespace :datacycle do
         print_message 'Uploading config files'
         invoke('datacycle:monit:deploy_config', 'puma.conf')
         invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
-        invoke 'datacycle:logrotate:deploy_config'
+        # invoke 'datacycle:logrotate:deploy_config'
 
         print_message 'Reloading services'
         invoke 'datacycle:monit:reload'

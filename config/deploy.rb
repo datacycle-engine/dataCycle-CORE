@@ -3,39 +3,15 @@
 # config valid only for current version of Capistrano
 # lock "3.8.2"
 
+invoke 'datacycle:default_configs:load'
+
 set :application, 'data-cycle-core'
 set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
-set :rvm_ruby_version, '2.6.3'
-
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 
-# Default value for :format is :airbrussh.
-# set :format, :airbrussh
-
-# You can configure the Airbrussh format using :format_options.
-# These are the defaults.
-# set :format_options, command_output: true, log_file: 'log/capistrano.log', color: :auto, truncate: :auto
-
-# Default value for :pty is false
-# set :pty, true
-
-set :delayed_job_pools, {
-  'mailers' => 1,
-  'importers' => 1,
-  'carrierwave' => 1,
-  'cache_invalidation,search_update' => 1,
-  'webhooks' => 1,
-  'default' => 1
-}
-
-set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
-
-# Default value for :linked_files is []
 append :linked_files, 'test/dummy/.env'
-
-# Default value for linked_dirs is []
-append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
+append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
 
 Rake::Task['deploy:assets:precompile'].clear_actions
 Rake::Task['deploy:assets:backup_manifest'].clear_actions
@@ -124,11 +100,11 @@ namespace :deploy do
     end
   end
 
-  before 'assets:precompile', 'deploy:npm'
-  after 'deploy:npm', 'deploy:gulp'
-  after 'assets:precompile', 'deploy:iconfonts'
+  # before 'assets:precompile', 'deploy:npm'
+  # after 'deploy:npm', 'deploy:gulp'
+  # after 'assets:precompile', 'deploy:iconfonts'
 
-  after 'deploy:migrate', 'datacycle:dev:update_project'
+  # after 'deploy:migrate', 'datacycle:dev:update_project'
 
-  before 'deploy:reverted', 'deploy:npm'
+  # before 'deploy:reverted', 'deploy:npm'
 end
