@@ -28,7 +28,7 @@ class ObjectBrowser {
     this.page = 1;
     this.loading = false;
     this.search = '';
-    this.url = '/object_browser';
+    this.url = window.DATA_CYCLE_ENGINE_PATH + '/object_browser';
     this.total = 0;
     this.ids = selector.data('objects') || [];
     this.chosen = this.ids.slice(0);
@@ -324,7 +324,7 @@ class ObjectBrowser {
   }
   loadMore(loaded_ids) {
     $.ajax({
-      url: '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
       method: 'GET',
       dataType: 'script',
       data: {
@@ -434,7 +434,7 @@ class ObjectBrowser {
       var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
       $.ajax({
         type: 'POST',
-        url: '/things/import',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/things/import',
         dataType: 'script',
         data: JSON.stringify({
           authenticity_token: AUTH_TOKEN,

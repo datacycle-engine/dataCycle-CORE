@@ -347,7 +347,7 @@ function init_map(idx, item) {
           address[elem.name.get_key()] = elem.value;
         });
 
-      $.getJSON('/things/geocode_address/', address)
+      $.getJSON(window.DATA_CYCLE_ENGINE_PATH + '/things/geocode_address/', address)
         .done(data => {
           if (data.error !== undefined) {
             console.log(data.error);

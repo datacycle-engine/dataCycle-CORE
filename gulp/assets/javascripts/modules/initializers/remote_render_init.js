@@ -32,7 +32,7 @@ module.exports.initialize = function() {
 
     $.ajax({
       type: 'POST',
-      url: '/remote_render',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/remote_render',
       data: JSON.stringify({
         target: $(element).prop('id'),
         partial: $(element).data('remotePath'),

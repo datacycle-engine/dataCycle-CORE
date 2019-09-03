@@ -43,7 +43,7 @@ module.exports.initialize = function() {
             if (diff.length) {
               $.ajax({
                 type: 'GET',
-                url: '/classifications/find',
+                url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/find',
                 data: {
                   ids: diff
                 },

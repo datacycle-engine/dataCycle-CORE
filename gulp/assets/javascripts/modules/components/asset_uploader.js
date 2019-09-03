@@ -76,7 +76,7 @@ class AssetUploader {
     });
     this.autocomplete_requests[key].push(
       $.ajax({
-        url: '/files/assets/find',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/files/assets/find',
         method: 'GET',
         data: {
           q: name

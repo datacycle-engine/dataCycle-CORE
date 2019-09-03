@@ -78,7 +78,7 @@ class AssetSelector {
     });
     this.import_requests.push(
       $.ajax({
-        url: '/files/assets/' + id + '/duplicate',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/files/assets/' + id + '/duplicate',
         method: 'POST',
         data: JSON.stringify({
           html_target: this.hidden_field.prop('id')
@@ -111,7 +111,7 @@ class AssetSelector {
     });
     this.requests.push(
       $.ajax({
-        url: '/files/assets',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/files/assets',
         method: 'GET',
         data: {
           html_target: this.asset_list.prop('id'),
