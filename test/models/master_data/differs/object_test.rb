@@ -52,6 +52,50 @@ describe DataCycleCore::MasterData::Differs::Object do
       }
     end
 
+    let(:template_hash_deeper) do
+      {
+        'greeting' => {
+          'label' => 'test_string',
+          'type' => 'string',
+          'storage_location' => 'translated_value'
+        },
+        'range' => {
+          'label' => 'egal',
+          'type' => 'object',
+          'storage_location' => 'tranlsated_value',
+          'properties' => {
+            'von' => {
+              'label' => 'von',
+              'type' => 'number',
+              'storage_location' => 'translated_value'
+            },
+            'bis' => {
+              'label' => 'bis',
+              'type' => 'number',
+              'storage_location' => 'translated_value'
+            },
+            'descriptions' => {
+              'lable' => 'descriptions',
+              'type' => 'object',
+              'storage_location' => 'translated_value',
+              'properties' => {
+                'text' => {
+                  'label' => 'text',
+                  'type' => 'string',
+                  'storage_location' => 'translated_value'
+                },
+                'content' => {
+                  'label' => 'text',
+                  'type' => 'string',
+                  'storage_location' => 'translated_value'
+                }
+              }
+            }
+          }
+        }
+      }
+    end
+
     it 'works with a simple hash' do
       a = { 'greeting' => 'Hello World!', 'anzahl' => 5 }
       b = a
@@ -106,6 +150,20 @@ describe DataCycleCore::MasterData::Differs::Object do
       b = { 'greeting' => 'servas', 'range' => { 'von' => 0, 'bis' => 99 } }
       diff_hash = subject.new(a, b, template_hash_deep).diff_hash
       assert_equal({ 'range' => { 'von' => ['~', 1, 0], 'bis' => ['~', 100, 99] } }, diff_hash)
+    end
+
+    it 'ignores blank objects' do
+      a = { 'greeting' => 'servas', 'range' => { 'von' => nil, 'bis' => nil } }
+      b = { 'greeting' => 'servas' }
+      diff_hash = subject.new(a, b, template_hash_deep).diff_hash
+      assert_equal({}, diff_hash)
+    end
+
+    it 'ignores blank branches' do
+      a = { 'greeting' => 'servas', 'range' => { 'von' => nil, 'bis' => nil, 'descriptions' => { 'text' => '', 'content' => '' } } }
+      b = { 'greeting' => 'servas' }
+      diff_hash = subject.new(a, b, template_hash_deeper).diff_hash
+      assert_equal({}, diff_hash)
     end
   end
 end

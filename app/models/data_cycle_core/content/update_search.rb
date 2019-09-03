@@ -4,6 +4,7 @@ module DataCycleCore
   module Content
     module UpdateSearch
       def search_languages(all)
+        return if id.nil?
         Delayed::Job.enqueue(DataCycleCore::Jobs::SearchUpdateJob.new(self.class.name, id, all)) unless Delayed::Job.exists?(queue: 'search_update', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
       end
 
