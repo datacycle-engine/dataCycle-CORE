@@ -53,7 +53,7 @@ namespace :datacycle do
     desc 'update project config files: update monit + puma'
     task :update_configs do
       on roles(:all) do
-        print_message 'Update puma config'
+        # print_message 'Update puma config'
         # invoke 'datacycle:puma:deploy_config'
         # invoke 'datacycle:puma:restart'
 
