@@ -25,7 +25,8 @@ set :delayed_job_pools, {
   'importers' => 1,
   'carrierwave' => 1,
   'cache_invalidation,search_update' => 1,
-  'webhooks' => 1
+  'webhooks' => 1,
+  'default' => 1
 }
 
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
