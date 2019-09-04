@@ -5,7 +5,6 @@ module DataCycleCore
     include Content::ExternalData
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
-    devise :omniauthable, omniauth_providers: Devise.omniauth_configs.keys if Devise.try(:omniauth_configs).present?
 
     attr_accessor :raw_password, :skip_callbacks
 
