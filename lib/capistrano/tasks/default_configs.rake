@@ -22,7 +22,7 @@ namespace :datacycle do
       set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
       append :linked_files, '.env'
-      append :linked_dirs, 'node_modules', 'vendor/gems/data-cycle-core/node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads'
+      append :linked_dirs, 'node_modules', 'vendor/gems/data-cycle-core/node_modules', 'log', 'db/backups', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'public/uploads', 'public/eyebase', 'public/filmcommission'
 
       namespace :deploy do
         before 'assets:precompile', 'deploy:npm'
