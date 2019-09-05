@@ -5,7 +5,7 @@
         <div class="infoRow">
           <%= render 'data_cycle_core/shared/icon', icon_type: item.class.name.demodulize.underscore %>
           <%= tag.send(item.access_locked? ? :del : :span) do %>
-            <%= tag.span item.model_name.human(locale: DataCycleCore.ui_language) + ' ' + item.class.human_attribute_name('external', locale: DataCycleCore.ui_language), class: 'title' %>
+            <%= tag.span item.model_name.human(locale: DataCycleCore.ui_language) + (item.try(:external) ? " (#{item.class.human_attribute_name('external', locale: DataCycleCore.ui_language)})" : ''), class: 'title' %>
           <% end %>
 
           <% if can?(:show_representation_of, DataCycleCore::User) && item.represented_by.present? %>

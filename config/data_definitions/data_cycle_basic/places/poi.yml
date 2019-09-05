@@ -35,6 +35,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -102,9 +105,6 @@
       :wogehmahin:
         :type: mixin
         :name: wogehmahin
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

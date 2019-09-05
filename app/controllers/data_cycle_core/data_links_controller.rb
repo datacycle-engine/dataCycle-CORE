@@ -15,7 +15,7 @@ module DataCycleCore
       session[:can_edit_ids] ||= []
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
 
-      sign_in(link.receiver) if link.creator.role.rank > link.receiver.role.rank
+      sign_in(link.receiver, store: !link.downloadable?) if link.creator.role.rank > link.receiver.role.rank
 
       link.update_column(:seen_at, Time.zone.now)
 

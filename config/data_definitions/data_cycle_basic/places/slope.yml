@@ -35,6 +35,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -55,9 +58,6 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :data_type:
         :label: Inhaltstyp
         :type: classification

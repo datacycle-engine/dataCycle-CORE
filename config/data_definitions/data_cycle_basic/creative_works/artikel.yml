@@ -32,6 +32,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :creative_attributes:
         :type: mixin
         :name: creative_attributes
@@ -40,9 +43,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Artikel"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :publication_schedule:
         :type: mixin
         :name: publication_schedule

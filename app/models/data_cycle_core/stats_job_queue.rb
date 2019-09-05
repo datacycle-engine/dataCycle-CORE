@@ -6,7 +6,7 @@ module DataCycleCore
 
     def update
       @job_list = []
-      jobs_list = Delayed::Job.where(failed_at: nil, queue: 'default').order(created_at: :asc)
+      jobs_list = Delayed::Job.where(failed_at: nil, queue: 'importers').order(created_at: :asc)
       jobs_list.each do |job|
         if job.locked_at.nil? && job.locked_by.nil?
           @job_list.push(
@@ -28,6 +28,28 @@ module DataCycleCore
           )
         end
       end
+      @job_list.push(
+        {
+          importers: jobs_list.count,
+          carrierwave: Delayed::Job.where(failed_at: nil, queue: 'carrierwave').count,
+          cache_invalidation: Delayed::Job.where(failed_at: nil, queue: 'cache_invalidation').count,
+          search_update: Delayed::Job.where(failed_at: nil, queue: 'search_update').count,
+          mailers: Delayed::Job.where(failed_at: nil, queue: 'mailers').count,
+          webhooks: Delayed::Job.where(failed_at: nil, queue: 'webhooks').count,
+          '* (expected to be 0)': Delayed::Job.where(failed_at: nil).where.not(queue: ['importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).count
+        }
+      )
+      @job_list.push(
+        {
+          importers: Delayed::Job.where(queue: 'importers').where.not(failed_at: nil).count,
+          carrierwave: Delayed::Job.where(queue: 'carrierwave').where.not(failed_at: nil).count,
+          cache_invalidation: Delayed::Job.where(queue: 'cache_invalidation').where.not(failed_at: nil).count,
+          search_update: Delayed::Job.where(queue: 'search_update').where.not(failed_at: nil).count,
+          mailers: Delayed::Job.where(queue: 'mailers').where.not(failed_at: nil).count,
+          webhooks: Delayed::Job.where(queue: 'webhooks').where.not(failed_at: nil).count,
+          '*': Delayed::Job.where.not(queue: ['importers', 'carrierwave', 'cache_invalidation', 'search_update', 'mailers', 'webhooks']).where.not(failed_at: nil).count
+        }
+      )
       @job_list
     end
   end

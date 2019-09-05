@@ -30,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :asset:
         :label: Datei
         :type: asset
@@ -214,9 +217,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Bild"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

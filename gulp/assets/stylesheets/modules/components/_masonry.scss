@@ -38,9 +38,6 @@
         line-height: inherit;
         margin-left: 0.2rem;
         vertical-align: middle;
-        &:not([href])[data-toggle] {
-          cursor: help;
-        }
       }
 
       > i.fa {

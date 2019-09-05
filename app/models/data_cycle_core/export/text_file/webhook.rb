@@ -12,7 +12,7 @@ module DataCycleCore
           )
         end
 
-        def queue_name
+        def reference_type
           "text_file_#{@data.id}"
         end
       end
