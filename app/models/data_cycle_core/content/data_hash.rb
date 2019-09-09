@@ -58,7 +58,7 @@ module DataCycleCore
                 self.created_by = @current_user&.id
               end
               save(touch: false)
-              search_languages(update_search_all)
+              search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
             run_callbacks(:saved_data_hash) unless prevent_history
