@@ -23,21 +23,21 @@ module DataCycleCore
         end
 
         def create
-          @watch_list = current_user.watch_lists.create(name: 'Temporary Download Watchlist', thing_ids: Array(permitted_params[:thingId]))
+          @watch_list = current_user.watch_lists.create(name: 'Temporary Download Watchlist', thing_ids: Array(permitted_params[:thing_id]))
 
           render json: @watch_list.as_json(only: [:id, :name]).deep_transform_keys { |k| k.camelize(:lower) }
         end
 
         def add_item
           @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
-          @content_object = DataCycleCore::Thing.find(permitted_params[:thingId])
+          @content_object = DataCycleCore::Thing.find(permitted_params[:thing_id])
 
           @watch_list.things << @content_object unless @watch_list.things.include?(@content_object)
         end
 
         def remove_item
           @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
-          @content_object = DataCycleCore::Thing.find(permitted_params[:thingId])
+          @content_object = DataCycleCore::Thing.find(permitted_params[:thing_id])
 
           @watch_list.things.destroy(@content_object) if @watch_list.things.include?(@content_object)
         end
@@ -45,7 +45,7 @@ module DataCycleCore
         private
 
         def permitted_parameter_keys
-          super + [:user_email, :id, :thingId]
+          super + [:user_email, :id, :thing_id]
         end
       end
     end
