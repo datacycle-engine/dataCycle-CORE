@@ -35,6 +35,13 @@ module DataCycleCore
           @watch_list.things << @content_object unless @watch_list.things.include?(@content_object)
         end
 
+        def remove_item
+          @watch_list = DataCycleCore::WatchList.find(permitted_params[:id])
+          @content_object = DataCycleCore::Thing.find(permitted_params[:thingId])
+
+          @watch_list.things.destroy(@content_object) if @watch_list.things.include?(@content_object)
+        end
+
         private
 
         def permitted_parameter_keys
