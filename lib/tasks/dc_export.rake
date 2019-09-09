@@ -4,6 +4,7 @@ namespace :dc do
   namespace :export do
     desc 'export POI'
     task poi: :environment do
+      require 'csv'
       tsv = CSV.open(Rails.root.join('log', 'POI.tsv'), 'wb')
       tsv << [['#ID', 'EVENTPLACE', 'LATITUDE', 'LONGITUDE', 'STREET', 'COUNTRY', 'CITY', 'ZIP', 'COMMENT'].join("\t")]
       tsv << [['#ID', 'EVENTPLACE', 'LATITUDE', 'LONGITUDE', 'STREET', 'COUNTRY', 'CITY', 'ZIP', 'COMMENT'].join("\t")]

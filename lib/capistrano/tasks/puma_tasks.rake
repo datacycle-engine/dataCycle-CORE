@@ -35,7 +35,7 @@ namespace :datacycle do
     desc 'Restart Puma'
     task :restart do
       on roles(fetch(:puma_role)) do
-        invoke 'puma:restart'
+        invoke! 'puma:restart'
       end
     end
   end

@@ -52,6 +52,15 @@ module.exports.initialize = function() {
       init_map(index, item);
     });
   }
+
+  $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
+    $(event.target)
+      .find('.geographic-map')
+      .each((index, item) => {
+        init_map(index, item);
+      });
+  });
 };
 
 function init_map(idx, item) {

@@ -38,12 +38,13 @@ module DataCycleCore
         @partial_update = partial_update
         run_callbacks :save_data_hash
 
-        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
+        partial_schema_hash = nil
+        partial_schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
 
-        valid_hash = validate(@data_hash, schema_hash)
+        valid_hash = validate(@data_hash, partial_schema_hash)
 
         if validate?(valid_hash)
-          if diff?(@data_hash) || force_update
+          if diff?(@data_hash, partial_schema_hash) || force_update
             ActiveRecord::Base.transaction do
               to_history(save_time: @save_time) unless id.nil? || prevent_history
 
@@ -57,7 +58,7 @@ module DataCycleCore
                 self.created_by = @current_user&.id
               end
               save(touch: false)
-              search_languages(update_search_all)
+              search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
             run_callbacks(:saved_data_hash) unless prevent_history

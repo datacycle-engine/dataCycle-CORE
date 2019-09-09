@@ -192,6 +192,7 @@ namespace :data_cycle_core do
     task rebuild_search: [:environment] do
       puts 'updating search:'
       DataCycleCore::Thing.where(template: true).each do |template_object|
+        next if template_object.embedded?
         template_name = template_object.template_name
         data_count = DataCycleCore::Thing.where(template: false).where('template_name = ?', template_name).count
         puts "#{'things'.ljust(25)} | #{template_name.ljust(25)} | #{(data_count || 0).to_s.rjust(10)}"

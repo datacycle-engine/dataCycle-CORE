@@ -10,22 +10,13 @@ set :rvm_ruby_version, '2.6.3'
 
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 
-# Default value for :format is :airbrussh.
-# set :format, :airbrussh
-
-# You can configure the Airbrussh format using :format_options.
-# These are the defaults.
-# set :format_options, command_output: true, log_file: 'log/capistrano.log', color: :auto, truncate: :auto
-
-# Default value for :pty is false
-# set :pty, true
-
 set :delayed_job_pools, {
   'mailers' => 1,
   'importers' => 1,
   'carrierwave' => 1,
   'cache_invalidation,search_update' => 1,
-  'webhooks' => 1
+  'webhooks' => 1,
+  'default' => 1
 }
 
 set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')

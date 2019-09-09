@@ -53,6 +53,10 @@ module DataCycleCore
         types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
+      def embedded?
+        content_type == 'embedded'
+      end
+
       def schema_type
         schema&.dig('schema_type')
       end
