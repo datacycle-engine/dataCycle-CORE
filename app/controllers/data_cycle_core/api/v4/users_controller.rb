@@ -61,9 +61,9 @@ module DataCycleCore
         private
 
         def user_params
-          user_keys = DataCycleCore.features.dig(:user_api, :user_params)
+          user_keys = DataCycleCore.features.dig(:user_api, :user_params).deep_transform_keys { |k| k.camelize(:lower) }
           authorized_params = Array(user_keys.select { |_, v| v.nil? }.keys)
-          authorized_params.concat(Array(user_keys.compact.map { |k, _| { "#{k}_ids" => [] } }))
+          authorized_params.concat(Array(user_keys.compact.map { |k, _| { "#{k}Ids" => [] } }))
 
           params.permit(authorized_params).transform_keys(&:underscore)
         end

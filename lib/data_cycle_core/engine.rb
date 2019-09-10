@@ -184,9 +184,6 @@ module DataCycleCore
     config.i18n.fallbacks = false
     config.action_view.form_with_generates_remote_forms = true
 
-    require_relative '../../app/middlewares/data_cycle_core/snake_case_parameters'
-    config.middleware.use DataCycleCore::SnakeCaseParameters
-
     # append engine migration path -> no installation of migrations required
     initializer :append_migrations do |app|
       unless app.root.to_s.match? root.to_s

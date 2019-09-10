@@ -71,7 +71,7 @@ module DataCycleCore
         test '/api/v4/collections/:id/add_item add item to watch_list' do
           article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
 
-          post add_item_api_v4_collection_path(id: @watch_list.id, thingId: article.id)
+          post add_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
 
           assert_response :success
 
@@ -82,7 +82,7 @@ module DataCycleCore
           article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
           @watch_list.things << article
 
-          post remove_item_api_v4_collection_path(id: @watch_list.id, thingId: article.id)
+          post remove_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
 
           assert_response :success
 
