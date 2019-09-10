@@ -53,7 +53,7 @@
         :stored_filter:
           -
             :with_classification_aliases_and_treename:
-              :tree_label: Inhaltstypen
+              :treeLabel: Inhaltstypen
               :aliases:
                 - Person
                 - Organisation
