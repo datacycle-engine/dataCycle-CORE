@@ -223,6 +223,7 @@ DataCycleCore::Engine.routes.draw do
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show, :create], controller: :watch_lists do
             post :add_item, on: :member
+            post :remove_item, on: :member
             get :download_and_reset, on: :member
           end
 

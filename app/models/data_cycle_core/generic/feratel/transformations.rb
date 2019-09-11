@@ -300,6 +300,8 @@ module DataCycleCore
 
         def self.event_duration(type, value)
           case type
+          when nil
+            nil
           when 'None'
             nil
           when 'Day'
@@ -310,7 +312,7 @@ module DataCycleCore
           when 'Minute'
             value.to_f
           else
-            raise "Unkown duration type '#{type}'"
+            raise "Unknown duration type '#{type}'"
           end
         end
       end

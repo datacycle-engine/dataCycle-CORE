@@ -99,6 +99,12 @@ module DataCycleCore
     mattr_accessor :main_config
     self.main_config = {}
 
+    mattr_accessor :new_dialog
+    self.new_dialog = {}
+
+    mattr_accessor :logo
+    self.logo = {}
+
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
     self.inheritable_attributes = ['validity_period']

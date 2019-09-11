@@ -67,6 +67,27 @@ module DataCycleCore
           assert_equal([], json_data.dig('@graph', 'storedFilters'))
           assert_equal('tester@datacycle.at', json_data.dig('@graph', 'userData', 'email'))
         end
+
+        test '/api/v4/collections/:id/add_item add item to watch_list' do
+          article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+
+          post add_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+          assert_response :success
+
+          assert_equal @watch_list.things.ids, [article.id]
+        end
+
+        test '/api/v4/collections/:id/remove_item remove item to watch_list' do
+          article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+          @watch_list.things << article
+
+          post remove_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+          assert_response :success
+
+          assert @watch_list.things.ids.blank?
+        end
       end
     end
   end
