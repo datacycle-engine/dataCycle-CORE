@@ -1,5 +1,6 @@
 normal: 'logo.svg'
 inverted: 'logo.svg'
+email: 'logo.png'
 print: 'logo.png'
 alt_text: 'dataCycle Logo'
 mail_dimensions:
