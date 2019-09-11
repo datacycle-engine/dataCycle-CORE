@@ -10,7 +10,7 @@
 
     .header .header_top td {
       height: 5px;
-      background: #cc0000;
+      background: <%= DataCycleCore.logo.dig('customercolor') || '#cc0000' %>;
     }
 
     .header .header_main td {
