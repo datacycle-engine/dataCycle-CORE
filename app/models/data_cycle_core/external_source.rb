@@ -51,6 +51,7 @@ module DataCycleCore
     end
 
     def import(options = {}, &block)
+      raise 'import failed'
       ts_start = Time.zone.now
       import_config.sort { |d1, d2|
         d1.second['sorting'] <=> d2.second['sorting']
