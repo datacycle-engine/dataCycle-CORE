@@ -68,7 +68,6 @@ module DataCycleCore
         def prepare_url_parameters
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
-          # @include_parameters.push(['concepts'])
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s

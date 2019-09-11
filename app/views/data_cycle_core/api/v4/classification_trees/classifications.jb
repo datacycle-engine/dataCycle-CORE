@@ -7,7 +7,6 @@ default_options = {
   full: true
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
-
 json ||= {}
 
 json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options

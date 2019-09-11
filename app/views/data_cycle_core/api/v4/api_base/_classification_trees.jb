@@ -9,5 +9,5 @@ default_options = {
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 classification_tree_labels&.map do |item|
-  render 'classification_tree', content: item, options: options
+  render 'classification_tree', content: item, options: options.dup
 end

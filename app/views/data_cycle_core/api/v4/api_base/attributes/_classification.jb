@@ -14,8 +14,10 @@ if classification_aliases.present?
       }
     end
   else
-    options[:field] = new_fields
-    json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition, options: options
+    new_options = options.dup
+    new_options[:fields] = new_fields
+    new_options[:include] = subtree_for(key_new, options[:include])
+    json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition, options: new_options
   end
 end
 

@@ -9,7 +9,7 @@ default_options = {
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 classifications = classification_aliases&.map do |item|
-  render 'classification', content: item, options: options
+  render 'classification', content: item, options: options.dup
 end
 
 {
