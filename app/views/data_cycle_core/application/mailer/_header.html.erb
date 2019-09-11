@@ -53,7 +53,7 @@
 
       <tr class="header_main">
         <td colspan="3" width="100%" align="center">
-          <%= render 'data_cycle_core/application/logo', inverted: true, options: { style: 'height: 65px;' }, email: true %>
+          <%= image_tag attachments[DataCycleCore.logo['inverted']]&.url, style: "height: #{DataCycleCore.logo.dig('mail_dimensions', 'height')}; width: #{DataCycleCore.logo.dig('mail_dimensions', 'width')};" %>
         </td>
       </tr>
 

@@ -15,6 +15,8 @@ module DataCycleCore
         end
       end
       @url = url
+
+      attachments.inline[DataCycleCore.logo['inverted']] = File.read(Rails.root.join('app', 'assets', 'images', DataCycleCore.logo['inverted']))
       mail(to: @receiver.email, cc: @user.email, subject: 'Geteilter Link zu einem Inhalt')
     end
 
@@ -27,6 +29,7 @@ module DataCycleCore
       @title = data_link.item.try(:name)
       @url = data_link_url(data_link)
 
+      attachments.inline[DataCycleCore.logo['inverted']] = File.read(Rails.root.join('app', 'assets', 'images', DataCycleCore.logo['inverted']))
       mail(to: @receiver.email, cc: @user.email, subject: 'Geteilte Inhaltssammlung wurde aktualisiert')
     end
   end

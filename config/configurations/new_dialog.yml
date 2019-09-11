@@ -1,0 +1,45 @@
+:default:
+  :name:
+    - name
+:person:
+  :name:
+    - given_name
+    - family_name
+    - member_of
+:place:
+  :name:
+    - name
+    -
+      - address
+      - properties
+      - street_address
+    -
+      - address
+      - properties
+      - postal_code
+    -
+      - address
+      - properties
+      - address_locality
+:bild:
+  :asset:
+    - asset
+  :title:
+    - name
+    - caption
+    - description
+    - tags
+  :copyright:
+    - copyright_holder
+    - author
+    - validity_period
+:video:
+  :asset:
+    - asset
+  :title:
+    - name
+    - caption
+    - description
+    - tags
+  :copyright:
+    - validity_period
