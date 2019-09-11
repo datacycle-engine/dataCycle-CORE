@@ -1,9 +1,17 @@
 # frozen_string_literal: true
 
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
 type = 'https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme'
 if options[:full]
-  {
+  json = {
     'uri' => uri,
     '@type' => type,
     'identifier' => content.id,
@@ -11,8 +19,14 @@ if options[:full]
     'concepts' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
   }
 else
-  {
+  json = {
     'uri' => uri,
     '@type' => type
   }
+end
+
+if options[:fields].blank?
+  json
+else
+  json.select { |key, _value| select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 end

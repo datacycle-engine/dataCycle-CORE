@@ -8,11 +8,6 @@ default_options = {
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 
-# options[:full] = true if included_attribute?('concepts', options[:include])
-#
-# options[:include] = subtree_for('concepts', options[:include])
-# options[:fields] = subtree_for('concepts', options[:fields])
-
 classifications = classification_aliases&.map do |item|
   render 'classification', content: item, options: options
 end
