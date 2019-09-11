@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+json = {}
+json['@graph'] = render 'classification_trees', classification_tree_labels: @classification_tree_labels, language: @language
+
+json.merge! render 'pagination_links',
+                   objects: @classification_tree_labels,
+                   object_url: ->(params) { api_v4_concept_schemes_url(params) }
+
+json

@@ -1,0 +1,19 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  field_filter: @field_filter,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+json ||= {}
+
+json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options
+
+json.merge! render 'pagination_links',
+                   objects: @classification_aliases,
+                   object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
+
+json

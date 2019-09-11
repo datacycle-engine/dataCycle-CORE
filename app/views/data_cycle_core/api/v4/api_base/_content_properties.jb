@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
+json['concepts'] ||= []
 
 unless content.schema.nil?
 
@@ -13,13 +14,25 @@ unless content.schema.nil?
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
+
+    if prop.dig('type') == 'classification' && partial_params.present?
+      new_options = options.dup
+      new_options[:full] = true if included_attribute?('concepts', options[:include])
+      new_options[:include] = subtree_for('concepts', options[:include])
+      new_options[:fields] = subtree_for('concepts', options[:fields])
+      partial_params[1][:options] = new_options.dup
+
+      classification_data = render(*partial_params)
+      json['concepts'] += classification_data&.dig('concepts')
+      next
+    end
+
     if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
       if json.dig(prop.dig('api', 'transformation', 'name')).present?
         json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?
       else
         json[prop.dig('api', 'transformation', 'name')] = render(*partial_params) unless partial_params.nil?
       end
-      json[prop.dig('api', 'transformation', 'name')]['@type'] = prop.dig('api', 'transformation', 'type') if prop.dig('api', 'transformation', 'type').present?
     else
       json.merge! render(*partial_params) unless partial_params.nil?
     end
@@ -27,4 +40,5 @@ unless content.schema.nil?
 
 end
 
+json.delete('concepts') if json['concepts'].blank?
 json

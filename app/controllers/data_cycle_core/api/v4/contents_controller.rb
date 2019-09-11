@@ -45,7 +45,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          # json-api: fields, sort
+          # json-api: sort
           super + [:id, :language, :q, :include, :fields, :format, { filter: [{ classifications: [] }] }]
         end
 
@@ -116,11 +116,6 @@ module DataCycleCore
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
-        end
-
-        def parse_tree_params(raw_params)
-          return [] if raw_params&.strip.blank?
-          raw_params.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
         end
       end
     end

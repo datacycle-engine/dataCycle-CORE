@@ -47,7 +47,13 @@ module DataCycleCore
     end
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
-      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters.sort.join('_')}"
+      if item.is_a? DataCycleCore::Thing
+        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters.sort.join('_')}"
+      elsif item.is_a? DataCycleCore::ClassificationAlias
+        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters.sort.join('_')}"
+      else
+        raise NotImplementedError
+      end
     end
   end
 end

@@ -1,0 +1,8 @@
+# frozen_string_literal: true
+
+# frozen_string_literal: true
+
+json = {}
+json['@graph'] = render 'classification_tree', content: @classification_tree_label, options: { full: true }, language: @language
+
+json

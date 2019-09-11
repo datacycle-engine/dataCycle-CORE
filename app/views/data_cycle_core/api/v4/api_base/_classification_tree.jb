@@ -1,0 +1,18 @@
+# frozen_string_literal: true
+
+uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
+type = 'https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme'
+if options[:full]
+  {
+    'uri' => uri,
+    '@type' => type,
+    'identifier' => content.id,
+    'prefLabel' => { @language => content.name },
+    'concepts' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
+  }
+else
+  {
+    'uri' => uri,
+    '@type' => type
+  }
+end

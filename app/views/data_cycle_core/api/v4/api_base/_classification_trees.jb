@@ -1,0 +1,12 @@
+# frozen_string_literal: true
+
+default_options = {
+  include: @include_parameters,
+  fields: @fields_parameters,
+  full: true
+}
+options = default_options.merge(defined?(options) ? options || {} : {})
+
+classification_tree_labels&.map do |item|
+  render 'classification_tree', content: item, options: options
+end

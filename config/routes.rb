@@ -216,6 +216,10 @@ DataCycleCore::Engine.routes.draw do
           get 'things/deleted(/:type)', to: 'contents#deleted', as: 'contents_deleted'
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
 
+          resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
+            get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          end
+
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show, :create], controller: :watch_lists do
             post :add_item, on: :member
