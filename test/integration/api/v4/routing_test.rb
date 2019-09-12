@@ -87,7 +87,7 @@ module DataCycleCore
         end
 
         test '/api/v4/concept_schemes/id/concepts/classification_id' do
-          tree = DataCycleCore::ClassificationTreeLabel.all.select { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }.first
+          tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }
           classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
           get classifications_api_v4_concept_scheme_path(id: tree.id, classification_id: classification.id)
           assert_response :success
