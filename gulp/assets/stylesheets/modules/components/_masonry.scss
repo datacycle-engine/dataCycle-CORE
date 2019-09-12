@@ -36,14 +36,20 @@
 
       > a {
         line-height: inherit;
-        margin-left: 0.2rem;
+        padding: 0 3px;
+        &:last-child {
+          padding-right: 0;
+        }
         vertical-align: middle;
       }
 
       > i.fa {
         color: lighten($black, 10%);
         line-height: inherit;
-        margin-left: 0.2rem;
+        padding: 0 3px;
+        &:last-child {
+          padding-right: 0;
+        }
         vertical-align: middle;
 
         &.has-tip {
