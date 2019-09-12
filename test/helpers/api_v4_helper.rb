@@ -25,5 +25,13 @@ module DataCycleCore
         assert(hash.dig('@type').present?)
       end
     end
+
+    def assert_compact_classification_header(array)
+      array.each do |hash|
+        assert_equal(['uri', '@type'], hash.keys)
+        assert(hash.dig('uri').present?)
+        assert(hash.dig('@type').present?)
+      end
+    end
   end
 end
