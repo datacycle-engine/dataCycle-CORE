@@ -223,8 +223,12 @@ DataCycleCore::Engine.routes.draw do
             get :download_and_reset, on: :member
           end
 
-          post '/auth/login', to: 'authentication#login'
-          post '/auth/logout', to: 'authentication#logout'
+          namespace :authentication, path: :auth do
+            post :login
+            post :renew_login
+            post :logout
+          end
+
           resources :users, only: [:index, :show, :create], controller: :users
         end
       end
