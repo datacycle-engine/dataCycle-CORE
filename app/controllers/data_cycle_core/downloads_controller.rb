@@ -80,9 +80,9 @@ module DataCycleCore
     def authenticate
       return if current_user
 
-      if params[:jwtToken].present?
+      if params[:jwt_token].present?
         begin
-          @decoded = DataCycleCore::JsonWebToken.decode(params[:jwtToken])
+          @decoded = DataCycleCore::JsonWebToken.decode(params[:jwt_token])
           @user = DataCycleCore::User.find_with_token(@decoded)
         rescue JWT::DecodeError, JSON::ParserError => e
           raise CanCan::AccessDenied, e.message
