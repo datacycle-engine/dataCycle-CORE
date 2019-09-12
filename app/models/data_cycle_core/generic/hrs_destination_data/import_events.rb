@@ -46,6 +46,14 @@ module DataCycleCore
               )
             end
 
+            if raw_data.dig('event', 'image', 'id').present? && raw_data.dig('event', 'image', 'thumbnails', 't0', 'url').present?
+              DataCycleCore::Generic::HrsDestinationData::Processing.process_image(
+                utility_object,
+                raw_data.dig('event', 'image'),
+                options.dig(:import, :transformations, :image)
+              )
+            end
+
             DataCycleCore::Generic::HrsDestinationData::Processing.process_event(
               utility_object,
               raw_data,

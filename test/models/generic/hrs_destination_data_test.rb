@@ -52,6 +52,7 @@ module DataCycleCore
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'Organization').with_schema_type('Organization').count)
         assert_equal(2, DataCycleCore::Thing.where(template: false, template_name: 'SubEvent').count)
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Örtlichkeit').with_schema_type('Place').count)
+        assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
         assert_equal(16, DataCycleCore::ClassificationAlias.for_tree('HRS Destination Data - Classifications').count)
 
         # event only once --> event_period is stored in main event
@@ -59,6 +60,7 @@ module DataCycleCore
         assert_equal(1, data.content_location.count)
         assert_equal(1, data.hrs_dd_categories.count)
         assert_equal(1, data.organizer.count)
+        assert_equal(1, data.image.count)
         assert(data.event_period&.to_h.present?)
         assert_equal(0, data.sub_event.count)
 
@@ -67,6 +69,7 @@ module DataCycleCore
         assert_equal(0, data.content_location.count)
         assert_equal(1, data.hrs_dd_categories.count)
         assert_equal(1, data.organizer.count)
+        assert_equal(0, data.image.count)
         assert_nil(data.event_period.start_date)
         assert_nil(data.event_period.end_date)
         assert_equal(2, data.sub_event.count)

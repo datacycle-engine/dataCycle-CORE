@@ -84,7 +84,24 @@
                     "name" : "Werkraumhaus",
                     "altLabel" : "Peter Löwy",
                     "copyright" : "Peter Löwy",
-                    "id" : 111
+                    "id" : 111,
+                    "thumbnails" : {
+                        "t0" : {
+                            "width" : 1920,
+                            "height" : 1080,
+                            "url" : "//destination-data.oms-ds.com/media/111/thumbnails/t0.jpg"
+                        },
+                        "t1" : {
+                            "width" : 1024,
+                            "height" : 576,
+                            "url" : "//destination-data.oms-ds.com/media/111/thumbnails/t1.jpg"
+                        },
+                        "t2" : {
+                            "width" : 640,
+                            "height" : 360,
+                            "url" : "//destination-data.oms-ds.com/media/111/thumbnails/t2.jpg"
+                        }
+                    }
                 },
                 "lastDate" : "2019-11-14T18:00:00+01:00",
                 "teaser" : "Geschichten vom Gastsein.",

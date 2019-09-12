@@ -19,8 +19,22 @@ module DataCycleCore
           .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'venue', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Venue: #{item}" } })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'contact', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Organizer: #{item}" } })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'image', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Image: #{item}" } })
           .>> t(:add_field, 'event_period', ->(s) { parse_event_period(s.dig('dates'), s.dig('event')) })
           .>> t(:add_field, 'sub_event', ->(s) { parse_sub_event(s.dig('dates'), s.dig('event')) })
+          .>> t(:strip_all)
+        end
+
+        def self.hrs_to_image
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { 'HRS DD - Image: ' + s.dig('id').to_s })
+          .>> t(:add_field, 'alternative_headline', ->(s) { s.dig('altLabel') })
+          .>> t(:add_field, 'content_url', ->(s) { ['http:', s.dig('thumbnails', 't0', 'url')].join if s.dig('thumbnails', 't0', 'url').present? })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { ['http:', s.dig('thumbnails', 't2', 'url')].join if s.dig('thumbnails', 't2', 'url').present? })
+          .>> t(:add_field, 'width', ->(s) { s.dig('thumbnails', 't0', 'width') })
+          .>> t(:add_field, 'height', ->(s) { s.dig('thumbnails', 't0', 'height') })
+          .>> t(:add_field, 'license', ->(s) { s.dig('copyright') })
+          .>> t(:reject_keys, ['id'])
           .>> t(:strip_all)
         end
 
