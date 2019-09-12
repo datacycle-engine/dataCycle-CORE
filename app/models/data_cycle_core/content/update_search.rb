@@ -4,16 +4,16 @@ module DataCycleCore
   module Content
     module UpdateSearch
       def search_languages(all)
-        Delayed::Job.enqueue(DataCycleCore::Jobs::SearchUpdateJob.new(self.class.name, id, all)) unless Delayed::Job.exists?(queue: 'search_update', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+        Delayed::Job.enqueue(DataCycleCore::Jobs::SearchUpdateJob.new(self.class.name, id, all, I18n.locale.to_s)) unless Delayed::Job.exists?(queue: 'search_update', delayed_reference_type: self.class.name, delayed_reference_id: "#{id}_#{all ? 'all' : I18n.locale.to_s}", locked_at: nil)
       end
 
-      def update_search_languages(all)
+      def update_search_languages(all, current_locale)
         if all
-          translated_locales.push(I18n.locale).uniq.each do |locale|
+          translated_locales.push(current_locale).uniq.each do |locale|
             update_search(locale)
           end
         else
-          update_search(I18n.locale)
+          update_search(current_locale)
         end
       end
 

@@ -15,6 +15,7 @@ module DataCycleCore
         end
       end
       @url = url
+
       mail(to: @receiver.email, cc: @user.email, subject: 'Geteilter Link zu einem Inhalt')
     end
 

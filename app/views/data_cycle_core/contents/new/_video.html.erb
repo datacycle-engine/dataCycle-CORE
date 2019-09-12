@@ -16,68 +16,29 @@
     <% end %>
   </fieldset>
 <% else %>
-  <fieldset>
-    <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
+  <% new_dialog_config = DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) %>
+  <% new_dialog_config ||= DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) %>
+  <% new_dialog_config ||= DataCycleCore.new_dialog.dig('default') %>
 
-    <%= render_attribute_editor key: 'thing[datahash][asset]',
-                                definition: template.schema.dig('properties', 'asset').deep_reject{ |k, v| k == 'readonly' },
-                                value: [],
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'asset').present? %>
+  <% new_dialog_config&.each_with_index do |(field_title, attribute_keys), index| %>
+    <fieldset>
+      <% if index === 0 %>
+        <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
+      <% else %>
+        <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
+      <% end %>
 
-  </fieldset>
-
-  <fieldset>
-    <legend><%= t('new_step_title.title', locale: DataCycleCore.ui_language) %></legend>
-
-    <%= render_attribute_editor key: 'thing[datahash][name]',
-                                definition: template.schema.dig('properties', 'name').deep_reject{ |k, v| k == 'readonly' },
-                                value: local_assigns[:search_param],
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'name').present? %>
-
-    <%= render_attribute_editor key: 'thing[datahash][caption]',
-                                definition: template.schema.dig('properties', 'caption').deep_reject{ |k, v| k == 'readonly' },
-                                value: nil,
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'caption').present? %>
-
-    <%= render_attribute_editor key: 'thing[datahash][description]',
-                                definition: template.schema.dig('properties', 'description').deep_reject{ |k, v| k == 'readonly' },
-                                value: nil,
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'description').present? %>
-
-    <%= render_attribute_editor key: 'thing[datahash][tags]',
-                                definition: template.schema.dig('properties', 'tags').deep_reject{ |k, v| k == 'readonly' },
-                                value: nil,
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'tags').present? %>
-
-
-  </fieldset>
-
-  <fieldset>
-    <legend><%= t('new_step_title.copyright', locale: DataCycleCore.ui_language) %></legend>
-
-    <%= render_attribute_editor key: 'thing[datahash][validity_period]',
-                                definition: template.schema.dig('properties', 'validity_period').deep_reject{ |k, v| k == 'readonly' },
-                                value: nil,
-                                content: template,
-                                parameters: {
-                                  options: local_assigns[:options]
-                                } if template.schema.dig('properties', 'validity_period').present? %>
-  </fieldset>
+      <% attribute_keys&.each do |attribute_key| %>
+        <%= render_attribute_editor key: "thing[datahash][#{attribute_key}]",
+                                    definition: template.schema.dig('properties', attribute_key).deep_reject{ |k, v| k == 'readonly' },
+                                    value: attribute_key == 'name' ? local_assigns[:search_param] : nil,
+                                    content: template,
+                                    parameters: {
+                                      options: local_assigns[:options]
+                                    } if template.schema.dig('properties', attribute_key).present? %>
+      <% end %>
+    </fieldset>
+  <% end %>
 
   <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
     <fieldset>
