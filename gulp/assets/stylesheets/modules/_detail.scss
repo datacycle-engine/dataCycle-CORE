@@ -21,8 +21,11 @@
 
     a {
       position: relative;
-      padding: 0 0 1rem 0.3rem;
+      padding: 0 3px;
       display: inline-block;
+      &:last-child {
+        padding: 0 0 0 3px;
+      }
     }
 
     .button-prime {
