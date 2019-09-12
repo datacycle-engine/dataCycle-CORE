@@ -2,9 +2,9 @@
 
 module DataCycleCore
   module Jobs
-    SearchUpdateJob = Struct.new(:class_name, :id, :all) do
+    SearchUpdateJob = Struct.new(:class_name, :id, :all, :locale) do
       def perform
-        class_name.classify.constantize.find_by(id: id)&.update_search_languages(all)
+        class_name.classify.constantize.find_by(id: id)&.update_search_languages(all, locale.to_sym)
       end
 
       def queue_name
@@ -13,7 +13,7 @@ module DataCycleCore
 
       def enqueue(job)
         job.priority = 0
-        job.delayed_reference_id = id
+        job.delayed_reference_id = "#{id}_#{all ? 'all' : locale}"
         job.delayed_reference_type = class_name
       end
     end
