@@ -39,7 +39,7 @@ module DataCycleCore
           @classification_id = permitted_params[:classification_id] || nil
 
           if @classification_id.present?
-            @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id).with_descendants
+            @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
           else
             @classification_aliases = DataCycleCore::ClassificationAlias.for_tree(@classification_tree_label.name)
           end

@@ -27,7 +27,7 @@ if options[:full]
     'inScheme' => render_classification('inScheme', 'classification_tree', scheme, options),
     'topConceptOf' => concept_ancestors.size.positive? ? nil : render_classification('topConceptOf', 'classification_tree', scheme, options),
     'broader' => concept_ancestors.size.positive? ? render_classification('broader', 'classification', concept_ancestors&.first, options) : nil,
-    'ancestors' => concept_ancestors&.map { |concept_ancestor| render_classification('ancestors', 'classification', concept_ancestor, options) },
+    'ancestors' => concept_ancestors&.map { |concept_ancestor| render_classification('ancestors', 'classification', concept_ancestor, options) }.presence,
     'created' => content.created_at,
     'updated' => content.updated_at,
     'deleted' => content.deleted_at

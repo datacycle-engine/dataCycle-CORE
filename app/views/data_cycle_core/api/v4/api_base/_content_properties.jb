@@ -18,8 +18,6 @@ unless content.schema.nil?
     if prop.dig('type') == 'classification' && partial_params.present?
       new_options = options.dup
       new_options[:full] = included_attribute?('concepts', options[:include]) || included_attribute?('concepts', options[:fields])
-      # new_options[:include] = subtree_for('concepts', options[:include])
-      # new_options[:fields] = subtree_for('concepts', options[:fields])
       partial_params[1][:options] = new_options.dup
 
       classification_data = render(*partial_params)

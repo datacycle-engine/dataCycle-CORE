@@ -56,6 +56,46 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(['error'], json_data.keys)
         end
+
+        test '/api/v4/concept_schemes' do
+          get api_v4_concept_schemes_path
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['@graph', 'meta', 'links'].sort, json_data.keys.sort)
+        end
+
+        test '/api/v4/concept_schemes/id' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.first.id
+          get api_v4_concept_scheme_path(id: tree_id)
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(tree_id, json_data.dig('@graph', 'identifier'))
+        end
+
+        test '/api/v4/concept_schemes/id/concepts' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.first.id
+          get classifications_api_v4_concept_scheme_path(id: tree_id)
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(['@graph', 'meta', 'links'].sort, json_data.keys.sort)
+        end
+
+        test '/api/v4/concept_schemes/id/concepts/classification_id' do
+          tree = DataCycleCore::ClassificationTreeLabel.all.select { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }.first
+          classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
+          get classifications_api_v4_concept_scheme_path(id: tree.id, classification_id: classification.id)
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(classification.id, json_data.dig('@graph', 'identifier'))
+        end
       end
     end
   end
