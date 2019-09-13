@@ -81,11 +81,12 @@ class EmbeddedObject {
       dataType: 'script',
       contentType: 'application/json'
     }).done(data => {
-      this.index++;
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
       this.update();
       this.addEventHandlers();
     });
+
+    this.index += ids.diff(this.ids).length;
   }
   addEventHandlers() {
     var self = this;
