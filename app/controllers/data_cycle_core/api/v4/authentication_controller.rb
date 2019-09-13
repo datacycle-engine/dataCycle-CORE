@@ -16,7 +16,7 @@ module DataCycleCore
 
           render json: {
             token: token,
-            exp: valid_until.strftime('%m-%d-%Y %H:%M'),
+            exp: valid_until,
             user: @user.as_json(
               only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
               include: {
@@ -34,7 +34,7 @@ module DataCycleCore
 
           render json: {
             token: token,
-            exp: valid_until.strftime('%m-%d-%Y %H:%M'),
+            exp: valid_until,
             user: current_user.as_json(
               only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
               include: {
