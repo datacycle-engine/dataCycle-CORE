@@ -38,7 +38,7 @@ module DataCycleCore
             .call(raw_data)
           event_data['sub_event'] = sub_event_ids if sub_event_ids.present?
 
-          DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content_failure(
+          DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
             template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
             data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
