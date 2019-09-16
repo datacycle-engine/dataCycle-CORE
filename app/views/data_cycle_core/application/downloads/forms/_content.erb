@@ -39,6 +39,8 @@
             <legend><%= t('common.download.available_versions', locale: DataCycleCore.ui_language) %></legend>
             <div class="form-element">
 
+                <% binding.pry %>
+
                 <% ([:original] + content.asset&.versions&.keys).each do |version| %>
                     <div>
                         <%= radio_button_tag "version", version, true %>
