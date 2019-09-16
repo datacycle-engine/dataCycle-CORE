@@ -6,6 +6,10 @@ module DataCycleCore
       ['@id', '@type', '@context', 'contentType', 'identifier', 'inLanguage', 'url']
     end
 
+    def full_classification_header_attributes
+      ['uri', '@type', 'identifier', 'prefLabel', 'description', 'inScheme', 'ancestors', 'broader', 'topConceptOf', 'created', 'updated', 'deleted']
+    end
+
     def full_header_data(thing)
       full_header_attributes
         .zip([api_v4_thing_url(id: thing.id),
@@ -32,6 +36,13 @@ module DataCycleCore
         assert(hash.dig('uri').present?)
         assert(hash.dig('@type').present?)
       end
+    end
+
+    def assert_concept_attributes(concept)
+      concept
+        .keys
+        .map { |key| full_classification_header_attributes.include?(key) }
+        .inject(&:&)
     end
   end
 end
