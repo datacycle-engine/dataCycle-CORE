@@ -24,10 +24,10 @@ module DataCycleCore
         end
 
         test '/api/v4/auth/login - login with token' do
-          post api_v4_auth_login_path, params: {}, headers: {}
+          post api_v4_authentication_login_path, params: {}, headers: {}
           assert_response 401
 
-          post api_v4_auth_login_path, params: {
+          post api_v4_authentication_login_path, params: {
             email: @user_data[:email],
             password: @user_data[:password],
             token: @current_user.access_token
@@ -42,7 +42,7 @@ module DataCycleCore
 
           new_token = json_data['token']
 
-          post api_v4_auth_login_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{new_token}"
           }, params: {
             email: @user_data[:email],
@@ -60,7 +60,7 @@ module DataCycleCore
         test '/api/v4/auth/login - login with JWT, signed with Secret' do
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, jti: @current_user.jti })
 
-          post api_v4_auth_login_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{token}"
           }, params: {
             email: @user_data[:email],
@@ -108,7 +108,7 @@ module DataCycleCore
 
           token = DataCycleCore::JsonWebToken.encode(payload: { token: @current_user.access_token }, alg: 'RS256', key: rsa_private)
 
-          post api_v4_auth_login_path, headers: {
+          post api_v4_authentication_login_path, headers: {
             Authorization: "Bearer #{token}"
           }, params: {
             email: @user_data[:email],
@@ -124,6 +124,27 @@ module DataCycleCore
           assert_equal @user_data['email'], json_data.dig('user', 'email')
 
           DataCycleCore.features[:user_api].delete(:public_keys)
+        end
+
+        test '/api/v4/auth/renew_login - renew current token' do
+          token = DataCycleCore::JsonWebToken.encode(payload: { user_id: @current_user.id, jti: @current_user.jti })
+
+          travel 23.hours
+
+          post api_v4_authentication_renew_login_path, headers: {
+            Authorization: "Bearer #{token}"
+          }
+
+          assert_response :success
+
+          assert_equal response.content_type, 'application/json'
+          json_data = JSON.parse(response.body)
+
+          assert json_data['token'].present?
+          assert_equal @current_user.email, json_data.dig('user', 'email')
+
+          travel 23.hours
+          DataCycleCore::JsonWebToken.decode(json_data['token'])
         end
 
         test '/api/v4/users - create new user' do
