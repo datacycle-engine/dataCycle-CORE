@@ -53,7 +53,11 @@ module DataCycleCore
         end
 
         def global_countries(lang: :de)
-          enumerate_default_items(:global_default_values, '//Category', lang: lang)
+          enumerate_default_items(:global_countries, '//Country', lang: lang)
+        end
+
+        def global_salutations(lang: :de)
+          enumerate_default_items(:global_salutations, '//Salutation', lang: lang)
         end
 
         def locations(lang: :de)
@@ -138,6 +142,7 @@ module DataCycleCore
             item_ids = []
             range_code = @primary_range_code
             range_id = @primary_range_id
+
             load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
               item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
               unless item_ids.include?(item['Id'] || item['Order'])
@@ -176,9 +181,15 @@ module DataCycleCore
           data
         end
 
-        def create_global_default_values_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_global_countries_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.GuestCountries('Show' => true)
+          end
+        end
+
+        def create_global_salutations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Salutations('Show' => true)
           end
         end
 
