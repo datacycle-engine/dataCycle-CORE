@@ -31,11 +31,11 @@
                     </li>
                     <li>
                             <span class="link" aria_hidden="true">
-                              <%= link_to api_v2_collection_path(api_subversion: nil, id: @watch_list),
+                              <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                           class: 'copy-to-clipboard',
                                           data: {
                                               tooltip: true,
-                                              value: api_v2_collection_url(api_subversion: nil, id: @watch_list)
+                                              value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
                                           },
                                           title: t('actions.copy_to_clipboard',
                                                    locale: DataCycleCore.ui_language) do %>
