@@ -2307,7 +2307,11 @@ button.button-prime.small.bulk-delete-button {
 }
 
 .download-content-reveal {
-  .active.version {
+  fieldset {
+    margin-bottom: 1rem;
+  }
+  .active.version,
+  .active.transformation {
     display: block;
     &.hidden {
       display: none;

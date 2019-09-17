@@ -60,6 +60,10 @@ class EmbeddedObject {
     this.addEventHandlers();
   }
   renderEmbeddedObjects(type, ids = []) {
+    let index = this.index;
+    if (type == 'render') this.index += ids.diff(this.ids).length;
+    else if (type == 'new') this.index++;
+
     this.element
       .find('> .buttons > button')
       .prop('disabled', true)
@@ -81,7 +85,6 @@ class EmbeddedObject {
       dataType: 'script',
       contentType: 'application/json'
     }).done(data => {
-      this.index++;
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
       this.update();
       this.addEventHandlers();
