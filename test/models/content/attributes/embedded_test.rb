@@ -61,6 +61,7 @@ module DataCycleCore
           data_set = @data_set
 
           # delete embedded
+          assert(data_set.has_related?)
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
           error = data_set.set_data_hash(data_hash: data_hash)
