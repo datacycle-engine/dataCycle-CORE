@@ -8,7 +8,7 @@ module DataCycleCore
 
     # Create different versions of your uploaded files:
     version :thumb_preview do
-      process :convert_to_jpg
+      process convert_to_type: 'jpg'
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
@@ -21,22 +21,30 @@ module DataCycleCore
       DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['pdf']
     end
 
-    def convert_to_jpg
+    def convert_to_type(type)
       dirname = File.dirname(current_path)
-      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.jpg"
+      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.#{MIME::Types.type_for(type).first.preferred_extension}"
 
       MiniMagick::Tool::Convert.new do |convert|
         convert.density(288)
-        convert.trim
-        convert.quality(100)
-        convert.flatten
-        convert.resize('25%')
-        convert.colorspace('RGB')
-        convert.resize('1400x1400>')
+        convert.colorspace('sRGB')
         convert << "#{current_path}[0]"
+        convert.resize('25%')
+        convert.resize('1400x1400>')
+        convert.trim
+        convert.flatten
+        convert.quality(100)
         convert << thumb_path
       end
       File.rename thumb_path, current_path
+    end
+
+    def convert_format(new_format)
+      if MIME::Types.type_for(current_path).first == 'application/pdf'
+        convert_to_type(new_format)
+      else
+        convert(new_format)
+      end
     end
 
     def metadata

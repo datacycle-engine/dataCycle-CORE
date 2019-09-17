@@ -111,6 +111,7 @@ module DataCycleCore
       manipulate! do |img|
         img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
         img.density 96
+        img
       end
     end
   end

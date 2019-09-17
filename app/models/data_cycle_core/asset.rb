@@ -57,7 +57,7 @@ module DataCycleCore
     end
 
     def respond_to_missing?(method_name, include_private = false)
-      file&.versions&.key?(method_name.to_sym) || super
+      method_name.to_sym == :original || file&.versions&.key?(method_name.to_sym) || super
     end
 
     def duplicate

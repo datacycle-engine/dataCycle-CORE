@@ -40,20 +40,25 @@ module DataCycleCore
       model.instance_variable_get(var) || model.instance_variable_set(var, SecureRandom.uuid)
     end
 
+    def convert_format(new_format)
+      if new_format.to_s == 'pdf'
+        convert_to_pdf
+      else
+        convert(new_format)
+      end
+    end
+
     def self.dynamic_version(name, options = nil, from_version = nil)
       version name, from_version: from_version do
         process resize_to_limit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
-        if options['format'].present? && options['format'] == 'pdf'
-          # process convert: options['format']
-          process :convert_to_pdf
-        elsif options['format'].present?
-          process convert: options['format']
-        end
+        process convert_format: options['format'] if options['format'].present?
         process :content_type
 
         define_method :full_filename do |for_file|
           basename = File.basename(for_file, File.extname(for_file)).delete_prefix("#{from_version}_")
           file_ext = options['format'] || MIME::Types.type_for(for_file).first.preferred_extension
+
+          # binding.pry
 
           "#{name}_#{basename}.#{file_ext}"
         end
@@ -61,8 +66,17 @@ module DataCycleCore
     end
 
     def dynamic_version(name:, options: nil, process: false)
+      return if options&.values.blank?
+
+      options.delete('format') unless options&.key?('format') &&
+                                      (
+                                        extension_white_list.include?(options['format']) ||
+                                        DataCycleCore::Feature::Serialize.asset_versions(model.things.first).dig(name)&.include?(options['format'])
+                                      ) &&
+                                      MIME::Types.type_for(current_path).first != MIME::Types.type_for(options['format']).first
+
       version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}"
-      version_uploader = self.class.dynamic_version(version_name, options, (name == :original ? nil : name))
+      version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))
       @versions[version_name] = version_uploader[:uploader]&.new(model, mounted_as)
 
       return if @versions[version_name].nil?
@@ -94,10 +108,9 @@ module DataCycleCore
       current_resolution = MiniMagick::Image.open(current_path)&.resolution&.max || 72
 
       MiniMagick::Tool::Convert.new do |convert|
-        convert.density(288)
         convert.resize("#{288 * 100 / current_resolution}%")
-        convert.trim
-        convert.quality(100)
+        convert.density(288)
+        convert.compress('jpeg')
         convert << current_path
         convert << thumb_path
       end

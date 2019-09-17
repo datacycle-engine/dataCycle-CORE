@@ -25,9 +25,9 @@
     <fieldset class="active serialize_formats">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <% available_download_serializers(content).each_key do |serializer_key| %>
+            <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
                 <div>
-                    <%= radio_button_tag "serialize_format", serializer_key, true %>
+                    <%= radio_button_tag "serialize_format", serializer_key, i == 0 %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
                 </div>
             <% end %>
@@ -39,17 +39,33 @@
             <legend><%= t('common.download.available_versions', locale: DataCycleCore.ui_language) %></legend>
             <div class="form-element">
 
-                <% binding.pry %>
-
-                <% ([:original] + content.asset&.versions&.keys).each do |version| %>
+                <% ([:original] + Array(content.asset&.versions&.keys)).each_with_index do |version, i| %>
                     <div>
-                        <%= radio_button_tag "version", version, true %>
+                        <%= radio_button_tag "version", version, i == 0 %>
                         <%= label_tag "version[#{version}]", "#{t("common.download.version.#{version}", locale: DataCycleCore.ui_language)}" %>
                     </div>
                 <% end %>
 
             </div>
         </fieldset>
+
+        <% if DataCycleCore::Feature::Serialize.asset_versions(content).present? %>
+          <% DataCycleCore::Feature::Serialize.asset_versions(content)&.each do |key, value| %>
+            <fieldset class="active transformation hidden <%= key %>">
+                <legend><%= t('common.download.available_transformations', locale: DataCycleCore.ui_language) %></legend>
+                <div class="form-element">
+
+                    <% (['none'] + Array(value)).each_with_index do |t_format, i| %>
+                        <div>
+                            <%= radio_button_tag "transformation[#{key}][format]", t_format, i == 0 %>
+                            <%= label_tag "transformation[#{key}][format][#{t_format}]", "#{t("common.download.format.#{t_format}", default: t_format, locale: DataCycleCore.ui_language)}" %>
+                        </div>
+                    <% end %>
+
+                </div>
+            </fieldset>
+          <% end %>
+        <% end %>
     <% end %>
 
     <div class="buttons">

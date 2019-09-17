@@ -8,13 +8,8 @@ module DataCycleCore
     def show
       @asset = "data_cycle_core/#{permitted_params[:klass]}".classify.constantize.find(permitted_params[:id])
 
-      transformations = permitted_params[:transformation]
-      transformations.delete('format') if transformations&.key?('format') &&
-                                          @asset.file.extension_white_list.exclude?(transformations['format']) &&
-                                          DataCycleCore::Feature::Serialize.asset_versions(@asset.things.first).exclude?(transformations['format'])
-
-      if transformations&.values.present?
-        @asset_version = @asset.try(permitted_params[:version], recreate: true)&.dynamic_version(name: permitted_params[:version], options: transformations, process: true)
+      if permitted_params[:transformation]&.values.present?
+        @asset_version = @asset.try(permitted_params[:version], recreate: true)&.dynamic_version(name: permitted_params[:version], options: permitted_params[:transformation], process: true)
       else
         @asset_version = @asset.try(permitted_params[:version], recreate: true)
       end

@@ -24,7 +24,7 @@ module DataCycleCore
         end
 
         def asset_versions(content = nil)
-          configuration(content).dig('serializers', 'asset').is_a?(Array) ? configuration(content).dig('serializers', 'asset') : []
+          configuration(content).dig('serializers', 'asset').is_a?(Hash) ? configuration(content).dig('serializers', 'asset') : {}
         end
       end
     end
