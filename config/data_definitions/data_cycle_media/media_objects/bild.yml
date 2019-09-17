@@ -15,10 +15,7 @@
       :serialize:
         :allowed: true
         :serializers:
-          :asset:
-            - pdf
-            - png
-            - jpeg
+          :asset: true
           :json: true
           :xml: true
     :api:
