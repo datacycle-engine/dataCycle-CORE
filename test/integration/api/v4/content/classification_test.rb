@@ -18,71 +18,105 @@ module DataCycleCore
         setup do
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
-          @content = DataCycleCore::DummyDataHelper.create_data('poi')
+          @trees = DataCycleCore::ClassificationTreeLabel.count
+          # @content = DataCycleCore::DummyDataHelper.create_data('poi')
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
-        test 'concepts at /api/v4/things/:id serializes with only minimal header' do
-          get api_v4_thing_path(id: @content.id)
+        test 'api/v4/concept_schemes parameter filter[:created_since]' do
+          get api_v4_concept_schemes_path(filter: { created_since: (Time.zone.now - 20.years).to_s(:iso8601) })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse response.body
-
-          header = json_data.slice(*full_header_attributes)
-          data = full_header_data(@content)
-          assert_equal(header, data)
-
-          assert_compact_classification_header(json_data.dig('concepts'))
+          json_data = JSON.parse(response.body)
+          assert_equal(@trees, json_data['@graph'].size)
+          assert_equal(@trees, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
         end
 
-        test 'concepts at /api/v4/thins/:id with include concepts --> full data' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts')
+        test 'api/v4/concept_schemes parameter filter[:modified_since]' do
+          get api_v4_concept_schemes_path(filter: { modified_since: (Time.zone.now - 20.years).to_s(:iso8601) })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse response.body
-
-          header = json_data.slice(*full_header_attributes)
-          data = full_header_data(@content)
-          assert_equal(header, data)
-
-          assert_concept_attributes(json_data.dig('concepts', 0))
-          json_data.dig('concepts', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_classification_header(Array(json_data.dig('concepts', 0, embedded_attribute)))
-          end
+          json_data = JSON.parse(response.body)
+          assert_equal(@trees, json_data['@graph'].size)
+          assert_equal(@trees, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
         end
 
-        test 'concepts at /api/v4/thins/:id with include concepts,concepts.inScheme' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts,concepts.inScheme')
+        test 'api/v4/concept_schemes parameter filter[:deleted_since]' do
+          get api_v4_concept_schemes_path(filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse response.body
+          json_data = JSON.parse(response.body)
+          assert_equal(0, json_data['@graph'].size)
+          assert_equal(0, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
 
-          header = json_data.slice(*full_header_attributes)
-          data = full_header_data(@content)
-          assert_equal(header, data)
+          DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
+          DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').destroy
 
-          assert_concept_attributes(json_data.dig('concepts', 0))
-          json_data.dig('concepts', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_classification_header(Array(json_data.dig('concepts', 0, embedded_attribute)))
-          end
+          get api_v4_concept_schemes_path(filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          assert_response :success
 
-          assert_concept_attributes(json_data.dig('concepts', 0, 'inScheme'))
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(1, json_data['@graph'].size)
+          assert_equal(1, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
         end
 
-        test 'include concepts,concepts.inScheme is equal to include concepts.inScheme' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts,concepts.inScheme')
+        test 'api/v4/concept_schemes/id/concepts parameter filter[:created_since]' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          get classifications_api_v4_concept_scheme_path(id: tree_id, filter: { created_since: (Time.zone.now - 20.years).to_s(:iso8601) })
           assert_response :success
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse response.body
 
-          get api_v4_thing_path(id: @content.id, include: 'concepts.inScheme')
-          assert_response :success
           assert_equal(response.content_type, 'application/json')
-          json_data2 = JSON.parse response.body
-          assert_equal(json_data, json_data2)
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
+        end
+
+        test 'api/v4/concept_schemes/id/concepts parameter filter[:modified_since]' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          get classifications_api_v4_concept_scheme_path(id: tree_id, filter: { modified_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
+        end
+
+        test 'api/v4/concept_schemes/id/concepts parameter filter[:deleted_since]' do
+          DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Test').count
+
+          get classifications_api_v4_concept_scheme_path(id: tree_id, filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(0, json_data['@graph'].size)
+          assert_equal(0, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
+
+          DataCycleCore::ClassificationAlias.for_tree('Test').destroy_all
+          get classifications_api_v4_concept_scheme_path(id: tree_id, filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
         end
       end
     end

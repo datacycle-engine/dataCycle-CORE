@@ -39,6 +39,18 @@ module DataCycleCore
           assert_equal(api_v4_thing_url(id: @test_content.id), json_data['@id'])
         end
 
+        test '/api/v4/things/deleted' do
+          @test_content.destroy_content
+          get api_v4_contents_deleted_path(filter: { deleted_since: '01-01-2010' })
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(1, json_data['@graph'].size)
+          assert_equal(1, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data['links'].present?)
+        end
+
         test '/api/v4/endpoints/:uuid/ with random :uuid responds with 404' do
           get api_v4_stored_filter_path(id: SecureRandom.uuid)
 
@@ -89,12 +101,23 @@ module DataCycleCore
         test '/api/v4/concept_schemes/id/concepts/classification_id' do
           tree = DataCycleCore::ClassificationTreeLabel.all.detect { |item| DataCycleCore::ClassificationAlias.for_tree(item.name).count.positive? }
           classification = DataCycleCore::ClassificationAlias.for_tree(tree.name).first
+
           get classifications_api_v4_concept_scheme_path(id: tree.id, classification_id: classification.id)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
           assert_equal(classification.id, json_data.dig('@graph', 'identifier'))
+        end
+
+        test '/api/v4/users/:id' do
+          user_id = User.find_by(email: 'tester@datacycle.at').id
+          get api_v4_user_path(id: user_id)
+          assert_response :success
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(user_id, json_data.dig('id'))
         end
       end
     end

@@ -212,8 +212,7 @@ DataCycleCore::Engine.routes.draw do
       end
       namespace :v4 do
         scope path: '(/:api_subversion)' do
-          # get 'things/search', to: 'contents#index', as: 'contents_search' # done by things endpoint!
-          get 'things/deleted(/:type)', to: 'contents#deleted', as: 'contents_deleted'
+          get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
 
           resources :concept_schemes, only: [:index, :show], controller: :classification_trees do

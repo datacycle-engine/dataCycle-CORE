@@ -26,10 +26,6 @@ module DataCycleCore
             .find(permitted_params[:id])
         end
 
-        def search
-          index
-        end
-
         def deleted
           deleted_contents = DataCycleCore::Thing::History.where(
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
@@ -40,13 +36,15 @@ module DataCycleCore
               DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
             )
           end
-
           @contents = apply_paging(deleted_contents)
         end
 
         def permitted_parameter_keys
           # json-api: sort
-          super + [:id, :language, :q, :include, :fields, :format, { filter: [{ classifications: [] }] }]
+          super + [
+            :id, :language, :q, :include, :fields, :format,
+            { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+          ]
         end
 
         private
@@ -75,19 +73,18 @@ module DataCycleCore
 
           query = query.in_validity_period
 
-          if permitted_params&.dig(:filter, :classifications)
-            permitted_params.dig(:filter, :classifications).map { |classifications|
+          if permitted_params&.dig(:filter, :concepts)
+            permitted_params.dig(:filter, :concepts).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              if @mode_parameters&.include?('strict')
-                query = query.with_classification_alias_ids_without_recursion(classifications)
-              else
-                query = query.classification_alias_ids(classifications)
-              end
+              # if @mode_parameters&.include?('strict')
+              #   query = query.with_classification_alias_ids_without_recursion(classifications)
+              # else
+              query = query.classification_alias_ids(classifications)
+              # end
             end
           end
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
-
           query
         end
 
