@@ -49,7 +49,9 @@ module DataCycleCore
     end
 
     def self.dynamic_version(name, options = nil, from_version = nil)
-      version name, from_version: from_version do
+      config = {}
+      config[:from_version] = from_version.to_sym if from_version.present?
+      version name.to_sym, config do
         process resize_to_limit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
         process convert_format: options['format'] if options['format'].present?
         process :content_type
@@ -57,8 +59,6 @@ module DataCycleCore
         define_method :full_filename do |for_file|
           basename = File.basename(for_file, File.extname(for_file)).delete_prefix("#{from_version}_")
           file_ext = options['format'] || MIME::Types.type_for(for_file).first.preferred_extension
-
-          # binding.pry
 
           "#{name}_#{basename}.#{file_ext}"
         end
@@ -75,7 +75,7 @@ module DataCycleCore
                                       ) &&
                                       MIME::Types.type_for(current_path).first != MIME::Types.type_for(options['format']).first
 
-      version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}"
+      version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}".to_sym
       version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))
       @versions[version_name] = version_uploader[:uploader]&.new(model, mounted_as)
 

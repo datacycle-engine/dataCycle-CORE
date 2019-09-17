@@ -43,12 +43,11 @@ module.exports.initialize = function() {
 
   function toggleAssetVersion() {
     if ($('.download-content-reveal .active.serialize_formats #serialize_format_asset').is(':checked')) {
-      $('.download-content-reveal .active.version, .download-content-reveal .active.transformation').removeClass(
-        'hidden'
-      );
+      $('.download-content-reveal .active.version').removeClass('hidden');
     } else {
-      $('.download-content-reveal .active.version, .download-content-reveal .active.transformation').addClass('hidden');
+      $('.download-content-reveal .active.version').addClass('hidden');
     }
+    toggleAssetTransformation();
   }
 
   function toggleAssetTransformation() {
