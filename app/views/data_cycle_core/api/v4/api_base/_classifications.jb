@@ -9,7 +9,11 @@ default_options = {
 options = default_options.merge(defined?(options) ? options || {} : {})
 
 classifications = classification_aliases&.map do |item|
-  render 'classification', content: item, options: options.dup
+  Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
+    I18n.with_locale(@language) do
+      render 'classification', content: item, options: options.dup
+    end
+  end
 end
 
 {

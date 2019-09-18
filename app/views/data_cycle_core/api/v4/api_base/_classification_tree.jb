@@ -1,13 +1,5 @@
 # frozen_string_literal: true
 
-default_options = {
-  include: @include_parameters,
-  fields: @fields_parameters,
-  field_filter: @field_filter,
-  full: true
-}
-options = default_options.merge(defined?(options) ? options || {} : {})
-
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
 type = 'https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme'
 if options[:full]
