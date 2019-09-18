@@ -60,6 +60,10 @@ module DataCycleCore
           enumerate_default_items(:global_salutations, '//Salutation', lang: lang)
         end
 
+        def global_languages(lang: :de)
+          enumerate_language_items(:global_languages, '//Language', lang: lang)
+        end
+
         def locations(lang: :de)
           enumerate_items(:locations, '//Location', lang: lang)
         end
@@ -153,6 +157,22 @@ module DataCycleCore
           end
         end
 
+        def enumerate_language_items(type, xpath, lang: :de)
+          Enumerator.new do |yielder|
+            item_ids = []
+            range_code = @primary_range_code
+            range_id = @primary_range_id
+
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+              item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+              unless item_ids.include?(item['Code'])
+                item_ids << item['Code']
+                yielder << item
+              end
+            end
+          end
+        end
+
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
@@ -176,7 +196,6 @@ module DataCycleCore
 
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
-
           raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
           data
         end
@@ -190,6 +209,12 @@ module DataCycleCore
         def create_global_salutations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Salutations('Show' => true)
+          end
+        end
+
+        def create_global_languages_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Languages('Show' => true)
           end
         end
 
