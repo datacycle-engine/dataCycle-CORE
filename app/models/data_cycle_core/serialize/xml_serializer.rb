@@ -8,7 +8,7 @@ module DataCycleCore
           true
         end
 
-        def mime_type(_content, _version)
+        def mime_type(_serialized_content, _content)
           'application/xml'
         end
 
@@ -16,7 +16,7 @@ module DataCycleCore
           '.xml'
         end
 
-        def serialize(content, language, _version)
+        def serialize(content, language, _version, _transformation = nil)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::ContentsController.renderer.new(
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -30,7 +30,7 @@ module DataCycleCore
           )&.to_xml
         end
 
-        def serialize_watch_list(watch_list, language, _version)
+        def serialize_watch_list(watch_list, language, _version, _transformation = nil)
           Nokogiri::XML(
             DataCycleCore::Xml::V1::WatchListsController.renderer.new(
               http_host: Rails.application.config.action_mailer.default_url_options.dig(:host),
@@ -44,7 +44,7 @@ module DataCycleCore
           )&.to_xml
         end
 
-        def serialize_stored_filter(stored_filter, language, _version)
+        def serialize_stored_filter(stored_filter, language, _version, _transformation = nil)
           contents = stored_filter.apply
           pagination_contents = contents.page(1).per(contents.count)
           Nokogiri::XML(

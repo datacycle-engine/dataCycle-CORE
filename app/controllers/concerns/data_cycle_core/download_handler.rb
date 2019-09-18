@@ -4,10 +4,10 @@ module DataCycleCore
   module DownloadHandler
     extend ActiveSupport::Concern
 
-    def download_content(content, serialize_format, languages, version = nil)
+    def download_content(content, serialize_format, languages, version = nil, transformation = nil)
       serializer = serializer_for_content(content, serialize_format)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless serializer
-      download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: :serialize)
+      download_generic(content: content, serializer: serializer, languages: languages, version: version, serialize_method: :serialize, transformation: transformation)
     end
 
     def download_watch_list(watch_list, serialize_format, languages, version = nil)
@@ -43,14 +43,14 @@ module DataCycleCore
 
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-                mime_type = serializer.mime_type(content, version)
-                file_extension = serializer.file_extension(mime_type)
-
-                next unless file_extension
-
                 serialized_content = serializer.serialize(content, language, version)
 
                 next unless serialized_content
+
+                mime_type = serializer.mime_type(serialized_content, content)
+                file_extension = serializer.file_extension(mime_type)
+
+                next unless file_extension
 
                 download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
 
@@ -71,12 +71,12 @@ module DataCycleCore
 
     protected
 
-    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize)
+    def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize, transformation: nil)
       language = languages&.first&.to_sym || I18n.locale
-      serialized_content = serializer.try(serialize_method, content, language, version)
+      serialized_content = serializer.try(serialize_method, content, language, version, transformation)
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
 
-      mime_type = serializer.mime_type(content, version)
+      mime_type = serializer.mime_type(serialized_content, content)
       file_extension = serializer.file_extension(mime_type)
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless file_extension

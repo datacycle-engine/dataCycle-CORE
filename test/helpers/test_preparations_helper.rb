@@ -13,7 +13,7 @@ module DataCycleCore
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
-                'google_business_primary_category', 'google_business_additional_categories', 'feratel_status'],
+                'google_business_primary_category', 'google_business_additional_categories', 'feratel_status', 'topic'],
         person: [],
         products: []
       }.freeze

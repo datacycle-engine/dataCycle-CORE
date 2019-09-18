@@ -33,7 +33,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to api_v2_collection_path(id: @watch_list) }
+        format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
       end
     end
 

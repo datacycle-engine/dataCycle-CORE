@@ -61,6 +61,7 @@ module DataCycleCore
           data_set = @data_set
 
           # delete embedded
+          assert(data_set.has_related?)
           data_hash = data_set.get_data_hash
           data_hash['embedded_creative_work'] = []
           error = data_set.set_data_hash(data_hash: data_hash)
@@ -94,7 +95,7 @@ module DataCycleCore
             prevent_history: true
           )
 
-          assert_equal(data_set.template_name, data_set.embedded_creative_work.first.parent_templates.first.template_name)
+          assert(data_set.embedded_creative_work.first.parent_templates.pluck(:template_name).include?(data_set.template_name))
 
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({

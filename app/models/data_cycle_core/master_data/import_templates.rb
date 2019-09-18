@@ -98,7 +98,7 @@ module DataCycleCore
       end
 
       def self.transform_features(schema: {}, content_table: nil)
-        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features)) if DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features).present?
+        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features).present?
         schema.dig(:features) || {}
       end
 

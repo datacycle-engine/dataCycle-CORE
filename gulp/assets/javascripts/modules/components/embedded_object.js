@@ -60,6 +60,10 @@ class EmbeddedObject {
     this.addEventHandlers();
   }
   renderEmbeddedObjects(type, ids = []) {
+    let index = this.index;
+    if (type == 'render') this.index += ids.diff(this.ids).length;
+    else if (type == 'new') this.index++;
+
     this.element
       .find('> .buttons > button')
       .prop('disabled', true)
@@ -85,8 +89,6 @@ class EmbeddedObject {
       this.update();
       this.addEventHandlers();
     });
-
-    this.index += ids.diff(this.ids).length;
   }
   addEventHandlers() {
     var self = this;

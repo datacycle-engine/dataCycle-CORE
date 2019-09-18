@@ -1,5 +1,5 @@
 :api:
-  :default: v2
+  :default: v3
 #  :v2:
 #    :subversions:
 #      - 'test'

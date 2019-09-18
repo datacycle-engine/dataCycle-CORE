@@ -169,16 +169,19 @@ de:
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     download:
-      :available_formats: Verfügbare Formate
-      :available_versions: Verfügbare Datei Versionen
-      :asset: Datei
-      :json: JSON-Format
-      :gpx: GPX-Datei
-      :xml: XML-Format
-      :version:
-        :original: Original
-        :thumb_preview: Thumbnail
-        :web: Web
+      available_formats: Verfügbare Formate
+      available_versions: Verfügbare Datei Versionen
+      available_transformations: Verfügbare Dateiformate
+      asset: Datei
+      json: JSON-Format
+      gpx: GPX-Datei
+      xml: XML-Format
+      version:
+        original: Original
+        thumb_preview: Thumbnail
+        web: Web
+      format:
+        none: Originalformat
 
   external_connection_states:
     success: Erfolgreich synchronisiert

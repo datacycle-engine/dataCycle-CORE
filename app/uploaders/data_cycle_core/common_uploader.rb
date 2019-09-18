@@ -41,46 +41,81 @@ module DataCycleCore
       model.instance_variable_get(var) || model.instance_variable_set(var, SecureRandom.uuid)
     end
 
-    def self.dynamic_version(name, options = nil)
-      version name do
-        options.presence&.each do |p_option|
-          if p_option.is_a?(Array) && method_defined?(p_option[0])
-            process p_option[0].to_sym => p_option[1]
-          elsif method_defined?(p_option)
-            process p_option.to_sym
-          end
-        end
+    def convert_format(new_format)
+      if new_format.to_s == 'pdf'
+        convert_to_pdf
+      else
+        convert(new_format)
+      end
+    end
+
+    def self.dynamic_version(name, options = nil, from_version = nil)
+      config = {}
+      config[:from_version] = from_version.to_sym if from_version.present?
+      version name.to_sym, config do
+        process resize_to_limit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
+        process convert_format: options['format'] if options['format'].present?
+        process :content_type
 
         define_method :full_filename do |for_file|
-          basename = File.basename(for_file, File.extname(for_file))
-          file_ext = options&.select { |o| o.is_a?(Array) && o[0] == 'convert' }&.dig(0, 1) || MIME::Types.type_for(for_file).first.preferred_extension
-          file_ext = MIME::Types[self.class::DEFAULT_MIME_TYPE].first.preferred_extension if options&.include?('convert_for_web') && self.class::WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+          basename = File.basename(for_file, File.extname(for_file)).delete_prefix("#{from_version}_")
+          file_ext = options['format'] || MIME::Types.type_for(for_file).first.preferred_extension
 
-          "#{version_name}_#{basename}.#{file_ext}"
+          "#{name}_#{basename}.#{file_ext}"
         end
       end
     end
 
-    def dynamic_version(name:, options: nil, process: false, delay: false)
-      version_uploader = self.class.dynamic_version(name, options)
-      @versions[name] = version_uploader[:uploader]&.new(model, mounted_as)
-      return if @versions[name].nil?
-      @versions[name]&.retrieve_from_store!(file&.file)
+    def dynamic_version(name:, options: nil, process: false)
+      return if options&.values.blank?
 
-      if process && !@versions[name].try(:file)&.exists?
+      options.delete('format') unless options&.key?('format') &&
+                                      (
+                                        extension_white_list.include?(options['format']) ||
+                                        DataCycleCore::Feature::Serialize.asset_versions(model.things.first).dig(name)&.include?(options['format'])
+                                      ) &&
+                                      MIME::Types.type_for(current_path).first != MIME::Types.type_for(options['format']).first
+
+      version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}".to_sym
+      version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))
+      @versions[version_name] = version_uploader[:uploader]&.new(model, mounted_as)
+
+      return if @versions[version_name].nil?
+
+      @versions[version_name]&.retrieve_from_store!(file&.file)
+
+      if process && !@versions[version_name].try(:file)&.exists?
         model.process_file_upload = true
-        recreate_versions!(name)
-      elsif delay && !@versions[name].try(:file)&.exists?
-        model.delay(queue: 'carrierwave').dynamic_version(name, true)
+        recreate_versions!(version_name)
       end
 
-      self.class.versions.delete(name)
-      @versions.delete(name)
+      self.class.versions.delete(version_name)
+      @versions.delete(version_name)
+    end
+
+    def content_type
+      mime_type = MIME::Types.type_for(current_path).first
+      file.instance_variable_set(:@content_type, mime_type.to_s)
     end
 
     def optimize
       return unless DataCycleCore::Feature::ImageOptimizer.optimize?(version_name)
       ::ImageOptim.new(DataCycleCore::Feature::ImageOptimizer.config).optimize_image!(current_path)
+    end
+
+    def convert_to_pdf
+      dirname = File.dirname(current_path)
+      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.pdf"
+      current_resolution = MiniMagick::Image.open(current_path)&.resolution&.max || 72
+
+      MiniMagick::Tool::Convert.new do |convert|
+        convert.resize("#{288 * 100 / current_resolution}%")
+        convert.density(288)
+        convert.compress('jpeg')
+        convert << current_path
+        convert << thumb_path
+      end
+      File.rename thumb_path, current_path
     end
   end
 end

@@ -39,9 +39,11 @@ module DataCycleCore
         run_callbacks :save_data_hash
 
         partial_schema_hash = nil
-        partial_schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
-
-        valid_hash = validate(@data_hash, partial_schema_hash)
+        if @partial_update
+          partial_schema_hash = schema.dup
+          partial_schema_hash['properties'] = schema['properties']&.slice(*@data_hash.keys)
+        end
+        valid_hash = validate(@data_hash, partial_schema_hash || schema)
 
         if validate?(valid_hash)
           if diff?(@data_hash, partial_schema_hash) || force_update
