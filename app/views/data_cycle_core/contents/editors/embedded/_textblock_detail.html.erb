@@ -16,13 +16,13 @@
             <% end %>
 
             <%= label_tag "#{key}[#{index}][name]", validation_properties.dig('name', 'label') %>
-            <%= text_field_tag "#{key}[#{index}][name]", object.try(:name), class: 'form-control', placeholder: validation_properties.dig('name', 'label'), readonly: (options['readonly'].to_s == 'true') || !can?(:edit, DataCycleCore::DataAttribute.new("#{key}[#{index}][name]", definition, options, object, :edit)) %>
+            <%= text_field_tag "#{key}[#{index}][name]", I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:name) } , class: 'form-control', placeholder: validation_properties.dig('name', 'label'), readonly: (options['readonly'].to_s == 'true') || !can?(:edit, DataCycleCore::DataAttribute.new("#{key}[#{index}][name]", definition, options, object, :edit)) %>
         </span>
 
         <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
             <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
         <% end %>
 
-        <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: object.try(:text), parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), new_content: new_content, parent: object }, content: content %>
+        <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:text) } , parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), new_content: new_content, parent: object }, content: content %>
     </div>
 <% end %>
