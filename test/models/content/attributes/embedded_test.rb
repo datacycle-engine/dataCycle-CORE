@@ -95,7 +95,7 @@ module DataCycleCore
             prevent_history: true
           )
 
-          assert_equal(data_set.template_name, data_set.embedded_creative_work.first.parent_templates.first.template_name)
+          assert(data_set.embedded_creative_work.first.parent_templates.pluck(:template_name).include?(data_set.template_name))
 
           returned_data_hash = data_set.get_data_hash
           expected_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'embedded').merge({
