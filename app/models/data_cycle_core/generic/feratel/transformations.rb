@@ -86,6 +86,11 @@ module DataCycleCore
           .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
           .>> t(:location)
+          .>> t(:add_field, 'email', ->(s) { s.dig('Email', 'text') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('URL', 'text') })
+          .>> t(:add_field, 'telephone', ->(s) { s.dig('Mobile', 'text') || s.dig('Phone', 'text') })
+          .>> t(:add_field, 'fax_number', ->(s) { s.dig('Fax', 'text') })
+          .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
           .>> t(:reject_keys, ['Type', 'ChangeDate', 'Company', 'AddressLine1', 'Country', 'ZipCode', 'Town'])
           .>> t(:strip_all)
         end
