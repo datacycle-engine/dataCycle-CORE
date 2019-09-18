@@ -15,7 +15,7 @@ module DataCycleCore
         def mime_type(serialized_content, content)
           (
             serialized_content.try(:content_type) ||
-              (Rack::Mime::MIME_TYPES.fetch(".#{content.file_format&.downcase}") { nil } || content.file_format) ||
+              (Rack::Mime::MIME_TYPES.fetch(".#{content.try(:file_format)&.downcase}") { nil } || content.try(:file_format)) ||
               Rack::Mime::MIME_TYPES.fetch(File.extname(content.content_url)) { '' }
           )
         end
@@ -25,14 +25,15 @@ module DataCycleCore
         end
 
         def serialize(content, _language, version, transformation = nil)
-          return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset.versions.key?(version.to_sym) || version == 'original')
-          return content.asset.try(version, recreate: true) if version.present? && content.asset.versions.key?(version.to_sym)
-          return content.asset&.file if content.asset&.file.present?
-          return unless remote?(content)
-
-          conn = Faraday.new
-          response = conn.get content.content_url
-          return response.body if response.status == 200
+          if remote?(content)
+            conn = Faraday.new
+            response = conn.get content.content_url
+            return response.body if response.status == 200
+          else
+            return content.asset.try(version, recreate: true)&.dynamic_version(name: version, options: transformation, process: true) if version.present? && transformation.present? && (content.asset&.versions&.key?(version.to_sym) || version == 'original')
+            return content.asset.try(version, recreate: true) if version.present? && content.asset&.versions&.key?(version.to_sym)
+            return content.asset&.file if content.asset&.file.present?
+          end
         end
       end
     end
