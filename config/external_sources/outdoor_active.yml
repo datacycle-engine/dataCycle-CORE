@@ -116,6 +116,7 @@ config:
       sorting: 10
       source_type: places
       source_filter:
+        'dump.de.frontendtype': 'poi'
         'dump.de.meta.workflow.state': 'published'
         'seen_at':
           '$gte': '{{ 3.days.ago.beginning_of_day }}'
