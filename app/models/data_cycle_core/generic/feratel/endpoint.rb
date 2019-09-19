@@ -52,8 +52,28 @@ module DataCycleCore
           enumerate_items(:categories, '//Category', lang: lang)
         end
 
+        def global_categories(lang: :de)
+          enumerate_items(:global_categories, '//Category', lang: lang)
+        end
+
+        def global_classifications(lang: :de)
+          enumerate_items(:global_classifications, '//Classification', lang: lang)
+        end
+
+        def global_service_classifications(lang: :de)
+          enumerate_items(:global_service_classifications, '//Classification', lang: lang)
+        end
+
+        def global_marketing_groups(lang: :de)
+          enumerate_items(:global_marketing_groups, '//MarketingGroup', lang: lang)
+        end
+
         def global_countries(lang: :de)
           enumerate_default_items(:global_countries, '//Country', lang: lang)
+        end
+
+        def global_hot_spot_types(lang: :de)
+          enumerate_default_items(:global_hot_spot_types, '//HotSpotType', lang: lang)
         end
 
         def global_salutations(lang: :de)
@@ -64,8 +84,76 @@ module DataCycleCore
           enumerate_language_items(:global_languages, '//Language', lang: lang)
         end
 
+        def global_fallback_languages(lang: :de)
+          enumerate_language_items(:global_fallback_languages, '//Language', lang: lang)
+        end
+
+        def global_facility_groups(lang: :de)
+          enumerate_default_items(:global_facility_groups, '//FacilityGroup', lang: lang)
+        end
+
+        def global_facilities(lang: :de)
+          enumerate_default_items(:global_facilities, '//Facility', lang: lang)
+        end
+
+        def global_service_codes(lang: :de)
+          enumerate_service_code_items(:global_service_codes, '//ServiceCode', lang: lang)
+        end
+
+        def global_infrastructure_types(lang: :de)
+          enumerate_default_items(:global_infrastructure_types, '//InfrastructureType', lang: lang)
+        end
+
+        def global_link_types(lang: :de)
+          enumerate_default_items(:global_link_types, '//LinkType', lang: lang)
+        end
+
         def locations(lang: :de)
           enumerate_items(:locations, '//Location', lang: lang)
+        end
+
+        def marketing_groups(lang: :de)
+          enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
+        end
+
+        def shop_item_groups(lang: :de)
+          enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
+        end
+
+        def fallback_languages(lang: :de)
+          enumerate_language_items(:fallback_languages, '//Language', lang: lang)
+        end
+
+        def hot_spots(lang: :de)
+          enumerate_items(:hot_spots, '//HotSpot', lang: lang)
+        end
+
+        def rating_visitors(lang: :de)
+          enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
+        end
+
+        def link_types(lang: :de)
+          enumerate_items(:link_types, '//LinkType', lang: lang)
+        end
+
+        def handicap_groups(lang: :de)
+          enumerate_items(:handicap_groups, '//HandicapGroup', lang: lang)
+        end
+
+        def handicap_types(lang: :de)
+          enumerate_items(:handicap_types, '//HandicapType', lang: lang)
+        end
+
+        def handicap_facility_groups(lang: :de)
+          enumerate_items(:handicap_facility_groups, '//HandicapFacilityGroup', lang: lang)
+        end
+
+        def handicap_facilities(lang: :de)
+          enumerate_items(:handicap_facilities, '//HandicapFacility', lang: lang)
+        end
+
+        def visitor_tax(lang: :de)
+          enumerate_code_items(:visitor_tax, '//VisitorTax', lang: lang)
         end
 
         def holiday_themes(lang: :de)
@@ -90,6 +178,10 @@ module DataCycleCore
 
         def facilities(lang: :de)
           enumerate_items(:facilities, '//Facility', lang: lang)
+        end
+
+        def service_codes(lang: :de)
+          enumerate_service_code_items(:service_codes, '//ServiceCode', lang: lang)
         end
 
         def stars(lang: :de)
@@ -173,6 +265,38 @@ module DataCycleCore
           end
         end
 
+        def enumerate_code_items(type, xpath, lang: :de)
+          Enumerator.new do |yielder|
+            item_ids = []
+            range_code = @primary_range_code
+            range_id = @primary_range_id
+
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+              item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+              unless item_ids.include?(item['Code'])
+                item_ids << item['Code']
+                yielder << item
+              end
+            end
+          end
+        end
+
+        def enumerate_service_code_items(type, xpath, lang: :de)
+          Enumerator.new do |yielder|
+            item_ids = []
+            range_code = @primary_range_code
+            range_id = @primary_range_id
+
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+              item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+              unless item_ids.include?(item['srcCode'])
+                item_ids << item['srcCode']
+                yielder << item
+              end
+            end
+          end
+        end
+
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
@@ -193,7 +317,6 @@ module DataCycleCore
           end
 
           envelop = Nokogiri::XML(response.body)
-
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
           raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
@@ -203,6 +326,12 @@ module DataCycleCore
         def create_global_countries_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.GuestCountries('Show' => true)
+          end
+        end
+
+        def create_global_hot_spot_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HotSpotTypes('Show' => true)
           end
         end
 
@@ -218,9 +347,135 @@ module DataCycleCore
           end
         end
 
+        def create_global_fallback_languages_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.FallbackLanguages('Show' => true)
+          end
+        end
+
+        def create_global_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Categories('Show' => true)
+          end
+        end
+
+        def create_global_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Classifications('Show' => true)
+          end
+        end
+
+        def create_global_service_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.ServiceClassifications('Show' => true)
+          end
+        end
+
+        def create_global_marketing_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.MarketingGroups('Show' => true)
+          end
+        end
+
+        def create_global_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.FacilityGroups('Show' => true)
+          end
+        end
+
+        def create_global_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.Facilities('Show' => true)
+          end
+        end
+
+        def create_global_service_codes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.ServiceCodes('Show' => true)
+          end
+        end
+
+        def create_global_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.InfrastructureTypes('Show' => true)
+          end
+        end
+
+        def create_global_link_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.LinkTypes('Show' => true)
+          end
+        end
+
+        def create_marketing_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.MarketingGroups('Show' => true)
+          end
+        end
+
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Categories('Show' => true)
+          end
+        end
+
+        def create_hot_spots_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HotSpots('Show' => true)
+          end
+        end
+
+        def create_rating_visitors_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.RatingVisitors('Show' => true)
+          end
+        end
+
+        def create_shop_item_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.ShopItemGroups('Show' => true)
+          end
+        end
+
+        def create_fallback_languages_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.FallbackLanguages('Show' => true)
+          end
+        end
+
+        def create_link_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.LinkTypes('Show' => true)
+          end
+        end
+
+        def create_handicap_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HandicapGroups('Show' => true)
+          end
+        end
+
+        def create_handicap_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HandicapTypes('Show' => true)
+          end
+        end
+
+        def create_handicap_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HandicapFacilityGroups('Show' => true)
+          end
+        end
+
+        def create_handicap_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.HandicapFacilities('Show' => true)
+          end
+        end
+
+        def create_visitor_tax_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.VisitorTax('Show' => true)
           end
         end
 
@@ -266,6 +521,12 @@ module DataCycleCore
         def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Facilities('Show' => true)
+          end
+        end
+
+        def create_service_codes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.ServiceCodes('Show' => true)
           end
         end
 
