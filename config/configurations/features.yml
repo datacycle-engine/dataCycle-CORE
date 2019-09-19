@@ -128,3 +128,6 @@
     :password_confirmation:
   :issuer: datacycle.at
 
+:copy_embedded_locale:
+  :enabled: false
+  :only_config: true

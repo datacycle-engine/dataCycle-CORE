@@ -51,7 +51,7 @@ class EmbeddedObject {
           (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
           new_items.length > 0
         ) {
-          this.renderEmbeddedObjects('render', new_items);
+          this.renderEmbeddedObjects('render', new_items, data.locale);
         } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
           var confirmationModal = new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
@@ -59,7 +59,7 @@ class EmbeddedObject {
     );
     this.addEventHandlers();
   }
-  renderEmbeddedObjects(type, ids = []) {
+  renderEmbeddedObjects(type, ids = [], locale = null) {
     let index = this.index;
     if (type == 'render') this.index += ids.diff(this.ids).length;
     else if (type == 'new') this.index++;
@@ -75,6 +75,7 @@ class EmbeddedObject {
       data: {
         index: this.index,
         locale: this.locale,
+        attribute_locale: locale,
         key: this.key,
         definition: this.definition,
         options: this.options,
