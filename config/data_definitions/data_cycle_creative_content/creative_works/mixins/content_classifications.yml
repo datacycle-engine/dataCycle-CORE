@@ -19,11 +19,10 @@
         :ui:
           :show:
             :content_area: header
-      :topic:
-        :label: Themenbereich
+      :target_audience:
+        :label: Zielgruppe
         :type: classification
-        :tree_label: Themenbereiche
-        :global: true
+        :tree_label: Zielgruppe
         :ui:
           :show:
             :content_area: header

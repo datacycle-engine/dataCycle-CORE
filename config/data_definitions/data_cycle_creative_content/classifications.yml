@@ -5,16 +5,21 @@
     - $$Quiz
     - $$Rezept
     - $$Social Media Posting
+    - $$Beschreibungstext
   - $$Zeitleiste
 # embedded
   - $$Zeitleiste-Eintrag
   - $$Frage
   - $$Antwort
 # container
-  - $$Container
+  - $$Thema
 
 - Rezept-Gänge | all:
 
 - Rezept-Kategorien | all:
 
 - Themenbereiche | all:
+
+- Zielgruppen | all:
+
+- Beschreibungsarten | all:
