@@ -26,7 +26,7 @@ module DataCycleCore
         'sub_event' => [],
         'output_channel' => [],
         'tags' => [],
-        'topic' => [],
+        # 'topic' => [],
         'overlay' => [],
         'event_period' => {
           'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),

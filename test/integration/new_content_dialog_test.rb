@@ -33,7 +33,7 @@ module DataCycleCore
       }, headers: {
         referer: root_path
       }
-      assert response.body.include?('Container')
+      assert response.body.include?('Thema')
 
       article_template = DataCycleCore::Thing.find_by(template_name: 'Artikel', template: true)
       post remote_render_path, xhr: true, params: {

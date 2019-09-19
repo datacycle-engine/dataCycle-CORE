@@ -5,14 +5,14 @@ require 'test_helper'
 module DataCycleCore
   class CreativeWorkTest < ActiveSupport::TestCase
     test 'save proper CreativeWork data-set with hash method' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       test_hash = { 'name' => 'Dies ist ein Test!', 'description' => 'wtf is going on???' }
       data_set.set_data_hash(data_hash: test_hash)
       assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
     end
 
     test 'save CreativeWork with only Titel' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       test_hash = { 'name' => 'Dies ist ein Test!' }
       data_set.set_data_hash(data_hash: test_hash)
       assert_equal(test_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('creative_work')))
@@ -20,7 +20,7 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
@@ -33,7 +33,7 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with irrelevant sub-properties_tree' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
@@ -48,7 +48,7 @@ module DataCycleCore
     end
 
     test 'save CreativeWork, Data properly written to jsonb' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       test_hash = {
         'name' => 'Dies ist ein Test!',
         'validity_period' => {
@@ -63,14 +63,14 @@ module DataCycleCore
     end
 
     test 'save CreativeWork with sub-properties and invalid data' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       error = data_set.set_data_hash(data_hash: { 'name' => 'Dies ist ein Test!', 'validity_period' => { 'valid_from' => '2017-05-01', 'valid_until' => '2017-16-01' } })
       data_set.save
       assert_equal(2, error[:error].count)
     end
 
     test 'save CreativeWork link to user_id' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Container')
+      data_set = DataCycleCore::TestPreparations.data_set_object('Thema')
       DataCycleCore::User.create!(
         given_name: 'Test',
         family_name: 'TEST',
