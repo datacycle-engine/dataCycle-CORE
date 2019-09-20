@@ -122,6 +122,10 @@ module DataCycleCore
       )
     end
 
+    def self.translated_locales
+      DataCycleCore::Thing::Translation.where(thing_id: all.pluck(:id)).distinct.pluck(:locale)
+    end
+
     def cache_key
       [super, translations.in_locale(I18n.locale).cache_key].join('/') + '-' + I18n.locale.to_s
     end

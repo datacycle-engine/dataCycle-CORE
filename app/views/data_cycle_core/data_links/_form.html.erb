@@ -29,7 +29,7 @@
     <% data_link_modes = [OpenStruct.new(type: :read)] %>
     <% data_link_modes.push(OpenStruct.new(type: :write)) if (
       content.is_a?(DataCycleCore::WatchList) &&
-      content.try(:watch_list_data_hashes)&.includes(:hashable)&.all? { |data_hash| can?(:edit, data_hash.hashable) } &&
+      content.try(:things)&.all? { |thing| can?(:edit, thing) } &&
       can?(:add_item, content)
     ) || can?(:edit, content) %>
     <% data_link_modes.unshift(OpenStruct.new(type: :download)) if (content.is_a?(DataCycleCore::WatchList) && can?(:download_zip, content)) || (content.is_a?(DataCycleCore::Thing) && can?(:download, content)) %>
