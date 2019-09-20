@@ -18,7 +18,14 @@
 
 $('#<%= sanitize_to_id(params[:key]) %> > .buttons > .addContentObject .fa').css('display', 'none');
 $('#<%= sanitize_to_id(params[:key]) %> > .buttons > button').prop('disabled', false);
-$('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
+
+var followingEmbedded = $('#<%= sanitize_to_id(params[:key]) %> > .content-object-item').filter(function(){
+  return parseInt($(this).data('index')) > parseInt(<%= params[:index].presence&.to_i %>);
+}).last();
+
+if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered_items %>');
+else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
+
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 
 $('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed');

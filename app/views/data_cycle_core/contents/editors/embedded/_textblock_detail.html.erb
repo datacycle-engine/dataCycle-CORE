@@ -2,7 +2,7 @@
 <% if object.schema.present? %>
 
     <% validation_properties = ordered_validation_properties(validation: object.schema) %>
-    <div class="content-object-item textblock draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
+    <div class="content-object-item textblock draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>" data-index="<%= index %>">
 
         <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless new_content %>
 

@@ -3,7 +3,7 @@
     <% validation_properties = ordered_validation_properties(validation: object.schema) %>
     <% if !validation_properties.nil? %>
 
-        <div class="content-object-item draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>">
+        <div class="content-object-item draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>" data-index="<%= index %>">
 
             <span class="embedded-header">
               <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>

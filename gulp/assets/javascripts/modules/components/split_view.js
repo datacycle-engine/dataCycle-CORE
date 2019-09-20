@@ -229,7 +229,7 @@ class SplitView {
     event.preventDefault();
     $(event.currentTarget)
       .parent('.split-content, [data-editor="included-object"]')
-      .find('a.copy')
+      .find('a.copy:not(.copy-single-button)')
       .trigger('click');
   }
   copyContents(value, label, key) {
