@@ -13,11 +13,13 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(source_filter.with_evaluated_values.merge("dump.#{locale}.frontendtype" => 'poi'))
+        def self.load_contents(mongo_item, _locale, source_filter)
+          mongo_item.where(source_filter.with_evaluated_values)
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
+          return if raw_data.blank?
+
           I18n.with_locale(locale) do
             ['source_places', 'frontendtype_places', 'tag_places'].each do |name_tag|
               DataCycleCore::Generic::Common::ImportTags.process_content(

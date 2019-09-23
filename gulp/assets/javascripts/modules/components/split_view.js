@@ -2,6 +2,7 @@
 class SplitView {
   constructor(container = document) {
     this.container = $(container);
+    this.locale = this.container.closest('.split-content').data('locale');
     this.submitButton = this.container.closest('edit-form').find('.edit-header .submit-edit-form');
     this.selectors = [
       '> .object-browser',
@@ -228,7 +229,7 @@ class SplitView {
     event.preventDefault();
     $(event.currentTarget)
       .parent('.split-content, [data-editor="included-object"]')
-      .find('a.copy')
+      .find('a.copy:not(.copy-single-button)')
       .trigger('click');
   }
   copyContents(value, label, key) {
@@ -238,7 +239,8 @@ class SplitView {
 
     target.find(this.selectors.join(', ')).trigger('dc:import:data', {
       label: label,
-      value: typeof value == 'string' ? value.trim() : value
+      value: typeof value == 'string' ? value.trim() : value,
+      locale: this.locale
     });
 
     target.get(0).scrollIntoView({ behavior: 'smooth' });

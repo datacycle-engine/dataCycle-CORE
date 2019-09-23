@@ -20,22 +20,21 @@
                         <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
                                      class: 'link',
                                      data: {
-                                         tooltip: @watch_list.things.present? ? true : nil,
+                                         tooltip: @watch_list.things.exists? ? true : nil,
                                          allow_html: true
                                      },
                                      title: @watch_list
-                                         .things.includes(:translations)
-                                         .map { |t| t.try(:available_locales) }.flatten.uniq
+                                         .things.translated_locales
                                          .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
                                          .join('<br />') %>
                     </li>
                     <li>
                             <span class="link" aria_hidden="true">
-                              <%= link_to api_v2_collection_path(api_subversion: nil, id: @watch_list),
+                              <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
                                           class: 'copy-to-clipboard',
                                           data: {
                                               tooltip: true,
-                                              value: api_v2_collection_url(api_subversion: nil, id: @watch_list)
+                                              value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
                                           },
                                           title: t('actions.copy_to_clipboard',
                                                    locale: DataCycleCore.ui_language) do %>
@@ -90,7 +89,7 @@
                 <i class="fa fa-pencil" aria-hidden="true"></i>
               <% end if can?(:edit, @watch_list) %>
 
-              <% if can? :bulk_edit, @watch_list %>
+              <% if can?(:bulk_edit, @watch_list) %>
                 <% bulk_locked = @watch_list.things.any? { |t| cannot?(:edit, t) } %>
                 <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? @watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
 
@@ -124,9 +123,7 @@
               <% end if can? :destroy, @watch_list %>
 
               <% if can?(:bulk_delete, @watch_list) %>
-                <% things_external = @watch_list.things.any?{ |t| t.external_source_id.present? } %>
-
-                <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) + (things_external ? t('common.watch_list_external_things_locked_html', locale: DataCycleCore.ui_language) : '') %>" data-tooltip="true" data-allow-html="true">
+                <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) %>" data-tooltip="true" data-allow-html="true">
                   <%= button_to bulk_delete_watch_list_path(@watch_list),
                     method: :delete,
                     remote: true,
@@ -137,8 +134,7 @@
                       disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
                         tag.span(class: 'progress-value') +
                         tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
-                    },
-                    disabled: things_external do %>
+                    } do %>
                     <i class="fa fa-trash" aria_hidden="true"></i>
                   <% end %>
                 </span>

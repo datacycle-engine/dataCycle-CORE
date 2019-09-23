@@ -36,7 +36,7 @@ module DataCycleCore
       process :convert_for_web
       process colorspace: 'sRGB'
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
-      process :set_content_type
+      process content_type: true
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
@@ -91,9 +91,9 @@ module DataCycleCore
       end
     end
 
-    def set_content_type
+    def content_type(websave = false)
       mime_type = MIME::Types.type_for(current_path).first
-      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
+      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if websave && WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
       file.instance_variable_set(:@content_type, mime_type.to_s)
     end
 
@@ -111,6 +111,7 @@ module DataCycleCore
       manipulate! do |img|
         img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
         img.density 96
+        img
       end
     end
   end

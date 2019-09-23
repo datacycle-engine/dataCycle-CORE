@@ -212,18 +212,26 @@ DataCycleCore::Engine.routes.draw do
       end
       namespace :v4 do
         scope path: '(/:api_subversion)' do
-          # get 'things/search', to: 'contents#index', as: 'contents_search' # done by things endpoint!
-          get 'things/deleted(/:type)', to: 'contents#deleted', as: 'contents_deleted'
+          get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+
+          resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
+            get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          end
 
           get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
           resources :collections, only: [:index, :show, :create], controller: :watch_lists do
             post :add_item, on: :member
+            post :remove_item, on: :member
             get :download_and_reset, on: :member
           end
 
-          post '/auth/login', to: 'authentication#login'
-          post '/auth/logout', to: 'authentication#logout'
+          namespace :authentication, path: :auth do
+            post :login
+            post :renew_login
+            post :logout
+          end
+
           resources :users, only: [:index, :show, :create], controller: :users
         end
       end

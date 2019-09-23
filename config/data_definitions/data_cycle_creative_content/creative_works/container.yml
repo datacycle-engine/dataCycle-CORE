@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Container
+    :name: Thema
     :type: object
     :schema_type: CreativeWork
     :content_type: container
@@ -41,6 +41,14 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :topic:
+        :label: Themenbereich
+        :type: classification
+        :tree_label: Themenbereiche
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -58,7 +66,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Container"
+        :default_value: "Thema"
       :meta_data:
         :type: mixin
         :name: meta_data

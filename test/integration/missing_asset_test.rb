@@ -47,12 +47,40 @@ module DataCycleCore
       assert_equal file_name, response.header['Content-Disposition']&.split(';')&.last&.remove('filename=', '"')&.squish
     end
 
-    test 'return 404 for missing files' do
-      assert_raises(ActiveRecord::RecordNotFound) do
-        get File.join(Rails.application.config.asset_host, '/assets/image/4a716959-b68d-4cce-a097-c428db7c9922/not_existing/test_rgb.jpg'), params: {}, headers: {
-          referer: root_path
+    test 'get asset versions in another format' do
+      file_name = 'test_rgb.jpg'
+      file_name_png = 'test_rgb.png'
+      image = upload_image file_name
+
+      get image.thumb_preview.url, params: {
+        transformation: {
+          format: 'png'
         }
-      end
+      }, headers: {
+        referer: root_path
+      }
+      assert_response :success
+      assert_equal 'image/png', response.header['Content-Type']
+      assert_equal file_name_png, response.header['Content-Disposition']&.split(';')&.last&.remove('filename=', '"')&.squish
+
+      get image.file.url, params: {
+        transformation: {
+          format: 'png'
+        }
+      }, headers: {
+        referer: root_path
+      }
+      assert_response :success
+      assert_equal 'image/png', response.header['Content-Type']
+      assert_equal file_name_png, response.header['Content-Disposition']&.split(';')&.last&.remove('filename=', '"')&.squish
+    end
+
+    test 'return 404 for missing files' do
+      get File.join(Rails.application.config.asset_host, '/assets/image/4a716959-b68d-4cce-a097-c428db7c9922/not_existing/test_rgb.jpg'), params: {}, headers: {
+        referer: root_path
+      }
+
+      assert_response :not_found
     end
   end
 end

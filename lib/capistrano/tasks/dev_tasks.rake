@@ -10,6 +10,8 @@ namespace :datacycle do
             print_message 'Update Project'
             execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:refactor:import_update_all_templates"
             execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_source_configs"
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_system_configs"
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_classifications"
           end
         end
       end

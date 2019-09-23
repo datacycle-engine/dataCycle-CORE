@@ -7,7 +7,12 @@ module DataCycleCore
         include ActionController::HttpAuthentication::Token::ControllerMethods
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :content_id, { page: [:size, :number, :offset, :limit], include: [] }]
+          [:api_subversion, :token, :include, :fields, :content_id, { page: [:size, :number, :offset, :limit] }]
+        end
+
+        def parse_tree_params(raw_params)
+          return [] if raw_params&.strip.blank?
+          raw_params.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
         end
 
         private
@@ -27,9 +32,9 @@ module DataCycleCore
             rescue JWT::DecodeError, JSON::ParserError => e
               raise CanCan::AccessDenied, e.message
             end
-          elsif params[:jwtToken].present?
+          elsif params[:jwt_token].present?
             begin
-              @decoded = DataCycleCore::JsonWebToken.decode(params[:jwtToken])
+              @decoded = DataCycleCore::JsonWebToken.decode(params[:jwt_token])
               @user = DataCycleCore::User.find_with_token(@decoded)
             rescue JWT::DecodeError, JSON::ParserError => e
               raise CanCan::AccessDenied, e.message

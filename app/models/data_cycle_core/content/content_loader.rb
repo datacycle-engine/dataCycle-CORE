@@ -12,7 +12,7 @@ module DataCycleCore
         differ = DataCycleCore::MasterData::DiffData.new
         partial_update = template.present?
         if partial_update
-          differ.diff(a: get_data_hash&.slice(*@data_hash.keys), schema_a: template, b: data, schema_b: template).diff_hash
+          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template).diff_hash
         else
           differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
         end
@@ -22,7 +22,7 @@ module DataCycleCore
         differ = DataCycleCore::MasterData::DiffData.new
         partial_update = template.present?
         if partial_update
-          differ.diff?(a: get_data_hash&.slice(*@data_hash.keys), schema_a: template, b: data, schema_b: template)
+          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template)
         else
           differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
         end

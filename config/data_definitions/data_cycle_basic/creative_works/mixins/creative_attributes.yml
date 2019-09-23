@@ -44,6 +44,7 @@
       :about:
         :label: About
         :type: linked
+        :inverse_of: subject_of
         :stored_filter:
           -
             :with_classification_aliases_and_treename:

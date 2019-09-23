@@ -32,7 +32,7 @@ module DataCycleCore
       end
 
       test 'change life_cycle_stage to idea_collection stage' do
-        @container = DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: { name: 'LifeCycleTestContainer' })
+        @container = DataCycleCore::TestPreparations.create_content(template_name: 'Thema', data_hash: { name: 'LifeCycleTestContainer' })
 
         patch update_life_cycle_thing_path(@container), params: {
           life_cycle: {

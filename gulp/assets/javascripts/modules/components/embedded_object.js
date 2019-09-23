@@ -51,7 +51,7 @@ class EmbeddedObject {
           (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
           new_items.length > 0
         ) {
-          this.renderEmbeddedObjects('render', new_items);
+          this.renderEmbeddedObjects('render', new_items, data.locale);
         } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
           var confirmationModal = new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
@@ -59,7 +59,11 @@ class EmbeddedObject {
     );
     this.addEventHandlers();
   }
-  renderEmbeddedObjects(type, ids = []) {
+  renderEmbeddedObjects(type, ids = [], locale = null) {
+    let index = this.index;
+    if (type == 'render') this.index += ids.diff(this.ids).length;
+    else if (type == 'new') this.index++;
+
     this.element
       .find('> .buttons > button')
       .prop('disabled', true)
@@ -69,8 +73,9 @@ class EmbeddedObject {
       url: this.url + '/' + type + '_embedded_object',
       method: 'GET',
       data: {
-        index: this.index,
+        index: index,
         locale: this.locale,
+        attribute_locale: locale,
         key: this.key,
         definition: this.definition,
         options: this.options,
@@ -81,7 +86,6 @@ class EmbeddedObject {
       dataType: 'script',
       contentType: 'application/json'
     }).done(data => {
-      this.index++;
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
       this.update();
       this.addEventHandlers();
@@ -119,7 +123,10 @@ class EmbeddedObject {
   removeObject(element) {
     element.trigger('dc:html:remove');
     let id = element.data('id');
-    this.element.find('input:hidden[value="' + id + '"]').remove();
+    if (id !== undefined) {
+      this.element.find('input:hidden[value="' + id + '"]').remove();
+      this.ids = this.ids.filter(x => x != id);
+    }
     element.remove();
     this.update();
   }

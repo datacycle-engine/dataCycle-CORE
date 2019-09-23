@@ -40,6 +40,19 @@ module DataCycleCore
           assert_equal(0, json_data.dig('@graph').length)
         end
 
+        test '/api/v4/collections/ results with parameter user_email' do
+          get api_v4_collections_path(user_email: 'tester@datacycle.at')
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+
+          assert_equal('Merkliste 1', json_data.dig('@graph', 0, 'name'))
+          assert_equal(1, json_data.dig('meta', 'total'))
+          assert_equal(1, json_data.dig('meta', 'pages'))
+          assert_equal(1, json_data.dig('@graph').length)
+        end
+
         test '/api/v4/endpoints/:id default results and /api/v4/users/' do
           post(
             stored_filters_path,
@@ -66,6 +79,27 @@ module DataCycleCore
           assert_equal(@watch_list.name, json_data.dig('@graph', 'watchLists', 0, 'name'))
           assert_equal([], json_data.dig('@graph', 'storedFilters'))
           assert_equal('tester@datacycle.at', json_data.dig('@graph', 'userData', 'email'))
+        end
+
+        test '/api/v4/collections/:id/add_item add item to watch_list' do
+          article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+
+          post add_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+          assert_response :success
+
+          assert_equal @watch_list.things.ids, [article.id]
+        end
+
+        test '/api/v4/collections/:id/remove_item remove item to watch_list' do
+          article = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel' })
+          @watch_list.things << article
+
+          post remove_item_api_v4_collection_path(id: @watch_list.id, thing_id: article.id)
+
+          assert_response :success
+
+          assert @watch_list.things.ids.blank?
         end
       end
     end

@@ -1599,7 +1599,7 @@ select {
 }
 
 [data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .merge-with-duplicate, .bulk-delete-button)
-> .fa {
+  > .fa {
   font-size: inherit;
   line-height: inherit;
 }
@@ -2017,24 +2017,28 @@ button.merge-with-duplicate {
 .external-system-icon,
 .external-system-icon .fa {
   height: 1.2rem;
-  width: 1rem;
+  width: calc(1rem + 6px);
   font-size: 1rem;
   line-height: 1.2rem;
   text-align: center;
+  padding: 0 3px;
+  &:last-child {
+    padding-right: 0;
+  }
 }
 .external-source-icon {
-  margin-left: 4px;
+  margin-left: 3px;
   .fa-long-arrow-right {
     top: 2px;
-    left: -4px;
+    left: -6px;
   }
 }
 
 .external-system-icon {
-  margin-right: 5px;
+  margin-right: 3px;
   .fa-long-arrow-right {
     top: 2px;
-    left: 6px;
+    left: 8px;
   }
 }
 
@@ -2287,7 +2291,6 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
-
 .download-content-reveal {
   .download-content-link {
     border-bottom: 1px solid $light-gray;
@@ -2298,15 +2301,19 @@ button.button-prime.small.bulk-delete-button {
     }
   }
 }
-.stored-searches-list ul li.content-item span.buttons{
+.stored-searches-list ul li.content-item span.buttons {
   max-width: 5.5rem;
   text-align: right;
 }
 
-.download-content-reveal{
-  .active.version{
+.download-content-reveal {
+  fieldset {
+    margin-bottom: 1rem;
+  }
+  .active.version,
+  .active.transformation {
     display: block;
-    &.hidden{
+    &.hidden {
       display: none;
     }
   }
