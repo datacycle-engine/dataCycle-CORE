@@ -123,7 +123,7 @@ module DataCycleCore
     end
 
     def self.translated_locales
-      DataCycleCore::Thing::Translation.where(thing_id: all.pluck(:id)).distinct.pluck(:locale)
+      DataCycleCore::Thing::Translation.where(translated_model: all).distinct.pluck(:locale)
     end
 
     def cache_key

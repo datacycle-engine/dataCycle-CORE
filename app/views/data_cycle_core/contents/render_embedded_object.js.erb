@@ -21,7 +21,7 @@ $('#<%= sanitize_to_id(params[:key]) %> > .buttons > button').prop('disabled', f
 
 var followingEmbedded = $('#<%= sanitize_to_id(params[:key]) %> > .content-object-item').filter(function(){
   return parseInt($(this).data('index')) > parseInt(<%= params[:index].presence&.to_i %>);
-}).last();
+}).first();
 
 if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered_items %>');
 else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
