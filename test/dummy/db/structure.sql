@@ -1178,6 +1178,13 @@ CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (extern
 
 
 --
+-- Name: by_watch_list_hashable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USING btree (watch_list_id, hashable_id, hashable_type);
+
+
+--
 -- Name: child_parent_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2031,6 +2038,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190716130050'),
 ('20190801120456'),
 ('20190805085313'),
-('20190821101746');
+('20190821101746'),
+('20190920075014');
 
 
