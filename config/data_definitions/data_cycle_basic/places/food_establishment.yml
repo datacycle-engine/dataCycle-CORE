@@ -38,6 +38,13 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
+      :gourmet_rating:
+        :label: Gourmet-Bewertung
+        :type: classification
+        :tree_label: Gourmet-Bewertungen
+        :ui:
+          :show:
+            :content_area: header
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
