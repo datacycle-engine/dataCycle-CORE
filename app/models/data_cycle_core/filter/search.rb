@@ -75,7 +75,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:thing_id].eq(thing[:id]))).exists)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists)
         )
       end
 
@@ -91,7 +91,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:thing_id].eq(thing[:id]))).exists.not)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists.not)
         )
       end
 
