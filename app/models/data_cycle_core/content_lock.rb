@@ -29,7 +29,7 @@ module DataCycleCore
                                    user_id: user.id,
                                    lock_id: id
 
-      activitiable.watch_lists.ids.each do |watch_list_id|
+      activitiable.watch_lists.pluck(:id).each do |watch_list_id|
         ActionCable.server.broadcast "content_lock_#{watch_list_id}",
                                      locked_until: locked_until&.to_i,
                                      create: true,
@@ -44,7 +44,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast "content_lock_#{activitiable.id}", locked_until: updated_at&.utc&.+(DataCycleCore::Feature::ContentLock.lock_length.seconds)&.to_i, user_id: user.id, lock_id: id, token: lock_token
 
-      activitiable.watch_lists.ids.each do |watch_list_id|
+      activitiable.watch_lists.pluck(:id).each do |watch_list_id|
         ActionCable.server.broadcast "content_lock_#{watch_list_id}", locked_until: updated_at&.utc&.+(DataCycleCore::Feature::ContentLock.lock_length.seconds)&.to_i, user_id: user.id, lock_id: id, token: lock_token
       end
     end
@@ -52,7 +52,7 @@ module DataCycleCore
     def remove_locks
       ActionCable.server.broadcast "content_lock_#{activitiable.id}", remove_lock: true, user_id: user.id, lock_id: id
 
-      activitiable.watch_lists.ids.each do |watch_list_id|
+      activitiable.watch_lists.pluck(:id).each do |watch_list_id|
         ActionCable.server.broadcast "content_lock_#{watch_list_id}", remove_lock: true, user_id: user.id, lock_id: id
       end
     end
