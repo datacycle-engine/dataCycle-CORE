@@ -14,9 +14,6 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(s) { s.dig('event', 'text') })
           .>> t(:add_field, 'external_key', ->(s) { 'HRS DD ' + s.dig('event', 'id').to_s })
           .>> t(:add_links, 'hrs_dd_categories', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('event', 'category', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Classification: #{s.dig('event', 'classification', 'id')}_#{item}" }&.flatten || [] })
-          .>> t(:add_field, 'valid_from', ->(s) { s.dig('event', 'firstDate') })
-          .>> t(:add_field, 'valid_until', ->(s) { s.dig('event', 'lastDate') })
-          .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
           .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'venue', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Venue: #{item}" } })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'contact', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Organizer: #{item}" } })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'image', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Image: #{item}" } })
@@ -24,6 +21,9 @@ module DataCycleCore
           .>> t(:add_field, 'sub_event', ->(s) { parse_sub_event(s.dig('dates'), s.dig('event')) })
           .>> t(:strip_all)
         end
+        # .>> t(:add_field, 'valid_from', ->(s) { s.dig('event', 'firstDate') })
+        # .>> t(:add_field, 'valid_until', ->(s) { s.dig('event', 'lastDate') })
+        # .>> t(:nest, 'validity_period', ['valid_from', 'valid_until'])
 
         def self.hrs_to_image
           t(:stringify_keys)
@@ -63,7 +63,7 @@ module DataCycleCore
         def self.parse_event_period(dates, event_data)
           return nil if dates.size > 1
           date = dates.first.in_time_zone
-          end_date = date.end_of_day
+          end_date = date
           end_date = date + event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
           {
             'start_date' => date,
