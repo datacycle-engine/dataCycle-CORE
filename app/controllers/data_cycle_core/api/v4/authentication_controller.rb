@@ -8,8 +8,7 @@ module DataCycleCore
           @user = User.find_by(email: login_params[:email])
 
           raise CanCan::AccessDenied, 'invalid_login' unless @user&.valid_password?(params[:password])
-
-          raise CanCan::AccessDenied, 'user_not_allowed' if (Array(DataCycleCore.features.dig(:user_api, :restrictions, :user_groups)) & @user.user_groups.pluck(:name)).blank?
+          raise CanCan::AccessDenied, 'user_not_allowed' unless @user.can?(:login, :user_api)
 
           @user.update_column(:jti, SecureRandom.uuid) # rubocop:disable Rails/SkipsModelValidations
 
@@ -31,7 +30,7 @@ module DataCycleCore
         end
 
         def renew_login
-          raise CanCan::AccessDenied, 'user_not_allowed' if (Array(DataCycleCore.features.dig(:user_api, :restrictions, :user_groups)) & current_user.user_groups.pluck(:name)).blank?
+          raise CanCan::AccessDenied, 'user_not_allowed' unless can?(:login, :user_api)
 
           valid_until = Time.zone.now + (DataCycleCore.features.dig(:user_api, :expiration_time) || 24.hours)
           token = DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, jti: current_user.jti }, exp: valid_until)
