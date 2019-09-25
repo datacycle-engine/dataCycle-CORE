@@ -2,7 +2,7 @@
 
 <% content_for :top_content do %>
 
-  <div class="reveal-blur">
+  <div>
     <div id="edit-form">
       <% content_for :form_action do %>
         <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t("content_type.#{@content.template_name.underscore_blanks}", default: @content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('duplicate.merge', locale: DataCycleCore.ui_language) %>

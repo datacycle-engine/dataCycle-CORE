@@ -2,6 +2,7 @@
 #settings-off-canvas {
   top: 72px;
   height: calc(100% - 72px);
+
   .settings-row {
     padding: 1rem;
     margin: 0 0.1rem;
@@ -82,16 +83,15 @@
   }
 }
 
-.off-canvas-content {
-  //background: #fcfcfc;
+#settings-off-canvas.is-open ~ .off-canvas-content {
   &:after {
     position: absolute;
+    content: '';
     top: 0;
-    right: -1px;
+    right: 0;
     height: 100%;
     width: 1px;
     box-shadow: 0 0 10px rgba(51, 51, 51, 0.7);
-    content: ' ';
   }
 }
 

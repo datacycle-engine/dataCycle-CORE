@@ -396,7 +396,7 @@ de:
       updated: "%{data} wurde aktualisiert."
       destroyed: "%{data} wurde gelöscht."
       destroyed_translation: "Übersetzung %{language} von %{data} wurde gelöscht."
-      addedTo: "Zu Merkliste: %{data} hinzugefügt."
+      added_to: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "E-Mail wurde versandt."
       saved: "Externer Link wurde erstellt."
