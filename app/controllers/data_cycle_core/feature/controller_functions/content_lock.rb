@@ -39,8 +39,10 @@ module DataCycleCore
         def check_lock_watch_list
           @watch_list = DataCycleCore::WatchList.find(params[:id])
 
-          content_locks = @watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse!
-          content_texts = content_locks.map { |cl| [cl.id, tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: 'content-locked-text')] }.to_h
+          content_locks = @watch_list.things.locks.includes(:user, activitiable: [:translations])
+
+          content_texts = ''
+          content_texts = tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: DataCycleCore.ui_language), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale) { cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) if content_locks.present?
 
           render json: { locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h, texts: content_texts }.to_json
         end
@@ -71,26 +73,29 @@ module DataCycleCore
         def check_lock_states
           @watch_list ||= DataCycleCore::WatchList.find(params[:id])
           @contents = @watch_list.things
-          content_locks = @contents.includes(:lock).map(&:lock).compact
+          content_locks = @contents.locks
+          forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: content_locks.find { |c| c.user != current_user }.user&.full_name, data: distance_of_time_in_words(content_locks.find { |c| c.user != current_user }.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock.user&.full_name, data: distance_of_time_in_words(forbidden_lock.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
 
-          content_locks.each(&:destroy) if content_locks.present?
-          @contents.find_each do |c|
-            c.reload_lock
-            c.create_lock(user: current_user)
-          end
-          @lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, lock_ids: Array(@contents.includes(:lock).map { |c| c.lock&.id }) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
+          content_locks.find_each(&:destroy) if content_locks.exists?
+
+          @contents.locks.reload
+          @contents.create_locks(user: current_user)
+          @lock_token = DataCycleCore::JsonWebToken.encode(payload: { user_id: current_user.id, lock_ids: @contents.locks.pluck(:id) }, exp: (Time.zone.now + DataCycleCore::Feature::ContentLock.lock_length.to_i))
         end
 
         def update_lock_states
           @watch_list ||= DataCycleCore::WatchList.find(params[:id])
           @contents = @watch_list.things
-          content_locks = @contents.includes(:lock).map(&:lock).compact
+          content_locks = @contents.locks
+          forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: content_locks.find { |c| c.user != current_user }.user&.full_name, data: distance_of_time_in_words(content_locks.find { |c| c.user != current_user }.locked_for), locale: DataCycleCore.ui_language)) && return if content_locks.present? && content_locks.any? { |cl| cl.user != current_user }
+          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock&.user&.full_name, data: distance_of_time_in_words(forbidden_lock&.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
 
-          content_locks.each(&:destroy) if content_locks.present?
+          return unless content_locks.exists?
+
+          content_locks.find_each(&:destroy)
         end
       end
     end

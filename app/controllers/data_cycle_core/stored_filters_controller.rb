@@ -63,8 +63,13 @@ module DataCycleCore
       @stored_filter = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :add_item, @watch_list
 
-      @contents = get_filtered_results.distinct_by_content_id(@order_string)
-      @watch_list.thing_ids += @contents.map(&:id)
+      content_query = get_filtered_results.distinct_by_content_id(@order_string).select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
+
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
+        #{content_query.to_sql}
+        ON CONFLICT DO NOTHING
+      SQL
 
       redirect_to(root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
     end

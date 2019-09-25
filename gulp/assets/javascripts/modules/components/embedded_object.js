@@ -73,7 +73,7 @@ class EmbeddedObject {
       url: this.url + '/' + type + '_embedded_object',
       method: 'GET',
       data: {
-        index: this.index,
+        index: index,
         locale: this.locale,
         attribute_locale: locale,
         key: this.key,
@@ -123,7 +123,10 @@ class EmbeddedObject {
   removeObject(element) {
     element.trigger('dc:html:remove');
     let id = element.data('id');
-    this.element.find('input:hidden[value="' + id + '"]').remove();
+    if (id !== undefined) {
+      this.element.find('input:hidden[value="' + id + '"]').remove();
+      this.ids = this.ids.filter(x => x != id);
+    }
     element.remove();
     this.update();
   }

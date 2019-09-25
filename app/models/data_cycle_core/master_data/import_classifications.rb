@@ -119,7 +119,7 @@ module DataCycleCore
         find_classification = DataCycleCore::Classification
           .joins(classification_groups: [:classification_alias])
           .where(classification_aliases: { id: classification_alias_id })
-        if find_classification.count < 1
+        if find_classification.empty?
           classification = DataCycleCore::Classification.create(name: data, external_source_id: nil, description: description) do |item|
             item.seen_at = Time.zone.now
           end

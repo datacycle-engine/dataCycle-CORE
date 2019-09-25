@@ -1,12 +1,14 @@
 ---
 - :data:
-    :name: Organization
+    :name: Beschreibungstext
     :type: object
-    :schema_type: Organization
+    :schema_type: CreativeWork
     :content_type: entity
-    :boost: 1.0
+    :boost: 100.0
+    :api:
+      :type: Article
     :features:
-      :translatable:
+      :releasable:
         :allowed: true
       :creatable:
         :allowed: true
@@ -21,22 +23,29 @@
       :id:
         :label: id
         :type: key
+      :release_status:
+        :type: mixin
+        :name: releasable
       :title:
         :type: mixin
         :name: title
+      :validity_period:
+        :type: mixin
+        :name: validity_period
+      :type_of_description:
+        :label: Beschreibungsart
+        :type: classification
+        :tree_label: Beschreibungsart
+        :ui:
+          :show:
+            :content_area: header
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :postal_address:
-        :type: mixin
-        :name: postal_address
-      :contact_info:
-        :type: mixin
-        :name: contact_info
-      :description:
-        :label: Text
+      :text:
+        :label: Fließtext
         :type: string
-        :storage_location: column
+        :storage_location: translated_value
         :search: true
         :ui:
           :edit:
@@ -47,23 +56,10 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
-      :member:
-        :label: Mitglieder
+      :about:
+        :label: About
         :type: linked
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-        :inverse_of: member_of
-        :link_direction: inverse
-      :linked_thing:
-        :label: Verknüpfte Inhalte
-        :type: linked
-        :inverse_of: is_linked_to
-        :global: true
+        :inverse_of: subject_of
         :stored_filter:
           -
             :with_classification_aliases_and_treename:
@@ -74,23 +70,14 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
-      :is_linked_to:
-        :label: Verknüpft mit
-        :type: linked
-        :inverse_of: linked_thing
-        :link_direction: inverse
-        :global: true
-      :subject_of:
-        :label: Thema von
-        :type: linked
-        :inverse_of: about
-        :link_direction: inverse
-        :global: true
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Organisation"
+        :default_value: "Beschreibungstext"
+      :publication_schedule:
+        :type: mixin
+        :name: publication_schedule
       :meta_data:
         :type: mixin
         :name: meta_data

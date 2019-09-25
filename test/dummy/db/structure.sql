@@ -841,10 +841,10 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    provider character varying,
-    uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    provider character varying,
+    uid character varying
 );
 
 
@@ -1175,6 +1175,13 @@ CREATE UNIQUE INDEX by_content_relation_a ON public.content_contents USING btree
 --
 
 CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (external_source_id);
+
+
+--
+-- Name: by_watch_list_hashable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USING btree (watch_list_id, hashable_id, hashable_type);
 
 
 --
@@ -2031,6 +2038,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190716130050'),
 ('20190801120456'),
 ('20190805085313'),
-('20190821101746');
+('20190821101746'),
+('20190920075014');
 
 

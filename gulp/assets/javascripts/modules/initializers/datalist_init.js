@@ -149,34 +149,45 @@ module.exports.initialize = function() {
     form.submit();
   };
 
-  $('.ajax-datalist').each((idx, element) => {
-    let list = $(element).prop('list');
-    let list_id = $(element).attr('list');
-    $(list).html('');
-    let field_id = $(element).prop('id');
-    field_requests[field_id] = [];
+  let init = (container = document) => {
+    $(container)
+      .find('.ajax-datalist')
+      .each((idx, element) => {
+        let list = $(element).prop('list');
+        let list_id = $(element).attr('list');
+        $(list).html('');
+        let field_id = $(element).prop('id');
+        field_requests[field_id] = [];
 
-    $(element).on('input', event => {
-      event.preventDefault();
-      field_requests[field_id].forEach(request => {
-        request.abort();
-        field_requests[field_id] = field_requests[field_id].filter(r => r != request);
+        $(element).on('input', event => {
+          event.preventDefault();
+          field_requests[field_id].forEach(request => {
+            request.abort();
+            field_requests[field_id] = field_requests[field_id].filter(r => r != request);
+          });
+          field_requests[field_id].push(
+            $.get(
+              '/' + list_id + '/search',
+              {
+                q: $(event.currentTarget).val()
+              },
+              data => {
+                if (eval('typeof ' + list_id + ' === "function"')) {
+                  eval(list_id)(element, list, data);
+                } else default_success(element, list, data);
+              }
+            )
+          );
+        });
       });
-      field_requests[field_id].push(
-        $.get(
-          '/' + list_id + '/search',
-          {
-            q: $(event.currentTarget).val()
-          },
-          data => {
-            if (eval('typeof ' + list_id + ' === "function"')) {
-              eval(list_id)(element, list, data);
-            } else default_success(element, list, data);
-          }
-        )
-      );
-    });
-  });
+  };
+
+  init();
 
   $('#add-items-to-watch-list-form').on('submit', append_stored_filter_data);
+
+  $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
+    init(event.target);
+  });
 };

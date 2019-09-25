@@ -31,7 +31,7 @@ module DataCycleCore
           assert_equal(header, data)
 
           # all embedded/linked have a compact header
-          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay']).each do |embedded|
+          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
         end
@@ -49,7 +49,7 @@ module DataCycleCore
           assert_equal(header, data)
 
           # all embedded/linked have at least a compact header
-          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'schedule']).each do |embedded|
+          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'schedule', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
@@ -72,7 +72,7 @@ module DataCycleCore
           assert_equal(header, data)
 
           # all embedded/linked have a compact header
-          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi']).each do |embedded|
+          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
@@ -95,7 +95,7 @@ module DataCycleCore
           assert_equal(header, data)
 
           # all embedded/linked have a compact header
-          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi']).each do |embedded|
+          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
@@ -123,7 +123,7 @@ module DataCycleCore
           assert_equal(header, data)
 
           # all embedded/linked have a compact header
-          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'image']).each do |embedded|
+          (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'image', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
