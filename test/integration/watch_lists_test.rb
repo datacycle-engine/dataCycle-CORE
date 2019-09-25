@@ -239,7 +239,7 @@ module DataCycleCore
       }
 
       assert_redirected_to root_path
-      assert_equal I18n.t(:updated, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language), flash[:notice]
+      assert_equal I18n.t(:added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language), flash[:notice]
       assert @watch_list.things.ids.include?(@content.id)
       assert @watch_list.things.ids.include?(content2.id)
     end
