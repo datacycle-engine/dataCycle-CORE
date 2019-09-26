@@ -40,7 +40,7 @@
 
     <ul class="classifications">
         <% classification_tree.sub_classification_alias.classifications.each do |classification| %>
-            <li><%= classification.name %></li>
+            <li><%= classification.primary_classification_alias.internal_name %></li>
         <% end %>
     </ul>
     <ul class="children">

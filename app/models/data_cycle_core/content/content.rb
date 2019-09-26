@@ -340,7 +340,7 @@ module DataCycleCore
 
       def self.shared_ordered_properties(user)
         all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
-          .map { |t|
+          .find_each.map { |t|
             t.schema.dig('properties')
               .except(*(DataCycleCore.internal_data_attributes + ['id']))
               .select { |k, v|

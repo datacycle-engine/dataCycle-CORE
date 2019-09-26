@@ -1016,17 +1016,13 @@ body .v-select {
   background: none;
 }
 
-.reveal-blur {
-  &.show {
-    transition: all ease-out 0.1s;
-    filter: blur(5px);
-    opacity: 0.2;
-  }
-}
-
 .no-results {
   display: block;
   text-align: center;
+}
+
+.overflow-hidden {
+  overflow: hidden;
 }
 
 /* Sortierung, Viewtype Startseite */

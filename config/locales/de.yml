@@ -168,6 +168,7 @@ de:
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
     content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
     content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    multiple_content_locks_html: '<span class="lock-count">%{data}</span> Inhalte werden gerade bearbeitet'
     download:
       available_formats: Verfügbare Formate
       available_versions: Verfügbare Datei Versionen
@@ -395,7 +396,7 @@ de:
       updated: "%{data} wurde aktualisiert."
       destroyed: "%{data} wurde gelöscht."
       destroyed_translation: "Übersetzung %{language} von %{data} wurde gelöscht."
-      addedTo: "Zu Merkliste: %{data} hinzugefügt."
+      added_to: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "E-Mail wurde versandt."
       saved: "Externer Link wurde erstellt."
