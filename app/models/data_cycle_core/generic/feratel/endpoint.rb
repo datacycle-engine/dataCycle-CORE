@@ -248,6 +248,7 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
+                xml.QualityDetails('DateFrom' => '1980-01-01')
               end
             end
           end
@@ -275,6 +276,7 @@ module DataCycleCore
                 xml.RatingsAverage('DateFrom' => '1980-01-01')
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HotSpots('DateFrom' => '1980-01-01')
+                xml.QualityDetails('DateFrom' => '1980-01-01')
                 xml.AdditionalServices do
                   xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Documents('DateFrom' => '1980-01-01')
@@ -312,6 +314,7 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
+                xml.QualityDetails('DateFrom' => '1980-01-01')
               end
             end
           end
@@ -340,6 +343,21 @@ module DataCycleCore
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
                 xml.GTC('DateFrom' => '1980-01-01')
+                xml.QualityDetails('DateFrom' => '1980-01-01')
+                xml.Services do
+                  xml.Details('DateFrom' => '1980-01-01')
+                  xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Descriptions('DateFrom' => '1980-01-01')
+                  xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                  xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.HandicapFacilities('DateFrom' => '1980-01-01')
+                  xml.Products do
+                    xml.Details('DateFrom' => '1980-01-01')
+                    xml.Documents('DateFrom' => '1980-01-01')
+                    xml.Descriptions('DateFrom' => '1980-01-01')
+                    xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                  end
+                end
               end
             end
           end

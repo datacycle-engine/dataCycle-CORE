@@ -319,10 +319,6 @@ module DataCycleCore
               )
           end
 
-          classification.name = classification_data[:name]
-          classification.description = classification_data[:description] if classification_data[:description].present?
-          classification.external_key = classification_data[:external_key]
-
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               external_source_id: utility_object.external_source.id,
@@ -362,6 +358,10 @@ module DataCycleCore
 
             classification_alias = primary_classification_alias
           end
+
+          classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
+          classification.description = classification_data[:description] if classification_data[:description].present?
+          classification.external_key = classification_data[:external_key]
           classification.save!
           classification_alias
         end
