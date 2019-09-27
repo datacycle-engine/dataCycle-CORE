@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     module Feratel
       class Endpoint
-        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, **options)
+        def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, sales_channel_id: nil, **options)
           @pos_code = pos_code
           @company_code = company_code
           @primary_range_code = range_code
           @primary_range_id = range_id
+          @sales_channel_id = sales_channel_id
           @options = options
           @read_type = options[:read_type] if options[:read_type].present?
         end
@@ -314,13 +315,14 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HandicapFacilities('DateFrom' => '1980-01-01')
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
-                xml.QualityDetails('DateFrom' => '1980-01-01')
               end
             end
           end
         end
 
         def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          start_date = Time.zone.now.to_s[0..9]
+          end_date = (Time.zone.now + 1.month).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
@@ -347,15 +349,18 @@ module DataCycleCore
                 xml.Services do
                   xml.Details('DateFrom' => '1980-01-01')
                   xml.Documents('DateFrom' => '1980-01-01')
-                  xml.Descriptions('DateFrom' => '1980-01-01')
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
                   xml.HandicapFacilities('DateFrom' => '1980-01-01')
                   xml.Products do
                     xml.Details('DateFrom' => '1980-01-01')
                     xml.Documents('DateFrom' => '1980-01-01')
-                    xml.Descriptions('DateFrom' => '1980-01-01')
                     xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                    xml.Prices('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id)
+                    # xml.PriceDetails('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
+                    xml.ArrivalDepartureTemplates('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
+                    xml.Availabilities('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
+                    xml.Gaps('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
                 end
               end

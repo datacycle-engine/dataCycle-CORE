@@ -85,3 +85,12 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_content_score:
+        :label: Feratel - ContentScore
+        :type: classification
+        :tree_label: Feratel - ContentScore
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
