@@ -206,8 +206,13 @@ config:
       tag_id_path: 'Id'
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
+    facilities_count:
+      sorting: 15
+      source_type: accommodations
+      tree_label: Feratel - Ausstattungsmerkmale
+      import_strategy: DataCycleCore::Generic::Feratel::ImportFacilitiesCount
     holiday_themes:
-      sorting: 14
+      sorting: 16
       source_type: holiday_themes
       tree_label: Feratel - Urlaubsthemen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -215,7 +220,7 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
     classifications:
-      sorting: 15
+      sorting: 17
       source_type: classifications
       tree_label: Feratel - Unterkunftsklassifizierungen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -223,7 +228,7 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
     types:
-      sorting: 16
+      sorting: 18
       source_type: infrastructure_types
       tree_label: Feratel - Infrastrukturtypen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -231,7 +236,7 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: 'Feratel - Infrastrukturtyp - '
     topics:
-      sorting: 17
+      sorting: 19
       source_type: infrastructure_topics
       tree_label: Feratel - Infrastrukturklassifizierungen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -239,7 +244,7 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
     stars:
-      sorting: 18
+      sorting: 20
       source_type: stars
       tree_label: Feratel - Sterne
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -247,7 +252,7 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
     infrastructures:
-      sorting: 20
+      sorting: 50
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
       transformations:
@@ -256,7 +261,7 @@ config:
         infrastructure:
           template: POI
     accommodations:
-      sorting: 21
+      sorting: 51
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
       transformations:
@@ -265,7 +270,7 @@ config:
         place:
           template: Unterkunft
     events:
-      sorting: 22
+      sorting: 52
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
       transformations:
