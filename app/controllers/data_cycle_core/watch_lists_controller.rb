@@ -2,9 +2,12 @@
 
 module DataCycleCore
   class WatchListsController < ApplicationController
+    before_action :authenticate_user! # from devise (authenticate)
+
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
-    before_action :authenticate_user! # from devise (authenticate)
+    include DataCycleCore::Feature::ControllerFunctions::ContentLock if DataCycleCore::Feature::ContentLock.enabled?
+
     load_and_authorize_resource only: [:index, :show, :new, :create, :edit, :update, :destroy, :remove_item, :add_item, :download] # from cancancan (authorize)
 
     def index
@@ -30,7 +33,7 @@ module DataCycleCore
 
       respond_to do |format|
         format.html
-        format.json { redirect_to api_v2_collection_path(id: @watch_list) }
+        format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
       end
     end
 
@@ -104,13 +107,13 @@ module DataCycleCore
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
 
     def bulk_edit
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @watch_list ||= DataCycleCore::WatchList.find(params[:id])
 
       authorize!(:bulk_edit, @watch_list)
 
@@ -127,7 +130,7 @@ module DataCycleCore
     end
 
     def bulk_update
-      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      @watch_list ||= DataCycleCore::WatchList.find(params[:id])
 
       authorize!(:bulk_edit, @watch_list)
 
@@ -188,30 +191,30 @@ module DataCycleCore
     def bulk_delete
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       authorize!(:bulk_delete, @watch_list)
-      things_external = @watch_list.things.any? { |t| t.external_source_id.present? }
 
-      if things_external
-        flash[:error] = I18n.t(:external_items, scope: [:controllers, :error], locale: DataCycleCore.ui_language)
-        ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
-        return head(:ok)
-      end
-
-      unless can?(:bulk_delete, @watch_list) && @watch_list.things.all? { |t| can?(:destroy, t) }
+      unless can?(:bulk_delete, @watch_list)
         flash[:error] = I18n.t :no_permission, scope: [:controllers, :error], locale: DataCycleCore.ui_language
         ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
         return head(:ok)
       end
 
-      delete_items = @watch_list.things.joins(:translations).where(external_source_id: nil)
-      delete_count = delete_items.count
+      delete_items = @watch_list.things
+      delete_count = delete_items.size
+      cant_delete_count = 0
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
       delete_items.find_each.with_index do |content, index|
-        content.destroy_content
+        if can?(:destroy, content) && content.external_source_id.blank?
+          content.destroy_content
+        else
+          cant_delete_count += 1
+        end
+
         ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: index + 1, items: delete_count
       end
 
       flash[:success] = I18n.t(:bulk_deleted, scope: [:controllers, :success], locale: DataCycleCore.ui_language)
+      flash[:success] += I18n.t(:bulk_deleted_not_allowed_html, scope: [:controllers, :info], locale: DataCycleCore.ui_language, data: cant_delete_count) if cant_delete_count.positive?
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", redirect_path: watch_list_path(@watch_list, flash: flash.to_hash)
       head(:ok)
@@ -239,13 +242,25 @@ module DataCycleCore
 
     def download
       @watch_list = DataCycleCore::WatchList.find(params[:id])
+      serialize_format = params[:serialize_format]
+      languages = params[:language]
       authorize! :download, @watch_list
+      download_watch_list(@watch_list, serialize_format, languages)
+    end
+
+    def download_zip
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download_zip, @watch_list
+      serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
 
       download_items = @watch_list.things.all.to_a.select do |thing|
         can? :download, thing
       end
 
-      download_zip(@watch_list, download_items)
+      download_collection(@watch_list, download_items, serialize_format, languages)
     end
 
     private
@@ -255,7 +270,7 @@ module DataCycleCore
     end
 
     def hashable_params
-      params.permit(:hashable_id, :hashable_type)
+      params.permit(:hashable_id, :hashable_type, serialize_format: [])
     end
 
     def content_params(property_hash)

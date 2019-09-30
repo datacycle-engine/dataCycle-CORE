@@ -7,7 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         # rescue_from Timeout::Error, :with => :rescue_from_timeout
         include DataCycleCore::Filter
-        include DataCycleCore::Feature::ControllerFunctions::GpxConverter if DataCycleCore::Feature::GpxConverter.enabled?
+        include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
 
         before_action :prepare_url_parameters
 
@@ -50,6 +50,11 @@ module DataCycleCore
           @contents = apply_paging(deleted_contents)
         end
 
+        def gpx
+          @object = DataCycleCore::Thing.find_by(id: params[:id])
+          download_content(@object, 'gpx', nil)
+        end
+
         def permitted_parameter_keys
           # json-api: fields, sort
           super + [
@@ -69,7 +74,7 @@ module DataCycleCore
           stored_filter_id = permitted_params[:id] || nil
           if stored_filter_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            raise ActiveRecord::RecordNotFound if !(@stored_filter.api_users + [@stored_filter.user_id]).include?(current_user.id) && !current_user.has_rank?(99)
+            authorize! :api, @stored_filter
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new

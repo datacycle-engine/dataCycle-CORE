@@ -3,6 +3,7 @@
 module DataCycleCore
   class StoredFiltersController < ApplicationController
     include DataCycleCore::Filter
+    include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:search, :add_to_watchlist] # from cancancan (authorize)
     before_action :set_default_filter, only: [:create, :add_to_watchlist], if: proc {
@@ -59,13 +60,42 @@ module DataCycleCore
     end
 
     def add_to_watchlist
-      @watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
+      @stored_filter = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :add_item, @watch_list
 
-      @contents = get_filtered_results.distinct_by_content_id(@order_string)
-      @watch_list.thing_ids += @contents.map(&:id)
+      content_query = get_filtered_results.distinct_by_content_id(@order_string).select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")
 
-      redirect_to(root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
+      ActiveRecord::Base.connection.execute <<-SQL.squish
+        INSERT INTO watch_list_data_hashes (watch_list_id, hashable_id, hashable_type, created_at, updated_at)
+        #{content_query.to_sql}
+        ON CONFLICT DO NOTHING
+      SQL
+
+      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
+    end
+
+    def download
+      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
+      serialize_format = params[:serialize_format]
+      languages = params[:language]
+      authorize! :download, @stored_filter
+      download_stored_filter(@stored_filter, serialize_format, languages)
+    end
+
+    def download_zip
+      @stored_filter = DataCycleCore::StoredFilter.find(params[:id])
+      authorize! :download_zip, @stored_filter
+      serialize_format = params.dig(:serialize_format)&.select { |_, v| v.to_i.positive? }&.keys
+      languages = params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('stored_filter', serialize_format)
+
+      items = @stored_filter.apply
+      download_items = items.to_a.select do |thing|
+        can? :download, thing
+      end
+
+      download_collection(@stored_filter, download_items, serialize_format, languages)
     end
 
     private

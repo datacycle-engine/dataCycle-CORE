@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: Container
+    :name: Thema
     :type: object
     :schema_type: CreativeWork
     :content_type: container
@@ -18,6 +18,13 @@
           - Zeitleiste
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -34,6 +41,17 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :topic:
+        :label: Themenbereich
+        :type: classification
+        :tree_label: Themenbereiche
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :description:
         :label: Beschreibung
         :type: string
@@ -45,13 +63,10 @@
             :options:
               :data-size: basic
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Container"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
+        :default_value: "Thema"
       :meta_data:
         :type: mixin
         :name: meta_data

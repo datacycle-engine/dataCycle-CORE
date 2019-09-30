@@ -91,6 +91,7 @@ module DataCycleCore
                   end
                 rescue StandardError => e
                   logging.error(nil, nil, nil, e)
+                  Appsignal.send_error(e, nil, 'background')
                 ensure
                   logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
                 end
@@ -149,6 +150,7 @@ module DataCycleCore
                 end
               rescue StandardError => e
                 logging.error(nil, nil, nil, e)
+                Appsignal.send_error(e, nil, 'background')
               ensure
                 logging.phase_finished(download_object.source_type.collection_name.to_s, item_count)
               end

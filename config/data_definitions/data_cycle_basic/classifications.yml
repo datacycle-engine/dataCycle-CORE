@@ -9,11 +9,14 @@
     - $$POI
     - $$Tour
     - $$Unterkunft
+    - $$LocalBusiness
+    - $$Gastronomischer Betrieb
   - $$Text:
     - $$Artikel
   - $$Organisation
   - $$Person
   - $$Veranstaltung
+  - $$Veranstaltungsserie
 # embedded
   - $$Veranstaltungstermin
   - $$Öffnungszeit
@@ -22,6 +25,7 @@
   - $$Overlay
   - $$Publikations-Plan
   - $$EventSchedule
+  - $$Event-Ticket-Angebot
 
 - Geschlecht | all:
   - Männlich | Male
@@ -64,6 +68,8 @@
 - Rechte | all:
 
 - MediaArchive - Tags | all:
+
+- Gourmet-Bewertungen | all:
 
 - Feratel - Veranstaltungstags | all:
   - $$Top-Event

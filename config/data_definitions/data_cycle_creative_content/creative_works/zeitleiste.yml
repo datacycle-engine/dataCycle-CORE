@@ -10,6 +10,13 @@
         :allowed: true
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -23,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :creative_attributes:
         :type: mixin
         :name: creative_attributes
@@ -33,13 +43,10 @@
         :api:
           :name: hasPart
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zeitleiste"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :publication_schedule:
         :type: mixin
         :name: publication_schedule
@@ -63,6 +70,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :validations:
           :required: true
       :temporal_coverage:
@@ -128,7 +136,7 @@
         :type: linked
         :template_name: POI
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Zeitleiste-Eintrag"

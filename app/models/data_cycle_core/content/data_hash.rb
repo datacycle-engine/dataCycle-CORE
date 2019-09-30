@@ -23,12 +23,13 @@ module DataCycleCore
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
+      after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
       after_created_data_hash :execute_create_webhooks
       after_destroyed_data_hash :execute_delete_webhooks
 
       def set_data_hash(data_hash:, current_user: nil, save_time: Time.zone.now, prevent_history: false, update_search_all: true, partial_update: false, source: nil, new_content: false, force_update: false)
         return {} if data_hash.blank?
-        @data_hash = data_hash.clone
+        @data_hash = data_hash.clone.with_indifferent_access
         @current_user = current_user
         @save_time = save_time
         @prevent_history = prevent_history
@@ -37,12 +38,15 @@ module DataCycleCore
         @partial_update = partial_update
         run_callbacks :save_data_hash
 
-        schema_hash = { 'properties' => schema['properties']&.slice(*@data_hash.keys) } if @partial_update
-
-        valid_hash = validate(@data_hash, schema_hash)
+        partial_schema_hash = nil
+        if @partial_update
+          partial_schema_hash = schema.dup
+          partial_schema_hash['properties'] = schema['properties']&.slice(*@data_hash.keys)
+        end
+        valid_hash = validate(@data_hash, partial_schema_hash || schema)
 
         if validate?(valid_hash)
-          if diff?(@data_hash) || force_update
+          if diff?(@data_hash, partial_schema_hash) || force_update
             ActiveRecord::Base.transaction do
               to_history(save_time: @save_time) unless id.nil? || prevent_history
 
@@ -56,7 +60,7 @@ module DataCycleCore
                 self.created_by = @current_user&.id
               end
               save(touch: false)
-              search_languages(update_search_all)
+              search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
             run_callbacks(:saved_data_hash) unless prevent_history
@@ -108,6 +112,16 @@ module DataCycleCore
       end
 
       private
+
+      def invalidate_content_a_cache
+        Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+      end
+
+      def invalidate_cache
+        related_contents.ids.each do |item_id|
+          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+        end
+      end
 
       def notify_subscribers
         subscriptions.except_user(@current_user).to_notify.presence&.each do |subscription|

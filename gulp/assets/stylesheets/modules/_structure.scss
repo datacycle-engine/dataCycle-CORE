@@ -1,20 +1,22 @@
-html,
 body {
-  height: 100%;
-  min-height: 100%;
+  min-height: 100vh;
+}
+
+body {
+  display: flex;
+  flex-flow: column;
 }
 
 .off-canvas-wrapper {
-  display: table;
-  height: inherit;
-  width: 100%;
-  position: absolute;
-  padding-top: 4.4rem;
-  top: 0;
+  position: relative;
+  flex: auto;
+  display: flex;
+  flex-flow: column;
 }
 
 .off-canvas-content {
-  display: table-cell;
+  overflow: hidden;
+  flex: auto;
 }
 
 button,
@@ -22,7 +24,7 @@ input,
 optgroup,
 select,
 textarea {
-  font-family: 'Open Sans', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  font-family: 'Open Sans', 'Noto Sans SC', 'Noto Sans TC', sans-serif;
 }
 
 .fa {
@@ -36,7 +38,8 @@ header {
   position: relative;
 
   .top-bar {
-    max-height: 4.1rem;
+    height: 4.1rem;
+    width: 100%;
     overflow: hidden;
     padding: 0;
     background-color: $black;
@@ -218,6 +221,7 @@ button.button-prime {
   transition: all ease-in-out 0.1s;
   width: 5rem;
   height: 5rem;
+  line-height: 5rem;
   padding: 0;
 
   &.alert {
@@ -243,6 +247,8 @@ button.button-prime {
     position: relative;
     display: block;
     line-height: 5rem;
+    height: 100%;
+    width: 100%;
     font-size: 3.5rem;
   }
 

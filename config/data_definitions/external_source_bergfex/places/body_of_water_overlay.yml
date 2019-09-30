@@ -12,6 +12,7 @@
         :label: Name
         :type: string
         :storage_location: column
+        :search: true
       :link_url:
         :label: Link
         :type: string
@@ -28,7 +29,7 @@
           :show:
             :content_area: header
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Overlay"

@@ -6,10 +6,20 @@
     :content_type: entity
     :boost: 10.0
     :features:
+      :geocode:
+        :allowed: true
       :overlay:
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :api:
       :type: LodgingBusiness
     :properties:
@@ -25,6 +35,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -42,6 +55,7 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      # move to dataCycleProperty
       :price_range:
         :label: Preis-Info
         :type: string
@@ -52,6 +66,9 @@
             :type: text_editor
             :options:
               :data-size: basic
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -74,13 +91,10 @@
         :type: mixin
         :name: hrs
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Unterkunft"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

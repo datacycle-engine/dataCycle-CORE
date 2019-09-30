@@ -1,0 +1,202 @@
+[
+  {
+    "_id": {
+      "$oid": "5d25cd01782c8518bc1f1281"
+    },
+    "external_id": "98d13566-3802-4612-82c8-00283ed5a84e",
+    "dump": {
+      "de": {
+        "id": "98d13566-3802-4612-82c8-00283ed5a84e",
+        "active": true,
+        "dbCode": "FRT",
+        "username": "GUTACH",
+        "legacyUsername": "GUTACH",
+        "password": null,
+        "hasPassword": true,
+        "passwordExpired": false,
+        "email": "",
+        "emailConfirmed": false,
+        "name": "DEAKTIVIERT Testuser Gutach",
+        "role": 0,
+        "userType": 1,
+        "userLockoutDate": "0001-01-01T00:00:00",
+        "userLocked": false,
+        "claims": {
+          "Deskline-ApplicationAccess": "2",
+          "locale": "de_AT"
+        },
+        "changeDate": "2019-06-30T20:48:43.55",
+        "createDate": "2018-08-24T12:56:51.627"
+      }
+    },
+    "seen_at": {
+      "$date": "2019-07-10T11:33:21.833Z"
+    },
+    "updated_at": {
+      "$date": "2019-07-10T11:33:21.834Z"
+    },
+    "created_at": {
+      "$date": "2019-07-10T11:33:21.834Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5d25cd02782c8518bc1f1282"
+    },
+    "external_id": "161b4585-2b1e-4d6e-8168-003357a6f90b",
+    "dump": {
+      "de": {
+        "id": "161b4585-2b1e-4d6e-8168-003357a6f90b",
+        "active": true,
+        "dbCode": "FRT",
+        "username": "CARDPSC",
+        "legacyUsername": "CARDPSC",
+        "password": null,
+        "hasPassword": true,
+        "passwordExpired": false,
+        "email": "",
+        "emailConfirmed": false,
+        "name": "PSC Cardbetrieb für Kunden",
+        "role": 0,
+        "userType": 1,
+        "userLockoutDate": "0001-01-01T00:00:00",
+        "userLocked": false,
+        "claims": {
+          "locale": "de_AT",
+          "Deskline-ApplicationAccess": "2"
+        },
+        "changeDate": "2018-08-24T17:03:17.537",
+        "createDate": "2018-08-24T12:56:21.637"
+      }
+    },
+    "seen_at": {
+      "$date": "2019-07-10T11:33:22.085Z"
+    },
+    "updated_at": {
+      "$date": "2019-07-10T11:33:22.085Z"
+    },
+    "created_at": {
+      "$date": "2019-07-10T11:33:22.085Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5d25cd02782c8518bc1f1283"
+    },
+    "external_id": "a94669ea-261d-41db-a107-00d327f7ce98",
+    "dump": {
+      "de": {
+        "id": "a94669ea-261d-41db-a107-00d327f7ce98",
+        "active": true,
+        "dbCode": "FRT",
+        "username": "EGGER",
+        "legacyUsername": "EGGER",
+        "password": null,
+        "hasPassword": true,
+        "passwordExpired": false,
+        "email": "",
+        "emailConfirmed": false,
+        "name": "WebClient 4 Egger1",
+        "role": 0,
+        "userType": 1,
+        "userLockoutDate": "0001-01-01T00:00:00",
+        "userLocked": false,
+        "claims": {
+          "locale": "de_AT",
+          "Deskline-ApplicationAccess": "2"
+        },
+        "changeDate": "2019-07-01T14:36:35.387",
+        "createDate": "2018-08-24T12:56:33.297"
+      }
+    },
+    "seen_at": {
+      "$date": "2019-07-10T11:33:22.265Z"
+    },
+    "updated_at": {
+      "$date": "2019-07-10T11:33:22.266Z"
+    },
+    "created_at": {
+      "$date": "2019-07-10T11:33:22.266Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5d25cd02782c8518bc1f1284"
+    },
+    "external_id": "3345128f-c3f9-478f-90f5-00d990c8e089",
+    "dump": {
+      "de": {
+        "id": "3345128f-c3f9-478f-90f5-00d990c8e089",
+        "active": true,
+        "dbCode": "FRT",
+        "username": "RATEG",
+        "legacyUsername": "RATEG",
+        "password": null,
+        "hasPassword": true,
+        "passwordExpired": false,
+        "email": "",
+        "emailConfirmed": false,
+        "name": "Testhotel RateGain",
+        "role": 0,
+        "userType": 1,
+        "userLockoutDate": "0001-01-01T00:00:00",
+        "userLocked": false,
+        "claims": {
+          "locale": "en_AT",
+          "Deskline-ApplicationAccess": "2"
+        },
+        "changeDate": "2018-08-24T17:04:58.857",
+        "createDate": "2018-08-24T12:57:47.213"
+      }
+    },
+    "seen_at": {
+      "$date": "2019-07-10T11:33:22.439Z"
+    },
+    "updated_at": {
+      "$date": "2019-07-10T11:33:22.439Z"
+    },
+    "created_at": {
+      "$date": "2019-07-10T11:33:22.439Z"
+    }
+  },
+  {
+    "_id": {
+      "$oid": "5d25cd02782c8518bc1f1285"
+    },
+    "external_id": "a276ef40-3320-4b5c-980d-011c8a241dee",
+    "dump": {
+      "de": {
+        "id": "a276ef40-3320-4b5c-980d-011c8a241dee",
+        "active": true,
+        "dbCode": "FRT",
+        "username": "PETERGUIDE",
+        "legacyUsername": "PETERGUIDE",
+        "password": null,
+        "hasPassword": true,
+        "passwordExpired": false,
+        "email": "",
+        "emailConfirmed": false,
+        "name": "Ellinger Gästeführer",
+        "role": 0,
+        "userType": 1,
+        "userLockoutDate": "0001-01-01T00:00:00",
+        "userLocked": false,
+        "claims": {
+          "Deskline-ApplicationAccess": "2",
+          "locale": "de_AT"
+        },
+        "changeDate": "2019-03-01T12:55:03.003",
+        "createDate": "2018-08-24T12:57:37.473"
+      }
+    },
+    "seen_at": {
+      "$date": "2019-07-10T11:33:22.619Z"
+    },
+    "updated_at": {
+      "$date": "2019-07-10T11:33:22.619Z"
+    },
+    "created_at": {
+      "$date": "2019-07-10T11:33:22.619Z"
+    }
+  }
+]

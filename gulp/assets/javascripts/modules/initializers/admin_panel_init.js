@@ -3,10 +3,14 @@ module.exports.initialize = function() {
   $('.copy-to-admin-clipboard').on('click', function(event) {
     event.preventDefault();
     var text = $(this)
-      .parent()
-      .parent()
-      .find('pre code')
-      .html();
+      .closest('section.tabs-panel')
+      .find('pre code');
+
+    if ($(text).data('json')) text = JSON.stringify($(text).data('json'));
+    else text = $(text).html();
+
+    console.log(text);
+
     var inp = document.createElement('input');
     document.body.appendChild(inp);
     inp.value = text;

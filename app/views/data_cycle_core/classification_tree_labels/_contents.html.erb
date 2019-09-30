@@ -15,7 +15,7 @@
       <%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content if content.try(:display_classification_aliases, 'tile').present? %>
 
       <div class="thumbnails">
-        <% if content.try(:image).is_a?(ActiveRecord::Relation) && content.try(:image).present? %>
+        <% if content.try(:image).is_a?(ActiveRecord::Relation) && content.try(:image).present? && content.try(:thumbnail_url).present? %>
           <% content.image.each do |image| %>
               <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" />
           <% end %>

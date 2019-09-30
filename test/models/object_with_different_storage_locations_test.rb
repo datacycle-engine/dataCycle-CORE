@@ -26,6 +26,7 @@ module DataCycleCore
         'sub_event' => [],
         'output_channel' => [],
         'tags' => [],
+        # 'topic' => [],
         'overlay' => [],
         'event_period' => {
           'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),
@@ -33,7 +34,11 @@ module DataCycleCore
         },
         'holiday_themes' => [],
         'feratel_event_tags' => [],
-        'event_schedule' => []
+        'event_schedule' => [],
+        'organizer' => [],
+        'performer' => [],
+        'super_event' => [],
+        'offers' => []
       }
       returned_data_hash['event_period'].each do |key, value|
         returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)

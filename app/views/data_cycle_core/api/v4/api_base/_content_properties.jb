@@ -1,0 +1,42 @@
+# frozen_string_literal: true
+
+json ||= {}
+json['concepts'] ||= []
+
+unless content.schema.nil?
+
+  ordered_validation_properties(validation: content.schema).each do |key, prop|
+    next if prop.dig('api', 'disabled') && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
+    next if options[:hidden_attributes].include?(key)
+    next if options[:combined_attributes].include?(key)
+
+    value = content.try(key.to_sym)
+    next if value.blank?
+
+    partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
+
+    if prop.dig('type') == 'classification' && partial_params.present?
+      new_options = options.dup
+      new_options[:full] = included_attribute?('concepts', options[:include]) || included_attribute?('concepts', options[:fields])
+      partial_params[1][:options] = new_options.dup
+
+      classification_data = render(*partial_params)
+      json['concepts'] += classification_data&.dig('concepts')
+      next
+    end
+
+    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
+      if json.dig(prop.dig('api', 'transformation', 'name')).present?
+        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?
+      else
+        json[prop.dig('api', 'transformation', 'name')] = render(*partial_params) unless partial_params.nil?
+      end
+    else
+      json.merge! render(*partial_params) unless partial_params.nil?
+    end
+  end
+
+end
+
+json.delete('concepts') if json['concepts'].blank?
+json

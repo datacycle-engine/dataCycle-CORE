@@ -3,7 +3,9 @@
 
 <title><%= full_title %></title>
 <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i,800,800i" rel="stylesheet">
-
+<% if Array(@language).include?('zh') || I18n.locale.to_s == 'zh' %>
+  <link href="https://fonts.googleapis.com/css?family=Noto+Sans+SC|Noto+Sans+TC&display=swap&subset=chinese-simplified,chinese-traditional,vietnamese" rel="stylesheet">
+<% end %>
 <%= stylesheet_link_tag 'application', media: 'all' %>
 <%= javascript_include_tag 'application' %>
 <%= csrf_meta_tags %>

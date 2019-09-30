@@ -18,14 +18,6 @@
         <% end %>
       </div>
   <% end %>
-  <% if user_signed_in? && current_user.role&.rank&.positive? && DataCycleCore::ClassificationTreeLabel.find_by(name: 'Themenbereiche').present? %>
-    <div class="row columns">
-      <%= link_to classification_tree_label_path(DataCycleCore::ClassificationTreeLabel.find_by(name: 'Themenbereiche')), class: 'themenbereiche-contents-list-link' do %>
-        <span class="icon"><i class="fa fa-list-ul" aria-hidden="true"></i></span>
-        <span class="title"><%= t('data_cycle_core.classification_tree_label', locale: DataCycleCore.ui_language) %></span>
-      <% end %>
-    </div>
-  <% end %>
   <% if DataCycleCore.asset_objects.any? { |a| can?(:create, a.classify.constantize) } %>
     <div class="row columns">
       <a class="asset-selector-button" data-open="asset-selector-sidebar">

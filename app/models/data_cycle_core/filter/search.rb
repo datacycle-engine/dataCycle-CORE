@@ -75,7 +75,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists)
         )
       end
 
@@ -91,7 +91,7 @@ module DataCycleCore
         return self if ids.blank?
 
         reflect(
-          @query.where(thing_external_system.where(thing_external_system[:external_system_id].in(ids).and(thing_external_system[:thing_id].eq(thing[:id]))).exists.not)
+          @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists.not)
         )
       end
 
@@ -233,11 +233,11 @@ module DataCycleCore
       def duplicate_candidates(value)
         if value == 'true'
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists)
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists)
           )
         else
           reflect(
-            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id])).exists.not)
+            @query.where(duplicate_candidate.where(duplicate_candidate[:duplicate_id].eq(thing[:id]).and(duplicate_candidate[:false_positive].eq(false))).exists.not)
           )
         end
       end
@@ -269,11 +269,17 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            thing[:id].in(
-              join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
-            )
+            join_classification_trees_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_tree[:classification_tree_label_id].in(ids))).exists
           )
         )
+
+        # reflect(
+        #   @query.where(
+        #     thing[:id].in(
+        #       join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
+        #     )
+        #   )
+        # )
       end
 
       def not_classification_tree_ids(ids = nil)
@@ -293,9 +299,7 @@ module DataCycleCore
 
         reflect(
           @query.where(
-            thing[:id].in(
-              join_classification_alias.where(classification_alias[:id].in(ids))
-            )
+            join_classification_alias_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_alias[:id].in(ids))).exists
           )
         )
       end
@@ -379,6 +383,40 @@ module DataCycleCore
           )
       end
 
+      def join_classification_trees_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_alias_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
       def classification_content
         DataCycleCore::ClassificationContent.arel_table
       end
@@ -419,8 +457,8 @@ module DataCycleCore
         DataCycleCore::Thing::DuplicateCandidate.arel_table
       end
 
-      def thing_external_system
-        DataCycleCore::ThingExternalSystem.arel_table
+      def external_system_sync
+        DataCycleCore::ExternalSystemSync.arel_table
       end
     end
   end

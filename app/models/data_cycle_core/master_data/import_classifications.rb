@@ -6,22 +6,36 @@ module DataCycleCore
       def self.import_all(_validation: true, classification_paths: nil)
         classification_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
 
-        if classification_paths.blank?
-          puts '###### classifications not found'
-          return
-        end
+        return puts('###### classifications not found') if classification_paths.blank?
 
         merged_data_trees = {}
+        inhaltstypen_trees = []
 
         classification_paths.each do |classification_path|
           file = classification_path + 'classifications.yml'
           next unless File.exist?(file)
           tree_array = YAML.safe_load(File.open(file.to_s), [Symbol])
-          merged_data_trees.deep_merge!(iterate_array(tree_array))
+          tree_hash = iterate_array(tree_array)
+          merged_data_trees, inhaltstypen_trees = merge_trees(merged_data_trees, tree_hash, inhaltstypen_trees)
         end
+
         return_data = iterate_tree_hash(merged_data_trees)
+        inhaltstypen_trees.each do |inhaltstypen_tree|
+          return_data.merge!(iterate_tree_hash(inhaltstypen_tree))
+        end
         check_features
         return_data
+      end
+
+      def self.merge_trees(merged_hash, tree, inhaltstypen_trees)
+        tree.select { |k, _| k.exclude?('Inhaltstypen') }.each do |key, sub_tree|
+          old_hash = merged_hash.select { |k, _| k.split('|').first.squish == key.split('|').first.squish }
+          merged_hash.delete(old_hash&.keys&.first)
+
+          merged_hash[key] = sub_tree
+        end
+
+        return merged_hash, inhaltstypen_trees.push(tree.select { |k, _| k.include?('Inhaltstypen') })
       end
 
       def self.iterate_array(array)
@@ -54,39 +68,40 @@ module DataCycleCore
           split_data = k.split('|').map(&:squish)
           name = split_data[0]
           description = split_data[1]
-          current_id = save_data(name, parent, internal, description)
+          current_alias = save_data(name, parent, internal, description)
 
-          walk_tree_hash(v, current_id) if v.is_a?(Hash)
+          walk_tree_hash(v, current_alias) if v.is_a?(Hash)
         end
       end
 
       def self.save_data(data, parent, internal, description)
         find_alias = DataCycleCore::ClassificationAlias
           .joins(:classification_tree)
-          .where(
+          .find_by(
             classification_aliases: { name: data },
-            classification_trees: { classification_tree_label_id: @label_id, parent_classification_alias_id: parent }
+            classification_trees: { classification_tree_label_id: @label_id }
           )
 
-        if find_alias.count.positive?
-          updated_data = find_alias.first
-          updated_data.seen_at = Time.zone.now
-          updated_data.internal = internal
-          updated_data.description = description if description.present?
-          updated_data.save
+        puts "WARNING: Duplicate ClassificationAlias '#{"#{parent&.internal_name} -> " unless parent.nil?}#{data}' found, check classification.yml" if find_alias.present? && find_alias&.parent_classification_alias&.id != parent&.id
+
+        if find_alias.present?
+          updated_data = find_alias
+          update_hash = { seen_at: Time.zone.now, internal: internal, description: description || updated_data.description }
+          updated_data.classification_tree&.update(parent_classification_alias_id: parent&.id)
+          updated_data.update(update_hash)
         else
           # new Alias, create respective tree-entry
           updated_data = DataCycleCore::ClassificationAlias.create(name: data, internal: internal, seen_at: Time.zone.now, description: description)
           DataCycleCore::ClassificationTree.find_or_create_by(
             classification_alias_id: updated_data.id,
-            parent_classification_alias_id: parent,
+            parent_classification_alias_id: parent&.id,
             classification_tree_label_id: @label_id
           ) do |tree_entry|
             tree_entry.seen_at = Time.zone.now
           end
         end
         upsert_classification(data, updated_data.id, description)
-        updated_data.id
+        updated_data
       end
 
       def self.get_label(label)
@@ -104,7 +119,7 @@ module DataCycleCore
         find_classification = DataCycleCore::Classification
           .joins(classification_groups: [:classification_alias])
           .where(classification_aliases: { id: classification_alias_id })
-        if find_classification.count < 1
+        if find_classification.empty?
           classification = DataCycleCore::Classification.create(name: data, external_source_id: nil, description: description) do |item|
             item.seen_at = Time.zone.now
           end
@@ -113,10 +128,8 @@ module DataCycleCore
           end
         else
           classification = find_classification.first
-          classification.name = data
-          classification.description = description if description.present?
-          classification.seen_at = Time.zone.now
-          classification.save
+          update_hash = { name: data, seen_at: Time.zone.now, description: description || classification.description }
+          classification.update(update_hash)
         end
       end
 

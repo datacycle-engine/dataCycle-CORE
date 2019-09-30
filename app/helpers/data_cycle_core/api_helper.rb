@@ -10,11 +10,11 @@ module DataCycleCore
       api_version = @api_version || 2
       partials = [
         key.underscore.to_s,
-        "#{definition['type'].underscore}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
-        "#{definition['type'].underscore}_#{definition.try(:[], 'validations').try(:[], 'format').try(:underscore)}",
-        "#{definition.try(:[], 'compute').try(:[], 'type').try(:underscore)}_#{definition.try(:[], 'api').try(:[], 'partial').try(:underscore)}",
-        definition.try(:[], 'compute').try(:[], 'type').try(:underscore).to_s,
-        definition['type'].underscore.to_s,
+        "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
+        "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+        "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
+        definition&.dig('compute', 'type')&.underscore,
+        definition['type'].underscore,
         'default'
       ].reject(&:blank?)
 
@@ -33,8 +33,29 @@ module DataCycleCore
       end
     end
 
-    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil)
-      "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters.join('_')}_#{mode_parameters.join('_')}"
+    def included_attribute?(name, attribute_list)
+      return if attribute_list.blank?
+      attribute_list.map { |item| item.first == name }.inject(&:|)
+    end
+
+    def subtree_for(name, attribute_list)
+      attribute_list.select { |item| item.first == name }.map { |item| item.drop(1) }.select(&:present?)
+    end
+
+    def select_attributes(attribute_list)
+      Array(attribute_list).map(&:first).compact
+    end
+
+    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
+      if item.is_a?(DataCycleCore::Thing)
+        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+      elsif item.is_a?(DataCycleCore::ClassificationAlias)
+        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
+        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+      else
+        raise NotImplementedError
+      end
     end
   end
 end

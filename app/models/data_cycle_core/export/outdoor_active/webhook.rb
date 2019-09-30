@@ -42,7 +42,7 @@ module DataCycleCore
           end
         end
 
-        def queue_name
+        def reference_type
           "outdoor_active_#{@data.id}"
         end
       end

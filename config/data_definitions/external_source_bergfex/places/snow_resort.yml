@@ -10,6 +10,13 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :api:
       :type: SkiResort
     :properties:
@@ -25,6 +32,9 @@
       :title:
         :type: mixin
         :name: title
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :bergfex_status_icon:
         :label: "Status-Icon"
         :type: classification
@@ -242,13 +252,10 @@
           :show:
             :content_area: header
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Skigebiet"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

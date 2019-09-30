@@ -10,6 +10,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
     :api:
       :type: ImageObject
     :properties:
@@ -22,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :asset:
         :label: Datei
         :type: asset
@@ -33,13 +44,20 @@
         :type: string
         :storage_location: translated_value
         :search: true
+        :api:
+          :disabled: true
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
       :caption:
         :label: Bildunterschrift
         :type: string
         :storage_location: translated_value
         :search: true
       :description:
-        :label: Teasertext
+        :label: Beschreibung (ALT-Label)
         :type: string
         :storage_location: column
         :search: true
@@ -88,21 +106,6 @@
           :name: sameAs
         :xml:
           :name: sameAs
-        # :versions:
-        #   :thumb_large:
-        #     - remove_animation
-        #     -
-        #       - convert
-        #       - jpg
-        #     -
-        #       - resize_to_fit
-        #       -
-        #         - 1200
-        #         - 1200
-        #     -
-        #       - colorspace
-        #       - RGB
-        #     - optimize
       :width:
         :label: Breite
         :storage_location: value
@@ -181,7 +184,7 @@
              :class: daterange
          :show:
            :type: date
-        :default_value: '{{Time.zone.now.beginning_of_day}}'           
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
       :author:
         :label: Fotograf
         :type: linked
@@ -193,7 +196,7 @@
                 - Person
                 - Organisation
       :copyright_holder:
-        :label: Copyright - Inhaber
+        :label: Rechteinhaber
         :type: linked
         :stored_filter:
           -
@@ -232,13 +235,10 @@
         :type: mixin
         :name: cloud_vision
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Bild"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

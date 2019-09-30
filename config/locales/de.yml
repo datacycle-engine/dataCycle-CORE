@@ -34,6 +34,7 @@ de:
     uk: "ukrainisch"
     'de-CH': "schweizer-deutsch"
     'nl-BE': "flämisch"
+    zh: chinesisch
 
   roles:
     super_admin: Administrator (DataCycle)
@@ -157,6 +158,7 @@ de:
     duplicates_exist:
       one: '%{data} mögliches Duplikat'
       other: '%{data} mögliche Duplikate'
+    cant_create_duplicate: Datei kann nicht importiert werden, da es sich um ein Duplikat handelt
     related_items: Verknüpfte Inhalte
     generated_value_placeholder: Dieser Wert wird automatisch gesetzt
     merge_warning_html: 'Das Duplikat wir gelöscht.<br>Fortfahren?'
@@ -164,6 +166,23 @@ de:
     bulk_edit_locked_html: '<br><br>Mindestens ein Inhalt kann von Ihnen nicht bearbeitet werden, deshalb ist die Bulk-Bearbeitung gesperrt.'
     bulk_update_check_box_label: '%{data} überschreiben?'
     watch_list_external_things_locked_html: '<br><br><i>Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!</i>'
+    content_locked_html: 'Der Inhalt wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    content_locked_with_name_html: '%{name} wird gerade von %{user} bearbeitet und ist in <span class="locked-until">%{data}</span> wieder zur Bearbeitung verfügbar.'
+    multiple_content_locks_html: '<span class="lock-count">%{data}</span> Inhalte werden gerade bearbeitet'
+    download:
+      available_formats: Verfügbare Formate
+      available_versions: Verfügbare Datei Versionen
+      available_transformations: Verfügbare Dateiformate
+      asset: Datei
+      json: JSON-Format
+      gpx: GPX-Datei
+      xml: XML-Format
+      version:
+        original: Original
+        thumb_preview: Thumbnail
+        web: Web
+      format:
+        none: Originalformat
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -205,6 +224,16 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+
+  filter_groups:
+    classification_alias_ids: nach Klassifizierungen filtern...
+    classification_tree_ids: nach Klassifizierungsbaum filtern...
+    creator: nach Personen filtern...
+    external_source: nach Externer Quellen filtern...
+    external_system: nach Externer Verknüpfungen filtern...
+    validity_period: nach Zeitraum filtern...
+    date_range: nach Datum filtern...
+    boolean: nach booleschen Kriterien filtern...
 
   terms:
     valid: gültig
@@ -250,7 +279,8 @@ de:
     duplicate_content: "duplizieren"
     read: lesen
     write: schreiben
-    save_and_send: "Speichern und Senden"
+    save_and_send: Senden
+    save_without_send: Speichern (kein E-Mail-Versand)
     finalize: Bearbeitung abschließen
     copy_to_clipboard: In die Zwischenablage kopieren
     save: Speichern
@@ -262,7 +292,11 @@ de:
     move: verschieben
     geocode: "Geokoordinaten von %{title} übernehmen"
     open_asset: "Datei öffnen"
+    download: "herunterlanden"
+    download_content: "Inhalt herunterladen"
+    download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
+    download_asset_version: "Datei herunterladen (%{data}-Version)"
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
@@ -330,6 +364,7 @@ de:
       file_too_large: "Datei zu groß (max. %{max})."
       wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
       required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
     warnings:
       string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
       no_data: "Keine Daten angegeben für %{data}"
@@ -361,10 +396,12 @@ de:
       updated: "%{data} wurde aktualisiert."
       destroyed: "%{data} wurde gelöscht."
       destroyed_translation: "Übersetzung %{language} von %{data} wurde gelöscht."
-      addedTo: "Zu Merkliste: %{data} hinzugefügt."
+      added_to: "Zu Merkliste: %{data} hinzugefügt."
       removedFrom: "Von Merkliste: %{data} entfernt."
       sent: "E-Mail wurde versandt."
+      saved: "Externer Link wurde erstellt."
       saved_and_sent: "Externer Link wurde erstellt und verschickt."
+      updated: "Externer Link wurde aktualisiert."
       updated_and_sent: "Externer Link wurde aktualisiert und verschickt."
       invalid_mail: "Keine gültige E-Mail Adresse."
       locked: "%{data} wurde gesperrt."
@@ -382,9 +419,12 @@ de:
       created_duplication: "%{data} wurde erfolgreich dupliziert."
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
       bulk_updated_skipped_html: '<br>Folgende Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind: %{data}'
+      bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
+      bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
       added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
       imported: "'%{data}' wurden aus YAML Datei importiert."
+      running: "Job befindet sich bereits in der Job-Queue."
   activerecord:
     errors:
       messages:
@@ -517,6 +557,7 @@ de:
         notification_frequency: Benachrichtigung von Abos
         access_token: API Token
         default_locale: 'Default-Sprache für Suchen und neue Inhalte'
+        represented_by: Repräsentiert durch
       data_cycle_core/thing:
         name: Name
         legal_name: Firmenname
@@ -554,8 +595,9 @@ de:
         validity_period: Gültigkeitszeitraum (von - bis)
         valid_from: Gültig von
         valid_until: bis
-        permissions_read: "Lesen"
-        permissions_write: "Bearbeiten"
+        permissions_download: herunterladen
+        permissions_read: lesen
+        permissions_write: bearbeiten
         text_file: "Weitere Infos (PDF)"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
@@ -570,6 +612,7 @@ de:
   unauthorized:
     manage:
       all: "Keine Zugriffsberechtigung!"
+
   data_cycle_core:
     administration: 'Administration'
     user_settings: Benutzeraktionen
@@ -597,12 +640,16 @@ de:
         one: Gepeicherte Suche
         other: Gespeicherte Suchen
       show_all_saved: Alle Gespeicherten Suchen ansehen
-      show_search_history: Gesammten Verlauf ansehen
+      show_search_history: Gesamten Verlauf ansehen
       save: Suche speichern
       history: Suchverlauf
     watch_list:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
+    data_links:
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor."
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback."
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und dieser Inhalt steht nun zum Download bereit."
 
     documentation:
       root: Dokumentation

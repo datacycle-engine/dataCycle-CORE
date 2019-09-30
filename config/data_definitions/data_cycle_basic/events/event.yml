@@ -10,6 +10,13 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -26,6 +33,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :event_period:
         :label: Veranstaltungszeitraum
         :type: object
@@ -114,8 +124,6 @@
         :label: Veranstaltungsort
         :type: linked
         :template_name: Örtlichkeit
-        :validations:
-          :max: 1
         :api:
           :name: location
       :sub_event:
@@ -127,14 +135,75 @@
         :type: embedded
         :template_name: EventSchedule
         :translated: true
+      :super_event:
+        :label: Veranstaltungsserie
+        :type: linked
+        :template_name: Eventserie
+        :inverse_of: sub_event
+      :performer:
+        :label: Ausführende Person/Organisation
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :organizer:
+        :label: Veranstalter
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - LocalBusiness
+      :offers:
+        :label: Angebote
+        :type: linked
+        :template_name: Event-Ticket-Angebot
+      :potential_action:
+        :label: Link mit weiterführenden Infos
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :partial: action
+          :type: ViewAction
+      :linked_thing:
+        :label: Verknüpfte Inhalte
+        :type: linked
+        :inverse_of: is_linked_to
+        :global: true
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+      :is_linked_to:
+        :label: Verknüpft mit
+        :type: linked
+        :inverse_of: linked_thing
+        :link_direction: inverse
+        :global: true
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Veranstaltung"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -147,6 +216,9 @@
       :feratel_events:
         :type: mixin
         :name: feratel_events
+      :hrs_dd_events:
+        :type: mixin
+        :name: hrs_dd_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

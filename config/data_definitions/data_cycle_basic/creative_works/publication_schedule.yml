@@ -23,12 +23,11 @@
           :show:
             :type: date
       :output_channel:
-        :tree_label: Themenbereiche
         :label: Ausgabekanäle
         :type: classification
         :tree_label: Ausgabekanäle
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Publikations-Plan"

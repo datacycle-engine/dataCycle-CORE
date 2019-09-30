@@ -6,19 +6,44 @@ module DataCycleCore
   class ImageUploader < CommonUploader
     include CarrierWave::MiniMagick
 
+    WEB_SAVE_MIME_TYPES = [
+      'image/gif',
+      'image/png',
+      'image/jpeg'
+    ].freeze
+
+    DEFAULT_MIME_TYPE = 'image/jpeg'
+
     process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
     version :thumb_preview do
       process :remove_animation
       process convert: 'jpg'
       process resize_to_fit: [300, 300]
-      process colorspace: 'RGB'
+      process colorspace: 'sRGB'
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
       process :set_phash
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
         "#{version_name}_#{basename}.jpg"
+      end
+    end
+
+    version :web do
+      process :remove_animation
+      process resize_to_limit: [2048, 2048]
+      process :convert_for_web
+      process colorspace: 'sRGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+      process content_type: true
+
+      def full_filename(for_file)
+        basename = File.basename(for_file, File.extname(for_file))
+        file_ext = MIME::Types.type_for(for_file).first.preferred_extension
+        file_ext = MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension if WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+
+        "#{version_name}_#{basename}.#{file_ext}"
       end
     end
 
@@ -66,12 +91,26 @@ module DataCycleCore
       end
     end
 
+    def content_type(websave = false)
+      mime_type = MIME::Types.type_for(current_path).first
+      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if websave && WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
+      file.instance_variable_set(:@content_type, mime_type.to_s)
+    end
+
     def colorspace(cs)
       manipulate! do |img|
         img.format(img.type.to_s.downcase) do |c|
           c.colorspace cs.to_s
         end
         img = yield(img) if block_given?
+        img
+      end
+    end
+
+    def convert_for_web
+      manipulate! do |img|
+        img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
+        img.density 96
         img
       end
     end

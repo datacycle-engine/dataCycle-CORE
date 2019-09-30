@@ -12,6 +12,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :api:
           :minimal: true
       :elevation:
@@ -80,7 +81,7 @@
         :type: classification
         :tree_label: "Bergfex - Wetter - Meldung"
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Schneehöhe - Messpunkt"

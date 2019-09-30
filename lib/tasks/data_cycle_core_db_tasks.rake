@@ -155,6 +155,7 @@ namespace :data_cycle_core do
 
       ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
 
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.sql')
 

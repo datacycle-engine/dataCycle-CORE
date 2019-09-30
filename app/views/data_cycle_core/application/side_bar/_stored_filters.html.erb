@@ -13,16 +13,16 @@
           <% end %>
           <span class="buttons">
             <% if stored_filter.api && can?(:create_api, DataCycleCore::StoredFilter) %>
-              <%= link_to api_v2_stored_filter_path(id: stored_filter), class: 'copy-to-clipboard left', data: { value: api_v2_stored_filter_url(id: stored_filter) } do %>
+              <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_filter), class: 'copy-to-clipboard left', data: { value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_filter) } do %>
                 <i class="fa fa-clipboard" aria-hidden="true"></i>
               <% end %>
             <% end %>
           </span>
         </li>
       <% end %>
-      <% if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
+      <%# if @accessible_stored_filters.where.not(name: nil).order(:system, updated_at: :desc).size > 5 %>
         <li class="more-link"><%= link_to '...', stored_filters_path %></li>
-      <% end %>
+      <%# end %>
     </ul>
   </div>
 </div>

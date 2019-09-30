@@ -8,6 +8,10 @@ module DataCycleCore
       class TimeOutError < StandardError
       end
     end
+    module Download
+      class InvalidSerializationFormatError < StandardError
+      end
+    end
     class RecordNotFoundError < StandardError
     end
   end

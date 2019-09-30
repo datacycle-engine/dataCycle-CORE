@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class DataLinksController < ApplicationController
+    include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
+
     before_action :authenticate_user!, except: [:show, :get_text_file] # from devise (authenticate)
     load_and_authorize_resource except: [:show, :get_text_file] # from cancancan (authorize)
 
@@ -13,12 +15,19 @@ module DataCycleCore
       session[:can_edit_ids] ||= []
       session[:can_edit_ids] << link.id unless session[:can_edit_ids].include?(link.id)
 
-      sign_in(link.receiver) if link.creator.role.rank > link.receiver.role.rank
+      sign_in(link.receiver, store: !link.downloadable?) if link.creator.role.rank > link.receiver.role.rank
 
       link.update_column(:seen_at, Time.zone.now)
 
-      if link.permissions == 'write' && link.item.class.table_name == 'things'
+      if link.writable? && link.item.is_a?(DataCycleCore::Thing)
         redirect_to edit_polymorphic_path(link.item, split_params)
+      elsif link.downloadable? && link.item_type == 'DataCycleCore::Thing'
+        download_content(link.item, 'asset', nil, nil)
+      elsif link.downloadable? && link.item_type == 'DataCycleCore::WatchList'
+        download_items = link.item.things.to_a.select do |thing|
+          DataCycleCore::Feature::Download.allowed?(thing)
+        end
+        download_collection(link.item, download_items, ['asset'], nil, nil)
       else
         redirect_to polymorphic_path(link.item)
       end
@@ -43,9 +52,9 @@ module DataCycleCore
       @data_link.receiver = @receiver
       @data_link.save
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :saved_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def update
@@ -55,9 +64,9 @@ module DataCycleCore
 
       @data_link.update(create_link_params)
 
-      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later
+      DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :updated_and_sent, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def destroy
@@ -89,6 +98,10 @@ module DataCycleCore
 
     def split_params
       params.permit(:source_table, :source_id)
+    end
+
+    def send_email_params
+      params.permit(:send)
     end
 
     def url_split_params

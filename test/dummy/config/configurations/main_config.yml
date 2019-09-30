@@ -4,7 +4,10 @@
       :features:
         :creatable:
           :allowed: true
+    :Gastronomischer Betrieb:
+      :features:
+        :creatable:
+          :allowed: true
+
 :api:
-  :v2:
-    :subversions:
-    - 'test'
+  :default: v4

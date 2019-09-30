@@ -10,12 +10,22 @@ module DataCycleCore
 
       def diff(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+        partial_update = template.present?
+        if partial_update
+          differ.diff(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template).diff_hash
+        else
+          differ.diff(a: get_data_hash, schema_a: schema, b: data, schema_b: template).diff_hash
+        end
       end
 
       def diff?(data, template = nil)
         differ = DataCycleCore::MasterData::DiffData.new
-        differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+        partial_update = template.present?
+        if partial_update
+          differ.diff?(a: get_data_hash&.slice(*data.keys), schema_a: template, b: data, schema_b: template)
+        else
+          differ.diff?(a: get_data_hash, schema_a: schema, b: data, schema_b: template)
+        end
       end
 
       def load_linked_objects(relation_name, same_language = false)
@@ -35,27 +45,22 @@ module DataCycleCore
 
       def load_relation(relation_a, relation_b, same_language, inverse = false)
         if inverse
-          relation_name = :content_content_a
-          content_id_sym = :content_b_id
+          relation_name = :content_a
           relation_a_name = relation_b
           relation_b_name = relation_a
         else
-          relation_name = :content_content_b
-          content_id_sym = :content_a_id
+          relation_name = :content_b
           relation_a_name = relation_a
           relation_b_name = relation_b
         end
-        relation_contents = DataCycleCore::Thing
-          .joins(relation_name)
-          .where({
-            content_contents: {
-              content_id_sym => id,
-              relation_a: relation_a_name,
-              relation_b: relation_b_name
-            }
-          })
+
+        relation_contents = send(relation_name).where(content_contents: {
+          relation_a: relation_a_name,
+          relation_b: relation_b_name
+        })
+
         relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
-        relation_contents.order('content_contents.order_a ASC')
+        relation_contents
       end
 
       def load_classifications(relation_name)

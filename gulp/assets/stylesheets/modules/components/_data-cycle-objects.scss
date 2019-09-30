@@ -36,7 +36,6 @@
 
   .inner {
     position: relative;
-    overflow: hidden;
 
     > div,
     > span {
@@ -46,6 +45,10 @@
 
       &:not(:last-child):not(.has-parent) {
         padding-bottom: 0.5rem;
+      }
+      &.with-dropdown-pane {
+        position: relative;
+        overflow: unset;
       }
     }
   }
@@ -255,14 +258,14 @@
 
     .copy-single-button {
       position: absolute;
-      right: 15px;
-      top: 5px;
-      width: 2rem;
-      height: 2rem;
+      right: 0.5rem;
+      top: 0.5rem;
+      width: 1.5rem;
+      height: 1.5rem;
 
       .fa {
-        line-height: 2rem;
-        font-size: 1.2rem;
+        line-height: 1.5rem;
+        font-size: 0.9rem;
       }
     }
   }

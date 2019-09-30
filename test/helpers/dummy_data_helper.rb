@@ -163,7 +163,7 @@ module DataCycleCore
 
     def container
       container_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_container')
-      DataCycleCore::TestPreparations.create_content(template_name: 'Container', data_hash: container_data_hash, user: @user)
+      DataCycleCore::TestPreparations.create_content(template_name: 'Thema', data_hash: container_data_hash, user: @user)
     end
 
     def creative_work_dummy_hash(fixture_name)

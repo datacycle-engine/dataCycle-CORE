@@ -10,6 +10,8 @@ namespace :datacycle do
             print_message 'Update Project'
             execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:refactor:import_update_all_templates"
             execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_source_configs"
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_external_system_configs"
+            execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_classifications"
           end
         end
       end
@@ -50,17 +52,17 @@ namespace :datacycle do
       end
     end
 
-    desc 'update project config files: update monit + nginx config files'
+    desc 'update project config files: update monit + puma'
     task :update_configs do
       on roles(:all) do
-        print_message 'Update puma config'
-        invoke 'datacycle:puma:deploy_config'
-        invoke 'datacycle:puma:restart'
+        # print_message 'Update puma config'
+        # invoke 'datacycle:puma:deploy_config'
+        # invoke 'datacycle:puma:restart'
 
         print_message 'Uploading config files'
         invoke('datacycle:monit:deploy_config', 'puma.conf')
         invoke!('datacycle:monit:deploy_config', 'delayed_job.conf')
-        invoke 'datacycle:logrotate:deploy_config'
+        # invoke 'datacycle:logrotate:deploy_config'
 
         print_message 'Reloading services'
         invoke 'datacycle:monit:reload'

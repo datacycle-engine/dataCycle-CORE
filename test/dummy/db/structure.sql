@@ -28,6 +28,22 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: activities; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.activities (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    activitiable_type character varying,
+    activitiable_id uuid,
+    user_id uuid,
+    activity_type character varying,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: ar_internal_metadata; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -451,7 +467,8 @@ CREATE TABLE public.things (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying
+    content_type character varying,
+    representation_of_id uuid
 );
 
 
@@ -567,6 +584,22 @@ CREATE TABLE public.external_sources (
 
 
 --
+-- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.external_system_syncs (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    syncable_id uuid,
+    external_system_id uuid,
+    data jsonb,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL,
+    status character varying,
+    syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying
+);
+
+
+--
 -- Name: external_systems; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -676,21 +709,6 @@ CREATE TABLE public.subscriptions (
 
 
 --
--- Name: thing_external_systems; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.thing_external_systems (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    thing_id uuid,
-    external_system_id uuid,
-    data jsonb,
-    created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL,
-    status character varying
-);
-
-
---
 -- Name: thing_histories; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -730,7 +748,8 @@ CREATE TABLE public.thing_histories (
     is_part_of uuid,
     validity_range tstzrange,
     boost numeric,
-    content_type character varying
+    content_type character varying,
+    representation_of_id uuid
 );
 
 
@@ -821,7 +840,11 @@ CREATE TABLE public.users (
     access_token character varying,
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
-    default_locale character varying DEFAULT 'de'::character varying
+    default_locale character varying DEFAULT 'de'::character varying,
+    jti character varying,
+    creator_id uuid,
+    provider character varying,
+    uid character varying
 );
 
 
@@ -859,6 +882,14 @@ CREATE TABLE public.watch_lists (
 --
 
 ALTER TABLE ONLY public.delayed_jobs ALTER COLUMN id SET DEFAULT nextval('public.delayed_jobs_id_seq'::regclass);
+
+
+--
+-- Name: activities activities_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.activities
+    ADD CONSTRAINT activities_pkey PRIMARY KEY (id);
 
 
 --
@@ -1038,10 +1069,10 @@ ALTER TABLE ONLY public.thing_duplicates
 
 
 --
--- Name: thing_external_systems thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+-- Name: external_system_syncs thing_external_systems_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
-ALTER TABLE ONLY public.thing_external_systems
+ALTER TABLE ONLY public.external_system_syncs
     ADD CONSTRAINT thing_external_systems_pkey PRIMARY KEY (id);
 
 
@@ -1147,6 +1178,13 @@ CREATE INDEX by_ctl_esi ON public.classification_tree_labels USING btree (extern
 
 
 --
+-- Name: by_watch_list_hashable; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX by_watch_list_hashable ON public.watch_list_data_hashes USING btree (watch_list_id, hashable_id, hashable_type);
+
+
+--
 -- Name: child_parent_index; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1245,6 +1283,27 @@ CREATE INDEX headline_idx ON public.searches USING gin (headline public.gin_trgm
 
 
 --
+-- Name: index_activities_on_activitiable_type_and_activitiable_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activitiable_type_and_activitiable_id ON public.activities USING btree (activitiable_type, activitiable_id);
+
+
+--
+-- Name: index_activities_on_activity_type_and_updated_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_activity_type_and_updated_at ON public.activities USING btree (activity_type, updated_at);
+
+
+--
+-- Name: index_activities_on_user_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_activities_on_user_id ON public.activities USING btree (user_id);
+
+
+--
 -- Name: index_asset_contents_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1315,6 +1374,13 @@ CREATE INDEX index_classification_groups_on_classification_id ON public.classifi
 
 
 --
+-- Name: index_classification_groups_on_classification_id_and_created_at; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_groups_on_classification_id_and_created_at ON public.classification_groups USING btree (classification_id, created_at);
+
+
+--
 -- Name: index_classification_groups_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1343,10 +1409,24 @@ CREATE UNIQUE INDEX index_classification_tree_labels_on_id ON public.classificat
 
 
 --
+-- Name: index_classification_tree_labels_on_name; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_tree_labels_on_name ON public.classification_tree_labels USING btree (name);
+
+
+--
 -- Name: index_classification_trees_on_classification_alias_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_classification_trees_on_classification_alias_id ON public.classification_trees USING btree (classification_alias_id);
+
+
+--
+-- Name: index_classification_trees_on_classification_tree_label_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classification_trees_on_classification_tree_label_id ON public.classification_trees USING btree (classification_tree_label_id);
 
 
 --
@@ -1385,6 +1465,13 @@ CREATE UNIQUE INDEX index_classifications_on_id ON public.classifications USING 
 
 
 --
+-- Name: index_content_contents_on_content_b_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_content_contents_on_content_b_id ON public.content_contents USING btree (content_b_id);
+
+
+--
 -- Name: index_data_links_on_asset_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1410,6 +1497,13 @@ CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (ite
 --
 
 CREATE UNIQUE INDEX index_external_sources_on_id ON public.external_sources USING btree (id);
+
+
+--
+-- Name: index_external_system_syncs_on_syncable_external_system; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_external_system_syncs_on_syncable_external_system ON public.external_system_syncs USING btree (syncable_type, syncable_id, external_system_id);
 
 
 --
@@ -1497,17 +1591,17 @@ CREATE INDEX index_subscriptions_on_user_id ON public.subscriptions USING btree 
 
 
 --
--- Name: index_thing_external_systems_on_thing_id_and_external_system_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_thing_external_systems_on_thing_id_and_external_system_id ON public.thing_external_systems USING btree (thing_id, external_system_id);
-
-
---
 -- Name: index_thing_histories_on_id; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE UNIQUE INDEX index_thing_histories_on_id ON public.thing_histories USING btree (id);
+
+
+--
+-- Name: index_thing_histories_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_thing_histories_on_representation_of_id ON public.thing_histories USING btree (representation_of_id);
 
 
 --
@@ -1609,6 +1703,20 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 
 
 --
+-- Name: index_things_on_is_part_of; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
+
+
+--
+-- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_representation_of_id ON public.things USING btree (representation_of_id);
+
+
+--
 -- Name: index_things_on_schema_type; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1658,6 +1766,13 @@ CREATE INDEX index_user_groups_on_name ON public.user_groups USING btree (name);
 
 
 --
+-- Name: index_users_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_users_on_creator_id ON public.users USING btree (creator_id);
+
+
+--
 -- Name: index_users_on_email; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1669,6 +1784,13 @@ CREATE UNIQUE INDEX index_users_on_email ON public.users USING btree (email);
 --
 
 CREATE UNIQUE INDEX index_users_on_id ON public.users USING btree (id);
+
+
+--
+-- Name: index_users_on_jti; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE UNIQUE INDEX index_users_on_jti ON public.users USING btree (jti);
 
 
 --
@@ -1909,6 +2031,14 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190531093158'),
 ('20190612084614'),
 ('20190613092317'),
-('20190716081614');
+('20190703082641'),
+('20190704114636'),
+('20190712074413'),
+('20190716081614'),
+('20190716130050'),
+('20190801120456'),
+('20190805085313'),
+('20190821101746'),
+('20190920075014');
 
 

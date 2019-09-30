@@ -39,6 +39,8 @@ module.exports.initialize = function() {
           if (data.value !== undefined) {
             let async_select = $(event.target);
             let value = async_select.val();
+            if (!Array.isArray(value)) value = [value].filter(el => el !== null);
+            if (!Array.isArray(data.value)) data.value = [data.value].filter(el => el !== null);
             let diff = data.value.diff(value);
             if (diff.length) {
               $.ajax({
@@ -152,6 +154,8 @@ module.exports.initialize = function() {
         $(this).on('dc:import:data', (event, data) => {
           if (data.value !== undefined) {
             let value = $(event.target).val();
+            if (!Array.isArray(value)) value = [value].filter(el => el !== null);
+            if (!Array.isArray(data.value)) data.value = [data.value].filter(el => el !== null);
             let diff = data.value.diff(value);
             if (diff.length)
               $(event.target)
@@ -199,13 +203,40 @@ module.exports.initialize = function() {
           },
           matcher: function(params, data) {
             // If there are no search terms, return all of the data
-            if ($.trim(params.term) === '') {
+            if (params.term === undefined || params.term.trim() === '') {
               return data;
             }
 
             // Do not display the item if there is no 'text' property
             if (typeof data.text === 'undefined') {
               return null;
+            }
+
+            // Skip if there is no 'children' property
+            if (data.element.tagName === 'OPTGROUP' && typeof data.children === 'undefined') {
+              return null;
+            }
+
+            // `data.children` contains the actual options that we are matching against
+            var filteredChildren = [];
+            $.each(data.children, function(idx, child) {
+              if (
+                child.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
+                (child.title !== undefined && child.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
+              ) {
+                filteredChildren.push(child);
+              }
+            });
+
+            // If we matched any of the timezone group's children, then set the matched children on the group
+            // and return the group object
+            if (filteredChildren.length) {
+              var modifiedData = $.extend({}, data, true);
+              modifiedData.children = filteredChildren;
+
+              // You can return modified objects from here
+              // This includes matching the `children` how you want in nested data sets
+              return modifiedData;
             }
 
             // `params.term` should be the term that is used for searching

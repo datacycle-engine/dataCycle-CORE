@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions' }
+                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -46,8 +46,9 @@ DataCycleCore::Engine.routes.draw do
       get 'compare/(:source_id)', on: :member, action: :compare, as: 'compare'
       get 'external/:external_key/edit', action: 'edit_by_external_key', on: :collection
       get :load_more_linked_objects, on: :member
-      get :gpx, on: :member
-      get :download, on: :member
+      get :load_more_related, on: :member
+      get :download_zip, on: :member
+      get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -60,9 +61,17 @@ DataCycleCore::Engine.routes.draw do
   resources :subscriptions, only: [:index, :create, :destroy]
   resources :stored_filters, only: [:index, :create, :update, :destroy], path: :search_history do
     get :search, on: :collection
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
   resources :classification_tree_labels, only: :show
+
+  defaults format: :json do
+    resource :content_locks, only: :update do
+      post :destroy, on: :collection
+    end
+  end
 
   scope('files') do
     resources :assets, only: [:index, :show, :create, :update, :destroy] do
@@ -72,9 +81,12 @@ DataCycleCore::Engine.routes.draw do
   end
 
   resource :downloads, only: [] do
-    get '/things(/:id)', on: :member, action: 'things'
-    get '/stored_filters(/:id)', on: :member, action: 'stored_filters'
-    get '/watch_lists(/:id)', on: :member, action: 'watch_lists'
+    get '/things(/:id)(/:serialize_format)(/:version)', on: :member, action: 'things'
+    get '/thing_collections(/:id)', on: :member, action: 'thing_collections'
+    get '/watch_lists(/:id)(/:serialize_format)', on: :member, action: 'watch_lists'
+    get '/watch_list_collections(/:id)', on: :member, action: 'watch_list_collections'
+    get '/stored_filters(/:id)(/:serialize_format)', on: :member, action: 'stored_filters'
+    get '/stored_filter_collections(/:id)', on: :member, action: 'stored_filter_collections'
   end
 
   resources :data_links do
@@ -89,7 +101,8 @@ DataCycleCore::Engine.routes.draw do
     get :bulk_edit, on: :member
     patch :bulk_update, on: :member
     post :validate, on: :member
-    get :download, on: :member
+    get :download_zip, on: :member
+    get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
 
@@ -195,6 +208,31 @@ DataCycleCore::Engine.routes.draw do
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
           end
+        end
+      end
+      namespace :v4 do
+        scope path: '(/:api_subversion)' do
+          get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
+          resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+
+          resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
+            get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          end
+
+          get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
+          resources :collections, only: [:index, :show, :create], controller: :watch_lists do
+            post :add_item, on: :member
+            post :remove_item, on: :member
+            get :download_and_reset, on: :member
+          end
+
+          namespace :authentication, path: :auth do
+            post :login
+            post :renew_login
+            post :logout
+          end
+
+          resources :users, only: [:index, :show, :create], controller: :users
         end
       end
     end

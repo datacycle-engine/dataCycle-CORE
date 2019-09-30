@@ -63,6 +63,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
+    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'description_i18n', 'assignable', 'internal']).present? }
 
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
@@ -180,6 +181,10 @@ module DataCycleCore
       end
     end
 
+    def first_available_locale(locale = nil)
+      (Array(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
+    end
+
     private
 
     def set_internal_data
@@ -197,6 +202,16 @@ module DataCycleCore
       primary_classification.tap do |c|
         c.name = name
         c.save!
+      end
+    end
+
+    def invalidate_things_cache
+      Delayed::Job.enqueue DataCycleCore::Jobs::CacheInvalidationJob.new(self.class.name, id, :invalidate_cache) unless Delayed::Job.exists?(queue: 'cache_invalidation', delayed_reference_type: self.class.name, delayed_reference_id: id, locked_at: nil)
+    end
+
+    def invalidate_cache
+      primary_classification&.things&.ids&.uniq&.each do |item_id|
+        Rails.cache.delete_matched("*DataCycleCore::Thing_#{item_id}*")
       end
     end
   end

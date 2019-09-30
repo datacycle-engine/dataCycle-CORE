@@ -1,11 +1,5 @@
 :api:
-  :default: v2
+  :default: v3
 #  :v2:
 #    :subversions:
 #      - 'test'
-:templates:
-  :media_objects:
-    :Bild:
-      :features:
-        :download:
-          :allowed: true

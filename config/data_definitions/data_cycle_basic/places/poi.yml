@@ -12,6 +12,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
     :api:
       :type: TouristAttraction
     :properties:
@@ -27,6 +35,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -44,6 +55,7 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      # move to dataCycleProperty
       :price_range:
         :label: Preis-Info
         :type: string
@@ -77,7 +89,7 @@
         :type: mixin
         :name: potential_actions
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "POI"
@@ -93,9 +105,6 @@
       :wogehmahin:
         :type: mixin
         :name: wogehmahin
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

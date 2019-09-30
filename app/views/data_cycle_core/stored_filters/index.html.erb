@@ -34,16 +34,20 @@
                 </span>
                 <span class="buttons">
                   <% if stored_search.api %>
-                    <%= link_to api_v2_stored_filter_path(id: stored_search),
+                    <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: stored_search),
                       class: 'copy-to-clipboard',
                       data: {
                         tooltip: true,
-                        value: api_v2_stored_filter_url(id: stored_search)
+                        value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: stored_search)
                       },
                       title: t('actions.copy_to_clipboard', locale: DataCycleCore.ui_language) do %>
                       <i class="fa fa-clipboard" aria-hidden="true"></i>
                     <% end %>
                   <% end %>
+
+                  <%= render 'data_cycle_core/application/downloads/download_zip', content: stored_search if can?(:download_zip, stored_search) %>
+
+                  <%= render 'data_cycle_core/application/downloads/download', content: stored_search if can?(:download, stored_search) %>
 
                   <% if can?(:create_api, stored_search) %>
                     <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" title="<%= t('common.change_api_access', locale: DataCycleCore.ui_language) %>" data-tooltip>

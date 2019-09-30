@@ -1,0 +1,48 @@
+---
+- :data:
+    :name: Event-Ticket-Angebot
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type: Offer
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+      :price:
+        :label: Preis
+        :type: string
+        :storage_type: string
+        :storage_location: translated_value
+        :search: true
+      :url:
+        :label: Angebots URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+      :offered_by:
+        :label: Ansprechpartner
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Event-Ticket-Angebot
+      :meta_data:
+        :type: mixin
+        :name: meta_data

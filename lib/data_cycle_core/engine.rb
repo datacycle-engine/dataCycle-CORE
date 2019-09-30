@@ -82,10 +82,10 @@ module DataCycleCore
     # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource']
+    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource', 'DataCycleCore::Api::FeratelIdentityServerExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -93,12 +93,17 @@ module DataCycleCore
     mattr_accessor :notification_frequencies
     self.notification_frequencies = ['always', 'day', 'week']
 
-    # autoload_last_filter?, life_cycle, releasable, overlay, container, publishing ...
     mattr_accessor :features
     self.features = {}
 
     mattr_accessor :main_config
     self.main_config = {}
+
+    mattr_accessor :new_dialog
+    self.new_dialog = {}
+
+    mattr_accessor :logo
+    self.logo = {}
 
     # inheritable_attributes
     mattr_accessor :inheritable_attributes
@@ -113,7 +118,7 @@ module DataCycleCore
 
     # webhooks
     mattr_accessor :webhooks
-    self.webhooks = []
+    self.webhooks = Array.wrap(ENV['WEBHOOKS']&.split(',')&.map(&:squish))
 
     # template directories
     mattr_accessor :template_path

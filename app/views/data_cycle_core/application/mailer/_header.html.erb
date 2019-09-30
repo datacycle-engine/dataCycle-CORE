@@ -10,11 +10,10 @@
 
     .header .header_top td {
       height: 5px;
-      background: #cc0000;
+      background: <%= DataCycleCore.logo.dig('customercolor') || '#cc0000' %>;
     }
 
     .header .header_main td {
-      width: 33%;
       background: #333333;
       text-align: center;
     }
@@ -26,6 +25,10 @@
       width: 120px;
       height: 65px;
       margin: 0 auto;
+    }
+
+    .show-for-print {
+      display: none;
     }
 
     .header .header_bottom td {
@@ -49,18 +52,14 @@
       </tr>
 
       <tr class="header_main">
-        <td width="33%"></td>
-
-        <td width="34%" align="center">
-          <img border="0" width="120" height="65" src="<%= image_url('eml-datacycle.png') %>" alt="dataCycle Logo">
+        <td colspan="3" width="100%" align="center">
+          <%= email_image_tag DataCycleCore.logo['email'], style: "height: #{DataCycleCore.logo.dig('mail_dimensions', 'height')}; width: #{DataCycleCore.logo.dig('mail_dimensions', 'width')};" %>
         </td>
-
-        <td width="33%"></td>
       </tr>
 
       <tr class="header_bottom">
         <td align="center" colspan="3">
-          <img border="0" width="101" height="8" src="<%= image_url('eml-datacycle-border.png') %>" alt="dataCycle Border">
+          <%= email_image_tag 'eml-datacycle-border.png', border: 0, width: 101, height: 0, alt: 'dataCycle Boder' %>
         </td>
       </tr>
     </table>

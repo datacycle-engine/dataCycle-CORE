@@ -10,6 +10,13 @@
         :allowed: true
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -23,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :creative_attributes:
         :type: mixin
         :name: creative_attributes
@@ -33,13 +43,10 @@
         :api:
           :name: hasPart
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Quiz"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :publication_schedule:
         :type: mixin
         :name: publication_schedule
@@ -65,6 +72,7 @@
         :label: Titel
         :type: string
         :storage_location: column
+        :search: true
         :validations:
           :required: true
         :api:
@@ -73,6 +81,7 @@
         :label: Fließtext
         :type: string
         :storage_location: translated_value
+        :search: true
         :ui:
           :edit:
             :type: text_editor
@@ -95,7 +104,7 @@
         :type: embedded
         :template_name: Antwort
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Frage"
@@ -115,6 +124,7 @@
         :label: Antwort
         :type: string
         :storage_location: translated_value
+        :search: true
         :validations:
           :required: true
         :ui:
@@ -129,7 +139,7 @@
         :validations:
           :max: 1
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Antwort"

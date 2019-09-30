@@ -10,6 +10,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
     :api:
       :type: VideoObject
     :properties:
@@ -22,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :asset:
         :label: Datei
         :type: asset
@@ -211,13 +222,10 @@
         :type: mixin
         :name: tags
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Video"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

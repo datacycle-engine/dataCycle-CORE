@@ -5,6 +5,26 @@
 
 :download:
   :enabled: true
+  :collections:
+    :content:
+      :enabled: true
+    :watch_list:
+      :enabled: true
+      :serializers:
+        :json: true
+        :xml: true
+    :stored_filter:
+      :enabled: true
+      :serializers:
+        :json: true
+        :xml: true
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: true
+    :json: true
+    :xml: true
 
 :overlay:
   :enabled: true
@@ -34,4 +54,10 @@
     - duplicate_candidates
 
 :duplicate_candidate:
+  :enabled: true
+
+:content_lock:
+  :enabled: true
+
+:user_api:
   :enabled: true

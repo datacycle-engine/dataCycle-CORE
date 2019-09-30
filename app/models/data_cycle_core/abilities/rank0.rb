@@ -5,6 +5,7 @@ module DataCycleCore
     class Rank0 < DataCycleCore::Ability
       def initialize(user, session = {})
         can [:show, :find], :object_browser
+        can [:login, :renew_login], :user_api
         can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
         can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|
@@ -67,6 +68,10 @@ module DataCycleCore
 
         can :print, DataCycleCore::Thing do |content|
           ['entity'].include?(content.schema['content_type'])
+        end
+        can :api, DataCycleCore::StoredFilter, api: true, user: user
+        can :api, DataCycleCore::StoredFilter, ['api = ? AND ? = ANY(api_users)', true, user.id] do |sf|
+          sf.api && sf.api_users&.include?(user.id)
         end
       end
     end

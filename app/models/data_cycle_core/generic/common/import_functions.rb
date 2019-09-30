@@ -106,7 +106,12 @@ module DataCycleCore
                   durations = []
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max).each do |content|
+                    if options.dig(:iterator_type) == :aggregate
+                      iterate = iterator.call(mongo_item, locale, source_filter)
+                    else
+                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
+                    end
+                    iterate.each do |content|
                       durations << Benchmark.realtime do
                         item_count += 1
                         next if options[:min_count].present? && item_count < options[:min_count]
@@ -236,6 +241,69 @@ module DataCycleCore
           end
         end
 
+        def self.import_classifications2(
+          utility_object, tree_name, load_root_classifications, load_parent_classification_alias,
+          extract_parent_data, extract_child_data, options
+        )
+
+          raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
+          external_source_id = utility_object.external_source.id
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              each_locale(utility_object.locales) do |locale|
+                I18n.with_locale(locale) do
+                  item_count = 0
+
+                  begin
+                    logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+
+                    utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                      root_classifications = load_root_classifications.call(mongo_item, locale, options).to_a
+                      root_classifications.each do |raw_classification_data|
+                        item_count += 1
+                        next if options[:min_count].present? && item_count < options[:min_count]
+                        classification_data = raw_classification_data.try(:[], 'dump')&.dig(locale)
+
+                        extracted_classification_data = extract_parent_data.call(options, classification_data)
+
+                        import_classification(
+                          utility_object: utility_object,
+                          classification_data: extracted_classification_data.merge({ tree_name: tree_name }),
+                          parent_classification_alias: nil
+                        )
+
+                        extract_child_data.call(options, classification_data).each do |child_classification_data|
+                          import_classification(
+                            utility_object: utility_object,
+                            classification_data: child_classification_data.merge({ tree_name: tree_name }),
+                            parent_classification_alias: load_parent_classification_alias.call(classification_data, external_source_id)
+                          )
+                        end
+
+                        logging.item_processed(
+                          extracted_classification_data[:name],
+                          extracted_classification_data[:external_key],
+                          item_count,
+                          nil
+                        )
+
+                        break if options[:max_count] && item_count >= options[:max_count]
+                      end
+                    end
+                  ensure
+                    logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
+                  end
+                end
+              end
+            end
+          end
+        end
+
         def self.import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
           if classification_data[:external_key].blank?
             classification = DataCycleCore::Classification
@@ -250,10 +318,6 @@ module DataCycleCore
                 external_key: classification_data[:external_key]
               )
           end
-
-          classification.name = classification_data[:name]
-          classification.description = classification_data[:description] if classification_data[:description].present?
-          classification.external_key = classification_data[:external_key]
 
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
@@ -294,6 +358,10 @@ module DataCycleCore
 
             classification_alias = primary_classification_alias
           end
+
+          classification.name = classification_alias.internal_name
+          classification.description = classification_data[:description] if classification_data[:description].present?
+          classification.external_key = classification_data[:external_key]
           classification.save!
           classification_alias
         end

@@ -10,6 +10,13 @@
         :allowed: true
       :creatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
     :properties:
       :id:
         :label: id
@@ -17,6 +24,9 @@
       :title:
         :type: mixin
         :name: title
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -37,14 +47,50 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :member:
+        :label: Mitglieder
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+        :inverse_of: member_of
+        :link_direction: inverse
+      :linked_thing:
+        :label: Verknüpfte Inhalte
+        :type: linked
+        :inverse_of: is_linked_to
+        :global: true
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+      :is_linked_to:
+        :label: Verknüpft mit
+        :type: linked
+        :inverse_of: linked_thing
+        :link_direction: inverse
+        :global: true
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Organisation"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data

@@ -54,10 +54,8 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
   if Rails.application.secrets.dig(:redis_server).present?
-    config.cache_store = :redis_store, {
-      host: Rails.application.secrets.redis_server,
-      port: Rails.application.secrets.redis_port,
-      db: Rails.application.secrets.redis_cache_database,
+    config.cache_store = :redis_cache_store, {
+      url: "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}",
       namespace: Rails.application.secrets.redis_cache_namespace
     }
   end

@@ -5,8 +5,6 @@ module DataCycleCore
     belongs_to :content_data, class_name: 'DataCycleCore::Thing'
     belongs_to :asset, dependent: :destroy
 
-    after_create { asset&.create_dynamic_versions }
-
     class << self
       def with_content(content_id, content_type)
         where(content_data_id: content_id, content_data_type: content_type)
@@ -19,11 +17,6 @@ module DataCycleCore
       def with_relation(relation_name)
         where(relation: relation_name)
       end
-    end
-
-    def asset_version_definition(version = nil)
-      return content_data&.schema&.dig('properties', relation, 'versions') if version.nil?
-      content_data&.schema&.dig('properties', relation, 'versions', version.to_s)
     end
   end
 end

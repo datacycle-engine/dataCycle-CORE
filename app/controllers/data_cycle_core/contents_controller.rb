@@ -5,6 +5,7 @@ module DataCycleCore
     include DataCycleCore::Filter
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
+    before_action :authenticate_user!, :set_watch_list
 
     DataCycleCore.features
       .select { |_, v| !v.dig(:only_config) == true }
@@ -13,7 +14,6 @@ module DataCycleCore
         include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
       end
 
-    before_action :authenticate_user!, :set_watch_list
     load_and_authorize_resource only: [:index, :show, :destroy, :history]
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
 
@@ -55,7 +55,7 @@ module DataCycleCore
         end
 
         respond_to do |format|
-          format.json { redirect_to api_v2_thing_path(id: @content) }
+          format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
           format.html { render && return }
         end
       end
@@ -102,7 +102,7 @@ module DataCycleCore
     end
 
     def edit
-      @content = DataCycleCore::Thing.find(params[:id])
+      @content ||= DataCycleCore::Thing.find(params[:id])
 
       # get show data for split view
       if source_params.present?
@@ -141,7 +141,7 @@ module DataCycleCore
     end
 
     def update
-      @content = DataCycleCore::Thing.find(params[:id])
+      @content ||= DataCycleCore::Thing.find(params[:id])
       I18n.with_locale(params[:locale] || @content.first_available_locale) do
         authorize!(:update, @content)
 
@@ -305,6 +305,18 @@ module DataCycleCore
           end
         end
       end
+    end
+
+    def load_more_related
+      @content = DataCycleCore::Thing.find(params[:id])
+      authorize! :show, @content
+
+      @page = (params[:page] || 1).to_i
+
+      @related_objects = @content.related_contents.includes(:translations).order(:template_name, :id).page(@page).per(DataCycleCore.linked_objects_page_size)
+      @last_group = params[:last_group]
+
+      respond_to :js
     end
 
     def upload

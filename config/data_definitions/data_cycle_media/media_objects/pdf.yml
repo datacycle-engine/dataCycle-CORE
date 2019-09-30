@@ -10,6 +10,14 @@
         :allowed: true
       :translatable:
         :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :asset: true
+          :json: true
+          :xml: true
     :api:
       :type: MediaObject
     :properties:
@@ -22,6 +30,9 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :asset:
         :label: Datei
         :type: asset
@@ -168,15 +179,12 @@
         :name: additional_media_properties
       :additional_pdf_properties:
         :type: mixin
-        :name: additional_pdf_properties        
+        :name: additional_pdf_properties
       :data_type:
-        :label: Inhaltstype
+        :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "PDF"
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
       :meta_data:
         :type: mixin
         :name: meta_data
