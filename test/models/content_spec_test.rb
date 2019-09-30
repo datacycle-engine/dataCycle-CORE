@@ -144,10 +144,10 @@ describe DataCycleCore::Content do
 
     it 'fails to provide methods for properties that are not specified in the subject' do
       ['abcd', 'jklm'].each do |item|
-        assert(subject.respond_to?(item), false)
-        assert(subject.respond_to?(item.to_sym), false)
-        assert(subject.respond_to?("#{item}="), false)
-        assert(subject.respond_to?("#{item}=".to_sym), false)
+        assert_equal(subject.respond_to?(item), false)
+        assert_equal(subject.respond_to?(item.to_sym), false)
+        assert_equal(subject.respond_to?("#{item}="), false)
+        assert_equal(subject.respond_to?("#{item}=".to_sym), false)
       end
     end
 

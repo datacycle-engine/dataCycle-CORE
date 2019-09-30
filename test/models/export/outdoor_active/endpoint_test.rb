@@ -44,7 +44,7 @@ describe DataCycleCore::Export::OutdoorActive::Endpoint do
   it 'should parse successfull job status' do
     result = endpoint.parse_job_status_response_body(raw_response_body: JOB_STATUS_WITH_NO_ERRORS_OR_WARNINGS)
 
-    assert_not(result.nil?)
+    assert(result.present?)
     assert(result['outdoor_active_id'], '34214262')
     assert(result['job_status'], 'done')
     assert_nil(result['errors'])
@@ -54,7 +54,7 @@ describe DataCycleCore::Export::OutdoorActive::Endpoint do
   it 'should parse job status containing invalid content errors' do
     result = endpoint.parse_job_status_response_body(raw_response_body: JOB_STATUS_WITH_INVALID_CONTENT_ERRORS)
 
-    assert_not(result.nil?)
+    assert(result.present?)
     assert_nil(result['outdoor_active_id'])
     assert(result['job_status'], 'failed')
     assert(result['errors'].include?('Invalid data category'))

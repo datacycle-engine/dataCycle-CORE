@@ -61,8 +61,8 @@ describe DataCycleCore::ExternalSource do
 
   it 'returns nil if no import_config is defined' do
     subject.config = nil
-    subject.import_config.must_be_nil
-    subject.import_list.must_be_nil
+    assert_nil(subject.import_config)
+    assert_nil(subject.import_list)
   end
 
   it 'produces a list of available import steps' do
@@ -78,11 +78,11 @@ describe DataCycleCore::ExternalSource do
   end
 
   it 'throws an exception if import_single can not find its config' do
-    proc { subject.import_single(:xxx, { test: 'servas' }) }.must_raise RuntimeError
+    assert_raises(RuntimeError) { subject.import_single(:xxx, { test: 'servas' }) }
   end
 
   it 'throws an exception if import can not find a config' do
-    proc { subject.import(:xxx, { test: 'servas' }) }.must_raise ArgumentError
+    assert_raises(ArgumentError) { subject.import(:xxx, { test: 'servas' }) }
   end
 
   it 'produces a download_config' do
@@ -96,10 +96,10 @@ describe DataCycleCore::ExternalSource do
   end
 
   it 'throws an exception if download_single can not find its config' do
-    proc { subject.download_single(:xxx, { test: 'servas' }) }.must_raise RuntimeError
+    assert_raises(RuntimeError) { subject.download_single(:xxx, { test: 'servas' }) }
   end
 
   it 'throws an exception if download can not find a config' do
-    proc { subject.download(:xxx, { test: 'servas' }) }.must_raise ArgumentError
+    assert_raises(ArgumentError) { subject.download(:xxx, { test: 'servas' }) }
   end
 end

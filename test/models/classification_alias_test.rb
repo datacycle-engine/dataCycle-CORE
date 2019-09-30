@@ -24,8 +24,8 @@ describe DataCycleCore::ClassificationAlias do
     classification_alias.name = 'UPDATED NAME'
     classification_alias.save!
 
-    classification_alias.name.must_equal 'UPDATED NAME'
-    classification_alias.primary_classification.name.must_equal 'UPDATED NAME'
+    assert(classification_alias.name, 'UPDATED NAME')
+    assert(classification_alias.primary_classification.name, 'UPDATED NAME')
   end
 
   describe 'when searching' do
@@ -119,13 +119,13 @@ describe DataCycleCore::ClassificationAlias do
       names = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
         .first.descendants.map(&:name)
 
-      assert_not(names.include?('A'))
-      assert_not(names.include?('A - 1'))
-      assert_not(names.include?('A - 2'))
-      assert_not(names.include?('A - 3'))
-      assert_not(names.include?('A - 3 - a'))
-      assert_not(names.include?('A - 3 - b'))
-      assert_not(names.include?('A - 3 - c'))
+      assert(names.exclude?('A'))
+      assert(names.exclude?('A - 1'))
+      assert(names.exclude?('A - 2'))
+      assert(names.exclude?('A - 3'))
+      assert(names.include?('A - 3 - a'))
+      assert(names.include?('A - 3 - b'))
+      assert(names.include?('A - 3 - c'))
     end
   end
 

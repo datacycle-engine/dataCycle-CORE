@@ -23,156 +23,156 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'has a config path defined' do
-      assert !DataCycleCore.external_sources_path.empty?
+      assert(!DataCycleCore.external_sources_path.empty?)
     end
 
     it 'has yml-files in the config path' do
-      assert Dir[DataCycleCore.external_sources_path + '*.yml'].count.positive?
+      assert(Dir[DataCycleCore.external_sources_path + '*.yml'].count.positive?)
     end
 
     it 'successfully validates the test config' do
-      assert subject.validate(external_source_config).blank?
+      assert(subject.validate(external_source_config).blank?)
     end
 
     it 'fails if no name is given' do
-      assert subject.validate(external_source_config.except('name')).present?
+      assert(subject.validate(external_source_config.except('name')).present?)
     end
 
     it 'produces an appropriate error message if no name is given' do
-      subject.validate(external_source_config.except('name')).must_equal({ name: ['is missing'] })
+      assert(subject.validate(external_source_config.except('name')), { name: ['is missing'] })
     end
 
     it 'fails if no credentials are given' do
-      assert subject.validate(external_source_config.except('credentials')).present?
+      assert(subject.validate(external_source_config.except('credentials')).present?)
     end
 
     it 'produces an appropriate error message if no credentials are given' do
-      subject.validate(external_source_config.except('credentials')).must_equal({ credentials: ['is missing'] })
+      assert(subject.validate(external_source_config.except('credentials')), { credentials: ['is missing'] })
     end
 
     it 'fails if no download_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
-      assert subject.validate(test_hash).present?
+      assert(subject.validate(test_hash).present?)
     end
 
     it 'produces an appropriate error message if no download_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
-      subject.validate(test_hash).must_equal({ config: { download_config: ['is missing'] } })
+      assert(subject.validate(test_hash), { config: { download_config: ['is missing'] } })
     end
 
     it 'fails if no import_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('import_config')
-      assert subject.validate(test_hash).present?
+      assert(subject.validate(test_hash).present?)
     end
 
     it 'produces an appropriate error message if no import_config is given' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('import_config')
-      subject.validate(test_hash).must_equal({ config: { import_config: ['is missing'] } })
+      assert(subject.validate(test_hash), { config: { import_config: ['is missing'] } })
     end
 
     it 'successfully validates a valid validate_download_item' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash).errors.must_equal({})
+      assert(subject.validate_download_item.call(test_hash).errors, {})
     end
 
     it 'produces an appropriate error if sorting is negative' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:sorting] = -1
-      subject.validate_download_item.call(test_hash).errors.must_equal({ sorting: ['must be greater than 0'] })
+      assert(subject.validate_download_item.call(test_hash).errors, { sorting: ['must be greater than 0'] })
     end
 
     it 'fails if download_item has no source_type specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_download_item.call(test_hash.except(:source_type)).present?
+      assert(subject.validate_download_item.call(test_hash.except(:source_type)).present?)
     end
 
     it 'produces an appropriate error if no source_type is specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash.except(:source_type)).errors.must_equal({ source_type: ['is missing'] })
+      assert(subject.validate_download_item.call(test_hash.except(:source_type)).errors, { source_type: ['is missing'] })
     end
 
     it 'fails if download_item has no endpoint specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_download_item.call(test_hash.except(:source_type)).present?
+      assert(subject.validate_download_item.call(test_hash.except(:source_type)).present?)
     end
 
     it 'produces an appropriate error if no endpoint is specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash.except(:endpoint)).errors.must_equal({ endpoint: ['is missing'] })
+      assert(subject.validate_download_item.call(test_hash.except(:endpoint)).errors, { endpoint: ['is missing'] })
     end
 
     it 'produces an appropriate error if endpoint is not a valid class_name' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:endpoint] = 'DataCycleCore::XXX'
-      subject.validate_download_item.call(test_hash).errors.must_equal({ endpoint: ['the string given does not specify a valid ruby class.'] })
+      assert(subject.validate_download_item.call(test_hash).errors, { endpoint: ['the string given does not specify a valid ruby class.'] })
     end
 
     it 'fails if download_item has no download_strategy specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_download_item.call(test_hash.except(:download_strategy)).present?
+      assert(subject.validate_download_item.call(test_hash.except(:download_strategy)).present?)
     end
 
     it 'produces an appropriate error if no download_strategy is specified' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_download_item.call(test_hash.except(:download_strategy)).errors.must_equal({ download_strategy: ['is missing'] })
+      assert(subject.validate_download_item.call(test_hash.except(:download_strategy)), { download_strategy: ['is missing'] })
     end
 
     it 'produces an appropriate error if download_strategy is not a module' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:download_strategy] = 'DataCycleCore::XXX'
-      subject.validate_download_item.call(test_hash).errors.must_equal({ download_strategy: ['the string given does not specify a valid ruby module.'] })
+      assert(subject.validate_download_item.call(test_hash).errors, { download_strategy: ['the string given does not specify a valid ruby module.'] })
     end
 
     it 'produces an appropriate error if logging_strategy is not a module' do
       test_hash = external_source_config['config']['download_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:logging_strategy] = 'DataCycleCore::XXX'
-      subject.validate_download_item.call(test_hash).errors.must_equal({ logging_strategy: ['the string given can not be evaluated.'] })
+      assert(subject.validate_download_item.call(test_hash).errors, { logging_strategy: ['the string given can not be evaluated.'] })
     end
 
     it 'produces an appropriate error if sorting is negative for an import_item' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:sorting] = -1
-      subject.validate_import_item.call(test_hash).errors.must_equal({ sorting: ['must be greater than 0'] })
+      assert(subject.validate_import_item.call(test_hash).errors, { sorting: ['must be greater than 0'] })
     end
 
     it 'fails if import_item has no source_type specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_import_item.call(test_hash.except(:source_type)).present?
+      assert(subject.validate_import_item.call(test_hash.except(:source_type)).present?)
     end
 
     it 'produces an appropriate error if no source_type is specified for an import_item' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:source_type)).errors.must_equal({ source_type: ['is missing'] })
+      assert(subject.validate_import_item.call(test_hash.except(:source_type)), { source_type: ['is missing'] })
     end
 
     it 'fails if import_item has no import_strategy specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_import_item.call(test_hash.except(:import_strategy)).present?
+      assert(subject.validate_import_item.call(test_hash.except(:import_strategy)).present?)
     end
 
     it 'produces an appropriate error if no import_strategy is specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:import_strategy)).errors.must_equal({ import_strategy: ['is missing'] })
+      assert(subject.validate_import_item.call(test_hash.except(:import_strategy)), { import_strategy: ['is missing'] })
     end
 
     it 'produces an appropriate error if import_strategy is not a valid class_name' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
       test_hash[:import_strategy] = 'DataCycleCore::XXX'
-      subject.validate_import_item.call(test_hash).errors.must_equal({ import_strategy: ['the string given does not specify a valid ruby module.'] })
+      assert(subject.validate_import_item.call(test_hash).errors, { import_strategy: ['the string given does not specify a valid ruby module.'] })
     end
 
     it 'fails if import_item has no data_template specified' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      assert subject.validate_import_item.call(test_hash.except(:data_template)).present?
+      assert(subject.validate_import_item.call(test_hash.except(:data_template)).present?)
     end
 
     it 'check that data_template is optional' do
       test_hash = external_source_config['config']['import_config']['images'].deep_symbolize_keys.deep_dup
-      subject.validate_import_item.call(test_hash.except(:data_template)).errors.must_equal({})
+      assert(subject.validate_import_item.call(test_hash.except(:data_template)).errors, {})
     end
   end
 end
