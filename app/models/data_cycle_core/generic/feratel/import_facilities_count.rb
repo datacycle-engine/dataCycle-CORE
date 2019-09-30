@@ -20,6 +20,7 @@ module DataCycleCore
             next if options[:min_count].present? && item_count < options[:min_count]
             item_count += 1
             parent_classification_data = load_parent_classification_alias(classification_data['_id'], external_source_id)
+            next if parent_classification_data.blank?
 
             classification_data['values'].each do |amount|
               child_classification_data = {
@@ -56,7 +57,6 @@ module DataCycleCore
               { '$group': { _id: '$_id.facility_id', values: { '$addToSet': '$_id.value' } } }
             ]
           )
-
           # db.accommodations.aggregate([
           #     { $unwind: '$dump.de.Facilities.Facility' },
           #     { $addFields: { 'facility_id': '$dump.de.Facilities.Facility.Id', 'value': '$dump.de.Facilities.Facility.Value' } },
