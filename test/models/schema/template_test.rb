@@ -17,31 +17,29 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should contain 3 property definitions' do
-      subject.property_definitions.count.must_equal(3)
-      subject.property_definitions.map { |d| d[:label] }.sort.must_equal(
-        ['stringProperty', 'datetimeProperty', 'numberProperty'].sort
-      )
+      assert(subject.property_definitions.count, 3)
+      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['stringProperty', 'datetimeProperty', 'numberProperty'])
     end
 
     it 'should contain correct property definition for "stringProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'stringProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/Text')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/Text')
     end
 
     it 'should contain correct property definition for "datetimeProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'datetimeProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/DateTime')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/DateTime')
     end
 
     it 'should contain correct property definition for "numberProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'numberProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/Number')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/Number')
     end
   end
 

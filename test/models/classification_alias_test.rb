@@ -42,20 +42,20 @@ describe DataCycleCore::ClassificationAlias do
     end
 
     it 'should return matching classification aliases' do
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('B').count.must_equal 3
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('b').count.must_equal 3
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('1').count.must_equal 2
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('2').count.must_equal 1
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('B').count, 3)
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('b').count, 3)
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('1').count, 2)
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('2').count, 1)
     end
 
     it 'should include descendants' do
       paths = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').search('X').map(&:full_path)
 
-      paths.size.must_equal 4
-      paths.must_include 'CLASSIFICATION TREE > X'
-      paths.must_include 'CLASSIFICATION TREE > X > 7'
-      paths.must_include 'CLASSIFICATION TREE > X > 8'
-      paths.must_include 'CLASSIFICATION TREE > X > 9'
+      assert(paths.size, 4)
+      assert(paths.include?('CLASSIFICATION TREE > X'))
+      assert(paths.include?('CLASSIFICATION TREE > X > 7'))
+      assert(paths.include?('CLASSIFICATION TREE > X > 8'))
+      assert(paths.include?('CLASSIFICATION TREE > X > 9'))
     end
   end
 
@@ -71,8 +71,7 @@ describe DataCycleCore::ClassificationAlias do
     end
 
     it 'should return correct number of classification aliases' do
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
-        .with_descendants.count.must_equal 4
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3').with_descendants.count, 4)
     end
 
     it 'should return classification aliases with correct name' do
@@ -81,10 +80,10 @@ describe DataCycleCore::ClassificationAlias do
         .with_descendants
         .map(&:name)
 
-      names.must_include 'A - 3'
-      names.must_include 'A - 3 - a'
-      names.must_include 'A - 3 - b'
-      names.must_include 'A - 3 - c'
+      assert(names.include?('A - 3'))
+      assert(names.include?('A - 3 - a'))
+      assert(names.include?('A - 3 - b'))
+      assert(names.include?('A - 3 - c'))
     end
 
     it 'should return classification aliases with correct paths' do
@@ -93,10 +92,10 @@ describe DataCycleCore::ClassificationAlias do
         .with_descendants
         .map(&:full_path)
 
-      paths.must_include 'CLASSIFICATION TREE > A > A - 3'
-      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - a'
-      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - b'
-      paths.must_include 'CLASSIFICATION TREE > A > A - 3 > A - 3 - c'
+      assert(paths.include?('CLASSIFICATION TREE > A > A - 3'))
+      assert(paths.include?('CLASSIFICATION TREE > A > A - 3 > A - 3 - a'))
+      assert(paths.include?('CLASSIFICATION TREE > A > A - 3 > A - 3 - b'))
+      assert(paths.include?('CLASSIFICATION TREE > A > A - 3 > A - 3 - c'))
     end
   end
 
@@ -112,23 +111,21 @@ describe DataCycleCore::ClassificationAlias do
     end
 
     it 'should return correct number of descendants' do
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A')
-        .first.descendants.count.must_equal 6
-      DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
-        .first.descendants.count.must_equal 3
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A').first.descendants.count, 6)
+      assert(DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3').first.descendants.count, 3)
     end
 
     it 'should return descendants with correct name' do
       names = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('A - 3')
         .first.descendants.map(&:name)
 
-      names.wont_include 'A'
-      names.wont_include 'A - 1'
-      names.wont_include 'A - 2'
-      names.wont_include 'A - 3'
-      names.must_include 'A - 3 - a'
-      names.must_include 'A - 3 - b'
-      names.must_include 'A - 3 - c'
+      assert_not(names.include?('A'))
+      assert_not(names.include?('A - 1'))
+      assert_not(names.include?('A - 2'))
+      assert_not(names.include?('A - 3'))
+      assert_not(names.include?('A - 3 - a'))
+      assert_not(names.include?('A - 3 - b'))
+      assert_not(names.include?('A - 3 - c'))
     end
   end
 
@@ -150,9 +147,9 @@ describe DataCycleCore::ClassificationAlias do
       paths = DataCycleCore::ClassificationAlias.for_tree('CLASSIFICATION TREE').with_name('Sommer')
         .with_descendants.order_by_similarity('Sommer').map(&:full_path)
 
-      paths[0].must_equal 'CLASSIFICATION TREE > A > Sommer'
-      paths[1].must_equal 'CLASSIFICATION TREE > A > Sommer > Sonntag'
-      paths[2].must_equal 'CLASSIFICATION TREE > A > Sommer > Samstag'
+      assert(paths[0], 'CLASSIFICATION TREE > A > Sommer')
+      assert(paths[1], 'CLASSIFICATION TREE > A > Sommer > Sonntag')
+      assert(paths[2], 'CLASSIFICATION TREE > A > Sommer > Samstag')
     end
   end
 end
