@@ -8,8 +8,6 @@
     :api:
       :type: Schedule
     :features:
-      :overlay:
-        :allowed: true
       :translatable:
         :allowed: true
     :properties:
