@@ -113,6 +113,15 @@ class ContentLock {
     } else if (!$('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').length) {
       $('#' + this.button.closest('.has-tip').data('toggle')).append(buttonText);
     }
+
+    if (Object.keys(this.locks).length >= 50) {
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').hide();
+      $(
+        '#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple .lock-count'
+      ).html(Object.keys(this.locks).length);
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple').show();
+    }
+
     this.button.prop('disabled', true).addClass('content-locked show-pie-text');
 
     if (isFirst) {
@@ -233,6 +242,10 @@ class ContentLock {
   unlockButton(lockId) {
     delete this.locks[lockId];
     $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-' + lockId).remove();
+    if (Object.keys(this.locks).length < 50) {
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text').show();
+      $('#' + this.button.closest('.has-tip').data('toggle') + ' .content-locked-text#content-lock-multiple').hide();
+    }
 
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {
       clearInterval(this.lockStateInterval);

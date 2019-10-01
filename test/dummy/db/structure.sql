@@ -841,10 +841,10 @@ CREATE TABLE public.users (
     type character varying DEFAULT 'DataCycleCore::User'::character varying,
     name character varying,
     default_locale character varying DEFAULT 'de'::character varying,
-    provider character varying,
-    uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    provider character varying,
+    uid character varying
 );
 
 

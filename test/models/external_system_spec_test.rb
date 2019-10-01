@@ -22,20 +22,20 @@ describe DataCycleCore::ExternalSystem do
   end
 
   it 'produces a push_config' do
-    subject.push_config.must_equal subject.config['push_config'].symbolize_keys
+    assert(subject.push_config, subject.config['push_config'].symbolize_keys)
   end
 
   it 'returns nil if no push_config is defined' do
     subject.config = nil
-    subject.push_config.must_be_nil
+    assert_nil(subject.push_config)
   end
 
   it 'produces a refresh_config' do
-    subject.refresh_config.must_equal subject.config['refresh_config'].symbolize_keys
+    assert(subject.refresh_config, subject.config['refresh_config'].symbolize_keys)
   end
 
   it 'returns nil if no refresh_config is defined' do
     subject.config = nil
-    subject.refresh_config.must_be_nil
+    assert_nil(subject.refresh_config)
   end
 end

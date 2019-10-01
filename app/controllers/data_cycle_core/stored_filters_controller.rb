@@ -71,7 +71,7 @@ module DataCycleCore
         ON CONFLICT DO NOTHING
       SQL
 
-      redirect_to(root_path, notice: (I18n.t :updated, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
+      redirect_to(root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language))
     end
 
     def download

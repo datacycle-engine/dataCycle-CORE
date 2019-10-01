@@ -107,7 +107,7 @@ module DataCycleCore
       @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
 
       respond_to do |format|
-        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :addedTo, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
+        format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
         format.js
       end
     end
