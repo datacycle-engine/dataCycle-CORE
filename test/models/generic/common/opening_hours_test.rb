@@ -228,59 +228,59 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     end
 
     it 'properly reads an empty record' do
-      assert_nil subject.new(empty_record, format: :google).to_opening_hours_specifications
+      assert_nil(subject.new(empty_record, format: :google).to_opening_hours_specifications)
     end
 
     it 'reads a record for one opening_hours_specifications' do
-      subject.new(one_record, format: :google).to_opening_hours_specifications.must_equal one_record_transformed
+      assert(subject.new(one_record, format: :google).to_opening_hours_specifications, one_record_transformed)
     end
 
     it 'reads a record with wrong_time_format' do
-      subject.new(one_record_wrong_time_format, format: :google, options: { wrong_time_format: true }).to_opening_hours_specifications.must_equal one_record_transformed
+      assert(subject.new(one_record_wrong_time_format, format: :google, options: { wrong_time_format: true }).to_opening_hours_specifications, one_record_transformed)
     end
 
     it 'reads a record for two opening_hours_specifications' do
-      subject.new(two_records, format: :google).to_opening_hours_specifications.must_equal two_records_transformed
+      assert(subject.new(two_records, format: :google).to_opening_hours_specifications, two_records_transformed)
     end
 
     it 'reads a record for three opening_hours_specifications' do
-      subject.new(three_records, format: :google).to_opening_hours_specifications.must_equal tree_records_transformed
+      assert(subject.new(three_records, format: :google).to_opening_hours_specifications, tree_records_transformed)
     end
 
     it 'converts opening_hours to a day_hash' do
-      subject.new(three_records, format: :google).to_per_day_opening_hours.must_equal three_records_string_output
+      assert(subject.new(three_records, format: :google).to_per_day_opening_hours, three_records_string_output)
     end
 
     it 'correctly reads, converts, and simplifies three_records2' do
       opening_hours = subject.new(three_records2, format: :google)
-      opening_hours.to_opening_hours_specifications.must_equal three_records2_transformed
-      opening_hours.to_per_day_opening_hours.must_equal three_records2_string_output
+      assert(opening_hours.to_opening_hours_specifications, three_records2_transformed)
+      assert(opening_hours.to_per_day_opening_hours, three_records2_string_output)
     end
 
     it 'correctly imports different records formats' do
       opening_hours_g = subject.new(three_records2, format: :google)
       opening_hours_s = subject.new(three_records2_transformed, format: :opening_hours_specification)
-      opening_hours_g.data.must_equal opening_hours_s.data
+      assert(opening_hours_g.data, opening_hours_s.data)
     end
 
     it 'can import converted records' do
-      subject.new(subject.new(three_records2, format: :google).to_opening_hours_specifications, format: :opening_hours_specification).to_per_day_opening_hours.must_equal three_records2_string_output
+      assert(subject.new(subject.new(three_records2, format: :google).to_opening_hours_specifications, format: :opening_hours_specification).to_per_day_opening_hours, three_records2_string_output)
     end
 
     it 'takes validity into account' do
       validity_hash = { 'valid_from' => '1.1.2000', 'valid_through' => '31.12.2020' }
       three_records_with_validity = tree_records_transformed.map { |item| item.merge({ 'validity' => validity_hash }) }
-      subject.new(three_records, format: :google, validity: validity_hash).to_opening_hours_specifications.must_equal three_records_with_validity
+      assert(subject.new(three_records, format: :google, validity: validity_hash).to_opening_hours_specifications, three_records_with_validity)
     end
 
     it 'reads gapped_data' do
-      subject.new(two_records_gapped, format: :opening_hours_specification).to_per_day_opening_hours.must_equal gapped_per_day
-      subject.new(two_records_gapped, format: :opening_hours_specification).to_opening_hours_specifications.must_equal gapped_ohs
+      assert(subject.new(two_records_gapped, format: :opening_hours_specification).to_per_day_opening_hours, gapped_per_day)
+      assert(subject.new(two_records_gapped, format: :opening_hours_specification).to_opening_hours_specifications, gapped_ohs)
     end
 
     it 'hadles intervals over midnight correctly' do
-      subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Montag').must_equal '20:00 - 2:00'
-      subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Mittwoch').must_equal 'geschlossen'
+      assert(subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Montag'), '20:00 - 2:00')
+      assert(subject.new(next_day, format: :google).to_per_day_opening_hours.dig('Mittwoch'), 'geschlossen')
     end
   end
 
@@ -294,30 +294,30 @@ describe DataCycleCore::Generic::Common::OpeningHours do
     end
 
     it 'can read nil' do
-      assert_nil subject.new(nil, format: :google).to_per_day_opening_hours
+      assert_nil(subject.new(nil, format: :google).to_per_day_opening_hours)
     end
 
     it 'can read empty_hash' do
-      assert_nil subject.new({}, format: :google).to_per_day_opening_hours
+      assert_nil(subject.new({}, format: :google).to_per_day_opening_hours)
     end
 
     it 'can read incomplete_record' do
-      assert_nil subject.new(incomplete_record, format: :google).to_per_day_opening_hours
+      assert_nil(subject.new(incomplete_record, format: :google).to_per_day_opening_hours)
     end
 
     it 'can read incomplete_record2' do
-      assert_nil subject.new(incomplete_record2, format: :google).to_per_day_opening_hours
+      assert_nil(subject.new(incomplete_record2, format: :google).to_per_day_opening_hours)
     end
 
     it 'ignores hashes with irrelevant keys' do
-      assert_nil subject.new({ x: 1, y: 2 }, format: :google).to_per_day_opening_hours
+      assert_nil(subject.new({ x: 1, y: 2 }, format: :google).to_per_day_opening_hours)
     end
 
     it 'handles wrong time strings' do
       ['10:00:00:00', '10 Uhr'].each do |time_string|
         wrong_time_format = incomplete_record.deep_dup
         wrong_time_format['Monday'].first['open'] = time_string
-        assert_nil subject.new(wrong_time_format, format: :google).to_per_day_opening_hours
+        assert_nil(subject.new(wrong_time_format, format: :google).to_per_day_opening_hours)
       end
     end
   end

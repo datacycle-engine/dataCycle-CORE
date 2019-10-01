@@ -17,10 +17,10 @@ describe Hash do
           }
         }
 
-        hash.with_evaluated_values.dig(:one).must_equal 1
-        hash.with_evaluated_values.dig(:two).must_equal 2
-        hash.with_evaluated_values.dig(:three, :alpha).must_equal 'α'
-        hash.with_evaluated_values.dig(:three, :beta).must_equal 'β'
+        assert(hash.with_evaluated_values.dig(:one), 1)
+        assert(hash.with_evaluated_values.dig(:two), 2)
+        assert(hash.with_evaluated_values.dig(:three, :alpha), 'α')
+        assert(hash.with_evaluated_values.dig(:three, :beta), 'β')
       end
     end
 
@@ -31,8 +31,8 @@ describe Hash do
           two: '{{ 1 + 1 }}'
         }
 
-        hash.with_evaluated_values.dig(:one).must_equal 1
-        hash.with_evaluated_values.dig(:two).must_equal 2
+        assert(hash.with_evaluated_values.dig(:one), 1)
+        assert(hash.with_evaluated_values.dig(:two), 2)
       end
 
       it 'should return evaluated value for nested hashes' do
@@ -44,9 +44,9 @@ describe Hash do
           }
         }
 
-        hash.with_evaluated_values.dig(:one).must_equal 1
-        hash.with_evaluated_values.dig(:two).must_equal 2
-        hash.with_evaluated_values.dig(:three, :value).must_equal 3
+        assert(hash.with_evaluated_values.dig(:one), 1)
+        assert(hash.with_evaluated_values.dig(:two), 2)
+        assert(hash.with_evaluated_values.dig(:three, :value), 3)
       end
 
       it 'should return evaluated value for evaluation markers nested in arrays' do
@@ -57,8 +57,8 @@ describe Hash do
           ]
         }
 
-        hash.with_evaluated_values[:array][0][:one].must_equal 1
-        hash.with_evaluated_values[:array][0][:two].must_equal 2
+        assert(hash.with_evaluated_values[:array][0][:one], 1)
+        assert(hash.with_evaluated_values[:array][0][:two], 2)
       end
 
       it 'should return date based calculations' do
@@ -66,7 +66,7 @@ describe Hash do
           value: '{{ 3.days.ago.to_date }}'
         }
 
-        hash.with_evaluated_values.dig(:value).must_equal Time.zone.today - 3.days
+        assert(hash.with_evaluated_values.dig(:value), Time.zone.today - 3.days)
       end
 
       it 'should return evaluated values for mongo query' do
@@ -84,7 +84,7 @@ describe Hash do
           ]
         }
 
-        hash.with_evaluated_values[:$or][1][:seen_at][:$lt].must_equal Time.zone.today - 3.days
+        assert(hash.with_evaluated_values[:$or][1][:seen_at][:$lt], Time.zone.today - 3.days)
       end
     end
   end
