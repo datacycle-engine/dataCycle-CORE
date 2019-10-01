@@ -78,7 +78,9 @@ module DataCycleCore
         def places(lang: :de)
           Enumerator.new do |yielder|
             load_data(['pois'], lang)['data'].each do |poi_id_container|
-              raw_data = load_data(['oois', poi_id_container['id']], lang)['poi'][0]
+              raw_data_item = load_data(['oois', poi_id_container['id']], lang)
+              next if raw_data_item.blank?
+              raw_data = raw_data_item['poi'][0]
               sleep(0.1)
               yielder << raw_data if raw_data.dig('meta', 'translation').include?(lang.to_s)
             end
@@ -88,7 +90,9 @@ module DataCycleCore
         def tours(lang: :de)
           Enumerator.new do |yielder|
             load_data(['tours'], lang)['data'].each do |tour_id_container|
-              raw_data = load_data(['oois', tour_id_container['id']], lang)['tour'][0]
+              raw_data_item = load_data(['oois', tour_id_container['id']], lang)
+              next if raw_data_item.blank?
+              raw_data = raw_data_item['tour'][0]
               sleep(0.1)
               yielder << raw_data if raw_data.dig('meta', 'translation').include?(lang.to_s)
             end
