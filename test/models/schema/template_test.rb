@@ -13,35 +13,33 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should exclude properties which are disabled for api' do
-      subject.property_definitions.map { |d| d[:label] }.wont_include('disabledProperty')
+      assert(subject.property_definitions.map { |d| d[:label] }.exclude?('disabledProperty'))
     end
 
     it 'should contain 3 property definitions' do
-      subject.property_definitions.count.must_equal(3)
-      subject.property_definitions.map { |d| d[:label] }.sort.must_equal(
-        ['stringProperty', 'datetimeProperty', 'numberProperty'].sort
-      )
+      assert(subject.property_definitions.count, 3)
+      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['stringProperty', 'datetimeProperty', 'numberProperty'])
     end
 
     it 'should contain correct property definition for "stringProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'stringProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/Text')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/Text')
     end
 
     it 'should contain correct property definition for "datetimeProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'datetimeProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/DateTime')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/DateTime')
     end
 
     it 'should contain correct property definition for "numberProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'numberProperty' }
 
-      string_property[:domain].must_equal('Thing_WithAllSimplePropertyTypes')
-      string_property[:range].must_equal('//schema.org/Number')
+      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:range], '//schema.org/Number')
     end
   end
 
@@ -55,8 +53,8 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for "embedded"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'embedded' }
 
-      string_property[:domain].must_equal('Thing_ActingAsEmbeddedContainer')
-      string_property[:range].must_equal('/schema/Thing_SimpleEmbedded')
+      assert(string_property[:domain], 'Thing_ActingAsEmbeddedContainer')
+      assert(string_property[:range], '/schema/Thing_SimpleEmbedded')
     end
   end
 
@@ -70,15 +68,15 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithTemplate' }
 
-      string_property[:domain].must_equal('Thing_SimpleEntityLinkedOne')
-      string_property[:range].must_equal('/schema/Thing_SimpleEntityLinkedTwo')
+      assert(string_property[:domain], 'Thing_SimpleEntityLinkedOne')
+      assert(string_property[:range], '/schema/Thing_SimpleEntityLinkedTwo')
     end
 
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithStoredFilter' }
 
-      string_property[:domain].must_equal('Thing_SimpleEntityLinkedOne')
-      string_property[:range].must_equal('//schema.org/Thing')
+      assert(string_property[:domain], 'Thing_SimpleEntityLinkedOne')
+      assert(string_property[:range], '//schema.org/Thing')
     end
   end
 
@@ -90,24 +88,22 @@ describe DataCycleCore::Schema::Template do
     end
 
     it 'should expand nested properties' do
-      subject.property_definitions.count.must_equal(2)
-      subject.property_definitions.map { |d| d[:label] }.sort.must_equal(
-        ['someProperty', 'anotherProperty'].sort
-      )
+      assert(subject.property_definitions.count, 2)
+      assert(subject.property_definitions.map { |d| d[:label] }.sort, ['someProperty', 'anotherProperty'].sort)
     end
 
     it 'should contain correct property definition for "someProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'someProperty' }
 
-      string_property[:domain].must_equal('Thing_Container')
-      string_property[:range].must_equal('//schema.org/Text')
+      assert(string_property[:domain], 'Thing_Container')
+      assert(string_property[:range], '//schema.org/Text')
     end
 
     it 'should contain correct property definition for "anotherProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'anotherProperty' }
 
-      string_property[:domain].must_equal('Thing_Container')
-      string_property[:range].must_equal('//schema.org/Number')
+      assert(string_property[:domain], 'Thing_Container')
+      assert(string_property[:range], '//schema.org/Number')
     end
   end
 end

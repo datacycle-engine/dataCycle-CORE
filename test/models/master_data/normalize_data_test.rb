@@ -43,21 +43,21 @@ describe DataCycleCore::MasterData::NormalizeData do
 
     it 'updates a value deep in the data_hash' do
       hash = subject.update_path(hash1, 'a', 6)
-      hash.dig('a').must_equal 6
+      assert(hash.dig('a'), 6)
       hash = subject.update_path(hash1, 'c/d', 6)
-      hash.dig('c', 'd').must_equal 6
+      assert(hash.dig('c', 'd'), 6)
       hash = subject.update_path(hash1, 'c/e/f', 6)
-      hash.dig('c', 'e', 'f').must_equal 6
+      assert(hash.dig('c', 'e', 'f'), 6)
     end
 
     it 'ignores updates if trying to update a subhash' do
       hash = subject.update_path(hash1, 'a/c', 6)
-      hash.dig('a').must_equal 1
+      assert(hash.dig('a'), 1)
     end
 
     it 'inserts leaf if path does not previously exist' do
       hash = subject.update_path(hash1, 'x/y/z', 6)
-      hash.dig('x', 'y', 'z').must_equal 6
+      assert(hash.dig('x', 'y', 'z'), 6)
     end
 
     it 'updates values from an update_list' do
@@ -69,9 +69,9 @@ describe DataCycleCore::MasterData::NormalizeData do
         { 'id' => 'x/y/z', 'content' => 6 }
       ]
       hash = subject.update_data(hash1, update_list)
-      hash.must_equal hash2
+      assert(hash, hash2)
       hash_new = subject.update_data({}, update_list)
-      hash_new.must_equal hash2
+      assert(hash_new, hash2)
     end
   end
 
@@ -336,42 +336,42 @@ describe DataCycleCore::MasterData::NormalizeData do
     end
 
     it 'grabs correctly all normalizable data attributs' do
-      subject.normalizable_data(nil, person_template.dig('properties'), data_hash).must_equal normalizable_hash
+      assert(subject.normalizable_data(nil, person_template.dig('properties'), data_hash), normalizable_hash)
     end
 
     it 'does the preprocessing of the data correctly' do
       norm_hash, transformation = subject.preprocess_data(person_template, data_hash)
-      norm_hash.must_equal normalizable_data
-      transformation.must_equal transformation_hash
+      assert(norm_hash, normalizable_data)
+      assert(transformation, transformation_hash)
     end
 
     it 'merges correctly street and street_nr' do
       merged_report = subject.merge_street_streetnr(normalize_report)
-      merged_report.dig('entry', 'fields').must_equal merged_fields
+      assert(merged_report.dig('entry', 'fields'), merged_fields)
       new_action_list = normalize_report.dig('actionList').deep_dup
-      merged_report.dig('actionList').must_equal(new_action_list)
+      assert(merged_report.dig('actionList'), new_action_list)
     end
 
     it 'back_transforms normalized_data to original ids and schema' do
       back_trans = subject.back_transform(merged_fields, transformation_hash)
-      back_trans.must_equal back_transformed_data
+      assert(back_trans, back_transformed_data)
     end
 
     it 'correctly updates data according to normalized action_list' do
-      subject.update_data(data_hash, back_transformed_data).must_equal returned_data
+      assert(subject.update_data(data_hash, back_transformed_data), returned_data)
     end
 
     it 'does post_processing correctly' do
       updated_data, diffs = subject.postprocess_data(data_hash, transformation_hash, normalize_report, person_template)
-      diffs.must_equal diff_hash
-      updated_data.must_equal returned_data
+      assert(diffs, diff_hash)
+      assert(updated_data, returned_data)
     end
 
     it 'does the whole normalization correctly' do
       logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
       updated_data, diffs = subject.new(logger: logger).normalize(data_hash, person_template)
-      diffs.must_equal diff_hash.except('ERROR')
-      updated_data.must_equal returned_data
+      assert(diffs, diff_hash.except('ERROR'))
+      assert(updated_data, returned_data)
     end
 
     it 'returns original data and a empty hash if no template, or no data a given' do
@@ -379,7 +379,7 @@ describe DataCycleCore::MasterData::NormalizeData do
 
       updated_data, diffs = subject.new(logger: logger).normalize(data_hash, nil)
       assert(diffs == {})
-      updated_data.must_equal data_hash
+      assert(updated_data, data_hash)
 
       updated_data, diffs = subject.new(logger: logger).normalize(nil, person_template)
       assert(diffs == {})

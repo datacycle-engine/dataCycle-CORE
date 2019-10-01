@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         def create
-          @watch_list = current_user.watch_lists.create(name: 'Temporary Download Watchlist', thing_ids: Array(permitted_params[:thing_id]))
+          @watch_list = current_user.watch_lists.create(name: "Download #{I18n.l(Time.zone.now, locale: DataCycleCore.ui_language)}", thing_ids: Array(permitted_params[:thing_id]))
 
           render json: @watch_list.as_json(only: [:id, :name]).deep_transform_keys { |k| k.camelize(:lower) }
         end
