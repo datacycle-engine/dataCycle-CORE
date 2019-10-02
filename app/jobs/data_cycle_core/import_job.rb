@@ -13,10 +13,11 @@ module DataCycleCore
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_external_source = ExternalSource.find(job_record.delayed_reference_id)
       if store_job_id_to_external_source.config.nil?
-        store_job_id_to_external_source.config = { 'last_import_job_id' => @provider_job_id, 'last_import_failed' => false }
+        store_job_id_to_external_source.config = { 'last_import_job_id' => @provider_job_id, 'last_import_failed' => false, 'last_download_job_id' => @provider_job_id }
       else
         store_job_id_to_external_source.config['last_import_job_id'] = @provider_job_id
         store_job_id_to_external_source.config['last_import_failed'] = false
+        store_job_id_to_external_source.config['last_download_job_id'] = @provider_job_id
       end
       store_job_id_to_external_source.save
       job_record.delayed_reference_type = 'import'
@@ -32,7 +33,9 @@ module DataCycleCore
     def perform(uuid)
       external_source = ExternalSource.find(uuid)
       pid = Process.fork do
-        ExternalSource.find(uuid).import
+        external_source = ExternalSource.find(uuid)
+        external_source.download
+        external_source.import
       rescue StandardError => exception
         external_source.config['last_import_failed'] = true
         external_source.config['last_import_exception'] = exception

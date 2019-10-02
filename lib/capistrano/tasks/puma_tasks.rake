@@ -11,10 +11,9 @@ namespace :datacycle do
         with rails_env: fetch(:rails_env) do
           secret_yaml_file = Dir.pwd + '/config/secrets.yml'
           secrets = YAML.safe_load(File.open(secret_yaml_file), [Symbol])
-          rails_max_threads = secrets.dig(fetch(:rails_env), 'rails_max_threads') || 5
-          rails_max_workers = secrets.dig(fetch(:rails_env), 'rails_max_workers') || 0
-          set :rails_max_threads, rails_max_threads
-          set :rails_max_workers, rails_max_workers
+          set :puma_max_threads, secrets.dig(fetch(:rails_env), 'puma_max_threads') || 5
+          set :puma_max_workers, secrets.dig(fetch(:rails_env), 'puma_max_workers') || 3
+          set :puma_max_memory, secrets.dig(fetch(:rails_env), 'puma_max_memory') || 4096
 
           template_name = 'puma.rb'
           core_file_path = Dir.pwd + "/vendor/gems/data-cycle-core/config/deploy/templates/puma/#{template_name}.erb"
