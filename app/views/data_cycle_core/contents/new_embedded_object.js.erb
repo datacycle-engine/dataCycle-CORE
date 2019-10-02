@@ -12,6 +12,6 @@ $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j render_embedd
   content: @content
 ) %>');
 
-$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').foundation();
+$('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>');
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 $('#<%= sanitize_to_id(params[:key]) %>_item_<%= params[:index] %>').trigger('dc:html:changed');

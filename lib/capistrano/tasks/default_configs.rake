@@ -7,9 +7,6 @@ namespace :datacycle do
       set :rvm_ruby_version, '2.6.3'
       set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
 
-      set :puma_workers, 1
-      set :puma_worker_killer, true
-
       set :delayed_job_pools, {
         'mailers' => 1,
         'importers' => 1,

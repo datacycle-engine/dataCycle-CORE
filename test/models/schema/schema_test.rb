@@ -12,18 +12,14 @@ describe DataCycleCore::Schema do
   end
 
   it 'should should provide list of available content types' do
-    subject.content_types.sort.must_equal(['container', 'entity'])
+    assert(subject.content_types.sort, ['container', 'entity'])
   end
 
   it 'should should provide list of container templates' do
-    subject.templates_with_content_type('container').map(&:schema_name).sort.must_equal(
-      ['ContainerOne', 'ContainerTwo', 'ContainerThree'].sort
-    )
+    assert(subject.templates_with_content_type('container').map(&:schema_name).sort, ['ContainerOne', 'ContainerTwo', 'ContainerThree'].sort)
   end
 
   it 'should should provide list of entity templates' do
-    subject.templates_with_content_type('entity').map(&:schema_name).sort.must_equal(
-      ['EntityOne', 'EntityTwo', 'EntityThree', 'EntityFour'].sort
-    )
+    assert(subject.templates_with_content_type('entity').map(&:schema_name).sort, ['EntityOne', 'EntityTwo', 'EntityThree', 'EntityFour'].sort)
   end
 end

@@ -56,50 +56,50 @@ describe DataCycleCore::ExternalSource do
   end
 
   it 'produces a import_config' do
-    subject.import_config.must_equal subject.config['import_config'].symbolize_keys
+    assert(subject.import_config, subject.config['import_config'].symbolize_keys)
   end
 
   it 'returns nil if no import_config is defined' do
     subject.config = nil
-    subject.import_config.must_be_nil
-    subject.import_list.must_be_nil
+    assert_nil(subject.import_config)
+    assert_nil(subject.import_list)
   end
 
   it 'produces a list of available import steps' do
-    subject.import_list.must_equal [:keywords, :places]
+    assert(subject.import_list, [:keywords, :places])
   end
 
   it 'produces a download_config' do
-    subject.download_config.must_equal subject.config['download_config'].symbolize_keys
+    assert(subject.download_config, subject.config['download_config'].symbolize_keys)
   end
 
   it 'produces a list of available download steps' do
-    subject.download_list.must_equal [:places, :places_detail]
+    assert(subject.download_list, [:places, :places_detail])
   end
 
   it 'throws an exception if import_single can not find its config' do
-    proc { subject.import_single(:xxx, { test: 'servas' }) }.must_raise RuntimeError
+    assert_raises(RuntimeError) { subject.import_single(:xxx, { test: 'servas' }) }
   end
 
   it 'throws an exception if import can not find a config' do
-    proc { subject.import(:xxx, { test: 'servas' }) }.must_raise ArgumentError
+    assert_raises(ArgumentError) { subject.import(:xxx, { test: 'servas' }) }
   end
 
   it 'produces a download_config' do
-    subject.download_config.must_equal subject.config['download_config'].symbolize_keys
+    assert(subject.download_config, subject.config['download_config'].symbolize_keys)
   end
 
   it 'returns nil if no download_config is defined' do
     subject.config = nil
-    subject.download_config.must_be_nil
-    subject.download_list.must_be_nil
+    assert_nil(subject.download_config)
+    assert_nil(subject.download_list)
   end
 
   it 'throws an exception if download_single can not find its config' do
-    proc { subject.download_single(:xxx, { test: 'servas' }) }.must_raise RuntimeError
+    assert_raises(RuntimeError) { subject.download_single(:xxx, { test: 'servas' }) }
   end
 
   it 'throws an exception if download can not find a config' do
-    proc { subject.download(:xxx, { test: 'servas' }) }.must_raise ArgumentError
+    assert_raises(ArgumentError) { subject.download(:xxx, { test: 'servas' }) }
   end
 end
