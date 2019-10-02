@@ -10,15 +10,15 @@ pidfile "<%= fetch(:puma_pid) %>"
 state_path "<%= fetch(:puma_state) %>"
 stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>', true
 
-threads 1,<%= Integer(fetch(:rails_max_threads, 5)) %>
+threads 1,<%= Integer(fetch(:puma_max_threads, 5)) %>
 
 <%= puma_bind %>
 <% if fetch(:puma_control_app) %>
 activate_control_app "<%= fetch(:puma_default_control_app) %>"
 <% end %>
-workers <%= Integer(fetch(:rails_max_workers, 5)) %>
+workers <%= Integer(fetch(:puma_max_workers, 3)) %>
 <% if fetch(:puma_worker_timeout) %>
-worker_timeout <%= fetch(:puma_worker_timeout).to_i %>
+worker_timeout <%= Integer(fetch(:puma_worker_timeout)) %>
 <% end %>
 
 <% if fetch(:puma_daemonize) %>
@@ -29,11 +29,16 @@ preload_app!
 
 before_fork do
   ActiveRecord::Base.connection_pool.disconnect!
-  <% if fetch(:puma_worker_killer, true) && fetch(:puma_env).to_s != 'production' %>
   require 'puma_worker_killer'
 
-  PumaWorkerKiller.enable_rolling_restart # Default is every 6 hours
-  <% end %>
+  PumaWorkerKiller.config do |config|
+    config.ram = <%= Integer(fetch(:puma_max_memory, 4096)) %> # mb
+    config.frequency = 3600 # seconds
+    config.percent_usage = 0.9
+    config.rolling_restart_frequency = false
+  end
+
+  PumaWorkerKiller.start
 end
 
 on_worker_boot do
