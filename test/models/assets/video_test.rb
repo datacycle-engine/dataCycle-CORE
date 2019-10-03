@@ -49,7 +49,7 @@ module DataCycleCore
 
         assert_not(@video.persisted?)
         assert_not(@video.valid?)
-        assert_equal(@video.errors.size, 2)
+        assert(@video.errors.present?)
       end
 
       def teardown

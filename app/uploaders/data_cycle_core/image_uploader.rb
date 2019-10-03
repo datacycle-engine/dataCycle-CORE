@@ -48,7 +48,7 @@ module DataCycleCore
     end
 
     def url
-      content = model&.things&.first
+      content = model&.thing
 
       return "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}" if content.nil?
 
@@ -80,9 +80,7 @@ module DataCycleCore
     def set_phash
       return if model.duplicate_check&.dig('phash').present? && model.duplicate_check&.dig('phash')&.positive?
 
-      model.update(duplicate_check: {
-        phash: Phash::Image.new(file.file).try(:compute_phash).try(:data)
-      })
+      model.update_column(:duplicate_check, { phash: Phash::Image.new(file.file).try(:compute_phash).try(:data) }) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def remove_animation
