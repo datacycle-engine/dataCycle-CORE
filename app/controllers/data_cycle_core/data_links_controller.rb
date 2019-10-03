@@ -54,7 +54,7 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "saved#{send_email_params[:send] == '1' ? '_and_sent' : ''}", data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), scope: [:controllers, :success], locale: DataCycleCore.ui_language))
     end
 
     def update
@@ -66,14 +66,14 @@ module DataCycleCore
 
       DataLinkMailer.mail_link(@data_link, data_link_url(@data_link, url_split_params)).deliver_later if send_email_params[:send] == '1'
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t "updated#{send_email_params[:send] == '1' ? '_and_sent' : ''}", scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language))
     end
 
     def destroy
       @data_link = DataCycleCore::DataLink.find(params[:id])
       @data_link.update_column(:valid_until, 1.minute.ago)
 
-      redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], locale: DataCycleCore.ui_language))
+      redirect_back(fallback_location: root_path, notice: (I18n.t :invalidated, scope: [:controllers, :success], data: DataCycleCore::DataLink.model_name.human(count: 1, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language))
     end
 
     def get_text_file
