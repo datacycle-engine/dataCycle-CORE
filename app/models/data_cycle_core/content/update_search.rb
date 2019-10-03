@@ -18,7 +18,7 @@ module DataCycleCore
       end
 
       def update_search(language)
-        return if search_property_names.blank? || content_type == 'embedded'
+        return if search_property_names.blank? || embedded?
 
         I18n.with_locale(language) do
           search_data = walk_embedded_data(self)
