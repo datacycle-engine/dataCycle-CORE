@@ -14,11 +14,7 @@ module DataCycleCore
     end
 
     def self.get_internal_template(name)
-      internal_template = DataCycleCore::Thing.find_by(template: true, template_name: name)
-
-      return nil if internal_template.blank?
-
-      internal_template
+      DataCycleCore::Thing.find_by!(template: true, template_name: name)
     end
 
     def self.create_duplicate(content: nil, current_user: nil)
