@@ -35,7 +35,7 @@ module DataCycleCore
           DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
             range_codes.map(&:to_s).uniq.map { |code|
               {
-                code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] }
+                code => mongo.where({ 'dump.de._Type' => range_type(code) }).map { |r| r.dump['de']['Id'] } # , 'dump.de.ParentID' => { '$ne' => '00000000-0000-0000-0000-000000000000' }
               }
             }.reduce({}, &:merge)
           end
@@ -105,6 +105,14 @@ module DataCycleCore
           enumerate_items(:events, '//Event', lang: lang)
         end
 
+        def packages(lang: :de)
+          enumerate_items(:packages, '//Package', lang: lang)
+        end
+
+        def package_containers(lang: :de)
+          enumerate_items(:package_containers, '//PackageContainer', lang: lang)
+        end
+
         def accommodations(lang: :de)
           enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
         end
@@ -116,7 +124,7 @@ module DataCycleCore
         def enumerate_items(type, xpath, lang: :de)
           Enumerator.new do |yielder|
             item_ids = []
-            ['RG', 'DI', 'TO'].each do |range_code|
+            ['RG', 'DI', 'TO'].each do |range_code| # 'RG',
               load_range_ids(range_code).each do |range_id|
                 load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
                   item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
@@ -131,7 +139,7 @@ module DataCycleCore
         end
 
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
-          if [:additional_service_providers, :events, :infrastructure_items, :accommodations].include?(type)
+          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           else
             url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
@@ -145,7 +153,7 @@ module DataCycleCore
 
           response = Faraday.new.post do |req|
             req.url url
-            req.options.timeout = 120
+            req.options.timeout = 1200
             req.body = { 'xmlString' => request_parameters }
           end
 
@@ -256,6 +264,8 @@ module DataCycleCore
         end
 
         def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          start_date = Time.zone.now.to_s[0..9]
+          end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
@@ -278,13 +288,18 @@ module DataCycleCore
                 xml.CustomAttributes('DateFrom' => '1980-01-01')
                 xml.HotSpots('DateFrom' => '1980-01-01')
                 xml.QualityDetails('DateFrom' => '1980-01-01')
+                xml.HousePackageMasters('DateFrom' => '1980-01-01')
                 xml.AdditionalServices do
-                  xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                  xml.Details('DateFrom' => '1980-01-01')
                   xml.Documents('DateFrom' => '1980-01-01')
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
-                    xml.Details('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                    xml.Details('DateFrom' => '1980-01-01')
+                    xml.Documents('DateFrom' => '1980-01-01')
+                    xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                    xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
                 end
               end
@@ -322,7 +337,7 @@ module DataCycleCore
 
         def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
           start_date = Time.zone.now.to_s[0..9]
-          end_date = (Time.zone.now + 1.month).to_s[0..9]
+          end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
@@ -346,23 +361,99 @@ module DataCycleCore
                 xml.HandicapClassifications('DateFrom' => '1980-01-01')
                 xml.GTC('DateFrom' => '1980-01-01')
                 xml.QualityDetails('DateFrom' => '1980-01-01')
+                xml.HousePackageMasters('DateFrom' => '1980-01-01')
                 xml.Services do
                   xml.Details('DateFrom' => '1980-01-01')
-                  xml.Documents('DateFrom' => '1980-01-01')
-                  xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-                  xml.Facilities('DateFrom' => '1980-01-01')
-                  xml.HandicapFacilities('DateFrom' => '1980-01-01')
+                  # xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Descriptions('DateFrom' => '1980-01-01')
+                  # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  # xml.HandicapFacilities('DateFrom' => '1980-01-01')
                   xml.Products do
                     xml.Details('DateFrom' => '1980-01-01')
-                    xml.Documents('DateFrom' => '1980-01-01')
-                    xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                    # xml.Documents('DateFrom' => '1980-01-01')
+                    xml.Descriptions('DateFrom' => '1980-01-01')
+                    # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                     xml.Prices('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id)
                     # xml.PriceDetails('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
-                    xml.ArrivalDepartureTemplates('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
-                    xml.Availabilities('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
-                    xml.Gaps('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    # xml.ArrivalDepartureTemplates('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
+                    # xml.Availabilities('DateFrom' => '1980-01-01', 'SalesChannel' => @sales_channel_id, 'Start' => start_date, 'End' => end_date)
+                    # xml.Gaps('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
                 end
+                xml.AdditionalServices do
+                  xml.Details('DateFrom' => '1980-01-01')
+                  # xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.AdditionalProducts do
+                    xml.Details('DateFrom' => '1980-01-01')
+                    # xml.Documents('DateFrom' => '1980-01-01')
+                    # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
+                    xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                    # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        def create_packages_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          # start_date = Time.zone.now.to_s[0..9]
+          # end_date = (Time.zone.now + 2.years).to_s[0..9]
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.Packages('Status' => 'All', 'From' => '1980-01-01', 'To' => '2080-01-01')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.Packages do
+                xml.Details('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01')
+                xml.Links('DateFrom' => '1980-01-01')
+                xml.Prices('DateFrom' => '1980-01-01')
+                xml.ContentDescriptions('DateFrom' => '1980-01-01')
+                # xml.Sections do
+                #   xml.Details('DateFrom' => '1980-01-01')
+                #   xml.Descriptions('DateFrom' => '1980-01-01')
+                #   xml.Prices('DateFrom' => '1980-01-01')
+                #   xml.Products do
+                #     xml.Availabilities('DateFrom' => '1980-01-01')
+                #     xml.Prices('DateFrom' => '1980-01-01')
+                #   end
+                # end
+              end
+            end
+          end
+        end
+
+        def create_package_containers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+          # start_date = Time.zone.now.to_s[0..9]
+          # end_date = (Time.zone.now + 2.years).to_s[0..9]
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.PackageContainer('From' => '1980-01-01', 'To' => '2080-01-01')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.PackageContainers do
+                xml.Details('DateFrom' => '1980-01-01')
+                xml.Documents('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01')
+                xml.Links('DateFrom' => '1980-01-01')
+                xml.AssignedProducts('DateFrom' => '1980-01-01')
               end
             end
           end

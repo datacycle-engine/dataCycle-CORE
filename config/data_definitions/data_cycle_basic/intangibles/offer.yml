@@ -1,0 +1,131 @@
+- :data:
+    :name: Angebot
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: Offer
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :price:
+        :label: Preis
+        :type: string
+        :storage_type: string
+        :storage_location: translated_value
+      :price_specification:
+        :label: Preis
+        :type: embedded
+        :template_name: Preis
+        :tranlated: true
+      :url:
+        :label: Angebots URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+      :offered_by:
+        :label: Ansprechpartner
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :item_offered:
+        :label: Angebotene Leistung
+        :type: linked
+        :template_name: Unterkunft
+      :offer_period:
+        :label: Zeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_until
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :valid_from:
+            :label: "Zeitraum von"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+          :valid_through:
+            :label: "bis"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+            :api:
+              :name: validThrough
+      :potentialAction:
+        :label: Buchungs-Url
+        :type: object
+        :storage_location: translated_value
+        :api:
+          :type: Action
+        :properties:
+          :name:
+            :label: Name
+            :type: string
+            :storage_location: translated_value
+          :url:
+            :label: URL
+            :type: string
+            :storage_location: translated_value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Angebot"
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true

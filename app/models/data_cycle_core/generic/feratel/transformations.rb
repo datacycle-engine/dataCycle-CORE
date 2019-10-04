@@ -53,6 +53,8 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_content_score', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('QualityDetails', 'ContentScore').present? ? ["Feratel - ContentScore - #{s&.dig('QualityDetails', 'ContentScore')&.to_f&.round}"] : [] })
           .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
+          .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_field, 'makes_offer', ->(s) { parse_products([s.dig('Services', 'Service')]&.flatten&.compact, external_source_id) })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
@@ -185,6 +187,55 @@ module DataCycleCore
           .>> t(:load_category, 'feratel_types', external_source_id, ->(v) { 'Feratel - Infrastrukturtyp - ' + v&.dig('Topics', 'Type').to_s })
           .>> t(:reject_keys, ['Links', 'OpeningHours', 'Towns', 'CustomAttributes', 'FoodAndBeverage', 'ConnectedEntries', 'HolidayThemes', 'DataOwner', 'Active', 'Address', 'Topics', 'ChangeDate', 'Systems', '_Type'])
           .>> t(:strip_all)
+        end
+
+        def self.feratel_to_room(_external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, 'Id' => 'external_key')
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'number_of_rooms', ->(s) { s.dig('Details', 'Rooms')&.to_i })
+          .>> t(:add_field, 'floor_size', ->(s) { s.dig('Details', 'Size')&.to_f })
+          .>> t(:strip_all)
+        end
+
+        def self.parse_products(data, external_source_id)
+          return if data.blank?
+          all_products = []
+          data.each do |item|
+            item_offered = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
+            all_products += parse_product([item.dig('Products', 'Product')]&.flatten&.compact, external_source_id, item_offered.id)
+          end
+          all_products
+        end
+
+        def self.parse_product(data, external_source_id, item_offered_id)
+          return if data.blank?
+          data.map { |item|
+            thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
+            data_hash = {}
+            data_hash['id'] = thing.id if thing.present?
+            data_hash.merge({
+              name: item.dig('Details', 'Name'),
+              item_offered: [item_offered_id],
+              external_key: item.dig('Id'),
+              price_specification: parse_simple_price(item.dig('Price'), external_source_id, item.dig('Id'))
+            })
+          }.compact
+        end
+
+        def self.parse_simple_price(data, external_source_id, key)
+          return if data.blank?
+          data_hash = {}
+          data_hash['external_key'] = [key, '/price_specification'].join(' ')
+          thing = DataCycleCore::Thing.find_by(external_key: data_hash['external_key'], external_source_id: external_source_id)
+          data_hash['id'] = thing.id if thing.present?
+          data_hash['unit_text'] = "#{data.dig('Nights')} night(s) / #{data.dig('Rule')}"
+          prices = [data.dig('Range')].flatten.map { |item| [item.dig('From')&.to_f, item.dig('To')&.to_f].compact.reject(&:zero?) }.flatten
+          data_hash['min_price'] = prices.min
+          data_hash['max_price'] = prices.max
+          [data_hash]
         end
 
         def self.parse_opening_hours(data)

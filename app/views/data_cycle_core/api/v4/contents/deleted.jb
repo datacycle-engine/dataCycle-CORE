@@ -4,7 +4,7 @@ json = {
   '@graph' => @contents.map do |item|
     {
       '@context' => 'http://schema.org',
-      '@type' => item.schema.dig('api', 'type') || item.try(:schema_type) || item.class.name.demodulize,
+      '@type' => thing.schema.dig('api', 'type') || item.try(:schema_type) || item.class.name.demodulize,
       'contentType' => item.template_name,
       'identifier' => item.id,
       'deleted_at' => item.deleted_at

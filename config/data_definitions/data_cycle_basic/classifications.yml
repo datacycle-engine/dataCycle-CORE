@@ -17,6 +17,8 @@
   - $$Person
   - $$Veranstaltung
   - $$Veranstaltungsserie
+  - $$Zimmer
+  - $$Angebot
 # embedded
   - $$Veranstaltungstermin
   - $$Öffnungszeit

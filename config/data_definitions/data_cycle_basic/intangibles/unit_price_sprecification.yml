@@ -1,0 +1,52 @@
+- :data:
+    :name: Preis
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: UnitPriceSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :price:
+        :label: Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :min_price:
+        :label: Min-Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :max_price:
+        :label: Max-Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :price_currency:
+        :label: Währung
+        :type: classification
+        :tree_label: Preis-Währung
+        :default_value: "EUR"
+      :unit_text:
+        :label: Einheit
+        :type: string
+        :storage_location: translated_value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Preis"
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true
