@@ -23,6 +23,7 @@ class ObjectBrowser {
     this.table = selector.data('table');
     this.max = selector.data('max');
     this.min = selector.data('min');
+    this.limitedBy = selector.data('limited-by');
     this.index = this.per;
     this.editable = selector.data('editable');
     this.page = 1;
@@ -478,6 +479,16 @@ class ObjectBrowser {
     }
     this.overlay.find('.items .loading').show();
     this.loading = true;
+
+    let filterIds = null;
+    if (this.limitedBy === Object(this.limitedBy)) {
+      filterIds = this.element;
+      this.limitedBy.forEach(item => {
+        filterIds = filterIds[item[0]](item[1]);
+      });
+      filterIds = filterIds.map((_, item) => $(item).val()).get();
+    }
+
     this.requests.forEach(request => {
       request.abort();
       this.requests = this.requests.filter(r => r != request);
@@ -502,6 +513,7 @@ class ObjectBrowser {
           content_id: this.content_id,
           content_type: this.content_type,
           prefix: this.prefix,
+          filter_ids: filterIds,
           append: append
         }),
         contentType: 'application/json'
