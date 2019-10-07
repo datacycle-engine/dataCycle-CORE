@@ -13,12 +13,12 @@
     - $$Gastronomischer Betrieb
   - $$Text:
     - $$Artikel
+    - $$Angebot    
   - $$Organisation
   - $$Person
   - $$Veranstaltung
   - $$Veranstaltungsserie
   - $$Zimmer
-  - $$Angebot
 # embedded
   - $$Veranstaltungstermin
   - $$Öffnungszeit

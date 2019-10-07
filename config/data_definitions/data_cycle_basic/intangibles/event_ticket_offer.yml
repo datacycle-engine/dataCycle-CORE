@@ -1,4 +1,5 @@
 ---
+# TODO: delete, replaced by offer.yml (Angebot)
 - :data:
     :name: Event-Ticket-Angebot
     :type: object

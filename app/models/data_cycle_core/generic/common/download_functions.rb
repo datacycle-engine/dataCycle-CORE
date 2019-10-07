@@ -90,8 +90,7 @@ module DataCycleCore
                     end
                   end
                 rescue StandardError => e
-                  logging.error(nil, nil, nil, e)
-                  ap e.backtrace
+                  logging.error(nil, nil, e.backtrace, e)
                   Appsignal.send_error(e, nil, 'background')
                 ensure
                   logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
