@@ -253,6 +253,12 @@ button,
       position: relative;
       display: inline-block;
       margin: 0 1rem;
+      > * {
+        vertical-align: middle;
+      }
+      .external-link-icon {
+        vertical-align: middle;
+      }
     }
   }
 
@@ -1025,46 +1031,6 @@ body .v-select {
   overflow: hidden;
 }
 
-/* Sortierung, Viewtype Startseite */
-.view-icons,
-.view-order,
-.order-item {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.order-title,
-.order-arrows {
-  display: inline-block;
-  vertical-align: middle;
-}
-
-.order-item {
-  margin-right: 0.5rem;
-
-  a {
-    color: $black;
-
-    &.active,
-    &:hover,
-    &:focus {
-      color: $primary-color;
-    }
-
-    clear: both;
-    float: right;
-    display: block;
-    line-height: 12px;
-    height: 12px;
-
-    .fa {
-      display: block;
-      line-height: 12px;
-      height: 12px;
-    }
-  }
-}
-
 .warning {
   color: map-get($foundation-palette, alert);
   font-style: italic;
@@ -1291,6 +1257,10 @@ a[data-toggle] {
   }
 }
 
+.show-sidebar {
+  vertical-align: top;
+}
+
 .dropdown-pane {
   line-height: 1rem;
   font-size: 0.8rem;
@@ -1422,6 +1392,11 @@ a[data-toggle] {
 
     .buttons {
       text-align: right;
+      > *,
+      i.fa {
+        vertical-align: middle;
+        text-align: center;
+      }
       .has-tip {
         border: none;
       }

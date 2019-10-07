@@ -36,7 +36,7 @@ module DataCycleCore
       @duplicate_candidates ||= begin
         return [] if duplicate_check&.dig('phash').blank?
 
-        DataCycleCore::Image.includes(:things).where.not(asset_contents: { content_data_id: nil }).where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map(&:things).flatten
+        DataCycleCore::Image.includes(:thing).where.not(asset_contents: { content_data_id: nil }).where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map(&:thing).flatten
       end
     end
 
@@ -44,7 +44,7 @@ module DataCycleCore
       @duplicate_candidates_with_score ||= begin
         return [] if duplicate_check&.dig('phash').blank?
 
-        DataCycleCore::Image.select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, *").where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map { |d| { content: d.things&.first, method: 'phash', score: d.try(:score) } if d.things.any? }.compact
+        DataCycleCore::Image.select("(100 - (100 * phash_hamming('#{duplicate_check['phash']}', assets.duplicate_check ->> 'phash') / 255)) AS score, *").where("assets.duplicate_check IS NOT NULL AND assets.duplicate_check ->> 'phash' IS NOT NULL AND assets.duplicate_check ->> 'phash' != '0' AND phash_hamming(?, assets.duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map { |d| { content: d.thing, method: 'phash', score: d.try(:score) } if d.thing.present? }.compact
       end
     end
 
@@ -53,7 +53,7 @@ module DataCycleCore
     def set_duplicate_hash
       self.process_file_upload = true
       file.recreate_versions!(:thumb_preview)
-      save!
+      save!(validate: false)
     end
   end
 end

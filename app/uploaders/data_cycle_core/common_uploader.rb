@@ -71,7 +71,7 @@ module DataCycleCore
       options.delete('format') unless options&.key?('format') &&
                                       (
                                         extension_white_list.include?(options['format']) ||
-                                        DataCycleCore::Feature::Serialize.asset_versions(model.things.first).dig(name)&.include?(options['format'])
+                                        DataCycleCore::Feature::Serialize.asset_versions(model.thing).dig(name)&.include?(options['format'])
                                       ) &&
                                       MIME::Types.type_for(current_path).first != MIME::Types.type_for(options['format']).first
 

@@ -48,7 +48,7 @@ module DataCycleCore
 
         assert_not(@audio.persisted?)
         assert_not(@audio.valid?)
-        assert_equal(@audio.errors.size, 2)
+        assert(@audio.errors.present?)
       end
 
       def teardown

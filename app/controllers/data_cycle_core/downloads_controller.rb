@@ -9,6 +9,7 @@ module DataCycleCore
     before_action :authenticate
 
     rescue_from ActiveRecord::RecordNotFound, with: :not_found
+    rescue_from CanCan::AccessDenied, with: :unauthorized
 
     def things
       @object = DataCycleCore::Thing.find_by(id: params[:id])
@@ -50,6 +51,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
       serialize_format = params[:serialize_format]&.split(',') || ['asset']
       languages = params[:language]&.split(',')
+      versions = params.permit(versions: {}).dig(:versions)&.to_h
 
       raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
 
@@ -57,7 +59,7 @@ module DataCycleCore
         DataCycleCore::Feature::Download.allowed?(thing)
       end
 
-      download_collection(@watch_list, download_items, serialize_format, languages)
+      download_collection(@watch_list, download_items, serialize_format, languages, versions)
     end
 
     def stored_filter_collections
@@ -80,9 +82,9 @@ module DataCycleCore
     def authenticate
       return if current_user
 
-      if params[:jwt_token].present?
-        begin
-          @decoded = DataCycleCore::JsonWebToken.decode(params[:jwt_token])
+      if request.headers['Authorization'].present?
+        authenticate_or_request_with_http_token do |token|
+          @decoded = DataCycleCore::JsonWebToken.decode(token)
           @user = DataCycleCore::User.find_with_token(@decoded)
         rescue JWT::DecodeError, JSON::ParserError => e
           raise CanCan::AccessDenied, e.message

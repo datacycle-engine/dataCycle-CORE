@@ -43,7 +43,7 @@ module DataCycleCore
 
                 next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
-                serialized_content = serializer.serialize(content, language, version)
+                serialized_content = serializer.serialize(content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
 
                 next unless serialized_content
 
