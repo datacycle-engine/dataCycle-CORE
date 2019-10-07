@@ -189,9 +189,14 @@ namespace :data_cycle_core do
     end
 
     desc 'recreate the entries in the search table for all data-types in the Database'
-    task rebuild_search: [:environment] do
+    task :rebuild_search, [:templates] => :environment do |_, args|
+      template_names = args.fetch(:templates, nil)&.split('|')&.map(&:squish)
       puts 'updating search:'
-      DataCycleCore::Thing.where(template: true).each do |template_object|
+
+      query = DataCycleCore::Thing.where(template: true)
+      query = query.where(template_name: template_names) if template_names.present?
+
+      query.each do |template_object|
         next if template_object.embedded?
         template_name = template_object.template_name
         data_count = DataCycleCore::Thing.where(template: false).where('template_name = ?', template_name).count
