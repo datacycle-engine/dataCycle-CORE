@@ -41,7 +41,7 @@ module DataCycleCore
         partial_schema_hash = nil
         if @partial_update
           partial_schema_hash = schema.dup
-          partial_schema_hash['properties'] = schema['properties']&.slice(*@data_hash.keys)
+          partial_schema_hash['properties'] = property_definitions&.slice(*@data_hash.keys)
         end
 
         valid_hash = validate(@data_hash.dup, partial_schema_hash || schema)
@@ -51,7 +51,7 @@ module DataCycleCore
             ActiveRecord::Base.transaction do
               to_history(save_time: @save_time) unless id.nil? || prevent_history
 
-              set_template_data_hash(@data_hash, @partial_update ? property_definitions.slice(*@data_hash.keys) : property_definitions)
+              set_template_data_hash(@data_hash, partial_schema_hash&.dig('properties') || property_definitions)
 
               self.updated_at = @save_time
               self.updated_by = @current_user&.id
