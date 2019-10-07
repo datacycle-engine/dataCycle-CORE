@@ -3,8 +3,8 @@
 port ENV['PORT'] || 3000
 environment ENV['RAILS_ENV'] || 'development'
 
-threads 1, Rails.application.secrets.dig(:puma_max_threads) || 5
-workers Rails.application.secrets.dig(:puma_max_workers) || 3
+threads 1, 16
+workers 1
 
 preload_app!
 
@@ -21,7 +21,7 @@ before_fork do
   require 'puma_worker_killer'
 
   PumaWorkerKiller.config do |config|
-    config.ram = Rails.application.secrets.dig(:puma_max_memory) || 4096 # mb
+    config.ram = 4096 # mb
     config.frequency = 3600 # seconds
     config.percent_usage = 0.9
     config.rolling_restart_frequency = false

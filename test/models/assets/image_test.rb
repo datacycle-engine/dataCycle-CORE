@@ -90,7 +90,7 @@ module DataCycleCore
 
         assert_not(@image.persisted?)
         assert_not(@image.valid?)
-        assert_equal(@image.errors.size, 2)
+        assert(@image.errors.present?)
       end
 
       def teardown
