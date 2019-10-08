@@ -47,7 +47,7 @@ module DataCycleCore
 
         assert_not(@pdf.persisted?)
         assert_not(@pdf.valid?)
-        assert_equal(@pdf.errors.size, 2)
+        assert(@pdf.errors.present?)
       end
 
       def teardown

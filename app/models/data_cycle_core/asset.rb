@@ -14,8 +14,8 @@ module DataCycleCore
 
     include AssetHelpers
 
-    has_many :asset_contents, dependent: :destroy
-    has_many :things, through: :asset_contents, source: 'content_data'
+    has_one :asset_content, dependent: :destroy
+    has_one :thing, through: :asset_content, source: 'content_data'
     delegate :versions, to: :file
 
     def custom_validators

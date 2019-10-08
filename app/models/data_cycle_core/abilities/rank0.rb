@@ -6,7 +6,7 @@ module DataCycleCore
       def initialize(user, session = {})
         can [:show, :find], :object_browser
         can [:login, :renew_login], :user_api
-        can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_contents: { id: nil }
+        can [:show, :index], DataCycleCore::Asset, creator_id: user.id, asset_content: { id: nil }
         can :index, DataCycleCore::Role, rank: 0..user&.role&.rank.to_i
         can :create, DataCycleCore::Thing do |template, scope|
           scope == 'asset' && template&.creatable?(scope)
