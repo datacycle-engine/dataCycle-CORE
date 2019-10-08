@@ -53,8 +53,12 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_content_score', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('QualityDetails', 'ContentScore').present? ? ["Feratel - ContentScore - #{s&.dig('QualityDetails', 'ContentScore')&.to_f&.round}"] : [] })
           .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
-          .>> t(:add_links, 'contains_place', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
-          .>> t(:add_field, 'makes_offer', ->(s) { parse_products([s.dig('Services', 'Service')]&.flatten&.compact, external_source_id) })
+          .>> t(:add_links, 'contains_place_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('Services', 'Service')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_links, 'contains_place_additional_service', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('AdditionalServices', 'AdditionalService')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:add_field, 'contains_place', ->(s) { s.dig('contains_place_service') + s.dig('contains_place_additional_service') })
+          .>> t(:add_field, 'makes_offer_service', ->(s) { parse_products([s.dig('Services', 'Service')]&.flatten&.compact, external_source_id) })
+          .>> t(:add_field, 'makes_offer_package', ->(s) { parse_packages([s.dig('HousePackageMasters', 'HousePackageMaster')]&.flatten&.compact, external_source_id) })
+          .>> t(:add_field, 'makes_offer', ->(s) { Array(s.dig('makes_offer_package')) + Array(s.dig('makes_offer_service')) })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
@@ -189,7 +193,7 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
-        def self.feratel_to_room(_external_source_id)
+        def self.feratel_to_room(external_source_id)
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
@@ -197,6 +201,22 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'number_of_rooms', ->(s) { s.dig('Details', 'Rooms')&.to_i })
           .>> t(:add_field, 'floor_size', ->(s) { s.dig('Details', 'Size')&.to_f })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_links, 'feratel_product_type', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Type').present? ? ["Feratel - Produktart - #{s&.dig('Details', 'type')}"] : [] })
+          .>> t(:unwrap_description, 'ServiceDescription')
+          .>> t(:rename_keys, 'ServiceDescription' => 'description')
+          .>> t(:strip_all)
+        end
+
+        def self.feratel_to_additional_service(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:add_field, 'id', ->(s) { DataCycleCore::Thing.find_by(external_key: s.dig('Id'), external_source_id: external_source_id)&.id })
+          .>> t(:rename_keys, 'Id' => 'external_key')
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_links, 'feratel_product_type', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Type').present? ? ["Feratel - Produktart - #{s&.dig('Details', 'Type')}"] : [] })
           .>> t(:strip_all)
         end
 
@@ -211,16 +231,31 @@ module DataCycleCore
         end
 
         def self.parse_product(data, external_source_id, item_offered_id)
-          return if data.blank?
+          return [] if data.blank?
           data.map { |item|
             thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
             data_hash = {}
             data_hash['id'] = thing.id if thing.present?
+            type_classification = DataCycleCore::ClassificationAlias
+              .for_tree('Feratel - Produktarten')
+              .find_by(internal_name: item.dig('Details', 'ProductType'))
+              &.classifications
+              &.pluck(:id)
+            accommodation_classification = DataCycleCore::ClassificationAlias
+              .for_tree('Feratel - Unterkunftstypen')
+              .find_by(internal_name: item.dig('Details', 'AccommodationType'))
+              &.classifications
+              &.pluck(:id)
             data_hash.merge({
               name: item.dig('Details', 'Name'),
+              description: t(:unwrap_description, 'ProductDescription').call(item).dig('ProductDescription'),
               item_offered: [item_offered_id],
               external_key: item.dig('Id'),
-              price_specification: parse_simple_price(item.dig('Price'), external_source_id, item.dig('Id'))
+              price_specification: parse_simple_price(item.dig('Price'), external_source_id, item.dig('Id')),
+              feratel_product_type: Array(type_classification),
+              feratel_accommodation_type: Array(accommodation_classification),
+              feratel_status: load_active(item.dig('Details', 'Active')),
+              offer_period: parse_valid_dates(item.dig('Details', 'ValidDates'))
             })
           }.compact
         end
@@ -236,6 +271,33 @@ module DataCycleCore
           data_hash['min_price'] = prices.min
           data_hash['max_price'] = prices.max
           [data_hash]
+        end
+
+        def self.parse_valid_dates(data)
+          return unless data.dig('Type') == 'Period' && data.dig('ValidDate').is_a?(::Hash)
+          {
+            valid_from: data.dig('ValidDate', 'From').in_time_zone,
+            valid_through: data.dig('ValidDate', 'To').in_time_zone
+          }
+        end
+
+        def self.parse_packages(data, external_source_id)
+          return if data.blank?
+          temp = data.map { |item|
+            thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
+            data_hash = {}
+            data_hash['id'] = thing.id if thing.present?
+            text = t(:unwrap_description, 'PackageContentLong').call(item).dig('PackageContentLong')
+            data_hash.merge({
+              name: item.dig('Details', 'Name'),
+              description: t(:unwrap_description, 'Package').call(item).dig('Package'),
+              text: text,
+              feratel_status: load_active(item.dig('Details', 'Active')),
+              offer_period: parse_valid_dates(item.dig('Details', 'ValidDates')),
+              external_key: item.dig('Id')
+            })
+          }.compact
+          temp
         end
 
         def self.parse_opening_hours(data)

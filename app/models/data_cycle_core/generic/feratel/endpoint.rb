@@ -147,9 +147,11 @@ module DataCycleCore
 
           request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids)
 
-          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
-          # puts
-          # puts
+          puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          puts
+          puts
+
+          byebug
 
           response = Faraday.new.post do |req|
             req.url url

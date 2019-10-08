@@ -59,6 +59,7 @@
         :label: Services
         :type: linked
         :template_name: Zimmer
+        :translated: true
       :makes_offer:
         :label: Angebote
         :type: embedded

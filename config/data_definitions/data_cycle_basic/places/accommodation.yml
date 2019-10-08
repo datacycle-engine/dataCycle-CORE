@@ -21,6 +21,19 @@
           :required: true
         :api:
           :minimal: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :feratel_accommodation_classifications:
+        :type: mixin
+        :name: feratel_accommodation_classifications             
       :number_of_rooms:
         :label: Räume
         :type: number
