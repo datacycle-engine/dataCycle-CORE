@@ -32,7 +32,21 @@ module DataCycleCore
         format.js do
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:id])
 
-          if permitted_params[:classification_tree_id].present?
+          if permitted_params[:container_id].present?
+            @classification_parent_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_parent_tree_id])
+            @container = DataCycleCore::Thing.find(permitted_params[:container_id])
+            @order_string = 'things.boost DESC, things.template_name ASC'
+            @contents = get_filtered_results
+              .part_of(@container.id)
+              .distinct_by_content_id(@order_string)
+              .content_includes
+              .page(params[:page])
+
+            @page = @contents.current_page
+            @total_count = @contents.total_count
+            @total_pages = @contents.total_pages
+            render && return
+          elsif permitted_params[:classification_tree_id].present?
             @classification_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_tree_id])
             @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
             @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
@@ -73,6 +87,12 @@ module DataCycleCore
                 .count_distinct
             ]
           }.to_h
+
+          @contents.where(content_type: 'container').find_each do |container|
+            @content_count[container.id] = get_filtered_results
+              .part_of(container.id)
+              .count_distinct
+          end
         end
       end
     end
@@ -80,7 +100,7 @@ module DataCycleCore
     private
 
     def permitted_params
-      params.permit(:classification_tree_id, :id)
+      params.permit(:classification_tree_id, :container_id, :id, :classification_parent_tree_id)
     end
   end
 end
