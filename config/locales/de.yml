@@ -531,6 +531,7 @@ de:
         name: Name
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
+        user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
       data_cycle_core/classification_alias:

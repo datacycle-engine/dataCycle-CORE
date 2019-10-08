@@ -16,7 +16,7 @@ module DataCycleCore
         can :read, [DataCycleCore::Subscription, :publication]
         can [:subscribe, :history], DataCycleCore::Thing
 
-        can [:read, :create, :update, :destroy, :add_item, :remove_item], DataCycleCore::WatchList, user_id: user.id
+        can [:read, :create, :update, :destroy, :add_item, :remove_item, :change_owner], DataCycleCore::WatchList, user_id: user.id
         can [:read, :add_item, :remove_item], DataCycleCore::WatchList, watch_list_shares: { shareable_id: user.user_group_ids, shareable_type: 'DataCycleCore::UserGroup' }
         can [:read, :add_item, :remove_item], DataCycleCore::WatchList, watch_list_shares: { shareable_id: user.id, shareable_type: 'DataCycleCore::User' }
       end
