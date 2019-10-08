@@ -3,11 +3,22 @@
     <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
     <dl>
-        <dt>Name </dt>
+        <dt><%= t('object_browser.details.title', locale: DataCycleCore.ui_language).capitalize %> </dt>
         <dd><%= object.title %></dd>
     </dl>
 
     <% object.object_browser_fields.each do |attribute| %>
         <%= render_attribute_viewer key: attribute, definition: object.properties_for(attribute), value: object.try(attribute.to_sym), parameters: {options: {}}, content: object if object.properties_for(attribute).present? %>
     <% end %>
+
+    <dl>
+      <% if object.try(:created_at).present? %>
+          <dt><%= t('object_browser.details.created_at', locale: DataCycleCore.ui_language).capitalize %> </dt>
+          <dd><%= l(object.created_at, locale: DataCycleCore.ui_language, format: :short) %></dd>
+      <% end %>
+      <% if object.try(:updated_at).present? %>
+          <dt><%= t('object_browser.details.updated_at', locale: DataCycleCore.ui_language).capitalize %> </dt>
+          <dd><%= l(object.updated_at, locale: DataCycleCore.ui_language, format: :short) %></dd>
+      <% end %>
+    </dl>
 <% end %>

@@ -834,6 +834,10 @@
       /* set the container width*/
       overflow: visible;
 
+      .detail-label {
+        font-weight: bold;
+      }
+
       dt {
         margin: 0;
         padding: 0;
@@ -854,6 +858,11 @@
           content: '\A';
           white-space: pre;
           line-height: 2;
+        }
+
+        &.detail-thumb {
+          display: block;
+          margin-bottom: 0.5rem;
         }
 
         img {

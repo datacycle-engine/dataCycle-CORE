@@ -235,6 +235,14 @@ de:
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
 
+  object_browser:
+    details:
+      created_at: erstellt
+      updated_at: bearbeitet
+      title: Titel
+      info: Info
+      copyright: Copyright
+
   terms:
     valid: gültig
     from: von

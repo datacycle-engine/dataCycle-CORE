@@ -5,63 +5,46 @@
         thumbnail_url = object.try(:thumbnail_url) || object.try(:image_asset).try(:first).try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
     %>
 
-    <% unless object.title.blank? %>
-        <dl>
-            <dt>Name: </dt>
-            <dd><%= object.title %></dd>
-        </dl>
-    <% end %>
     <% unless object.schema.nil? %>
-        <dl>
-            <% if thumbnail_url.present? %>
-                <dd><img class="lazyload" data-src="<%= thumbnail_url %>" /></dd>
-            <% end %>
+      <dl>
+        <% if thumbnail_url.present? %>
+            <dd class="detail-thumb"><img class="lazyload" data-src="<%= thumbnail_url %>" /></dd>
+        <% end %>
 
-            <% if object.try(:url).present? %>
-                <dt>Datei Url: </dt>
-                <dd><%= link_to object.try(:url), object.try(:url), target: :_blank %></dd>
-            <% elsif object.try(:content_url).present? %>
-                <dt>Datei Url: </dt>
-                <dd><%= link_to object.try(:content_url), object.try(:content_url), target: :_blank %></dd>
-            <% end %>
+        <% unless object.title.blank? %>
+              <dt><%= t('object_browser.details.title', locale: DataCycleCore.ui_language).capitalize %> </dt>
+              <dd><%= object.title %></dd>
+        <% end %>
 
-            <% unless object.try(:file_format).nil? %>
-                <dt>Format: </dt>
-                <dd><%= object.try(:file_format) %></dd>
-            <% end %>
+        <% if object.try(:width).present? || object.try(:height).present? || object.try(:content_size).present? %>
+            <dt><%= t('object_browser.details.info', locale: DataCycleCore.ui_language).capitalize %> </dt>
+            <dd><%= "#{number_to_human_size(object.try(:content_size))}, " if object.try(:content_size).present? %><%= "#{object.try(:width)&.to_i}x#{object.try(:height)&.to_i}" %></dd>
+        <% end %>
 
-            <% unless object.try(:width).to_i.zero? || object.try(:height).to_i.zero? %>
-                <dt>Abmessungen: </dt>
-                <dd><%= "#{object.try(:width)} x #{object.try(:height)}" %></dd>
-            <% end %>
+        <% if object.try(:copyright_holder).present? || object.try(:author).present? %>
+            <dt><%= t('object_browser.details.copyright', locale: DataCycleCore.ui_language).capitalize %> </dt>
+            <dd>
+              © <%= "#{object.copyright_year.to_i} " if object.try(:copyright_year).present? %>
+              <%= "#{I18n.with_locale(object.copyright_holder.first.first_available_locale){ object.copyright_holder.first.try(:title) }} " if object.try(:copyright_holder).present? %>
+              <%= "/ #{I18n.with_locale(object.author.first.first_available_locale){ object.author.first.try(:title) }}" if object.try(:author).present? %>
+            </dd>
+        <% end %>
+      </dl>
 
-            <% unless object.try(:content_size).nil? %>
-                <dt>Dateigröße: </dt>
-                <dd><%= number_to_human_size(object.try(:content_size)) %></dd>
-            <% end %>
+      <% object.object_browser_fields.each do |attribute| %>
+          <%= render_attribute_viewer key: attribute, definition: object.properties_for(attribute), value: object.try(attribute.to_sym), parameters: {options: {}}, content: object if object.properties_for(attribute).present? %>
+      <% end %>
 
-            <% unless object.try(:license).nil? %>
-                <dt>Lizenz: </dt>
-                <dd><%= object.try(:license) %></dd>
-            <% end %>
-
-            <% unless object.try(:restrictions).nil? %>
-                <dt>Einschränkungen: </dt>
-                <dd><%= object.try(:restrictions) %></dd>
-            <% end %>
-
-            <% unless object.try(:date_created).nil? %>
-                <dt>Erstellt: </dt>
-                <dd><%= l(object.date_created.to_datetime, locale: DataCycleCore.ui_language) if object.date_created.present? %></dd>
-            <% end %>
-
-            <% unless object.try(:date_modified).nil? %>
-                <dt>Bearbeitet: </dt>
-                <dd><%= l(object.date_modified.to_datetime, locale: DataCycleCore.ui_language) if object.date_modified.present? %></dd>
-            <% end %>
-
-            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
-
-        </dl>
+      <dl>
+        <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
+        <% if object.try(:created_at).present? %>
+            <dt><%= t('object_browser.details.created_at', locale: DataCycleCore.ui_language).capitalize %> </dt>
+            <dd><%= l(object.created_at, locale: DataCycleCore.ui_language, format: :short) %></dd>
+        <% end %>
+        <% if object.try(:updated_at).present? %>
+            <dt><%= t('object_browser.details.updated_at', locale: DataCycleCore.ui_language).capitalize %> </dt>
+            <dd><%= l(object.updated_at, locale: DataCycleCore.ui_language, format: :short) %></dd>
+        <% end %>
+      </dl>
     <% end %>
 <% end %>
