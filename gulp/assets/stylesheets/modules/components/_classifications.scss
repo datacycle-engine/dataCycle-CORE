@@ -451,6 +451,27 @@ ul.backend-treeview-list {
     > li {
       border: none;
 
+      .children-count {
+        color: $dark-gray;
+      }
+
+      .tree-link:after {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        font-size: 0.8rem;
+        margin-left: 0.5rem;
+      }
+
+      .open {
+        .tree-link:after {
+          content: '\f106';
+        }
+      }
+
       ul.children {
         > li {
           .inner-item {
@@ -458,27 +479,6 @@ ul.backend-treeview-list {
 
             &:before {
               bottom: 50%;
-            }
-
-            .children-count {
-              color: $dark-gray;
-            }
-
-            .tree-link:after {
-              content: '\f107';
-              font-family: FontAwesome;
-              font-style: normal;
-              font-weight: normal;
-              text-decoration: inherit;
-              position: relative;
-              font-size: 0.8rem;
-              margin-left: 0.5rem;
-            }
-
-            &.open {
-              .tree-link:after {
-                content: '\f106';
-              }
             }
           }
 
@@ -502,7 +502,6 @@ ul.backend-treeview-list {
       ul.contents {
         display: none;
         position: relative;
-
         > li.content-row {
           transition: background-color 0.1s;
           position: relative;
@@ -634,6 +633,14 @@ ul.backend-treeview-list {
               width: 100%;
               padding: 1rem;
               color: white;
+            }
+          }
+          &.container {
+            display: block;
+            padding: 0;
+            .inner-item {
+              display: block;
+              padding: 1rem;
             }
           }
         }

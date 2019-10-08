@@ -53,6 +53,10 @@ module DataCycleCore
         types&.flatten&.map(&:to_s)&.include?(content_type)
       end
 
+      def container?
+        content_type == 'container'
+      end
+
       def embedded?
         content_type == 'embedded'
       end
