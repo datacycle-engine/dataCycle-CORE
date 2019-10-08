@@ -33,7 +33,7 @@
         :type: mixin
         :name: content_classifications
       :description:
-        :label: Beschreibung
+        :label: Kurzbeschreibung
         :type: string
         :storage_location: column
         :search: true
@@ -43,7 +43,7 @@
             :options:
               :data-size: basic
       :text:
-        :label: Text
+        :label: Beschreibung
         :type: string
         :storage_location: translated_value
         :search: true

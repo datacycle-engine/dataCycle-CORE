@@ -23,6 +23,7 @@ class ObjectBrowser {
     this.table = selector.data('table');
     this.max = selector.data('max');
     this.min = selector.data('min');
+    this.limitedBy = selector.data('limited-by');
     this.index = this.per;
     this.editable = selector.data('editable');
     this.page = 1;
@@ -166,6 +167,17 @@ class ObjectBrowser {
     );
     this.element.on('dc:locale:changed', this.updateLocale.bind(this));
     this.element.closest('form').on('reset', this.reset.bind(this));
+
+    if (this.limitedBy === Object(this.limitedBy)) {
+      let filterItem = this.element;
+      this.limitedBy.forEach(item => {
+        filterItem = filterItem[item[0]](item[1]);
+      });
+      this.limitedBy = filterItem;
+
+      this.removeDeletedItem();
+      this.limitedBy.on('change', this.removeDeletedItem.bind(this));
+    } else this.limitedBy = undefined;
   }
   updateLocale(e) {
     e.stopPropagation();
@@ -502,6 +514,7 @@ class ObjectBrowser {
           content_id: this.content_id,
           content_type: this.content_type,
           prefix: this.prefix,
+          filter_ids: this.filteredIds(),
           append: append
         }),
         contentType: 'application/json'
@@ -538,6 +551,24 @@ class ObjectBrowser {
           this.requests = this.requests.filter(r => r != jqXHR);
         })
     );
+  }
+  removeDeletedItem() {
+    if (!this.chosen.length) return;
+
+    let toRemove = this.chosen.diff(this.filteredIds());
+    if (toRemove.length) {
+      toRemove.forEach(item => {
+        this.removeThumbObject(this.element.find('> .media-thumbs > .object-thumbs > li.item[data-id="' + item + '"]'));
+      });
+    }
+  }
+  filteredIds() {
+    if (this.limitedBy === undefined) return [];
+
+    return this.limitedBy
+      .find('> .object-browser input:hidden')
+      .map((_, item) => $(item).val())
+      .get();
   }
 }
 

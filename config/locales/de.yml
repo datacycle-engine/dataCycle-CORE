@@ -17,6 +17,7 @@ de:
     da: "dänisch"
     es: "spanisch"
     fr: "französisch"
+    fi: "finnisch"
     it: "italienisch"
     hu: "ungarisch"
     hr: "kroatisch"
@@ -234,6 +235,14 @@ de:
     validity_period: nach Zeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
+
+  object_browser:
+    details:
+      created_at: erstellt
+      updated_at: bearbeitet
+      title: Titel
+      info: Info
+      copyright: Copyright
 
   terms:
     valid: gültig
@@ -531,6 +540,7 @@ de:
         name: Name
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
+        user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
       data_cycle_core/classification_alias:

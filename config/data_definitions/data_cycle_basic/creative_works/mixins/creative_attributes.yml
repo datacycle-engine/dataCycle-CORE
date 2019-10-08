@@ -52,6 +52,9 @@
               :aliases:
                 - Person
                 - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
       :image:
         :label: Bilder
         :type: linked

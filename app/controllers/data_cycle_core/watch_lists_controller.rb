@@ -266,7 +266,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:name, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:name, :user_id, user_group_ids: [], user_ids: [])
     end
 
     def hashable_params
