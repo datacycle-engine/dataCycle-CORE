@@ -34,13 +34,11 @@
               <%= "#{I18n.with_locale(object.copyright_holder.first.first_available_locale){ object.copyright_holder.first.try(:title) }} " if object.try(:copyright_holder).present? %>
             </dd>
         <% end %>
-      </dl>
 
-      <% object.object_browser_fields.each do |attribute| %>
-          <%= render_attribute_viewer key: attribute, definition: object.properties_for(attribute), value: object.try(attribute.to_sym), parameters: {options: {}}, content: object if object.properties_for(attribute).present? %>
-      <% end %>
+        <% object.object_browser_fields.each do |attribute| %>
+            <%= render_attribute_viewer key: attribute, definition: object.properties_for(attribute), value: object.try(attribute.to_sym), parameters: {options: {}}, content: object if object.properties_for(attribute).present? %>
+        <% end %>
 
-      <dl>
         <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: object} %>
         <% if object.try(:created_at).present? %>
             <dt><%= t('object_browser.details.created_at', locale: DataCycleCore.ui_language).capitalize %> </dt>
