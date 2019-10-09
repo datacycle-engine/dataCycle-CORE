@@ -455,6 +455,10 @@ ul.backend-treeview-list {
         color: $dark-gray;
       }
 
+      .tree-link {
+        cursor: pointer;
+      }
+
       .tree-link:after {
         content: '\f107';
         font-family: FontAwesome;
@@ -464,6 +468,48 @@ ul.backend-treeview-list {
         position: relative;
         font-size: 0.8rem;
         margin-left: 0.5rem;
+      }
+
+      .inner-item {
+        .folder-icon::after {
+          content: '\f07b';
+          font-family: FontAwesome;
+          font-style: normal;
+          font-weight: normal;
+          text-decoration: inherit;
+          position: relative;
+        }
+        .content-details {
+          display: none;
+
+          > div {
+            margin-top: 1rem;
+          }
+
+          .text {
+            .hidden {
+              display: none;
+            }
+          }
+
+          .thumbnails {
+            line-height: 2.8rem;
+
+            img {
+              height: 2.6rem;
+              vertical-align: top;
+            }
+          }
+        }
+        &.open {
+          .folder-icon::after {
+            content: '\f07c';
+          }
+
+          .content-details {
+            display: block;
+          }
+        }
       }
 
       .open {
@@ -506,11 +552,34 @@ ul.backend-treeview-list {
           transition: background-color 0.1s;
           position: relative;
           width: calc(100% - 2rem);
-          display: flex;
           margin-left: 2rem;
           background-color: white;
-          padding: 1rem;
           border-left: 1px solid white;
+          display: block;
+          padding: 0;
+
+          .inner-item {
+            display: block;
+            padding: 1rem;
+
+            .link-to-item {
+              margin-left: 0.5rem;
+            }
+            &:not(.container).open {
+              border: 1px solid $light-gray;
+              border-radius: 5px;
+              box-shadow: 0 3px 3px $light-gray;
+              padding: 1rem;
+              margin-left: 0.75rem;
+              margin-bottom: 0.5rem;
+            }
+          }
+          &::after {
+            content: '';
+            display: block;
+            min-height: 1px;
+            background: transparent;
+          }
 
           &:not(:last-child) {
             border-left: 1px solid $medium-gray;
@@ -530,8 +599,6 @@ ul.backend-treeview-list {
 
           > div {
             position: relative;
-            display: inline;
-            flex: 1;
             overflow: hidden;
             text-overflow: ellipsis;
 
@@ -579,68 +646,6 @@ ul.backend-treeview-list {
               ul {
                 display: inline;
               }
-            }
-
-            &.thumbnails {
-              margin: -0.5rem 0;
-              line-height: 2.8rem;
-              max-height: 2.6rem;
-              max-width: 20%;
-
-              img {
-                height: 2.6rem;
-                vertical-align: top;
-
-                &:before {
-                  display: none;
-                }
-              }
-            }
-
-            &.buttons {
-              display: inline-block;
-              max-width: 2rem;
-
-              a {
-                padding: 0.5rem;
-                margin-right: -0.5rem;
-              }
-            }
-          }
-
-          &.show-all {
-            .title-text {
-              height: auto;
-            }
-
-            .tags,
-            .thumbnails {
-              max-height: none;
-            }
-
-            .type {
-              white-space: normal;
-            }
-          }
-
-          &.button-row {
-            padding: 0;
-            text-align: center;
-
-            a {
-              background-color: $primary-color;
-              display: block;
-              width: 100%;
-              padding: 1rem;
-              color: white;
-            }
-          }
-          &.container {
-            display: block;
-            padding: 0;
-            .inner-item {
-              display: block;
-              padding: 1rem;
             }
           }
         }

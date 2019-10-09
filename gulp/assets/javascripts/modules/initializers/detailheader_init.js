@@ -23,18 +23,13 @@ module.exports.initialize = function() {
     );
   });
 
-  // show-more handlers
-  if ($('.show-more').length) {
-    $('.show-more .show-more-link').on('click', event => {
-      $(event.currentTarget)
-        .parent('.show-more')
-        .toggleClass('active');
-      $(event.currentTarget)
-        .siblings('.show-more-short')
-        .slideToggle(250);
-      $(event.currentTarget)
-        .siblings('.show-more-long')
-        .slideToggle(250);
-    });
-  }
+  $(document).on('click', '.show-more .show-more-link', event => {
+    event.preventDefault();
+
+    $(event.currentTarget)
+      .parent('.show-more')
+      .toggleClass('active')
+      .get(0)
+      .scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  });
 };

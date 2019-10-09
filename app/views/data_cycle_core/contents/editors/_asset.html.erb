@@ -7,7 +7,7 @@
     <% end %>
 
     <% value = value.first if value.is_a?(Array) || value.is_a?(ActiveRecord::Relation) %>
-    <% value = value.duplicate if local_assigns[:new_content] %>
+    <% value = value.duplicate if local_assigns[:new_content] && !value.nil? %>
     <%= hidden_field_tag key, value&.id, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
     <%= render 'data_cycle_core/assets/asset_list', assets: Array(value), class: 'editable' %>
 
