@@ -13,9 +13,10 @@
     - $$Gastronomischer Betrieb
   - $$Text:
     - $$Artikel
-    - $$Angebot    
+    - $$Angebot
   - $$Organisation
   - $$Person
+  - $$Pauschalangebot
   - $$Veranstaltung
   - $$Veranstaltungsserie
   - $$Zimmer

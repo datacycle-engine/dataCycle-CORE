@@ -36,6 +36,51 @@
         :label: Einheit
         :type: string
         :storage_location: translated_value
+      :validity_period:
+        :label: Angebotszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_through
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :valid_from:
+            :label: "Gültig ab"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+          :valid_through:
+            :label: "bis"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+            :api:
+              :name: validThrough
       :data_type:
         :label: Inhaltstype
         :type: classification

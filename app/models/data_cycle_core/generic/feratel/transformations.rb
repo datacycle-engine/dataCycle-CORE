@@ -12,12 +12,7 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
-          .>> t(:add_links,
-                'feratel_locations',
-                DataCycleCore::Classification,
-                external_source_id, lambda { |s|
-                  s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] }
-                })
+          .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap, 'Position')
@@ -30,19 +25,8 @@ module DataCycleCore
           .>> t(:reject_keys, ['Town'])
           .>> t(:unwrap_address, 'Object')
           .>> t(:unwrap, 'Address')
-          .>> t(
-            :rename_keys,
-            {
-              'AddressLine1' => 'street_address',
-              'Town' => 'address_locality',
-              'ZipCode' => 'postal_code',
-              'Country' => 'address_country',
-              'Fax' => 'fax_number',
-              'Phone' => 'telephone',
-              'Email' => 'email',
-              'URL' => 'url'
-            }
-          )
+          .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
+          .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProvider']))
           .>> t(:add_links, 'logo', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['ServiceProviderLogo']))
@@ -63,6 +47,33 @@ module DataCycleCore
           .>> t(:map_value, 'url', ->(s) { s.nil? ? '' : (!s.starts_with?('http://') && !s.starts_with?('https://') ? "http://#{s}" : s) })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
+        end
+
+        def self.feratel_to_aggregate_offer(external_source_id)
+          t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:unwrap, 'Details')
+          .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name' })
+          .>> t(:unwrap_description, ['Package', 'PackageShortText'])
+          .>> t(:rename_keys, { 'Package' => 'description', 'PackageShortText' => 'text' })
+          .>> t(:add_field, 'low_price', ->(s) { [s.dig('PackageCategories', 'PackageCategory')]&.flatten&.compact&.map { |item| item.dig('PriceFrom') }&.compact&.map(&:to_f)&.reject { |item| item == 0.0 }&.min })
+          .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['Package']))
+          .>> t(:add_links, 'eligable_region', DataCycleCore::Thing, external_source_id, ->(s) { ["PackagePlace:#{s.dig('external_key')}"] })
+          .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Owner')).hexdigest}"] : [] })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
+          .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
+          .>> t(:strip_all)
+        end
+
+        def self.feratel_to_package_place
+          t(:stringify_keys)
+          .>> t(:add_field, 'name', ->(_s) { 'GeoCoordinates' })
+          .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude', 'place_id' => 'external_key')
+          .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
+          .>> t(:map_value, 'longitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
+          .>> t(:location)
         end
 
         def self.feratel_to_image
@@ -110,8 +121,7 @@ module DataCycleCore
           .>> t(:unwrap_description, ['EventHeader'])
           .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
-                document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_locations', ->(s) { s.dig('Addresses', 'Address').is_a?(Hash) ? [s.dig('Addresses', 'Address')] : s.dig('Addresses', 'Address') })
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_locations')&.detect { |item| item.dig('Type') == 'Venue' }&.dig('Id') || "Location:#{s.dig('external_key')}" })
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
@@ -139,8 +149,7 @@ module DataCycleCore
           .>> t(:unwrap_description, ['EventHeader'])
           .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id,
-                document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
+          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:reject_keys, ['_Type', 'ChangeDate', 'Documents', 'feratel_documents', 'CustomAttributes'])
           .>> t(:strip_all)
@@ -158,19 +167,8 @@ module DataCycleCore
           .>> t(:add_field, 'price_range', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
           .>> t(:unwrap_address, 'InfrastructureExternal')
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
-          .>> t(
-            :rename_keys,
-            {
-              'AddressLine1' => 'street_address',
-              'Town' => 'address_locality',
-              'ZipCode' => 'postal_code',
-              'Country' => 'address_country',
-              'Fax' => 'fax_number',
-              'Phone' => 'telephone',
-              'Email' => 'email',
-              'URL' => 'url'
-            }
-          )
+          .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
+          .>> t(:rename_keys, { 'Fax' => 'fax_number', 'Phone' => 'telephone', 'Email' => 'email', 'URL' => 'url' })
           .>> t(:nest, 'address', ['street_address', 'address_locality', 'address_country', 'postal_code'])
           .>> t(:nest, 'contact_info', ['telephone', 'fax_number', 'email', 'url'])
           .>> t(:unwrap, 'Position')
@@ -274,6 +272,7 @@ module DataCycleCore
         end
 
         def self.parse_valid_dates(data)
+          return if data.blank?
           return unless data.dig('Type') == 'Period' && data.dig('ValidDate').is_a?(::Hash)
           {
             valid_from: data.dig('ValidDate', 'From').in_time_zone,
@@ -287,13 +286,13 @@ module DataCycleCore
             thing = DataCycleCore::Thing.find_by(external_key: item.dig('Id'), external_source_id: external_source_id)
             data_hash = {}
             data_hash['id'] = thing.id if thing.present?
-            text = t(:unwrap_description, 'PackageContentLong').call(item).dig('PackageContentLong')
             data_hash.merge({
               name: item.dig('Details', 'Name'),
               description: t(:unwrap_description, 'Package').call(item).dig('Package'),
-              text: text,
+              text: t(:unwrap_description, 'PackageContentLong').call(item).dig('PackageContentLong'),
               feratel_status: load_active(item.dig('Details', 'Active')),
               offer_period: parse_valid_dates(item.dig('Details', 'ValidDates')),
+              holiday_themes: t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |entry| entry&.dig('Id')&.downcase } || [] }).call(item).dig('holiday_themes'),
               external_key: item.dig('Id')
             })
           }.compact

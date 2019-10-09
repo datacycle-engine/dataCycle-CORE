@@ -30,3 +30,11 @@
         :ui:
           :show:
             :content_area: header
+      :holiday_themes:
+        :label: Feratel - Urlaubsthemen
+        :type: classification
+        :tree_label: Feratel - Urlaubsthemen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

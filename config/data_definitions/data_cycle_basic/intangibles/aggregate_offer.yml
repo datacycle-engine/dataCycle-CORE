@@ -1,10 +1,15 @@
+---
 - :data:
-    :name: Angebot
+    :name: Pauschalangebot
     :type: object
-    :schema_type: Intengible
-    :content_type: embedded
+    :schema_type: Intangible
+    :content_type: entity
+    :boost: 10000.0
     :api:
-      :type: Offer
+      :type: AggregateOffer
+    :features:
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id
@@ -12,9 +17,15 @@
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :minimal: true
       :description:
         :label: Beschreibung
         :type: string
@@ -44,16 +55,36 @@
       :feratel_offer_classifications:
         :type: mixin
         :name: feratel_offer_classifications
-      :price:
-        :label: Preis
-        :type: string
-        :storage_type: string
-        :storage_location: translated_value
+      :feratel_owners:
+        :label: Feratel - Inhaber
+        :type: classification
+        :tree_label: Feratel - Inhaber
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :low_price:
+        :label: ab Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :high_price:
+        :label: bis Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
       :price_specification:
         :label: Preis
         :type: embedded
         :template_name: Preis
-        :tranlated: true
+        :translated: true
+      :eligable_region:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
       :url:
         :label: Angebots URL
         :type: string
@@ -70,10 +101,10 @@
               :aliases:
                 - Person
                 - Organisation
-      :item_offered:
-        :label: Angebotene Leistung
+      :offers:
+        :label: Angebote
         :type: linked
-        :template_name: Unterkunft
+        :template_name: Angebot
       :offer_period:
         :label: Angebotszeitraum
         :type: object
@@ -132,11 +163,18 @@
             :label: URL
             :type: string
             :storage_location: translated_value
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :name: photo
+          :minimal: true
       :data_type:
         :label: Inhaltstype
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Angebot"
+        :default_value: "Pauschalangebot"
       :external_key:
         :label: external_key
         :type: string
@@ -146,3 +184,9 @@
             :disabled: true
         :api:
           :disabled: true
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties
