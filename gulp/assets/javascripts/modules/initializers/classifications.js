@@ -199,5 +199,14 @@ module.exports.initialize = function() {
       .split('+')
       .filter(Boolean);
     load_sub_classifications(location_array, 0);
+
+    $(document).on('click', '.toggle-details', event => {
+      event.preventDefault();
+
+      $(event.currentTarget)
+        .closest('.inner-item')
+        .toggleClass('open')
+        .trigger('dc:remote:render');
+    });
   }
 };

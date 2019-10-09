@@ -18,7 +18,6 @@ module DataCycleCore
 
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
-
           @content_count = @classification_trees.map { |c|
             [
               c.id,
@@ -78,7 +77,6 @@ module DataCycleCore
 
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
-
           @content_count = @classification_trees.map { |c|
             [
               c.id,

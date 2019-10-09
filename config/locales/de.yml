@@ -249,6 +249,10 @@ de:
     from: von
     until: bis
 
+  list_titles:
+    teaser: Teasertext
+    text: Fließtext
+
   pronoun:
     my:
       one: mein
@@ -262,6 +266,7 @@ de:
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
     filter: Erweiterte Dashboard-Filter
+    list: Listenansicht
 
   actions:
     new: erstellen

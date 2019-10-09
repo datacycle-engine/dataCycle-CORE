@@ -1297,21 +1297,16 @@ select:-moz-focusring {
 }
 
 // show-more css
+.show-more-link {
+  display: none;
+}
 .show-more {
-  .show-more-long {
-    display: none;
-  }
-
-  .show-more-short {
-    display: block;
-  }
-
   .show-more-link {
     position: relative;
     display: block;
     text-align: center;
     margin-top: 0.2rem;
-    line-height: 1rem;
+    line-height: 1.4rem;
     color: $dark-gray;
     font-size: 1rem;
     background: transparent;
@@ -1320,17 +1315,27 @@ select:-moz-focusring {
       position: absolute;
       content: '';
       height: 1px;
-      border-bottom: 1px solid lighten($dark-gray, 20%);
+      border-bottom: 1px solid $medium-gray;
       right: 0;
       left: 0;
       top: 0.7rem;
     }
 
     span {
-      background: $medium-gray;
+      border: 1px solid $medium-gray;
+      background: $white;
       padding: 0 0.5rem;
       position: relative;
       z-index: 1;
+      &::after {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        margin-left: 0.5rem;
+      }
     }
 
     .closed {
@@ -1342,7 +1347,22 @@ select:-moz-focusring {
     }
   }
 
+  .text-short {
+    display: block;
+  }
+  .text-full {
+    display: none;
+  }
+
   &.active {
+    .text-short {
+      display: none;
+    }
+
+    .text-full {
+      display: block;
+    }
+
     .show-more-link {
       .closed {
         display: none;
@@ -1351,23 +1371,9 @@ select:-moz-focusring {
       .open {
         display: inline-block;
       }
-    }
-  }
 
-  &.is-active {
-    .accordion-title {
-      span {
-        .closed {
-          display: none;
-        }
-
-        .open {
-          display: inline-block;
-        }
-
-        i::before {
-          content: '\f077';
-        }
+      span::after {
+        content: '\f106';
       }
     }
   }

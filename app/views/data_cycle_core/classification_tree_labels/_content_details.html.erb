@@ -1,0 +1,36 @@
+<% if content.try(:desc).present? %>
+  <div class="desctiption">
+    <h5><%= t('list_titles.teaser', locale: DataCycleCore.ui_language) %></h5>
+    <%= sanitize(content.desc) %>
+  </div>
+<% end %>
+
+<% if content.try(:text).present? %>
+  <div class="text <%= 'show-more' if content.text.size > 140 %>">
+    <h5><%= t('list_titles.text', locale: DataCycleCore.ui_language) %></h5>
+    <div class="text-short <%= 'hidden' if content.text.size < 140 %>">
+      <%= sanitize(strip_links(truncate(content.try(:text), length: 140, separator: " ", escape: false))) %>
+    </div>
+    <div class="text-full">
+      <%= sanitize(strip_links(content.try(:text))) %>
+    </div>
+    <a href="#" class="show-more-link">
+      <span class="open"><%= t('common.show_less', locale: DataCycleCore.ui_language) %></span>
+      <span class="closed"><%= t('common.show_more', locale: DataCycleCore.ui_language) %></span>
+    </a>
+  </div>
+<% end %>
+
+<%= render 'data_cycle_core/contents/tiles/attributes/tags', item: content, classification_tree_visibility: 'list' if content.try(:display_classification_aliases, 'list').present? %>
+
+<div class="thumbnails">
+  <% if content.try(:image).is_a?(ActiveRecord::Relation) %>
+    <% content.image.presence&.each do |image| %>
+        <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" title="<img data-src='<%= image.thumbnail_url %>' class='lazyload' />" data-tooltip data-allow-html="true" />
+    <% end %>
+  <% elsif content.try(:thumbnail_url).present? %>
+    <img data-src="<%= content.thumbnail_url %>" alt="<%= content.title %>" class="lazyload" title="<img data-src='<%= content.thumbnail_url %>' class='lazyload' />" data-tooltip data-allow-html="true" />
+  <% elsif content.try(:image).is_a?(String) && content.try(:image).present? %>
+    <img data-src="<%= content.image %>" alt="<%= content.title %>" class="lazyload" title="<img data-src='<%= content.image %>' class='lazyload' />" data-tooltip data-allow-html="true" />
+  <% end %>
+</div>
