@@ -6,8 +6,21 @@ module DataCycleCore
 
     def index
       authorize! :index, DataCycleCore::Subscription
-      @contents = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
-      @total = @contents.count
+      @contents = current_user.things_subscribed.includes(
+        :translations,
+        :watch_lists,
+        :external_source,
+        :external_systems,
+        :parent,
+        :primary_classification_aliases,
+        classification_aliases: [:classification_alias_path, :classification_tree_label]
+      ).order(updated_at: :desc).page(params[:page])
+      @total = @contents.size
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create

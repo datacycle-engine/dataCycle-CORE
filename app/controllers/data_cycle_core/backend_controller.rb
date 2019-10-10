@@ -18,10 +18,15 @@ module DataCycleCore
 
     def index
       @contents = get_filtered_results(@query, true)
-      @total = @contents.count_distinct
+      tmp_count = @contents.count_distinct
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @stored_filter = save_filter if params[:stored_filter].blank?
-      @total_pages = @total.fdiv(25).ceil
+      @total = @contents.instance_variable_set(:@total_count, tmp_count)
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def settings

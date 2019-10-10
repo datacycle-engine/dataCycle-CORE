@@ -48,14 +48,15 @@ module DataCycleCore
           @language ||= params.fetch(:language) { ['all'] }
           if @content.children.present?
             @contents = get_filtered_results
-            @total = @contents.count_distinct
-            @total_pages = (@total.to_f / 25).ceil
+            tmp_count = @contents.count_distinct
             @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+            @total = @contents.instance_variable_set(:@total_count, tmp_count)
           end
         end
 
         respond_to do |format|
           format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_thing_path", id: @content) }
+          format.js { render 'data_cycle_core/application/more_results' }
           format.html { render && return }
         end
       end

@@ -1,27 +1,17 @@
 <section class="search-results">
-    <% if @total.presence&.positive? %>
-        <div class="row pagination-margin">
-            <div class="small-12">
-                <%= paginate @contents, total_pages: @total_pages %>
-            </div>
-        </div>
+  <% if @total.presence&.positive? %>
 
-        <%= render 'data_cycle_core/application/presentation/grid', contents: contents, no_cache: no_cache ||= false %>
+    <ul class="grid no-bullet no-format <%= @mode %>">
+      <%= render 'data_cycle_core/application/presentation/grid', contents: contents %>
+    </ul>
 
-        <div class="row pagination-margin">
-            <div class="small-12">
-                <%= paginate @contents, total_pages: @total_pages %>
-            </div>
-        </div>
+  <% else %>
 
-    <% else %>
+    <div class="row">
+      <div class="small-12">
+        <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+      </div>
+    </div>
 
-        <div class="row">
-            <div class="small-12">
-                <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
-            </div>
-        </div>
-
-    <% end %>
-
+  <% end %>
 </section>

@@ -12,6 +12,7 @@ module DataCycleCore
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
+    has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
 
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by

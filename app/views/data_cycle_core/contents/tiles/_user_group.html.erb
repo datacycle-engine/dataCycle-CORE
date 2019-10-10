@@ -17,7 +17,7 @@
 
 <% content_for :media_buttons do %>
   <% if can? :edit, item %>
-    <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_group_path(item, watch_list_id: @watch_list), class: 'edit-link' %>
+    <%= link_to tag.i(class: 'fa fa-pencil', aria_hidden: true), edit_user_group_path(item, watch_list_id: @watch_list), class: 'edit-link', title: t('actions.edit', locale: DataCycleCore.ui_language), data: { tooltip: true } %>
   <% end %>
 
   <% if can? :destroy, item %>
@@ -25,8 +25,10 @@
       item,
       method: :delete,
       class:'alert delete-link',
+      title: t('actions.delete', locale: DataCycleCore.ui_language),
       data: {
-        confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?"
+        confirm: "#{item.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?",
+        tooltip: true
       } %>
   <% end %>
 <% end %>

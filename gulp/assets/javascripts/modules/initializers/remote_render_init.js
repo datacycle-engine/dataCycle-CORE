@@ -17,8 +17,11 @@ module.exports.initialize = function() {
   $(document).on('open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown', '*', event => {
     event.stopPropagation();
     $(event.target)
-      .find('.remote-render:visible')
-      .addBack('.remote-render:visible')
+      .find('.remote-render')
+      .addBack('.remote-render')
+      .filter((_, elem) => {
+        return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+      })
       .each((_, element) => {
         load_remote_partial(element);
       });

@@ -25,7 +25,7 @@
 
 <div class="thumbnails">
   <% if item.try(:image).is_a?(ActiveRecord::Relation) %>
-    <% item.image.presence&.each do |image| %>
+    <% item.image.presence&.includes(:translations).each do |image| %>
         <img data-src="<%= image.thumbnail_url %>" alt="<%= image.title %>" class="lazyload" title="<img src='<%= image.thumbnail_url %>' />" data-tooltip data-allow-html="true" data-template-classes="thumbnail-tooltip" />
     <% end %>
   <% elsif item.try(:thumbnail_url).present? %>

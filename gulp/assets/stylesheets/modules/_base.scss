@@ -61,10 +61,6 @@ button,
   }
 }
 
-.pagination-margin {
-  margin-top: 1rem;
-}
-
 .html-feature-missing {
   position: fixed;
   height: 100%;
@@ -83,36 +79,11 @@ button,
   }
 }
 
-.pagination {
-  border-radius: 30px; //background: lighten($light-gray, 7%);
-
+.pagination-container {
+  padding: 1rem 0;
   a,
   button {
-    border-radius: 0;
-    line-height: inherit;
-    line-height: 30px;
-
-    &:focus,
-    &:hover {
-      text-decoration: underline;
-      background: none;
-      color: $primary-color;
-    }
-  }
-
-  .current {
-    border-radius: 30px;
-    width: 30px;
-    height: 30px;
-    background: $light-gray;
-    padding: 0;
-
-    a {
-      padding: 0;
-      color: $dark-gray;
-      cursor: default;
-      text-decoration: none;
-    }
+    margin: 0;
   }
 }
 
@@ -183,6 +154,10 @@ button,
       }
     }
   }
+}
+
+footer {
+  min-height: 5rem;
 }
 
 .detail-header {

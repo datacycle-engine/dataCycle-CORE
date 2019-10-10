@@ -28,12 +28,15 @@ module DataCycleCore
         }
       )
 
-      @contents = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @contents.total_count
+      @contents = get_filtered_results
+      tmp_count = @contents.count_distinct
+      @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+      @total = @contents.instance_variable_set(:@total_count, tmp_count)
 
       respond_to do |format|
         format.html
         format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
+        format.js { render 'data_cycle_core/application/more_results' }
       end
     end
 
