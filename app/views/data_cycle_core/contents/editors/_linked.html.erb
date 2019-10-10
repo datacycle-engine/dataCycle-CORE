@@ -28,7 +28,8 @@
       data-content-id="<%= (local_assigns[:parent] || content).id %>"
       data-content-type="<%= (local_assigns[:parent] || content).class.table_name %>"
       data-max="<%= definition.dig('validations', 'max') || 0 %>"
-      data-min="<%= definition.dig('validations', 'min') || 0 %>">
+      data-min="<%= definition.dig('validations', 'min') || 0 %>"
+      data-limited-by="<%= definition.dig('ui', 'edit', 'options', 'limited_by')&.to_json %>">
         <div class="media-thumbs">
           <ul class="object-thumbs no-bullet">
             <% if objects.present? %>
@@ -130,10 +131,12 @@
             template: new_template
           }) %>
 
-          <%= render 'data_cycle_core/contents/new_content_button', form_parameters if can?(:create, new_template, 'object_browser') || new_content_select_options(query_methods: [{
-              method_name: 'with_default_data_type',
-              value: creatable
-            }], scope: 'object_browser').present? %>
+          <%= render 'data_cycle_core/contents/new_content_button', form_parameters if definition.dig('ui', 'edit', 'options', 'limited_by').blank? &&
+            (can?(:create, new_template, 'object_browser') ||
+              new_content_select_options(query_methods: [{
+                method_name: 'with_default_data_type',
+                value: creatable
+              }], scope: 'object_browser').present?) %>
 
           <button class="button-prime small close-object-browser" type="button" data-close>
             <i aria-hidden="true" class="fa fa-times"></i>

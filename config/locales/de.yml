@@ -17,6 +17,7 @@ de:
     da: "dänisch"
     es: "spanisch"
     fr: "französisch"
+    fi: "finnisch"
     it: "italienisch"
     hu: "ungarisch"
     hr: "kroatisch"
@@ -235,10 +236,22 @@ de:
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
 
+  object_browser:
+    details:
+      created_at: erstellt
+      updated_at: bearbeitet
+      title: Titel
+      info: Info
+      copyright: Copyright
+
   terms:
     valid: gültig
     from: von
     until: bis
+
+  list_titles:
+    teaser: Teasertext
+    text: Fließtext
 
   pronoun:
     my:
@@ -253,6 +266,7 @@ de:
     show_more: Detail-Ansicht (standardmäßig eingeklappt)
     edit: Bearbeitungs-Ansicht
     filter: Erweiterte Dashboard-Filter
+    list: Listenansicht
 
   actions:
     new: erstellen
@@ -531,6 +545,7 @@ de:
         name: Name
         user_group_ids: Benutzergruppen
         user_ids: Benutzer
+        user_id: Eigentümer
       data_cycle_core/classification_tree_label:
         visibility: Sichtbarkeit
       data_cycle_core/classification_alias:

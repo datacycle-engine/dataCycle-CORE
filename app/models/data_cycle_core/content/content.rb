@@ -23,12 +23,12 @@ module DataCycleCore
           include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
         end
       extend  DataCycleCore::Common::ArelBuilder
-      include ContentRelations
-      extend  ContentFilters
-      include DestroyContent
-      include DataHashUtility
-      include Extensions::Content
-      include Extensions::ContentWarnings
+      include DataCycleCore::Content::ContentRelations
+      extend  DataCycleCore::Content::ContentFilters
+      include DataCycleCore::Content::DestroyContent
+      include DataCycleCore::Content::DataHashUtility
+      include DataCycleCore::Content::Extensions::Content
+      include DataCycleCore::Content::Extensions::ContentWarnings
 
       after_save :reload_memoized
 
@@ -51,6 +51,10 @@ module DataCycleCore
 
       def content_type?(*types)
         types&.flatten&.map(&:to_s)&.include?(content_type)
+      end
+
+      def container?
+        content_type == 'container'
       end
 
       def embedded?

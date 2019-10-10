@@ -1,0 +1,14 @@
+<li id="<%= item.id %>" data-parent-classification="<%= local_assigns[:classification_parent_tree]&.id || classification_tree.id %>" class="content-row">
+  <div class="inner-item container">
+    <%= link_to params.permit(language: [], f: [:c, :t, :n, :m, v: []]).merge({ container_id: item.id, classification_parent_tree_id: local_assigns[:classification_parent_tree]&.id || classification_tree.id }), data: { remote: true, disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}" }, class: "tree-link type #{item.template_name.downcase}" do %>
+      <span class="icon"><i class="folder-icon"></i></span>
+      <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %> - </span>
+      <span class="title"><%= item.try(:title) %></span>
+      <% if content_counts[item.id]&.positive? %>
+        <span class="children-count">(<%= content_counts[item.id] %>)</span>
+      <% end %>
+    <% end %>
+    <%= link_to tag.i(class: 'fa fa-external-link'), thing_path(item), target: :_blank, class: 'link-to-item' %>
+  </div>
+  <ul class="contents no-bullet"></ul>
+</li>

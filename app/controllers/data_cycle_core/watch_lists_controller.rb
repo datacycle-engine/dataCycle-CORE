@@ -104,7 +104,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
-      @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
+      @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
@@ -266,7 +266,7 @@ module DataCycleCore
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:name, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:name, :user_id, user_group_ids: [], user_ids: [])
     end
 
     def hashable_params
