@@ -34,7 +34,7 @@ module DataCycleCore
           if permitted_params[:container_id].present?
             @classification_parent_tree = DataCycleCore::ClassificationTree.find(permitted_params[:classification_parent_tree_id])
             @container = DataCycleCore::Thing.find(permitted_params[:container_id])
-            @order_string = 'things.boost DESC, things.template_name ASC'
+            @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
             @contents = get_filtered_results
               .part_of(@container.id)
               .distinct_by_content_id(@order_string)
@@ -54,7 +54,7 @@ module DataCycleCore
               .order('classification_aliases.internal_name')
               .page(params[:tree_page])
 
-            @order_string = 'things.boost DESC, things.template_name ASC'
+            @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
             @contents = get_filtered_results
               .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
               .distinct_by_content_id(@order_string)

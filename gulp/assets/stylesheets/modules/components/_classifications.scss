@@ -471,6 +471,8 @@ ul.backend-treeview-list {
       }
 
       .inner-item {
+        transition: margin 0.1s ease-in-out;
+
         .folder-icon::after {
           content: '\f07b';
           font-family: FontAwesome;
@@ -566,6 +568,7 @@ ul.backend-treeview-list {
               margin-left: 0.5rem;
             }
             &:not(.container).open {
+              background-color: $white;
               border: 1px solid $light-gray;
               border-radius: 5px;
               box-shadow: 0 3px 3px $light-gray;
@@ -585,8 +588,9 @@ ul.backend-treeview-list {
             border-left: 1px solid $medium-gray;
           }
 
-          &:not(.button-row)::before {
+          &::before {
             content: '';
+            z-index: 0;
             position: absolute;
             top: 0;
             left: -1px;
@@ -646,6 +650,22 @@ ul.backend-treeview-list {
               ul {
                 display: inline;
               }
+            }
+          }
+          &.button-row {
+            padding: 0;
+            text-align: center;
+
+            &::before {
+              display: none;
+            }
+
+            a {
+              background-color: $primary-color;
+              display: block;
+              width: 100%;
+              padding: 1rem;
+              color: white;
             }
           }
         }

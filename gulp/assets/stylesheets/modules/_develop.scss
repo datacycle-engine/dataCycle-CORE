@@ -1379,6 +1379,15 @@ select:-moz-focusring {
   }
 }
 
+.thumbnail-tooltip {
+  text-align: center;
+  img {
+    width: auto;
+    max-width: 90vw;
+    max-width: 90vh;
+  }
+}
+
 .clear-both {
   clear: both;
 }
