@@ -81,6 +81,9 @@
                 :type: date
             :api:
               :name: validThrough
+      :feratel_price_sprecification_classifications:
+        :type: mixin
+        :name: feratel_price_sprecification_classifications
       :data_type:
         :label: Inhaltstype
         :type: classification

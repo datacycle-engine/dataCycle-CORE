@@ -4,7 +4,7 @@
     :type: object
     :schema_type: Intangible
     :content_type: entity
-    :boost: 10000.0
+    :boost: 100.0
     :api:
       :type: AggregateOffer
     :features:
@@ -52,6 +52,24 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+      :content_description:
+        :label: Inhaltsbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :api:
+          :transformation:
+            :method: nest
+            :name: dataCycleProperty
+      :content_text:
+        :label: Inhaltsbeschreibung (lang)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :api:
+          :transformation:
+            :method: nest
+            :name: dataCycleProperty
       :feratel_offer_classifications:
         :type: mixin
         :name: feratel_offer_classifications
@@ -103,8 +121,9 @@
                 - Organisation
       :offers:
         :label: Angebote
-        :type: linked
+        :type: embedded
         :template_name: Angebot
+        :translated: true
       :offer_period:
         :label: Angebotszeitraum
         :type: object

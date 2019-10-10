@@ -58,6 +58,28 @@ module DataCycleCore
           }.reduce(data.reject { |k, _| k == 'Descriptions' }, &:merge)
         end
 
+        def self.unwrap_content_description(data, description_types)
+          raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
+
+          description_types = Array(description_types)
+
+          return data.map { |v| unwrap_content_description(v, description_types) } if data.is_a?(Array)
+
+          description_types.map { |description_type|
+            description_data = Array.wrap(data.dig('ContentDescriptions', 'ContentDescription'))
+              .detect { |h| h['Type'] == description_type }
+            description_text = description_data.try(:[], 'IntroText') || ''
+
+            if description_data&.dig('Items', 'Item').present?
+              item_data = description_data.dig('Items', 'Item').is_a?(::Array) ? description_data.dig('Items', 'Item') : [{ 'text' => description_data.dig('Items', 'Item') }]
+              description_item = item_data.map { |item| item.try(:[], 'text') }.compact.join('</li> <li>')
+              description_text += ' <ul> <li>' + description_item + '</li> </ul>' if description_item.present?
+            end
+
+            { description_type => description_text.presence }
+          }.reduce(data.reject { |k, _| k == 'ContentDescriptions' }, &:merge)
+        end
+
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
