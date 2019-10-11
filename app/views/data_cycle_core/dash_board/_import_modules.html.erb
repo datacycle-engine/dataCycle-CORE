@@ -27,7 +27,7 @@
         </ul>
     </div>
 </div>
-<%= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% unless locals[:import_data][:db_size] == 0%>
-    <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% end %>
+<%#= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
+<%= link_to(t('dash_board.import', locale: DataCycleCore.ui_language), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small') %>
+<%# unless locals[:import_data][:db_size] == 0%>
+<%# end %>
