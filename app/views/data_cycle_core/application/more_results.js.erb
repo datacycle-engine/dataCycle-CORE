@@ -1,1 +1,1 @@
-$('<%= j render "data_cycle_core/application/presentation/#{@mode || 'grid'}", contents: @contents, direction: params[:direction] %>').replaceAll('.pagination-container.<%= params[:direction] %>[data-page="<%= @contents.current_page %>"]:visible').trigger('dc:html:changed');
+$('<%= j render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: @contents, direction: params[:direction] %>').replaceAll('.pagination-container.<%= params[:direction] %>[data-page="<%= @contents.current_page %>"]:visible').trigger('dc:html:changed');

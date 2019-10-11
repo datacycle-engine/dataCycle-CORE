@@ -32,7 +32,7 @@ module DataCycleCore
       tmp_count = @contents.count_distinct
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @total = @contents.instance_variable_set(:@total_count, tmp_count)
-      @mode = params[:mode] || 'grid'
+      @mode = mode_params[:mode] || 'grid'
 
       respond_to do |format|
         format.html
@@ -275,6 +275,10 @@ module DataCycleCore
 
     def hashable_params
       params.permit(:hashable_id, :hashable_type, serialize_format: [])
+    end
+
+    def mode_params
+      params.permit(:mode)
     end
 
     def content_params(property_hash)

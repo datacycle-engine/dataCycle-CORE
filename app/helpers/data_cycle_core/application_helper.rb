@@ -51,6 +51,14 @@ module DataCycleCore
       end
     end
 
+    def valid_mode(mode)
+      case mode
+      when 'list' then 'list'
+      when 'tree' then 'tree'
+      else 'grid'
+      end
+    end
+
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'dataCycle'

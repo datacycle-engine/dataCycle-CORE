@@ -16,7 +16,7 @@ module DataCycleCore
         classification_aliases: [:classification_alias_path, :classification_tree_label]
       ).order(updated_at: :desc).page(params[:page])
       @total = @contents.size
-      @mode = params[:mode] || 'grid'
+      @mode = mode_params[:mode] || 'grid'
 
       respond_to do |format|
         format.html
@@ -54,6 +54,10 @@ module DataCycleCore
 
     def subscription_params
       params.permit(:subscribable_id, :subscribable_type)
+    end
+
+    def mode_params
+      params.permit(:mode)
     end
   end
 end
