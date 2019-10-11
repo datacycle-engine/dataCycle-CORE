@@ -52,7 +52,7 @@ module DataCycleCore
         def check_lock_state
           @content ||= DataCycleCore::Thing.find(params[:id])
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if @content.locked? && @content.lock.user != current_user
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return if @content.locked? && @content.lock.user != current_user
 
           @content.lock.destroy if @content.locked?
           @content.reload_lock
@@ -64,7 +64,7 @@ module DataCycleCore
           @content ||= DataCycleCore::Thing.find(params[:id])
 
           if @content.locked? && @content.lock.user != current_user
-            redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return
+            redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: @content.lock.user&.full_name, data: distance_of_time_in_words(@content.lock.locked_for), locale: DataCycleCore.ui_language)) && return
           elsif @content.locked?
             @content.lock.destroy
           end
@@ -76,7 +76,7 @@ module DataCycleCore
           content_locks = @contents.locks
           forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock.user&.full_name, data: distance_of_time_in_words(forbidden_lock.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock.user&.full_name, data: distance_of_time_in_words(forbidden_lock.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
 
           content_locks.find_each(&:destroy) if content_locks.exists?
 
@@ -91,7 +91,7 @@ module DataCycleCore
           content_locks = @contents.locks
           forbidden_lock = content_locks.where.not(user: current_user).first
 
-          redirect_back(fallback_location: root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock&.user&.full_name, data: distance_of_time_in_words(forbidden_lock&.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
+          redirect_back(fallback_location: authorized_root_path, alert: I18n.t(:content_locked_html, scope: [:common], user: forbidden_lock&.user&.full_name, data: distance_of_time_in_words(forbidden_lock&.locked_for), locale: DataCycleCore.ui_language)) && return if forbidden_lock.present?
 
           return unless content_locks.exists?
 
