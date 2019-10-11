@@ -55,7 +55,11 @@ de:
     relations: Relationen
 
   dash_board:
-    import: Download & Import starten
+    import_full: Import (full)
+    import: Import
+    download: Download
+    download_import: Download/Import
+
 
   notification:
     frequency:
