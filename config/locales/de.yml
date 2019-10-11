@@ -54,6 +54,9 @@ de:
     api: JSON API
     relations: Relationen
 
+  dash_board:
+    import: Download & Import starten
+
   notification:
     frequency:
       always: sofort bei Änderung
