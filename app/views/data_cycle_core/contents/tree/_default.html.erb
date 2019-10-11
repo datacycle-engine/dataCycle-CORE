@@ -1,0 +1,19 @@
+<li id="<%= item.id %>" class="content-row">
+  <div class="inner-item">
+    <div class="type <%= item.template_name.downcase %>">
+      <span class="tree-link toggle-details">
+        <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
+        <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
+        <span class="locale">(<%= item.translated_locales.join(', ') %>) - </span>
+        <span class="title" title="<%= item.title %>"><%= item.title %></span>
+      </span>
+      <%= link_to tag.i(class: 'fa fa-external-link'), thing_path(item, locale: I18n.locale), target: :_blank, class: 'link-to-item' %>
+    </div>
+
+    <div class="content-details remote-render"
+      id="<%= "#{item.id}-#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}" %>"
+      data-remote-render-function="render_content_tile_details"
+      data-remote-render-params="<%= to_query_params(item: item, mode: 'tree').to_json %>">
+    </div>
+  </div>
+</li>

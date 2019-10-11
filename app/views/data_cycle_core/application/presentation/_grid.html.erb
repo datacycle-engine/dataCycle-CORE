@@ -14,21 +14,23 @@
 <% end %>
 
 <% contents&.each do |content| %>
-  <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
+  <li class="grid-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>" id="grid-item-<%= content.id %>">
       <% if content.is_a?(DataCycleCore::Thing) %>
 
-          <% cache(["#{content.class}_#{content.id}_#{content.updated_at}_#{content.template_updated_at}", params.fetch(:language, 'de'), @watch_list], expires_in: 1.year + Random.rand(7.days)) do %>
-              <%= render_content_tile(item: content) %>
+          <% cache(content_view_cache_key(item: content, locale: params[:language], mode: 'grid'), expires_in: 1.year + Random.rand(7.days)) do %>
+              <%= render_content_tile(item: content, mode: 'grid') %>
           <% end %>
 
       <% else %>
 
-          <%= render_content_tile(item: content) %>
+          <%= render_content_tile(item: content, mode: 'grid') %>
 
       <% end %>
 
       <div class="buttons">
-          <%= render 'data_cycle_core/contents/tiles/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
+          <%= yield_content!(:media_buttons) %>
+
+          <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
 
           <% if content.try(:translated_locales)&.many? %>
               <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: DataCycleCore.ui_language)}&.join("<br>") %>"></i>
@@ -37,8 +39,6 @@
           <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
               <%= render 'watch_lists', content: content %>
           <% end %>
-
-          <%= yield_content!(:media_buttons) %>
       </div>
   </li>
 <% end %>

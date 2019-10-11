@@ -1,8 +1,15 @@
 <section class="search-results">
   <% if @total.presence&.positive? %>
+    <% @mode ||= 'grid' %>
 
-    <ul class="grid no-bullet no-format <%= @mode %>">
-      <%= render 'data_cycle_core/application/presentation/grid', contents: contents %>
+    <div class="mode-switcher">
+      <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
+        <%= link_to_unless @mode == mode, mode_icon(mode), request.params.merge(mode: mode) %>
+      <% end %>
+    </div>
+
+    <ul class="no-bullet no-format <%= @mode %>">
+      <%= render "data_cycle_core/application/presentation/#{@mode}", contents: contents %>
     </ul>
 
   <% else %>

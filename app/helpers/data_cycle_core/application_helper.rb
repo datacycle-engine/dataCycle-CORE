@@ -40,6 +40,17 @@ module DataCycleCore
       end
     end
 
+    def mode_icon(mode)
+      case mode
+      when 'grid'
+        tag.i(class: 'fa fa-th', aria_hidden: true)
+      when 'list'
+        tag.i(class: 'fa fa-th-list', aria_hidden: true)
+      when 'tree'
+        tag.i(class: 'fa fa-sitemap', aria_hidden: true)
+      end
+    end
+
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'dataCycle'
@@ -57,6 +68,10 @@ module DataCycleCore
 
     def schema_path_from_key(key)
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+    end
+
+    def content_view_cache_key(item:, locale: 'de', mode:)
+      "#{item.class}_#{item.id}_#{locale}_#{item.updated_at}_#{item.template_updated_at}_#{mode}"
     end
 
     def filterable_classification_aliases(allowed_labels, excluded = [])
@@ -295,37 +310,26 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def render_content_tile(item:, parameters: {})
-      partials = [
-        item.try(:template_name)&.underscore_blanks,
-        item.try(:schema_type)&.underscore_blanks,
-        item&.class&.name&.demodulize&.underscore_blanks,
-        'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
-
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
-    end
-
-    def render_content_list_item(item:, parameters: {})
+    def render_content_tile(item:, parameters: {}, mode: 'grid')
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
-    def render_content_list_details(item:, parameters: {})
+    def render_content_tile_details(item:, parameters: {}, mode: 'grid')
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}_details" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
@@ -335,7 +339,7 @@ module DataCycleCore
         definition.dig('template_name')&.underscore_blanks,
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/compact/#{p}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/grid/compact/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 

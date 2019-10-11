@@ -14,7 +14,7 @@ module.exports.initialize = function() {
       });
   });
 
-  $(document).on('open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown', '*', event => {
+  $(document).on('open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:toggler:show', '*', event => {
     event.stopPropagation();
     $(event.target)
       .find('.remote-render')

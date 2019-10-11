@@ -32,4 +32,16 @@ module.exports.initialize = function() {
       .get(0)
       .scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
   });
+
+  $(document).on('click', '.toggler', event => {
+    event.preventDefault();
+
+    $(event.currentTarget).toggleClass('active');
+
+    $('#' + $(event.currentTarget).data('toggle'))
+      .toggleClass('active')
+      .trigger('dc:toggler:show')
+      .get(0)
+      .scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'nearest' });
+  });
 };

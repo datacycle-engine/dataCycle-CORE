@@ -16,6 +16,7 @@ module DataCycleCore
         classification_aliases: [:classification_alias_path, :classification_tree_label]
       ).order(updated_at: :desc).page(params[:page])
       @total = @contents.size
+      @mode = params[:mode] || 'grid'
 
       respond_to do |format|
         format.html

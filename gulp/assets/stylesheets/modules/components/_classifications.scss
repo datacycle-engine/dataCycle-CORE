@@ -523,7 +523,9 @@ ul.backend-treeview-list {
       ul.children {
         > li {
           .inner-item {
-            padding: 1rem 0 1rem 1rem;
+            padding: 0 0 0 1rem;
+            display: block;
+            line-height: 1.6;
 
             &:before {
               bottom: 50%;
@@ -562,7 +564,26 @@ ul.backend-treeview-list {
 
           .inner-item {
             display: block;
-            padding: 1rem;
+            padding: 0 0 0 1rem;
+
+            &.container {
+              display: flex;
+            }
+
+            .tree-link {
+              display: flex;
+              white-space: nowrap;
+              overflow: hidden;
+              align-items: center;
+
+              > span {
+                margin-right: 5px;
+                &.title {
+                  overflow: hidden;
+                  text-overflow: ellipsis;
+                }
+              }
+            }
 
             .link-to-item {
               margin-left: 0.5rem;
@@ -594,7 +615,7 @@ ul.backend-treeview-list {
             position: absolute;
             top: 0;
             left: -1px;
-            height: 1.75rem;
+            height: 1rem;
             width: 0.75em;
             border: 1px solid $medium-gray;
             border-top: 0 none transparent;
@@ -610,9 +631,9 @@ ul.backend-treeview-list {
               padding-right: 0.5rem;
             }
 
-            &.type {
-              max-width: 15rem;
-              white-space: nowrap;
+            .type {
+              // white-space: nowrap;
+              display: flex;
 
               a {
                 color: inherit;
@@ -664,7 +685,7 @@ ul.backend-treeview-list {
               background-color: $primary-color;
               display: block;
               width: 100%;
-              padding: 1rem;
+              padding: 0.75rem;
               color: white;
             }
           }

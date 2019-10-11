@@ -1,6 +1,6 @@
 <% contents.presence&.each do |content| %>
   <% I18n.with_locale(content.first_available_locale) do %>
-    <%= render_content_list_item(item: content, parameters: local_assigns) %>
+    <%= render_content_tile(item: content, parameters: local_assigns, mode: 'tree') %>
   <% end %>
 <% end %>
 <% if @page < @total_pages %>
