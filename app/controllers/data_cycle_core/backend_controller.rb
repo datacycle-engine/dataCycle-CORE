@@ -15,6 +15,7 @@ module DataCycleCore
       DataCycleCore::Feature::LifeCycle.enabled? &&
         DataCycleCore::Feature::LifeCycle.default_filter.present?
     }
+    before_action :set_view_mode, only: :index
 
     def index
       @contents = get_filtered_results(@query, true)
@@ -22,7 +23,6 @@ module DataCycleCore
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @stored_filter = save_filter if params[:stored_filter].blank?
       @total = @contents.instance_variable_set(:@total_count, tmp_count)
-      @mode = mode_params[:mode] || 'grid'
 
       respond_to do |format|
         format.html
@@ -31,12 +31,6 @@ module DataCycleCore
     end
 
     def settings
-    end
-
-    private
-
-    def mode_params
-      params.permit(:mode)
     end
   end
 end

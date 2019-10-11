@@ -3,6 +3,7 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
+    before_action :set_view_mode, only: :show
 
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
@@ -32,7 +33,6 @@ module DataCycleCore
       tmp_count = @contents.count_distinct
       @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
       @total = @contents.instance_variable_set(:@total_count, tmp_count)
-      @mode = mode_params[:mode] || 'grid'
 
       respond_to do |format|
         format.html
@@ -275,10 +275,6 @@ module DataCycleCore
 
     def hashable_params
       params.permit(:hashable_id, :hashable_type, serialize_format: [])
-    end
-
-    def mode_params
-      params.permit(:mode)
     end
 
     def content_params(property_hash)

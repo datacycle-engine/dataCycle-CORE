@@ -3,6 +3,7 @@
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
+    before_action :set_view_mode, only: :index
 
     def index
       authorize! :index, DataCycleCore::Subscription
@@ -16,7 +17,6 @@ module DataCycleCore
         classification_aliases: [:classification_alias_path, :classification_tree_label]
       ).order(updated_at: :desc).page(params[:page])
       @total = @contents.size
-      @mode = mode_params[:mode] || 'grid'
 
       respond_to do |format|
         format.html
@@ -54,10 +54,6 @@ module DataCycleCore
 
     def subscription_params
       params.permit(:subscribable_id, :subscribable_type)
-    end
-
-    def mode_params
-      params.permit(:mode)
     end
   end
 end

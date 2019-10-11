@@ -94,5 +94,17 @@ module DataCycleCore
       end
       redirect_to request.path, params: params.delete(:flash)
     end
+
+    def set_view_mode
+      if mode_params[:mode].in?(['list', 'tree'])
+        @mode = mode_params[:mode].to_s
+      else
+        @mode = 'grid'
+      end
+    end
+
+    def mode_params
+      params.permit(:mode)
+    end
   end
 end

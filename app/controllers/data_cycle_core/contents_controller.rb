@@ -6,6 +6,7 @@ module DataCycleCore
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
     before_action :authenticate_user!, :set_watch_list
+    before_action :set_view_mode, only: :show
 
     DataCycleCore.features
       .select { |_, v| !v.dig(:only_config) == true }
@@ -51,7 +52,6 @@ module DataCycleCore
             tmp_count = @contents.count_distinct
             @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
             @total = @contents.instance_variable_set(:@total_count, tmp_count)
-            @mode = mode_params[:mode] || 'grid'
           end
         end
 
@@ -393,10 +393,6 @@ module DataCycleCore
 
     def destroy_params
       params.permit(:locale)
-    end
-
-    def mode_params
-      params.permit(:mode)
     end
 
     def source_params
