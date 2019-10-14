@@ -291,13 +291,12 @@ module DataCycleCore
                 xml.HousePackageMasters('DateFrom' => '1980-01-01')
                 xml.AdditionalServices do
                   xml.Details('DateFrom' => '1980-01-01')
-                  xml.Documents('DateFrom' => '1980-01-01')
+                  xml.Descriptions('DateFrom' => '1980-01-01')
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                   xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.HandicapClassifications('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
-                    xml.Documents('DateFrom' => '1980-01-01')
-                    xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
                     xml.Prices('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                     # xml.PriceDetails('DateFrom' => '1980-01-01', 'Start' => start_date, 'End' => end_date)
                   end
