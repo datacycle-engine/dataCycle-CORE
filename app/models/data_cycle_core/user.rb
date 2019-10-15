@@ -82,20 +82,6 @@ module DataCycleCore
       SubscriptionMailer.notify(self, contents).deliver_later
     end
 
-    def self.from_omniauth(auth)
-      return if auth&.info&.email.blank?
-
-      new_user = find_or_initialize_by(email: auth.info.email) do |user|
-        user.password = Devise.friendly_token
-      end
-      new_user.provider = auth.provider
-      new_user.uid = auth.uid
-      new_user.external = true
-      new_user.skip_callbacks = true
-      new_user.save
-      new_user
-    end
-
     def update_with_token(token)
       if token.dig(:user, :rank).present?
         rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
