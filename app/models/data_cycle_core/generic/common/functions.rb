@@ -45,7 +45,7 @@ module DataCycleCore
             data_hash[attribute] = data_hash[attribute].map { |keyword|
               DataCycleCore::Classification.where(
                 external_source_id: external_source_id,
-                external_key: external_prefix + keyword
+                external_key: external_prefix.to_s + keyword.to_s
               )&.first&.id
             }.reject(&:nil?) || []
           end

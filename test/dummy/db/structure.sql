@@ -844,7 +844,8 @@ CREATE TABLE public.users (
     provider character varying,
     uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    additional_attributes jsonb
 );
 
 
@@ -2039,6 +2040,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190801120456'),
 ('20190805085313'),
 ('20190821101746'),
-('20190920075014');
+('20190920075014'),
+('20190926131653');
 
 
