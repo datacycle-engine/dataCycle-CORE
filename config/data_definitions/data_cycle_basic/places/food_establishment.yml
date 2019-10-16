@@ -22,6 +22,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :properties:
       :id:
         :label: id

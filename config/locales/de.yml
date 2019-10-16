@@ -181,6 +181,7 @@ de:
       json: JSON-Format
       gpx: GPX-Datei
       xml: XML-Format
+      indesign: Adobe inDesign
       version:
         original: Original
         thumb_preview: Thumbnail
