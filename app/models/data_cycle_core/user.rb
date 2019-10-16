@@ -8,6 +8,20 @@ module DataCycleCore
 
     attr_accessor :raw_password, :skip_callbacks
 
+    WEBHOOKS_ATTRIBUTES = [
+      'access_token',
+      'email',
+      'encrypted_password',
+      'external',
+      'family_name',
+      'given_name',
+      'name',
+      'notification_frequency',
+      'provider',
+      'role_id',
+      'default_locale'
+    ].freeze
+
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
@@ -45,11 +59,15 @@ module DataCycleCore
     delegate :can?, :cannot?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & ['access_token', 'email', 'encrypted_password', 'external', 'family_name', 'given_name', 'name', 'notification_frequency', 'provider', 'role_id']).present? }
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     def recoverable?
       !(external? || is_rank?(0))
+    end
+
+    def allowed_webhook_attirbutes
+      WEBHOOKS_ATTRIBUTES
     end
 
     def full_name
