@@ -203,6 +203,12 @@
       :license_fields:
         :type: mixin
         :name: license_fields
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
