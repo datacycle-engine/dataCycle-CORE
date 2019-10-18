@@ -107,7 +107,7 @@ module.exports.initialize = function() {
             return data.text;
           },
           ajax: {
-            url: '/classifications/search',
+            url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
             delay: 250,
             data: function(params) {
               $(that)

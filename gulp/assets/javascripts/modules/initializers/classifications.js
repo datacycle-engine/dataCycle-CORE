@@ -125,7 +125,7 @@ module.exports.initialize = function() {
           return data.name || data.text;
         },
         ajax: {
-          url: '/classifications/search',
+          url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
           delay: 250,
           data: function(params) {
             select.data('select2').$container.addClass('select2-loading');
