@@ -312,6 +312,7 @@ de:
     open_asset: "Datei öffnen"
     download: "herunterlanden"
     download_content: "Inhalt herunterladen"
+    download_indesign: "Inhalt für Adobe InDesign herunterladen"
     download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     download_asset_version: "Datei herunterladen (%{data}-Version)"

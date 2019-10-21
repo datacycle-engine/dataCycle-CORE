@@ -1,6 +1,3 @@
-<% if @mode_parameters.include?('indesign') %>
-    <Image href="file:///images/<%= content.id %><%= DataCycleCore::Serialize::AssetSerializer.file_extension(DataCycleCore::Serialize::AssetSerializer.mime_type(nil, content)) %>" />
-<% else %>
 <%
     overlay_attribute = DataCycleCore::Feature::OverlayAttributeService.call(content)
     overlay_attributes = overwritten_properties(content, overlay_attribute.first)
@@ -28,7 +25,10 @@
 
 <%= render *content_partial('properties', { content: content, options: options }) %>
 
+<% if @mode_parameters.include?('indesign') %>
+    <Image href="file:///images/<%= content.id %><%= DataCycleCore::Serialize::AssetSerializer.file_extension(DataCycleCore::Serialize::AssetSerializer.mime_type(nil, content)) %>" />
+<% end %>
+
 <%#= render render_partial('combined_properties'), content: content, options: options %>
 
 <%= render *content_partial('footer', { content: content, options: options }) %>
-<% end %>

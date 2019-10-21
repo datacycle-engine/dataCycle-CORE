@@ -18,7 +18,6 @@
           :asset: true
           :json: true
           :xml: true
-          :indesign: true
     :api:
       :type: ImageObject
     :properties:

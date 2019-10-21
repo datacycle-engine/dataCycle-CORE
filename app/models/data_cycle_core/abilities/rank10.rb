@@ -38,6 +38,9 @@ module DataCycleCore
         can :download, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content)
         end
+        can :download_indesign, DataCycleCore::Thing do |content|
+          DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Serialize.available_serializers(content).include?('indesign')
+        end
         can :download_zip, DataCycleCore::Thing do |content|
           DataCycleCore::Feature::Download.allowed?(content) && DataCycleCore::Feature::Download.collection_enabled?('content')
         end
