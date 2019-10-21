@@ -47,6 +47,9 @@ module DataCycleCore
         can :download, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list')
         end
+        can :download_indesign, DataCycleCore::WatchList do |_watch_list|
+          DataCycleCore::Feature::Download.collection_serializer_enabled?('watch_list') && DataCycleCore::Feature::Download.enabled_collection_serializers('watch_list').include?('indesign')
+        end
         can :download_zip, DataCycleCore::WatchList do |_watch_list|
           DataCycleCore::Feature::Download.collection_enabled?('watch_list')
         end

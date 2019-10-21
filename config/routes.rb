@@ -103,6 +103,7 @@ DataCycleCore::Engine.routes.draw do
     patch :bulk_update, on: :member
     post :validate, on: :member
     get :download_zip, on: :member
+    get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
