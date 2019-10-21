@@ -9,6 +9,7 @@
     <schema:name><%=@watch_list.name%></schema:name>
     <schema:things>
     <% @watch_list.watch_list_data_hashes.order(created_at: :desc).each do |item| %>
+      <% @thing_ids = [] %>
       <%= render 'item', item: item %>
     <% end %>
     </schema:things>
