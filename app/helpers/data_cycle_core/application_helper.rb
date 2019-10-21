@@ -153,7 +153,7 @@ module DataCycleCore
     end
 
     def merge_uploader_white_list(asset_type: nil)
-      uploader_validations = {}
+      uploader_validations = {}.with_indifferent_access
 
       if can?(:create, DataCycleCore::DataLink)
         uploader_validations = {
@@ -162,7 +162,7 @@ module DataCycleCore
             translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
             translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
           })
-        }
+        }.with_indifferent_access
       end
 
       return uploader_validations if asset_type == 'text_file'
