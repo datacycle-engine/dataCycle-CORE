@@ -66,7 +66,7 @@ module DataCycleCore
       !(external? || is_rank?(0))
     end
 
-    def allowed_webhook_attirbutes
+    def allowed_webhook_attributes
       WEBHOOKS_ATTRIBUTES
     end
 
