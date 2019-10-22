@@ -35,6 +35,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :additional_food_establishment_properties:
+        :type: mixin
+        :name: additional_food_establishment_properties          
       :content_classifications:
         :type: mixin
         :name: content_classifications
