@@ -60,6 +60,20 @@ module DataCycleCore
           end
         end
 
+        test 'try to add linked consisting of only an empty string' do
+          linked_objects = @linked_objects
+          data_set = @data_set
+          count_things(diff: [0, 1, -1 * linked_objects.size, linked_objects.size]) do
+            data_set.set_data_hash(
+              data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
+                {
+                  'linked_creative_work' => ['']
+                }
+              )
+            )
+          end
+        end
+
         test 'delete main entity' do
           linked_objects = @linked_objects
           data_set = @data_set

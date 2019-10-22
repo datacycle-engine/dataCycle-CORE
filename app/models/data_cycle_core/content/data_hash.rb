@@ -241,7 +241,7 @@ module DataCycleCore
       end
 
       def parse_linked_ids(a)
-        return [] if a.blank?
+        return [] if is_blank?(a)
         data = a.is_a?(::String) ? [a] : a
         data = a&.ids if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
