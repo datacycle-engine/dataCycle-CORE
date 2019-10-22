@@ -126,6 +126,17 @@ module DataCycleCore
       end
     end
 
+    def as_user_api_json
+      as_json(
+        only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
+        include: {
+          role: {
+            only: [:name, :rank]
+          }
+        }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+      )
+    end
+
     private
 
     def set_default_role
