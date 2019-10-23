@@ -35,13 +35,12 @@ module DataCycleCore
           authorize! :download_indesign, @object
           serialize_format = [permitted_download_params.dig(:serialize_format)]
           languages = permitted_download_params[:language]
-          raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('content', serialize_format)
 
-          download_items = ([@object] + @object.linked_contents.where(template_name: 'Bild')).to_a.select do |thing|
+          asset_items = @object.linked_contents.where(template_name: 'Bild').to_a.select do |thing|
             can? :download, thing
           end
 
-          download_indesign_collection(@object, download_items, serialize_format, languages)
+          download_indesign_collection(@object, ([@object] + asset_items), serialize_format, languages)
         end
 
         private
