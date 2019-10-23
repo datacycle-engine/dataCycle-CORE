@@ -354,7 +354,7 @@ de:
       date: "%{data} ist kein gültiges Datums Format."
       key: "%{data} ist kein gültiges uuid Format."
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
-      url: "%{data} ist keine gültige Url."
+      url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: "%{template} ist kein String, sondern %{label}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."

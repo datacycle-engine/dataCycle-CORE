@@ -40,4 +40,4 @@ config:
         image:
           template: Bild
         food_establishment:
-          template: POI
+          template: 'Gastronomischer Betrieb'
