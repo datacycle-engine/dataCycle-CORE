@@ -4,8 +4,8 @@
     <% key_new = definition.dig('xml', 'name') || key.camelize(:lower) %>
     <<%=key_new%>>
     <% data.each do |item| %>
-      <% next if @thing_ids.include?(item.id) %>
-      <% @thing_ids << item.id %>
+      <% next if @thing_ids.include?("#{key_new}_#{item.id}") %>
+      <% @thing_ids << "#{key_new}_#{item.id}" %>
       <% if @include_parameters.include?('linked') %>
         <%= render *content_partial('details', content: item) %>
       <% else %>

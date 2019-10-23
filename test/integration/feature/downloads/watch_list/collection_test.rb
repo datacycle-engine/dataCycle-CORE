@@ -31,6 +31,9 @@ module DataCycleCore
 
           test 'enable content collection and test zip download' do
             DataCycleCore.features[:download][:collections][:watch_list][:enabled] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:asset] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:json] = true
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:xml] = true
             DataCycleCore.features[:serialize][:serializers][:asset] = true
             DataCycleCore.features[:serialize][:serializers][:json] = true
             DataCycleCore.features[:serialize][:serializers][:xml] = true
