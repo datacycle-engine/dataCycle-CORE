@@ -6,7 +6,7 @@ module DataCycleCore
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
 
-    attr_accessor :raw_password, :skip_callbacks
+    attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks
 
     WEBHOOKS_ATTRIBUTES = [
       'access_token',
