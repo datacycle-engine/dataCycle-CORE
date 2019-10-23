@@ -1,4 +1,4 @@
-<a data-toggle="download_<%= content.id %>"
+<a data-toggle="download_indesign_<%= content.id %>"
     class="<%= 'button-prime small ' unless content.class.to_s == 'DataCycleCore::StoredFilter' %>download-content-link"
     title="<%= t('actions.download_indesign', locale: DataCycleCore.ui_language) %>"
     data-tooltip>
@@ -6,12 +6,12 @@
 </a>
 
 <div class="reveal download-content-reveal"
-     id="download_<%= content.id %>"
+     id="download_indesign_<%= content.id %>"
      data-reveal>
-    <h3 class="new_content_form_title"><%= t('actions.download_content', locale: DataCycleCore.ui_language) %></h3>
+    <h3 class="new_content_form_title"><%= t('actions.download_indesign', locale: DataCycleCore.ui_language) %></h3>
 
     <div class="new-content-form remote-render"
-         id="<%= content.id %>_download"
+         id="<%= content.id %>_download_indesign"
          data-remote-path="data_cycle_core/application/downloads/forms/indesign"
          data-remote-options="<%= to_query_params({content: content}).to_json %>">
     </div>

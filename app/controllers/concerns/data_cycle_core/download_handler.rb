@@ -85,8 +85,6 @@ module DataCycleCore
         Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
           indesign_items.each do |content|
             languages.each do |language|
-              # next unless content.translated_locales.include?(language.to_sym)
-              # serialize_format.each do |format|
               serializer = ('DataCycleCore::Serialize::' + serialize_format.first.to_s.classify + 'Serializer').constantize
               next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
 
@@ -106,7 +104,6 @@ module DataCycleCore
               file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
 
               zipfile.add("#{file_name}#{file_extension}", download_file)
-              # end
             end
           end
           if assets.size.positive?
