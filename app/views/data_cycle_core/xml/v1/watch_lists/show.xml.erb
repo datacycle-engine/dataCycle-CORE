@@ -4,14 +4,14 @@
   xmlns:rdf="http://schema.org"
   xmlns:schema="http://schema.org/Thing/">
 
-  <schema:collection>
-    <schema:id><%=@watch_list.id%></schema:id>
-    <schema:name><%=@watch_list.name%></schema:name>
-    <schema:things>
+  <collection>
+    <id><%=@watch_list.id%></id>
+    <name><%=@watch_list.name%></name>
+    <things>
     <% @watch_list.watch_list_data_hashes.order(created_at: :desc).each do |item| %>
       <% @thing_ids = [] %>
       <%= render 'item', item: item %>
     <% end %>
-    </schema:things>
-  </schema:collection>
+    </things>
+  </collection>
 </rdf:RDF>
