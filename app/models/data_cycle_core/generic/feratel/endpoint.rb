@@ -16,13 +16,12 @@ module DataCycleCore
 
         # version to iterate over children of primary_range_id
 
-        def load_range_ids
+        def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
 
-          [['RG', '796217f1-b58c-438f-b422-0305bba4aafc']]
-          # DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-          #   mongo.where({ 'dump.de.ParentID' => @primary_range_id }).to_a.map { |r| [range_types(r.dump['de']['_Type']), r.dump['de']['Id']] } # , 'dump.de.ParentID' => { '$ne' => '00000000-0000-0000-0000-000000000000' }
-          # end
+          DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            mongo.where({ 'dump.de.ParentID' => @primary_range_id }).to_a.map { |r| [range_types(r.dump['de']['_Type']), r.dump['de']['Id']] } # , 'dump.de.ParentID' => { '$ne' => '00000000-0000-0000-0000-000000000000' }
+          end
         end
 
         def range_types(type)
@@ -33,19 +32,19 @@ module DataCycleCore
           end
         end
 
-        # def load_range_ids(range_code = 'RG')
-        #   range_ids = load_location_range_ids(
-        #     @options.dig(:options, :location_range_codes)
-        #   )
-        #
-        #   if range_ids.include?(range_code)
-        #     range_ids[range_code]
-        #   elsif range_code == @primary_range_code
-        #     [@primary_range_id]
-        #   else
-        #     []
-        #   end
-        # end
+        def load_range_ids(range_code = 'RG')
+          range_ids = load_location_range_ids(
+            @options.dig(:options, :location_range_codes)
+          )
+
+          if range_ids.include?(range_code)
+            range_ids[range_code]
+          elsif range_code == @primary_range_code
+            [@primary_range_id]
+          else
+            []
+          end
+        end
 
         def load_location_range_ids(range_codes)
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
@@ -113,45 +112,45 @@ module DataCycleCore
         end
 
         def infrastructure_items(lang: :de)
-          enumerate_items(:infrastructure_items, '//InfrastructureItem', lang: lang)
+          enumerate_items_large(:infrastructure_items, '&lt\;InfrastructureItem Id', lang: lang)
+          # enumerate_items(:infrastructure_items, '//InfrastructureItem', lang: lang)
         end
 
         def additional_service_providers(lang: :de)
-          enumerate_items(:additional_service_providers, '//ServiceProvider', lang: lang)
+          enumerate_items_large(:additional_service_providers, '&lt\;ServiceProvider Id', lang: lang)
+          # enumerate_items(:additional_service_providers, '//ServiceProvider', lang: lang)
         end
 
         def events(lang: :de)
-          enumerate_items(:events, '//Event', lang: lang)
+          enumerate_items_large(:events, '&lt\;Event Id', lang: lang)
+          # enumerate_items(:events, '//Event', lang: lang)
         end
 
         def packages(lang: :de)
-          enumerate_items(:packages, '//Package', lang: lang)
+          enumerate_items_large(:packages, '&lt\;Package Id', lang: lang)
         end
 
         def package_containers(lang: :de)
-          enumerate_items(:package_containers, '//PackageContainer', lang: lang)
+          enumerate_items_large(:package_containers, '&lt\;Package Id', lang: lang)
+          # enumerate_items(:package_containers, '//PackageContainer', lang: lang)
         end
 
         def accommodations(lang: :de)
-          enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
+          enumerate_items_large(:accommodations, '&lt\;ServiceProvider Id', lang: lang)
+          # enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
         end
 
         def serial_events(lang: :de)
           enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
         end
 
-        # version of enumerate with only children of primary_range_id
-
-        def enumerate_items(type, xpath, lang: :de)
+        def enumerate_items_large(type, pattern, lang: :de)
           Enumerator.new do |yielder|
-            item_ids = []
-            load_range_ids.each do |range_code, range_id|
-              load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
-                item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
-                unless item_ids.include?(item['Id'] || item['Order'])
-                  item_ids << item['Id'] || item['Order']
-                  yielder << item
-                end
+            load_range_ids_new.each do |range_code, range_id|
+              load_data_large(type, lang: lang, range_code: range_code, range_ids: range_id, pattern: pattern).each do |xml_raw_data|
+                xml_data = Nokogiri::XML.parse(Nokogiri::HTML.parse(xml_raw_data))
+                item = { '_Type' => xml_data.root.name.singularize }.merge(xml_data.root.to_hash)
+                yielder << item
               end
             end
           end
@@ -160,19 +159,34 @@ module DataCycleCore
         # def enumerate_items(type, xpath, lang: :de)
         #   Enumerator.new do |yielder|
         #     item_ids = []
-        #     ['RG', 'DI', 'TO'].each do |range_code|
-        #       load_range_ids(range_code).each do |range_id|
-        #         load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
-        #           item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
-        #           unless item_ids.include?(item['Id'] || item['Order'])
-        #             item_ids << item['Id'] || item['Order']
-        #             yielder << item
-        #           end
+        #     load_range_ids.each do |range_code, range_id|
+        #       load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+        #         item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+        #         unless item_ids.include?(item['Id'] || item['Order'])
+        #           item_ids << item['Id'] || item['Order']
+        #           yielder << item
         #         end
         #       end
         #     end
         #   end
         # end
+
+        def enumerate_items(type, xpath, lang: :de)
+          Enumerator.new do |yielder|
+            item_ids = []
+            ['RG', 'DI', 'TO'].each do |range_code|
+              load_range_ids(range_code).each do |range_id|
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+                  unless item_ids.include?(item['Id'] || item['Order'])
+                    item_ids << item['Id'] || item['Order']
+                    yielder << item
+                  end
+                end
+              end
+            end
+          end
+        end
 
         def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
@@ -193,10 +207,6 @@ module DataCycleCore
             req.body = { 'xmlString' => request_parameters }
           end
 
-          # file = File.new('response.xml', File::CREAT | File::TRUNC | File::RDWR, 0o0644)
-          # file.write(Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2))
-          byebug
-
           envelop = Nokogiri::XML(response.body)
 
           data = Nokogiri::XML(envelop.children.first.content)
@@ -204,6 +214,45 @@ module DataCycleCore
 
           raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
           data
+        end
+
+        def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @range_id, pattern:)
+          if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
+            url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          else
+            url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
+          end
+
+          request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids)
+
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          response = Faraday.new.post do |req|
+            req.url url
+            req.options.timeout = 1200
+            req.body = { 'xmlString' => request_parameters }
+          end
+
+          tempfile = Tempfile.new('feratel')
+          tempfile.binmode
+          tempfile.write(response.body)
+          tempfile.close
+          data_array = []
+          File.open(tempfile.path, 'r').each_chunk(pattern) do |chunk|
+            data_array.push(chunk)
+          end
+          tempfile.unlink
+
+          if data_array[0].nil?
+            envelop = Nokogiri::XML.parse(response.body)
+            data = Nokogiri::XML(envelop.children.first.content)
+            data.remove_namespaces!
+
+            raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
+          end
+          data_array.compact
         end
 
         def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
