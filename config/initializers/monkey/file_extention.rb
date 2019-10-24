@@ -7,7 +7,7 @@ class File
     chunk = nil
 
     each do |line|
-      if line =~ regexp
+      if line =~ regexp # rubocop:disable Performance/RegexpMatch
         if chunk
           chunk += line.gsub(regexp, '\1')
 
