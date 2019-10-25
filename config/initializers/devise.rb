@@ -4,6 +4,7 @@ Devise.setup do |config|
   config.router_name = :data_cycle_core # "DataCycleCore::User"
   config.parent_controller = 'DataCycleCore::ApplicationController'
   config.mailer_sender = 'webmaster@pixelpoint.at'
+  config.mailer = 'DataCycleCore::UserMailer'
   require 'devise/orm/active_record'
   config.case_insensitive_keys = [:email]
   config.strip_whitespace_keys = [:email]
