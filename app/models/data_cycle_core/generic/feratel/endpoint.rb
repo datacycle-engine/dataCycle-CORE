@@ -17,18 +17,11 @@ module DataCycleCore
         # version to iterate over children of primary_range_id
         def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
-
-          DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-            mongo.where({ 'dump.de.ParentID' => @primary_range_id }).to_a.map { |r| [range_types(r.dump['de']['_Type']), r.dump['de']['Id']] } # , 'dump.de.ParentID' => { '$ne' => '00000000-0000-0000-0000-000000000000' }
+          range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
+          range_parameters = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            mongo.where({ 'dump.de.ParentID' => @primary_range_id }).to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }.presence
           end
-        end
-
-        def range_types(type)
-          case type
-          when 'Region' then 'RG'
-          when 'District' then 'DI'
-          when 'Town' then 'TO'
-          end
+          range_parameters.presence || [[@primary_range_code, @primary_range_id]]
         end
 
         def load_range_ids(range_code = 'RG')
@@ -66,48 +59,49 @@ module DataCycleCore
           end
         end
 
-        def categories(lang: :de)
-          enumerate_items(:categories, '//Category', lang: lang)
-        end
-
         def locations(lang: :de)
           enumerate_items(:locations, '//Location', lang: lang)
         end
 
+        def categories(lang: :de)
+          enumerate_items_large(:categories, '&lt\;Category Id', lang: lang)
+        end
+
         def holiday_themes(lang: :de)
-          enumerate_items(:holiday_themes, '//HolidayTheme', lang: lang)
+          enumerate_items_large(:holiday_themes, '&lt\;HolidayTheme Id', lang: lang)
         end
 
         def infrastructure_types(lang: :de)
-          enumerate_items(:infrastructure_types, '//InfrastructureType', lang: lang)
+          enumerate_items_large(:infrastructure_types, '&lt\;InfrastructureType Type', lang: lang)
         end
 
         def infrastructure_topics(lang: :de)
-          enumerate_items(:infrastructure_topics, '//InfrastructureTopic', lang: lang)
+          enumerate_items_large(:infrastructure_topics, '&lt\;InfrastructureTopic ', lang: lang)
         end
 
         def custom_attributes(lang: :de)
-          enumerate_items(:custom_attributes, '//CustomAttribute', lang: lang)
+          enumerate_items_large(:custom_attributes, '&lt\;CustomAttribute ', lang: lang)
         end
 
         def facility_groups(lang: :de)
-          enumerate_items(:facility_groups, '//FacilityGroup', lang: lang)
+          enumerate_items_large(:facility_groups, '&lt\;FacilityGroup ', lang: lang)
         end
 
         def facilities(lang: :de)
-          enumerate_items(:facilities, '//Facility', lang: lang)
+          enumerate_items_large(:facilities, '&lt\;Facility ', lang: lang)
         end
 
         def stars(lang: :de)
-          enumerate_items(:stars, '//Star', lang: lang)
+          enumerate_items_large(:stars, '&lt\;Star ', lang: lang)
         end
 
         def classifications(lang: :de)
-          enumerate_items(:classifications, '//Classification', lang: lang)
+          enumerate_items_large(:classifications, '&lt\;Classification ', lang: lang)
         end
 
         def rating_questions(lang: :de)
-          enumerate_items(:rating_questions, '//RatingQuestion', lang: lang)
+          enumerate_items_large(:rating_questions, '&lt\;RatingQuestion ', lang: lang)
+          # enumerate_items(:rating_questions, '//RatingQuestion', lang: lang)
         end
 
         def infrastructure_items(lang: :de)
@@ -117,12 +111,10 @@ module DataCycleCore
 
         def additional_service_providers(lang: :de)
           enumerate_items_large(:additional_service_providers, '&lt\;ServiceProvider Id', lang: lang)
-          # enumerate_items(:additional_service_providers, '//ServiceProvider', lang: lang)
         end
 
         def events(lang: :de)
           enumerate_items_large(:events, '&lt\;Event Id', lang: lang)
-          # enumerate_items(:events, '//Event', lang: lang)
         end
 
         def packages(lang: :de)
@@ -131,7 +123,6 @@ module DataCycleCore
 
         def package_containers(lang: :de)
           enumerate_items_large(:package_containers, '&lt\;Package Id', lang: lang)
-          # enumerate_items(:package_containers, '//PackageContainer', lang: lang)
         end
 
         def accommodations(lang: :de)
@@ -140,6 +131,7 @@ module DataCycleCore
         end
 
         def serial_events(lang: :de)
+          # enumerate_items_large(:serial_events, '&lt\;SerialEvent ', lang: lang) # untested!!
           enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
         end
 
@@ -187,7 +179,7 @@ module DataCycleCore
           end
         end
 
-        def load_data(type, lang: :de, range_code: 'RG', range_ids: @range_id)
+        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           else
@@ -215,7 +207,7 @@ module DataCycleCore
           data
         end
 
-        def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @range_id, pattern:)
+        def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, pattern:)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           else
@@ -254,13 +246,13 @@ module DataCycleCore
           data_array.compact
         end
 
-        def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_categories_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Categories('Show' => true)
           end
         end
 
-        def create_locations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_locations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Countries('Show' => true, 'IncludeTranslations' => true)
             xml.Regions('Show' => true, 'IncludeTranslations' => true)
@@ -269,61 +261,61 @@ module DataCycleCore
           end
         end
 
-        def create_holiday_themes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_holiday_themes_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.HolidayThemes('Show' => true)
           end
         end
 
-        def create_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_infrastructure_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.InfrastructureTypes('Show' => true)
           end
         end
 
-        def create_infrastructure_topics_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_infrastructure_topics_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.InfrastructureTopics('Show' => true)
           end
         end
 
-        def create_custom_attributes_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_custom_attributes_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.CustomAttributes('Show' => true)
           end
         end
 
-        def create_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_facility_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.FacilityGroups('Show' => true)
           end
         end
 
-        def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_facilities_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Facilities('Show' => true)
           end
         end
 
-        def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Stars('Show' => true)
           end
         end
 
-        def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Classifications('Show' => true)
           end
         end
 
-        def create_rating_questions_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_rating_questions_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.RatingQuestions('Show' => true)
           end
         end
 
-        def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
@@ -351,7 +343,7 @@ module DataCycleCore
           end
         end
 
-        def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           start_date = Time.zone.now.to_s[0..9]
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
@@ -394,7 +386,7 @@ module DataCycleCore
           end
         end
 
-        def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
@@ -422,7 +414,7 @@ module DataCycleCore
           end
         end
 
-        def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           start_date = Time.zone.now.to_s[0..9]
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
@@ -486,7 +478,7 @@ module DataCycleCore
           end
         end
 
-        def create_packages_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_packages_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           # start_date = Time.zone.now.to_s[0..9]
           # end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
@@ -521,7 +513,7 @@ module DataCycleCore
           end
         end
 
-        def create_package_containers_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_package_containers_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           # start_date = Time.zone.now.to_s[0..9]
           # end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
@@ -546,7 +538,7 @@ module DataCycleCore
           end
         end
 
-        def create_key_value_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_key_value_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.KeyValues('GetLocalValues' => true, 'DateFrom' => '2000-01-01') do
               xml.Translations do
@@ -560,7 +552,7 @@ module DataCycleCore
           end
         end
 
-        def create_serial_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@range_id])
+        def create_serial_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.SerialEvents('Show' => true)
           end
