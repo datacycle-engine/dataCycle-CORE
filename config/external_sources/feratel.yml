@@ -53,6 +53,7 @@ config:
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: facilities
       read_type: locations
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories      
     facility_groups:
       sorting: 6
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
