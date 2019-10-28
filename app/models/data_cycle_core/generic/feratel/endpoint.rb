@@ -100,12 +100,10 @@ module DataCycleCore
 
         def rating_questions(lang: :de)
           enumerate_items_large(:rating_questions, '&lt\;RatingQuestion ', lang: lang)
-          # enumerate_items(:rating_questions, '//RatingQuestion', lang: lang)
         end
 
         def infrastructure_items(lang: :de)
           enumerate_items_large(:infrastructure_items, '&lt\;InfrastructureItem Id', lang: lang)
-          # enumerate_items(:infrastructure_items, '//InfrastructureItem', lang: lang)
         end
 
         def additional_service_providers(lang: :de)
@@ -126,7 +124,6 @@ module DataCycleCore
 
         def accommodations(lang: :de)
           enumerate_items_large(:accommodations, '&lt\;ServiceProvider Id', lang: lang)
-          # enumerate_items(:accommodations, '//ServiceProvider', lang: lang)
         end
 
         def serial_events(lang: :de)
@@ -145,21 +142,6 @@ module DataCycleCore
             end
           end
         end
-
-        # def enumerate_items(type, xpath, lang: :de)
-        #   Enumerator.new do |yielder|
-        #     item_ids = []
-        #     load_range_ids.each do |range_code, range_id|
-        #       load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
-        #         item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
-        #         unless item_ids.include?(item['Id'] || item['Order'])
-        #           item_ids << item['Id'] || item['Order']
-        #           yielder << item
-        #         end
-        #       end
-        #     end
-        #   end
-        # end
 
         def enumerate_items(type, xpath, lang: :de)
           Enumerator.new do |yielder|
