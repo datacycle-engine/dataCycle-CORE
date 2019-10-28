@@ -5,6 +5,8 @@
     :schema_type: CreativeWork
     :content_type: entity
     :boost: 100.0
+    :api:
+      :type: Recipe
     :features:
       :releasable:
         :allowed: true
@@ -18,8 +20,6 @@
           :xml: true
           :json: true
           :indesign: true
-    :api:
-      :type: Recipe
     :properties:
       :id:
         :label: id
@@ -40,15 +40,9 @@
         :type: mixin
         :name: creative_attributes
       :recipe_instructions:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
+        :label: Zutatengruppe
+        :type: embedded
+        :template_name: Zutatengruppe
       :recipe_yield:
         :label: Portionen
         :type: string
@@ -78,24 +72,12 @@
         :label: 'Gang'
         :type: classification
         :tree_label: 'Rezept-Gänge'
-        :api:
-          :disabled: true
       :recipe_category:
         :label: 'Kategorie'
         :type: classification
         :tree_label: 'Rezept-Kategorien'
         :api:
           :partial: string
-      :recipe_ingredient:
-        :label: Zutaten
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
       :keywords:
         :label: Keywords
         :storage_location: translated_value
@@ -107,6 +89,7 @@
           :parameters:
             :0: tags
             :1: recipe_course
+            :2: recipe_category
         :ui:
           :show:
             :disabled: true
@@ -114,13 +97,71 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Rezept"
-      :publication_schedule:
-        :type: mixin
-        :name: publication_schedule
+        :default_value: Rezept
       :meta_data:
         :type: mixin
         :name: meta_data
       :additional_properties:
         :type: mixin
         :name: additional_properties
+
+- :data:
+    :name: Zutatengruppe
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :api:
+      :type: Recipe
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: column
+        :search: true
+      :recipe_instructions:
+        :label: Anleitung
+        :type: string
+        :storage_location: translated_value
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :recipe_ingredient:
+        :label: Zutat
+        :type: embedded
+        :template_name: Zutat
+        :api:
+          :transformation:
+            :method: map
+            :key: name
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Zutatengruppe
+
+- :data:
+    :name: Zutat
+    :type: object
+    :schema_type: CreativeWork
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name und Menge
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Zutat
