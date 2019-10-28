@@ -58,6 +58,9 @@ module DataCycleCore
 
           def teardown
             DataCycleCore.features[:download][:collections][:watch_list][:enabled] = false
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:asset] = false
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:json] = false
+            DataCycleCore.features[:download][:collections][:watch_list][:serializers][:xml] = false
             DataCycleCore.features[:serialize][:serializers][:asset] = false
             DataCycleCore.features[:serialize][:serializers][:json] = false
             DataCycleCore.features[:serialize][:serializers][:xml] = false
