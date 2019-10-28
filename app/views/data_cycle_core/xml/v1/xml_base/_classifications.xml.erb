@@ -1,22 +1,22 @@
 
-<schema:<%=key%>>
+<<%=key%>>
 <% classification_aliases&.each do |classification_alias| %>
-  <schema:classification>
-    <schema:id><%=classification_alias.id%></schema:id>
-    <schema:name><%=classification_alias.name(locale: @language) || classification_alias.try(:internal_name)%></schema:name>
+  <classification>
+    <id><%=classification_alias.id%></id>
+    <name><%=classification_alias.name(locale: @language) || classification_alias.try(:internal_name)%></name>
     <% if classification_alias.description(locale: @language).present? %>
-      <schema:description><%=classification_alias.description(locale: @language)%></schema:description>
+      <description><%=classification_alias.description(locale: @language)%></description>
     <% end %>
     <% unless @mode_parameters.include?('minimal') %>
-      <schema:anchestor>
+      <anchestor>
         <% classification_alias&.ancestors&.each do |ancestor| %>
-          <schema:classification>
-            <schema:id><%=ancestor.id%></schema:id>
-            <schema:name><%=ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%></schema:name>
-          </schema:classification>
+          <classification>
+            <id><%=ancestor.id%></id>
+            <name><%=ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name)%></name>
+          </classification>
         <% end %>
-      </schema:anchestor>
+      </anchestor>
     <% end %>
-  </schema:classification>
+  </classification>
 <% end %>
-</schema:<%=key%>>
+</<%=key%>>

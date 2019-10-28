@@ -12,12 +12,14 @@
         :asset: false
         :json: false
         :xml: false
+        :indesign: false
     :stored_filter:
       :enabled: false
       :serializers:
         :asset: false
         :json: false
         :xml: false
+        :indesign: false
   :dependencies:
     - serialize
 

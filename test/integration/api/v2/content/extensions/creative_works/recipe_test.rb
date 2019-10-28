@@ -66,21 +66,22 @@ module DataCycleCore
                 assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
                 assert_equal(@content.author.first.id, json_data.dig('author').first.dig('identifier'))
                 assert_equal(@content.about.first.id, json_data.dig('about').first.dig('identifier'))
-                assert_equal(@content.content_location.first.id, json_data.dig('contentLocation').first.dig('identifier'))
 
                 # check for tag classification and keyword transformation
                 # TODO: (move to Transformations tests)
                 # API: Transformation: Classification.keywords
                 assert_equal(@content.tags.first.name, json_data.dig('tags').first.dig('name'))
-                assert_equal([@content.tags.first.name, @content.recipe_course.first.name].join(','), json_data.dig('keywords'))
+                assert_equal([@content.tags.first.name, @content.recipe_course.first.name, @content.recipe_category.first.name].join(','), json_data.dig('keywords'))
                 assert_equal(@content.keywords, json_data.dig('keywords'))
                 assert_equal(@content.recipe_category.first.name, json_data.dig('recipeCategory'))
 
                 # recipe attributes
-                assert_equal(@content.recipe_instructions, json_data.dig('recipeInstructions'))
                 assert_equal(@content.recipe_yield, json_data.dig('recipeYield'))
-                assert_equal(@content.recipe_ingredient, json_data.dig('recipeIngredient'))
                 assert_equal("PT#{@content.total_time}M", json_data.dig('totalTime'))
+                assert_equal(@content.recipe_instructions.first.name, json_data.dig('recipeInstructions').first.dig('name'))
+                assert_equal(@content.recipe_instructions.first.recipe_instructions, json_data.dig('recipeInstructions').first.dig('recipeInstructions'))
+                assert_equal(@content.recipe_instructions.first.recipe_instructions, json_data.dig('recipeInstructions').first.dig('recipeInstructions'))
+                assert_equal(@content.recipe_instructions.first.recipe_ingredient.first.name, json_data.dig('recipeInstructions').first.dig('recipeIngredient').first.dig('name'))
               end
 
               test 'stored item can be found via different endpoints' do

@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id

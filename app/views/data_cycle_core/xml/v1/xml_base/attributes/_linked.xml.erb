@@ -2,8 +2,10 @@
   <% data = content.send(key).includes(:translations, :classifications) %>
   <% if data.present? %>
     <% key_new = definition.dig('xml', 'name') || key.camelize(:lower) %>
-    <schema:<%=key_new%>>
+    <<%=key_new%>>
     <% data.each do |item| %>
+      <% next if @thing_ids.include?("#{key_new}_#{item.id}") %>
+      <% @thing_ids << "#{key_new}_#{item.id}" %>
       <% if @include_parameters.include?('linked') %>
         <%= render *content_partial('details', content: item) %>
       <% else %>
@@ -11,6 +13,6 @@
         <%= render *content_partial('footer', content: item) %>
       <% end %>
     <% end %>
-    </schema:<%=key_new%>>
+    </<%=key_new%>>
   <% end %>
 <% end %>

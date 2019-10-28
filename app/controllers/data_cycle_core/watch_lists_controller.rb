@@ -267,6 +267,25 @@ module DataCycleCore
       download_collection(@watch_list, download_items, serialize_format, languages)
     end
 
+    def download_indesign
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download_indesign, @watch_list
+      serialize_format = [params.dig(:serialize_format)]
+      languages = params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+
+      download_items = [@watch_list]
+      @watch_list.things.all.to_a.select do |thing|
+        items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+          can? :download, linked_item
+        end
+        download_items += items
+      end
+
+      download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
+    end
+
     private
 
     def watch_list_params

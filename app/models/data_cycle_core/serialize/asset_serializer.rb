@@ -16,7 +16,8 @@ module DataCycleCore
           (
             serialized_content.try(:content_type) ||
               (Rack::Mime::MIME_TYPES.fetch(".#{content.try(:file_format)&.downcase}") { nil } || content.try(:file_format)) ||
-              Rack::Mime::MIME_TYPES.fetch(File.extname(content.content_url)) { '' }
+              Rack::Mime::MIME_TYPES.fetch(File.extname(content.content_url)) { nil } ||
+              Rack::Mime::MIME_TYPES.fetch(File.basename(content.content_url)) { '' }
           )
         end
 
