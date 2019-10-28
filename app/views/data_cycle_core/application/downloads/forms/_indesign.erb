@@ -1,4 +1,4 @@
-<%= form_with url: polymorphic_path([:download_zip, content]),
+<%= form_with url: polymorphic_path([:download_indesign, content]),
               method: :get,
               local: true do %>
 
@@ -14,7 +14,7 @@
                                    I18n.locale
                                ),
                                {
-                                   multiple: true,
+                                   multiple: false,
                                    class: 'multi-select'
                                }
                     ) %>
@@ -22,12 +22,13 @@
         </div>
     </fieldset>
 
-    <fieldset class="active template">
+    <fieldset class="active serialize_formats">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key do |serializer_key| %>
+            <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
+                <% next unless serializer_key == 'indesign' %>
                 <div>
-                    <%= check_box_tag "serialize_format[#{serializer_key}]" %>
+                    <%= radio_button_tag "serialize_format", serializer_key, true %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>
                 </div>
             <% end %>
@@ -41,3 +42,4 @@
     </div>
 
 <% end %>
+

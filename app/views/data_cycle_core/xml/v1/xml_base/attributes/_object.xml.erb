@@ -4,13 +4,13 @@
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
         <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
-        <schema: <%=o_key_name.camelize(:lower)%>>
+        < <%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
-            <schema:<%=translation.locale%>><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%></schema:<%=translation.locale%>>
+            <<%=translation.locale%>><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%></<%=translation.locale%>>
           <% end %>
         <% end %>
-        </schema: <%=o_key_name.camelize(:lower)%>>
+        </ <%=o_key_name.camelize(:lower)%>>
       <% end %>
     <% else %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
@@ -22,20 +22,20 @@
   <% else %>
     <% key_name = definition.dig('xml', 'name') || key %>
     <% key_name = definition.dig('xml', 'transformation', 'name') if definition.dig('xml', 'transformation', 'method') == 'merge_object' %>
-    <schema:<%=key_name.camelize(:lower)%>>
+    <<%=key_name.camelize(:lower)%>>
     <% if definition.dig('xml', 'type').present? %>
-      <schema:type><%=definition.dig('xml', 'type')%></schema:type>
+      <type><%=definition.dig('xml', 'type')%></type>
     <% end %>
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
         <% o_key_name = o_definition.dig('xml', 'name') || o_key %>
-        <schema:<%=o_key_name.camelize(:lower)%>>
+        <<%=o_key_name.camelize(:lower)%>>
         <% content.translations.each do |translation| %>
           <% I18n.with_locale(translation.locale) do %>
             < <%=translation.locale%> ><%=normalize_string(content.try(key)&.try(o_key).to_s).html_safe%> </ <%=translation.locale%> >
           <% end %>
         <% end %>
-        </schema:<%=o_key_name.camelize(:lower)%>>
+        </<%=o_key_name.camelize(:lower)%>>
       <% end %>
     <% else %>
       <% ordered_validation_properties(validation: definition).each do |o_key, o_definition| %>
@@ -43,6 +43,6 @@
         <%= render *partial_params unless partial_params.nil? %>
       <% end %>
     <% end %>
-    </schema:<%=key_name.camelize(:lower)%>>
+    </<%=key_name.camelize(:lower)%>>
   <% end %>
 <% end %>

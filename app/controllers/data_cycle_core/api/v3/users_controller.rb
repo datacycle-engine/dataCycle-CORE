@@ -8,7 +8,7 @@ module DataCycleCore
         def index
           @user_data = current_user
           @watch_lists = DataCycleCore::WatchList.accessible_by(current_ability)
-          @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability).where("'#{current_user.id}' = ANY (api_users)")
+          @stored_filter = DataCycleCore::StoredFilter.accessible_by(current_ability).where("'#{current_user.id}' = ANY (api_users)").where.not(name: nil)
         end
       end
     end
