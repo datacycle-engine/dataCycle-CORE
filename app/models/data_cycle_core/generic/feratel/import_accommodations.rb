@@ -34,21 +34,22 @@ module DataCycleCore
               options.dig(:import, :transformations, :image)
             )
 
-            [raw_data.dig('Services', 'Service')]&.flatten&.compact&.each do |service_data|
-              DataCycleCore::Generic::Feratel::Processing.process_room(
-                utility_object,
-                service_data,
-                options.dig(:import, :transformations, :room)
-              )
-            end
-
-            [raw_data.dig('AdditionalServices', 'AdditionalService')]&.flatten&.compact&.each do |service_data|
-              DataCycleCore::Generic::Feratel::Processing.process_additional_service(
-                utility_object,
-                service_data,
-                options.dig(:import, :transformations, :room)
-              )
-            end
+            # to include rooms, services and pricing to accommodations
+            # [raw_data.dig('Services', 'Service')]&.flatten&.compact&.each do |service_data|
+            #   DataCycleCore::Generic::Feratel::Processing.process_room(
+            #     utility_object,
+            #     service_data,
+            #     options.dig(:import, :transformations, :room)
+            #   )
+            # end
+            #
+            # [raw_data.dig('AdditionalServices', 'AdditionalService')]&.flatten&.compact&.each do |service_data|
+            #   DataCycleCore::Generic::Feratel::Processing.process_additional_service(
+            #     utility_object,
+            #     service_data,
+            #     options.dig(:import, :transformations, :room)
+            #   )
+            # end
 
             DataCycleCore::Generic::Feratel::Processing.process_accommodation(
               utility_object,
