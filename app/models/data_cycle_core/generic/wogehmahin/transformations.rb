@@ -10,7 +10,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
-        def self.to_poi(external_source_id)
+        def self.to_food_establishment(external_source_id)
           t(:stringify_keys)
           .>> t(:add_field, 'name', ->(s) { s.dig('betriebsname') })
           .>> t(:add_field, 'external_key', ->(s) { s.dig('identifier') })
