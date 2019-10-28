@@ -14,7 +14,6 @@ module DataCycleCore
           @read_type = options[:read_type] if options[:read_type].present?
         end
 
-        # version to iterate over children of primary_range_id
         def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
           range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
