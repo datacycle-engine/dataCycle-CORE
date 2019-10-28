@@ -21,16 +21,29 @@ module DataCycleCore
         end
 
         def self.load_root_classifications(mongo_item, locale, options)
-          mongo_item.collection.aggregate(mongo_item.where(:_id.ne => nil)
+          aggregation = mongo_item.where(:_id.ne => nil)
             .unwind(
               ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.')
-            ).project(
+            )
+          if options.dig(:import, :tag_description_path).present?
+            aggregation = aggregation.project(
+              "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
+              "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}",
+              "dump.#{locale}.desc": "$dump.#{locale}.#{options.dig(:import, :tag_description_path)}"
+            )
+          else
+            aggregation = aggregation.project(
               "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
               "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
-            ).group(
-              _id: "$dump.#{locale}.id",
-              :dump.first => '$dump'
-            ).pipeline)
+            )
+          end
+
+          aggregation = aggregation.group(
+            _id: "$dump.#{locale}.id",
+            :dump.first => '$dump'
+          ).pipeline
+
+          mongo_item.collection.aggregate(aggregation)
         end
 
         def self.extract_data(options, raw_data)
@@ -43,10 +56,13 @@ module DataCycleCore
             end
           name = raw_data['tag'].is_a?(::Array) ? raw_data['tag'].join(', ') : raw_data['tag']
           name ||= 'unknown'
-          {
+          description = raw_data['desc']&.to_s
+          value_hash = {
             external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
             name: name
           }
+          value_hash[:description] = description if description.present?
+          value_hash
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
@@ -60,7 +76,8 @@ module DataCycleCore
               raw_data,
               parse_common_tag_path(options),
               options.dig(:import, :tag_id_path).split('.'),
-              options.dig(:import, :tag_name_path).split('.')
+              options.dig(:import, :tag_name_path).split('.'),
+              options.dig(:import, :tag_description_path)&.split('.')
             )
             return if keywords&.compact.blank?
 
@@ -83,17 +100,25 @@ module DataCycleCore
             .map(&:first)
         end
 
-        def self.unwind_project_data(raw_data, common_path, id_path, name_path)
-          return [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }] if common_path.blank?
+        def self.unwind_project_data(raw_data, common_path, id_path, name_path, desc_path = nil)
+          default_values = [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }]
+          default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+
+          return default_values if common_path.blank?
           return nil if raw_data&.dig(*common_path).blank?
           if raw_data&.dig(*common_path).is_a?(::Array)
             raw_data.dig(*common_path).map do |item|
               id_value = (id_path - common_path).blank? ? item : item.dig(*(id_path - common_path))
               name_value = (id_path - common_path).blank? ? item : item.dig(*(name_path - common_path))
-              { 'id' => id_value, 'tag' => name_value }
+              c_hash = { 'id' => id_value, 'tag' => name_value }
+              if desc_path.present?
+                desc_value = (id_path - common_path).blank? ? item : item.dig(*(desc_path - common_path))
+                c_hash['desc'] = desc_value
+              end
+              c_hash
             end
           else
-            [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }]
+            default_values
           end
         end
       end
