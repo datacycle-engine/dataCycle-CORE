@@ -42,19 +42,39 @@ module DataCycleCore
 
     def mode_icon(mode)
       case mode
-      when 'grid'
-        tag.i(class: 'fa fa-th', aria_hidden: true)
-      when 'list'
-        tag.i(class: 'fa fa-th-list', aria_hidden: true)
+      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: t('view_modes.grid', locale: DataCycleCore.ui_language))
+      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: t('view_modes.list', locale: DataCycleCore.ui_language))
+      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: t('view_modes.tree', locale: DataCycleCore.ui_language))
+      end
+    end
+
+    def mode_link(mode, selected, params_hash)
+      case mode
       when 'tree'
-        tag.i(class: 'fa fa-sitemap', aria_hidden: true)
+        capture do
+          concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
+          concat(
+            tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
+              if DataCycleCore.features.dig(:view_modes, :tree_labels).present?
+                concat(
+                  tag.ul(class: 'no-bullet') do
+                    DataCycleCore::ClassificationTreeLabel.where(name: DataCycleCore.features.dig(:view_modes, :tree_labels)).presence&.each do |tree_label|
+                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.merge({ mode: mode, ctl_id: tree_label.id }))))
+                    end
+                  end
+                )
+              end
+            end
+          )
+        end
+      else
+        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id).merge(mode: mode)
       end
     end
 
     def valid_mode(mode)
       case mode
-      when 'list' then 'list'
-      when 'tree' then 'tree'
+      when 'list', 'tree' then mode
       else 'grid'
       end
     end

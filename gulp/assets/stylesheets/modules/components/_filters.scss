@@ -861,20 +861,22 @@ $filter-border: #aaa;
 
 .search-results {
   .mode-switcher {
+    position: relative;
     padding: 1rem 0;
     text-align: right;
 
     > i,
-    a {
+    > a {
       padding: 0 3px;
     }
 
-    > i {
+    > i,
+    a.selected {
       color: $black;
       text-shadow: 1px 1px 1px #ccc;
     }
 
-    a {
+    > a {
       color: lighten($dark-gray, 20%);
       transition: color 0.3s;
 

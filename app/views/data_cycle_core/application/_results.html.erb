@@ -1,10 +1,10 @@
-<section class="search-results">
-  <% if @total.presence&.positive? %>
-    <% @mode ||= 'grid' %>
+<section class="search-results" id="search-results">
+  <% @mode ||= 'grid' %>
+  <% if (@mode == 'tree' && @content_count.presence&.values&.any?(&:positive?)) || @total.presence&.positive? %>
 
     <div class="mode-switcher">
       <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
-        <%= link_to_unless @mode == mode, mode_icon(mode), request.params.merge(mode: mode) %>
+        <%= mode_link(mode, @mode == mode, request.params) %>
       <% end %>
     </div>
 

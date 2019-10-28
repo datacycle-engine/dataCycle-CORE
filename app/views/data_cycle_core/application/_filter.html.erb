@@ -5,6 +5,8 @@
   <% classification_trees = filterable_classification_aliases(filter[:classification_trees], excluded_types) %>
 
   <%= hidden_field_tag 'mode', @mode %>
+  <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
+  <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
 
   <% if filter[:collapse] %>
     <div class="accordion filter-collapse" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">

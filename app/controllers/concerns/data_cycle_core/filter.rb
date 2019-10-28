@@ -84,6 +84,78 @@ module DataCycleCore
       @filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
     end
 
+    def set_instance_variables_by_view_mode(query: nil, user_filter: false)
+      case @mode
+      when 'tree'
+        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(tree_view_params[:ctl_id])
+
+        if tree_view_params[:con_id].present?
+          @classification_parent_tree = DataCycleCore::ClassificationTree.find(tree_view_params[:cpt_id])
+          @container = DataCycleCore::Thing.find(tree_view_params[:con_id])
+          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          @contents = get_filtered_results(query, user_filter)
+            .part_of(@container.id)
+            .distinct_by_content_id(@order_string)
+            .content_includes
+            .page(params[:page])
+
+          @page = @contents.current_page
+          @total_count = @contents.total_count
+          @total_pages = @contents.total_pages
+        elsif tree_view_params[:ct_id].present?
+          @classification_tree = DataCycleCore::ClassificationTree.find(tree_view_params[:ct_id])
+          @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
+          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
+          @classification_trees = @classification_trees
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
+            .order('classification_aliases.internal_name')
+            .page(params[:tree_page])
+
+          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          @contents = get_filtered_results(query, user_filter)
+            .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+            .distinct_by_content_id(@order_string)
+            .content_includes
+            .page(params[:page])
+
+          @page = @contents.current_page
+          @total_count = @contents.total_count
+          @total_pages = @contents.total_pages
+        else
+          @classification_trees = @classification_tree_label.classification_trees
+            .where(parent_classification_alias: nil)
+            .joins(:sub_classification_alias)
+          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
+          @classification_trees = @classification_trees
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
+            .order('classification_aliases.internal_name')
+            .page(params[:tree_page])
+        end
+
+        @tree_page = @classification_trees&.current_page
+        @tree_total_pages = @classification_trees&.total_pages
+        @content_count = @classification_trees&.map { |c|
+          [
+            c.id,
+            get_filtered_results(query, user_filter)
+              .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
+              .count_distinct
+          ]
+        }.to_h
+
+        @contents&.where(content_type: 'container')&.each do |con|
+          @content_count[con.id] = get_filtered_results(query, user_filter)
+            .part_of(con.id)
+            .count_distinct
+        end
+      else
+        @contents = get_filtered_results(query, user_filter)
+        tmp_count = @contents.count_distinct
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+        @total = @contents.instance_variable_set(:@total_count, tmp_count)
+      end
+    end
+
     private
 
     def set_default_filter
@@ -117,6 +189,10 @@ module DataCycleCore
 
     def filter_params
       params.require(:stored_filter).permit(:id, :name, :system)
+    end
+
+    def tree_view_params
+      params.permit(:ct_id, :con_id, :ctl_id, :cpt_id)
     end
   end
 end

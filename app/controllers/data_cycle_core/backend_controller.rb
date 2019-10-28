@@ -18,11 +18,13 @@ module DataCycleCore
     before_action :set_view_mode, only: :index
 
     def index
-      @contents = get_filtered_results(@query, true)
-      tmp_count = @contents.count_distinct
-      @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+      set_instance_variables_by_view_mode(query: @query, user_filter: true)
+      # @contents = get_filtered_results(@query, true)
+      # tmp_count = @contents.count_distinct
+      # @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
+      # @total = @contents.instance_variable_set(:@total_count, tmp_count)
+
       @stored_filter = save_filter if params[:stored_filter].blank?
-      @total = @contents.instance_variable_set(:@total_count, tmp_count)
 
       respond_to do |format|
         format.html
