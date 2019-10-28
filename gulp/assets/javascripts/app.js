@@ -132,11 +132,11 @@ $(function() {
 
                 if (contents.images !== undefined && contents.images.length > 0) {
                   let image_ids = contents.images.map(i => i.external_key);
-                  let label = $('.linked[data-label="Bilder"]')
+                  let label = $('.linked[data-key="thing[datahash][image]"]')
                     .first()
                     .data('label');
 
-                  $('.linked[data-label="Bilder"]')
+                  $('.linked[data-key="thing[datahash][image]"]')
                     .children('.object-browser')
                     .trigger('dc:import:data', {
                       label: label,
