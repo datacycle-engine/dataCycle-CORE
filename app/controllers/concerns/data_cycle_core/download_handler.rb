@@ -69,6 +69,71 @@ module DataCycleCore
       send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
     end
 
+    def download_indesign_collection(collection, items, serialize_format, languages, serialize_method = :serialize, version = nil)
+      languages ||= [I18n.locale]
+      download_dir = Rails.root.join('public', 'downloads')
+      Dir.mkdir(download_dir) unless File.exist?(download_dir)
+      cleanup_files(download_dir)
+
+      zipfile_name = "#{collection.name.parameterize(separator: '_')}-#{Time.now.to_i}.zip"
+      zipfile_fullname = File.join(download_dir, zipfile_name)
+
+      assets = items.select { |item| item.try(:template_name) == 'Bild' }
+      indesign_items = items.reject { |item| item.try(:template_name) == 'Bild' }
+
+      unless File.exist?(zipfile_fullname)
+        Zip::File.open(zipfile_fullname, Zip::File::CREATE) do |zipfile|
+          indesign_items.each do |content|
+            languages.each do |language|
+              serializer = ('DataCycleCore::Serialize::' + serialize_format.first.to_s.classify + 'Serializer').constantize
+              next if !serializer || (!serializer.translatable? && language.to_sym != I18n.locale)
+
+              serialized_content = serializer.try(serialize_method, content, language, version.is_a?(Hash) ? (version.dig(content.id) || 'original') : version)
+              raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "Serialization failed for: #{serializer}" unless serialized_content
+
+              next unless serialized_content
+
+              mime_type = serializer.mime_type(serialized_content, content)
+              file_extension = serializer.file_extension(mime_type)
+
+              next unless file_extension
+
+              download_file = create_download_file(serializer, serialized_content, content, file_extension, serializer.translatable? ? language : nil)
+
+              file_name = download_file_name(content, serializer.translatable? ? language : nil)
+              file_name += "_#{SecureRandom.uuid}" if zipfile.find_entry("#{file_name}#{file_extension}")
+
+              zipfile.add("#{file_name}#{file_extension}", download_file)
+            end
+          end
+          if assets.size.positive?
+            assets.each do |asset|
+              serializer = serializer_for_content(asset, 'asset')
+              next unless serializer
+              serialized_content = serializer.serialize(asset, nil, version.is_a?(Hash) ? (version.dig(asset.id) || 'original') : version)
+              next unless serialized_content
+
+              mime_type = serializer.mime_type(serialized_content, asset)
+              file_extension = serializer.file_extension(mime_type)
+
+              next unless file_extension
+
+              download_file = create_download_file(serializer, serialized_content, asset, file_extension, nil)
+
+              file_name = "images/#{asset.id}#{file_extension}"
+
+              next if zipfile.find_entry(file_name)
+              zipfile.add(file_name, download_file)
+            end
+          end
+        end
+      end
+
+      collection.activities.create(user: @current_user, activity_type: 'download', data: { collection_items: items.map(&:id) })
+
+      send_file zipfile_fullname, filename: zipfile_name, disposition: 'attachment', type: 'application/zip'
+    end
+
     protected
 
     def download_generic(content:, serializer:, languages:, version: nil, serialize_method: :serialize, transformation: nil)

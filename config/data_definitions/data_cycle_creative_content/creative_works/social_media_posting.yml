@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :api:
       :type: SocialMediaPosting
     :properties:

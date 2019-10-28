@@ -9,7 +9,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         ALLOWED_INCLUDE_PARAMETERS = ['linked', 'translations'].freeze
-        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict'].freeze
+        ALLOWED_MODE_PARAMETERS = ['compact', 'minimal', 'strict', 'indesign'].freeze
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1

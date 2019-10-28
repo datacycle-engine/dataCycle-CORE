@@ -38,7 +38,7 @@ module DataCycleCore
             assert response.body.include?(@content.name)
             xml = Nokogiri::XML(response.body)
             assert xml.errors.blank?
-            assert_equal @content.name, xml.xpath('//schema:thing/schema:name').text
+            assert_equal @content.name, xml.xpath('//thing/name').text
           end
 
           test 'enable xml serializer and test downloads controller' do
@@ -52,7 +52,7 @@ module DataCycleCore
             assert response.body.include?(@content.name)
             xml = Nokogiri::XML(response.body)
             assert xml.errors.blank?
-            assert_equal @content.name, xml.xpath('//schema:thing/schema:name').text
+            assert_equal @content.name, xml.xpath('//thing/name').text
           end
 
           def teardown
