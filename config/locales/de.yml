@@ -60,7 +60,11 @@ de:
     relations: Relationen
 
   dash_board:
-    import: Download & Import starten
+    import_full: Import (full)
+    import: Import
+    download: Download
+    download_import: Download/Import
+
 
   notification:
     frequency:
@@ -186,7 +190,7 @@ de:
       json: JSON-Format
       gpx: GPX-Datei
       xml: XML-Format
-      indesign: Adobe inDesign
+      indesign: Adobe InDesign
       version:
         original: Original
         thumb_preview: Thumbnail

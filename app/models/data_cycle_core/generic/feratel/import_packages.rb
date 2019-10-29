@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module ImportAccommodations
+      module ImportPackages
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -31,30 +31,19 @@ module DataCycleCore
             DataCycleCore::Generic::Feratel::Processing.process_image(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :image)
+              options&.dig(:import, :transformations, :image)
             )
 
-            # to include rooms, services and pricing to accommodations
-            # [raw_data.dig('Services', 'Service')]&.flatten&.compact&.each do |service_data|
-            #   DataCycleCore::Generic::Feratel::Processing.process_room(
-            #     utility_object,
-            #     service_data,
-            #     options.dig(:import, :transformations, :room)
-            #   )
-            # end
-            #
-            # [raw_data.dig('AdditionalServices', 'AdditionalService')]&.flatten&.compact&.each do |service_data|
-            #   DataCycleCore::Generic::Feratel::Processing.process_additional_service(
-            #     utility_object,
-            #     service_data,
-            #     options.dig(:import, :transformations, :room)
-            #   )
-            # end
-
-            DataCycleCore::Generic::Feratel::Processing.process_accommodation(
+            DataCycleCore::Generic::Feratel::Processing.process_package_place(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :place)
+              options&.dig(:import, :transfromations, :place)
+            )
+
+            DataCycleCore::Generic::Feratel::Processing.process_package(
+              utility_object,
+              raw_data,
+              options&.dig(:import, :transformations, :aggregate_offer)
             )
           end
         end

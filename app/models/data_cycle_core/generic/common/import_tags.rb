@@ -38,10 +38,18 @@ module DataCycleCore
             case options.dig(:import, :external_id_hash_method)
             when 'MD5'
               Digest::MD5.new.update(raw_data['id']).hexdigest
+            when 'round'
+              raw_data['id']&.to_f&.round
             else
               raw_data['id']
             end
-          name = raw_data['tag'].is_a?(::Array) ? raw_data['tag'].join(', ') : raw_data['tag']
+          name =
+            case options.dig(:import, :tag_name_function)
+            when 'round'
+              raw_data['tag']&.to_f&.round
+            else
+              raw_data['tag'].is_a?(::Array) ? raw_data['tag'].join(', ') : raw_data['tag']
+            end
           name ||= 'unknown'
           {
             external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",

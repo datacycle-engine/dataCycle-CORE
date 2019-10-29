@@ -1,0 +1,100 @@
+- :data:
+    :name: Preis
+    :type: object
+    :schema_type: Intengible
+    :content_type: embedded
+    :api:
+      :type: UnitPriceSpecification
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :price:
+        :label: Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :min_price:
+        :label: Min-Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :max_price:
+        :label: Max-Preis
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :price_currency:
+        :label: Währung
+        :type: classification
+        :tree_label: Preis-Währung
+        :default_value: "EUR"
+      :unit_text:
+        :label: Einheit
+        :type: string
+        :storage_location: translated_value
+      :validity_period:
+        :label: Angebotszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: valid_from
+            :to: valid_through
+        :ui:
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :valid_from:
+            :label: "Gültig ab"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+          :valid_through:
+            :label: "bis"
+            :type: datetime
+            :storage_location: value
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: date
+                :options:
+                  :data-validate: daterange
+                  :placeholder: tt.mm.jjjj
+              :show:
+                :type: date
+            :api:
+              :name: validThrough
+      :feratel_price_sprecification_classifications:
+        :type: mixin
+        :name: feratel_price_sprecification_classifications
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Preis"
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+        :api:
+          :disabled: true

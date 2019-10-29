@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ImportJob < ApplicationJob
+  class ImportOnlyJob < ApplicationJob
     # there is a bug in ActiveJob in combination with DelayedJob that prevents
     # @provider_job_id to be available in the perform actions and callbacks!!
     # it is available in the enque-callbacks
@@ -13,19 +13,19 @@ module DataCycleCore
       job_record.delayed_reference_id = @arguments.first
       store_job_id_to_external_source = ExternalSource.find(job_record.delayed_reference_id)
       if store_job_id_to_external_source.config.nil?
-        store_job_id_to_external_source.config = { 'last_download_import_job_id' => @provider_job_id, 'last_import_failed' => false, 'last_download_job_id' => @provider_job_id }
+        store_job_id_to_external_source.config = { 'last_import_job_id' => @provider_job_id, 'last_import_failed' => false }
       else
-        store_job_id_to_external_source.config['last_download_import_job_id'] = @provider_job_id
-        store_job_id_to_external_source.config['last_download_import_failed'] = false
+        store_job_id_to_external_source.config['last_import_job_id'] = @provider_job_id
+        store_job_id_to_external_source.config['last_import_failed'] = false
       end
       store_job_id_to_external_source.save
-      job_record.delayed_reference_type = 'download_import'
+      job_record.delayed_reference_type = 'import'
       job_record.save!
     end
 
     before_perform do |job|
       external_source = ExternalSource.find(job.arguments.first)
-      external_source.config['last_download_import_failed'] = false
+      external_source.config['last_import_failed'] = false
       external_source.save!
     end
 
@@ -33,18 +33,17 @@ module DataCycleCore
       external_source = ExternalSource.find(uuid)
       pid = Process.fork do
         external_source = ExternalSource.find(uuid)
-        external_source.download
         external_source.import
       rescue StandardError => exception
-        external_source.config['last_download_import_failed'] = true
-        external_source.config['last_download_import_exception'] = exception
+        external_source.config['last_import_failed'] = true
+        external_source.config['last_import_exception'] = exception
         external_source.save!
       end
       Process.waitpid(pid)
 
       external_source.reload
       ActiveRecord::Base.establish_connection
-      raise external_source.config.dig('last_download_import_exception') if external_source.config.dig('last_import_failed')
+      raise external_source.config.dig('last_import_exception') if external_source.config.dig('last_import_failed')
     end
   end
 end

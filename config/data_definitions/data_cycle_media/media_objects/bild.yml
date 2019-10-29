@@ -107,6 +107,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
