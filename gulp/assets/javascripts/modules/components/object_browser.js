@@ -175,7 +175,6 @@ class ObjectBrowser {
       });
       this.limitedBy = filterItem;
 
-      this.removeDeletedItem();
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
     } else this.limitedBy = undefined;
   }
@@ -214,8 +213,16 @@ class ObjectBrowser {
       });
   }
   removeThumbObject(element) {
-    let item = $(element).closest('li.item');
-    let elem_id = item.data('id');
+    let item, elem_id;
+
+    if ($(element).is(':input[type="hidden"]')) {
+      item = $(element);
+      elem_id = item.val();
+    } else {
+      item = $(element).closest('li.item');
+      elem_id = item.data('id');
+    }
+
     this.chosen = this.chosen.diff(elem_id);
     this.ids = this.ids.diff(elem_id);
     this.element.children('input:hidden[value="' + elem_id + '"]').remove();
@@ -558,7 +565,15 @@ class ObjectBrowser {
     let toRemove = this.chosen.diff(this.filteredIds());
     if (toRemove.length) {
       toRemove.forEach(item => {
-        this.removeThumbObject(this.element.find('> .media-thumbs > .object-thumbs > li.item[data-id="' + item + '"]'));
+        this.removeThumbObject(
+          this.element.find(
+            '> .media-thumbs > .object-thumbs > li.item[data-id="' +
+              item +
+              '"], > .media-thumbs > .object-thumbs > :input[value="' +
+              item +
+              '"]'
+          )
+        );
       });
     }
   }
