@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-json['concepts'] ||= []
+json['dc:classification'] ||= []
 
 unless content.schema.nil?
 
@@ -17,11 +17,11 @@ unless content.schema.nil?
 
     if prop.dig('type') == 'classification' && partial_params.present?
       new_options = options.dup
-      new_options[:full] = included_attribute?('concepts', options[:include]) || included_attribute?('concepts', options[:fields])
+      new_options[:full] = included_attribute?('skos:Concept', options[:include]) || included_attribute?('skos:Concept', options[:fields])
       partial_params[1][:options] = new_options.dup
 
       classification_data = render(*partial_params)
-      json['concepts'] += classification_data&.dig('concepts')
+      json['skos:Concept'] += classification_data&.dig('skos:Concept')
       next
     end
 
@@ -38,5 +38,5 @@ unless content.schema.nil?
 
 end
 
-json.delete('concepts') if json['concepts'].blank?
+json.delete('skos:Concept') if json['skos:Concept'].blank?
 json

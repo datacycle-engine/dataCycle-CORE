@@ -13,7 +13,7 @@ def render_classification(attribute, partial, content, options)
 end
 
 uri = classifications_api_v4_concept_scheme_url(content.classification_tree_label.id, classification_id: content.id, api_subversion: @subversion)
-type = 'https://www.w3.org/2009/08/skos-reference/skos.html#Concept'
+type = 'skos:Concept'
 
 if options[:full]
   ancestors = content.ancestors.to_a
@@ -23,22 +23,22 @@ if options[:full]
   description = content.description(locale: @language) || content.internal_description
 
   json = {
-    'uri' => uri,
+    '@id' => content.id,
     '@type' => type,
-    'identifier' => content.id,
-    'prefLabel' => { @language.to_s => name },
-    'description' => { @language.to_s => description }.compact.presence,
-    'inScheme' => render_classification('inScheme', 'classification_tree', scheme, options),
-    'topConceptOf' => concept_ancestors.size.positive? ? nil : render_classification('topConceptOf', 'classification_tree', scheme, options),
-    'broader' => concept_ancestors.size.positive? ? render_classification('broader', 'classification', concept_ancestors&.first, options) : nil,
-    'ancestors' => concept_ancestors&.map { |concept_ancestor| render_classification('ancestors', 'classification', concept_ancestor, options) }.presence,
-    'created' => content.created_at,
-    'updated' => content.updated_at,
-    'deleted' => content.deleted_at
+    'dc:entity_url' => uri,
+    'dc:prefLabel' => { @language.to_s => name },
+    'dct:description' => { @language.to_s => description }.compact.presence,
+    'skos:inScheme' => render_classification('skos:inScheme', 'classification_tree', scheme, options),
+    'skos:topConceptOf' => concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, options),
+    'skos:broader' => concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, options) : nil,
+    'skos:ancestors' => concept_ancestors&.map { |concept_ancestor| render_classification('skos:ancestors', 'classification', concept_ancestor, options) }.presence,
+    'dct:created' => content.created_at,
+    'dct:modified' => content.updated_at,
+    'dct:deleted' => content.deleted_at
   }.compact
 else
   json = {
-    'uri' => uri,
+    '@id' => content.id,
     '@type' => type
   }
 end
@@ -46,5 +46,5 @@ end
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
+  json.select { |key, _value| key == '@id' || key == '@type' || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 end

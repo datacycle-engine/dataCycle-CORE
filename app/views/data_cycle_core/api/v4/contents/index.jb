@@ -2,7 +2,7 @@
 
 json = {}
 
-json.merge! render 'context'
+json.merge! render 'context', languages: @language
 
 json['@graph'] = @contents.map do |item|
   Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do

@@ -1,18 +1,18 @@
 # frozen_string_literal: true
 
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
-type = 'https://www.w3.org/2009/08/skos-reference/skos.html#ConceptScheme'
+type = 'skos:ConceptScheme'
 if options[:full]
   json = {
-    'uri' => uri,
+    '@id' => content.id,
     '@type' => type,
-    'identifier' => content.id,
-    'prefLabel' => { @language => content.name },
-    'concepts' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
+    'dc:entity_url' => uri,
+    'dc:prefLabel' => { @language => content.name },
+    'dc:classification' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: @language)
   }
 else
   json = {
-    'uri' => uri,
+    '@id' => content.id,
     '@type' => type
   }
 end
@@ -20,5 +20,5 @@ end
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
+  json.select { |key, _value| key == '@id' || key == '@type' || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 end

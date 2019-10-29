@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-json = {
-  '@graph' => {
-    watchLists: @watch_lists.as_json(only: [:id, :name]),
-    storedFilters: @stored_filter.as_json(only: [:id, :name]),
-    userData: @user_data.as_json(only: [:email])
-  }
+json = {}
+
+json.merge! render 'context', languages: @language
+
+json['@graph'] = {
+  watchLists: @watch_lists.as_json(only: [:id, :name]),
+  storedFilters: @stored_filter.as_json(only: [:id, :name]),
+  userData: @user_data.as_json(only: [:email])
 }
 
 json
