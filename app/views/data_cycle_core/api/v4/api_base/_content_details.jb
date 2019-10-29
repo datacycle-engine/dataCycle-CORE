@@ -21,5 +21,5 @@ json.merge! render 'container_children_properties', content: content, options: o
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| select_attributes(options[:fields]).include?(key) }
+  json.select { |key, _value| key == '@id' || key == '@type' || select_attributes(options[:fields]).include?(key) }
 end

@@ -14,7 +14,7 @@ if options.dig(:disable_children).blank?
         end
       end
     elsif !options[:field_filter]
-      render 'content_header_minimal', content: part, options: { fields: new_fields, field_filter: options[:field_filter] }
+      render 'content_header', content: part, options: { fields: new_fields, field_filter: options[:field_filter], header_type: :minimal }
     end
   }.compact.presence
 end

@@ -1,7 +1,15 @@
 # frozen_string_literal: true
 
-Rails.cache.fetch("api_v4_#{api_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
-  I18n.with_locale(@content.first_available_locale(@language)) do
-    render 'content_details', content: @content
-  end
-end
+json = {}
+
+json.merge! render 'context', languages: @language
+
+json.merge!(
+  Rails.cache.fetch("api_v4_#{api_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) {
+    I18n.with_locale(@content.first_available_locale(@language)) do # TODO: support multiple languages!!
+      render 'content_details', content: @content
+    end
+  }
+)
+
+json

@@ -14,7 +14,7 @@ if content&.parent && content&.parent&.content_type?('container') && options.dig
       end
     end
   elsif !options[:field_filter]
-    json['isPartOf'] = render 'content_header_minimal', content: data, options: { fields: new_fields, field_filter: options[:field_filter] }
+    json['isPartOf'] = render 'content_header', content: data, options: { fields: new_fields, field_filter: options[:field_filter], header_type: :minimal }
   end
 end
 

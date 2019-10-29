@@ -219,6 +219,8 @@ DataCycleCore::Engine.routes.draw do
           get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
 
+          get 'universal(/:id)', to: 'universal#show', as: 'universal'
+
           resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
             get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
           end

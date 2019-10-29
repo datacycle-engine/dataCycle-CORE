@@ -42,7 +42,7 @@ module DataCycleCore
         def permitted_parameter_keys
           # json-api: sort
           super + [
-            :id, :language, :q, :include, :fields, :format,
+            :id, :language, { language: [] }, :q, :include, :fields, :format,
             { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
           ]
         end
