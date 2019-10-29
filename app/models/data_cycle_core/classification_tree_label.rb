@@ -95,6 +95,10 @@ module DataCycleCore
       []
     end
 
+    def self.tree_view_labels
+      where('? = ANY(visibility)', 'tree_view')
+    end
+
     private
 
     def invalidate_things_cache

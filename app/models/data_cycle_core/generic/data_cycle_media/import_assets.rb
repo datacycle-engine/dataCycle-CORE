@@ -143,7 +143,7 @@ module DataCycleCore
             tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
               name: classification_data[:tree_name]
             ) do |item|
-              item.visibility = DataCycleCore.classification_visibilities.except('show_more')
+              item.visibility = DataCycleCore.classification_visibilities.except('show_more', 'tree_view')
             end
 
             DataCycleCore::ClassificationTree.create!(

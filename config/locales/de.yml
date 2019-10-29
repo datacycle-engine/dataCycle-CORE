@@ -280,6 +280,7 @@ de:
     edit: Bearbeitungs-Ansicht
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
+    tree_view: Wurzel in der Baumansicht
 
   pagination:
     next: Weitere Ergebnisse

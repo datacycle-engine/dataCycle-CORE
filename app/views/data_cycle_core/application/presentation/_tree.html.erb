@@ -1,5 +1,5 @@
 <li id="<%= @classification_tree_label.id %>">
-  <h3><%= t("tree_view.#{@classification_tree_label.name}") %></h3>
+  <h5><%= t("tree_view.#{@classification_tree_label.name}") %></h5>
   <ul class="children">
     <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label,
                                        classification_trees: @classification_trees,

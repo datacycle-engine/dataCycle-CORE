@@ -55,10 +55,10 @@ module DataCycleCore
           concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
           concat(
             tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
-              if DataCycleCore.features.dig(:view_modes, :tree_labels).present?
+              if DataCycleCore::ClassificationTreeLabel.tree_view_labels.present?
                 concat(
                   tag.ul(class: 'no-bullet') do
-                    DataCycleCore::ClassificationTreeLabel.where(name: DataCycleCore.features.dig(:view_modes, :tree_labels)).presence&.each do |tree_label|
+                    DataCycleCore::ClassificationTreeLabel.tree_view_labels.presence&.each do |tree_label|
                       concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.merge({ mode: mode, ctl_id: tree_label.id }))))
                     end
                   end
