@@ -5,7 +5,8 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     def get_filtered_results(query = nil, user_filter = false)
-      filters
+      @filters = pre_filters.dup
+      query = query.dup if query.present?
       @language ||= Array(params.fetch(:language) { [current_user.default_locale] })
 
       @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
@@ -80,30 +81,33 @@ module DataCycleCore
       new_filter
     end
 
-    def filters
-      @filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+    def pre_filters
+      @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
     end
 
     def set_instance_variables_by_view_mode(query: nil, user_filter: false)
+      set_view_mode
+
       case @mode
       when 'tree'
-        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(tree_view_params[:ctl_id])
+        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
 
-        if tree_view_params[:con_id].present?
-          @classification_parent_tree = DataCycleCore::ClassificationTree.find(tree_view_params[:cpt_id])
-          @container = DataCycleCore::Thing.find(tree_view_params[:con_id])
+        if mode_params[:con_id].present?
+          @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
+          @container = DataCycleCore::Thing.find(mode_params[:con_id])
           @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query, user_filter)
             .part_of(@container.id)
-            .distinct_by_content_id(@order_string)
+          tmp_count = @contents.count_distinct
+          @contents = @contents.distinct_by_content_id(@order_string)
             .content_includes
             .page(params[:page])
 
           @page = @contents.current_page
-          @total_count = @contents.total_count
+          @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
           @total_pages = @contents.total_pages
-        elsif tree_view_params[:ct_id].present?
-          @classification_tree = DataCycleCore::ClassificationTree.find(tree_view_params[:ct_id])
+        elsif mode_params[:ct_id].present?
+          @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
           @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
           @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
           @classification_trees = @classification_trees
@@ -114,12 +118,13 @@ module DataCycleCore
           @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
           @contents = get_filtered_results(query, user_filter)
             .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-            .distinct_by_content_id(@order_string)
+          tmp_count = @contents.count_distinct
+          @contents = @contents.distinct_by_content_id(@order_string)
             .content_includes
             .page(params[:page])
 
           @page = @contents.current_page
-          @total_count = @contents.total_count
+          @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
           @total_pages = @contents.total_pages
         else
           @classification_trees = @classification_tree_label.classification_trees
@@ -158,16 +163,24 @@ module DataCycleCore
 
     private
 
+    def set_view_mode
+      if mode_params[:mode].in?(['list', 'tree'])
+        @mode = mode_params[:mode].to_s
+      else
+        @mode = 'grid'
+      end
+    end
+
     def set_default_filter
-      filters
+      pre_filters
 
       if DataCycleCore::Feature::LifeCycle.tree_label.present? &&
          DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&
          DataCycleCore::Feature::LifeCycle.default_filter.present? &&
-         @filters.none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? } &&
+         @pre_filters.none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? } &&
          (@stored_filters || []).none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? }
 
-        @filters.push(
+        @pre_filters.push(
           {
             'c' => 'a',
             't' => 'classification_alias_ids',
@@ -191,8 +204,8 @@ module DataCycleCore
       params.require(:stored_filter).permit(:id, :name, :system)
     end
 
-    def tree_view_params
-      params.permit(:ct_id, :con_id, :ctl_id, :cpt_id)
+    def mode_params
+      params.permit(:mode, :ct_id, :con_id, :ctl_id, :cpt_id)
     end
   end
 end

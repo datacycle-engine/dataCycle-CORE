@@ -3,7 +3,6 @@
 module DataCycleCore
   class WatchListsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
-    before_action :set_view_mode, only: :show
 
     include DataCycleCore::Filter
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
@@ -21,18 +20,15 @@ module DataCycleCore
       redirect_to root if @watch_list.nil?
 
       @language ||= params.fetch(:language) { ['all'] }
-      filters
-      @filters.push(
+      pre_filters
+      @pre_filters.push(
         {
           't' => 'watch_list_id',
           'v' => @watch_list.id
         }
       )
 
-      @contents = get_filtered_results
-      tmp_count = @contents.count_distinct
-      @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @contents.instance_variable_set(:@total_count, tmp_count)
+      set_instance_variables_by_view_mode(query: @query, user_filter: true)
 
       respond_to do |format|
         format.html

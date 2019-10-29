@@ -172,8 +172,11 @@ ul.backend-treeview-list,
       margin: 0;
 
       form {
-        padding: 0 1rem 1rem 1rem;
-        box-shadow: 0 3px 3px $medium-gray;
+        &.edit_classification_alias,
+        &.new_classification_alias {
+          padding: 0 1rem 1rem 1rem;
+          box-shadow: 0 3px 3px $medium-gray;
+        }
       }
 
       > li {
@@ -290,8 +293,11 @@ ul.backend-treeview-list,
       display: none;
     }
 
-    padding: 1rem;
-    box-shadow: 0 3px 3px $medium-gray;
+    &.edit_classification_tree_label,
+    &.new_classification_tree_label {
+      padding: 1rem;
+      box-shadow: 0 3px 3px $medium-gray;
+    }
 
     &.new-classification-tree-label {
       padding: 0 1rem 1rem 1rem;
@@ -449,6 +455,22 @@ ul.backend-treeview-list,
 // classification_tree_label_view
 #classification-tree-label-list .backend-treeview-list,
 #search-results > ul.tree {
+  .buttons {
+    position: relative;
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+    padding: 0 0 0 5px;
+    justify-content: flex-end;
+    right: 0;
+    top: 0;
+    > a,
+    > i {
+      margin: 0 2px;
+      padding: 0 3px;
+    }
+  }
+
   > li {
     border: none;
 
@@ -625,19 +647,19 @@ ul.backend-treeview-list,
 
         > div {
           position: relative;
-          overflow: hidden;
-          text-overflow: ellipsis;
 
           &:not(:last-child) {
             padding-right: 0.5rem;
           }
 
           .type {
-            // white-space: nowrap;
             display: flex;
 
             a {
               color: inherit;
+            }
+            .dropdown-pane a {
+              color: $primary-color;
             }
           }
 
@@ -695,5 +717,5 @@ ul.backend-treeview-list,
   }
 }
 #search-results > ul.tree {
-  margin: 0 0 0 1rem;
+  margin: 0 1rem;
 }

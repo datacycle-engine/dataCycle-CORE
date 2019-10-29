@@ -6,7 +6,6 @@ module DataCycleCore
     include DataCycleCore::ParamsResolver
     include DataCycleCore::ErrorHandler
     before_action :authenticate_user!, :set_watch_list
-    before_action :set_view_mode, only: :show
 
     DataCycleCore.features
       .select { |_, v| !v.dig(:only_config) == true }
@@ -38,8 +37,8 @@ module DataCycleCore
 
       I18n.with_locale(@content.first_available_locale(params[:locale])) do
         if DataCycleCore::Feature::Container.enabled? && @content.content_type?('container')
-          filters
-          @filters.push(
+          pre_filters
+          @pre_filters.push(
             {
               't' => 'part_of',
               'v' => @content.id
@@ -47,12 +46,7 @@ module DataCycleCore
           )
 
           @language ||= params.fetch(:language) { ['all'] }
-          if @content.children.present?
-            @contents = get_filtered_results
-            tmp_count = @contents.count_distinct
-            @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-            @total = @contents.instance_variable_set(:@total_count, tmp_count)
-          end
+          set_instance_variables_by_view_mode(query: @query, user_filter: true) if @content.children.present?
         end
 
         respond_to do |format|

@@ -8,11 +8,12 @@
   }
 }
 
-.remove-from-watchlist-link {
-  color: map-get($foundation-palette, alert);
+.remove-from-watchlist-link,
+.dropdown-pane .remove-from-watchlist-link {
+  color: $alert-color !important;
   &:hover,
   &:focus {
-    color: lighten(map-get($foundation-palette, alert), 10%);
+    color: lighten($alert-color, 10%) !important;
   }
 }
 

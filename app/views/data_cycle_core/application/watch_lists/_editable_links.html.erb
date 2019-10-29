@@ -9,7 +9,7 @@
 
   <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
   <ul class="list-items remote-render"
-    id="watch-lists-for-<%= content.id %>"
+    id="watch-lists-for-<%= local_assigns[:prefix] %><%= content.id %>"
     data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
     data-remote-options="<%= to_query_params(local_assigns).to_json %>">
   </ul>

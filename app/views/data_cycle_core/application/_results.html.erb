@@ -1,12 +1,12 @@
 <section class="search-results" id="search-results">
   <% @mode ||= 'grid' %>
-  <% if (@mode == 'tree' && @content_count.presence&.values&.any?(&:positive?)) || @total.presence&.positive? %>
+  <div class="mode-switcher">
+    <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
+      <%= mode_link(mode, @mode == mode, request.params) %>
+    <% end %>
+  </div>
 
-    <div class="mode-switcher">
-      <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
-        <%= mode_link(mode, @mode == mode, request.params) %>
-      <% end %>
-    </div>
+  <% if (@mode == 'tree' && @content_count.presence&.values&.any?(&:positive?)) || @total.presence&.positive? %>
 
     <ul class="no-bullet no-format <%= @mode %>">
       <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>

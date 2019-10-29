@@ -7,7 +7,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
     before_action :load_last_filter, only: :index, if: proc {
       DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        params.except(:controller, :action).blank? &&
+        params.except(:controller, :action, :mode, :ct_id, :con_id, :ctl_id, :cpt_id, :page).blank? &&
         current_user.stored_filters.exists?
     }
     before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
@@ -15,16 +15,10 @@ module DataCycleCore
       DataCycleCore::Feature::LifeCycle.enabled? &&
         DataCycleCore::Feature::LifeCycle.default_filter.present?
     }
-    before_action :set_view_mode, only: :index
 
     def index
       set_instance_variables_by_view_mode(query: @query, user_filter: true)
-      # @contents = get_filtered_results(@query, true)
-      # tmp_count = @contents.count_distinct
-      # @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      # @total = @contents.instance_variable_set(:@total_count, tmp_count)
-
-      @stored_filter = save_filter if params[:stored_filter].blank?
+      @stored_filter = save_filter if params[:stored_filter].blank? && !request.xhr?
 
       respond_to do |format|
         format.html
