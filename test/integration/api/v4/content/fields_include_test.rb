@@ -49,12 +49,16 @@ module DataCycleCore
           JSON.parse(response.body)
         end
 
+        def add_default(array)
+          (['@context', '@id', '@type'] + array).sort
+        end
+
         test 'testing EventOverlay with fields and include parameter (only fields in main objext --> no incuded data)' do
           fields = ['name']
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(fields, json_data.keys)
+          assert_equal(add_default(fields), json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields and include parameter (one included data)' do
@@ -62,8 +66,8 @@ module DataCycleCore
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(['image'], json_data.keys)
-          assert_equal(['name'], json_data.dig('image', 0).keys)
+          assert_equal(add_default(['image']), json_data.keys.sort)
+          assert_equal(['@id', '@type', 'name'], json_data.dig('image', 0).keys.sort)
           assert_equal(@overlay_image.name, json_data.dig('image', 0, 'name'))
         end
 
@@ -72,7 +76,7 @@ module DataCycleCore
           includes = ['location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(['name'], json_data.keys)
+          assert_equal(add_default(['name']), json_data.keys.sort)
         end
       end
     end

@@ -15,6 +15,11 @@ module DataCycleCore
           raw_params.split(',')&.map(&:strip)&.map { |item| item.split('.')&.map(&:strip) }
         end
 
+        def parse_language(language_string)
+          return [] if language_string&.strip.blank?
+          language_string.split(',')&.map(&:strip)
+        end
+
         private
 
         def request_http_token_authentication(realm = 'Application', _message = nil)

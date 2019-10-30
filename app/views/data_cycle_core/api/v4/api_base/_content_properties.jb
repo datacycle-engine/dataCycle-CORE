@@ -17,11 +17,11 @@ unless content.schema.nil?
 
     if prop.dig('type') == 'classification' && partial_params.present?
       new_options = options.dup
-      new_options[:full] = included_attribute?('skos:Concept', options[:include]) || included_attribute?('skos:Concept', options[:fields])
+      new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
       partial_params[1][:options] = new_options.dup
 
       classification_data = render(*partial_params)
-      json['skos:Concept'] += classification_data&.dig('skos:Concept')
+      json['dc:classification'] += classification_data&.dig('dc:classification')
       next
     end
 
@@ -38,5 +38,5 @@ unless content.schema.nil?
 
 end
 
-json.delete('skos:Concept') if json['skos:Concept'].blank?
+json.delete('dc:classification') if json['dc:classification'].blank?
 json

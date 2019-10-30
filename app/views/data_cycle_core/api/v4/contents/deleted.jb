@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 json = {}
-
 json.merge! render 'context', languages: @language
 
 json['@graph'] = @contents.map do |item|
@@ -18,3 +17,5 @@ json.merge! render 'pagination_links',
                    object_url: (lambda do |params|
                      File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
                    end)
+
+json

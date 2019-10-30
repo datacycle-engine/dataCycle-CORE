@@ -4,6 +4,7 @@ default_options = {
   header_type: :full
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale) if options[:languages].blank?
 
 json = {}
 
@@ -11,7 +12,12 @@ json['@id'] = content.id
 json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
 
 if options[:header_type] == :full || select_attributes(options[:fields]).include?('dc:entity_url')
-  json['dc:entity_url'] = send("api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url", @api_subversion, content, @language != I18n.available_locales.first.to_s ? { language: @language } : {})
+  json['dc:entity_url'] = send(
+    "api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url",
+    @api_subversion,
+    content,
+    { language: serialize_language(options[:languages]) }
+  )
 end
 
 json

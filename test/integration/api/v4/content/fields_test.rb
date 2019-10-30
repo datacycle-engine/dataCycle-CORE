@@ -51,17 +51,21 @@ module DataCycleCore
           JSON.parse(response.body)
         end
 
+        def default_fields
+          ['@context', '@id', '@type']
+        end
+
         test 'testing EventOverlay with fields parameter (filtering unstructured data)' do
-          fields = ['name', 'url']
+          fields = ['name', 'dc:entity_url']
           json_data = load_api_data(fields)
-          assert_equal(fields, json_data.keys.sort)
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields parameter (filtering objects)' do
           fields = ['eventPeriod']
           json_data = load_api_data(fields)
 
-          assert_equal(fields, json_data.keys)
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
           assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))
           assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('eventPeriod', 'endDate'))
         end
@@ -70,7 +74,7 @@ module DataCycleCore
           fields = ['additionalProperty']
           json_data = load_api_data(fields)
 
-          assert_equal(fields, json_data.keys)
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
           assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
           assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
           assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))
@@ -81,7 +85,7 @@ module DataCycleCore
           fields = ['image', 'subEvent']
           json_data = load_api_data(fields)
 
-          assert_equal([], json_data.keys)
+          assert_equal(default_fields.sort, json_data.keys.sort)
         end
       end
     end

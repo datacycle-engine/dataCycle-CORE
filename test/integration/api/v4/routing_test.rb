@@ -36,7 +36,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(api_v4_thing_url(id: @test_content.id), json_data['@id'])
+          assert_equal(@test_content.id, json_data['@id'])
         end
 
         test '/api/v4/things/deleted' do
@@ -75,7 +75,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(['@graph', 'meta', 'links'].sort, json_data.keys.sort)
+          assert_equal(['@context', '@graph', 'meta', 'links'].sort, json_data.keys.sort)
         end
 
         test '/api/v4/concept_schemes/id' do
@@ -85,7 +85,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(tree_id, json_data.dig('@graph', 'identifier'))
+          assert_equal(tree_id, json_data.dig('@id'))
         end
 
         test '/api/v4/concept_schemes/id/concepts' do
@@ -95,7 +95,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(['@graph', 'meta', 'links'].sort, json_data.keys.sort)
+          assert_equal(['@context', '@graph', 'meta', 'links'].sort, json_data.keys.sort)
         end
 
         test '/api/v4/concept_schemes/id/concepts/classification_id' do
@@ -107,7 +107,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(classification.id, json_data.dig('@graph', 'identifier'))
+          assert_equal(classification.id, json_data.dig('@graph', 0, '@id'))
         end
 
         test '/api/v4/users/:id' do
