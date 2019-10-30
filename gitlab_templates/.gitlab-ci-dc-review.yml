@@ -1,0 +1,77 @@
+########################################################################
+######################### Review Apps
+variables:
+  REVIEW_URL_PREFIX: ''
+  REVIEW_URL_SUFFIX: ''
+
+.review_ci_config: &review_ci
+  only:
+    - branches
+  except:
+    - master
+    - release
+    - pre-release
+    - develop
+  tags:
+    - data-cycle-review
+
+build_caches_review:
+  <<: *review_ci
+  extends: .build_caches_config
+
+code_validation_review:
+  <<: *review_ci
+  extends: .code_validation_config
+
+deploy_review:
+  <<: *review_ci
+  extends: .deploy_config
+  script:
+    - bundle exec rake tmp:create
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: $REVIEW_URL_PREFIX$CI_COMMIT_REF_SLUG$REVIEW_URL_SUFFIX
+    on_stop: stop_review
+  when: manual
+
+stop_review:
+  <<: *review_ci
+  stage: deploy
+  variables:
+    GIT_STRATEGY: none
+  before_script:
+    # uncomment for local testing
+    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+    - eval $(ssh-agent -s)
+    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    # uncomment for local testing END
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+    - git init
+    - git remote add origin $CI_REPOSITORY_URL
+    - git fetch
+    - git reset origin/develop
+    - git checkout -t origin/develop
+    - git reset origin/develop --hard
+#    - git clone -b develop $CI_REPOSITORY_URL .
+
+    - rm -Rf vendor/gems/data-cycle-core
+    - git submodule sync --recursive
+    - git submodule update --init --recursive --force
+
+    - bundle install --path=cache/bundler
+    - cd vendor/gems/data-cycle-core && bundle install --path=cache/bundler
+
+    - cd $CI_PROJECT_DIR
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
