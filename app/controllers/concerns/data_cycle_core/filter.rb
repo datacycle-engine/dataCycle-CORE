@@ -92,6 +92,16 @@ module DataCycleCore
       when 'tree'
         @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
 
+        if count_only_params[:count_only].present?
+          @count_only = true
+          @target = count_only_params[:target]
+          @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
+          @total_count = get_filtered_results(query, user_filter)
+            .classification_alias_ids(@classification_tree.sub_classification_alias.id)
+            .count_distinct
+          return
+        end
+
         if mode_params[:con_id].present?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
@@ -206,6 +216,10 @@ module DataCycleCore
 
     def mode_params
       params.permit(:mode, :ct_id, :con_id, :ctl_id, :cpt_id)
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only)
     end
   end
 end

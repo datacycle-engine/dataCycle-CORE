@@ -644,13 +644,14 @@ footer {
 
     .daterange {
       .form-element .icon {
-        i {
+        i:not(.fa-ban) {
           display: none;
         }
       }
 
       .form-element {
         display: inline-block;
+        white-space: nowrap;
 
         input {
           box-shadow: none !important;

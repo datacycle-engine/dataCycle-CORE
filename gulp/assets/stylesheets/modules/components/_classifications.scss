@@ -455,6 +455,16 @@ ul.backend-treeview-list,
 // classification_tree_label_view
 #classification-tree-label-list .backend-treeview-list,
 #search-results > ul.tree {
+  .child-count-full {
+    .loading {
+      display: inline;
+      padding: 0;
+      .fa {
+        font-size: 0.9rem;
+      }
+    }
+  }
+
   .buttons {
     position: relative;
     display: flex;

@@ -5,7 +5,7 @@
       <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %> - </span>
       <span class="title" title="<%= item.title %>"><%= item.try(:title) %></span>
       <% if content_counts[item.id]&.positive? %>
-        <span class="children-count">(<%= content_counts[item.id] %>)</span>
+        <span class="children-count">( <%= content_counts[item.id] %> )</span>
       <% end %>
     <% end %>
 
