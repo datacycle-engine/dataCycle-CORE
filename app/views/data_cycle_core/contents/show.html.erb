@@ -14,8 +14,8 @@
         </li>
     </ul>
 
-    <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
-    <%= render 'results', contents: @contents %>
+    <%= render 'data_cycle_core/application/filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
+    <%= render 'data_cycle_core/application/results', contents: @contents, modes: DataCycleCore.features.dig('view_modes', 'allowed') %>
 
     <% content_for :new_button do %>
         <%= render 'new_content_button',

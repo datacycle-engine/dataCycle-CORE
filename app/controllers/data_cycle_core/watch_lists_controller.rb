@@ -20,20 +20,20 @@ module DataCycleCore
       redirect_to root if @watch_list.nil?
 
       @language ||= params.fetch(:language) { ['all'] }
-      filters
-      @filters.push(
+      pre_filters
+      @pre_filters.push(
         {
           't' => 'watch_list_id',
           'v' => @watch_list.id
         }
       )
 
-      @contents = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @contents.total_count
+      set_instance_variables_by_view_mode(query: @query, user_filter: true)
 
       respond_to do |format|
         format.html
         format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
+        format.js { render 'data_cycle_core/application/more_results' }
       end
     end
 

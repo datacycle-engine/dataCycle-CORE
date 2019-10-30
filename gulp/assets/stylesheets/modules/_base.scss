@@ -61,10 +61,6 @@ button,
   }
 }
 
-.pagination-margin {
-  margin-top: 1rem;
-}
-
 .html-feature-missing {
   position: fixed;
   height: 100%;
@@ -83,36 +79,11 @@ button,
   }
 }
 
-.pagination {
-  border-radius: 30px; //background: lighten($light-gray, 7%);
-
+.pagination-container {
+  padding: 1rem 0;
   a,
   button {
-    border-radius: 0;
-    line-height: inherit;
-    line-height: 30px;
-
-    &:focus,
-    &:hover {
-      text-decoration: underline;
-      background: none;
-      color: $primary-color;
-    }
-  }
-
-  .current {
-    border-radius: 30px;
-    width: 30px;
-    height: 30px;
-    background: $light-gray;
-    padding: 0;
-
-    a {
-      padding: 0;
-      color: $dark-gray;
-      cursor: default;
-      text-decoration: none;
-    }
+    margin: 0;
   }
 }
 
@@ -183,6 +154,10 @@ button,
       }
     }
   }
+}
+
+footer {
+  min-height: 10rem;
 }
 
 .detail-header {
@@ -669,13 +644,14 @@ button,
 
     .daterange {
       .form-element .icon {
-        i {
+        i:not(.fa-ban) {
           display: none;
         }
       }
 
       .form-element {
         display: inline-block;
+        white-space: nowrap;
 
         input {
           box-shadow: none !important;
@@ -1025,6 +1001,7 @@ body .v-select {
 .no-results {
   display: block;
   text-align: center;
+  padding: 1rem 0;
 }
 
 .overflow-hidden {
@@ -1262,6 +1239,7 @@ a[data-toggle] {
 }
 
 .dropdown-pane {
+  color: $black;
   line-height: 1rem;
   font-size: 0.8rem;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -1285,6 +1263,10 @@ a[data-toggle] {
     display: block;
     text-align: center;
     overflow: hidden;
+  }
+
+  a:not(.button) {
+    color: $primary-color;
   }
 
   input {

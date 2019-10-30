@@ -7,15 +7,13 @@
                         <% links.each do |link| %>
                             <li>
                                 <% if link.current? %>
-                                    <span class="breadcrumb-text"><%= link.text %></span>
+                                    <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
                                 <% elsif link.authorized %>
                                     <%= link_to link.url, class: (link.current? ? "current" : nil) do %>
-                                        <span class="breadcrumb-text"><%= link.text %></span>
+                                        <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
                                     <% end %>
-                                    <i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>
                                 <% else %>
-                                    <span class="breadcrumb-text"><%= link.text %></span>
-                                    <i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>
+                                    <span class="breadcrumb-text" title="<%= strip_tags(link.text) %>"><%= link.text %></span>
                                 <% end %>
                             </li>
                         <% end %>

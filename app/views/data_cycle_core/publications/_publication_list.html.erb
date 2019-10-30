@@ -35,10 +35,10 @@
                         <div class="title">
                           <% I18n.with_locale(content.content_content_b&.first&.content_a.first_available_locale) do %>
                             <%= link_to content.content_content_b&.first&.content_a, target: :_blank do %>
-                              <%= render 'data_cycle_core/contents/tiles/attributes/type', item: content.content_content_b&.first&.content_a %>
+                              <%= render 'data_cycle_core/contents/grid/attributes/type', item: content.content_content_b&.first&.content_a %>
                             <% end %>
                             <%= link_to content.content_content_b&.first&.content_a, target: :_blank do %>
-                              <%= render 'data_cycle_core/contents/tiles/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
+                              <%= render 'data_cycle_core/contents/grid/attributes/title', item: content.content_content_b&.first&.content_a if content.content_content_b&.first&.content_a.try(:title).present? %>
                             <% end %>
                           <% end if content.content_content_b&.first&.content_a.present? %>
                         </div>

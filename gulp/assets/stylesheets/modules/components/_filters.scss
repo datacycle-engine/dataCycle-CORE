@@ -860,8 +860,31 @@ $filter-border: #aaa;
 }
 
 .search-results {
-  margin-top: 1rem;
-  min-height: 40rem;
+  .mode-switcher {
+    position: relative;
+    padding: 1rem 0;
+    text-align: right;
+
+    > i,
+    > a {
+      padding: 0 3px;
+    }
+
+    > i,
+    a.selected {
+      color: $black;
+      text-shadow: 1px 1px 1px #ccc;
+    }
+
+    > a {
+      color: lighten($dark-gray, 20%);
+      transition: color 0.3s;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
 }
 
 // stored_filter index page

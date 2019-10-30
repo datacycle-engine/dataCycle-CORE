@@ -1,4 +1,4 @@
-<%= render 'data_cycle_core/contents/tiles/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'image') do %>
+<%= render 'data_cycle_core/contents/grid/compact/tile_wrapper', local_assigns.except(:tile_links).merge(tile_classes: 'image') do %>
   <%
       thumbnail_url = object.try(:thumbnail_url) || object.try(:asset).try(:first).try(:thumbnail_url)
   %>
@@ -20,7 +20,7 @@
             <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
             <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
         <% end %>
-        <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, locale: render_locale %>
+        <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, locale: render_locale %>
     </div>
 
     <div class="width-content reveal media-preview" id="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>" data-reveal>
@@ -36,7 +36,7 @@
         </div>
         <div class="description">
             <%= render 'data_cycle_core/contents/validity_period', dataCycleObject: object %>
-            <%= render 'data_cycle_core/contents/tiles/attributes/warnings', content: object, text: true, locale: render_locale %>
+            <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, text: true, locale: render_locale %>
             <%= link_to t('tile_links.details', locale: DataCycleCore.ui_language), thing_path(object), target: :_blank %>
             <% if can?(:download, object) && object.try(:content_url).present? %>
                 | <%= link_to t('tile_links.full_size', locale: DataCycleCore.ui_language), object.try(:content_url), target: :_blank %>

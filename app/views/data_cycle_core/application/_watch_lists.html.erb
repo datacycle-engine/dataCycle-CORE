@@ -7,7 +7,7 @@
 
 <% elsif content %>
 
-  <%= render 'data_cycle_core/application/watch_lists/editable_links', content: content %>
+  <%= render 'data_cycle_core/application/watch_lists/editable_links', content: content, prefix: local_assigns[:prefix] %>
 
 <% else %>
 

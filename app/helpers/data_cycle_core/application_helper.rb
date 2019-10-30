@@ -40,6 +40,45 @@ module DataCycleCore
       end
     end
 
+    def mode_icon(mode)
+      case mode
+      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: t('view_modes.grid', locale: DataCycleCore.ui_language))
+      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: t('view_modes.list', locale: DataCycleCore.ui_language))
+      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: t('view_modes.tree', locale: DataCycleCore.ui_language))
+      end
+    end
+
+    def mode_link(mode, selected, params_hash)
+      case mode
+      when 'tree'
+        capture do
+          concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
+          concat(
+            tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
+              if DataCycleCore::ClassificationTreeLabel.tree_view_labels.present?
+                concat(
+                  tag.ul(class: 'no-bullet') do
+                    DataCycleCore::ClassificationTreeLabel.tree_view_labels.presence&.each do |tree_label|
+                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.merge({ mode: mode, ctl_id: tree_label.id }))))
+                    end
+                  end
+                )
+              end
+            end
+          )
+        end
+      else
+        link_to_unless selected, mode_icon(mode), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id).merge(mode: mode)
+      end
+    end
+
+    def valid_mode(mode)
+      case mode
+      when 'list', 'tree' then mode
+      else 'grid'
+      end
+    end
+
     # Returns the full title on a per-page basis.
     def full_title
       base_title = 'dataCycle'
@@ -57,6 +96,10 @@ module DataCycleCore
 
     def schema_path_from_key(key)
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
+    end
+
+    def content_view_cache_key(item:, locale: 'de', mode:)
+      "#{item.class}_#{item.id}_#{locale}_#{item.updated_at}_#{item.template_updated_at}_#{mode}"
     end
 
     def filterable_classification_aliases(allowed_labels, excluded = [])
@@ -295,37 +338,26 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, value: value, content: content }))
     end
 
-    def render_content_tile(item:, parameters: {})
-      partials = [
-        item.try(:template_name)&.underscore_blanks,
-        item.try(:schema_type)&.underscore_blanks,
-        item&.class&.name&.demodulize&.underscore_blanks,
-        'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
-
-      render_first_existing_partial(partials, parameters.merge({ item: item }))
-    end
-
-    def render_content_list_item(item:, parameters: {})
+    def render_content_tile(item:, parameters: {}, mode: 'grid')
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
 
-    def render_content_list_details(item:, parameters: {})
+    def render_content_tile_details(item:, parameters: {}, mode: 'grid')
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
         item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}_details" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end
@@ -335,7 +367,7 @@ module DataCycleCore
         definition.dig('template_name')&.underscore_blanks,
         parameters&.dig(:object)&.try(:schema_type)&.underscore_blanks,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/compact/#{p}" }
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/grid/compact/#{p}" }
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 

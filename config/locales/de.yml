@@ -43,6 +43,11 @@ de:
     user: Benutzer
     guest: Gast
 
+  view_modes:
+    grid: Kacheln
+    list: Listenansicht
+    tree: Baumansicht
+
   new_step_title:
     title: Bildbeschreibung
     copyright: Copyright
@@ -275,6 +280,11 @@ de:
     edit: Bearbeitungs-Ansicht
     filter: Erweiterte Dashboard-Filter
     list: Listenansicht
+    tree_view: Wurzel in der Baumansicht
+
+  pagination:
+    next: Weitere Ergebnisse
+    prev: Vorherge Ergebnisse
 
   actions:
     new: erstellen
