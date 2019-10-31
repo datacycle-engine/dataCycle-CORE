@@ -152,6 +152,10 @@ module DataCycleCore
     yield self
   end
 
+  def self.default_classification_visibilities
+    classification_visibilities.except(['show_more', 'tree_view'])
+  end
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
