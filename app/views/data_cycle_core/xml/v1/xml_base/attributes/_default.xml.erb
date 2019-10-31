@@ -1,12 +1,12 @@
 <% if value.present? && definition.dig('xml', 'disabled').blank? %>
   <% key_new = definition.dig('xml', 'name') || key %>
   <% if definition.dig('xml', 'transformation', 'method') == 'nest' && definition.dig('xml', 'transformation', 'name').present? %>
-    <schema:<%= definition.dig('xml', 'transformation', 'name')%>>
+    <<%= definition.dig('xml', 'transformation', 'name')%>>
     <% if definition.dig('xml', 'transformation', 'type').present? %>
-      <schema:type><%=definition.dig('xml', 'transformation', 'type')%></schema:type>
+      <type><%=definition.dig('xml', 'transformation', 'type')%></type>
     <% end %>
     <% if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
-      <schema:<%=key_new.camelize(:lower)%>>
+      <<%=key_new.camelize(:lower)%>>
       <% content.translations.each do |translation| %>
         <% I18n.with_locale(translation.locale) do %>
           < <%=translation.locale%> ><%=normalize_string(content.send(key).to_s).html_safe%> </ <%=translation.locale%>>
@@ -15,17 +15,17 @@
     <% else %>
       <%= value %>
     <% end %>
-    </schema:<%=key_new.camelize(:lower)%>>
-    </schema:<%=definition.dig('xml', 'transformation', 'name')%>>
+    </<%=key_new.camelize(:lower)%>>
+    </<%=definition.dig('xml', 'transformation', 'name')%>>
   <% elsif content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations') %>
-    <schema:<%=key_new.camelize(:lower)%>>
+    <<%=key_new.camelize(:lower)%>>
       <% content.translations.each do |translation| %>
         <% I18n.with_locale(translation.locale) do %>
           < <%=translation.locale%> ><%=normalize_string(content.send(key).to_s).html_safe%> </ <%=translation.locale%>>
         <% end %>
       <% end %>
-    </schema:<%=key_new.camelize(:lower)%>>
+    </<%=key_new.camelize(:lower)%>>
   <% else %>
-    <schema:<%=key_new.camelize(:lower)%>><%=normalize_string(value.to_s).html_safe%></schema:<%=key_new.camelize(:lower)%>>
+    <<%=key_new.camelize(:lower)%>><%=normalize_string(value.to_s).html_safe%></<%=key_new.camelize(:lower)%>>
   <% end %>
 <% end %>

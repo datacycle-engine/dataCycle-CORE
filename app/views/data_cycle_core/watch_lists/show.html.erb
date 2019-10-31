@@ -80,6 +80,7 @@
             <% end %>
 
             <div class="edit">
+              <%= render 'data_cycle_core/application/downloads/download_indesign', content: @watch_list if can?(:download_indesign, @watch_list) %>
 
               <%= render 'data_cycle_core/application/downloads/download_zip', content: @watch_list if can?(:download_zip, @watch_list) %>
 

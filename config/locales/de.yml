@@ -55,7 +55,11 @@ de:
     relations: Relationen
 
   dash_board:
-    import: Download & Import starten
+    import_full: Import (full)
+    import: Import
+    download: Download
+    download_import: Download/Import
+
 
   notification:
     frequency:
@@ -181,6 +185,7 @@ de:
       json: JSON-Format
       gpx: GPX-Datei
       xml: XML-Format
+      indesign: Adobe InDesign
       version:
         original: Original
         thumb_preview: Thumbnail
@@ -311,6 +316,7 @@ de:
     open_asset: "Datei öffnen"
     download: "herunterlanden"
     download_content: "Inhalt herunterladen"
+    download_indesign: "Inhalt für Adobe InDesign herunterladen"
     download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     download_asset_version: "Datei herunterladen (%{data}-Version)"

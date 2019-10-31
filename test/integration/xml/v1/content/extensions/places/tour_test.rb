@@ -26,7 +26,6 @@ module DataCycleCore
                 assert_response(:success)
                 assert_equal('application/xml', response.content_type)
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
-
                 # validate header
                 assert_equal('http://schema.org', xml_data.dig('context'))
                 assert_equal('Place', xml_data.dig('type'))

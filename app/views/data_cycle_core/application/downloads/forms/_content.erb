@@ -25,7 +25,7 @@
     <fieldset class="active serialize_formats">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <% available_download_serializers(content).each_key.with_index do |serializer_key, i| %>
+            <% available_download_serializers(content).except('indesign').each_key.with_index do |serializer_key, i| %>
                 <div>
                     <%= radio_button_tag "serialize_format", serializer_key, i == 0 %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>

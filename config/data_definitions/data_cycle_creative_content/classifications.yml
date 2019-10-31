@@ -11,6 +11,8 @@
   - $$Zeitleiste-Eintrag
   - $$Frage
   - $$Antwort
+  - $$Zutatengruppe
+  - $$Zutat
 # container
   - $$Thema
 
