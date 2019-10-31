@@ -16,7 +16,7 @@ module DataCycleCore
         end
 
         def parse_language(language_string)
-          return [] if language_string&.strip.blank?
+          return nil if language_string&.strip.blank?
           language_string.split(',')&.map(&:strip)
         end
 

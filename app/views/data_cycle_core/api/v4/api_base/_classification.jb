@@ -40,8 +40,9 @@ if options[:full]
 else
   json = {
     '@id' => content.id,
-    '@type' => 'skos:Concept'
-  }
+    '@type' => 'skos:Concept',
+    '@language' => @language.size > 1 ? I18n.locale : nil
+  }.compact
 end
 
 if options[:fields].blank?

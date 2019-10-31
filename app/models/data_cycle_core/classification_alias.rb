@@ -65,6 +65,8 @@ module DataCycleCore
     after_update :update_primary_classification
     after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'description_i18n', 'assignable', 'internal']).present? }
 
+    delegate :visible?, to: :classification_tree_label
+
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })

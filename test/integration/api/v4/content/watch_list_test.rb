@@ -74,7 +74,7 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
 
-          assert_equal(['@graph'], json_data.keys)
+          assert_equal(['@context', '@graph'], json_data.keys)
           assert_equal(@watch_list.id, json_data.dig('@graph', 'watchLists', 0, 'id'))
           assert_equal(@watch_list.name, json_data.dig('@graph', 'watchLists', 0, 'name'))
           assert_equal([], json_data.dig('@graph', 'storedFilters'))

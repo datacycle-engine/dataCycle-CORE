@@ -25,14 +25,17 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
+          assert_equal(['@context', '@graph'], json_data.keys.sort)
           # full header of main item
-          header = json_data.slice(*full_header_attributes)
+          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
           data = full_header_data(@content_tour)
           assert_equal(header, data)
 
+          ap json_data
+
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            assert_compact_header(json_data.dig('@graph', 0, embedded.camelize(:lower)))
           end
         end
 

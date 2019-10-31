@@ -20,9 +20,10 @@ module DataCycleCore
 
     def assert_compact_header(array)
       array.each do |hash|
-        assert_equal(['@id', '@type'], hash.keys)
+        assert_equal(['@id', '@type', '@language'], hash.keys)
         assert(hash.dig('@id').present?)
         assert(hash.dig('@type').present?)
+        assert(hash.dig('@language').present?)
       end
     end
 

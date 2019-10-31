@@ -19,24 +19,29 @@ options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json ||= {}
-json.merge! render 'context', languages: options[:languages]
 
-if @classification_id.present?
-  classification_data = []
-  available_locales = @classification_aliases.first.available_locales.map(&:to_s)
-  render_languages = options[:languages].select { |item| available_locales.include?(item) }
-  render_languages ||= [I18n.locale.to_s]
-  render_languages.each do |language|
-    classification_data << load_classification_data(language, options)
+if @classification_tree_label.present?
+  json.merge! render 'context', languages: options[:languages]
+
+  if @classification_id.present?
+    classification_data = []
+    if @classification_aliases.first.visible?('api')
+      available_locales = @classification_aliases.first.available_locales.map(&:to_s)
+      render_languages = options[:languages].select { |item| available_locales.include?(item) }
+      render_languages ||= [I18n.locale.to_s]
+      render_languages.each do |language|
+        classification_data << load_classification_data(language, options)
+      end
+    end
+    json['@graph'] = classification_data
+  else
+
+    json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options
+
+    json.merge! render 'pagination_links',
+                       objects: @classification_aliases,
+                       object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
   end
-  json['@graph'] = classification_data
-else
-
-  json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options
-
-  json.merge! render 'pagination_links',
-                     objects: @classification_aliases,
-                     object_url: ->(params) { classifications_api_v4_concept_scheme_url(@api_subversion, @classification_tree_label, params.merge(classification_id: @classification_id)) }
 end
 
 json

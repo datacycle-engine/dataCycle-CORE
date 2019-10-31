@@ -10,6 +10,7 @@ json = {}
 
 json['@id'] = content.id
 json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
+json['@language'] = @language.size > 1 || I18n.locale != options[:languages.first] ? I18n.locale : nil
 
 if options[:header_type] == :full || select_attributes(options[:fields]).include?('dc:entity_url')
   json['dc:entity_url'] = send(

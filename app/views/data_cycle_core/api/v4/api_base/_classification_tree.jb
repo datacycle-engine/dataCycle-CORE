@@ -14,8 +14,9 @@ if options[:full]
 else
   json = {
     '@id' => content.id,
-    '@type' => 'skos:ConceptScheme'
-  }
+    '@type' => 'skos:ConceptScheme',
+    '@language' => @language.size > 1 || I18n.locale != I18n.default_locale ? I18n.default_locale : nil
+  }.compact
 end
 
 if options[:fields].blank?

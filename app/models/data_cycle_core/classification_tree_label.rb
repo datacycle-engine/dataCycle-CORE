@@ -95,6 +95,10 @@ module DataCycleCore
       []
     end
 
+    def visible?(context)
+      visibility.include?(context)
+    end
+
     private
 
     def invalidate_things_cache
