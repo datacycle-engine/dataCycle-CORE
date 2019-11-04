@@ -7,7 +7,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         def index
-          @classification_tree_labels = ClassificationTreeLabel.where(internal: false).where("'api' = ANY (visibility)")
+          @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_tree_labels = @classification_tree_labels.where(
