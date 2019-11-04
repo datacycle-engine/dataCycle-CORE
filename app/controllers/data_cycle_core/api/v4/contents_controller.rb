@@ -77,11 +77,7 @@ module DataCycleCore
             permitted_params.dig(:filter, :concepts).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              # if @mode_parameters&.include?('strict')
-              #   query = query.with_classification_alias_ids_without_recursion(classifications)
-              # else
               query = query.classification_alias_ids(classifications)
-              # end
             end
           end
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
@@ -90,13 +86,18 @@ module DataCycleCore
 
         def apply_event_query_filters(query)
           return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-          if permitted_params&.dig(:filter, :from).present?
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
+          from_date = nil
+          to_date = nil
+          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
+          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
+
+          if from_date.blank?
+            from_date = Time.zone.now
+            from_date = to_date if from_date > to_date
           end
 
-          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
+          query = query.event_from_time(from_date)
+          query = query.event_end_time(to_date) if to_date.present?
           query
         end
 

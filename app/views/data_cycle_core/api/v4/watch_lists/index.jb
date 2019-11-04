@@ -6,7 +6,7 @@ json.merge! render 'context', languages: @language
 json['@graph'] = @watch_lists.map do |item|
   {
     '@id' => item.id,
-    '@type' => item.schema.dig('api', 'type') || item.try(:schema_type) || item.class.name.demodulize,
+    '@type' => 'Thing',
     'name' => item.name,
     'dc:entity_url' => api_v4_collection_url(@api_subversion, id: item.id),
     'dc:item_count' => item.watch_list_data_hashes.count

@@ -4,6 +4,10 @@ module DataCycleCore
   module ApiHelper
     include DataHashHelper
 
+    def api_default_attributes
+      ['@id', '@type', '@language']
+    end
+
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 

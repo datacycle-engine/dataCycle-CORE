@@ -20,7 +20,6 @@ if classification_aliases.present?
     new_options = options.dup
     new_options[:fields] = new_fields
     new_options[:include] = subtree_for(key_new, options[:include])
-    new_options[:languages] = [I18n.locale.to_s]
     json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition, options: new_options
   end
 end

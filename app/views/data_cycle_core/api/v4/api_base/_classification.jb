@@ -25,7 +25,7 @@ if options[:full]
   json = {
     '@id' => content.id,
     '@type' => 'skos:Concept',
-    '@language' => @language.size > 1 ? I18n.locale : nil,
+    '@language' => @language.size > 1 || I18n.locale != options[:language] ? I18n.locale : nil,
     'dc:entity_url' => uri,
     'skos:prefLabel' => name,
     'dct:description' => description.presence,
@@ -41,12 +41,12 @@ else
   json = {
     '@id' => content.id,
     '@type' => 'skos:Concept',
-    '@language' => @language.size > 1 ? I18n.locale : nil
+    '@language' => @language.size > 1 || I18n.locale != options[:language] ? I18n.locale : nil
   }.compact
 end
 
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| key == '@id' || key == '@type' || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
+  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 end

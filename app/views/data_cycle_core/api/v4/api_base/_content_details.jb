@@ -8,11 +8,9 @@ default_options = {
   field_filter: @field_filter
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
-options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
-
 json ||= {}
 
-I18n.with_locale(content.first_available_locale(options[:languages].first) || options[:languages].first) do
+I18n.with_locale(content.first_available_locale(options[:language]) || I18n.locale) do
   json.merge! render 'content_header', content: content, options: options
 
   json.merge! render 'content_properties', content: content, options: options
@@ -26,5 +24,5 @@ end
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| key == '@id' || key == '@type' || key == '@language' || select_attributes(options[:fields]).include?(key) }
+  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
 end

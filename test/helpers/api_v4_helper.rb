@@ -27,13 +27,14 @@ module DataCycleCore
       end
     end
 
-    def assert_compact_classification_header(array)
-      array.each do |hash|
-        assert_equal(['@id', '@type'], hash.keys)
-        assert(hash.dig('@id').present?)
-        assert(hash.dig('@type').present?)
-      end
-    end
+    # def assert_compact_classification_header(array)
+    #   array.each do |hash|
+    #     assert_equal(['@id', '@type', '@language'], hash.keys)
+    #     assert(hash.dig('@id').present?)
+    #     assert(hash.dig('@type').present?)
+    #     assert(hash.dig('@language').present?)
+    #   end
+    # end
 
     def assert_concept_attributes(concept)
       concept

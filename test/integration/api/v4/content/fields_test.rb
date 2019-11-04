@@ -52,7 +52,7 @@ module DataCycleCore
         end
 
         def default_fields
-          ['@id', '@type']
+          ['@id', '@language', '@type']
         end
 
         test 'testing EventOverlay with fields parameter (filtering unstructured data)' do

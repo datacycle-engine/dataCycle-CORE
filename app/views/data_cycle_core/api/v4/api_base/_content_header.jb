@@ -4,21 +4,23 @@ default_options = {
   header_type: :full
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
-options[:languages] = Array(I18n.locale) if options[:languages].blank?
+options[:language] = I18n.locale if options[:language].blank?
 
 json = {}
 
-json['@id'] = content.id
-json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
-json['@language'] = @language.size > 1 || I18n.locale != options[:languages.first] ? I18n.locale : nil
+unless options[:header_type] == :overlay
+  json['@id'] = content.id
+  json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
+  json['@language'] = @language.size > 1 || I18n.locale != options[:language] ? I18n.locale : nil
 
-if options[:header_type] == :full || select_attributes(options[:fields]).include?('dc:entity_url')
-  json['dc:entity_url'] = send(
-    "api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url",
-    @api_subversion,
-    content,
-    { language: serialize_language(options[:languages]) }
-  )
+  if options[:header_type] == :full || select_attributes(options[:fields]).include?('dc:entity_url')
+    json['dc:entity_url'] = send(
+      "api_v#{@api_version}_#{content.class.class_name.tableize.singularize}_url",
+      @api_subversion,
+      content,
+      { language: options[:language] }
+    )
+  end
 end
 
 json

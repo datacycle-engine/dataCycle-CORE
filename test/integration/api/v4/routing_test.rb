@@ -36,7 +36,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(@test_content.id, json_data['@id'])
+          assert_equal(@test_content.id, json_data.dig('@graph', 0, '@id'))
         end
 
         test '/api/v4/things/deleted' do
