@@ -13,7 +13,7 @@
     <li><%= t("data_cycle_core.schema.#{content_type.pluralize}", locale: DataCycleCore.ui_language) %></li>
 
     <ul class="<%= content_type %>_templates">
-      <% @schema.templates_with_content_type(content_type).sort_by(&:schema_name).each do |template| %>
+      <% @schema.templates_with_content_type(content_type).sort_by { |item| item.schema_name.is_a?(::Array) ? item.schema_name.first : item.schema_name }.each do |template| %>
         <li>
           <a href="/schema/<%= template.template_name %>">
             <%= template.schema_name %> (<em><%= template.template_name %></em>)

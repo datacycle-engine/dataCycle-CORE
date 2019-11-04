@@ -104,7 +104,7 @@ module DataCycleCore
       @watch_list = DataCycleCore::WatchList.find(params[:id])
 
       @content_object = DataCycleCore::Thing.find(params[:hashable_id])
-      @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil?
+      @content_object.watch_lists << @watch_list unless @content_object.nil? || @watch_list.nil? || @watch_list.id.in?(@content_object.watch_list_ids)
 
       respond_to do |format|
         format.html { redirect_back(fallback_location: root_path, notice: (I18n.t :added_to, scope: [:controllers, :success], data: @watch_list.name, locale: DataCycleCore.ui_language)) }
@@ -263,10 +263,29 @@ module DataCycleCore
       download_collection(@watch_list, download_items, serialize_format, languages)
     end
 
+    def download_indesign
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download_indesign, @watch_list
+      serialize_format = [params.dig(:serialize_format)]
+      languages = params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+
+      download_items = [@watch_list]
+      @watch_list.things.all.to_a.select do |thing|
+        items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+          can? :download, linked_item
+        end
+        download_items += items
+      end
+
+      download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
+    end
+
     private
 
     def watch_list_params
-      params.require(:watch_list).permit(:name, user_group_ids: [], user_ids: [])
+      params.require(:watch_list).permit(:name, :user_id, user_group_ids: [], user_ids: [])
     end
 
     def hashable_params

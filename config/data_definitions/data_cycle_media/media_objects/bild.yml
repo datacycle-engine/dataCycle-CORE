@@ -18,6 +18,7 @@
           :asset: true
           :json: true
           :xml: true
+          :indesign: true
     :api:
       :type: ImageObject
     :properties:
@@ -106,6 +107,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -209,6 +213,12 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :keywords:
         :label: Keywords
         :storage_location: translated_value

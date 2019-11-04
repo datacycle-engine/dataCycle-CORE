@@ -40,8 +40,8 @@ module DataCycleCore
             assert_response :success
             xml = Nokogiri::XML(response.body)
             assert xml.errors.blank?
-            assert_equal @watch_list.name, xml.xpath('//schema:collection/schema:name').text
-            assert_equal @content.name, xml.xpath('//schema:collection/schema:things/schema:thing/schema:name').text
+            assert_equal @watch_list.name, xml.xpath('//collection/name').text
+            assert_equal @content.name, xml.xpath('//collection/things/thing/name').text
           end
 
           test 'enable watch_list xml serializer and test downloads controller' do
@@ -56,8 +56,8 @@ module DataCycleCore
             assert_response :success
             xml = Nokogiri::XML(response.body)
             assert xml.errors.blank?
-            assert_equal @watch_list.name, xml.xpath('//schema:collection/schema:name').text
-            assert_equal @content.name, xml.xpath('//schema:collection/schema:things/schema:thing/schema:name').text
+            assert_equal @watch_list.name, xml.xpath('//collection/name').text
+            assert_equal @content.name, xml.xpath('//collection/things/thing/name').text
           end
 
           def teardown

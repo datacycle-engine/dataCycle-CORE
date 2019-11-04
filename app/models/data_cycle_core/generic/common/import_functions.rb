@@ -304,6 +304,27 @@ module DataCycleCore
           end
         end
 
+        def self.import_classifications_frame(utility_object, tree_name, classification_processing, options)
+          raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              each_locale(utility_object.locales) do |locale|
+                I18n.with_locale(locale) do
+                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name: importer_name, phase_name: phase_name }))
+                  end
+                end
+              end
+            end
+          end
+        end
+
         def self.import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
           if classification_data[:external_key].blank?
             classification = DataCycleCore::Classification
@@ -359,7 +380,7 @@ module DataCycleCore
             classification_alias = primary_classification_alias
           end
 
-          classification.name = classification_alias.internal_name
+          classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
           classification.description = classification_data[:description] if classification_data[:description].present?
           classification.external_key = classification_data[:external_key]
           classification.save!

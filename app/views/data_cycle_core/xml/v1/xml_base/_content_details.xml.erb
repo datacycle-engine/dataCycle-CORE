@@ -14,9 +14,9 @@
 <%= render *content_partial('container_parent_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present? %>
 
 <% if content.translations.size > 1 && @include_parameters.include?('translations') %>
-  <schema:inLanguage><%= content.translated_locales %></schema:inLanguage>
+  <inLanguage><%= content.translated_locales %></inLanguage>
 <% else %>
-  <schema:inLanguage><%= content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale %></schema:inLanguage>
+  <inLanguage><%= content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale %></inLanguage>
 <% end %>
 
 <%= render *content_partial('container_children_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container') %>

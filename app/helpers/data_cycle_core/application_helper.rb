@@ -130,7 +130,7 @@ module DataCycleCore
     end
 
     def merge_uploader_white_list(asset_type: nil)
-      uploader_validations = {}
+      uploader_validations = {}.with_indifferent_access
 
       if can?(:create, DataCycleCore::DataLink)
         uploader_validations = {
@@ -139,7 +139,7 @@ module DataCycleCore
             translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
             translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
           })
-        }
+        }.with_indifferent_access
       end
 
       return uploader_validations if asset_type == 'text_file'
@@ -302,6 +302,30 @@ module DataCycleCore
         item&.class&.name&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/tiles/#{p}" }
+
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
+    end
+
+    def render_content_list_item(item:, parameters: {})
+      partials = [
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
+        item.try(:content_type)&.underscore_blanks,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}" }
+
+      render_first_existing_partial(partials, parameters.merge({ item: item }))
+    end
+
+    def render_content_list_details(item:, parameters: {})
+      partials = [
+        item.try(:template_name)&.underscore_blanks,
+        item.try(:schema_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
+        item.try(:content_type)&.underscore_blanks,
+        'default'
+      ].reject(&:blank?).map { |p| "data_cycle_core/contents/list/#{p}_details" }
 
       render_first_existing_partial(partials, parameters.merge({ item: item }))
     end

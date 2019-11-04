@@ -1,15 +1,11 @@
 ---
 - :data:
-    :name: Unterkunft
+    :name: Zimmer
     :type: object
     :schema_type: Place
     :content_type: entity
     :boost: 10.0
     :features:
-      :geocode:
-        :allowed: true
-      :overlay:
-        :allowed: true
       :translatable:
         :allowed: true
       :download:
@@ -19,85 +15,60 @@
         :serializers:
           :xml: true
           :json: true
-          :gpx: true
+          :indesign: true
     :api:
-      :type: LodgingBusiness
+      :type:
+        - Accommodation
+        - Product
     :properties:
       :id:
         :label: id
         :type: key
-      :title:
-        :type: mixin
-        :name: title
-      :overlay:
-        :label: Overlay
-        :type: embedded
-        :template_name: PlaceOverlay
-        :validations:
-          :max: 1
-      :content_classifications:
-        :type: mixin
-        :name: content_classifications
-      :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
-      :postal_address:
-        :type: mixin
-        :name: postal_address
-      :geo:
-        :type: mixin
-        :name: geo
-      :contact_info:
-        :type: mixin
-        :name: contact_info
-      :place_attributes:
-        :type: mixin
-        :name: place_attributes
-      # move to dataCycleProperty
-      :price_range:
-        :label: Preis-Info
+      :name:
+        :label: Titel
         :type: string
-        :storage_location: translated_value
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :minimal: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
         :search: true
         :ui:
           :edit:
             :type: text_editor
             :options:
               :data-size: basic
-      :potential_actions:
+      :feratel_accommodation_classifications:
         :type: mixin
-        :name: potential_actions
-      :outdoor_active:
-        :type: mixin
-        :name: outdoor_active
-      :outdoor_active_categories:
-        :type: mixin
-        :name: outdoor_active_categories
-      :outdoor_active_external_system:
-        :type: mixin
-        :name: outdoor_active_external_system
-      :feratel_categories:
-        :type: mixin
-        :name: feratel_categories
-      :xamoom:
-        :type: mixin
-        :name: xamoom
-      :booking:
-        :type: mixin
-        :name: booking
-      :hrs:
-        :type: mixin
-        :name: hrs
+        :name: feratel_accommodation_classifications
+      :number_of_rooms:
+        :label: Räume
+        :type: number
+        :storage_location: value
+      :floor_size:
+        :label: Größe (m²)
+        :type: number
+        :storage_location: value
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      # :offers:
+      #   label: Angebote
+      #   :type: embedded
+      #   :template_name: Angebot
+      #   :translated: true
+#      :aminetyFeature: (later ... can be anything)
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Unterkunft"
+        :default_value: "Zimmer"
       :meta_data:
         :type: mixin
         :name: meta_data
-      :additional_properties:
-        :type: mixin
-        :name: additional_properties

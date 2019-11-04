@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -163,8 +164,9 @@
                 - LocalBusiness
       :offers:
         :label: Angebote
-        :type: linked
-        :template_name: Event-Ticket-Angebot
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
       :potential_action:
         :label: Link mit weiterführenden Infos
         :type: string

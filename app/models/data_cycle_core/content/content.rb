@@ -23,12 +23,12 @@ module DataCycleCore
           include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
         end
       extend  DataCycleCore::Common::ArelBuilder
-      include ContentRelations
-      extend  ContentFilters
-      include DestroyContent
-      include DataHashUtility
-      include Extensions::Content
-      include Extensions::ContentWarnings
+      include DataCycleCore::Content::ContentRelations
+      extend  DataCycleCore::Content::ContentFilters
+      include DataCycleCore::Content::DestroyContent
+      include DataCycleCore::Content::DataHashUtility
+      include DataCycleCore::Content::Extensions::Content
+      include DataCycleCore::Content::Extensions::ContentWarnings
 
       after_save :reload_memoized
 
@@ -51,6 +51,10 @@ module DataCycleCore
 
       def content_type?(*types)
         types&.flatten&.map(&:to_s)&.include?(content_type)
+      end
+
+      def container?
+        content_type == 'container'
       end
 
       def embedded?
@@ -88,13 +92,19 @@ module DataCycleCore
 
       def translatable_property_names
         @translatable_property_names ||= begin
-          translated_columns = (self.class.to_s + '::Translation').constantize.column_names
-
           property_definitions.select { |property_name, definition|
-            definition['storage_location'] == 'translated_value' ||
-              (definition['storage_location'] == 'column' && translated_columns.include?(property_name))
+            translatable_property?(property_name, definition)
           }.keys
         end
+      end
+
+      def translated_columns
+        @translated_columns ||= (self.class.to_s + '::Translation').constantize.column_names
+      end
+
+      def translatable_property?(property_name, property_definition = nil)
+        property_definition['storage_location'] == 'translated_value' ||
+          (property_definition['storage_location'] == 'column' && translated_columns.include?(property_name))
       end
 
       def untranslatable_property_names

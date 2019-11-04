@@ -26,8 +26,16 @@
             <%= content_tag(:li, "#{locals[:import_data][:last_import]}".html_safe) %>
         </ul>
     </div>
+
+    <div class="card-section">
+      <span>
+        <%= link_to(t('dash_board.download_import', locale: DataCycleCore.ui_language), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small') %>
+        <%= link_to(t('dash_board.import_full', locale: DataCycleCore.ui_language), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small') unless locals[:import_data][:db_size] == 0 %>
+      </span>
+      <br/>
+      <span>
+        <%= link_to(t('dash_board.download', locale: DataCycleCore.ui_language), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small') %>
+        <%= link_to(t('dash_board.import', locale: DataCycleCore.ui_language), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small') unless locals[:import_data][:db_size] == 0 %>
+      </span>
+    </div>
 </div>
-<%= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% unless locals[:import_data][:db_size] == 0%>
-    <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% end %>

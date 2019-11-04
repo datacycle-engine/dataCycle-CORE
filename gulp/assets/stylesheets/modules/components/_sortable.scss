@@ -3,6 +3,10 @@
   opacity: 0.1;
 }
 
+.sortable-chosen {
+  z-index: 999999;
+}
+
 .draggable-handle {
   position: relative;
   float: left;

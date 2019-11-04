@@ -16,6 +16,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -33,7 +34,7 @@
         :type: mixin
         :name: content_classifications
       :description:
-        :label: Beschreibung
+        :label: Kurzbeschreibung
         :type: string
         :storage_location: column
         :search: true
@@ -43,7 +44,7 @@
             :options:
               :data-size: basic
       :text:
-        :label: Text
+        :label: Beschreibung
         :type: string
         :storage_location: translated_value
         :search: true

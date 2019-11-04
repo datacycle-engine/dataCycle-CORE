@@ -80,10 +80,11 @@
             <% end %>
 
             <div class="edit">
+              <%= render 'data_cycle_core/application/downloads/download_indesign', content: @watch_list if can?(:download_indesign, @watch_list) %>
 
-            <%= render 'data_cycle_core/application/downloads/download_zip', content: @watch_list if can?(:download_zip, @watch_list) %>
+              <%= render 'data_cycle_core/application/downloads/download_zip', content: @watch_list if can?(:download_zip, @watch_list) %>
 
-            <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
+              <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
 
               <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language) do %>
                 <i class="fa fa-pencil" aria-hidden="true"></i>

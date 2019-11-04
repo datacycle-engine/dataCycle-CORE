@@ -45,6 +45,8 @@
                     <% end %>
                   <% end %>
 
+                    <%= render 'data_cycle_core/application/downloads/download_indesign', content: stored_search if can?(:download_indesign, stored_search) %>
+
                   <%= render 'data_cycle_core/application/downloads/download_zip', content: stored_search if can?(:download_zip, stored_search) %>
 
                   <%= render 'data_cycle_core/application/downloads/download', content: stored_search if can?(:download, stored_search) %>

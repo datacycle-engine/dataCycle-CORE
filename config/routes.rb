@@ -49,6 +49,7 @@ DataCycleCore::Engine.routes.draw do
       get :load_more_related, on: :member
       get :download_zip, on: :member
       get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
+      get :download_indesign, on: :member
       get :create_duplication, on: :member
       post :validate, on: :member
       post :validate, on: :collection
@@ -102,6 +103,7 @@ DataCycleCore::Engine.routes.draw do
     patch :bulk_update, on: :member
     post :validate, on: :member
     get :download_zip, on: :member
+    get :download_indesign, on: :member
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     delete :bulk_delete, on: :member
   end
@@ -123,8 +125,10 @@ DataCycleCore::Engine.routes.draw do
   end
 
   get  '/admin', to: 'dash_board#home'
-  get  '/admin/download', to: 'dash_board#download'
-  get  '/admin/import', to: 'dash_board#import'
+  get  '/admin/download/:id', to: 'dash_board#download', as: 'admin_download'
+  get  '/admin/download_import/:id', to: 'dash_board#download_import', as: 'admin_download_import'
+  get  '/admin/import/:id', to: 'dash_board#import', as: 'admin_import'
+  get  '/admin/import_full/:id', to: 'dash_board#import_full', as: 'admin_import_full'
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
   get  '/admin/import_config', to: 'dash_board#import_config'

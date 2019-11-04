@@ -85,7 +85,7 @@ module DataCycleCore
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource', 'DataCycleCore::Api::FeratelIdentityServerExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -145,7 +145,7 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile', 'filter']
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile', 'filter', 'list']
   end
 
   def self.setup
