@@ -1,27 +1,24 @@
-<section class="search-results">
-    <% if @total.presence&.positive? %>
-        <div class="row pagination-margin">
-            <div class="small-12">
-                <%= paginate @contents, total_pages: @total_pages %>
-            </div>
-        </div>
-
-        <%= render 'data_cycle_core/application/presentation/grid', contents: contents, no_cache: no_cache ||= false %>
-
-        <div class="row pagination-margin">
-            <div class="small-12">
-                <%= paginate @contents, total_pages: @total_pages %>
-            </div>
-        </div>
-
-    <% else %>
-
-        <div class="row">
-            <div class="small-12">
-                <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
-            </div>
-        </div>
-
+<section class="search-results" id="search-results">
+  <% @mode ||= 'grid' %>
+  <div class="mode-switcher">
+    <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
+      <%= mode_link(mode, @mode == mode, request.params) %>
     <% end %>
+  </div>
 
+  <% if (@mode == 'tree' && @content_count.presence&.values&.any?(&:positive?)) || @total.presence&.positive? %>
+
+    <ul class="no-bullet no-format <%= @mode %>">
+      <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>
+    </ul>
+
+  <% else %>
+
+    <div class="row">
+      <div class="small-12">
+        <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+      </div>
+    </div>
+
+  <% end %>
 </section>

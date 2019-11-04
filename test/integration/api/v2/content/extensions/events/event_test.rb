@@ -16,6 +16,7 @@ module DataCycleCore
               setup do
                 @routes = Engine.routes
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
+                @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -53,8 +54,8 @@ module DataCycleCore
                 assert_equal('de', json_data.dig('inLanguage'))
 
                 # startDate / endDate
-                assert_equal(@content.event_period.start_date, json_data.dig('startDate'))
-                assert_equal(@content.event_period.end_date, json_data.dig('endDate'))
+                assert_equal(@content.event_period.start_date.as_json, json_data.dig('startDate'))
+                assert_equal(@content.event_period.end_date.as_json, json_data.dig('endDate'))
 
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))

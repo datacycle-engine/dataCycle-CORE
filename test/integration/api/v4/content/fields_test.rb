@@ -14,6 +14,7 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
+          @content_overlay.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
           image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
           image_data_hash['name'] = 'Another Image'
           overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)

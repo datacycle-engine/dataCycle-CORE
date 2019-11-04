@@ -15,7 +15,7 @@ module DataCycleCore
         &.map { |k, v| [k, v['tree_label']] }
         &.to_h || {}
 
-      filters
+      @filters = pre_filters.dup
       @filters.push(
         {
           't' => 'relation',

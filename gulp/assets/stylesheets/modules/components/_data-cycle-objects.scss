@@ -15,7 +15,7 @@
 
 .data-cycle-object {
   position: relative;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 1px 3px rgba(black, 0.3);
   transition: all ease-in-out 0.2s;
   background: $white;
 
@@ -30,7 +30,7 @@
 
   &:hover,
   &:focus {
-    box-shadow: 0px 1px 25px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px 1px 25px rgba(black, 0.3);
     z-index: 2;
   }
 
@@ -121,17 +121,7 @@
 /* listItems */
 
 .data-cycle-object.list-item {
-  border: 2px solid $dark-gray;
-  margin-bottom: 1.5rem;
   padding: 1rem;
-
-  > div {
-    padding-bottom: 0;
-
-    > div > div {
-      padding-bottom: 1rem;
-    }
-  }
 }
 
 @include breakpoint(xxxlarge) {
@@ -1045,6 +1035,86 @@ span.single_error.object-browser-error {
         display: inline-block;
         height: 2.5rem;
         line-height: 2.5rem;
+      }
+    }
+  }
+}
+
+ul.list {
+  li.list-item.data-cycle-object {
+    .inner-item {
+      display: flex;
+
+      .content-row {
+        flex: auto;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+
+        > a {
+          &:hover {
+            .title {
+              color: $primary-color;
+            }
+          }
+        }
+
+        .title {
+          color: $black;
+          transition: color 0.3s;
+        }
+      }
+
+      .buttons {
+        white-space: nowrap;
+        margin-left: 0.5rem;
+        position: relative;
+        top: 0;
+        right: 0;
+
+        > i,
+        > a {
+          margin-left: 3px;
+          vertical-align: middle;
+        }
+      }
+
+      a.toggle-details::before {
+        content: '\f107';
+        font-family: FontAwesome;
+        font-style: normal;
+        font-weight: normal;
+        text-decoration: inherit;
+        position: relative;
+        display: inline-block;
+        width: 1rem;
+        text-align: center;
+        margin-left: 0.5rem;
+        font-size: 1.2rem;
+        vertical-align: middle;
+      }
+      a.toggle-details.active::before {
+        content: '\f106';
+      }
+    }
+
+    .content-details {
+      display: none;
+      > div {
+        margin-top: 1rem;
+      }
+
+      &.active {
+        display: block;
+      }
+
+      .thumbnails {
+        line-height: 2.8rem;
+
+        img {
+          height: 2.6rem;
+          vertical-align: top;
+        }
       }
     }
   }

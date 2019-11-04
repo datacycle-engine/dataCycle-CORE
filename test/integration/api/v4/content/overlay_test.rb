@@ -14,6 +14,7 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
+          @content_overlay.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 

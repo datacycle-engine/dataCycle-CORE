@@ -99,6 +99,10 @@ module DataCycleCore
       visibility.include?(context)
     end
 
+    def self.visible(context)
+      where('? = ANY(visibility)', context)
+    end
+
     private
 
     def invalidate_things_cache

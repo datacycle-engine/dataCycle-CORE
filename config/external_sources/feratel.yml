@@ -42,7 +42,6 @@ config:
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
     holiday_themes:
-      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
       sorting: 4
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: holiday_themes

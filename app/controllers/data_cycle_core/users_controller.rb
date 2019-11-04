@@ -31,6 +31,11 @@ module DataCycleCore
 
       @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
       @total = @contents.total_count
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create_user

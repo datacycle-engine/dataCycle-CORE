@@ -113,6 +113,14 @@ module DataCycleCore
       assert_equal(6, items.count)
     end
 
+    test 'test query for subscriptions' do
+      user = DataCycleCore::User.find_by(email: 'tester@datacycle.at')
+      user.things_subscribed << DataCycleCore::Thing.where(template: false, template_name: 'Artikel').first
+
+      items = DataCycleCore::Filter::Search.new(:de).subscribed_user_id(user.id)
+      assert_equal(1, items.count)
+    end
+
     test 'test query for creator' do
       creator_id = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       items = DataCycleCore::Filter::Search.new(:de).creator(creator_id)
