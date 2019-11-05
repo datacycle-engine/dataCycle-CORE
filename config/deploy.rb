@@ -2,6 +2,7 @@
 
 # config valid only for current version of Capistrano
 # lock "3.8.2"
+invoke 'datacycle:default_configs:load'
 
 set :application, 'data-cycle-core'
 set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
