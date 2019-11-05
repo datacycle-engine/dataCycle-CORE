@@ -17,3 +17,4 @@ set :deploy_user, 'pixelpoint'
 set :server_name, 'remote-develop.datacycle.at'
 
 append :linked_files, 'config/locales/it.yml'
+set :puma_preload, false
