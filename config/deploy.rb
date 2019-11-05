@@ -15,6 +15,10 @@ set :linked_files, 'test/dummy/.env'
 # Default value for linked_dirs is []
 append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
 
+Rake::Task['deploy:npm'].clear_actions
+Rake::Task['deploy:gulp'].clear_actions
+Rake::Task['deploy:iconfonts'].clear_actions
+Rake::Task['deploy:assets:precompile'].clear_actions
 namespace :deploy do
   task :npm do
     on roles(:all) do
