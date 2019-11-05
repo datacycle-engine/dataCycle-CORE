@@ -14,7 +14,7 @@ remove :linked_files, '.env'
 append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
-remove :linked_files, 'vendor/gems/data-cycle-core/node_modules'
+remove :linked_dirs, 'vendor/gems/data-cycle-core/node_modules'
 append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
 
 Rake::Task['deploy:npm'].clear
