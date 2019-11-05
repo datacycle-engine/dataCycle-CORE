@@ -16,16 +16,9 @@ module DataCycleCore
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
 
+          get_filtered_results
           @tree_page = @classification_trees.current_page
           @tree_total_pages = @classification_trees.total_pages
-          @content_count = @classification_trees.map { |c|
-            [
-              c.id,
-              get_filtered_results
-                .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .count_distinct
-            ]
-          }.to_h
         end
 
         format.js do
@@ -36,8 +29,17 @@ module DataCycleCore
             @target = count_only_params[:target]
             @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
             @total_count = get_filtered_results
-              .classification_alias_ids(@classification_tree.sub_classification_alias.id)
-              .count_distinct
+
+            if count_only_params[:container]
+              @total_count = @total_count.part_of(mode_params[:con_id]) if count_only_params[:container]
+            elsif count_only_params[:recursive]
+              @total_count = @total_count.classification_alias_ids(@classification_tree.sub_classification_alias.id) if count_only_params[:recursive]
+            else
+              @total_count = @total_count.with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+            end
+
+            @total_count = @total_count.count_distinct
+
             render && return
           end
 
@@ -83,24 +85,11 @@ module DataCycleCore
               .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
               .order('classification_aliases.internal_name')
               .page(params[:tree_page])
+            get_filtered_results # set default parameters for filters
           end
 
           @tree_page = @classification_trees&.current_page
           @tree_total_pages = @classification_trees&.total_pages
-          @content_count = @classification_trees&.map { |c|
-            [
-              c.id,
-              get_filtered_results
-                .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-                .count_distinct
-            ]
-          }.to_h
-
-          @contents&.where(content_type: 'container')&.each do |container|
-            @content_count[container.id] = get_filtered_results
-              .part_of(container.id)
-              .count_distinct
-          end
         end
       end
     end
@@ -112,7 +101,7 @@ module DataCycleCore
     end
 
     def count_only_params
-      params.permit(:target, :count_only)
+      params.permit(:target, :count_only, :recursive, :container)
     end
   end
 end

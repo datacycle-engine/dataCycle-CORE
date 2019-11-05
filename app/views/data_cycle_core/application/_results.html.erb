@@ -6,7 +6,7 @@
     <% end %>
   </div>
 
-  <% if (@mode == 'tree' && @content_count.presence&.values&.any?(&:positive?)) || @total.presence&.positive? %>
+  <% if @mode == 'tree' || @total.presence&.positive? %>
 
     <ul class="no-bullet no-format <%= @mode %>">
       <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>
