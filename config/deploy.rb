@@ -6,51 +6,13 @@
 set :application, 'data-cycle-core'
 set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 
-set :rvm_ruby_version, '2.6.3'
-
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
-
-set :delayed_job_pools, {
-  'mailers' => 1,
-  'importers' => 1,
-  'carrierwave' => 1,
-  'cache_invalidation,search_update' => 1,
-  'webhooks' => 1,
-  'default' => 1
-}
-
-set :bundle_without, (['development', 'test'] - [fetch(:stage).to_s]).join(' ')
 
 # Default value for :linked_files is []
 append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
-append :linked_dirs, 'log', 'node_modules', 'tmp/pids', 'tmp/cache', 'tmp/sockets', 'public/system', 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups', 'public/uploads'
-
-Rake::Task['deploy:assets:precompile'].clear_actions
-Rake::Task['deploy:assets:backup_manifest'].clear_actions
-
-Rake::Task['git:create_release'].clear_actions
-namespace :git do
-  task :update do
-    on roles(:all) do
-      with fetch(:git_environmental_variables) do
-        within repo_path do
-          execute :git, :clone, '-b', fetch(:branch), '--recursive', '.', release_path
-        end
-      end
-    end
-  end
-
-  task create_release: :'git:update' do
-    on release_roles :all do
-      with fetch(:git_environmental_variables) do
-        within repo_path do
-        end
-      end
-    end
-  end
-end
+append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
 
 namespace :deploy do
   task :npm do
@@ -82,43 +44,4 @@ namespace :deploy do
       end
     end
   end
-
-  desc 'performs initial deploy'
-  task :initial do
-    before 'deploy:migrate', 'deploy:create_db'
-    after 'deploy:migrate', 'deploy:seed'
-    invoke 'deploy'
-  end
-
-  desc 'runs rails db:create'
-  task :create_db do
-    on roles(:db) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:create'
-        end
-      end
-    end
-  end
-
-  desc 'runs rails db:seed and import classifications and templates'
-  task :seed do
-    on roles(:db) do
-      within release_path do
-        with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:seed'
-          execute :rake, 'app:data_cycle_core:update:import_classifications'
-          execute :rake, 'app:data_cycle_core:update:import_templates'
-        end
-      end
-    end
-  end
-
-  before 'assets:precompile', 'deploy:npm'
-  after 'deploy:npm', 'deploy:gulp'
-  after 'assets:precompile', 'deploy:iconfonts'
-
-  after 'deploy:migrate', 'datacycle:dev:update_project'
-
-  before 'deploy:reverted', 'deploy:npm'
 end
