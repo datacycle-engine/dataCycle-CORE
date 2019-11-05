@@ -4,9 +4,14 @@
       <span class="icon"><i class="folder-icon"></i></span>
       <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %> - </span>
       <span class="title" title="<%= item.title %>"><%= item.try(:title) %></span>
-      <% if content_counts[item.id]&.positive? %>
-        <span class="children-count">( <%= content_counts[item.id] %> )</span>
-      <% end %>
+      <span class="children-count">
+        (
+          <span class="child-count-full remote-render"
+            id="container-child-count-<%= classification_tree.id %>-<%= item.id %>"
+            data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, con_id: item.id, mode: @mode, count_only: true, container: true })).to_json %>"
+            >-</span>
+        )
+      </span>
     <% end %>
 
     <div class="buttons">

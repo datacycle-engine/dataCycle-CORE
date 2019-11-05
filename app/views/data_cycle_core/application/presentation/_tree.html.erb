@@ -2,7 +2,6 @@
   <h5><%= t("tree_view.#{@classification_tree_label.name}") %></h5>
   <ul class="children">
     <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label,
-                                       classification_trees: @classification_trees,
-                                       content_counts: @content_count %>
+                                       classification_trees: @classification_trees %>
   </ul>
 </li>

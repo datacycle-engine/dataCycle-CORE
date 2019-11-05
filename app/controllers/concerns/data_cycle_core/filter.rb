@@ -97,8 +97,16 @@ module DataCycleCore
           @target = count_only_params[:target]
           @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
           @total_count = get_filtered_results(query, user_filter)
-            .classification_alias_ids(@classification_tree.sub_classification_alias.id)
-            .count_distinct
+
+          if count_only_params[:container]
+            @total_count = @total_count.part_of(mode_params[:con_id]) if count_only_params[:container]
+          elsif count_only_params[:recursive]
+            @total_count = @total_count.classification_alias_ids(@classification_tree.sub_classification_alias.id) if count_only_params[:recursive]
+          else
+            @total_count = @total_count.with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+          end
+
+          @total_count = @total_count.count_distinct
           return
         end
 
@@ -145,24 +153,11 @@ module DataCycleCore
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
+          get_filtered_results(query, user_filter) # set default parameters for filters
         end
 
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
-        @content_count = @classification_trees&.map { |c|
-          [
-            c.id,
-            get_filtered_results(query, user_filter)
-              .with_classification_alias_ids_without_recursion(c.sub_classification_alias.id)
-              .count_distinct
-          ]
-        }.to_h
-
-        @contents&.where(content_type: 'container')&.each do |con|
-          @content_count[con.id] = get_filtered_results(query, user_filter)
-            .part_of(con.id)
-            .count_distinct
-        end
       else
         @contents = get_filtered_results(query, user_filter)
         tmp_count = @contents.count_distinct
@@ -182,7 +177,7 @@ module DataCycleCore
     end
 
     def set_default_filter
-      pre_filters
+      @pre_filters = pre_filters.dup
 
       if DataCycleCore::Feature::LifeCycle.tree_label.present? &&
          DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&
@@ -219,7 +214,7 @@ module DataCycleCore
     end
 
     def count_only_params
-      params.permit(:target, :count_only)
+      params.permit(:target, :count_only, :recursive, :container)
     end
   end
 end

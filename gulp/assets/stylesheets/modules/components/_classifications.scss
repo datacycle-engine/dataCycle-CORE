@@ -455,7 +455,8 @@ ul.backend-treeview-list,
 // classification_tree_label_view
 #classification-tree-label-list .backend-treeview-list,
 #search-results > ul.tree {
-  .child-count-full {
+  .child-count-full,
+  .child-count-direct {
     .loading {
       display: inline;
       padding: 0;
