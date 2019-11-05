@@ -53,6 +53,7 @@ namespace :deploy do
     end
   end
 
+  before 'assets:precompile', 'deploy:npm'
   after 'deploy:npm', 'deploy:gulp'
   after 'assets:precompile', 'deploy:iconfonts'
 end
