@@ -6,7 +6,7 @@
 # You can define all roles on a single server, or split them:
 
 server '37.61.206.122', user: 'pixelpoint', roles: ['app', 'db', 'web']
-set :application, 'data-cycle-core_remote-develop'
+set :application, 'remote-develop'
 set :branch, 'remote-develop'
 set :rails_env, 'remote_development'
 set :deploy_to, '/var/www/remote-develop'

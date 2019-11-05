@@ -10,15 +10,18 @@ set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 
 # Default value for :linked_files is []
-set :linked_files, 'test/dummy/.env'
+remove :linked_files, '.env'
+append :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
+remove :linked_files, 'vendor/gems/data-cycle-core/node_modules'
 append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
 
 Rake::Task['deploy:npm'].clear_actions
 Rake::Task['deploy:gulp'].clear_actions
 Rake::Task['deploy:iconfonts'].clear_actions
 Rake::Task['deploy:assets:precompile'].clear_actions
+Rake::Task['deploy:assets:backup_manifest'].clear_actions
 namespace :deploy do
   task :npm do
     on roles(:all) do
