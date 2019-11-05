@@ -19,7 +19,7 @@ module DataCycleCore
           image_data_hash['name'] = 'Another Image'
           overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
-          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
+          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi_de')
           place_data_hash['name'] = 'Another Place'
           overlay_place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 

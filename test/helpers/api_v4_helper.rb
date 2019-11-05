@@ -14,7 +14,7 @@ module DataCycleCore
       full_header_attributes
         .zip([thing.id,
               thing.schema.dig('api', 'type') || thing.schema.dig('schema_type'),
-              api_v4_thing_url(id: thing.id, language: :de)])
+              api_v4_thing_url(id: thing.id, language: I18n.locale)])
         .to_h
     end
 
@@ -26,15 +26,6 @@ module DataCycleCore
         assert(hash.dig('@language').present?)
       end
     end
-
-    # def assert_compact_classification_header(array)
-    #   array.each do |hash|
-    #     assert_equal(['@id', '@type', '@language'], hash.keys)
-    #     assert(hash.dig('@id').present?)
-    #     assert(hash.dig('@type').present?)
-    #     assert(hash.dig('@language').present?)
-    #   end
-    # end
 
     def assert_concept_attributes(concept)
       concept
