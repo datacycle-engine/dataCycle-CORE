@@ -33,7 +33,7 @@ namespace :deploy do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:create'
+          execute :rake, "#{fetch(:cmd_prefix, '')}db:create"
         end
       end
     end
@@ -44,9 +44,9 @@ namespace :deploy do
     on roles(:db) do
       within release_path do
         with rails_env: fetch(:rails_env) do
-          execute :rake, 'db:seed'
-          execute :rake, 'data_cycle_core:update:import_classifications'
-          execute :rake, 'data_cycle_core:update:import_templates'
+          execute :rake, "#{fetch(:cmd_prefix, '')}db:seed"
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_classifications"
+          execute :rake, "#{fetch(:cmd_prefix, '')}data_cycle_core:update:import_templates"
         end
       end
     end
