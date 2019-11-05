@@ -68,7 +68,6 @@ pre_release:
           mode: :primary
         max_pool_size: 1
 
-
 remote_development:
   clients:
     default:
