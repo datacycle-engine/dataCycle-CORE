@@ -10,7 +10,7 @@ set :repo_url, 'git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
 set :puma_rackup, -> { File.join(current_path, 'test', 'dummy', 'config.ru') }
 
 # Default value for :linked_files is []
-append :linked_files, 'test/dummy/.env'
+set :linked_files, 'test/dummy/.env'
 
 # Default value for linked_dirs is []
 append :linked_dirs, 'test/dummy/tmp', 'test/dummy/public/uploads', 'test/dummy/public/assets', 'test/dummy/db/backups'
