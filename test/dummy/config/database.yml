@@ -42,3 +42,7 @@ production:
 pre_release:
   <<: *default
   database: data_cycle_core_pre-release
+
+remote_development:
+  <<: *default
+  database: data_cycle_core_remote-development
