@@ -30,13 +30,7 @@ gem 'dotenv-rails'
 
 gem 'jb'
 
-gem 'listen'
-gem 'spring'
-gem 'spring-watcher-listen'
-
-
-
-group :development, :test, :review do
+group :development, :test, :review, :remote_development do
   gem 'listen'
   gem 'spring'
   gem 'spring-watcher-listen'
