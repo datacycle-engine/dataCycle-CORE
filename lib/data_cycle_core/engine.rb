@@ -10,6 +10,7 @@ require 'acts_as_tree'
 require 'rgeo'
 require 'rgeo-geojson'
 require 'mongoid'
+require 'rrule'
 
 # authentication
 require 'devise'
@@ -29,9 +30,6 @@ require 'delayed_job_active_record'
 # REST-client
 require 'faraday'
 require 'faraday_middleware'
-
-# simple logger
-require 'logging'
 
 # Breadcrumbs
 require 'gretel'
