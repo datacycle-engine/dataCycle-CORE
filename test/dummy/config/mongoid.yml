@@ -67,3 +67,15 @@ pre_release:
         read:
           mode: :primary
         max_pool_size: 1
+
+
+remote_development:
+  clients:
+    default:
+      database: data_cycle_core_remote_develop
+      hosts:
+        - 127.0.0.1:27017
+      options:
+        read:
+          mode: :primary
+        max_pool_size: 1
