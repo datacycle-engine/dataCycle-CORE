@@ -85,7 +85,7 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-          assert_equal(tree_id, json_data.dig('@id'))
+          assert_equal(tree_id, json_data.dig('@graph', 0, '@id'))
         end
 
         test '/api/v4/concept_schemes/id/concepts' do

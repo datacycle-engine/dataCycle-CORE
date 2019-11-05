@@ -6,7 +6,7 @@ if options[:full]
   json = {
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || I18n.locale != I18n.default_locale ? I18n.default_locale : nil,
+    '@language' => @language.size > 1 || I18n.locale.to_s != options[:language] ? I18n.locale.to_s : nil,
     'dc:entity_url' => uri,
     'skos:prefLabel' => content.name,
     'dc:has_concept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
@@ -15,12 +15,12 @@ else
   json = {
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || I18n.locale != I18n.default_locale ? I18n.default_locale : nil
+    '@language' => @language.size > 1 || I18n.locale.to_s != options[:language] ? I18n.locale.to_s : nil
   }.compact
 end
 
 if options[:fields].blank?
   json
 else
-  json.select { |key, _value| key == '@id' || key == '@type' || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
+  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
 end

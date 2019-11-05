@@ -4,24 +4,21 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   field_filter: @field_filter,
-  languages: @language,
   full: true
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
-options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json = {}
-
 if @classification_tree_label.visible?('api')
-  json.merge! render 'context', languages: @language
+  desired_locale = @language.include?(I18n.default_locale) ? I18n.default_locale : @language.first
 
-  json.merge!(
-    Rails.cache.fetch("api_v4_#{api_cache_key(@classification_tree_label, I18n.default_locale, options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) {
-      I18n.with_locale(I18n.default_locale) do
-        render 'classification_tree', content: @classification_tree_label, options: options.dup
-      end
-    }
-  )
+  json.merge! render 'context', languages: @language
+  json['@graph'] = []
+  json['@graph'] << Rails.cache.fetch("api_v4_#{api_cache_key(@classification_tree_label, desired_locale, options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
+    I18n.with_locale(I18n.default_locale) do
+      render 'classification_tree', content: @classification_tree_label, options: options.dup.merge({ language: desired_locale })
+    end
+  end
 end
 
 json
