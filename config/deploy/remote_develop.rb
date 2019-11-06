@@ -16,4 +16,4 @@ set :application_root_path, 'test/dummy/'
 set :deploy_user, 'pixelpoint'
 set :server_name, 'remote-develop.datacycle.at'
 
-append :linked_files, 'config/locales/it.yml'
+append :linked_files, 'config/locales/it.yml', 'config/locales/devise.it.yml'
