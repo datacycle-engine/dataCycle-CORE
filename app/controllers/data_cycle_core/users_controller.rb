@@ -105,11 +105,7 @@ module DataCycleCore
       bypass_sign_in(@user)
 
       flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
-      if @user.is_rank?(0)
-        redirect_to info_path
-      else
-        redirect_to root_path
-      end
+      redirect_to authorized_root_path
     end
 
     private
