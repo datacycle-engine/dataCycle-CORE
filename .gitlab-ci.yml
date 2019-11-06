@@ -109,6 +109,7 @@ services:
     - develop
     - release
     - pre-release
+    - remote-develop
   tags:
     - data-cycle-core
 
@@ -120,6 +121,7 @@ services:
     - release
     - pre-release
     - develop
+    - remote-develop
   tags:
     - data-cycle-review
 
