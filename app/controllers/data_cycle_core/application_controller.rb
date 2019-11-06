@@ -76,8 +76,8 @@ module DataCycleCore
       params.permit(:id, :table, :datestring)
     end
 
-    def authorized_root_path
-      if can?(:index, :backend)
+    def authorized_root_path(user = nil)
+      if (user || current_user).can?(:index, :backend)
         root_path
       else
         info_path
