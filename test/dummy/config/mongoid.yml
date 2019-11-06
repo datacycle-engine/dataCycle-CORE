@@ -11,7 +11,9 @@ development:
       hosts:
         - <%= ENV["MONGODB_HOST"] || "127.0.0.1" %>:27017
       options:
-  options:
+        read:
+          mode: :primary
+        max_pool_size: 1
 
 test:
   clients:

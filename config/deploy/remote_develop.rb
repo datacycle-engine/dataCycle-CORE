@@ -8,7 +8,7 @@
 server '37.61.206.122', user: 'pixelpoint', roles: ['app', 'db', 'web']
 set :application, 'remote-develop'
 set :branch, 'remote-develop'
-set :rails_env, 'remote_development'
+set :rails_env, 'development'
 set :deploy_to, '/var/www/remote-develop'
 set :cmd_prefix, 'app:'
 set :application_prefix, 'data-cycle-core_'
