@@ -3,16 +3,9 @@
 json = {}
 
 json.merge! render 'context', languages: @language
-json['@graph'] = []
 
-available_locales = @content.available_locales.map(&:to_s)
-render_languages = @language.select { |lang| available_locales.include?(lang) }.presence
-render_languages = [@language.first] if available_locales.blank?
-
-render_languages&.each do |language|
-  json['@graph'] << Rails.cache.fetch("api_v4_#{api_cache_key(@content, language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
-    render('content_details', content: @content, options: { language: language })
-  end
+json['@graph'] = Rails.cache.fetch("api_v4_#{api_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+  render('content_details', content: @content, options: { languages: @language })
 end
 
 json

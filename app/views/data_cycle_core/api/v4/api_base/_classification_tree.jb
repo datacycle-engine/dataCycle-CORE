@@ -3,10 +3,11 @@
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
 
 if options[:full]
+
   json = {
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || I18n.locale.to_s != options[:language] ? I18n.locale.to_s : nil,
+    '@language' => @language.size > 1 || options[:languages] != [I18n.locale.to_s] ? I18n.locale.to_s : nil,
     'dc:entity_url' => uri,
     'skos:prefLabel' => content.name,
     'dc:has_concept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
@@ -15,7 +16,7 @@ else
   json = {
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || I18n.locale.to_s != options[:language] ? I18n.locale.to_s : nil
+    '@language' => @language.size > 1 || options[:languages] != [I18n.locale.to_s] ? I18n.locale.to_s : nil
   }.compact
 end
 

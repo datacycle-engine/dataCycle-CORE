@@ -6,22 +6,23 @@ classification_aliases = content.send(key).includes(:classification_aliases).map
 if classification_aliases.present?
   key_new = 'dc:classification'
   new_fields = subtree_for(key_new, options[:fields])
-  if definition.dig('api', 'transformation', 'method') == 'serialize' && definition.dig('api', 'transformation', 'name') == 'string'
-    # for now untested and unused!
-    json[key_new] = classification_aliases.map do |classification_alias|
-      next unless classification_alias.visible?('api')
-      {
-        '@id' => classification_alias.id,
-        '@type' => thing.schema.dig('api', 'type') || 'Enumeration',
-        'name' => classification_alias.description || classification_alias.name || classification_aliases.internal_name
-      }
-    end
-  else
-    new_options = options.dup
-    new_options[:fields] = new_fields
-    new_options[:include] = subtree_for(key_new, options[:include])
-    json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition, options: new_options
-  end
+  # if definition.dig('api', 'transformation', 'method') == 'serialize' && definition.dig('api', 'transformation', 'name') == 'string'
+  #   # for now untested and unused!
+  #   json[key_new] = classification_aliases.map do |classification_alias|
+  #     next unless classification_alias.visible?('api')
+  #     {
+  #       '@id' => classification_alias.id,
+  #       '@type' => content.properties_for(key).dig('api', 'type') || 'Enumeration',
+  #       'name' => classification_alias.description || classification_alias.name || classification_aliases.internal_name
+  #     }
+  #   end
+  # else
+  new_options = options.dup
+  new_options[:fields] = new_fields
+  new_options[:include] = subtree_for(key_new, options[:include])
+  new_options[:languages] = options[:languages]
+  json.merge! render 'classifications', classification_aliases: classification_aliases, key: key_new, definition: definition, options: new_options
+  # end
 end
 
 json

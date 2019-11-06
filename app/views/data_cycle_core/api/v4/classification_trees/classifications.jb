@@ -24,18 +24,12 @@ if @classification_tree_label.present?
   json.merge! render 'context', languages: options[:languages]
 
   if @classification_id.present?
-    classification_data = []
     if @classification_aliases.first.visible?('api')
-      available_locales = @classification_aliases.first.available_locales.map(&:to_s)
-      render_languages = options[:languages].select { |item| available_locales.include?(item) }
-      render_languages ||= [I18n.locale.to_s]
-      render_languages.each do |language|
-        classification_data << load_classification_data(language, options)
+      json['@graph'] = Rails.cache.fetch("api_v4_#{api_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
+        render 'classification', content: @classification_aliases.first, options: options.dup
       end
     end
-    json['@graph'] = classification_data
   else
-
     json.merge! render 'classifications', classification_aliases: @classification_aliases, key: '@graph', options: options
 
     json.merge! render 'pagination_links',
