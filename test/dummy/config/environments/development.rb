@@ -79,7 +79,7 @@ Rails.application.configure do
   # routes, locales, etc. This feature depends on the listen gem.
   config.file_watcher = ActiveSupport::EventedFileUpdateChecker
 
-  config.web_console.whiny_requests = false if defined?(console)
+  config.web_console.whiny_requests = false if config.respond_to?(:web_console)
 
   # config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST') { 'localhost:3003' }, protocol: ENV.fetch('APP_PROTOCOL') { 'http' } }
 
