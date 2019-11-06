@@ -71,7 +71,7 @@ pre_release:
 remote_development:
   clients:
     default:
-      database: data_cycle_core_remote_develop
+      database: data_cycle_remote_development
       hosts:
         - 127.0.0.1:27017
       options:
