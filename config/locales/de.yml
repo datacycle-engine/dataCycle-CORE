@@ -197,6 +197,7 @@ de:
         web: Web
       format:
         none: Originalformat
+    help: Hilfe
 
   external_connection_states:
     success: Erfolgreich synchronisiert
