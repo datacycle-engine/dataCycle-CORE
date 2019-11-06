@@ -17,8 +17,6 @@ DataCycleCore.setup do |config|
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
 
-  config.ui_language = :it
-
   if Rails.env.test?
     config.default_template_paths = [
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),

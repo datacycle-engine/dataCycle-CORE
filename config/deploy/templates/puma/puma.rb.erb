@@ -25,9 +25,7 @@ worker_timeout <%= Integer(fetch(:puma_worker_timeout)) %>
 daemonize
 <% end %>
 
-<% if fetch(:puma_preload) %>
 preload_app!
-<% end %>
 
 before_fork do
   ActiveRecord::Base.connection_pool.disconnect!
