@@ -17,7 +17,7 @@ module DataCycleCore
 
         def parse_language(language_string)
           return nil if language_string&.strip.blank?
-          language_string.split(',')&.map(&:strip)
+          language_string.split(',')&.map(&:strip)&.select { |t| I18n.available_locales.include?(t.to_sym) }
         end
 
         private

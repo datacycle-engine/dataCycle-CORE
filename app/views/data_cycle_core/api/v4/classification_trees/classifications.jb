@@ -26,7 +26,9 @@ if @classification_tree_label.present?
   if @classification_id.present?
     if @classification_aliases.first.visible?('api')
       json.merge!(Rails.cache.fetch("api_v4_#{api_cache_key(@classification_aliases.first, options[:languages], options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) {
-        render 'classification', content: @classification_aliases.first, options: options.dup
+        I18n.with_locale(@classification_aliases.first.first_available_locale(options[:languages])) do
+          render 'classification', content: @classification_aliases.first, options: options.dup
+        end
       })
     end
   else
