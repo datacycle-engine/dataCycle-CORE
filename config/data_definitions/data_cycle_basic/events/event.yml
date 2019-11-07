@@ -90,7 +90,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :url:
         :label: Inhalt URL
         :type: string

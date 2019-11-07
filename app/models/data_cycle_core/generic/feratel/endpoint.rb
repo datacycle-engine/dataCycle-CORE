@@ -383,7 +383,7 @@ module DataCycleCore
               xml.Events('ShowDataOwner' => true) do
                 xml.Details('DateFrom' => '1980-01-01')
                 xml.Documents('DateFrom' => '1980-01-01')
-                xml.Descriptions('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Facilities('DateFrom' => '1980-01-01')
                 xml.Addresses('DateFrom' => '1980-01-01')
@@ -476,7 +476,7 @@ module DataCycleCore
               xml.Packages do
                 xml.Details('DateFrom' => '1980-01-01')
                 xml.Documents('DateFrom' => '1980-01-01')
-                xml.Descriptions('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.Prices('DateFrom' => '1980-01-01')
                 xml.ContentDescriptions('DateFrom' => '1980-01-01')
@@ -511,7 +511,7 @@ module DataCycleCore
               xml.PackageContainers do
                 xml.Details('DateFrom' => '1980-01-01')
                 xml.Documents('DateFrom' => '1980-01-01')
-                xml.Descriptions('DateFrom' => '1980-01-01')
+                xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                 xml.Links('DateFrom' => '1980-01-01')
                 xml.AssignedProducts('DateFrom' => '1980-01-01')
               end
