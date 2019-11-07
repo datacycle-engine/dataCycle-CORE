@@ -40,11 +40,13 @@ module DataCycleCore
       end
     end
 
-    def mode_icon(mode)
+    def mode_icon(mode, version = nil)
+      title = t("view_modes.#{mode}", locale: DataCycleCore.ui_language)
+      title += " (#{version})" if version.present?
       case mode
-      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: t('view_modes.grid', locale: DataCycleCore.ui_language))
-      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: t('view_modes.list', locale: DataCycleCore.ui_language))
-      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: t('view_modes.tree', locale: DataCycleCore.ui_language))
+      when 'grid' then tag.i(class: 'fa fa-th', aria_hidden: true, title: title)
+      when 'list' then tag.i(class: 'fa fa-th-list', aria_hidden: true, title: title)
+      when 'tree' then tag.i(class: 'fa fa-sitemap', aria_hidden: true, title: title)
       end
     end
 
@@ -52,19 +54,22 @@ module DataCycleCore
       case mode
       when 'tree'
         capture do
-          if DataCycleCore::ClassificationTreeLabel.tree_view_labels.present?
+          if DataCycleCore::ClassificationTreeLabel.tree_view_labels.many?
             concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
               tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
                     DataCycleCore::ClassificationTreeLabel.tree_view_labels.presence&.each do |tree_label|
-                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.except(:reset).merge({ mode: mode, ctl_id: tree_label.id }))))
+                      concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))))
                     end
                   end
                 )
               end
             )
+          elsif DataCycleCore::ClassificationTreeLabel.tree_view_labels.present?
+            tree_label = DataCycleCore::ClassificationTreeLabel.tree_view_labels.first
+            link_to_unless(tree_label.id == params_hash[:ctl_id], mode_icon(mode, tree_label.name), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))
           end
         end
       else
@@ -342,8 +347,8 @@ module DataCycleCore
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
-        item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}" }
 
@@ -354,8 +359,8 @@ module DataCycleCore
       partials = [
         item.try(:template_name)&.underscore_blanks,
         item.try(:schema_type)&.underscore_blanks,
-        item&.class&.name&.demodulize&.underscore_blanks,
         item.try(:content_type)&.underscore_blanks,
+        item&.class&.name&.demodulize&.underscore_blanks,
         'default'
       ].reject(&:blank?).map { |p| "data_cycle_core/contents/#{mode}/#{p}_details" }
 

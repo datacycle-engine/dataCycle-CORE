@@ -24,24 +24,7 @@ module DataCycleCore
         format.js do
           @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(permitted_params[:ctl_id])
 
-          if count_only_params[:count_only].present?
-            @count_only = true
-            @target = count_only_params[:target]
-            @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
-            @total_count = get_filtered_results
-
-            if count_only_params[:container]
-              @total_count = @total_count.part_of(mode_params[:con_id]) if count_only_params[:container]
-            elsif count_only_params[:recursive]
-              @total_count = @total_count.classification_alias_ids(@classification_tree.sub_classification_alias.id) if count_only_params[:recursive]
-            else
-              @total_count = @total_count.with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-            end
-
-            @total_count = @total_count.count_distinct
-
-            render && return
-          end
+          return @total_count = total_count if count_only_params[:count_only].present?
 
           if permitted_params[:con_id].present?
             @classification_parent_tree = DataCycleCore::ClassificationTree.find(permitted_params[:cpt_id])
@@ -98,10 +81,6 @@ module DataCycleCore
 
     def permitted_params
       params.permit(:ct_id, :con_id, :ctl_id, :cpt_id)
-    end
-
-    def count_only_params
-      params.permit(:target, :count_only, :recursive, :container)
     end
   end
 end
