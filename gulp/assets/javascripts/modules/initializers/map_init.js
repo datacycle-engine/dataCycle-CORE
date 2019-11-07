@@ -1,39 +1,5 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
-
-var ol = {
-  Map: require('ol/map').default,
-  layer: {
-    Tile: require('ol/layer/tile').default,
-    Vector: require('ol/layer/vector').default
-  },
-  Feature: require('ol/feature').default,
-  geom: {
-    Point: require('ol/geom/point').default,
-    LineString: require('ol/geom/linestring').default
-  },
-  source: {
-    OSM: require('ol/source/osm').default,
-    Vector: require('ol/source/vector').default
-  },
-  style: {
-    Style: require('ol/style/style').default,
-    Stroke: require('ol/style/stroke').default,
-    Circle: require('ol/style/circle').default,
-    Fill: require('ol/style/fill').default,
-    Text: require('ol/style/text').default,
-    Icon: require('ol/style/icon').default
-  },
-  View: require('ol/view').default,
-  extent: require('ol/extent').default,
-  interaction: {
-    Draw: require('ol/interaction/draw').default,
-    Modify: require('ol/interaction/modify').default,
-    Snap: require('ol/interaction/snap').default,
-    MouseWheelZoom: require('ol/interaction/mousewheelzoom').default
-  },
-  interactions: require('ol/interaction').default,
-  proj: require('ol/proj').default
-};
+var OpenLayerMaps = require('./../components/open_layer_maps');
 
 // Map Configuration
 module.exports.initialize = function() {
@@ -42,14 +8,14 @@ module.exports.initialize = function() {
       $(event.target)
         .find('.geographic-map')
         .each((index, item) => {
-          init_map(index, item);
+          init_map(item);
         });
     });
   }
 
   if ($('.geographic-map').length) {
     $('.geographic-map').each((index, item) => {
-      init_map(index, item);
+      init_map(item);
     });
   }
 
@@ -58,71 +24,12 @@ module.exports.initialize = function() {
     $(event.target)
       .find('.geographic-map')
       .each((index, item) => {
-        init_map(index, item);
+        init_map(item);
       });
   });
 };
 
-function init_map(idx, item) {
-  var map_id = $(item).attr('id');
-  var data = window[map_id];
-  var feature, feature_old;
-  var drawable = true;
-  var iconStyle, redIconStyle, greenIconStyle;
-
-  if ($(item).data('icon-path') !== undefined) {
-    iconStyle = new ol.style.Style({
-      image: new ol.style.Icon({
-        anchor: [16, 32],
-        anchorXUnits: 'pixels',
-        anchorYUnits: 'pixels',
-        src: $(item).data('icon-path')
-      })
-    });
-  } else {
-    iconStyle = new ol.style.Style({
-      image: new ol.style.Circle({
-        radius: 7,
-        fill: new ol.style.Fill({
-          color: '#1779ba'
-        }),
-        stroke: new ol.style.Stroke({
-          color: [0, 0, 0, 0.75],
-          width: 1.5
-        })
-      }),
-      zIndex: 100000
-    });
-  }
-
-  redIconStyle = new ol.style.Style({
-    image: new ol.style.Circle({
-      radius: 7,
-      fill: new ol.style.Fill({
-        color: '#cc4b37'
-      }),
-      stroke: new ol.style.Stroke({
-        color: [0, 0, 0, 0.75],
-        width: 1.5
-      })
-    }),
-    zIndex: 100000
-  });
-
-  greenIconStyle = new ol.style.Style({
-    image: new ol.style.Circle({
-      radius: 7,
-      fill: new ol.style.Fill({
-        color: '#90c062'
-      }),
-      stroke: new ol.style.Stroke({
-        color: [0, 0, 0, 0.75],
-        width: 1.5
-      })
-    }),
-    zIndex: 100000
-  });
-
+function init_map(item) {
   if ($(item).hasClass('edit') && $(item).hasClass('point')) {
     drawable = false;
     feature = new ol.Feature({
@@ -430,60 +337,4 @@ function init_map(idx, item) {
     if (default_position !== undefined && default_position.zoom !== undefined)
       map.getView().setZoom(default_position.zoom);
   }
-}
-
-function getLatLon(coords) {
-  return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
-}
-
-function setNewCoordinates(container, map, feature) {
-  setCoordinates(container, feature.getGeometry().getCoordinates());
-  setHiddenFieldValue(container, feature.getGeometry().getCoordinates());
-  map.getView().setCenter(feature.getGeometry().getCoordinates());
-}
-
-function setCoordinates(container, coords) {
-  var latlon = getLatLon(coords);
-  $(container)
-    .parent('.geographic')
-    .siblings('.map-info')
-    .first()
-    .find('.longitude input')
-    .val(latlon[0]);
-  $(container)
-    .parent('.geographic')
-    .siblings('.map-info')
-    .first()
-    .find('.latitude input')
-    .val(latlon[1]);
-}
-
-function getCoordinates(container) {
-  return [
-    parseFloat(
-      $(container)
-        .parent('.geographic')
-        .siblings('.map-info')
-        .first()
-        .find('.longitude input')
-        .val()
-    ),
-    parseFloat(
-      $(container)
-        .parent('.geographic')
-        .siblings('.map-info')
-        .first()
-        .find('.latitude input')
-        .val()
-    )
-  ];
-}
-
-function setHiddenFieldValue(container, coords) {
-  var latlon = getLatLon(coords);
-  $(container)
-    .parent('.geographic')
-    .siblings('.location-data')
-    .first()
-    .val('POINT (' + latlon[0] + ' ' + latlon[1] + ')');
 }
