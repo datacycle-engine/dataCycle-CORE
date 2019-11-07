@@ -103,6 +103,10 @@ module DataCycleCore
       where('? = ANY(visibility)', context)
     end
 
+    def first_available_locale(_locale)
+      :de
+    end
+
     private
 
     def invalidate_things_cache
