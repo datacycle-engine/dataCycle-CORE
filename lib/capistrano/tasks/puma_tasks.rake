@@ -9,7 +9,7 @@ namespace :datacycle do
       include Capistrano::PumaCommon
       on roles(fetch(:puma_role)) do
         with rails_env: fetch(:rails_env) do
-          secret_yaml_file = File.join(Dir.pwd, fetch(:application_root_path), 'config', 'secrets.yml')
+          secret_yaml_file = File.join(Dir.pwd, fetch(:application_root_path, ''), 'config', 'secrets.yml')
           secrets = YAML.safe_load(File.open(secret_yaml_file), [Symbol])
           set :puma_max_threads, secrets.dig(fetch(:rails_env), 'puma_max_threads') || 5
           set :puma_max_workers, secrets.dig(fetch(:rails_env), 'puma_max_workers') || 3
@@ -19,7 +19,7 @@ namespace :datacycle do
           template_name = 'puma.rb'
           core_file_path = File.join(Dir.pwd, 'vendor', 'gems', 'data-cycle-core', 'config', 'deploy', 'templates', 'puma', "#{template_name}.erb")
           core_file_path = File.join(Dir.pwd, 'config', 'deploy', 'templates', 'puma', "#{template_name}.erb") unless fetch(:cmd_prefix).nil?
-          file_path = File.join(Dir.pwd, fetch(:application_root_path), 'config', 'deploy', 'templates', 'puma', "#{template_name}.erb")
+          file_path = File.join(Dir.pwd, fetch(:application_root_path, ''), 'config', 'deploy', 'templates', 'puma', "#{template_name}.erb")
 
           if File.exist?(file_path)
             template = ERB.new(File.new(file_path).read).result(binding)
