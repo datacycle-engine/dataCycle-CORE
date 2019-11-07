@@ -2,22 +2,26 @@
 
 uri = api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
 
+json = {}
 if options[:full]
-
-  json = {
+  value_data =
+    if @language.size == 1 && options[:languages] == ['de']
+      content.name
+    else
+      [{ '@language' => 'de', '@value' => content.name }]
+    end
+  json.merge!({
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || options[:languages] != [I18n.locale.to_s] ? I18n.locale.to_s : nil,
     'dc:entity_url' => uri,
-    'skos:prefLabel' => content.name,
+    'skos:prefLabel' => value_data,
     'dc:has_concept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
-  }.compact
+  }).compact
 else
-  json = {
+  json.merge!({
     '@id' => content.id,
-    '@type' => 'skos:ConceptScheme',
-    '@language' => @language.size > 1 || options[:languages] != [I18n.locale.to_s] ? I18n.locale.to_s : nil
-  }.compact
+    '@type' => 'skos:ConceptScheme'
+  }).compact
 end
 
 if options[:fields].blank?

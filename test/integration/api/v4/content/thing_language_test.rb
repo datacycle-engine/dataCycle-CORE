@@ -23,27 +23,19 @@ module DataCycleCore
         end
 
         test 'concepts at /api/v4/things/:id serializes with only minimal header, in de and en' do
-          get api_v4_thing_path(id: @content.id, language: 'de,en')
+          languages = 'de,en'
+          get api_v4_thing_path(id: @content.id, language: languages)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
-          data = full_header_data(@content)
+          header = json_data.slice(*full_header_attributes)
+          data = full_header_data(@content, languages)
           assert_equal(header, data)
-          assert_compact_header(json_data.dig('@graph', 0, 'dc:classification'))
-          assert_equal('de', json_data.dig('@graph', 0, '@language'))
-          assert_equal('Test-POI', json_data.dig('@graph', 0, 'name'))
-
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          header = json_data.dig('@graph', 1).slice(*full_header_attributes)
-          data = I18n.with_locale(:en) { full_header_data(@content) }
-          assert_equal(header, data)
-          assert_compact_header(json_data.dig('@graph', 1, 'dc:classification'))
-          assert_equal('en', json_data.dig('@graph', 1, '@language'))
-          assert_equal('Test-POI-en', json_data.dig('@graph', 1, 'name'))
+          assert_compact_header(json_data.dig('dc:classification'))
+          assert_equal(['de', 'en'], json_data.dig('name').map { |item| item.dig('@language') }.sort)
+          assert_equal(['Test-POI', 'Test-POI-en'], json_data.dig('name').map { |item| item.dig('@value') }.sort)
         end
       end
     end

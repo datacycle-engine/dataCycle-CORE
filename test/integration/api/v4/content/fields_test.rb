@@ -53,44 +53,40 @@ module DataCycleCore
         end
 
         def default_fields
-          ['@id', '@language', '@type']
+          ['@context', '@id', '@type']
         end
 
         test 'testing EventOverlay with fields parameter (filtering unstructured data)' do
           fields = ['name', 'dc:entity_url']
           json_data = load_api_data(fields)
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          assert_equal((fields + default_fields).sort, json_data.dig('@graph', 0).keys.sort)
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields parameter (filtering objects)' do
           fields = ['eventPeriod']
           json_data = load_api_data(fields)
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          assert_equal((fields + default_fields).sort, json_data.dig('@graph', 0).keys.sort)
-          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('@graph', 0, 'eventPeriod', 'startDate'))
-          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('@graph', 0, 'eventPeriod', 'endDate'))
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
+          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))
+          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('eventPeriod', 'endDate'))
         end
 
         test 'testing EventOverlay with fields parameter (filtering additionalProperty)' do
           fields = ['additionalProperty']
           json_data = load_api_data(fields)
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          assert_equal((fields + default_fields).sort, json_data.dig('@graph', 0).keys.sort)
-          assert_equal('PropertyValue', json_data.dig('@graph', 0, 'additionalProperty', 0, '@type'))
-          assert_equal('Link', json_data.dig('@graph', 0, 'additionalProperty', 0, 'name'))
-          assert_equal('link', json_data.dig('@graph', 0, 'additionalProperty', 0, 'identifier'))
-          assert_equal(@content_overlay.same_as, json_data.dig('@graph', 0, 'additionalProperty', 0, 'value'))
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
+          assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
+          assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
+          assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))
+          assert_equal(@content_overlay.same_as, json_data.dig('additionalProperty', 0, 'value'))
         end
 
         test 'testing EventOverlay with fields parameter (filtering linked/embedded data --> no data linked/embedded are no fields)' do
           fields = ['image', 'subEvent']
           json_data = load_api_data(fields)
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          assert_equal(default_fields.sort, json_data.dig('@graph', 0).keys.sort)
+          assert_equal(default_fields.sort, json_data.keys.sort)
         end
       end
     end

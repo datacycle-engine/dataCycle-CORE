@@ -29,12 +29,11 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_compact_header(json_data.dig('@graph', 0, 'dc:classification'))
+          assert_compact_header(json_data.dig('dc:classification'))
         end
 
         test 'concepts at /api/v4/things/:id with include concepts --> full data' do
@@ -44,14 +43,13 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_concept_attributes(json_data.dig('@graph', 0, 'dc:classification', 0))
-          json_data.dig('@graph', 0, 'dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_header(Array(json_data.dig('@graph', 0, 'dc:classification', 0, embedded_attribute)))
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
         end
 
@@ -62,17 +60,16 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'], json_data.keys.sort)
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_concept_attributes(json_data.dig('@graph', 0, 'dc:classification', 0))
-          json_data.dig('@graph', 0, 'dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_header(Array(json_data.dig('@graph', 0, 'dc:classification', 0, embedded_attribute)))
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
 
-          assert_concept_attributes(json_data.dig('@graph', 0, 'dc:classification', 0, 'skos:inScheme'))
+          assert_concept_attributes(json_data.dig('dc:classification', 0, 'skos:inScheme'))
         end
 
         test 'include dc:classification,dc:classification.skos:inScheme is equal to include dc:classification.skos:inScheme' do
@@ -94,10 +91,9 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'], json_data.keys)
-          assert_equal(1, json_data.dig('@graph', 0, 'dc:classification').size)
-          assert_equal(['@id', '@type', '@language', 'skos:inScheme'], json_data.dig('@graph', 0, 'dc:classification', 0).keys)
-          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('@graph', 0, 'dc:classification', 0, 'skos:inScheme').keys)
+          assert_equal(1, json_data.dig('dc:classification').size)
+          assert_equal(['@id', '@type', 'skos:inScheme'], json_data.dig('dc:classification', 0).keys)
+          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
         end
 
         test 'combo of fields, include' do
@@ -106,13 +102,12 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['@context', '@graph'].sort, json_data.keys.sort)
-          assert_equal(1, json_data.dig('@graph', 0, 'dc:classification').size)
-          assert_concept_attributes(json_data.dig('@graph', 0, 'dc:classification', 0))
-          json_data.dig('@graph', 0, 'dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_header(Array(json_data.dig('@graph', 0, 'dc:classification', 0, embedded_attribute)))
+          assert_equal(1, json_data.dig('dc:classification').size)
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
-          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('@graph', 0, 'dc:classification', 0, 'skos:inScheme').keys)
+          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
         end
 
         test 'parameter filter[:concepts]' do

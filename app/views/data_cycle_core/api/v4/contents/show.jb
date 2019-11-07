@@ -4,8 +4,9 @@ json = {}
 
 json.merge! render 'context', languages: @language
 
-json['@graph'] = Rails.cache.fetch("api_v4_#{api_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
-  render('content_details', content: @content, options: { languages: @language })
-end
-
+json.merge!(
+  Rails.cache.fetch("api_v4_#{api_cache_key(@content, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) {
+    render('content_details', content: @content, options: { languages: @language })
+  }
+)
 json
