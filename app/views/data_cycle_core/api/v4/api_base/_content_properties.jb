@@ -21,7 +21,15 @@ unless content.schema.nil?
       partial_params[1][:options] = new_options.dup
 
       classification_data = render(*partial_params)
-      json['dc:classification'] += classification_data&.dig('dc:classification')
+
+      if classification_data&.dig('dc:classification').present?
+        json['dc:classification'] += classification_data&.dig('dc:classification')
+      else
+        classification_data.each do |c_key, c_value|
+          next if c_value.blank?
+          json[c_key] = c_value
+        end
+      end
       next
     end
 
