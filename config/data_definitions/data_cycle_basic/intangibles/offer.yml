@@ -24,7 +24,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :text:
         :label: Beschreibung (lang)
         :type: string

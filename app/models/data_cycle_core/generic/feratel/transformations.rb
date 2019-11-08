@@ -21,7 +21,7 @@ module DataCycleCore
           .>> t(:map_value, 'longitude', ->(v) { v.to_f })
           .>> t(:location)
           .>> t(:unwrap_description, 'ServiceProviderDescription')
-          .>> t(:rename_keys, 'ServiceProviderDescription' => 'description')
+          .>> t(:add_field, 'description', ->(s) { ActionController::Base.helpers.simple_format(s&.dig('ServiceProviderDescription')) })
           .>> t(:reject_keys, ['Town'])
           .>> t(:unwrap_address, 'Object')
           .>> t(:unwrap, 'Address')
