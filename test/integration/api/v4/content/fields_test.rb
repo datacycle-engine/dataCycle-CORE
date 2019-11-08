@@ -76,10 +76,17 @@ module DataCycleCore
           json_data = load_api_data(fields)
 
           assert_equal((fields + default_fields).sort, json_data.keys.sort)
+          assert_equal(['@type'], json_data.dig('additionalProperty', 0).keys)
           assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
-          assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
-          assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))
-          assert_equal(@content_overlay.same_as, json_data.dig('additionalProperty', 0, 'value'))
+        end
+
+        test 'testing EventOverlay with fields parameter (filtering additionalProperty.name)' do
+          fields = ['additionalProperty.name']
+          json_data = load_api_data(fields)
+
+          assert_equal((['additionalProperty'] + default_fields).sort, json_data.keys.sort)
+          assert_equal(['@type', 'name'], json_data.dig('additionalProperty', 0).keys)
+          assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
         end
 
         test 'testing EventOverlay with fields parameter (filtering linked/embedded data --> no data linked/embedded are no fields)' do
