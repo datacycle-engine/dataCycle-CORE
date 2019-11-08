@@ -1,32 +1,39 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
+  <% if DataCycleCore.features.dig('map_editor', 'editor') == 'TourSprung' %>
+    <link href="https://static.maptoolkit.net/api/v8.9/mtk.css" rel="stylesheet" type="text/css"  />
+    <script src="https://static.maptoolkit.net/api/v8.9/mtk.<%= DataCycleCore.ui_language %>.js"></script>
+
+    <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
+      <link rel="stylesheet" type="text/css" href="https://static.maptoolkit.net/api/v8.9/editor.css" />
+      <script type="text/javascript" src="https://static.maptoolkit.net/api/v8.9/editor.js"></script>
+    <% end %>
+  <% end %>
+
   <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
 
   <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %> <%# only show points for now, not the lines %>
       <div class="edit-type geographic">
-          <% map_id = "map_#{SecureRandom.hex(16)}" %>
-          <script>
-              var <%= map_id %> = {
-                  type: "<%= (value.presence&.geometry_type || RGeo::Feature::Point).to_s %>",
-                      points: [<%= value.present? ? "[#{value.presence&.x}, #{value.presence&.y}]" : '[]' %>]
-              };
-          </script>
-
-          <div id="<%= map_id %>" class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
+          <div id="map_<%= SecureRandom.hex(16) %>"
+            class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
+            data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
+            data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json  %>"
+            data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+            data-icon-path="<%= image_path('location.svg') %>"
+            data-type="<%= (value.presence&.geometry_type || RGeo::Feature::Point).to_s %>"
+            data-value="[<%= value.present? ? "[#{value.presence&.x}, #{value.presence&.y}]" : '[]' %>]">
           </div>
       </div>
   <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
       <div class="edit-type geographic">
-
-          <% map_id = "map_#{SecureRandom.hex(16)}" %>
-          <script>
-              var <%= map_id %> = {
-                  type: "<%= value.geometry_type.to_s %>",
-                      points: [<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]
-              };
-          </script>
-
-          <div id="<%= map_id %>" class="geographic-map" data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>" data-icon-path="<%= image_path('location.svg') %>">
+          <div id="map_<%= SecureRandom.hex(16) %>"
+            class="geographic-map"
+            data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
+            data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json  %>"
+            data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+            data-icon-path="<%= image_path('location.svg') %>"
+            data-type="<%= value.geometry_type.to_s %>"
+            data-value="[<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]">
           </div>
       </div>
   <% end %>
