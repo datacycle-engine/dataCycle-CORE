@@ -21,7 +21,7 @@ module DataCycleCore
           .>> t(:map_value, 'longitude', ->(v) { v.to_f })
           .>> t(:location)
           .>> t(:unwrap_description, 'ServiceProviderDescription')
-          .>> t(:add_field, 'description', ->(s) { ActionController::Base.helpers.simple_format(s&.dig('ServiceProviderDescription')) })
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceProviderDescription')) })
           .>> t(:reject_keys, ['Town'])
           .>> t(:unwrap_address, 'Object')
           .>> t(:unwrap, 'Address')
@@ -57,11 +57,11 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, { 'Id' => 'external_key', 'Name' => 'name' })
           .>> t(:unwrap_description, ['Package', 'PackageShortText'])
-          .>> t(:add_field, 'description', ->(s) { ActionController::Base.helpers.simple_format(s&.dig('Package')) })
-          .>> t(:add_field, 'text', ->(s) { ActionController::Base.helpers.simple_format(s&.dig('PackageShortText')) })
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('Package')) })
+          .>> t(:add_field, 'text', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('PackageShortText')) })
           .>> t(:unwrap_content_description, ['PackageContentShort', 'PackageContentLong'])
-          .>> t(:add_field, 'content_description', ->(s) { s&.dig('PackageContentShort').present? ? ActionController::Base.helpers.simple_format(s&.dig('PackageContentShort')) : nil })
-          .>> t(:add_field, 'content_text', ->(s) { s&.dig('PackageContentLong').present? ? ActionController::Base.helpers.simple_format(s&.dig('PackageContentLong')) : nil })
+          .>> t(:add_field, 'content_description', ->(s) { s&.dig('PackageContentShort').present? ? DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('PackageContentShort')) : nil })
+          .>> t(:add_field, 'content_text', ->(s) { s&.dig('PackageContentLong').present? ? DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('PackageContentLong')) : nil })
           .>> t(:add_field, 'low_price', ->(s) { min_price(Array.wrap(s.dig('PackageCategories', 'PackageCategory'))) })
           .>> t(:add_field, 'offer_period', ->(s) { parse_period(s.dig('ValidDates')) })
           .>> t(:add_field, 'offers', ->(s) { parse_package_offers(Array.wrap(s.dig('PackageCategories', 'PackageCategory')), external_source_id) })
@@ -126,7 +126,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
-          .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_locations', ->(s) { s.dig('Addresses', 'Address').is_a?(Hash) ? [s.dig('Addresses', 'Address')] : s.dig('Addresses', 'Address') })
@@ -154,7 +154,7 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Name' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
-          .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('EventHeader')) if v&.dig('EventHeader').present? })
           .>> t(:add_field, 'feratel_documents', ->(s) { s.dig('Documents', 'Document').is_a?(Hash) ? [s.dig('Documents', 'Document')] : s.dig('Documents', 'Document') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, document_filter(document_classes: ['Image'], document_types: ['EventHeader']))
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
@@ -169,9 +169,9 @@ module DataCycleCore
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['InfrastructureLong', 'InfrastructureShort', 'InfrastructurePriceInfo'])
-          .>> t(:add_field, 'description', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
-          .>> t(:add_field, 'text', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
-          .>> t(:add_field, 'price_range', ->(v) { ActionController::Base.helpers.simple_format(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
+          .>> t(:add_field, 'description', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureShort')) if v&.dig('InfrastructureShort').present? })
+          .>> t(:add_field, 'text', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructureLong')) if v&.dig('InfrastructureLong').present? })
+          .>> t(:add_field, 'price_range', ->(v) { DataCycleCore::Utility::Sanitize::String.format_html(v&.dig('InfrastructurePriceInfo')) if v&.dig('InfrastructurePriceInfo').present? })
           .>> t(:unwrap_address, 'InfrastructureExternal')
           .>> t(:unwrap, 'Address', ['AddressLine1', 'Town', 'ZipCode', 'Country', 'Fax', 'Phone', 'Email', 'URL'])
           .>> t(:rename_keys, { 'AddressLine1' => 'street_address', 'Town' => 'address_locality', 'ZipCode' => 'postal_code', 'Country' => 'address_country' })
@@ -209,7 +209,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_product_type', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Type').present? ? ["Feratel - Produktart - #{s&.dig('Details', 'type')}"] : [] })
           .>> t(:unwrap_description, 'ServiceDescription')
-          .>> t(:add_field, 'description', ->(s) { ActionController::Base.helpers.simple_format(s&.dig('ServiceDescription')) })
+          .>> t(:add_field, 'description', ->(s) { DataCycleCore::Utility::Sanitize::String.format_html(s&.dig('ServiceDescription')) })
           .>> t(:strip_all)
         end
 
@@ -253,7 +253,7 @@ module DataCycleCore
               &.pluck(:id)
             data_hash.merge({
               name: item.dig('Details', 'Name'),
-              description: ActionController::Base.helpers.simple_format(t(:unwrap_description, 'ProductDescription').call(item).dig('ProductDescription')),
+              description: DataCycleCore::Utility::Sanitize::String.format_html(t(:unwrap_description, 'ProductDescription').call(item).dig('ProductDescription')),
               item_offered: [item_offered_id],
               external_key: item.dig('Id'),
               price_specification: parse_simple_price(item.dig('Price'), external_source_id, item.dig('Id')),
@@ -302,8 +302,8 @@ module DataCycleCore
             data_hash['id'] = thing.id if thing.present?
             data_hash.merge({
               name: item.dig('Details', 'Name'),
-              description: ActionController::Base.helpers.simple_format(t(:unwrap_description, 'Package').call(item).dig('Package')),
-              text: ActionController::Base.helpers.simple_format(t(:unwrap_description, 'PackageContentLong').call(item).dig('PackageContentLong')),
+              description: DataCycleCore::Utility::Sanitize::String.format_html(t(:unwrap_description, 'Package').call(item).dig('Package')),
+              text: DataCycleCore::Utility::Sanitize::String.format_html(t(:unwrap_description, 'PackageContentLong').call(item).dig('PackageContentLong')),
               feratel_status: load_active(item.dig('Details', 'Active')),
               offer_period: parse_period(item.dig('Details', 'ValidDates')),
               holiday_themes: t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('HolidayThemes', 'Item'))&.reject(&:nil?)&.map { |entry| entry&.dig('Id')&.downcase } || [] }).call(item).dig('holiday_themes'),
