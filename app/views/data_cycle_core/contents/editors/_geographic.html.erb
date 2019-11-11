@@ -1,6 +1,6 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-  <% if DataCycleCore.features.dig('map_editor', 'editor') == 'TourSprung' %>
+  <% if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
     <link href="https://static.maptoolkit.net/api/v8.9/mtk.css" rel="stylesheet" type="text/css"  />
     <script src="https://static.maptoolkit.net/api/v8.9/mtk.<%= DataCycleCore.ui_language %>.js"></script>
 
@@ -12,33 +12,29 @@
 
   <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
 
-  <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %> <%# only show points for now, not the lines %>
-      <div class="edit-type geographic">
+  <% if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>
+      <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>">
           <div id="map_<%= SecureRandom.hex(16) %>"
-            class="geographic-map <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>"
-            data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
-            data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json  %>"
-            data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+            class="geographic-map linestring"
+            data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+            data-icon-path="<%= image_path('location.svg') %>"
+            data-type="<%= (value.presence&.geometry_type || RGeo::Feature::LineString).to_s %>"
+            data-value="[<%= value.presence&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") || [] %>]">
+          </div>
+      </div>
+  <% elsif value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>
+      <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
+          <div id="map_<%= SecureRandom.hex(16) %>"
+            class="geographic-map point"
+            data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
             data-icon-path="<%= image_path('location.svg') %>"
             data-type="<%= (value.presence&.geometry_type || RGeo::Feature::Point).to_s %>"
             data-value="[<%= value.present? ? "[#{value.presence&.x}, #{value.presence&.y}]" : '[]' %>]">
           </div>
       </div>
-  <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
-      <div class="edit-type geographic">
-          <div id="map_<%= SecureRandom.hex(16) %>"
-            class="geographic-map"
-            data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
-            data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json  %>"
-            data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
-            data-icon-path="<%= image_path('location.svg') %>"
-            data-type="<%= value.geometry_type.to_s %>"
-            data-value="[<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]">
-          </div>
-      </div>
   <% end %>
 
-  <div class="map-info detail_object">
+  <div class="map-info detail_object <%= 'linestring-info' if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>">
     <div class="content-object-item">
       <span class="embedded-header">
         <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
@@ -46,7 +42,7 @@
         <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
       </span>
 
-      <% if value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>
+      <% unless value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>
 
         <div class="form-element longitude number">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(/location/, 'longitude'))}" do %>

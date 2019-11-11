@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./confirmation_modal');
+var ObjectHelpers = require('./../helpers/object_helpers');
 
 class TourSprungEditor {
   constructor(container) {
@@ -7,23 +8,26 @@ class TourSprungEditor {
     this.value = this.container.data('value');
     this.type = this.container.data('type');
     this.iconPath = this.container.data('icon-path');
-    this.editable = this.container.hasClass('editable');
-    this.defaultPosition = this.container.data('default-position');
-    this.credentials = this.container.data('credentials');
+    this.editable = this.container.parent('.geographic').hasClass('editable');
+    this.mapOptions = this.container.data('map-options');
+    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
+    this.credentials = this.mapOptions.credentials;
+    this.drawableEvent;
+    this.marker;
     this.map;
 
     this.setup();
   }
   setup() {
     MTK.init({ apiKey: this.credentials.api_key });
-
     this.initMap();
+    this.initEventHandlers();
   }
   initMap() {
     let defaultMapPosition = this.calculateCenter();
     let controls = [];
 
-    if (this.editable) {
+    if (this.editable && this.type == 'LineString') {
       let editor = this.configureEditor();
       if (editor !== undefined) controls.push(editor);
     }
@@ -40,23 +44,156 @@ class TourSprungEditor {
       this.configureMap.bind(this)
     );
   }
+  initEventHandlers() {
+    this.container.on('dc:import:data', this.importData.bind(this));
+
+    this.container
+      .parent('.geographic')
+      .siblings('.map-info')
+      .first()
+      .find('.longitude input, .latitude  input')
+      .on('change', this.updateMapMarker.bind(this));
+  }
+  importData(event, data) {
+    let form_fields = this.container
+      .parent('.geographic')
+      .siblings('.map-info')
+      .first();
+
+    if (
+      form_fields.find('.form-element.elevation > input').val().length == 0 &&
+      this.container
+        .parent('.geographic')
+        .siblings('input.location-data:hidden')
+        .first()
+        .val().length == 0
+    ) {
+      form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+      form_fields
+        .find('.form-element.latitude > input')
+        .val(data.value.y)
+        .trigger('change');
+      form_fields
+        .find('.form-element.longitude > input')
+        .val(data.value.x)
+        .trigger('change');
+    } else {
+      var confirmationModal = new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
+          form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+          form_fields
+            .find('.form-element.latitude > input')
+            .val(data.value.y)
+            .trigger('change');
+          form_fields
+            .find('.form-element.longitude > input')
+            .val(data.value.x)
+            .trigger('change');
+        }.bind(this)
+      });
+    }
+  }
+  getCoordinates() {
+    return {
+      lng: parseFloat(
+        this.container
+          .parent('.geographic')
+          .siblings('.map-info')
+          .first()
+          .find('.longitude input')
+          .val()
+      ),
+      lat: parseFloat(
+        this.container
+          .parent('.geographic')
+          .siblings('.map-info')
+          .first()
+          .find('.latitude input')
+          .val()
+      )
+    };
+  }
+  updateMapMarker(event) {
+    let valid = true;
+    let coords = this.getCoordinates();
+    Object.keys(coords).forEach(element => {
+      valid = valid && !isNaN(coords[element]);
+    });
+
+    if (valid && this.marker !== undefined) {
+      this.marker.setLatLng(coords);
+      this.map.leaflet.setView(this.marker.getLatLng());
+      this.setHiddenFieldValue(coords);
+    } else if (valid && this.marker === undefined) {
+      this.drawMarker(coords);
+      MTK.event.removeListener(this.drawableEvent);
+      this.setHiddenFieldValue(coords);
+    }
+  }
   configureMap(map) {
     this.map = map;
 
-    if (this.type == 'Point' && this.value[0].length > 0) this.renderInitialMarker();
-    else if (this.type == 'Point') this.creatableMarker();
+    if (this.type == 'Point' && this.value[0].length > 0) this.drawInitialMarker();
+    else if (this.type == 'Point') this.drawableMarker();
+    else if (this.type == 'LineString' && this.editable) {
+      if (this.value[0].length > 0) this.drawInitialRoute();
+
+      MTK.event.addListener(this.map.editor, 'update', event => {
+        this.setHiddenFieldValue(event.routeVertices[0]);
+      });
+    } else if (this.type == 'LineString' && this.value[0].length > 0) this.drawInitialLineString();
   }
-  creatableMarker() {
-    this.map.on('click', event => {
-      console.log('click');
+  drawableMarker() {
+    this.drawableEvent = MTK.event.addListener(this.map, 'click', event => {
+      event.preventDefault();
+
+      MTK.event.removeListener(this.drawableEvent);
+      this.drawableEvent = undefined;
+
+      this.drawMarker(event.latlng);
+      this.setCoordinates(event.latlng);
     });
+  }
+  drawInitialRoute() {
+    let points = this.value.map(item => [item[1], item[0]]);
+    this.map.editor.setSerializedData({ routeVertices: [points] });
+    this.map.leaflet.fitBounds(points);
+  }
+  drawInitialLineString() {
+    let points = this.value.map(item => $P(item[1], item[0]));
+    let lineString = new L.Polyline(points).addTo(this.map.leaflet);
+    this.map.leaflet.fitBounds(points);
   }
   configureEditor() {
     if (this.type == 'LineString') {
       return new MTK.Control.Editor({
         undo: true,
+        upload: true,
         poi: false,
-        wikipedia: false
+        wikipedia: false,
+        elevationProfile: false,
+        icons: {
+          start: {
+            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
+            iconSize: [30, 40],
+            iconAnchor: [15, 40]
+          },
+          end: {
+            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
+            iconSize: [30, 40],
+            iconAnchor: [15, 40]
+          },
+          vertex: {
+            iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/vertex.png',
+            iconSize: [10, 16],
+            iconAnchor: [5, 16]
+          }
+        }
       });
     }
   }
@@ -67,6 +204,10 @@ class TourSprungEditor {
         zoom: 12
       };
     } else if (this.type == 'LineString' && this.value[0].length > 0) {
+      return {
+        center: $P(this.value[0][1], this.value[0][0]),
+        zoom: 12
+      };
     } else if (
       this.defaultPosition !== undefined &&
       this.defaultPosition.longitude !== undefined &&
@@ -78,8 +219,11 @@ class TourSprungEditor {
       };
     }
   }
-  renderInitialMarker() {
-    let marker = new L.Marker($P(this.value[0][1], this.value[0][0]), {
+  drawInitialMarker() {
+    this.drawMarker({ lat: this.value[0][1], lng: this.value[0][0] });
+  }
+  drawMarker(coords) {
+    this.marker = new L.Marker($P(coords.lat, coords.lng), {
       draggable: this.editable,
       icon: L.icon({
         iconUrl: this.iconPath,
@@ -88,11 +232,13 @@ class TourSprungEditor {
     })
       .addTo(this.map.leaflet)
       .on('dragend', () => {
-        this.map.leaflet.setView(marker.getLatLng());
-        this.setCoordinates(marker.getLatLng());
+        this.map.leaflet.setView(this.marker.getLatLng());
+        this.setCoordinates(this.marker.getLatLng());
       });
   }
   setCoordinates(coords) {
+    coords.lat = Number(coords.lat.toFixed(5));
+    coords.lng = Number(coords.lng.toFixed(5));
     this.container
       .parent('.geographic')
       .siblings('.map-info')
@@ -108,11 +254,26 @@ class TourSprungEditor {
     this.setHiddenFieldValue(coords);
   }
   setHiddenFieldValue(coords) {
-    this.container
-      .parent('.geographic')
-      .siblings('.location-data')
-      .first()
-      .val('POINT (' + coords.lng + ' ' + coords.lat + ')');
+    if (coords === undefined)
+      this.container
+        .parent('.geographic')
+        .siblings('.location-data')
+        .first()
+        .removeAttr('value');
+    else {
+      let parsedCoords = coords;
+      if (Array.isArray(coords)) {
+        parsedCoords = coords.map(item => Number(item[1].toFixed(5)) + ' ' + Number(item[0].toFixed(5)));
+      } else {
+        parsedCoords = [Number(coords.lng.toFixed(5)), Number(coords.lat.toFixed(5))];
+      }
+
+      this.container
+        .parent('.geographic')
+        .siblings('.location-data')
+        .first()
+        .val(this.type.toUpperCase() + ' (' + parsedCoords.join(', ') + ')');
+    }
   }
 }
 

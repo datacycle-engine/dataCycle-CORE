@@ -138,7 +138,3 @@
   :enabled: true
   :allowed:
     - grid
-
-:map_editor:
-  :only_config: true
-  :editor: 'OpenLayers'

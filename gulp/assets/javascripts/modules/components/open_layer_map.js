@@ -1,4 +1,5 @@
 var ConfirmationModal = require('./confirmation_modal');
+var ObjectHelpers = require('./../helpers/object_helpers');
 
 var ol = {
   Map: require('ol/map').default,
@@ -42,7 +43,7 @@ class OpenLayerMap {
     this.value = this.container.data('value');
     this.type = this.container.data('type');
     this.iconPath = this.container.data('icon-path');
-    this.editable = this.container.hasClass('editable');
+    this.editable = this.container.parent('.geographic').hasClass('editable');
     this.feature;
     this.featureOld;
     this.drawable = true;
@@ -60,7 +61,8 @@ class OpenLayerMap {
     this.draw;
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
-    this.defaultPosition = this.container.data('default-position');
+    this.mapOptions = this.container.data('map-options');
+    this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
 
     this.setup();
   }
@@ -430,6 +432,8 @@ class OpenLayerMap {
   setCoordinates() {
     let coords = this.feature.getGeometry().getCoordinates();
     let latlon = this.getLatLon(coords);
+    latlon[0] = Number(latlon[0].toFixed(5));
+    latlon[1] = Number(latlon[1].toFixed(5));
     this.container
       .parent('.geographic')
       .siblings('.map-info')
@@ -466,6 +470,8 @@ class OpenLayerMap {
   setHiddenFieldValue() {
     let coords = this.feature.getGeometry().getCoordinates();
     let latlon = this.getLatLon(coords);
+    latlon[0] = Number(latlon[0].toFixed(5));
+    latlon[1] = Number(latlon[1].toFixed(5));
     this.container
       .parent('.geographic')
       .siblings('.location-data')

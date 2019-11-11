@@ -9,9 +9,9 @@
     editor: "geographic"
   } do %>
 
-    <% if DataCycleCore.features.dig('map_editor', 'editor') == 'TourSprung' %>
+    <% if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
       <link href="https://static.maptoolkit.net/api/v8.9/mtk.css" rel="stylesheet" type="text/css"  />
-      <script src="https://static.maptoolkit.net/api/v8.9/mtk.de.js"></script>
+      <script src="https://static.maptoolkit.net/api/v8.9/mtk.<%= DataCycleCore.ui_language %>.js"></script>
     <% end %>
 
     <% value ||= options.dig(:item_diff, 1) %>
@@ -19,9 +19,7 @@
     <% if value.try(:geometry_type) == RGeo::Feature::Point %> <%# only show points for now, not the lines %>
         <div class="geographic">
             <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map point <%= changes_mode(options.dig(:item_diff)) %>"
-              data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
-              data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json %>"
-              data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+              data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
               data-icon-path="<%= image_path('location.svg') %>"
               data-before-position="<%= [options.dig(:item_diff, 1)&.x, options.dig(:item_diff, 1)&.y].compact.presence if options.dig(:item_diff, 0) == '~' %>"
               data-after-position="<%= options.dig(:item_diff, 0) == '~' ? [options.dig(:item_diff, 2)&.x, options.dig(:item_diff, 2)&.y].compact.presence : [options.dig(:item_diff, 1)&.x, options.dig(:item_diff, 1)&.y].compact.presence %>"
@@ -33,9 +31,7 @@
         <div class="geographic">
             <div id="map_<%= SecureRandom.hex(16) %>"
               class="geographic-map linestring"
-              data-editor="<%= DataCycleCore.features.dig('map_editor', 'editor') %>"
-              data-credentials="<%= DataCycleCore.features.dig('map_editor', 'credentials')&.to_json  %>"
-              data-default-position="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+              data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
               data-icon-path="<%= image_path('location.svg') %>"
               data-type="<%= value.geometry_type.to_s %>"
               data-value="[<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]">

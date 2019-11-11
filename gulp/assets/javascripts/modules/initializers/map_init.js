@@ -1,4 +1,3 @@
-var ConfirmationModal = require('./../components/confirmation_modal');
 var OpenLayerMap = require('./../components/open_layer_map');
 var TourSprungEditor = require('./../components/tour_sprung_editor');
 
@@ -31,7 +30,7 @@ module.exports.initialize = function() {
 };
 
 function initMap(item) {
-  let editor = $(item).data('editor');
+  let editor = $(item).data('map-options').editor;
   let newMap;
   if (editor == 'TourSprung') newMap = new TourSprungEditor(item);
   else newMap = new OpenLayerMap(item);
