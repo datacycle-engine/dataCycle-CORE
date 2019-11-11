@@ -1347,19 +1347,19 @@ select:-moz-focusring {
     }
   }
 
-  .text-short {
+  .closed {
     display: block;
   }
-  .text-full {
+  .open {
     display: none;
   }
 
   &.active {
-    .text-short {
+    .closed {
       display: none;
     }
 
-    .text-full {
+    .open {
       display: block;
     }
 

@@ -3,11 +3,24 @@
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
+    include DataCycleCore::Filter
 
     def index
       authorize! :index, DataCycleCore::Subscription
-      @contents = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
-      @total = @contents.count
+      pre_filters
+      @pre_filters.push(
+        {
+          't' => 'subscribed_user_id',
+          'v' => current_user.id
+        }
+      )
+
+      set_instance_variables_by_view_mode(query: @query, user_filter: true)
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create

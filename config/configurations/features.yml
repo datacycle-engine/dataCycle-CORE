@@ -133,3 +133,8 @@
 :copy_embedded_locale:
   :enabled: false
   :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid

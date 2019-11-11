@@ -1,0 +1,39 @@
+<% unless contents.first_page? || local_assigns[:direction] == 'next' %>
+  <li class="pagination-container text-center prev" data-page="<%= contents.prev_page %>">
+    <%= link_to t('pagination.prev', locale: DataCycleCore.ui_language), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
+  </li>
+<% end %>
+
+<% contents&.each do |content| %>
+  <li id="list-item-<%= content.id %>" class="list-item data-cycle-object <%= 'expired-item' if content.respond_to?(:is_valid?) && !content.try(:is_valid?) %>">
+    <% content_for :media_buttons, flush: true do %>
+      <%= render 'data_cycle_core/contents/grid/attributes/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>
+
+      <% if content.try(:translated_locales)&.many? %>
+        <i class="fa fa-language" aria-hidden="true" data-tooltip data-click-open="false" data-allow-html="true" title="<%= content.translated_locales.map {|t| t("locales.#{t}", locale: DataCycleCore.ui_language)}&.join("<br>") %>"></i>
+      <% end %>
+
+      <% if can?(:read, DataCycleCore::WatchList) && content.class.method_defined?(:watch_list_data_hashes) && !content.is_a?(DataCycleCore::WatchList) %>
+        <%= render 'data_cycle_core/application/watch_lists', content: content %>
+      <% end %>
+    <% end %>
+
+    <% if content.is_a?(DataCycleCore::Thing) %>
+
+      <% cache(content_view_cache_key(item: content, locale: params[:language], mode: 'list'), expires_in: 1.year + Random.rand(7.days)) do %>
+        <%= render_content_tile(item: content, mode: 'list') %>
+      <% end %>
+
+    <% else %>
+
+      <%= render_content_tile(item: content, mode: 'list') %>
+
+    <% end %>
+  </li>
+<% end %>
+
+<% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
+  <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
+    <%= link_to t('pagination.next', locale: DataCycleCore.ui_language), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
+  </li>
+<% end %>

@@ -63,11 +63,11 @@
 
         <div class="filtertags activefilter">
           <span class="icon">
-            <i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
+            <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></b>
             <% if @total&.positive? %>
               <span class="result-count">
-                (<strong><%= @total %></strong> <%= filter_model.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
-                <strong>:</strong>
+                (<b><%= @total %></b> <%= filter_model.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
+                <b>:</b>
               </span>
             <% end %>
           </span>

@@ -4,6 +4,10 @@
   <% index = filter[:classification_trees].size %>
   <% classification_trees = filterable_classification_aliases(filter[:classification_trees], excluded_types) %>
 
+  <%= hidden_field_tag 'mode', @mode %>
+  <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
+  <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
+
   <% if filter[:collapse] %>
     <div class="accordion filter-collapse" data-responsive-accordion-tabs="accordion medium-tabs large-accordion" data-allow-all-closed="true">
       <div class="row accordion-item  <%= 'is-active' if (filter[:collapse] == 'open') %>" data-accordion-item>
@@ -75,13 +79,14 @@
 
                 <div class="filtertags activefilter">
                   <span class="icon">
-                    <i class="fa fa-check" aria-hidden="true"></i> <strong><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></strong>
-                    <% if @total&.positive? %>
-                      <span class="result-count">
-                        (<strong><%= @total %></strong> <%= t('common.contents', count: @total, locale: DataCycleCore.ui_language) %>)
-                      </span>
-                    <% end %>
-                    <strong>:</strong>
+                    <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></b>
+                    <span class="result-count">
+                      (<span class="count-full remote-render"
+                        id="count-full-results"
+                        data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id).merge({ action: controller.action_name, controller: controller.controller_name, mode: @mode, count_only: true, ctl_id: @classification_tree_label&.id, count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label' })).to_json %>"
+                        >-</span>)
+                    </span>
+                    <b>:</b>
                   </span>
                   <span class="filter-groups">
                     <%= render 'data_cycle_core/application/filters/tag_groups/language',

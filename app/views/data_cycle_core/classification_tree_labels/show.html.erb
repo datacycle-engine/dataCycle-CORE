@@ -21,9 +21,8 @@
           <% end %>
         </h1>
         <ul class="children">
-          <%= render 'classification_trees', classification_tree_label: @classification_tree_label,
-                                             classification_trees: @classification_trees,
-                                             content_counts: @content_count %>
+          <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label,
+                                             classification_trees: @classification_trees %>
         </ul>
       </li>
     </ul>

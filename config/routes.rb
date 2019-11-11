@@ -66,7 +66,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
-  resources :classification_tree_labels, only: :show
+  resources :classification_tree_labels, only: :show, param: :ctl_id
 
   defaults format: :json do
     resource :content_locks, only: :update do

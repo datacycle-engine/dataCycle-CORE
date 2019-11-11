@@ -1,19 +1,31 @@
-<li id="<%= item.id %>" class="content-row">
+<% I18n.with_locale(item.first_available_locale(@language)) do %>
+
   <div class="inner-item">
-    <div class="type <%= item.template_name.downcase %>">
-      <span class="tree-link toggle-details">
-        <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
-        <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
-        <span class="locale">(<%= item.translated_locales.join(', ') %>) - </span>
-        <span class="title"><%= item.title %></span>
-      </span>
-      <%= link_to tag.i(class: 'fa fa-external-link'), thing_path(item, locale: I18n.locale), target: :_blank, class: 'link-to-item' %>
+    <div class="content-row">
+      <%= link_to thing_path(item, locale: I18n.locale) do %>
+        <span class="type <%= item.template_name.downcase %>">
+          <%= render 'data_cycle_core/shared/icon', icon_type: item.template_name.parameterize(separator: '_') %>
+          <span><%= t("content_type.#{item.template_name.underscore_blanks}", default: item.template_name, locale: DataCycleCore.ui_language) %></span>
+          <span class="locale">(<%= I18n.locale.to_s %>)</span>
+        </span>
+        <span class="title" title="<%= item.title %>"><%= item.title %></span>
+      <% end %>
     </div>
 
-    <div class="content-details remote-render"
-      id="<%= "#{item.id}-#{local_assigns[:classification_parent_tree]&.id || classification_tree.id}-#{local_assigns[:container]&.id}" %>"
-      data-remote-render-function="render_content_list_details"
-      data-remote-render-params="<%= to_query_params(item: item).to_json %>">
-    </div>
+    <a class="toggle-details toggler" data-toggle="content-details-<%= item.id %>"></a>
+
+    <% if content_for?(:media_buttons) %>
+      <div class="buttons">
+        <%= yield_content!(:media_buttons) %>
+      </div>
+    <% end %>
   </div>
-</li>
+
+  <div class="content-details remote-render"
+    id="content-details-<%= item.id %>"
+    data-remote-render-function="render_content_tile_details"
+    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: @language).to_json %>">
+  </div>
+
+<% end %>
