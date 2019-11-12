@@ -1528,6 +1528,7 @@ select {
     position: relative;
     max-height: 450px;
     height: 450px;
+    z-index: 0;
 
     .ol-viewport {
       cursor: grab;
