@@ -93,13 +93,13 @@ services:
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
 
-.deploy_config:
-  extends: .job_cache_config
-  stage: deploy
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap $CI_COMMIT_REF_NAME deploy
-  allow_failure: false
+#.deploy_config:
+#  extends: .job_cache_config
+#  stage: deploy
+#  script:
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap $CI_COMMIT_REF_NAME deploy
+#  allow_failure: false
 
 ########################################################################
 ######################### Branch Configuration HidenFields
@@ -140,15 +140,15 @@ code_validation:
   extends: .code_validation_config
 
 ####################### Deploy Development
-deploy_develop:
-  <<: *master_ci
-  only:
-    - develop
-  extends: .deploy_config
-  environment:
-    name: development
-    url: http://core-development.datacycle.at/
-  when: manual
+#deploy_develop:
+#  <<: *master_ci
+#  only:
+#    - develop
+#  extends: .deploy_config
+#  environment:
+#    name: development
+#    url: http://core-development.datacycle.at/
+#  when: manual
 
 ########################################################################
 ######################### Review Apps
@@ -164,52 +164,52 @@ code_review_validation:
   <<: *review_ci
   extends: .code_validation_config
 
-deploy_review:
-  <<: *review_ci
-  extends: .job_cache_config
-  stage: deploy
-  script:
-    - cd test/dummy && bundle exec rake tmp:create
-    - cd $CI_PROJECT_DIR
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
-    on_stop: stop_review
-  when: manual
-  allow_failure: false
-
-stop_review:
-  <<: *review_ci
-  stage: deploy
-  variables:
-    GIT_STRATEGY: none
-  before_script:
-    # uncomment for local testing
-    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
-    - eval $(ssh-agent -s)
-    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    # uncomment for local testing END
-    - mkdir -p ~/.ssh
-    - chmod 700 ~/.ssh
-    - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
-    - chmod 644 ~/.ssh/known_hosts
-
-    - git init
-    - git remote add origin $CI_REPOSITORY_URL
-    - git fetch
-    - git reset origin/develop
-    - git checkout -t origin/develop
-    - git reset origin/develop --hard
-
-    - bundle install --path=cache/bundler
-
-    - cd $CI_PROJECT_DIR
-  script:
-    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-    - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
-  environment:
-    name: review/$CI_COMMIT_REF_NAME
-    action: stop
-  when: manual
+#deploy_review:
+#  <<: *review_ci
+#  extends: .job_cache_config
+#  stage: deploy
+#  script:
+#    - cd test/dummy && bundle exec rake tmp:create
+#    - cd $CI_PROJECT_DIR
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap review deploy:initial branch=$CI_COMMIT_REF_NAME application=$CI_COMMIT_REF_SLUG
+#  environment:
+#    name: review/$CI_COMMIT_REF_NAME
+#    url: http://core-$CI_COMMIT_REF_SLUG.datacycle.at
+#    on_stop: stop_review
+#  when: manual
+#  allow_failure: false
+#
+#stop_review:
+#  <<: *review_ci
+#  stage: deploy
+#  variables:
+#    GIT_STRATEGY: none
+#  before_script:
+#    # uncomment for local testing
+#    - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+#    - eval $(ssh-agent -s)
+#    - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    # uncomment for local testing END
+#    - mkdir -p ~/.ssh
+#    - chmod 700 ~/.ssh
+#    - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+#    - chmod 644 ~/.ssh/known_hosts
+#
+#    - git init
+#    - git remote add origin $CI_REPOSITORY_URL
+#    - git fetch
+#    - git reset origin/develop
+#    - git checkout -t origin/develop
+#    - git reset origin/develop --hard
+#
+#    - bundle install --path=cache/bundler
+#
+#    - cd $CI_PROJECT_DIR
+#  script:
+#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+#    - bundle exec cap review review:undeploy application=$CI_COMMIT_REF_SLUG
+#  environment:
+#    name: review/$CI_COMMIT_REF_NAME
+#    action: stop
+#  when: manual

@@ -12,7 +12,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :text:
         :label: Beschreibung
         :type: string
@@ -22,7 +22,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
         :api:
           :partial: property_value
           :type: PropertyValue
