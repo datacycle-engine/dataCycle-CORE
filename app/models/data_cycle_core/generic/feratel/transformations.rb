@@ -140,6 +140,7 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item', 'Id')].reject(&:blank?) })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'connected_entries', ->(s) { s.dig('ConnectedEntries', 'ConnectedEntry').is_a?(Hash) ? [s.dig('ConnectedEntries', 'ConnectedEntry')] : s.dig('ConnectedEntries', 'ConnectedEntry') })
+          .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventServiceProvider' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:merge_array_values, 'content_location', 'connected_location')
