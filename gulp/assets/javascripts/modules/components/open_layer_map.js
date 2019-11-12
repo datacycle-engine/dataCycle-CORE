@@ -41,8 +41,10 @@ class OpenLayerMap {
     this.container = $(container);
     this.target = this.container.attr('id');
     this.value = this.container.data('value');
+    this.beforeValue = this.container.data('before-position');
+    this.afterValue = this.container.data('after-position');
     this.type = this.container.data('type');
-    this.iconPath = this.container.data('icon-path');
+    this.iconPaths = this.container.data('icon-paths');
     this.editable = this.container.parent('.geographic').hasClass('editable');
     this.feature;
     this.featureOld;
@@ -50,6 +52,9 @@ class OpenLayerMap {
     this.iconStyle;
     this.redIconStyle;
     this.greenIconStyle;
+    this.redLineStyle;
+    this.defaultLineStyle;
+    this.greenLineStyle;
     this.options = {};
     this.features = [];
     this.source;
@@ -78,13 +83,13 @@ class OpenLayerMap {
     this.setDefaultPosition();
   }
   initIconStyles() {
-    if (this.iconPath !== undefined) {
+    if (this.iconPaths !== undefined) {
       this.iconStyle = new ol.style.Style({
         image: new ol.style.Icon({
           anchor: [16, 32],
           anchorXUnits: 'pixels',
           anchorYUnits: 'pixels',
-          src: this.iconPath
+          src: this.iconPaths.default
         })
       });
     } else {
@@ -129,29 +134,67 @@ class OpenLayerMap {
       }),
       zIndex: 100000
     });
+    this.defaultLineStyle = new ol.style.Style({
+      stroke: new ol.style.Stroke({ color: '#1779ba', width: 5 })
+    });
+    this.redLineStyle = new ol.style.Style({
+      stroke: new ol.style.Stroke({ color: '#cc4b37', width: 5 })
+    });
+    this.greenLineStyle = new ol.style.Style({
+      stroke: new ol.style.Stroke({ color: '#90c062', width: 5 })
+    });
   }
   initFeatures() {
-    if (this.container.hasClass('edit') && this.container.hasClass('point')) {
-      drawable = false;
-      this.feature = new ol.Feature({
-        geometry: new ol.geom.Point(this.container.data('after-position'))
-      });
-      this.featureOld = new ol.Feature({
-        geometry: new ol.geom.Point(this.container.data('before-position'))
-      });
+    if (
+      this.type == 'Point' &&
+      ((this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
+        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined))
+    ) {
+      this.drawable = false;
+      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
+        this.feature = new ol.Feature({
+          geometry: new ol.geom.Point(this.afterValue[0])
+        });
+        this.feature.setStyle(this.greenIconStyle);
+      }
 
-      this.feature.setStyle(this.greenIconStyle);
-      this.featureOld.setStyle(this.redIconStyle);
+      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
+        this.featureOld = new ol.Feature({
+          geometry: new ol.geom.Point(this.beforeValue[0])
+        });
+        this.featureOld.setStyle(this.redIconStyle);
+      }
     } else if (this.type == 'Point' && this.value[0].length > 0) {
       this.drawable = false;
       this.feature = new ol.Feature({
         geometry: new ol.geom.Point(this.value[0])
       });
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
+    } else if (
+      this.type == 'LineString' &&
+      ((this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
+        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined))
+    ) {
+      let points = [];
+      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
+        points.push(this.afterValue);
+        this.feature = new ol.Feature({
+          geometry: new ol.geom.LineString(this.afterValue)
+        });
+        this.feature.setStyle(this.greenLineStyle);
+      }
+      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
+        points.push(this.beforeValue);
+        this.featureOld = new ol.Feature({
+          geometry: new ol.geom.LineString(this.beforeValue)
+        });
+        this.featureOld.setStyle(this.redLineStyle);
+      }
     } else if (this.type == 'LineString') {
       this.feature = new ol.Feature({
         geometry: new ol.geom.LineString(this.value)
       });
+      this.feature.setStyle(this.defaultLineStyle);
     }
   }
   initEventHandlers() {
@@ -203,7 +246,7 @@ class OpenLayerMap {
   }
   configureFeatures() {
     if (this.feature !== undefined) this.features.push(this.feature);
-    if (this.featureIld !== undefined) this.features.push(this.featureOld);
+    if (this.featureOld !== undefined) this.features.push(this.featureOld);
 
     if (this.features.length > 0) {
       this.features.forEach(item => {
@@ -479,10 +522,17 @@ class OpenLayerMap {
       .val('POINT (' + latlon[0] + ' ' + latlon[1] + ')');
   }
   setDefaultPosition() {
-    if (this.type == 'Point' && this.feature !== undefined) {
-      this.map.getView().setCenter(this.feature.getGeometry().getCoordinates());
-    } else if (this.type == 'LineString') {
-      this.map.getView().fit(this.feature.getGeometry());
+    if (
+      (this.type == 'LineString' && (this.feature !== undefined || this.featureOld !== undefined)) ||
+      (this.feature !== undefined && this.featureOld !== undefined)
+    ) {
+      let extent = new ol.extent.createEmpty();
+      if (this.feature !== undefined) extent = new ol.extent.extend(extent, this.feature.getGeometry().getExtent());
+      if (this.featureOld !== undefined)
+        extent = new ol.extent.extend(extent, this.featureOld.getGeometry().getExtent());
+      this.map.getView().fit(extent);
+    } else if (this.type == 'Point' && (this.feature !== undefined || this.featureOld !== undefined)) {
+      this.map.getView().setCenter((this.feature || this.featureOld).getGeometry().getCoordinates());
     } else {
       if (
         this.defaultPosition !== undefined &&

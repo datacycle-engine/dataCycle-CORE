@@ -6,8 +6,10 @@ class TourSprungEditor {
     this.container = $(container);
     this.target = this.container.attr('id');
     this.value = this.container.data('value');
+    this.beforeValue = this.container.data('before-position');
+    this.afterValue = this.container.data('after-position');
     this.type = this.container.data('type');
-    this.iconPath = this.container.data('icon-path');
+    this.iconPaths = this.container.data('icon-paths');
     this.editable = this.container.parent('.geographic').hasClass('editable');
     this.mapOptions = this.container.data('map-options');
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
@@ -143,8 +145,9 @@ class TourSprungEditor {
     else if (this.type == 'LineString' && this.editable) {
       if (this.value[0].length > 0) this.drawInitialRoute();
 
-      MTK.event.addListener(this.map.editor, 'update', event => {
-        this.setHiddenFieldValue(event.routeVertices[0]);
+      MTK.event.addListener(this.map.editor, 'update', data => {
+        this.setLengthFieldValue(data.distance);
+        this.setHiddenFieldValue(data.routeVertices[0]);
       });
     } else if (this.type == 'LineString' && this.value[0].length > 0) this.drawInitialLineString();
   }
@@ -165,9 +168,50 @@ class TourSprungEditor {
     this.map.leaflet.fitBounds(points);
   }
   drawInitialLineString() {
-    let points = this.value.map(item => $P(item[1], item[0]));
-    let lineString = new L.Polyline(points).addTo(this.map.leaflet);
-    this.map.leaflet.fitBounds(points);
+    if (
+      (this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
+      (this.beforeValue !== undefined && this.beforeValue[0] !== undefined)
+    ) {
+      let points = [];
+      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
+        let afterPoints = this.afterValue.map(item => $P(item[1], item[0]));
+        points.push(afterPoints);
+        this.drawLineString(afterPoints, '#90c062');
+      }
+      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
+        let beforePoints = this.beforeValue.map(item => $P(item[1], item[0]));
+        points.push(beforePoints);
+        this.drawLineString(beforePoints, '#cc4b37');
+      }
+      this.map.leaflet.fitBounds(points);
+    } else {
+      let points = this.value.map(item => $P(item[1], item[0]));
+      this.drawLineString(points);
+      this.map.leaflet.fitBounds(points);
+    }
+  }
+  drawLineString(points, color = '#1779ba') {
+    let lineString = new L.Polyline(points, { color: color }).addTo(this.map.leaflet);
+    let startPoint = points.shift();
+    let endPoint = points.pop();
+
+    new L.Marker(startPoint, {
+      draggable: false,
+      icon: L.icon({
+        iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
+        iconSize: [30, 40],
+        iconAnchor: [15, 40]
+      })
+    }).addTo(this.map.leaflet);
+    if (endPoint !== startPoint)
+      new L.Marker(endPoint, {
+        draggable: false,
+        icon: L.icon({
+          iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
+          iconSize: [30, 40],
+          iconAnchor: [15, 40]
+        })
+      }).addTo(this.map.leaflet);
   }
   configureEditor() {
     if (this.type == 'LineString') {
@@ -198,17 +242,7 @@ class TourSprungEditor {
     }
   }
   calculateCenter() {
-    if (this.type == 'Point' && this.value[0].length > 0) {
-      return {
-        center: $P(this.value[0][1], this.value[0][0]),
-        zoom: 12
-      };
-    } else if (this.type == 'LineString' && this.value[0].length > 0) {
-      return {
-        center: $P(this.value[0][1], this.value[0][0]),
-        zoom: 12
-      };
-    } else if (
+    if (
       this.defaultPosition !== undefined &&
       this.defaultPosition.longitude !== undefined &&
       this.defaultPosition.latitude !== undefined
@@ -220,13 +254,33 @@ class TourSprungEditor {
     }
   }
   drawInitialMarker() {
-    this.drawMarker({ lat: this.value[0][1], lng: this.value[0][0] });
+    if (
+      (this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
+      (this.beforeValue !== undefined && this.beforeValue[0] !== undefined)
+    ) {
+      let points = [];
+      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
+        let afterPoints = { lat: this.afterValue[0][1], lng: this.afterValue[0][0] };
+        points.push(afterPoints);
+        this.drawMarker(afterPoints, this.iconPaths.after);
+      }
+      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
+        let beforePoints = { lat: this.beforeValue[0][1], lng: this.beforeValue[0][0] };
+        points.push(beforePoints);
+        this.drawMarker(beforePoints, this.iconPaths.before);
+      }
+      this.map.leaflet.fitBounds(points);
+    } else {
+      let point = { lat: this.value[0][1], lng: this.value[0][0] };
+      this.drawMarker(point);
+      this.map.leaflet.setView(point);
+    }
   }
-  drawMarker(coords) {
+  drawMarker(coords, iconPath = this.iconPaths.default) {
     this.marker = new L.Marker($P(coords.lat, coords.lng), {
       draggable: this.editable,
       icon: L.icon({
-        iconUrl: this.iconPath,
+        iconUrl: iconPath,
         iconAnchor: [16, 32]
       })
     })
@@ -265,7 +319,7 @@ class TourSprungEditor {
       if (Array.isArray(coords)) {
         parsedCoords = coords.map(item => Number(item[1].toFixed(5)) + ' ' + Number(item[0].toFixed(5)));
       } else {
-        parsedCoords = [Number(coords.lng.toFixed(5)), Number(coords.lat.toFixed(5))];
+        parsedCoords = [Number(coords.lng.toFixed(5)) + ' ' + Number(coords.lat.toFixed(5))];
       }
 
       this.container
@@ -274,6 +328,16 @@ class TourSprungEditor {
         .first()
         .val(this.type.toUpperCase() + ' (' + parsedCoords.join(', ') + ')');
     }
+  }
+  setLengthFieldValue(length) {
+    if (length === undefined) length = 0;
+    else length = Number(length.toFixed(0));
+
+    this.container
+      .closest('.geographic.form-element')
+      .siblings('.form-element.length')
+      .find(':input')
+      .val(length);
   }
 }
 
