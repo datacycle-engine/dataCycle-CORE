@@ -7,7 +7,7 @@ module DataCycleCore
     authorize_resource class: false # from cancancan (authorize)
     before_action :load_last_filter, only: :index, if: proc {
       DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
-        params.except(:controller, :action, :mode, :ct_id, :con_id, :ctl_id, :cpt_id, :page).blank? &&
+        params.slice(:stored_filter, :f, :reset).blank? &&
         current_user.stored_filters.exists?
     }
     before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
