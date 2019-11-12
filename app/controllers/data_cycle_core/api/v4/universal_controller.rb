@@ -22,7 +22,7 @@ module DataCycleCore
         private
 
         def permitted_parameter_keys
-          super + [:id, :language, { language: [] }, :include, :fields, :format]
+          super + [:id, :language, :include, :fields, :format]
         end
       end
     end

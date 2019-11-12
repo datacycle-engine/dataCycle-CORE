@@ -52,29 +52,29 @@ module DataCycleCore
           assert_response(:success)
           assert_equal('application/json', response.content_type)
           json_data = JSON.parse(response.body)
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content_overlay)
           assert_equal(header, data)
 
           ['image', 'sub_event', 'location'].each do |embedded|
-            assert_compact_header(json_data.dig('@graph', 0, embedded.camelize(:lower)))
+            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
           # content data
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('@graph', 0, 'eventPeriod', 'startDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('@graph', 0, 'eventPeriod', 'endDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('@graph', 0, 'name'))
-          assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('@graph', 0, 'description'))
-          assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('@graph', 0, 'sameAs'))
-          assert_equal(overlay_image.id, json_data.dig('@graph', 0, 'image', 0, '@id'))
-          assert_equal(overlay_place.id, json_data.dig('@graph', 0, 'location', 0, '@id'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('eventPeriod', 'endDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
+          assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
+          assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
+          assert_equal(overlay_image.id, json_data.dig('image', 0, '@id'))
+          assert_equal(overlay_place.id, json_data.dig('location', 0, '@id'))
 
           # attribute link is rendered in additionalProperty
-          assert(json_data.dig('@graph', 0, 'additionalProperty').present?)
-          assert_equal('PropertyValue', json_data.dig('@graph', 0, 'additionalProperty', 0, '@type'))
-          assert_equal('Link', json_data.dig('@graph', 0, 'additionalProperty', 0, 'name'))
-          assert_equal('link', json_data.dig('@graph', 0, 'additionalProperty', 0, 'identifier'))
-          assert_equal(@content_overlay.same_as, json_data.dig('@graph', 0, 'additionalProperty', 0, 'value'))
+          assert(json_data.dig('additionalProperty').present?)
+          assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
+          assert_equal('Link', json_data.dig('additionalProperty', 0, 'name'))
+          assert_equal('link', json_data.dig('additionalProperty', 0, 'identifier'))
+          assert_equal(@content_overlay.same_as, json_data.dig('additionalProperty', 0, 'value'))
         end
       end
     end

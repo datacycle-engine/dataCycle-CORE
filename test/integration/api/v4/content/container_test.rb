@@ -27,10 +27,10 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@container)
           assert_equal(header, data)
-          assert_compact_header(json_data.dig('@graph', 0, 'hasPart'))
+          assert_compact_header(json_data.dig('hasPart'))
         end
 
         test 'container expands with include=hasPart ' do
@@ -39,11 +39,11 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          header = json_data.dig('@graph', 0).slice(*full_header_attributes)
+          header = json_data.slice(*full_header_attributes)
           data = full_header_data(@container)
           assert_equal(header, data)
 
-          header = json_data.dig('@graph', 0, 'hasPart', 0).slice(*full_header_attributes)
+          header = json_data.dig('hasPart', 0).slice(*full_header_attributes)
           data = full_header_data(@article)
           assert_equal(header, data)
         end

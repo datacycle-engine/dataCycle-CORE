@@ -28,22 +28,22 @@ module DataCycleCore
         end
       end
 
-      def load_linked_objects(relation_name, same_language = false)
+      def load_linked_objects(relation_name, same_language = false, languages = [I18n.locale])
         properties = properties_for(relation_name)
         relation_b = properties.dig('inverse_of')
         language_flag = same_language
         language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction') == 'inverse')
+        load_relation(relation_name, relation_b, language_flag, languages, properties.dig('link_direction') == 'inverse')
       end
 
-      def load_embedded_objects(relation_name, same_language = true)
+      def load_embedded_objects(relation_name, same_language = true, languages = [I18n.locale])
         language_flag = same_language
         language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
         language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
-        load_relation(relation_name, nil, language_flag)
+        load_relation(relation_name, nil, language_flag, languages)
       end
 
-      def load_relation(relation_a, relation_b, same_language, inverse = false)
+      def load_relation(relation_a, relation_b, same_language, languages, inverse = false)
         if inverse
           relation_name = :content_a
           relation_a_name = relation_b
@@ -59,7 +59,7 @@ module DataCycleCore
           relation_b: relation_b_name
         })
 
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
         relation_contents
       end
 

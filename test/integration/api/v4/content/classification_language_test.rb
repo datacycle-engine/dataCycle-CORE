@@ -33,20 +33,20 @@ module DataCycleCore
           assert_equal(true, json_data['links'].present?)
         end
 
-        test 'api/v4/concept_schemes same fallback for :en and :it' do
+        test 'api/v4/concept_schemes for :en (exists als available_locales)' do
           get api_v4_concept_schemes_path(language: 'en', fields: 'skos:prefLabel')
           assert_response :success
-          json_data_en = JSON.parse(response.body)
-          assert_equal('en', json_data_en.dig('@context', 1, '@language'))
-          assert_equal('de', json_data_en.dig('@graph', 0, '@language'))
+          json_data = JSON.parse(response.body)
+          assert_equal('en', json_data.dig('@context', 1, '@language'))
+          assert_equal('de', json_data.dig('@graph', 0, 'skos:prefLabel', 0, '@language'))
+        end
 
+        test 'api/v4/concept_schemes for :it (not in available_locales) defaulting to :de' do
           get api_v4_concept_schemes_path(language: 'it', fields: 'skos:prefLabel')
           assert_response :success
-          json_data_it = JSON.parse(response.body)
-          assert_equal('it', json_data_it.dig('@context', 1, '@language'))
-          assert_equal('de', json_data_en.dig('@graph', 0, '@language'))
-
-          assert_equal(json_data_it.dig('@graph'), json_data_en.dig('@graph'))
+          json_data = JSON.parse(response.body)
+          assert_equal('de', json_data.dig('@context', 1, '@language'))
+          assert_equal(::String, json_data.dig('@graph', 0, 'skos:prefLabel').class)
         end
 
         test 'api/v4/concept_schemes test multilingual en,it,de -> selects only de' do
@@ -54,7 +54,7 @@ module DataCycleCore
           assert_response :success
           json_data = JSON.parse(response.body)
           assert_nil(json_data.dig('@context', 1, '@language'))
-          assert_equal('de', json_data.dig('@graph', 0, '@language'))
+          assert_equal('de', json_data.dig('@graph', 0, 'skos:prefLabel', 0, '@language'))
         end
 
         test 'api/v4/concept_schemes/:id/concepts -> selects only de' do
@@ -62,16 +62,16 @@ module DataCycleCore
           assert_response :success
           json_data = JSON.parse(response.body)
           assert_nil(json_data.dig('@context', 1, '@language'))
-          assert_equal('de', json_data.dig('@graph', 0, '@language'))
+          assert_equal('de', json_data.dig('@graph', 0, 'skos:prefLabel', 0, '@language'))
           assert_equal(@tree.classification_aliases.count, json_data.dig('meta', 'total').to_i)
         end
 
-        test 'api/v4/concept_schemes/:id/concepts -> standard fallback: de' do
+        test 'api/v4/concept_schemes/:id/concepts -> no language within available_locales -> fallback: de' do
           get classifications_api_v4_concept_scheme_path(id: @tree.id, params: { language: 'ug,li', fields: 'skos:prefLabel' })
           assert_response :success
           json_data = JSON.parse(response.body)
-          assert_nil(json_data.dig('@context', 1, '@language'))
-          assert_equal('de', json_data.dig('@graph', 0, '@language'))
+          assert_equal('de', json_data.dig('@context', 1, '@language'))
+          assert_equal(::String, json_data.dig('@graph', 0, 'skos:prefLabel').class)
           assert_equal(@tree.classification_aliases.count, json_data.dig('meta', 'total').to_i)
         end
       end

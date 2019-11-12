@@ -39,6 +39,7 @@ module DataCycleCore
       end
 
       def self.iterate_array(array)
+        return {} if array.blank?
         data = array.map { |item| item.is_a?(::String) ? { item => nil } : item }.reduce({}, :merge)
         data.map { |key, value|
           if value.blank? || value.is_a?(::String)

@@ -42,8 +42,8 @@ module DataCycleCore
         def permitted_parameter_keys
           # json-api: sort
           super + [
-            :id, :language, { language: [] }, :q, :include, :fields, :format,
-            { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+            :id, :language, :include, :fields, :format,
+            { filter: [:search, :box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
           ]
         end
 
@@ -61,7 +61,7 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language.split(',')
+          filter.language = @language
           query = filter.apply
 
           query = apply_event_query_filters(query)
@@ -69,7 +69,7 @@ module DataCycleCore
 
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
-          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
+          query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
@@ -81,6 +81,7 @@ module DataCycleCore
             end
           end
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+          query = query.distinct_by_content_id
           query
         end
 
@@ -111,7 +112,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
-          @language = parse_language(permitted_params.dig(:language)) || Array(I18n.available_locales.first.to_s)
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
         end

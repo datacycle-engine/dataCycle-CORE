@@ -1,12 +1,18 @@
 <section class="search-results" id="search-results">
   <% @mode ||= 'grid' %>
-  <div class="mode-switcher">
-    <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
-      <%= mode_link(mode, @mode == mode, request.params) %>
-    <% end %>
-  </div>
 
-  <% if @mode == 'tree' || @total.presence&.positive? %>
+  <% if DataCycleCore::Feature::ViewMode.enabled? %>
+    <div class="mode-container">
+      <div class="mode-switcher">
+        <!--<span class="mode-switcher-title"><%= t('common.mode_switcher_title', locale: DataCycleCore.ui_language) %>:</span>-->
+        <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
+          <%= mode_link(mode, @mode == mode, request.params) %>
+        <% end %>
+      </div>
+    </div>
+  <% end %>
+
+  <% if @mode == 'tree' || contents.present? %>
 
     <ul class="no-bullet no-format <%= @mode %>">
       <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>

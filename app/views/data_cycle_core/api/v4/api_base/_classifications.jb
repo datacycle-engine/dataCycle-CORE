@@ -4,22 +4,18 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   field_filter: @field_filter,
+  languages: @language,
   full: false
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 classifications = []
 classification_aliases&.map do |item|
   next unless item.visible?('api')
-  available_locales = item.available_locales.map(&:to_s)
-  render_languages = @language.select { |lang| available_locales.include?(lang) }.presence
-  render_languages ||= Array(I18n.locale.to_s)
-  render_languages.each do |language|
-    options[:language] = language
-    classifications << Rails.cache.fetch("api_v4_#{api_cache_key(item, language, options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
-      I18n.with_locale(language) do
-        render 'classification', content: item, options: options.dup
-      end
+  classifications << Rails.cache.fetch("api_v4_#{api_cache_key(item, options[:languages], options[:include], options[:fields], @api_subversion, options[:full])}", expires_in: 1.year + Random.rand(7.days)) do
+    I18n.with_locale(item.first_available_locale(options[:languages])) do
+      render 'classification', content: item, options: options.dup
     end
   end
 end

@@ -10,20 +10,19 @@ module DataCycleCore
       ['@id', '@type', 'dc:entity_url', 'skos:prefLabel', 'dct:description', 'skos:inScheme', 'skos:ancestors', 'skos:broader', 'skos:topConceptOf', 'dct:created', 'dct:updated', 'dct:deleted']
     end
 
-    def full_header_data(thing)
+    def full_header_data(thing, languages = 'de')
       full_header_attributes
         .zip([thing.id,
               thing.schema.dig('api', 'type') || thing.schema.dig('schema_type'),
-              api_v4_thing_url(id: thing.id, language: I18n.locale)])
+              api_v4_thing_url(id: thing.id, language: languages)])
         .to_h
     end
 
     def assert_compact_header(array)
       array.each do |hash|
-        assert_equal(['@id', '@type', '@language'], hash.keys)
+        assert_equal(['@id', '@type'], hash.keys)
         assert(hash.dig('@id').present?)
         assert(hash.dig('@type').present?)
-        assert(hash.dig('@language').present?)
       end
     end
 

@@ -37,6 +37,14 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_facilities:
+        :label: Feratel - Ausstattungsmerkmale
+        :type: classification
+        :tree_label: Feratel - Ausstattungsmerkmale
+        :external: true
+        :ui:
+          :show:
+            :content_area: header            
       :feratel_status:
         :label: Feratel - Status
         :type: classification
