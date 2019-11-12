@@ -88,27 +88,11 @@ module DataCycleCore
     def set_instance_variables_by_view_mode(query: nil, user_filter: false)
       set_view_mode
 
+      return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
+
       case @mode
       when 'tree'
         @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
-
-        if count_only_params[:count_only].present?
-          @count_only = true
-          @target = count_only_params[:target]
-          @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
-          @total_count = get_filtered_results(query, user_filter)
-
-          if count_only_params[:container]
-            @total_count = @total_count.part_of(mode_params[:con_id]) if count_only_params[:container]
-          elsif count_only_params[:recursive]
-            @total_count = @total_count.classification_alias_ids(@classification_tree.sub_classification_alias.id) if count_only_params[:recursive]
-          else
-            @total_count = @total_count.with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
-          end
-
-          @total_count = @total_count.count_distinct
-          return
-        end
 
         if mode_params[:con_id].present?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
@@ -160,9 +144,7 @@ module DataCycleCore
         @tree_total_pages = @classification_trees&.total_pages
       else
         @contents = get_filtered_results(query, user_filter)
-        tmp_count = @contents.count_distinct
-        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-        @total = @contents.instance_variable_set(:@total_count, tmp_count)
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).without_count
       end
     end
 
@@ -174,6 +156,28 @@ module DataCycleCore
       else
         @mode = 'grid'
       end
+    end
+
+    def total_count(query: nil, user_filter: nil)
+      @count_only = true
+      @target = count_only_params[:target]
+      classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
+      total_count = get_filtered_results(query, user_filter)
+      @count_mode = count_only_params[:count_mode]
+
+      case @count_mode
+      when 'container'
+        total_count = total_count.part_of(mode_params[:con_id])
+      when 'classification_alias'
+        total_count = total_count.with_classification_alias_ids_without_recursion(classification_tree.sub_classification_alias.id)
+      when 'ca_recursive'
+        total_count = total_count.classification_alias_ids(classification_tree.sub_classification_alias.id)
+      when 'classification_tree_label'
+        ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
+        total_count = total_count.classification_tree_ids(ca_label.id)
+      end
+
+      total_count.count_distinct
     end
 
     def set_default_filter
@@ -214,7 +218,7 @@ module DataCycleCore
     end
 
     def count_only_params
-      params.permit(:target, :count_only, :recursive, :container)
+      params.permit(:target, :count_only, :count_mode)
     end
   end
 end

@@ -8,7 +8,7 @@
         (
           <span class="child-count-full remote-render"
             id="container-child-count-<%= classification_tree.id %>-<%= item.id %>"
-            data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, con_id: item.id, mode: @mode, count_only: true, container: true })).to_json %>"
+            data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id).merge({ action: controller.action_name, controller: controller.controller_name, ctl_id: classification_tree_label&.id, ct_id: classification_tree.id, con_id: item.id, mode: @mode, count_only: true, count_mode: 'container' })).to_json %>"
             >-</span>
         )
       </span>

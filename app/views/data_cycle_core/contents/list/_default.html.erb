@@ -14,16 +14,18 @@
 
     <a class="toggle-details toggler" data-toggle="content-details-<%= item.id %>"></a>
 
-    <div class="buttons">
-      <%= yield_content!(:media_buttons) %>
-    </div>
+    <% if content_for?(:media_buttons) %>
+      <div class="buttons">
+        <%= yield_content!(:media_buttons) %>
+      </div>
+    <% end %>
   </div>
 
   <div class="content-details remote-render"
     id="content-details-<%= item.id %>"
     data-remote-render-function="render_content_tile_details"
-    data-remote-render-params="<%= to_query_params(item: item, mode: 'tree').to_json %>"
-    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s).to_json %>">
+    data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
+    data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: @language).to_json %>">
   </div>
 
 <% end %>
