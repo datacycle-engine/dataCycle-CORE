@@ -165,7 +165,7 @@ class TourSprungEditor {
   drawInitialRoute() {
     let points = this.value.map(item => [item[1], item[0]]);
     this.map.editor.setSerializedData({ routeVertices: [points] });
-    this.map.leaflet.fitBounds(points);
+    this.map.leaflet.fitBounds(points, { padding: [50, 50] });
   }
   drawInitialLineString() {
     if (
@@ -183,11 +183,11 @@ class TourSprungEditor {
         points.push(beforePoints);
         this.drawLineString(beforePoints, '#cc4b37');
       }
-      this.map.leaflet.fitBounds(points);
+      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     } else {
       let points = this.value.map(item => $P(item[1], item[0]));
       this.drawLineString(points);
-      this.map.leaflet.fitBounds(points);
+      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     }
   }
   drawLineString(points, color = '#1779ba') {
@@ -269,7 +269,7 @@ class TourSprungEditor {
         points.push(beforePoints);
         this.drawMarker(beforePoints, this.iconPaths.before);
       }
-      this.map.leaflet.fitBounds(points);
+      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     } else {
       let point = { lat: this.value[0][1], lng: this.value[0][0] };
       this.drawMarker(point);

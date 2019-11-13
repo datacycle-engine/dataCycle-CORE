@@ -1524,15 +1524,21 @@ select {
     flex: 2;
   }
 
+  .geographic.editable .geographic-map {
+    cursor: crosshair;
+  }
+
   .geographic-map {
     position: relative;
     max-height: 450px;
     height: 450px;
     z-index: 0;
 
-    .ol-viewport {
-      cursor: grab;
+    .mtk-editor-modal-window {
+      margin-top: -100px;
+    }
 
+    .ol-viewport {
       .scroll-overlay {
         position: absolute;
         display: flex;

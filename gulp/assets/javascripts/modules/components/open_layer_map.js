@@ -530,7 +530,7 @@ class OpenLayerMap {
       if (this.feature !== undefined) extent = new ol.extent.extend(extent, this.feature.getGeometry().getExtent());
       if (this.featureOld !== undefined)
         extent = new ol.extent.extend(extent, this.featureOld.getGeometry().getExtent());
-      this.map.getView().fit(extent);
+      this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
     } else if (this.type == 'Point' && (this.feature !== undefined || this.featureOld !== undefined)) {
       this.map.getView().setCenter((this.feature || this.featureOld).getGeometry().getCoordinates());
     } else {
