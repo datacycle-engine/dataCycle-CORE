@@ -22,20 +22,16 @@ module DataCycleCore
 
         I18n.with_locale(language) do
           search_data = walk_embedded_data(self)
-
+          advanced_search_attributes = walk_advanced(self)
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
           boost = schema.dig('boost') || 1.0
           schema_type = schema.dig('schema_type')
-          test_json = {
-            "float_one": [1,2,3],
-            "float_two": [2,3,4]
-          }.to_json
 
           connection = ActiveRecord::Base.connection
           sql_query = <<-EOS
             INSERT INTO searches (id, content_data_id, locale, words, full_text,
-              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type, embedded_attributes)
+              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type, advanced_attributes)
             VALUES
             ( DEFAULT,
               '#{id}',
@@ -51,7 +47,7 @@ module DataCycleCore
               '#{validity_string}',
               #{boost},
               '#{schema_type}',
-              '#{test_json}'
+              '#{advanced_search_attributes.to_json}'
             )
             ON CONFLICT (content_data_id, locale)
             WHERE content_data_id = '#{id}' AND locale = '#{language}'
@@ -67,7 +63,7 @@ module DataCycleCore
               validity_period = EXCLUDED.validity_period,
               boost = EXCLUDED.boost,
               schema_type = EXCLUDED.schema_type,
-              embedded_attributes = EXCLUDED.embedded_attributes;
+              advanced_attributes = EXCLUDED.advanced_attributes;
           EOS
           connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         end
@@ -103,6 +99,35 @@ module DataCycleCore
         return hash if add_hash.blank?
         hash.each_key do |key|
           hash[key] = [hash[key], add_hash[key]].join(' ')
+        end
+        hash
+      end
+
+      def walk_advanced(object)
+        advanced_data = parse_advanced_data(object)
+
+        object.embedded_property_names.each do |embedded_name|
+          object.try('send', embedded_name)&.each do |embedded_object|
+            embedded_advanced_data = walk_advanced(embedded_object)
+            advanced_data = append_advanced_data(advanced_data, embedded_advanced_data)
+          end
+        end
+        advanced_data
+      end
+
+      def parse_advanced_data(object)
+        advanced_data = {}
+        object.advanced_search_property_names.each do |property|
+          advanced_data[property] ||= []
+          advanced_data[property] << object.send(property)
+        end
+        advanced_data
+      end
+
+      def append_advanced_data(hash, add_hash)
+        return hash if add_hash.blank?
+        (hash.keys + add_hash.keys).uniq.each do |key|
+          hash[key] = (hash[key] || []) + add_hash[key] if add_hash.dig(key).present?
         end
         hash
       end

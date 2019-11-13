@@ -176,6 +176,12 @@ module DataCycleCore
         }.keys
       end
 
+      def advanced_search_property_names
+        property_definitions.select { |_, definition|
+          definition['advanced_search'] == true
+        }.keys
+      end
+
       def geo_properties
         property_definitions.select { |_, val| val['type'] == 'geographic' }
       end

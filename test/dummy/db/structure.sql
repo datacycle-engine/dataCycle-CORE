@@ -673,7 +673,7 @@ CREATE TABLE public.searches (
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
-    embedded_attributes jsonb
+    advanced_attributes jsonb
 );
 
 
