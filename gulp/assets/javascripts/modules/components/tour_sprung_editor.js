@@ -176,12 +176,12 @@ class TourSprungEditor {
       if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
         let afterPoints = this.afterValue.map(item => $P(item[1], item[0]));
         points.push(afterPoints);
-        this.drawLineString(afterPoints, '#90c062');
+        this.drawLineString(afterPoints, { color: '#90c062', weight: 6 });
       }
       if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
         let beforePoints = this.beforeValue.map(item => $P(item[1], item[0]));
         points.push(beforePoints);
-        this.drawLineString(beforePoints, '#cc4b37');
+        this.drawLineString(beforePoints, { color: '#cc4b37' });
       }
       this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     } else {
@@ -190,8 +190,8 @@ class TourSprungEditor {
       this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     }
   }
-  drawLineString(points, color = '#1779ba') {
-    let lineString = new L.Polyline(points, { color: color }).addTo(this.map.leaflet);
+  drawLineString(points, options = { color: '#1779ba' }) {
+    let lineString = new L.Polyline(points, options).addTo(this.map.leaflet);
     let startPoint = points.shift();
     let endPoint = points.pop();
 
