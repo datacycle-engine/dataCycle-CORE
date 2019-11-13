@@ -98,12 +98,14 @@
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :high_price:
         :label: bis Preis
         :type: number
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :price_specification:
         :label: Preis
         :type: embedded

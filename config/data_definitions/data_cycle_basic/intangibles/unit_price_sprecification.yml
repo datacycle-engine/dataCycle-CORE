@@ -15,18 +15,21 @@
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :min_price:
         :label: Min-Preis
         :type: number
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :max_price:
         :label: Max-Preis
         :type: number
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :price_currency:
         :label: Währung
         :type: classification
