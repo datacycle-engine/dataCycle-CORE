@@ -27,11 +27,15 @@ module DataCycleCore
           validity_string = get_validity(metadata&.dig('validity_period'))
           boost = schema.dig('boost') || 1.0
           schema_type = schema.dig('schema_type')
+          test_json = {
+            "float_one": [1,2,3],
+            "float_two": [2,3,4]
+          }.to_json
 
           connection = ActiveRecord::Base.connection
           sql_query = <<-EOS
             INSERT INTO searches (id, content_data_id, locale, words, full_text,
-              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type)
+              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type, embedded_attributes)
             VALUES
             ( DEFAULT,
               '#{id}',
@@ -46,7 +50,8 @@ module DataCycleCore
               '#{search_data[:all_text]}',
               '#{validity_string}',
               #{boost},
-              '#{schema_type}'
+              '#{schema_type}',
+              '#{test_json}'
             )
             ON CONFLICT (content_data_id, locale)
             WHERE content_data_id = '#{id}' AND locale = '#{language}'
@@ -61,7 +66,8 @@ module DataCycleCore
               all_text = EXCLUDED.all_text,
               validity_period = EXCLUDED.validity_period,
               boost = EXCLUDED.boost,
-              schema_type = EXCLUDED.schema_type;
+              schema_type = EXCLUDED.schema_type,
+              embedded_attributes = EXCLUDED.embedded_attributes;
           EOS
           connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         end

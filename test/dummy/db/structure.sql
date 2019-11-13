@@ -672,7 +672,8 @@ CREATE TABLE public.searches (
     validity_period tstzrange,
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL,
-    schema_type character varying DEFAULT 'Thing'::character varying NOT NULL
+    schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
+    embedded_attributes jsonb
 );
 
 
@@ -2039,6 +2040,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190801120456'),
 ('20190805085313'),
 ('20190821101746'),
-('20190920075014');
+('20190920075014'),
+('20191113092141');
 
 

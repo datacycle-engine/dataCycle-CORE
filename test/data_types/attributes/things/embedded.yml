@@ -89,3 +89,72 @@
         :label: Linked Place Entity
         :type: linked
         :template_name: Linked-Place-1
+
+- :data:
+    :name: Embedded-Entity-Search
+    :type: object
+    :content_type: entity
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :embedded_search:
+        :label: Embedded Search
+        :type: embedded
+        :translated: true
+        :template_name: Embedded-Search
+
+- :data:
+    :name: Embedded-Search
+    :type: object
+    :content_type: embedded
+    :schema_type: CreativeWork
+    :boost: 100.0
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :float_one:
+        :label: Float-One
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
+      :float_two:
+        :label: Float-Two
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float
