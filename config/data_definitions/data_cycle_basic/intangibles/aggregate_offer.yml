@@ -211,6 +211,8 @@
         :ui:
           :show:
             :disabled: true
+          :edit:
+            :disabled: true
         :api:
           :disabled: true
       :meta_data:
