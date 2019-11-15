@@ -10,4 +10,6 @@
   <% end %>
 <% elsif !value.nil? %>
   <%= hidden_field_tag key, value, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+<% elsif value.nil? %>
+  <%= hidden_field_tag key, nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
 <% end %>

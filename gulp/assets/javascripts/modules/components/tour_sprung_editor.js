@@ -12,6 +12,10 @@ class TourSprungEditor {
     this.iconPaths = this.container.data('icon-paths');
     this.editable = this.container.parent('.geographic').hasClass('editable');
     this.mapOptions = this.container.data('map-options');
+    this.routeDataField = this.container
+      .closest('.geographic.form-element')
+      .siblings(':hidden[name="thing[datahash][route_data]"]')
+      .first();
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.credentials = this.mapOptions.credentials;
     this.drawableEvent;
@@ -146,7 +150,7 @@ class TourSprungEditor {
       if (this.value[0].length > 0) this.drawInitialRoute();
 
       MTK.event.addListener(this.map.editor, 'update', data => {
-        this.setLengthFieldValue(data.distance);
+        this.setRouteDataFieldValue(data);
         this.setHiddenFieldValue(data.routeVertices[0]);
       });
     } else if (this.type == 'LineString' && this.value[0].length > 0) this.drawInitialLineString();
@@ -163,9 +167,16 @@ class TourSprungEditor {
     });
   }
   drawInitialRoute() {
-    let points = this.value.map(item => [item[1], item[0]]);
-    this.map.editor.setSerializedData({ routeVertices: [points] });
-    this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+    if (this.routeDataField !== undefined) {
+      let routeData = this.routeDataField.val();
+      if (routeData !== undefined) routeData = JSON.parse(routeData);
+      else routeData = {};
+      this.map.editor.setSerializedData(routeData);
+    } else {
+      let points = this.value.map(item => [item[1], item[0]]);
+      this.map.editor.setSerializedData({ routeVertices: [points] });
+      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+    }
   }
   drawInitialLineString() {
     if (
@@ -338,6 +349,11 @@ class TourSprungEditor {
       .siblings('.form-element.length')
       .find(':input')
       .val(length);
+  }
+  setRouteDataFieldValue(data) {
+    if (data === undefined) data = {};
+
+    this.routeDataField.val(JSON.stringify(data));
   }
 }
 
