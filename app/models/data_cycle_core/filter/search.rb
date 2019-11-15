@@ -4,6 +4,7 @@ module DataCycleCore
   module Filter
     class Search < QueryBuilder
       include DataCycleCore::Filter::Common::Configurable
+      include DataCycleCore::Filter::Common::Advanced
 
       def initialize(locale = ['de'], query = nil, joined_search = false)
         @locale = locale
@@ -255,7 +256,6 @@ module DataCycleCore
 
         date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-
         reflect(
           @query.where(query_string)
         )

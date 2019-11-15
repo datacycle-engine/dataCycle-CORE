@@ -118,8 +118,8 @@ module DataCycleCore
       def parse_advanced_data(object)
         advanced_data = {}
         object.advanced_search_property_names.each do |property|
-          advanced_data[property] ||= []
-          advanced_data[property] << object.send(property)
+          # allow false values
+          (advanced_data[property] ||= []) << object.send(property) if (object.send(property).present? || object.send(property)&.to_s == 'false')
         end
         advanced_data
       end
