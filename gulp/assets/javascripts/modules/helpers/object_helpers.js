@@ -13,6 +13,19 @@ module.exports = {
       )
       .reduce((res, o) => Object.assign(res, o), {});
   },
+  select: (obj, keys) => {
+    return Object.keys(obj)
+      .filter(k => keys.includes(k))
+      .map(k =>
+        Object.assign(
+          {},
+          {
+            [k]: obj[k]
+          }
+        )
+      )
+      .reduce((res, o) => Object.assign(res, o), {});
+  },
   renameKey: (obj, old_key, new_key) => {
     if (old_key == new_key) {
       return obj;

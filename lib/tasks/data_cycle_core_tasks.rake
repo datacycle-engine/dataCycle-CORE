@@ -56,87 +56,53 @@ namespace :data_cycle_core do
       archive_life_cycle_id = DataCycleCore::Feature::LifeCycle.ordered_classifications.values&.last&.dig(:id)
       archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
-      ids = DataCycleCore::Search.where('upper(validity_period) < ?', Date.current).map { |s| s.content_data&.id }
+      expired_contents = DataCycleCore::Thing.where('upper(validity_range) < ?', Date.current)
 
-      ['things'].each do |table_name|
-        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
-            .where(id: ids)
-            .expired_not_release_id(archive_release_id)
-            .with_content_type('entity').uniq
+      if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
+        contents = expired_contents
+          .expired_not_release_id(archive_release_id)
+          .with_content_type('entity').uniq
 
-          index = 0
-          items_count = contents.size
-          puts "ARCHIVING (release_status) ==> #{table_name} (#{items_count})"
+        items_count = contents.size
+        puts "ARCHIVING (release_status) ==> THINGS (#{items_count})"
+        progressbar = ProgressBar.create(total: items_count)
 
-          contents.each do |content|
-            # progress bar
-            if items_count > 49
-              if (index % (items_count / 100.0).round(0)).zero?
-                fraction = (index / (items_count / 100.0)).round(0)
-                fraction = 100 if fraction > 100
-                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-              end
-            else
-              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-            end
-            index += 1
-
-            I18n.with_locale(content.first_available_locale) do
-              data_hash = {}
-              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
-              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
-              content.set_data_hash(data_hash: data_hash, partial_update: true)
-              logger.info("Archived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
-            end
+        contents.find_each do |content|
+          I18n.with_locale(content.first_available_locale) do
+            data_hash = {}
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [archive_release_id]
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.archived', locale: DataCycleCore.ui_language)
+            content.set_data_hash(data_hash: data_hash, partial_update: true)
+            logger.info("Archived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
-
-          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-        else
-          logger.warn('No Release found.')
+          progressbar.increment
         end
+      else
+        logger.warn('No Release found.')
+      end
 
-        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize
-            .where(id: ids)
-            .expired_not_life_cycle_id(archive_life_cycle_id)
-            .with_content_type('entity').distinct
+      if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
+        contents = expired_contents
+          .expired_not_life_cycle_id(archive_life_cycle_id)
+          .with_content_type('entity').distinct
 
-          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+        contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?('things', 'is_part_of')
 
-          index = 0
-          items_count = contents.size
-          puts "ARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
+        items_count = contents.size
+        puts "ARCHIVING (life_cycle) ==> THINGS (#{items_count})"
+        progressbar = ProgressBar.create(total: items_count)
 
-          contents.each do |content|
-            # progress bar
-            if items_count > 49
-              if (index % (items_count / 100.0).round(0)).zero?
-                fraction = (index / (items_count / 100.0)).round(0)
-                fraction = 100 if fraction > 100
-                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-              end
-            else
-              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-            end
-            index += 1
-
-            I18n.with_locale(content.first_available_locale) do
-              data_hash = {}
-              data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
-              content.set_data_hash(data_hash: data_hash, partial_update: true)
-              logger.info("Archived (life_cycle): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
-            end
+        contents.find_each do |content|
+          I18n.with_locale(content.first_available_locale) do
+            data_hash = {}
+            data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [archive_life_cycle_id]
+            content.set_data_hash(data_hash: data_hash, partial_update: true)
+            logger.info("Archived (life_cycle): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
           end
-
-          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-        else
-          logger.warn('Life_cycle configuration missing.')
+          progressbar.increment
         end
+      else
+        logger.warn('Life_cycle configuration missing.')
       end
       puts 'END'
       puts "--> ARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
@@ -156,100 +122,68 @@ namespace :data_cycle_core do
       archive_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('archive'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
       valid_release_id = DataCycleCore::Classification.includes(classification_aliases: :classification_tree_label).find_by(name: DataCycleCore::Feature::Releasable.get_stage('valid'), classification_aliases: { classification_tree_labels: { name: 'Release-Stati' } }).presence&.id
 
-      ['things'].each do |table_name|
-        if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
-            .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
-            .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
-            .with_content_type('entity').distinct
+      if DataCycleCore::Feature::Releasable.attribute_keys.present? && archive_release_id.present?
+        contents = DataCycleCore::Thing.joins(:classifications)
+          .where(template_name: ['Bild', 'Video'], classifications: { id: archive_release_id })
+          .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+          .with_content_type('entity').distinct
 
-          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
+        contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?('things', 'is_part_of')
 
-          index = 0
-          items_count = contents.size
-          puts "UNARCHIVING (release_status) ==> #{table_name} (#{items_count})"
+        items_count = contents.size
+        puts "UNARCHIVING (release_status) ==> THINGS (#{items_count})"
+        progressbar = ProgressBar.create(total: items_count)
 
-          contents.find_each do |content|
-            # progress bar
-            if items_count > 49
-              if (index % (items_count / 100.0).round(0)).zero?
-                fraction = (index / (items_count / 100.0)).round(0)
-                fraction = 100 if fraction > 100
-                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-              end
+        contents.find_each do |content|
+          I18n.with_locale(content.first_available_locale) do
+            data_hash = {}
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
+            data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_language)
+            errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
+            if errors[:error].present?
+              logger.warn("Fehler (#{content.id}): #{errors[:error]}")
             else
-              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
+              logger.info("Unarchived (release_status): #{content.id} (THINGS/#{content.template_name}/#{content.translated_locales&.join(', ')})")
             end
-            index += 1
+          end
+          progressbar.increment
+        end
+      else
+        logger.warn('No Release found.')
+      end
 
+      if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
+        contents = DataCycleCore::Thing.joins(:classifications)
+          .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
+          .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
+          .with_content_type('entity').distinct
+
+        contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?('things', 'is_part_of')
+
+        items_count = contents.size
+        puts "UNARCHIVING (life_cycle) ==> THINGS (#{items_count})"
+        progressbar = ProgressBar.create(total: items_count)
+
+        contents.find_each do |content|
+          begin
             I18n.with_locale(content.first_available_locale) do
               data_hash = {}
-              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.first] = [valid_release_id]
-              data_hash[DataCycleCore::Feature::Releasable.attribute_keys.last] = I18n.t('common.unarchived', locale: DataCycleCore.ui_language)
+              data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
               errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
               if errors[:error].present?
                 logger.warn("Fehler (#{content.id}): #{errors[:error]}")
               else
-                logger.info("Unarchived (release_status): #{content.id} (#{table_name}/#{content.template_name}/#{content.translated_locales&.join(', ')})")
+                logger.info("Unarchived (life_cycle): #{content.id} (THINGS/#{content.template_name})")
               end
             end
+          rescue StandardError => e
+            logger.warn "Error at #{content.id} (THINGS/#{content.template_name})"
+            logger.warn e
           end
-
-          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-        else
-          logger.warn('No Release found.')
+          progressbar.increment
         end
-
-        if DataCycleCore::Feature::LifeCycle.attribute_keys.present? && archive_life_cycle_id.present?
-          contents = ('DataCycleCore::' + table_name.singularize.classify).constantize.joins(:classifications)
-            .where(template_name: ['Bild', 'Video'], classifications: { id: archive_life_cycle_id })
-            .where("metadata ->> 'validity_period' IS NULL OR ((metadata -> 'validity_period' ->> 'valid_from' IS NULL OR metadata -> 'validity_period' ->> 'valid_from' < :today) AND (metadata -> 'validity_period' ->> 'valid_until' IS NULL OR metadata -> 'validity_period' ->> 'valid_until' > :today))", today: Date.current)
-            .with_content_type('entity').distinct
-
-          contents = contents.where(is_part_of: nil) if ActiveRecord::Base.connection.column_exists?(table_name, 'is_part_of')
-
-          index = 0
-          items_count = contents.size
-          puts "UNARCHIVING (life_cycle) ==> #{table_name} (#{items_count})"
-
-          contents.find_each do |content|
-            # progress bar
-            if items_count > 49
-              if (index % (items_count / 100.0).round(0)).zero?
-                fraction = (index / (items_count / 100.0)).round(0)
-                fraction = 100 if fraction > 100
-                print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-              end
-            else
-              fraction = (((index * 1.0) / items_count) * 100.0).round(0)
-              fraction = 100 if fraction > 100
-              print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
-            end
-            index += 1
-
-            begin
-              I18n.with_locale(content.first_available_locale) do
-                data_hash = {}
-                data_hash[DataCycleCore::Feature::LifeCycle.attribute_keys.first] = [valid_life_cycle_id]
-                errors = content.set_data_hash(data_hash: data_hash, partial_update: true)
-                if errors[:error].present?
-                  logger.warn("Fehler (#{content.id}): #{errors[:error]}")
-                else
-                  logger.info("Unarchived (life_cycle): #{content.id} (#{table_name}/#{content.template_name})")
-                end
-              end
-            rescue StandardError => e
-              logger.warn "Error at #{content.id} (#{table_name}/#{content.template_name})"
-              logger.warn e
-            end
-          end
-
-          puts "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
-        else
-          logger.warn('Life_cycle configuration missing.')
-        end
+      else
+        logger.warn('Life_cycle configuration missing.')
       end
       puts 'END'
       puts "--> UNARCHIVING time: #{((Time.zone.now - temp) / 60).to_i} min"
