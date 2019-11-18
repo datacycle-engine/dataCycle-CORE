@@ -170,5 +170,172 @@ module DataCycleCore
       test_between_d = query.greater_advanced_numeric(5, 'float_main').lower_advanced_numeric(15, 'float_main')
       assert_equal(test_between_d.count, 2)
     end
+
+    test 'test filter for bool values' do
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE boolean true',
+        embedded_search: [
+          {
+            boolean_test: true
+          }
+        ]
+      })
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE boolean false',
+        embedded_search: [
+          {
+            boolean_test: false
+          }
+        ]
+      })
+      assert_equal(DataCycleCore::Search.count, 2)
+
+      filter = DataCycleCore::StoredFilter.new
+      filter.language = ['de']
+      query = filter.apply
+
+      test_true_a = query.equals_advanced_boolean(true, 'boolean_test')
+      assert_equal(test_true_a.count, 1)
+      assert_equal(test_true_a.first.title, 'HEADLINE boolean true')
+      test_false_a = query.equals_advanced_boolean(false, 'boolean_test')
+      assert_equal(test_false_a.count, 1)
+      assert_equal(test_false_a.first.title, 'HEADLINE boolean false')
+
+      test_not_true_a = query.not_equals_advanced_boolean(true, 'boolean_test')
+      assert_equal(test_not_true_a.count, 1)
+      assert_equal(test_not_true_a.first.title, 'HEADLINE boolean false')
+      test_not_false_b = query.not_equals_advanced_boolean(false, 'boolean_test')
+      assert_equal(test_not_false_b.count, 1)
+      assert_equal(test_not_false_b.first.title, 'HEADLINE boolean true')
+    end
+
+    test 'test filter for time values' do
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE time a',
+        embedded_search: [
+          {
+            opens: '10:00',
+            closes: '21:00'
+          }
+        ]
+      })
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE time b',
+        embedded_search: [
+          {
+            opens: '17:00',
+            closes: '22:00'
+          }
+        ]
+      })
+      assert_equal(DataCycleCore::Search.count, 2)
+
+      filter = DataCycleCore::StoredFilter.new
+      filter.language = ['de']
+      query = filter.apply
+
+      # closed after 14:00
+      test_closes_a = query.greater_advanced_time('14:00', 'closes')
+      assert_equal(test_closes_a.count, 2)
+
+      # closed before 14:00
+      test_closes_b = query.lower_advanced_time('14:00', 'closes')
+      assert_equal(test_closes_b.count, 0)
+
+      # opens before 14:00
+      test_opens_a = query.lower_advanced_time('14:00', 'opens')
+      assert_equal(test_opens_a.count, 1)
+
+      # opens before 17:05
+      test_opens_b = query.lower_advanced_time('17:05', 'opens')
+      assert_equal(test_opens_b.count, 2)
+
+      # opens between 9:00 and 11:00
+      test_between_a = query.greater_advanced_time('09:00', 'opens').lower_advanced_time('11:00', 'opens')
+      assert_equal(test_between_a.count, 1)
+      assert_equal(test_between_a.first.title, 'HEADLINE time a')
+
+      # is open at 12:00
+      test_between_b = query.greater_advanced_time('12:00', 'closes').lower_advanced_time('12:00', 'opens')
+      assert_equal(test_between_b.count, 1)
+      assert_equal(test_between_b.first.title, 'HEADLINE time a')
+
+      # is open at 21:00
+      test_between_b = query.greater_advanced_time('21:00', 'closes').lower_advanced_time('21:00', 'opens')
+      assert_equal(test_between_b.count, 1)
+      assert_equal(test_between_b.first.title, 'HEADLINE time b')
+
+      # opens exactly at 17:00
+      test_opens_exactly_a = query.equals_advanced_time('17:00', 'opens')
+      assert_equal(test_opens_exactly_a.count, 1)
+
+      # opens exactly at 15:00
+      test_opens_exactly_b = query.equals_advanced_time('15:00', 'opens')
+      assert_equal(test_opens_exactly_b.count, 0)
+
+      # not opens exactly at 17:00
+      test_opens_exactly_a = query.not_equals_advanced_time('17:00', 'opens')
+      assert_equal(test_opens_exactly_a.count, 1)
+
+      # not opens exactly at 15:00
+      test_opens_exactly_b = query.not_equals_advanced_time('15:00', 'opens')
+      assert_equal(test_opens_exactly_b.count, 2)
+    end
+
+    test 'test filter for date values' do
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE date a',
+        embedded_search: [
+          {
+            publish_at: '2019-10-10'
+          }
+        ]
+      })
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+        name: 'HEADLINE date b',
+        embedded_search: [
+          {
+            publish_at: '2019-10-29'
+          }
+        ]
+      })
+      assert_equal(DataCycleCore::Search.count, 2)
+
+      filter = DataCycleCore::StoredFilter.new
+      filter.language = ['de']
+      query = filter.apply
+
+      test_greater_date_a = query.greater_advanced_date('2019-10-01', 'publish_at')
+      assert_equal(test_greater_date_a.count, 2)
+      test_greater_date_b = query.greater_advanced_date('2019-10-10', 'publish_at')
+      assert_equal(test_greater_date_b.count, 1)
+      test_greater_date_c = query.greater_advanced_date('2019-10-29', 'publish_at')
+      assert_equal(test_greater_date_c.count, 0)
+
+      test_lower_date_a = query.lower_advanced_date('2019-10-01', 'publish_at')
+      assert_equal(test_lower_date_a.count, 0)
+      test_lower_date_b = query.lower_advanced_date('2019-10-29', 'publish_at')
+      assert_equal(test_lower_date_b.count, 1)
+      test_lower_date_c = query.lower_advanced_date('2019-10-30', 'publish_at')
+      assert_equal(test_lower_date_c.count, 2)
+
+      test_equals_date_a = query.equals_advanced_date('2019-10-01', 'publish_at')
+      assert_equal(test_equals_date_a.count, 0)
+      test_equals_date_b = query.equals_advanced_date('2019-10-29', 'publish_at')
+      assert_equal(test_equals_date_b.count, 1)
+
+      test_not_equals_date_a = query.not_equals_advanced_date('2019-10-01', 'publish_at')
+      assert_equal(test_not_equals_date_a.count, 2)
+      test_not_equals_date_b = query.not_equals_advanced_date('2019-10-29', 'publish_at')
+      assert_equal(test_not_equals_date_b.count, 1)
+
+      test_between_date_a = query.greater_advanced_date('2019-10-01', 'publish_at').lower_advanced_date('2019-11-01', 'publish_at')
+      assert_equal(test_between_date_a.count, 2)
+      test_between_date_b = query.greater_advanced_date('2019-10-10', 'publish_at').lower_advanced_date('2019-11-01', 'publish_at')
+      assert_equal(test_between_date_b.count, 1)
+      assert_equal(test_between_date_b.first.title, 'HEADLINE date b')
+      test_between_date_c = query.greater_advanced_date('2019-10-29', 'publish_at').lower_advanced_date('2019-11-01', 'publish_at')
+      assert_equal(test_between_date_c.count, 0)
+    end
   end
 end
