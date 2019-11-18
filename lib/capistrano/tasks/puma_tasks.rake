@@ -11,10 +11,10 @@ namespace :datacycle do
         with rails_env: fetch(:rails_env) do
           secret_yaml_file = File.join(Dir.pwd, fetch(:application_root_path, ''), 'config', 'secrets.yml')
           secrets = YAML.safe_load(File.open(secret_yaml_file), [Symbol])
-          set :puma_max_threads, secrets.dig(fetch(:rails_env), 'puma_max_threads') || 5
-          set :puma_max_workers, secrets.dig(fetch(:rails_env), 'puma_max_workers') || 3
-          set :puma_max_memory, secrets.dig(fetch(:rails_env), 'puma_max_memory') || 4096
-          set :puma_rolling_restart_frequency, secrets.dig(fetch(:rails_env), 'puma_rolling_restart_frequency') || false
+          set :puma_max_threads, secrets.dig(fetch(:rails_env).to_s, 'puma_max_threads') || 5
+          set :puma_max_workers, secrets.dig(fetch(:rails_env).to_s, 'puma_max_workers') || 3
+          set :puma_max_memory, secrets.dig(fetch(:rails_env).to_s, 'puma_max_memory') || 4096
+          set :puma_rolling_restart_frequency, secrets.dig(fetch(:rails_env).to_s, 'puma_rolling_restart_frequency') || false
 
           template_name = 'puma.rb'
           core_file_path = File.join(Dir.pwd, 'vendor', 'gems', 'data-cycle-core', 'config', 'deploy', 'templates', 'puma', "#{template_name}.erb")
@@ -38,6 +38,20 @@ namespace :datacycle do
     task :restart do
       on roles(fetch(:puma_role)) do
         invoke! 'puma:restart'
+      end
+    end
+  end
+end
+
+namespace :puma do
+  Rake::Task['puma:check'].clear
+  task :check do
+    on roles(fetch(:puma_role)) do |_role|
+      # Create puma.rb for new deployments
+      unless test "[ -f #{fetch(:puma_conf)} ]"
+        warn 'puma.rb NOT FOUND!'
+        invoke 'datacycle:puma:deploy_config'
+        info 'puma.rb generated'
       end
     end
   end

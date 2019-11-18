@@ -201,6 +201,9 @@
         :api:
           :name: photo
           :minimal: true
+      :additional_aggregate_offer_properties:
+        :type: mixin
+        :name: additional_aggregate_offer_properties
       :data_type:
         :label: Inhaltstype
         :type: classification
@@ -212,6 +215,8 @@
         :storage_location: column
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :disabled: true
