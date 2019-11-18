@@ -201,7 +201,7 @@ module DataCycleCore
 
         # reflect(@query.with_classification_alias_ids(ids))
 
-        ids = DataCycleCore::ClassificationAlias.where(id: ids).with_descendants.ids
+        ids = DataCycleCore::ClassificationAlias.where(id: ids).with_descendants.select(:id).arel
 
         reflect(
           @query.where(
