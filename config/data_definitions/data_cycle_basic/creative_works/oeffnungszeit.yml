@@ -97,6 +97,7 @@
           :edit:
             :options:
               :placeholder: hh:mm
+        :advanced_search: true
       :closes:
         :label: geöffnet bis
         :type: string
@@ -107,6 +108,7 @@
           :edit:
             :options:
               :placeholder: hh:mm
+        :advanced_search: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

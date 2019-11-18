@@ -50,10 +50,12 @@
         :label: Räume
         :type: number
         :storage_location: value
+        :advanced_search: true
       :floor_size:
         :label: Größe (m²)
         :type: number
         :storage_location: value
+        :advanced_search: true
       :image:
         :label: Bilder
         :type: linked

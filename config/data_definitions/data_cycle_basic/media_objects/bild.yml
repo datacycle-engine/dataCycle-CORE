@@ -188,6 +188,7 @@
          :show:
            :type: date
         :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :advanced_search: true
       :photographer:
         :label: Fotograf
         :type: string

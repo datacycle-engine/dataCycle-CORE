@@ -23,8 +23,10 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
+        :advanced_search: true
       :mandatory_license:
         :label: Copyright Nennung verpflichtend
         :type: boolean
         :storage_location: value
         :external: true
+        :advanced_search: true
