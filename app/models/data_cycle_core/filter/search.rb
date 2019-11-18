@@ -199,7 +199,15 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        reflect(@query.with_classification_alias_ids(ids))
+        # reflect(@query.with_classification_alias_ids(ids))
+
+        ids = DataCycleCore::ClassificationAlias.where(id: ids).with_descendants.ids
+
+        reflect(
+          @query.where(
+            join_classification_alias_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_alias[:id].in(ids))).exists
+          )
+        )
       end
 
       def not_classification_alias_ids(ids = nil)
