@@ -96,7 +96,7 @@ module DataCycleCore
     end
 
     test 'test filter for numeric values' do
-      content_a = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
         name: 'HEADLINE Numeric',
         float_main: 3.5,
         embedded_search: [
@@ -110,7 +110,7 @@ module DataCycleCore
           }
         ]
       })
-      content_b = DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
+      DataCycleCore::TestPreparations.create_content(template_name: 'Embedded-Entity-Search', data_hash: {
         name: 'HEADLINE Numeric 2',
         float_main: 5.8,
         embedded_search: [
@@ -130,9 +130,45 @@ module DataCycleCore
       filter.language = ['de']
       query = filter.apply
 
+      test_greater_a = query.greater_advanced_numeric(7, 'float_main')
+      assert_equal(test_greater_a.count, 1)
+      test_greater_b = query.greater_advanced_numeric(3, 'float_main')
+      assert_equal(test_greater_b.count, 2)
+      test_greater_c = query.greater_advanced_numeric(20, 'float_main')
+      assert_equal(test_greater_c.count, 0)
 
-      test = query.greater_advanced_numeric(7,'float_main')
-      byebug
+      test_greater_integer_a = query.greater_advanced_numeric(8, 'integer_main')
+      assert_equal(test_greater_integer_a.count, 1)
+      test_greater_integer_b = query.greater_advanced_numeric(3, 'integer_main')
+      assert_equal(test_greater_integer_b.count, 2)
+      test_greater_integer_c = query.greater_advanced_numeric(20, 'integer_main')
+      assert_equal(test_greater_integer_c.count, 0)
+
+      test_greater_integer_a = query.greater_advanced_numeric(8, 'integer_main')
+      assert_equal(test_greater_integer_a.count, 1)
+      test_greater_integer_b = query.greater_advanced_numeric(3, 'integer_main')
+      assert_equal(test_greater_integer_b.count, 2)
+      test_greater_integer_c = query.greater_advanced_numeric(20, 'integer_main')
+      assert_equal(test_greater_integer_c.count, 0)
+
+      test_equals_a = query.equals_advanced_numeric(4.7, 'float_main')
+      assert_equal(test_equals_a.count, 1)
+      test_equals_b = query.equals_advanced_numeric(7.21, 'float_main')
+      assert_equal(test_equals_b.count, 0)
+
+      test_not_equals_a = query.not_equals_advanced_numeric(4.7, 'float_main')
+      assert_equal(test_not_equals_a.count, 2)
+      test_not_equals_b = query.not_equals_advanced_numeric(7.21, 'float_main')
+      assert_equal(test_not_equals_b.count, 2)
+
+      test_between_a = query.greater_advanced_numeric(3, 'float_main').lower_advanced_numeric(5, 'float_main')
+      assert_equal(test_between_a.count, 1)
+      test_between_b = query.greater_advanced_numeric(15, 'float_main').lower_advanced_numeric(20, 'float_main')
+      assert_equal(test_between_b.count, 0)
+      test_between_c = query.greater_advanced_numeric(8, 'float_main').lower_advanced_numeric(10, 'float_main')
+      assert_equal(test_between_c.count, 1)
+      test_between_d = query.greater_advanced_numeric(5, 'float_main').lower_advanced_numeric(15, 'float_main')
+      assert_equal(test_between_d.count, 2)
     end
   end
 end

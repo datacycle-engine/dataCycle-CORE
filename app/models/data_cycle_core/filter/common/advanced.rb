@@ -4,21 +4,44 @@ module DataCycleCore
   module Filter
     module Common
       module Advanced
-        def greater_advanced_numeric(value = nil, attribute_path = nil)
-          return self unless value.present? && attribute_path.present?
+        COMPARISION_OPERATORS = {
+          greater: '>',
+          lower: '<',
+          equal: '=',
+          not_equal: '<>'
+        }.freeze
 
-          v = value.to_f
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::decimal > ?)", attribute_path, v])
+        def greater_advanced_numeric(value = nil, attribute_path = nil)
+          advanced_numeric(value, attribute_path, :greater)
+        end
+
+        def lower_advanced_numeric(value = nil, attribute_path = nil)
+          advanced_numeric(value, attribute_path, :lower)
+        end
+
+        def equals_advanced_numeric(value = nil, attribute_path = nil)
+          advanced_numeric(value, attribute_path, :equal)
+        end
+
+        def not_equals_advanced_numeric(value = nil, attribute_path = nil)
+          advanced_numeric(value, attribute_path, :not_equal)
+        end
+
+        private
+
+        def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
+          return self unless value.present? && attribute_path.present? && comparision.present?
+
+          comparision_operator = COMPARISION_OPERATORS.dig(comparision)
+          query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::decimal #{comparision_operator} ?)", attribute_path, value.to_f])
 
           reflect(
             @query.where(attribute_path_not_null(attribute_path)).where(query_string)
           )
         end
 
-        private
-
         def attribute_path_not_null(path)
-          Thing.send(:sanitize_sql_for_conditions, ["advanced_attributes->>? IS NOT NULL", path])
+          Thing.send(:sanitize_sql_for_conditions, ['advanced_attributes->>? IS NOT NULL', path])
         end
       end
     end
