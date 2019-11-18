@@ -353,6 +353,11 @@ class TourSprungEditor {
   setRouteDataFieldValue(data) {
     if (data === undefined) data = {};
 
+    if (this.routeDataField === undefined || !this.routeDataField.length) {
+      let routeField = '<input type="hidden" name="thing[datahash][route_data]">';
+      this.routeDataField = $(routeField).appendTo(this.container.closest('.geographic.form-element'));
+    }
+
     this.routeDataField.val(JSON.stringify(data));
   }
 }
