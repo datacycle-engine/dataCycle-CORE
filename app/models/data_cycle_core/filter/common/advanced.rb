@@ -112,7 +112,7 @@ module DataCycleCore
         end
 
         def attribute_path_not_null(path)
-          Thing.send(:sanitize_sql_for_conditions, ['advanced_attributes->>? IS NOT NULL', path])
+          Thing.send(:sanitize_sql_for_conditions, ['advanced_attributes ? :path', path: path])
         end
       end
     end
