@@ -61,7 +61,7 @@ module DataCycleCore
 
         def self.add_place_to_subevent(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
-          .>> t(:add_link, 'location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('event_location', 'id') })
+          .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('event_location', 'id') })
           .>> t(:reject_keys, ['event_location'])
           .>> t(:strip_all)
         end
