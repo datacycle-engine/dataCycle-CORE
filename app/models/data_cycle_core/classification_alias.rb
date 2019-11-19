@@ -65,6 +65,8 @@ module DataCycleCore
     after_update :update_primary_classification
     after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'description_i18n', 'assignable', 'internal']).present? }
 
+    delegate :visible?, to: :classification_tree_label
+
     def self.for_tree(tree_name)
       joins(classification_tree: :classification_tree_label)
         .where('classification_trees' => { 'classification_tree_labels' => { 'name' => tree_name } })
@@ -180,6 +182,7 @@ module DataCycleCore
         (name_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).concat(description_i18n&.deep_reject { |_, v| v.blank? }&.symbolize_keys&.keys || []).uniq
       end
     end
+    alias available_locales translated_locales
 
     def first_available_locale(locale = nil)
       (Array(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }

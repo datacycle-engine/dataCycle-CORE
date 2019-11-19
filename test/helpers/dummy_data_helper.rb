@@ -8,7 +8,7 @@ module DataCycleCore
       @user = user
       send(type)
     rescue StandardError
-      raise ArgumentError, 'Unknow type for DummyDataHelper'
+      raise ArgumentError, 'Unknown type for DummyDataHelper'
     end
 
     def tour
@@ -47,9 +47,19 @@ module DataCycleCore
     end
 
     def poi
+      DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: generate_poi_data_hash, user: @user)
+    end
+
+    def poi_translated
+      content = poi
+      I18n.with_locale(:en) { content.set_data_hash(data_hash: generate_poi_data_hash) }
+      content
+    end
+
+    def generate_poi_data_hash
       image_data = image
 
-      poi_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
+      poi_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', "api_poi_#{I18n.locale}")
       country_classification = DataCycleCore::Classification.find_by(name: 'AT', description: 'Österreich')
       poi_data_hash[:country_code] = [country_classification.id]
       poi_data_hash[:image] = image_data.id
@@ -61,8 +71,7 @@ module DataCycleCore
       opening_hours_specification_data_hash.first['day_of_week'] = opening_hours_classifications
 
       poi_data_hash[:opening_hours_specification] = opening_hours_specification_data_hash
-
-      DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: poi_data_hash, user: @user)
+      poi_data_hash
     end
 
     def bergfex_snowresort

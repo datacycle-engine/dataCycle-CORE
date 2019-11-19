@@ -56,7 +56,7 @@ module DataCycleCore
           # schedule has a full header
           header_schedule = json_data.dig('schedule', 0).slice(*full_header_attributes)
           data_schedule = full_header_data(@content_tour.schedule.first)
-          assert_equal(header_schedule, data_schedule.except('inLanguage'))
+          assert_equal(header_schedule, data_schedule)
         end
 
         test 'tour with included linked poi' do

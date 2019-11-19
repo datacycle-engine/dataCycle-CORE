@@ -7,7 +7,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         def index
-          @classification_tree_labels = ClassificationTreeLabel.where(internal: false)
+          @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
           if permitted_params.dig(:filter, :modified_since)
             @classification_tree_labels = @classification_tree_labels.where(
@@ -36,34 +36,38 @@ module DataCycleCore
 
         def classifications
           @classification_tree_label = ClassificationTreeLabel.with_deleted.find(permitted_params[:id])
-          @classification_id = permitted_params[:classification_id] || nil
+          if @classification_tree_label.visible?('api')
+            @classification_id = permitted_params[:classification_id] || nil
 
-          if @classification_id.present?
-            @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
+            if @classification_id.present?
+              @classification_aliases = DataCycleCore::ClassificationAlias.where(id: @classification_id) # .with_descendants
+            else
+              # @classification_aliases = DataCycleCore::ClassificationAlias.for_tree(@classification_tree_label.name)
+              @classification_aliases = @classification_tree_label.classification_aliases
+            end
+
+            if permitted_params.dig(:filter, :modified_since)
+              @classification_aliases = @classification_aliases.where(
+                ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
+              ).order(:updated_at)
+            end
+
+            if permitted_params.dig(:filter, :created_since)
+              @classification_aliases = @classification_aliases.where(
+                ClassificationAlias.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
+              ).order(:created_at)
+            end
+
+            if permitted_params.dig(:filter, :deleted_since)
+              @classification_aliases = @classification_aliases.with_deleted.where(
+                ClassificationAlias.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              ).order(:deleted_at)
+            end
+
+            @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
           else
-            # @classification_aliases = DataCycleCore::ClassificationAlias.for_tree(@classification_tree_label.name)
-            @classification_aliases = @classification_tree_label.classification_aliases
+            @classification_tree_label = nil
           end
-
-          if permitted_params.dig(:filter, :modified_since)
-            @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
-            ).order(:updated_at)
-          end
-
-          if permitted_params.dig(:filter, :created_since)
-            @classification_aliases = @classification_aliases.where(
-              ClassificationAlias.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
-            ).order(:created_at)
-          end
-
-          if permitted_params.dig(:filter, :deleted_since)
-            @classification_aliases = @classification_aliases.with_deleted.where(
-              ClassificationAlias.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
-            ).order(:deleted_at)
-          end
-
-          @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
         end
 
         def prepare_url_parameters
@@ -71,7 +75,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
-          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
         end
