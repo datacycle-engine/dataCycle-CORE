@@ -53,7 +53,7 @@
         :label: Preis
         :type: embedded
         :template_name: Preis
-        :tranlated: true
+        :translated: true
       :url:
         :label: Angebots URL
         :type: string
