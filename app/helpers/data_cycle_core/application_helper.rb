@@ -54,21 +54,21 @@ module DataCycleCore
       case mode
       when 'tree'
         capture do
-          if DataCycleCore::ClassificationTreeLabel.tree_view_labels.many?
+          if DataCycleCore::ClassificationTreeLabel.visible('tree_view').many?
             concat(link_to(mode_icon(mode), '#', data: { toggle: 'tree-view-selector' }, class: selected ? 'selected' : nil))
             concat(
               tag.div(class: 'dropdown-pane no-bullet align-right', id: 'tree-view-selector', data: { dropdown: true, hover: true, hover_pane: true }) do
                 concat(
                   tag.ul(class: 'no-bullet') do
-                    DataCycleCore::ClassificationTreeLabel.tree_view_labels.presence&.each do |tree_label|
+                    DataCycleCore::ClassificationTreeLabel.visible('tree_view').presence&.each do |tree_label|
                       concat(tag.li(link_to_unless(tree_label.id == params_hash[:ctl_id], tree_label.name, params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))))
                     end
                   end
                 )
               end
             )
-          elsif DataCycleCore::ClassificationTreeLabel.tree_view_labels.present?
-            tree_label = DataCycleCore::ClassificationTreeLabel.tree_view_labels.first
+          elsif DataCycleCore::ClassificationTreeLabel.visible('tree_view').present?
+            tree_label = DataCycleCore::ClassificationTreeLabel.visible('tree_view').first
             link_to_unless(tree_label.id == params_hash[:ctl_id], mode_icon(mode, tree_label.name), params_hash.except(:ct_id, :con_id, :ctl_id, :cpt_id, :reset).merge({ mode: mode, ctl_id: tree_label.id }))
           end
         end
