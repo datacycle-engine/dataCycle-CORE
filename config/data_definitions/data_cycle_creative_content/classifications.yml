@@ -5,7 +5,6 @@
     - $$Quiz
     - $$Rezept
     - $$Social Media Posting
-    - $$Beschreibungstext
   - $$Zeitleiste
 # embedded
   - $$Zeitleiste-Eintrag
@@ -23,5 +22,3 @@
 - Themenbereiche | all:
 
 - Zielgruppen | all:
-
-- Beschreibungsarten | all:

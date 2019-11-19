@@ -32,8 +32,8 @@ module.exports.initialize = function() {
   var formats = {
     none: ['break'],
     minimal: ['bold', 'italic', 'underline', 'break'],
-    basic: ['bold', 'italic', 'header', 'underline', 'break'],
-    full: ['bold', 'italic', 'header', 'underline', 'link', 'list', 'align', 'break']
+    basic: ['bold', 'italic', 'header', 'underline', 'break', 'script'],
+    full: ['bold', 'italic', 'header', 'underline', 'link', 'list', 'align', 'break', 'script']
   };
 
   var toolbar = {
@@ -45,6 +45,7 @@ module.exports.initialize = function() {
           header: [1, 2, 3, 4, false]
         }
       ],
+      [{ script: 'sub' }, { script: 'super' }],
       ['bold', 'italic', 'underline']
     ],
     full: [
@@ -66,6 +67,7 @@ module.exports.initialize = function() {
           header: [1, 2, 3, 4, false]
         }
       ],
+      [{ script: 'sub' }, { script: 'super' }],
       ['bold', 'italic', 'underline'],
       ['link']
     ]

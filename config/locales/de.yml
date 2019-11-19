@@ -197,6 +197,8 @@ de:
         web: Web
       format:
         none: Originalformat
+    help: Hilfe
+    mode_switcher_title: Ansicht
 
   external_connection_states:
     success: Erfolgreich synchronisiert

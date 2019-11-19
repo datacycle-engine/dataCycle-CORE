@@ -6,6 +6,7 @@ namespace :datacycle do
     task :load do
       set :rvm_ruby_version, '2.6.3'
       set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
+      set :deploy_user, 'pixelpoint'
 
       set :delayed_job_pools, {
         'mailers' => 1,
