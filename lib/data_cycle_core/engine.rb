@@ -10,6 +10,9 @@ require 'acts_as_tree'
 require 'rgeo'
 require 'rgeo-geojson'
 require 'mongoid'
+
+# event scheduling
+require 'ice_cube'
 require 'rrule'
 
 # authentication

@@ -116,68 +116,54 @@ module DataCycleCore
         }.keys
       end
 
-      def plain_property_names
-        property_definitions.select { |_, definition|
-          PLAIN_PROPERTY_TYPES.include?(definition['type'])
-        }.keys
-      end
-
-      def linked_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'linked'
-        }.keys
-      end
-
-      def embedded_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'embedded'
-        }.keys
-      end
-
-      def global_property_names
-        property_definitions.select { |_, definition|
-          definition['global'] == true
-        }.keys
-      end
-
-      def included_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'object'
-        }.keys
-      end
-
-      def computed_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'computed'
-        }.keys
-      end
-
       def combined_property_names
         property_definitions.select { |_, definition|
           definition.dig('api', 'transformation', 'method') == 'combine'
         }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
       end
 
+      def plain_property_names
+        name_property_selector { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def linked_property_names
+        name_property_selector { |definition| definition['type'] == 'linked' }
+      end
+
+      def embedded_property_names
+        name_property_selector { |definition| definition['type'] == 'embedded' }
+      end
+
+      def included_property_names
+        name_property_selector { |definition| definition['type'] == 'object' }
+      end
+
+      def computed_property_names
+        name_property_selector { |definition| definition['type'] == 'computed' }
+      end
+
       def classification_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'classification'
-        }.keys
+        name_property_selector { |definition| definition['type'] == 'classification' }
       end
 
       def asset_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'asset'
-        }.keys
+        name_property_selector { |definition| definition['type'] == 'asset' }
       end
 
-      def search_property_names
-        property_definitions.select { |_, definition|
-          definition['search'] == true
-        }.keys
+      def schedule_property_names
+        name_property_selector { |definition| definition['type'] == 'schedule' }
       end
 
       def geo_properties
-        property_definitions.select { |_, val| val['type'] == 'geographic' }
+        property_selector { |definition| definition['type'] == 'geographic' }
+      end
+
+      def global_property_names
+        name_property_selector { |definition| definition['global'] == true }
+      end
+
+      def search_property_names
+        name_property_selector { |definition| definition['search'] == true }
       end
 
       def to_h(timestamp = Time.zone.now)
@@ -208,6 +194,10 @@ module DataCycleCore
           send(property_name)
         elsif computed_property_names.include?(property_name)
           send(property_name)
+        elsif schedule_property_names.include?(property_name)
+          schedule_array = send(property_name)
+          schedule_array = schedule_array.map(&:to_h) if schedule_array.present?
+          schedule_array.blank? ? [] : schedule_array.compact
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
         end
@@ -260,6 +250,8 @@ module DataCycleCore
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])
               load_computed_attribute(key[0], key[1])
+            elsif schedule_property_names.include?(key[0])
+              load_schedule(key[0])
             else
               raise NotImplementedError
             end

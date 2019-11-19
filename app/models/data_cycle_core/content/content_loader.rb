@@ -82,6 +82,10 @@ module DataCycleCore
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
+      def load_schedule(relation_name)
+        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name)
+      end
+
       def as_of(timestamp)
         return self if updated_at.blank? || timestamp.blank? || timestamp >= updated_at
 

@@ -646,6 +646,28 @@ CREATE TABLE public.roles (
 
 
 --
+-- Name: schedules; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.schedules (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid,
+    relation character varying,
+    dtstart timestamp with time zone,
+    dtend timestamp with time zone,
+    duration interval,
+    rrule character varying,
+    rdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    exdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    external_source_id uuid,
+    external_key character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -1026,6 +1048,14 @@ ALTER TABLE ONLY public.external_systems
 
 ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schedules schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedules
+    ADD CONSTRAINT schedules_pkey PRIMARY KEY (id);
 
 
 --
@@ -2039,6 +2069,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190801120456'),
 ('20190805085313'),
 ('20190821101746'),
-('20190920075014');
+('20190920075014'),
+('20191114131046');
 
 

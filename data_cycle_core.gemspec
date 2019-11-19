@@ -35,7 +35,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
-  s.add_dependency 'rrule'
   # mongoDB driver
   s.add_dependency 'mongoid'
   # REST Client
@@ -72,6 +71,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-validation', '~> 0.11'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
+
+  # gems for event-schedules
+  s.add_dependency 'icalendar'
+  s.add_dependency 'ice_cube'
+  s.add_dependency 'rrule'
 
   # File Upload
   s.add_dependency 'carrierwave', '~> 0.5'
