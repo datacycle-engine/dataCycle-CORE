@@ -107,7 +107,6 @@
           padding: 2.2rem 1rem 1rem 1rem;
 
           &.has-changes:not(.geographic),
-          &.has-changes.geographic .geographic,
           &.has-changes.geographic .map-info {
             background-color: rgba($light-gray, 0.5);
 

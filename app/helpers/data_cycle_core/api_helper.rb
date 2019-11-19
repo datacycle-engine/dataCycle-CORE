@@ -74,11 +74,11 @@ module DataCycleCore
 
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
-        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
-        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end

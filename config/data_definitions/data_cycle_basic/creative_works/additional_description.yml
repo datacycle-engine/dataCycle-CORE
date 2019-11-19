@@ -36,7 +36,7 @@
       :type_of_description:
         :label: Beschreibungsart
         :type: classification
-        :tree_label: Beschreibungsart
+        :tree_label: Beschreibungsarten
         :ui:
           :show:
             :content_area: header
