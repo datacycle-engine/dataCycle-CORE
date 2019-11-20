@@ -2,6 +2,7 @@
 
 # add dateformat with fractional seconds
 Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
+Time::DATE_FORMATS[:only_date] = '%d.%m.%Y'
 
 class Time
   LONG_AGO = Time.zone.local(1400, 1, 1, 0, 0)

@@ -228,7 +228,7 @@ module DataCycleCore
               ['key', 'string', 'text', 'number', 'boolean',
                'datetime', 'geographic',
                'object', 'embedded', 'linked', 'classification',
-               'asset', 'computed']
+               'asset', 'computed', 'schedule']
             )
           end
           optional(:storage_location) do

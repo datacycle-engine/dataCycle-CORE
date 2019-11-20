@@ -12,7 +12,7 @@ class AddScheduleRrule < ActiveRecord::Migration[5.2]
       t.column    :dtend, 'timestamp with time zone'                            # end_data_time optional
       t.interval  :duration                                                     # duration of event
       t.string    :rrule                                                        # String representation of rrule -> https://icalendar.org/RFC-Specifications/iCalendar-RFC-5545/
-      t.column    :rdate, 'timestamp with time zone', array: true, default: []  # array of event_date_times (xor with rrule)
+      t.column    :rdate, 'timestamp with time zone', array: true, default: []  # array of event_date_times (additionally to rrule occurrences)
       t.column    :exdate, 'timestamp with time zone', array: true, default: [] # array of exception_data_times
       t.uuid      :external_source_id
       t.string    :external_key

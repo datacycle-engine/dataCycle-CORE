@@ -1,5 +1,5 @@
 ---
-name: V-Ticket
+name: V-Ticket2
 credentials:
   action: /events
   end_point: /api/v2
@@ -12,8 +12,8 @@ config:
     events:
       sorting: 2
       source_type: events
-      endpoint: DataCycleCore::Generic::VTicket::Endpoint
-      download_strategy: DataCycleCore::Generic::VTicket::Download
+      endpoint: DataCycleCore::Generic::VTicket2::Endpoint
+      download_strategy: DataCycleCore::Generic::VTicket2::Download
   import_config:
     tags:
       sorting: 1
@@ -34,7 +34,7 @@ config:
     events:
       sorting: 3
       source_type: events
-      import_strategy: DataCycleCore::Generic::VTicket::ImportEvents
+      import_strategy: DataCycleCore::Generic::VTicket2::ImportEvents
       transformations:
         image:
           template: Bild

@@ -127,6 +127,9 @@
         :template_name: Örtlichkeit
         :api:
           :name: location
+      :schedule:
+        :label: Termine
+        :type: schedule
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded

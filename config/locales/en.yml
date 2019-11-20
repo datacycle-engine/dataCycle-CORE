@@ -45,6 +45,11 @@ en:
       url: "%{data} is no valid Url."
       string: "%{template} is not a string, but %{label}."
       geo: "Wrong data-type for %{template} (%{data}). Expected Geometric/Geographical type."
+      schedule:
+        general: "Wrong data-type for %{template} (%{data}). Expected DataCycleCore::Schedule, or a valid Hash."
+        time: "Wrong DateTime format for %{template} (%{data}), expected a Hash with { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: "Wrong DateTimeArray format for %{template} (%{data}), expected an Array of ActiveSupport::TimeWithZone"
+        rrule: "Wrong RRULE format for %{template} (%{data})."
       number: "%{template} is not nummerical, but %{class} (Wert: %{data})."
       no_data: "No data given."
       no_validation: "No validation data given."
