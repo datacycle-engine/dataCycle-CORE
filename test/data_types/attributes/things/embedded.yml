@@ -127,6 +127,7 @@
         :type: embedded
         :translated: true
         :template_name: Embedded-Search
+        :advanced_search: true
 
 - :data:
     :name: Embedded-Search

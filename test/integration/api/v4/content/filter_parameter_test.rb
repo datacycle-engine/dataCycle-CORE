@@ -52,7 +52,6 @@ module DataCycleCore
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
-
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(true, json_data['links'].present?)
