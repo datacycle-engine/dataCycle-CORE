@@ -131,6 +131,7 @@
           :transformation:
             :method: nest
             :name: width
+        :advanced_search: true
       :height:
         :label: Höhe
         :storage_location: value
@@ -153,6 +154,7 @@
           :transformation:
             :method: nest
             :name: height
+        :advanced_search: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -165,6 +167,7 @@
           :method: file_size
           :parameters:
             :0: asset
+        :advanced_search: true
       :file_format:
         :label: Dateiformat
         :storage_location: value
