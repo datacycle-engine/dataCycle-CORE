@@ -11,6 +11,7 @@
           :type: PostalAddress
         :xml:
           :type: PostalAddress
+        :advanced_search: true
         :properties:
           :street_address:
             :label: Straße
@@ -26,6 +27,7 @@
             :normalize:
               :id: zip
               :type: zip
+            :advanced_search: true
           :address_locality:
             :label: Ort
             :type: string

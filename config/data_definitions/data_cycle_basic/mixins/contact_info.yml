@@ -12,6 +12,7 @@
           :transformation:
             :method: merge_object
             :name: address
+        :advanced_search: true
         :properties:
           :telephone:
             :label: Telefonnummer
@@ -28,6 +29,7 @@
             :normalize:
               :id: email
               :type: email
+            :advanced_search: true
           :url:
             :label: Web
             :type: string
