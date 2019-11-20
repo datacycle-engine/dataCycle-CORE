@@ -67,6 +67,18 @@ module DataCycleCore
           advanced_boolean(value, attribute_path, :not_equal)
         end
 
+        def equals_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :equal)
+        end
+
+        def not_equals_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :not_equal)
+        end
+
+        def like_advanced_string(value = nil, attribute_path = nil)
+          advanced_string(value, attribute_path, :like)
+        end
+
         private
 
         def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
@@ -105,6 +117,25 @@ module DataCycleCore
 
           comparision_operator = COMPARISION_OPERATORS.dig(comparision)
           query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::boolean #{comparision_operator} ?)", attribute_path, value])
+
+          reflect(
+            @query.where(attribute_path_not_null(attribute_path)).where(query_string)
+          )
+        end
+
+        def advanced_string(value = nil, attribute_path = nil, comparision = nil)
+          return self unless value.present? && attribute_path.present? && comparision.present?
+
+          case comparision
+          when :equal
+            query_string = Thing.send(:sanitize_sql_for_conditions, ["(advanced_attributes -> :attribute_path)::jsonb ? :value", attribute_path: attribute_path, value: value])
+          when :not_equal
+            query_string = Thing.send(:sanitize_sql_for_conditions, ["NOT(advanced_attributes -> :attribute_path)::jsonb ? :value", attribute_path: attribute_path, value: value])
+          when :like
+            query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)", attribute_path, "%#{value}%"])
+          else
+            return self
+         end
 
           reflect(
             @query.where(attribute_path_not_null(attribute_path)).where(query_string)
