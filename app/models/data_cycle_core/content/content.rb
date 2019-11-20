@@ -176,9 +176,15 @@ module DataCycleCore
         }.keys
       end
 
+      def searchable_embedded_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'embedded' && definition['advanced_search'] == true
+        }.keys
+      end
+
       def advanced_search_property_names
         property_definitions.select { |_, definition|
-          definition['advanced_search'] == true
+          definition['type'] != 'embedded' && definition['advanced_search'] == true
         }.keys
       end
 

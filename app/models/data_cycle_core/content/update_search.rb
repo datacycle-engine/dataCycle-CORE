@@ -19,10 +19,11 @@ module DataCycleCore
 
       def update_search(language)
         return if search_property_names.blank? || embedded?
-
+        # timestamp = Time.zone.now
         I18n.with_locale(language) do
           search_data = walk_embedded_data(self)
           advanced_search_attributes = walk_advanced(self)
+
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
           boost = schema.dig('boost') || 1.0
@@ -67,6 +68,7 @@ module DataCycleCore
           EOS
           connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
         end
+        # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
       end
 
       def walk_embedded_data(object)
@@ -87,10 +89,14 @@ module DataCycleCore
         string_hash[:headline] = object.try('send', 'title')
         string_hash[:headline] = DataCycleCore::MasterData::DataConverter.string_to_string(string_hash[:headline].gsub(/[']/, "''")) unless string_hash[:headline].nil?
         string_hash[:headline] = '' if string_hash[:headline].nil?
-        string_hash[:classification_string] = [
-          object.display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-          object.display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
-        ].compact.join(' ')
+        if object.embedded?
+          string_hash[:classification_string] = ''
+        else
+          string_hash[:classification_string] = [
+            object.display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+            object.display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+          ].compact.join(' ')
+        end
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')
         string_hash
       end
@@ -105,8 +111,7 @@ module DataCycleCore
 
       def walk_advanced(object)
         advanced_data = parse_advanced_data(object)
-
-        object.embedded_property_names.each do |embedded_name|
+        object.searchable_embedded_property_names.each do |embedded_name|
           object.try('send', embedded_name)&.each do |embedded_object|
             embedded_advanced_data = walk_advanced(embedded_object)
             advanced_data = append_advanced_data(advanced_data, embedded_advanced_data)
@@ -118,6 +123,7 @@ module DataCycleCore
       def parse_advanced_data(object)
         advanced_data = {}
         object.advanced_search_property_names.each do |property|
+          # byebug
           # allow false values
           (advanced_data[property] ||= []) << object.send(property) if object.send(property).present? || object.send(property)&.to_s == 'false'
         end
@@ -127,7 +133,9 @@ module DataCycleCore
       def append_advanced_data(hash, add_hash)
         return hash if add_hash.blank?
         (hash.keys + add_hash.keys).uniq.each do |key|
-          hash[key] = (hash[key] || []) + add_hash[key] if add_hash.dig(key).present?
+          next if add_hash.dig(key).blank?
+          hash[key] = (hash[key] || []) + add_hash[key]
+          hash[key].uniq!
         end
         hash
       end

@@ -54,6 +54,7 @@
         :type: embedded
         :template_name: Preis
         :tranlated: true
+        :advanced_search: true
       :url:
         :label: Angebots URL
         :type: string

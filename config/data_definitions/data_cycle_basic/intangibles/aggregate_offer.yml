@@ -136,6 +136,7 @@
         :type: embedded
         :template_name: Angebot
         :translated: true
+        :advanced_search: true
       :offer_period:
         :label: Angebotszeitraum
         :type: object

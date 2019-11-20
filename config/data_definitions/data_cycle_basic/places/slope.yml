@@ -36,6 +36,7 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+        :advanced_search: true
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -44,6 +45,7 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
+        :advanced_search: true
       :postal_address:
         :type: mixin
         :name: postal_address

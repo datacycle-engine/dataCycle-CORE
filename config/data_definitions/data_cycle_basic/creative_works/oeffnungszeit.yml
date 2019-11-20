@@ -60,6 +60,7 @@
         :type: embedded
         :template_name: Öffnungszeit - Zeitspanne
         :translated: true
+        :advanced_search: true
       :description:
         :label: Text
         :type: string

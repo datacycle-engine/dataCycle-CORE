@@ -51,6 +51,7 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
+        :advanced_search: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

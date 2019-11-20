@@ -36,6 +36,7 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+        :advanced_search: true
       :additional_food_establishment_properties:
         :type: mixin
         :name: additional_food_establishment_properties          
@@ -54,6 +55,7 @@
         :type: embedded
         :template_name: Öffnungszeit
         :translated: true
+        :advanced_search: true
       :dining_hours_specification:
         :label: Warme Küche
         :type: embedded
