@@ -89,6 +89,14 @@
   - $$Aktiv
   - $$Inaktiv
 
+- Feratel - Angebot - Status | all:
+  - $$Buchbar
+  - $$Nicht Buchbar
+
+- Feratel - Preis - Typ | all:
+  - $$Preis pro Person
+  - $$Preis pro Package
+
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan
   - EG | Ägypten
