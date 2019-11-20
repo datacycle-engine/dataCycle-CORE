@@ -107,7 +107,7 @@ $(function() {
                 }
 
                 if (contents.description !== undefined) {
-                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('dc:import:data', {
+                  $('[data-label="Meta-Description"] > input[type=text]').trigger('dc:import:data', {
                     label: 'Meta-Description',
                     value: contents.description
                   });

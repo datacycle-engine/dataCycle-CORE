@@ -8,7 +8,7 @@ key_new = definition.dig('api', 'name') || key.camelize(:lower)
 if content.translations.size > 1 && @include_parameters.include?('translations')
   content.translations.each do |translation|
     I18n.with_locale(translation.locale) do
-      json[key_new] = { translation.locale => [] }
+      (json[key_new] ||= {})[translation.locale] = []
       translated_objects = content.send(key)
       translated_objects.presence&.includes(:translations, :classifications)&.each do |translated_object|
         # add context
