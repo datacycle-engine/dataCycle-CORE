@@ -128,14 +128,14 @@ module DataCycleCore
 
           case comparision
           when :equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ["(advanced_attributes -> :attribute_path)::jsonb ? :value", attribute_path: attribute_path, value: value])
+            query_string = Thing.send(:sanitize_sql_for_conditions, ['(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
           when :not_equal
-            query_string = Thing.send(:sanitize_sql_for_conditions, ["NOT(advanced_attributes -> :attribute_path)::jsonb ? :value", attribute_path: attribute_path, value: value])
+            query_string = Thing.send(:sanitize_sql_for_conditions, ['NOT(advanced_attributes -> :attribute_path)::jsonb ? :value', attribute_path: attribute_path, value: value])
           when :like
-            query_string = Thing.send(:sanitize_sql_for_conditions, ["EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)", attribute_path, "%#{value}%"])
+            query_string = Thing.send(:sanitize_sql_for_conditions, ['EXISTS(SELECT FROM jsonb_array_elements(advanced_attributes -> ?) pil WHERE (pil)::TEXT LIKE ?)', attribute_path, "%#{value}%"])
           else
             return self
-         end
+          end
 
           reflect(
             @query.where(attribute_path_not_null(attribute_path)).where(query_string)
