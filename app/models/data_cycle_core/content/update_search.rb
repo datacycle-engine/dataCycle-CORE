@@ -122,15 +122,16 @@ module DataCycleCore
 
       def parse_advanced_data(object)
         advanced_data = {}
+        # find plain attributes
         object.advanced_search_property_names.each do |property|
           # allow false values
           (advanced_data[property] ||= []) << object.send(property) if object.send(property).present? || object.send(property)&.to_s == 'false'
         end
-        # find included
+        # find included properties
         object.advanced_included_search_property_names.each do |property|
-          object.properties_for(property).try(:[], 'properties').each do |included_key, included_definition|
+          object.properties_for(property).try(:[], 'properties').each do |included_property, included_definition|
             next unless included_definition.dig('advanced_search')
-            (advanced_data[[property, included_key].join('.')] ||= []) << object.send(property).send(included_key) if object.send(property).send(included_key).present? || object.send(property).send(included_key)&.to_s == 'false'
+            (advanced_data[[property, included_property].join('.')] ||= []) << object.send(property).send(included_property) if object.send(property).send(included_property).present? || object.send(property).send(included_property)&.to_s == 'false'
           end
         end
         advanced_data

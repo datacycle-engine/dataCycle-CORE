@@ -151,6 +151,7 @@
         :api:
           :transformation:
             :method: unwrap
+        :advanced_search: true
         :properties:
           :valid_from:
             :label: "Zeitraum von"
@@ -166,6 +167,7 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+            :advanced_search: true
           :valid_through:
             :label: "bis"
             :type: datetime
@@ -180,6 +182,7 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+            :advanced_search: true
       :potentialAction:
         :label: Buchungs-Url
         :type: object

@@ -184,7 +184,7 @@ module DataCycleCore
 
       def advanced_search_property_names
         property_definitions.select { |_, definition|
-          !['embedded', 'object'].include?(definition['type']) && definition['advanced_search'] == true
+          !['embedded', 'object', 'linked'].include?(definition['type']) && definition['advanced_search'] == true
         }.keys
       end
 
