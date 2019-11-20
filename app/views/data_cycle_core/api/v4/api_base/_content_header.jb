@@ -4,22 +4,14 @@ default_options = {
   header_type: :full
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = [I18n.locale] if options[:languages].blank?
 
 json = {}
 
-unless options[:header_type] == :overlay # rubocop:disable Style/IfUnlessModifier
-  json.merge! render 'content_header_minimal', content: content, options: { fields: options[:fields], field_filter: options[:field_filter] }
+unless options[:header_type] == :overlay
+  json['@id'] = content.id
+  json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
+  json['dc:entity_url'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if options[:header_type] == :full || select_attributes(options[:fields]).include?('dc:entity_url')
 end
 
-if options[:header_type] == :full
-  json['@context'] = 'http://schema.org'
-  json['contentType'] = content.template_name
-  json['identifier'] = content.id
-  json['url'] = send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})
-
-  # for now support just one language
-  json['inLanguage'] = content.translated_locales.include?(@language.to_sym) ? @language : content.first_available_locale
-  json.delete('inLanguage') if json['inLanguage'].nil?
-end
-
-json
+json.compact
