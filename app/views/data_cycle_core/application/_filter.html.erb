@@ -3,7 +3,6 @@
   <% (filter ||= {})[:classification_trees] ||= DataCycleCore::Feature::MainFilter.available_filters %>
   <% index = filter[:classification_trees].size %>
   <% classification_trees = filterable_classification_aliases(filter[:classification_trees], excluded_types) %>
-
   <%= hidden_field_tag 'mode', @mode %>
   <%= hidden_field_tag 'ct_id', @classification_tree&.id %>
   <%= hidden_field_tag 'ctl_id', @classification_tree_label&.id %>
@@ -45,7 +44,6 @@
                     <div class="accordion-item <%= 'is-active' if @advanced_filters.present? %>" data-accordion-item>
                       <div class="accordion-content" data-tab-content style="<%= 'display: block;' if @advanced_filters.present? %>">
                         <%= yield :advanced_filters %>
-
                         <% if filter[:advanced].present? %>
                           <% if can?(:advanced_filter, :backend) %>
                             <div class="add-advanced-filter-container">
@@ -66,6 +64,7 @@
                               filter_title: filter['n'],
                               filter_name: filter['n'].presence&.parameterize(separator: '_'),
                               filter_method: filter['m'],
+                              filter_advanced_type: filter['q'],
                               value: filter['v'],
                               index: idx + index %>
                           <% end %>

@@ -1,0 +1,51 @@
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+
+    <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+    <%= hidden_field_tag "f[#{index}][t]", 'advanced_attributes' %>
+    <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+    <%= hidden_field_tag "f[#{index}][q]", filter_advanced_type %>
+
+    <div class="advanced-filter-title">
+        <span class="icon"><i class="fa fa-th" aria-hidden="true"></i></span>
+        <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+    </div>
+    <%
+        # numeric
+        filter_mode_options =[
+            [t("common.is", locale: DataCycleCore.ui_language), 'i'],
+            [t("common.is_not", locale: DataCycleCore.ui_language), 'e']
+        ]
+        if filter_advanced_type == 'string'
+          filter_mode_options = [
+              [t("common.is", locale: DataCycleCore.ui_language), 'i'],
+              [t("common.is_not", locale: DataCycleCore.ui_language), 'e'],
+              [t("common.similar", locale: DataCycleCore.ui_language), 's']
+          ]
+        end
+    %>
+    <div class="advanced-filter-mode">
+        <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method) %>
+    </div>
+
+    <div class="advanced-filter-selector">
+        <% if filter_advanced_type == 'string' %>
+            <%= text_field_tag "f[#{index}][v]", value, { placeholder: '', class: 'filter-text' } %>
+        <% elsif filter_advanced_type == 'date' %>
+            <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
+            <%= date_field_tag "f[#{index}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
+            <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
+            <%= date_field_tag "f[#{index}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
+        <% else %>
+            <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
+            <%= number_field_tag "f[#{index}][v][min]", value&.dig('min'), { placeholder: '', class: 'filter-text' } %>
+            <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
+            <%= number_field_tag "f[#{index}][v][max]", value&.dig('max'), { placeholder: '', class: 'filter-text' } %>
+        <% end %>
+    </div>
+
+    <% if can?(:advanced_filter, :backend) %>
+        <div class="buttons">
+            <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+        </div>
+    <% end %>
+</div>

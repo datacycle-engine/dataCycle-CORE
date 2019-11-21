@@ -119,6 +119,9 @@ de:
     entries: Einträge
     is: ist
     is_not: ist nicht
+    greater: größer als
+    lower: kleiner als
+    similar: ist ähnlich
     has: enthält
     has_not: enthält nicht
     assigned: zugeordnet
@@ -240,6 +243,12 @@ de:
     upload_date: Uploaddatum
     duplicate_candidates: Potentielle Duplikate vorhanden
     not_duplicate_candidates: keine potentiellen Duplikate vorhanden
+    width: Breite
+    height: Höhe
+    content_size: Dateigröße
+    contact_info_email: E-Mail
+    address_postal_code: PLZ
+    upload_date: Upload-Datum
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -250,6 +259,7 @@ de:
     validity_period: nach Zeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
+    advanced_attributes: nach Attributen filtern...
 
   object_browser:
     details:

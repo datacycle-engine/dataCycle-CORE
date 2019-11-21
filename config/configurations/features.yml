@@ -71,6 +71,19 @@
   :classification_tree_ids: true
   :date_range: all
   :validity_period: true
+  :advanced_attributes:
+    :width:
+      :type: numeric
+    :height:
+      :type: numeric
+    :content_size:
+      :type: numeric
+    :contact_info.email:
+      :type: string
+    :address.postal_code:
+      :type: string
+    :upload_date:
+      :type: date
 
 :geocode:
   :enabled: false
