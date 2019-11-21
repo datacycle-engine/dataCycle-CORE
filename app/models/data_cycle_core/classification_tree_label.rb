@@ -95,8 +95,16 @@ module DataCycleCore
       []
     end
 
-    def self.tree_view_labels
-      where('? = ANY(visibility)', 'tree_view')
+    def visible?(context)
+      visibility.include?(context)
+    end
+
+    def self.visible(context)
+      where('? = ANY(visibility)', context)
+    end
+
+    def first_available_locale(_locale)
+      :de
     end
 
     private

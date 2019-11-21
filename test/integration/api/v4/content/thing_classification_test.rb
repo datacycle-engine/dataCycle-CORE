@@ -12,7 +12,7 @@ module DataCycleCore
         include DataCycleCore::ApiV4Helper
 
         def embedded_concept_attributes
-          ['inScheme', 'topConceptOf', 'broader', 'ancestors']
+          ['skos:inScheme', 'skos:topConceptOf', 'skos:broader', 'skos:ancestors']
         end
 
         setup do
@@ -33,11 +33,11 @@ module DataCycleCore
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_compact_classification_header(json_data.dig('concepts'))
+          assert_compact_header(json_data.dig('dc:classification'))
         end
 
         test 'concepts at /api/v4/things/:id with include concepts --> full data' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts')
+          get api_v4_thing_path(id: @content.id, include: 'dc:classification')
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -47,14 +47,14 @@ module DataCycleCore
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_concept_attributes(json_data.dig('concepts', 0))
-          json_data.dig('concepts', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_classification_header(Array(json_data.dig('concepts', 0, embedded_attribute)))
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
         end
 
-        test 'concepts at /api/v4/things/:id with include concepts,concepts.inScheme' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts,concepts.inScheme')
+        test 'concepts at /api/v4/things/:id with include dc:classification,dc:classification.skos:inScheme' do
+          get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -64,52 +64,50 @@ module DataCycleCore
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_concept_attributes(json_data.dig('concepts', 0))
-          json_data.dig('concepts', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_classification_header(Array(json_data.dig('concepts', 0, embedded_attribute)))
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
 
-          assert_concept_attributes(json_data.dig('concepts', 0, 'inScheme'))
+          assert_concept_attributes(json_data.dig('dc:classification', 0, 'skos:inScheme'))
         end
 
-        test 'include concepts,concepts.inScheme is equal to include concepts.inScheme' do
-          get api_v4_thing_path(id: @content.id, include: 'concepts,concepts.inScheme')
+        test 'include dc:classification,dc:classification.skos:inScheme is equal to include dc:classification.skos:inScheme' do
+          get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          get api_v4_thing_path(id: @content.id, include: 'concepts.inScheme')
+          get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data2 = JSON.parse response.body
           assert_equal(json_data, json_data2)
         end
 
-        test 'concepts at /api/v4/things/:id with fields concepts.inScheme.identifier' do
-          get api_v4_thing_path(id: @content.id, fields: 'concepts.inScheme.identifier')
+        test 'concepts at /api/v4/things/:id with fields dc:classification.skos:inScheme.skos:prefLabel' do
+          get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel')
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['concepts'], json_data.keys)
-          assert_equal(1, json_data.dig('concepts').size)
-          assert_equal(['inScheme'], json_data.dig('concepts', 0).keys)
-          assert_equal(['identifier'], json_data.dig('concepts', 0, 'inScheme').keys)
+          assert_equal(1, json_data.dig('dc:classification').size)
+          assert_equal(['@id', '@type', 'skos:inScheme'], json_data.dig('dc:classification', 0).keys)
+          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
         end
 
-        test 'combo if fields, include' do
-          get api_v4_thing_path(id: @content.id, fields: 'concepts.inScheme.identifier', include: 'concepts')
+        test 'combo of fields, include' do
+          get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel', include: 'dc:classification')
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse response.body
 
-          assert_equal(['concepts'], json_data.keys)
-          assert_equal(1, json_data.dig('concepts').size)
-          assert_concept_attributes(json_data.dig('concepts', 0))
-          json_data.dig('concepts', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-            assert_compact_classification_header(Array(json_data.dig('concepts', 0, embedded_attribute)))
+          assert_equal(1, json_data.dig('dc:classification').size)
+          assert_concept_attributes(json_data.dig('dc:classification', 0))
+          json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
+            assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
           end
-          assert_equal(['identifier'], json_data.dig('concepts', 0, 'inScheme').keys)
+          assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
         end
 
         test 'parameter filter[:concepts]' do

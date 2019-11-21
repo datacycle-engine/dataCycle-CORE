@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         test 'parameter q for fulltext_search with empty string --> all' do
-          get api_v4_things_path(q: '')
+          get api_v4_things_path(filter: { search: '' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         test 'parameter q for fulltext_search multiple hits' do
-          get api_v4_things_path(q: 'Headline')
+          get api_v4_things_path(filter: { search: 'Headline' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -47,7 +47,7 @@ module DataCycleCore
         end
 
         test 'parameter q for fulltext_search one hit' do
-          get api_v4_things_path(q: 'Montag')
+          get api_v4_things_path(filter: { search: 'Montag' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')

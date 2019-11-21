@@ -1,15 +1,17 @@
 # frozen_string_literal: true
 
-json = {
-  '@graph' => @watch_lists.map do |item|
-    {
-      id: item.id,
-      name: item.name,
-      url: api_v4_collection_url(@api_subversion, id: item.id),
-      item_count: item.watch_list_data_hashes.count
-    }
-  end
-}
+json = {}
+json.merge! render 'context', languages: @language
+
+json['@graph'] = @watch_lists.map do |item|
+  {
+    '@id' => item.id,
+    '@type' => 'Thing',
+    'name' => item.name,
+    'dc:entity_url' => api_v4_collection_url(@api_subversion, id: item.id),
+    'dc:item_count' => item.watch_list_data_hashes.count
+  }
+end
 
 json.merge! render 'pagination_links',
                    objects: @watch_lists,

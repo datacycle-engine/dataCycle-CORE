@@ -42,8 +42,8 @@ module DataCycleCore
         def permitted_parameter_keys
           # json-api: sort
           super + [
-            :id, :language, :q, :include, :fields, :format,
-            { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+            :id, :language, :include, :fields, :format,
+            { filter: [:search, :box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
           ]
         end
 
@@ -61,7 +61,7 @@ module DataCycleCore
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language.split(',')
+          filter.language = @language
           query = filter.apply
 
           query = apply_event_query_filters(query)
@@ -69,7 +69,7 @@ module DataCycleCore
 
           query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
           query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
-          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
+          query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
@@ -77,26 +77,28 @@ module DataCycleCore
             permitted_params.dig(:filter, :concepts).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              # if @mode_parameters&.include?('strict')
-              #   query = query.with_classification_alias_ids_without_recursion(classifications)
-              # else
               query = query.classification_alias_ids(classifications)
-              # end
             end
           end
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+          query = query.distinct_by_content_id
           query
         end
 
         def apply_event_query_filters(query)
           return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-          if permitted_params&.dig(:filter, :from).present?
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
+          from_date = nil
+          to_date = nil
+          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
+          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
+
+          if from_date.blank?
+            from_date = Time.zone.now
+            from_date = to_date if from_date > to_date
           end
 
-          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
+          query = query.event_from_time(from_date)
+          query = query.event_end_time(to_date) if to_date.present?
           query
         end
 
@@ -110,7 +112,7 @@ module DataCycleCore
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
           @field_filter = @fields_parameters.present?
-          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
         end

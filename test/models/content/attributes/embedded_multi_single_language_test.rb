@@ -75,7 +75,7 @@ module DataCycleCore
           I18n.available_locales << :fr
           I18n.with_locale(:fr) { data_set.set_data_hash(data_hash: { 'name' => 'French', 'embedded_creative_work' => [{ 'name' => 'French' }] }, prevent_history: true) }
           assert_equal([:de, :en, :fr], data_set.available_locales.sort)
-          assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false).size)
+          assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false, [I18n.locale]).size)
 
           # check consistency of data in DB
           assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Embedded-Entity-Creative-Work-1').count)
@@ -91,7 +91,7 @@ module DataCycleCore
           end
 
           assert_equal([:de, :en], data_set.available_locales.sort)
-          assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false).size)
+          assert_equal(3, data_set.load_relation('embedded_creative_work', nil, false, [I18n.locale]).size)
           assert_equal(1, data_set.embedded_creative_work.size)
           I18n.with_locale(:en) { assert_equal(2, data_set.embedded_creative_work.size) }
 
