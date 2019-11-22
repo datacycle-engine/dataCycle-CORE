@@ -30,3 +30,4 @@
         :storage_location: value
         :external: true
         :advanced_search: true
+        :default_value: 'false'
