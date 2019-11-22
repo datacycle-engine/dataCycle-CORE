@@ -36,4 +36,3 @@
             :label: Web
             :type: string
             :storage_location: translated_value
-            :advanced_search: true
