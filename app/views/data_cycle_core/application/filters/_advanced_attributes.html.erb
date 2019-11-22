@@ -10,22 +10,19 @@
         <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
     </div>
     <%
-        # numeric
         filter_mode_options =[
             [t("common.is", locale: DataCycleCore.ui_language), 'i'],
             [t("common.is_not", locale: DataCycleCore.ui_language), 'e']
         ]
-        if filter_advanced_type == 'string'
-          filter_mode_options = [
-              [t("common.is", locale: DataCycleCore.ui_language), 'i'],
-              [t("common.is_not", locale: DataCycleCore.ui_language), 'e'],
-              [t("common.similar", locale: DataCycleCore.ui_language), 's']
-          ]
-        end
+        filter_mode_options << [t("common.similar", locale: DataCycleCore.ui_language), 's'] if filter_advanced_type == 'string'
     %>
-    <div class="advanced-filter-mode">
-        <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method) %>
-    </div>
+    <% if filter_advanced_type == 'boolean' %>
+        <%= hidden_field_tag "f[#{index}][m]", 'n' %>
+    <% else %>
+        <div class="advanced-filter-mode">
+            <%= select_tag "f[#{index}][m]", options_for_select(filter_mode_options, filter_method) %>
+        </div>
+    <% end %>
 
     <div class="advanced-filter-selector">
         <% if filter_advanced_type == 'string' %>
@@ -35,10 +32,19 @@
             <%= date_field_tag "f[#{index}][v][from]", value&.dig('from') || local_assigns[:default_from], { placeholder: 'tt.mm.jjjj' } %>
             <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
             <%= date_field_tag "f[#{index}][v][until]", value&.dig('until') || local_assigns[:default_until], { placeholder: 'tt.mm.jjjj' } %>
-        <% else %>
-            <span class="separator"><%= t("terms.from", locale: DataCycleCore.ui_language) %></span>
+        <% elsif filter_advanced_type == 'boolean' %>
+            <div class="advanced-filter-selector">
+                <%= radio_button_tag "f[#{index}][v]", 'true', (value != 'false') %>
+                <%= label_tag "f_#{index}_v_true", t("common.is_true", default: filter_title, locale: DataCycleCore.ui_language) %>
+            </div>
+            <div class="advanced-filter-selector">
+                <%= radio_button_tag "f[#{index}][v]", 'false', (value == 'false') %>
+                <%= label_tag "f_#{index}_v_false", t("common.is_false", default: filter_title, locale: DataCycleCore.ui_language) %>
+            </div>
+        <% else #numeric %>
+            <span class="separator"><%= t("terms.min", locale: DataCycleCore.ui_language) %></span>
             <%= number_field_tag "f[#{index}][v][min]", value&.dig('min'), { placeholder: '', class: 'filter-text' } %>
-            <span class="separator"><%= t("terms.until", locale: DataCycleCore.ui_language) %></span>
+            <span class="separator"><%= t("terms.max", locale: DataCycleCore.ui_language) %></span>
             <%= number_field_tag "f[#{index}][v][max]", value&.dig('max'), { placeholder: '', class: 'filter-text' } %>
         <% end %>
     </div>

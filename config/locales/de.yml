@@ -122,6 +122,8 @@ de:
     greater: größer als
     lower: kleiner als
     similar: ist ähnlich
+    is_true: 'TRUE'
+    is_false: 'FALSE'
     has: enthält
     has_not: enthält nicht
     assigned: zugeordnet
@@ -249,6 +251,7 @@ de:
     contact_info_email: E-Mail
     address_postal_code: PLZ
     upload_date: Upload-Datum
+    mandatory_license: Copyright Nennung verpflichtend
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -273,6 +276,8 @@ de:
     valid: gültig
     from: von
     until: bis
+    min: min
+    max: max
 
   list_titles:
     teaser: Teasertext

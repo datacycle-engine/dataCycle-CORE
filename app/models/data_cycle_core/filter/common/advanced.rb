@@ -23,31 +23,25 @@ module DataCycleCore
           send(advanced_type, value, attribute_path)
         end
 
-        def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = "greater_advanced_#{type}".to_sym
-          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
-          send(advanced_type, value, attribute_path)
-        end
-
-        def lower_advanced_attributes(value = nil, type = nil, attribute_path = nil)
-          advanced_type = "lower_advanced_#{type}".to_sym
-          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
-          send(advanced_type, value, attribute_path)
-        end
-
         def like_advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "like_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
           send(advanced_type, value, attribute_path)
         end
 
-        # def greater_advanced_numeric(value = nil, attribute_path = nil)
-        #   advanced_numeric(value, attribute_path, :greater)
-        # end
-        #
-        # def lower_advanced_numeric(value = nil, attribute_path = nil)
-        #   advanced_numeric(value, attribute_path, :lower)
-        # end
+        # TODO: check if required in future version
+        def greater_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "greater_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
+
+        # TODO: check if required in future version
+        def lower_advanced_attributes(value = nil, type = nil, attribute_path = nil)
+          advanced_type = "lower_advanced_#{type}".to_sym
+          raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
+          send(advanced_type, value, attribute_path)
+        end
 
         def equals_advanced_numeric(value = nil, attribute_path = nil)
           advanced_numeric(value, attribute_path, :equal)
@@ -85,10 +79,6 @@ module DataCycleCore
           advanced_boolean(value, attribute_path, :equal)
         end
 
-        def not_equals_advanced_boolean(value = nil, attribute_path = nil)
-          advanced_boolean(value, attribute_path, :not_equal)
-        end
-
         def equals_advanced_string(value = nil, attribute_path = nil)
           advanced_string(value, attribute_path, :equal)
         end
@@ -104,7 +94,7 @@ module DataCycleCore
         private
 
         def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
-          return self unless (value.present? || !value.is_a?(Hash)) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
           num_range = "[#{value&.dig('min').presence&.to_f},#{value&.dig('max').presence&.to_f}]"
 
           case comparision
@@ -122,7 +112,7 @@ module DataCycleCore
         end
 
         def advanced_date(value = nil, attribute_path = nil, comparision = nil)
-          return self unless (value.present? || !value.is_a?(Hash)) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
+          return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
           date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
