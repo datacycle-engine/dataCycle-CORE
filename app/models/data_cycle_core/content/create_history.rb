@@ -61,6 +61,17 @@ module DataCycleCore
           end
         end
 
+        schedule_property_names.each do |content_name|
+          schedule_data = load_schedule(content_name)
+          next if schedule_data.blank?
+          schedule_history = DataCycleCore::Schedule::History.new
+          schedule_data.attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+            schedule_history.send("#{key}=", value)
+          end
+          schedule_history.thing_history_id = data_set_history.id
+          schedule_history.save
+        end
+
         data_set_history
       end
     end

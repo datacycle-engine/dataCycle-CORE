@@ -149,6 +149,8 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
+        when 'schedule'
+          set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
         when 'key'
@@ -364,6 +366,16 @@ module DataCycleCore
           .with_assets(old_id, asset_type)
           .with_relation(relation_name)
           .destroy_all
+      end
+
+      def set_schedule(data, relation_name)
+        if data.present?
+          schedule = DataCycleCore::Schedule.find_or_initialize_by(thing_id: id, relation: relation_name)
+          schedule.schedule_object.from_hash(data)
+          schedule.save!
+        else
+          DataCycleCore::Schedule.find_by(thing_id: id, relation: relation_name)&.destroy
+        end
       end
     end
   end

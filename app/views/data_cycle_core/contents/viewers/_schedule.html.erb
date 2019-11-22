@@ -4,14 +4,14 @@
   value: value,
   options: options,
   content: content,
-  data_attributes: {id: value.id, editor: 'schedule'} do %>
+  data_attributes: { id: value.id, editor: 'schedule' } do %>
 
-        <span class="detail-content">
-          <% if options.dig(:item_diff, 0) == '+' %>
-              <%= options.dig(:item_diff, 1).presence&.try(:html_safe) %>
-          <% else %>
-              <%= value.to_s.try(:html_safe) %>
-          <% end %>
-        </span>
+    <span class="detail-content">
+      <% if options.dig(:item_diff, 0) == '+' %>
+        <%= options.dig(:item_diff, 1).presence&.try(:html_safe) %>
+      <% else %>
+        <%= value.to_s.try(:html_safe) %>
+      <% end %>
+    </span>
 
 <% end %>

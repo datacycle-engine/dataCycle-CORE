@@ -87,6 +87,10 @@ module DataCycleCore
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
       end
 
+      def load_schedule(relation_name)
+        DataCycleCore::Schedule::History.find_by(thing_history_id: id, relation: relation_name)
+      end
+
       def as_of(timestamp)
         content_table_id = self.class.table_name.split('_')[0..-2].join('_').foreign_key
         history_table_translation = "#{self.class}::Translation".safe_constantize.arel_table
