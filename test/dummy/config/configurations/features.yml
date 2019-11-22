@@ -52,6 +52,21 @@
 :advanced_filter:
   :boolean:
     - duplicate_candidates
+  :advanced_attributes:
+    :width:
+      :type: numeric
+    :height:
+      :type: numeric
+    :content_size:
+      :type: numeric
+    :contact_info.email:
+      :type: string
+    :address.postal_code:
+      :type: string
+    :upload_date:
+      :type: date
+    :mandatory_license:
+      :type: boolean
 
 :duplicate_candidate:
   :enabled: true
