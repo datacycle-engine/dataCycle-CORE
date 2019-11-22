@@ -189,13 +189,6 @@ module DataCycleCore
       test_false_a = query.equals_advanced_boolean(false, 'boolean_test')
       assert_equal(test_false_a.count, 1)
       assert_equal(test_false_a.first.title, 'HEADLINE boolean false')
-
-      test_not_true_a = query.not_equals_advanced_boolean(true, 'boolean_test')
-      assert_equal(test_not_true_a.count, 1)
-      assert_equal(test_not_true_a.first.title, 'HEADLINE boolean false')
-      test_not_false_b = query.not_equals_advanced_boolean(false, 'boolean_test')
-      assert_equal(test_not_false_b.count, 1)
-      assert_equal(test_not_false_b.first.title, 'HEADLINE boolean true')
     end
 
     test 'test filter for time values' do
