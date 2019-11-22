@@ -18,10 +18,12 @@
             :label: Telefonnummer
             :type: string
             :storage_location: translated_value
+            :advanced_search: true
           :fax_number:
             :label: Fax
             :type: string
             :storage_location: translated_value
+            :advanced_search: true
           :email:
             :label: E-Mail
             :type: string
@@ -34,3 +36,4 @@
             :label: Web
             :type: string
             :storage_location: translated_value
+            :advanced_search: true

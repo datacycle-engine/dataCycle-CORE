@@ -22,7 +22,6 @@
               :placeholder: tt.mm.jjjj
           :show:
             :type: date
-        :advanced_search: true
       :output_channel:
         :label: Ausgabekanäle
         :type: classification

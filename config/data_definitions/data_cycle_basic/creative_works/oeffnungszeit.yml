@@ -24,7 +24,6 @@
         :api:
           :transformation:
             :method: unwrap
-        :advanced_search: true
         :properties:
           :valid_from:
             :label: gültig von
@@ -38,7 +37,6 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-            :advanced_search: true
           :valid_through:
             :label: gültig bis
             :type: datetime
@@ -51,7 +49,6 @@
                 :options:
                   :data-validate: daterange
                   :placeholder: tt.mm.jjjj
-            :advanced_search: true
       :day_of_week:
         :label: Wochentag
         :type: classification
@@ -63,7 +60,6 @@
         :type: embedded
         :template_name: Öffnungszeit - Zeitspanne
         :translated: true
-        :advanced_search: true
       :description:
         :label: Text
         :type: string
@@ -101,7 +97,6 @@
           :edit:
             :options:
               :placeholder: hh:mm
-        :advanced_search: true
       :closes:
         :label: geöffnet bis
         :type: string
@@ -112,7 +107,6 @@
           :edit:
             :options:
               :placeholder: hh:mm
-        :advanced_search: true
       :data_type:
         :label: Inhaltstyp
         :type: classification

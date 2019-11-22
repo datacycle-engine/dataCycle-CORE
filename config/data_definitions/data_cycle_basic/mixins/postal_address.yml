@@ -20,6 +20,7 @@
             :normalize:
               :id: street
               :type: street
+            :advanced_search: true
           :postal_code:
             :label: PLZ
             :type: string
@@ -35,6 +36,7 @@
             :normalize:
               :id: city
               :type: city
+            :advanced_search: true
           :address_country:
             :label: Land
             :type: string
@@ -42,6 +44,7 @@
             :normalize:
               :id: country
               :type: country
+            :advanced_search: true
       :country_code:
         :label: Ländercode
         :type: classification
