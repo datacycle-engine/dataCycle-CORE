@@ -249,9 +249,31 @@ de:
     height: Höhe
     content_size: Dateigröße
     contact_info_email: E-Mail
+    contact_info_telephone: Telefonnummer
+    contact_info_fax_number: Faxnummer
     address_postal_code: PLZ
+    address_street_address: Strasse
+    address_address_locality: Ort
+    address_address_country: Land
     upload_date: Upload-Datum
     mandatory_license: Copyright Nennung verpflichtend
+    price: Preis
+    min_price: Preis (Min)
+    max_price: Preis (Max)
+    duration: Dauer
+    copyright_year: Copyright Jahr
+    number_of_rooms: Anzahl der Zimmer
+    floor_size: Zimmergröße
+    total_time: Kochzeit
+    water_temp_temperature: Wassertemperatur
+    water_temp_temp_at: Wassertemperatur gemessen am
+    area: Fläche
+    depth: Tiefe
+    length_nordic_classic: Loipenlänge Nordisch Klassisch
+    length_nordic_skating: Loipenlänge Nordisch Skating
+    elevation: Meereshöhe
+    depth_of_snow: Schneehöhe
+    depth_of_fresh_snow: Neuschnee
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
