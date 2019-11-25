@@ -123,6 +123,32 @@ module DataCycleCore
 
         self.class.where("things.id IN (#{tree_query})")
       end
+
+      def embedded_contents
+        things_id = history? ? 'thing_histories.id' : 'things.id'
+        content_content_table = history? ? 'content_content_histories' : 'content_contents'
+        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
+        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
+
+        tree_query = <<-SQL
+          WITH RECURSIVE content_tree(id) AS (
+            SELECT #{things_id} as id, array[#{things_id}] as all_things
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{things_id} = #{content_content_table}.#{content_b_id}
+            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
+            AND #{self.class.table_name}.content_type = 'embedded'
+          UNION ALL
+            SELECT #{things_id} as id, content_tree.all_things||#{things_id}
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{things_id} = #{content_content_table}.#{content_b_id}
+            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
+            AND  #{things_id} <> ALL (content_tree.all_things)
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{things_id} IN (#{tree_query})")
+      end
     end
   end
 end
