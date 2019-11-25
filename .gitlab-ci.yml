@@ -106,12 +106,17 @@ services:
 .master_ci_config: &master_ci
   only:
     - master
-    - develop
     - release
     - pre-release
     - remote-develop
   tags:
     - data-cycle-core
+
+.develop_ci_config: &develop_ci
+  only:
+    - develop
+  tags:
+    - data-cycle-core-develop
 
 .review_ci_config: &review_ci
   only:
@@ -126,7 +131,7 @@ services:
     - data-cycle-review
 
 ########################################################################
-######################### Release / Pre-Release / Development
+######################### Release / Pre-Release
 build_caches:
   <<: *master_ci
   extends: .build_caches_config
@@ -137,6 +142,20 @@ rails_test:
 
 code_validation:
   <<: *master_ci
+  extends: .code_validation_config
+
+########################################################################
+######################### Development
+build_caches_develop:
+  <<: *develop_ci
+  extends: .build_caches_config
+
+rails_test_develop:
+  <<: *develop_ci
+  extends: .rails_test_config
+
+code_validation_develop:
+  <<: *develop_ci
   extends: .code_validation_config
 
 ####################### Deploy Development
