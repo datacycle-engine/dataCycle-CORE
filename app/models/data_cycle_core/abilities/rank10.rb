@@ -19,7 +19,9 @@ module DataCycleCore
         end
 
         # Advanced filter
-        can :advanced_filter, :backend
+        can :advanced_filter, :backend do |_t, _k, v|
+          v != 'advanced_attributes'
+        end
 
         # Classifications
         can :manage, [DataCycleCore::Classification, DataCycleCore::ClassificationTree], external_source_id: nil

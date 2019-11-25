@@ -5,7 +5,6 @@ module DataCycleCore
     class AdvancedFilter < Base
       class << self
         def available_filters
-          # check abilities for advanded attributes
           filters = []
           DataCycleCore.features.dig(name.demodulize.underscore.to_sym)&.except(:enabled)&.each do |key, value|
             filters.concat(try(key.to_sym, value) || default(key.to_s, value) || [])
