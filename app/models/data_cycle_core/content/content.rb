@@ -176,6 +176,24 @@ module DataCycleCore
         }.keys
       end
 
+      def searchable_embedded_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'embedded' && definition['advanced_search'] == true
+        }.keys
+      end
+
+      def advanced_search_property_names
+        property_definitions.select { |_, definition|
+          !['embedded', 'object', 'linked'].include?(definition['type']) && definition['advanced_search'] == true
+        }.keys
+      end
+
+      def advanced_included_search_property_names
+        property_definitions.select { |_, definition|
+          definition['type'] == 'object' && definition['advanced_search'] == true
+        }.keys
+      end
+
       def geo_properties
         property_definitions.select { |_, val| val['type'] == 'geographic' }
       end

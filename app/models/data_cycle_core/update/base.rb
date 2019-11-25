@@ -8,7 +8,8 @@ module DataCycleCore
         puts "UPDATE '#{@template.template_name}' templates - #{total_updates} items (#{Time.zone.now.strftime('%H:%M:%S.%3N')})"
 
         item_count = 0
-        query.find_each do |content_item|
+        query.includes(classification_aliases: [:classification_alias_path, :classification_tree_label]).find_each do |content_item|
+          timestamp = Time.zone.now
           data_hash_all = {}
           content_item.available_locales.each do |locale|
             I18n.with_locale(locale) do
@@ -17,7 +18,6 @@ module DataCycleCore
             end
           end
           modify_content(content_item)
-          timestamp = Time.zone.now
           data_hash_all.each do |locale, data_hash|
             I18n.with_locale(locale) do
               error = write(content_item, data_hash, timestamp)
@@ -29,7 +29,7 @@ module DataCycleCore
               end
             end
           end
-
+          # ap "### time: #{(Time.zone.now - timestamp)}"
           # progress bar
           if (item_count % 1000).zero?
             total_count = [total_updates, 1].max

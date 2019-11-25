@@ -158,7 +158,7 @@ module.exports.initialize = function() {
 
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
       $(event.currentTarget)
-        .removeClass('i e n')
+        .removeClass('i e n q')
         .addClass(
           $(event.currentTarget)
             .find(':input[name*="[m]"]')
@@ -212,6 +212,10 @@ module.exports.initialize = function() {
             .find(':input[name*="[n]"]')
             .first()
             .val(),
+          q: $(event.currentTarget)
+            .find(':input[name*="[q]"]')
+            .first()
+            .val(),
           v: value,
           m: $(event.currentTarget)
             .find(':input[name*="[m]"]')
@@ -227,6 +231,7 @@ module.exports.initialize = function() {
     $('.filters .advanced-filters #add_advanced_filter').on('change', event => {
       event.preventDefault();
       $(event.target).prop('disabled', true);
+      console.log($(event.target))
       $.ajax({
         url: $(event.target).data('url'),
         method: 'GET',
@@ -235,6 +240,9 @@ module.exports.initialize = function() {
           n: $(event.target)
             .find(':selected')
             .data('name'),
+          q: $(event.target)
+            .find(':selected')
+            .data('advancedtype'),
           m: $(event.target).data('method'),
           index: $(event.target).data('index')
         },
