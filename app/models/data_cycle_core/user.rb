@@ -121,6 +121,8 @@ module DataCycleCore
         User.find_by(access_token: token[:token])
       elsif token[:user_id].present?
         User.find_by(id: token[:user_id])
+      elsif token[:external_user_id].present?
+        User.find_by(uid: token[:external_user_id])
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
         User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
       end
