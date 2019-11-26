@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, _locale, source_filter)
-          mongo_item.where(source_filter).all
+          mongo_item.where(source_filter.with_evaluated_values).all
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
