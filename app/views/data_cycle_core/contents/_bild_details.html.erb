@@ -80,8 +80,17 @@
 
                         <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
                             <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-                            <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
-                                <strong>Format:</strong> <%= content.file_format %>
+                            <dd>
+                                <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
+                                    <%= content.width&.to_i %>px/<%= content.height&.to_i %>px
+                                <% end %>
+                                <% if content.content_size&.to_i&.positive? %>
+                                    (<%= number_to_human_size(content.content_size) %>)
+                                <% end %>
+                                <% if content.file_format.present? %>
+                                    <br />
+                                    <strong>Format:</strong> <%= content.file_format %>
+                                <% end %>
                             </dd>
 
                             <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>

@@ -127,6 +127,12 @@ $filter-border: #aaa;
             border-radius: 4px;
             border-color: $filter-border;
           }
+          .filter-text {
+            margin: 0;
+            height: 2.2rem;
+            border-radius: 4px;
+            border-color: $filter-border;
+          }
         }
 
         .advanced-filter-mode {

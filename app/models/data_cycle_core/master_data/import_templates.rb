@@ -240,6 +240,7 @@ module DataCycleCore
           optional(:api) { hash? }
           optional(:xml) { hash? }
           optional(:search) { bool? }
+          optional(:advanced_search) { bool? }
           optional(:normalize).schema do
             required(:id) do
               str? & included_in?(

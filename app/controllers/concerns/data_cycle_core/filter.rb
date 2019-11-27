@@ -27,10 +27,23 @@ module DataCycleCore
       @filters = current_user.default_filter(@filters) if user_filter
 
       @filters.presence&.each do |filter|
-        t = filter['m'] == 'e' ? "not_#{filter['t']}" : filter['t']
-        next unless query.respond_to?(t)
+        case filter['m']
+        when 'e'
+          t = "not_#{filter['t']}"
+        when 'g'
+          t = "greater_#{filter['t']}"
+        when 'l'
+          t = "lower_#{filter['t']}"
+        when 's'
+          t = "like_#{filter['t']}"
+        else
+          t = filter['t']
+        end
 
-        if query.method(t)&.parameters&.size == 2
+        next unless query.respond_to?(t)
+        if query.method(t)&.parameters&.size == 3
+          query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
+        elsif query.method(t)&.parameters&.size == 2
           query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
         else
           query = query.send(t, filter['v'])

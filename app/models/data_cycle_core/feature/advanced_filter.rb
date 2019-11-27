@@ -77,6 +77,17 @@ module DataCycleCore
             ]
           ]
         end
+
+        def advanced_attributes(value)
+          return [] unless value
+          value.map do |k, v|
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              'advanced_attributes',
+              data: { name: k, advancedType: v.dig('type') }
+            ]
+          end
+        end
       end
     end
   end

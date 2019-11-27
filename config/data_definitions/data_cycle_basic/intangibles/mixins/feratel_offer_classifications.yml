@@ -38,3 +38,21 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_offer_status:
+        :label: Feratel - Angebot - Status
+        :type: classification
+        :tree_label: Feratel - Angebot - Status
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_price_type:
+        :label: Feratel - Preis - Typ
+        :type: classification
+        :tree_label: Feratel - Preis - Typ
+        :external: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header

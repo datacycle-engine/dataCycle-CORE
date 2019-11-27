@@ -716,7 +716,8 @@ CREATE TABLE public.searches (
     validity_period tstzrange,
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL,
-    schema_type character varying DEFAULT 'Thing'::character varying NOT NULL
+    schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
+    advanced_attributes jsonb
 );
 
 
@@ -1588,6 +1589,13 @@ CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
 
 
 --
+-- Name: index_searches_on_advanced_attributes; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin (advanced_attributes);
+
+
+--
 -- Name: index_searches_on_content_data_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2100,6 +2108,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190805085313'),
 ('20190821101746'),
 ('20190920075014'),
-('20191114131046');
+('20191113092141'),
+('20191119110348'),
+('20191129131046');
 
 

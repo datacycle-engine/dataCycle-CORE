@@ -70,6 +70,8 @@ module DataCycleCore
           .>> t(:add_links, 'eligable_region', DataCycleCore::Thing, external_source_id, ->(s) { ["PackagePlace:#{s.dig('external_key')}"] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Owner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Owner')).hexdigest}"] : [] })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
+          .>> t(:add_field, 'feratel_offer_status', ->(s) { load_offer_status(s.dig('Bookable', 'text')) })
+          .>> t(:add_field, 'feratel_price_type', ->(s) { load_price_type(s.dig('Settings', 'PriceSettings', 'PriceType')) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('HolidayThemes', 'Item'))&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:strip_all)
         end
@@ -102,9 +104,9 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(s) { s.dig('Company', 'text').present? ? [s.dig('Title', 'text'), s.dig('LastName', 'text'), s.dig('FirstName', 'text')].flatten.join('') : nil })
           .>> t(:rename_keys, { 'Id' => 'external_key' })
           .>> t(:add_field, 'street_address', ->(s) { s.dig('AddressLine1', 'text') })
-          .>> t(:add_field, 'postal_code', ->(s) { s.dig('Country', 'text') })
-          .>> t(:add_field, 'address_locality', ->(s) { s.dig('ZipCode', 'text') })
-          .>> t(:add_field, 'address_country', ->(s) { s.dig('Town', 'text') })
+          .>> t(:add_field, 'postal_code', ->(s) { s.dig('ZipCode', 'text') })
+          .>> t(:add_field, 'address_locality', ->(s) { s.dig('Town', 'text') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('Country', 'text') })
           .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
           .>> t(:rename_keys, 'Latitude' => 'latitude', 'Longitude' => 'longitude')
           .>> t(:map_value, 'latitude', ->(v) { v.blank? || v.to_f.zero? ? nil : v.to_f })
@@ -396,6 +398,34 @@ module DataCycleCore
           classification = 'Inaktiv' if value == 'false'
           DataCycleCore::ClassificationAlias
             .for_tree('Feratel - Status')
+            .find_by(internal_name: classification)
+            .classifications
+            .pluck(:id)
+        end
+
+        def self.load_offer_status(value)
+          return unless ['true', 'false'].include?(value)
+          classification = 'Buchbar' if value == 'true'
+          classification = 'Nicht Buchbar' if value == 'false'
+          DataCycleCore::ClassificationAlias
+            .for_tree('Feratel - Angebot - Status')
+            .find_by(internal_name: classification)
+            .classifications
+            .pluck(:id)
+        end
+
+        def self.load_price_type(value)
+          return if value.blank?
+          case value
+          when 'perPerson'
+            classification = 'Preis pro Person'
+          when 'perPackage'
+            classification = 'Preis pro Package'
+          else
+            raise "Unknown price type '#{value}'"
+          end
+          DataCycleCore::ClassificationAlias
+            .for_tree('Feratel - Preis - Typ')
             .find_by(internal_name: classification)
             .classifications
             .pluck(:id)

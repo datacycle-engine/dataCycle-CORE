@@ -2,6 +2,7 @@ $('<%= j render_first_existing_partial(["data_cycle_core/application/filters/#{p
   filter_title: params['n'],
   filter_name: params['n'].presence&.parameterize(separator: '_'),
   filter_method: params['m'],
+  filter_advanced_type: params['q'],
   value: nil,
   index: params[:index] }) %>').appendTo('.filters .advanced-filters > .accordion-item > .accordion-content').trigger('dc:html:changed');
 
