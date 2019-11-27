@@ -1,0 +1,15 @@
+# frozen_string_literal: true
+
+json ||= {}
+
+key_name = definition.dig('api', 'name') || key.camelize(:lower)
+
+if content.present?
+  json[key_name] = {
+    '@id' => content.id,
+    '@type' => 'Schedule'
+  }
+  json[key_name] = content.send(key)&.to_schema_org
+end
+
+json

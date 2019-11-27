@@ -297,13 +297,6 @@ module DataCycleCore
         }.inject(&:merge)
       end
 
-      def set_property_value(property_name, property_definition, value)
-        raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
-        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
-             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
-        reload_memoized [property_name, property_definition]
-      end
-
       def convert_to_type(type, value)
         DataCycleCore::MasterData::DataConverter.convert_to_type(type, value)
       end
@@ -359,6 +352,13 @@ module DataCycleCore
 
       def self.shared_template_features
         all.map { |t| t.schema['features'].to_a }.inject(:&).to_h
+      end
+
+      def set_property_value(property_name, property_definition, value)
+        raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+        reload_memoized [property_name, property_definition]
       end
 
       private

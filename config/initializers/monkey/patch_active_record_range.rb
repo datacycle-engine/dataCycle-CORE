@@ -2,7 +2,7 @@
 
 # add dateformat with fractional seconds
 Time::DATE_FORMATS[:long_usec] = '%Y-%m-%d %H:%M:%S.%N %z'
-Time::DATE_FORMATS[:only_date] = '%d.%m.%Y'
+Time::DATE_FORMATS[:only_date] = '%Y-%m-%d'
 Time::DATE_FORMATS[:only_time] = '%H:%M'
 
 class Time

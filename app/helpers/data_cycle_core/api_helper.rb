@@ -13,7 +13,7 @@ module DataCycleCore
 
       api_version = @api_version || 2
       partials = [
-        key.underscore.to_s,
+        "#{definition['type'].underscore}_#{key.underscore}",
         "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
         "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
         "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
