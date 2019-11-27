@@ -110,6 +110,12 @@ module ActiveSupport
         parts = {}
         remainder = value.to_f
 
+        # mixing of y,m,d and w is not allowed
+        if (remainder % PARTS_IN_SECONDS[:weeks]) < 1e-10
+          parts[:weeks] = remainder.div(PARTS_IN_SECONDS[:weeks])
+          return new(value, parts)
+        end
+
         (PARTS - [:weeks]).each do |part|
           next if part == :seconds
           part_in_seconds = PARTS_IN_SECONDS[part]
