@@ -13,11 +13,13 @@ module ActiveRecord
           end
 
           def cast_value(value)
+            # puts "(cast_value) #{value.class} -> #{value}"
             case value
             when ::ActiveSupport::Duration
               value
             when ::String
               begin
+                # do not allow mixing of W and any of Y,M,D -> delete W
                 ::ActiveSupport::Duration.parse(value)
               rescue ::ActiveSupport::Duration::ISO8601Parser::ParsingError
                 nil
@@ -28,6 +30,7 @@ module ActiveRecord
           end
 
           def serialize(value)
+            # puts "(serialize_value) #{value.class} -> #{value} // #{value.iso8601(precision: precision)}"
             case value
             when ::ActiveSupport::Duration
               value.iso8601(precision: precision)
@@ -96,4 +99,28 @@ ActiveRecord::ConnectionAdapters::PostgreSQLAdapter.class_eval do
   end
 
   ActiveRecord::Type.register(:interval, ::ActiveRecord::ConnectionAdapters::PostgreSQLAdapter::OID::Interval, adapter: :postgresql)
+end
+
+module ActiveSupport
+  class Duration
+    class << self
+      def build(value)
+        raise TypeError, "can't build an #{name} from a #{value.class.name}" unless value.is_a?(::Numeric)
+
+        parts = {}
+        remainder = value.to_f
+
+        (PARTS - [:weeks]).each do |part|
+          next if part == :seconds
+          part_in_seconds = PARTS_IN_SECONDS[part]
+          parts[part] = remainder.div(part_in_seconds)
+          remainder = (remainder % part_in_seconds).round(9)
+        end
+
+        parts[:seconds] = remainder
+
+        new(value, parts)
+      end
+    end
+  end
 end

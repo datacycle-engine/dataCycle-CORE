@@ -13,6 +13,7 @@ module DataCycleCore
 
     def from_hash(hash)
       @schedule_object = IceCube::Schedule.from_hash(hash)
+      self.dtstart = hash[:dtstart]
       serialize_schedule_object
       self
     end
