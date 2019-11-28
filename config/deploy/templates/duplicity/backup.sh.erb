@@ -4,7 +4,7 @@ function run_backup {
         echo 'Wrong numbere of a arguments'
         exit 1
     fi
-    /usr/bin/duplicity incr --no-encryption --full-if-older-than 1W $1 $2 --log-file $3 --include-filelist <%= fetch(:application) %>-filelist.txt
+    /usr/bin/duplicity incr --no-encryption --full-if-older-than 1W $1 $2 --log-file $3 --include-filelist /home/<%= fetch(:deploy_user) %>/scripts/<%= fetch(:application) %>-filelist.txt
     /usr/bin/duplicity remove-older-than 2M --no-encryption --force $2  --log-file $3
     /usr/bin/duplicity remove-all-inc-of-but-n-full 2 --no-encryption --force $2  --log-file $3
 }

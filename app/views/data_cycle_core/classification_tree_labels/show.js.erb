@@ -1,8 +1,6 @@
 <% if @count_only %>
   $('.remote-rendering[data-remote-render-id="<%= @target %>"]').children().fadeOut('fast', function(){
-    <% count_html = '-' %>
-    <% count_html = (@count_mode == 'classification_tree_label' || @count_mode.blank?) ? tag.b(@total_count.to_i) + ' ' + t('common.contents', count: @total_count.to_i, locale: DataCycleCore.ui_language) : @total_count.to_i   if @total_count&.positive? %>
-    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= count_html %>').removeClass('remote-rendering').addClass('remote-rendered')
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= result_count(@count_mode, @total_count, @content_class || 'things') %>').removeClass('remote-rendering').addClass('remote-rendered')
   });
 <% elsif (c_type = @classification_tree || @classification_tree_label) && params[:tree_page].present? %>
   $('#<%= c_type.id %> > ul.children > li.load-more-link').hide();

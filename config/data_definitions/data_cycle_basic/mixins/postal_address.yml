@@ -11,6 +11,7 @@
           :type: PostalAddress
         :xml:
           :type: PostalAddress
+        :advanced_search: true
         :properties:
           :street_address:
             :label: Straße
@@ -19,6 +20,7 @@
             :normalize:
               :id: street
               :type: street
+            :advanced_search: true
           :postal_code:
             :label: PLZ
             :type: string
@@ -26,6 +28,7 @@
             :normalize:
               :id: zip
               :type: zip
+            :advanced_search: true
           :address_locality:
             :label: Ort
             :type: string
@@ -33,6 +36,7 @@
             :normalize:
               :id: city
               :type: city
+            :advanced_search: true
           :address_country:
             :label: Land
             :type: string
@@ -40,6 +44,7 @@
             :normalize:
               :id: country
               :type: country
+            :advanced_search: true
       :country_code:
         :label: Ländercode
         :type: classification

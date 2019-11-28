@@ -27,10 +27,23 @@ module DataCycleCore
       @filters = current_user.default_filter(@filters) if user_filter
 
       @filters.presence&.each do |filter|
-        t = filter['m'] == 'e' ? "not_#{filter['t']}" : filter['t']
-        next unless query.respond_to?(t)
+        case filter['m']
+        when 'e'
+          t = "not_#{filter['t']}"
+        when 'g'
+          t = "greater_#{filter['t']}"
+        when 'l'
+          t = "lower_#{filter['t']}"
+        when 's'
+          t = "like_#{filter['t']}"
+        else
+          t = filter['t']
+        end
 
-        if query.method(t)&.parameters&.size == 2
+        next unless query.respond_to?(t)
+        if query.method(t)&.parameters&.size == 3
+          query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
+        elsif query.method(t)&.parameters&.size == 2
           query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
         else
           query = query.send(t, filter['v'])
@@ -164,6 +177,7 @@ module DataCycleCore
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query, user_filter)
       @count_mode = count_only_params[:count_mode]
+      @content_class = count_only_params[:content_class]
 
       case @count_mode
       when 'container'
@@ -218,7 +232,7 @@ module DataCycleCore
     end
 
     def count_only_params
-      params.permit(:target, :count_only, :count_mode)
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

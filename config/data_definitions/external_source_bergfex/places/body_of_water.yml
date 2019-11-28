@@ -38,6 +38,7 @@
         :label: Seetemperatur
         :type: object
         :storage_location: value
+        :advanced_search: true
         :properties:
           :temperature:
             :label: Temperatur
@@ -52,6 +53,7 @@
               :show:
                 :options:
                   :data-unit: °C
+            :advanced_search: true
           :temp_at:
             :label: vom
             :type: datetime
@@ -64,6 +66,7 @@
                 :options:
                   :class: single_date
                   :placeholder: "tt.mm.jjjj --:--"
+            :advanced_search: true
           :quality:
             :label: Wasserqualität
             :type: string
@@ -81,6 +84,7 @@
           :show:
             :options:
               :data-unit: km²
+        :advanced_search: true
       :depth:
         :label: Tiefe
         :type: number
@@ -94,6 +98,7 @@
           :show:
             :options:
               :data-unit: m
+        :advanced_search: true
       :geo:
         :type: mixin
         :name: geo

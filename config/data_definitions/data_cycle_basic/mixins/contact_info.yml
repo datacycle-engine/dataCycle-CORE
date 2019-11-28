@@ -12,15 +12,18 @@
           :transformation:
             :method: merge_object
             :name: address
+        :advanced_search: true
         :properties:
           :telephone:
             :label: Telefonnummer
             :type: string
             :storage_location: translated_value
+            :advanced_search: true
           :fax_number:
             :label: Fax
             :type: string
             :storage_location: translated_value
+            :advanced_search: true
           :email:
             :label: E-Mail
             :type: string
@@ -28,6 +31,7 @@
             :normalize:
               :id: email
               :type: email
+            :advanced_search: true
           :url:
             :label: Web
             :type: string
