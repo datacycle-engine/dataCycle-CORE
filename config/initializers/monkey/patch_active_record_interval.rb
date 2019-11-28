@@ -103,29 +103,29 @@ end
 
 module ActiveSupport
   class Duration
-    class << self
-      def build(value)
-        raise TypeError, "can't build an #{name} from a #{value.class.name}" unless value.is_a?(::Numeric)
+    class ISO8601Serializer
+      def serialize
+        parts, sign = normalize
+        return 'PT0S' if parts.empty?
 
-        parts = {}
-        remainder = value.to_f
-
-        # mixing of y,m,d and w is not allowed
-        if (remainder % PARTS_IN_SECONDS[:weeks]) < 1e-10
-          parts[:weeks] = remainder.div(PARTS_IN_SECONDS[:weeks])
-          return new(value, parts)
+        if parts.key?(:weeks) && parts.except(:weeks).present?
+          parts[:days] = (parts[:days] || 0) + 7 * parts[:weeks]
+          parts.delete(:weeks)
         end
 
-        (PARTS - [:weeks]).each do |part|
-          next if part == :seconds
-          part_in_seconds = PARTS_IN_SECONDS[part]
-          parts[part] = remainder.div(part_in_seconds)
-          remainder = (remainder % part_in_seconds).round(9)
+        output = + 'P'
+        output << "#{parts[:years]}Y"   if parts.key?(:years)
+        output << "#{parts[:months]}M"  if parts.key?(:months)
+        output << "#{parts[:weeks]}W"   if parts.key?(:weeks)
+        output << "#{parts[:days]}D"    if parts.key?(:days)
+        time = + ''
+        time << "#{parts[:hours]}H"     if parts.key?(:hours)
+        time << "#{parts[:minutes]}M"   if parts.key?(:minutes)
+        if parts.key?(:seconds)
+          time << "#{sprintf(@precision ? "%0.0#{@precision}f" : '%g', parts[:seconds])}S" # rubocop:disable Style/FormatString, Stype/FormatStringToken
         end
-
-        parts[:seconds] = remainder
-
-        new(value, parts)
+        output << "T#{time}" unless time.empty?
+        "#{sign}#{output}"
       end
     end
   end

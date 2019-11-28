@@ -2,8 +2,6 @@
 
 module DataCycleCore
   module ScheduleHandler
-    attr_accessor :schedule_object
-
     def to_h
       item_hash = @schedule_object.to_hash
       item_hash[:dtstart] = dtstart if dtstart.present?
@@ -107,6 +105,8 @@ module DataCycleCore
       belongs_to :external_source
       after_find :load_schedule_object
       before_save :serialize_schedule_object
+
+      attr_accessor :schedule_object
     end
 
     include ScheduleHandler
