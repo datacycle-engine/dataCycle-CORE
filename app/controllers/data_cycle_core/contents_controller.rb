@@ -46,7 +46,7 @@ module DataCycleCore
           )
 
           @language ||= params.fetch(:language) { ['all'] }
-          set_instance_variables_by_view_mode(query: @query, user_filter: true) if @content.children.present?
+          set_instance_variables_by_view_mode(query: @query, user_filter: true)
         end
 
         respond_to do |format|

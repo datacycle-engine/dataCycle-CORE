@@ -177,6 +177,7 @@ module DataCycleCore
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
       total_count = get_filtered_results(query, user_filter)
       @count_mode = count_only_params[:count_mode]
+      @content_class = count_only_params[:content_class]
 
       case @count_mode
       when 'container'
@@ -231,7 +232,7 @@ module DataCycleCore
     end
 
     def count_only_params
-      params.permit(:target, :count_only, :count_mode)
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

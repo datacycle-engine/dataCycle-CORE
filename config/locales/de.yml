@@ -93,10 +93,18 @@ de:
     details:
       show: Details anzeigen
       hide: Details ausblenden
-    contents:
+    things_count_html:
       zero: Keine Inhalte
-      one: Inhalt
-      other: Inhalte
+      one: <b>%{count}</b> Inhalt
+      other: <b>%{count}</b> Inhalte
+    users_count_html:
+      zero: Keine Benutzer
+      one: <b>%{count}</b> Benutzer
+      other: <b>%{count}</b> Benutzer
+    user_groups_count_html:
+      zero: Keine Benutzergruppen
+      one: <b>%{count}</b> Benutzergruppe
+      other: <b>%{count}</b> Benutzergruppen
     splitsource: Vorlage
     choose_splitsource: Vorlage wählen
     load_splitsource: Vorlage laden
