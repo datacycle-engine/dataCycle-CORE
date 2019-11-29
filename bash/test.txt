@@ -1,1 +1,0 @@
-DataCycleMedia;git@git.pixelpoint.biz:data-cycle/data-cycle-media.git
