@@ -8,6 +8,11 @@
       :features:
         :creatable:
           :allowed: true
+  :intangibles:
+    :Pauschalangebot:
+      :features:
+        :creatable:
+          :allowed: true
 
 :api:
   :default: v4

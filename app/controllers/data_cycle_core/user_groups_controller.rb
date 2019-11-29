@@ -21,7 +21,19 @@ module DataCycleCore
       end
 
       @contents = query.includes(:users).order(:name).page(params[:page])
-      @total = @contents.total_count
+
+      if count_only_params[:count_only].present?
+        @count_only = true
+        @target = count_only_params[:target]
+        @total_count = @contents.total_count
+        @count_mode = count_only_params[:count_mode]
+        @content_class = count_only_params[:content_class]
+      end
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create
@@ -74,6 +86,10 @@ module DataCycleCore
 
     def set_user_group
       @user_group = DataCycleCore::UserGroup.find(params[:id])
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

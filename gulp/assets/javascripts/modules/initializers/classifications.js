@@ -179,8 +179,8 @@ module.exports.initialize = function() {
 
   // Themenbaum
 
-  if ($('#classification-tree-label-list').length) {
-    $('#classification-tree-label-list').on('ajax:beforeSend', 'a', function(event, xhr, options) {
+  if ($('#classification-tree-label-list, #search-results > .tree').length) {
+    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function(event, xhr, options) {
       var childrenContainer = $(event.target)
         .closest('li')
         .children('ul.children, ul.contents');
@@ -199,14 +199,14 @@ module.exports.initialize = function() {
       .split('+')
       .filter(Boolean);
     load_sub_classifications(location_array, 0);
-
-    $(document).on('click', '.toggle-details', event => {
-      event.preventDefault();
-
-      $(event.currentTarget)
-        .closest('.inner-item')
-        .toggleClass('open')
-        .trigger('dc:remote:render');
-    });
   }
+
+  $(document).on('click', '.toggle-details', event => {
+    event.preventDefault();
+
+    $(event.currentTarget)
+      .closest('.inner-item')
+      .toggleClass('open')
+      .trigger('dc:remote:render');
+  });
 };

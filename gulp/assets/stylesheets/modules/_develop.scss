@@ -1347,19 +1347,19 @@ select:-moz-focusring {
     }
   }
 
-  .text-short {
+  .closed {
     display: block;
   }
-  .text-full {
+  .open {
     display: none;
   }
 
   &.active {
-    .text-short {
+    .closed {
       display: none;
     }
 
-    .text-full {
+    .open {
       display: block;
     }
 
@@ -1524,14 +1524,21 @@ select {
     flex: 2;
   }
 
+  .geographic.editable .geographic-map {
+    cursor: crosshair;
+  }
+
   .geographic-map {
     position: relative;
     max-height: 450px;
-    height: 100%;
+    height: 450px;
+    z-index: 0;
+
+    .mtk-editor-modal-window {
+      margin-top: -100px;
+    }
 
     .ol-viewport {
-      cursor: grab;
-
       .scroll-overlay {
         position: absolute;
         display: flex;
@@ -1577,8 +1584,40 @@ select {
     }
   }
 
-  .geographic-map {
+  .geographic {
     padding: 0.5rem;
+  }
+  .map-info.linestring-info {
+    position: absolute;
+    z-index: 999;
+    top: 1rem;
+    left: 0;
+    margin: 0;
+    padding: 0;
+    border: none;
+    width: 100%;
+    pointer-events: none;
+    background: transparent;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+    &:hover {
+      box-shadow: none;
+    }
+    .content-object-item {
+      pointer-events: all;
+      box-shadow: none;
+      height: auto;
+      padding: 0.3rem 0.5rem;
+      border: 2px solid rgba(0, 0, 0, 0.2);
+      border-radius: 4px;
+      .embedded-header {
+        position: relative;
+        top: 0;
+        left: 0;
+        font-size: 1rem;
+      }
+    }
   }
 }
 
@@ -1607,8 +1646,57 @@ select {
     display: none;
   }
 
+  &.has-changes {
+    &.new,
+    &.edit,
+    &.remove {
+      .map-info.linestring-info {
+        background: transparent !important;
+        box-shadow: none;
+      }
+    }
+  }
+
   .map-info {
     padding: 2.5rem 1rem 1rem 1rem;
+
+    &.linestring-info {
+      position: absolute;
+      z-index: 999;
+      top: 1rem;
+      left: 0;
+      margin: 0;
+      padding: 0;
+      border: none;
+      width: 100%;
+      pointer-events: none;
+      background: transparent;
+      display: flex;
+      flex-flow: row;
+      justify-content: center;
+      box-shadow: none;
+
+      .detail-label {
+        position: relative;
+        left: 0;
+        top: 0;
+        pointer-events: all;
+        box-shadow: none;
+        height: auto;
+        padding: 0.2rem 0.5rem;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        background: $white;
+      }
+      &::after {
+        right: 1rem !important;
+        top: 0 !important;
+        padding: 0.2rem 0.5rem;
+        border: 2px solid rgba(0, 0, 0, 0.2);
+        border-radius: 4px;
+        background: $white;
+      }
+    }
   }
 
   .geographic,
@@ -2337,4 +2425,7 @@ button.button-prime.small.bulk-delete-button {
       display: none;
     }
   }
+}
+.geographic .mtk-editor-modal {
+  position: absolute;
 }

@@ -127,6 +127,12 @@ $filter-border: #aaa;
             border-radius: 4px;
             border-color: $filter-border;
           }
+          .filter-text {
+            margin: 0;
+            height: 2.2rem;
+            border-radius: 4px;
+            border-color: $filter-border;
+          }
         }
 
         .advanced-filter-mode {
@@ -180,8 +186,9 @@ $filter-border: #aaa;
       margin: 1rem 0;
     }
 
-    strong {
-      color: map-get($foundation-palette, primary);
+    strong,
+    b {
+      color: $primary-color;
     }
 
     span.title {
@@ -577,8 +584,18 @@ $filter-border: #aaa;
     .result-count {
       color: $dark-gray;
 
-      strong {
+      b {
         color: $dark-gray;
+      }
+
+      .count-full {
+        .loading {
+          display: inline;
+          padding: 0;
+          .fa {
+            font-size: 0.9rem;
+          }
+        }
       }
     }
   }
@@ -860,8 +877,68 @@ $filter-border: #aaa;
 }
 
 .search-results {
-  margin-top: 1rem;
-  min-height: 40rem;
+  .mode-container {
+    text-align: right;
+    padding: 1rem 0;
+    display: flex;
+    flex-flow: row;
+    justify-content: flex-end;
+
+    .mode-switcher {
+      position: relative;
+      display: flex;
+      flex-flow: row;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.6rem;
+      border: 1px solid $light-gray;
+
+      .fa {
+        font-size: 1.5rem;
+        line-height: 1.5rem;
+      }
+
+      > i,
+      > a {
+        height: 1.5rem;
+        padding: 0 0.2rem;
+
+        &:not(:first-child) {
+          margin-left: 0.5rem;
+        }
+      }
+
+      > i,
+      a.selected {
+        color: $black;
+        text-shadow: 1px 1px 1px #ccc;
+      }
+
+      > a {
+        color: lighten($dark-gray, 20%);
+        transition: color 0.3s;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+    .result-count {
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+      padding: 0.6rem;
+      margin-right: auto;
+      border: 1px solid $light-gray;
+
+      .loading {
+        padding: 0;
+        .fa {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
 }
 
 // stored_filter index page

@@ -23,7 +23,7 @@ module DataCycleCore
       article_tree_id = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Artikel').first.classification_tree.id
 
       get classification_tree_label_path(tree_label), xhr: true, params: {
-        classification_tree_id: article_tree_id
+        ct_id: article_tree_id
       }, headers: {
         referer: root_path
       }

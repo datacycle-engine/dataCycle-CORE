@@ -419,13 +419,11 @@ class ObjectBrowser {
     this.updateChosenCounter();
     // set breadcrumb link + text
     var text = $('.breadcrumb ul li:last-child').html();
-    $('.breadcrumb ul li:last-child').html(
-      '<a class="close-object-browser" href="#">' +
-        text +
-        '</a><i class="fa fa-angle-right breadcrumb-separator" aria-hidden="true"></i>'
-    );
+    $('.breadcrumb ul li:last-child').html('<a class="close-object-browser" href="#">' + text + '</a>');
     $('.breadcrumb ul').append(
-      '<li><span class="breadcrumb-text"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
+      '<li><span class="breadcrumb-text" title="' +
+        this.label.trim() +
+        ' auswählen"><i><i class="fa fa-files-o" aria-hidden="true"></i>' +
         this.label +
         ' auswählen</i></span></li>'
     );

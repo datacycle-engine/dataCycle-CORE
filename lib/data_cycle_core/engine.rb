@@ -145,18 +145,22 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile', 'filter', 'list']
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
   end
 
   def self.setup
     yield self
   end
 
+  def self.default_classification_visibilities
+    classification_visibilities.except(['show_more', 'tree_view'])
+  end
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*', 'location.svg', 'eml-datacycle.png', 'eml-datacycle-border.png', 'eml-logo.png', 'eml-user.jpg']
+    config.assets.precompile += ['data_cycle_core/*', 'location.svg', 'location_before.svg', 'location_after.svg', 'eml-datacycle.png', 'eml-datacycle-border.png', 'eml-logo.png', 'eml-user.jpg']
 
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application

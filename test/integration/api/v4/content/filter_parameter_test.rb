@@ -23,7 +23,7 @@ module DataCycleCore
         end
 
         test 'parameter q for fulltext_search with empty string --> all' do
-          get api_v4_things_path(q: '')
+          get api_v4_things_path(filter: { search: '' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -35,7 +35,7 @@ module DataCycleCore
         end
 
         test 'parameter q for fulltext_search multiple hits' do
-          get api_v4_things_path(q: 'Headline')
+          get api_v4_things_path(filter: { search: 'Headline' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -46,17 +46,17 @@ module DataCycleCore
           assert_equal(true, json_data['links'].present?)
         end
 
-        test 'parameter q for fulltext_search one hit' do
-          get api_v4_things_path(q: 'Montag')
-          assert_response :success
-
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-
-          assert_equal(1, json_data['@graph'].size)
-          assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
-        end
+        # disabled test after removed classification from full text search
+        # test 'parameter q for fulltext_search one hit' do
+        #   get api_v4_things_path(filter: { search: 'Montag' })
+        #   assert_response :success
+        #
+        #   assert_equal(response.content_type, 'application/json')
+        #   json_data = JSON.parse(response.body)
+        #   assert_equal(1, json_data['@graph'].size)
+        #   assert_equal(1, json_data['meta']['total'].to_i)
+        #   assert_equal(true, json_data['links'].present?)
+        # end
 
         test 'parameter filter[:box] for geo-queries' do
           get api_v4_things_path(filter: { box: '0,0,10,10' })

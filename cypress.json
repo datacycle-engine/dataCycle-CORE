@@ -1,7 +1,0 @@
-{
-  "baseUrl": "http://localhost:3000",
-  "chromeWebSecurity": false,
-  "videoRecording": false,
-  "pageLoadTimeout": 120000,
-  "responseTimeout": 60000
-}

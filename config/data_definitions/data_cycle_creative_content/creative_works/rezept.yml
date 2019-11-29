@@ -68,6 +68,7 @@
           :format:
             :append: M
             :prepend: PT
+        :advanced_search: true
       :recipe_course:
         :label: 'Gang'
         :type: classification

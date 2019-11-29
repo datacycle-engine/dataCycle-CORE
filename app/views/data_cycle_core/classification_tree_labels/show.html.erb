@@ -5,6 +5,17 @@
 <% end %>
 
 <div id="classification-tree-label-list" class="row">
+  <div class="search-results">
+    <div class="mode-container">
+      <span class="result-count">
+        <span class="count-full remote-render"
+          id="count-full-results"
+          data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups).merge({ action: controller.action_name, controller: controller.controller_name, mode: @mode, count_only: true, ctl_id: @classification_tree_label&.id, count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label', content_class: local_assigns[:content_class] || 'things' })).to_json %>"
+          >-</span>
+      </span>
+    </div>
+  </div>
+
   <div class="small-12 columns">
     <ul class="backend-treeview-list">
       <li id="<%= @classification_tree_label.id %>">
@@ -21,9 +32,8 @@
           <% end %>
         </h1>
         <ul class="children">
-          <%= render 'classification_trees', classification_tree_label: @classification_tree_label,
-                                             classification_trees: @classification_trees,
-                                             content_counts: @content_count %>
+          <%= render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label,
+                                             classification_trees: @classification_trees %>
         </ul>
       </li>
     </ul>

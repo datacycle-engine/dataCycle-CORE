@@ -32,7 +32,7 @@ module DataCycleCore
 
     def to_html_string(title, text = '')
       html_title = title.presence || ''
-      html_title += ':' if text.present?
+      html_title += ': ' if text.present?
 
       html_text = text.presence || ''
 

@@ -18,8 +18,7 @@ module DataCycleCore
         setup do
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
-          @trees = DataCycleCore::ClassificationTreeLabel.count
-          # @content = DataCycleCore::DummyDataHelper.create_data('poi')
+          @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 

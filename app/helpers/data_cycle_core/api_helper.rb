@@ -4,6 +4,10 @@ module DataCycleCore
   module ApiHelper
     include DataHashHelper
 
+    def api_default_attributes
+      ['@id', '@type', '@language']
+    end
+
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
@@ -46,13 +50,35 @@ module DataCycleCore
       Array(attribute_list).map(&:first).compact
     end
 
+    def serialize_language(language_array)
+      language_array.join(',')
+    end
+
+    def load_value_object(content, key, value, languages)
+      data_value = nil
+      single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      if single_value
+        data_value = value
+      else
+        data_value = []
+
+        content.translations.each do |translation|
+          next unless languages.include?(translation.locale)
+          I18n.with_locale(translation.locale) do
+            data_value << { '@language' => I18n.locale, '@value' => content.send(key) } if content.send(key).present?
+          end
+        end
+      end
+      data_value
+    end
+
     def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
-        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
-        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end

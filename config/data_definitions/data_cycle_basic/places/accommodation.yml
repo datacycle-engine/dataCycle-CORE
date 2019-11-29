@@ -42,7 +42,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :feratel_accommodation_classifications:
         :type: mixin
         :name: feratel_accommodation_classifications
@@ -50,10 +50,12 @@
         :label: Räume
         :type: number
         :storage_location: value
+        :advanced_search: true
       :floor_size:
         :label: Größe (m²)
         :type: number
         :storage_location: value
+        :advanced_search: true
       :image:
         :label: Bilder
         :type: linked

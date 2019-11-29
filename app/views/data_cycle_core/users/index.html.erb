@@ -4,7 +4,7 @@
   <%= render 'filter', filter_model: DataCycleCore::User if user_signed_in? %>
 <% end %>
 
-<%= render 'results', contents: @contents, no_cache: true %>
+<%= render 'results', content_class: 'users', contents: @contents %>
 
 <% if can? :create_user, DataCycleCore::User %>
   <% content_for :new_button do %>

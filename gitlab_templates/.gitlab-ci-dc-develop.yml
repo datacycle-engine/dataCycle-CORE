@@ -1,0 +1,28 @@
+########################################################################
+######################### Development / Staging - Systems
+variables:
+  DEVELOPMENT_URL: ''
+
+.development_ci_config: &development_ci
+  only:
+    - develop
+  tags:
+    - data-cycle-develop
+
+build_caches_develop:
+  <<: *development_ci
+  extends: .build_caches_config
+
+code_validation_develop:
+  <<: *development_ci
+  extends: .code_validation_config
+
+deploy_develop:
+  <<: *development_ci
+  extends: .deploy_config
+  tags:
+    - data-cycle-deploy
+  environment:
+    name: development
+    url: $DEVELOPMENT_URL
+  when: manual

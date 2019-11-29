@@ -9,24 +9,39 @@
     margin: 0;
     list-style: none;
     line-height: 1.4;
+    display: flex;
+    flex-flow: row;
+    overflow: hidden;
+    white-space: nowrap;
+    justify-content: flex-start;
+
     .fa {
       display: inline-block;
-      vertical-align: middle;
     }
     li {
-      display: inline-block;
-      .breadcrumb-separator {
-        margin: 0;
-        font-size: 1.4rem;
-        display: inline-block;
-        vertical-align: middle;
+      flex: auto;
+      flex-grow: 0;
+      overflow: hidden;
+
+      &:not(:first-child) {
+        .breadcrumb-text {
+          max-width: calc(100% - 1rem);
+        }
+        &::before {
+          font-family: 'FontAwesome';
+          content: '\f101';
+          position: relative;
+          display: inline-block;
+          text-align: center;
+          width: 1rem;
+          vertical-align: bottom;
+        }
       }
       .breadcrumb-text {
         display: inline-block;
         vertical-align: middle;
         text-overflow: ellipsis;
-        max-width: 20rem;
-        white-space: nowrap;
+        max-width: 100%;
         overflow: hidden;
         padding: 0 0.5rem;
         i {
@@ -35,7 +50,6 @@
           &.fa {
             font-style: normal;
             margin-right: 0.3rem;
-            font-size: 1.2rem;
           }
         }
         b {

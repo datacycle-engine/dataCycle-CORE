@@ -40,46 +40,56 @@
                             </dd>
                         <% end %>
 
-                        <dt>
-                            <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
-                        </dt>
 
-                        <% ['license', 'contributor', 'director', 'copyright_holder', 'copyright_year'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
-                            <dd>
-                                <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: {options: {}},
-                                                            content: content %>
-                            </dd>
+                        <% if ['license', 'contributor', 'director', 'copyright_holder', 'copyright_year', 'restrictions'].any?{|val| content.try(val.to_sym).present? } %>
+
+                            <dt>
+                                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+                            </dt>
+
+                            <% ['license', 'contributor', 'director', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+                                <% next if content.try(property_name.to_sym).blank? %>
+                                <dd>
+                                    <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                                </dd>
+                            <% end %>
+
+                            <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
+                                <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
+                                <dd>
+                                    <%= render_attribute_viewer key: 'restrictions',
+                                                                definition: content.schema['properties']['restrictions'],
+                                                                value: content.restrictions,
+                                                                parameters: { options: {hide_label: true}},
+                                                                content: content %>
+                                </dd>
+                            <% end %>
+
                         <% end %>
 
-                        <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
-                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> <%= content.schema['properties']['restrictions']['label'] %></dt>
-                            <dd>
-                                <%= render_attribute_viewer key: 'restrictions',
-                                                            definition: content.schema['properties']['restrictions'],
-                                                            value: content.restrictions,
-                                                            parameters: { options: {hide_label: true}},
-                                                            content: content %>
-                            </dd>
-                        <% end %>
 
-                        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-                        <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
-                            <strong>Format:</strong> <%= content.file_format %>
-                        </dd>
+                        <% if ['width', 'height', 'content_size', 'file_format', 'duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
 
-                        <% ['duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
-                            <dd>
-                                <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: {options: {}},
-                                                            content: content %>
+                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Video - Informationen</dt>
+                            <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
+                                <strong>Format:</strong> <%= content.file_format %>
                             </dd>
+
+                            <% ['duration', 'video_frame_size', 'video_quality', 'date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+                                <% next if content.try(property_name.to_sym).blank? %>
+                                <dd>
+                                    <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                                </dd>
+                            <% end %>
+
                         <% end %>
 
                         <dt><i class="fa fa-external-link-square" aria-hidden="true"></i> Video-URLs</dt>

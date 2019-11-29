@@ -15,18 +15,21 @@
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :min_price:
         :label: Min-Preis
         :type: number
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :max_price:
         :label: Max-Preis
         :type: number
         :storage_location: value
         :validations:
           :format: float
+        :advanced_search: true
       :price_currency:
         :label: Währung
         :type: classification
@@ -50,6 +53,7 @@
         :api:
           :transformation:
             :method: unwrap
+#        :advanced_search: true
         :properties:
           :valid_from:
             :label: "Gültig ab"
@@ -65,6 +69,7 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+#            :advanced_search: true
           :valid_through:
             :label: "bis"
             :type: datetime
@@ -81,6 +86,7 @@
                 :type: date
             :api:
               :name: validThrough
+#            :advanced_search: true
       :feratel_price_sprecification_classifications:
         :type: mixin
         :name: feratel_price_sprecification_classifications
@@ -95,6 +101,8 @@
         :storage_location: column
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :disabled: true

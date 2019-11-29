@@ -24,7 +24,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :text:
         :label: Beschreibung (lang)
         :type: string
@@ -34,7 +34,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
         :api:
           :partial: property_value
           :type: PropertyValue
@@ -54,6 +54,7 @@
         :type: embedded
         :template_name: Preis
         :tranlated: true
+        :advanced_search: true
       :url:
         :label: Angebots URL
         :type: string
@@ -88,6 +89,7 @@
         :api:
           :transformation:
             :method: unwrap
+#        :advanced_search: true
         :properties:
           :valid_from:
             :label: "Zeitraum von"
@@ -103,6 +105,7 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+#              :advanced_search: true
           :valid_through:
             :label: "bis"
             :type: datetime
@@ -117,6 +120,7 @@
                   :placeholder: tt.mm.jjjj
               :show:
                 :type: date
+#              :advanced_search: true
       :potentialAction:
         :label: Buchungs-Url
         :type: object
@@ -143,6 +147,8 @@
         :storage_location: column
         :ui:
           :show:
+            :disabled: true
+          :edit:
             :disabled: true
         :api:
           :disabled: true

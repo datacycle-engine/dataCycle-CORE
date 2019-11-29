@@ -1,6 +1,7 @@
 # frozen_string_literal: true
 
 json = {}
+json.merge! render 'context', languages: @language
 
 json['@graph'] = @contents.map do |watchlist_item|
   item = watchlist_item.hashable

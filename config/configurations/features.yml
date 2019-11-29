@@ -71,6 +71,15 @@
   :classification_tree_ids: true
   :date_range: all
   :validity_period: true
+#  :advanced_attributes:
+#    :width:
+#      :type: numeric
+#    :contact_info.email:
+#      :type: string
+#    :upload_date:
+#      :type: date
+#    :mandatory_license:
+#      :type: boolean
 
 :geocode:
   :enabled: false
@@ -133,3 +142,8 @@
 :copy_embedded_locale:
   :enabled: false
   :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid

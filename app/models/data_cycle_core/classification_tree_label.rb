@@ -95,6 +95,18 @@ module DataCycleCore
       []
     end
 
+    def visible?(context)
+      visibility.include?(context)
+    end
+
+    def self.visible(context)
+      where('? = ANY(visibility)', context)
+    end
+
+    def first_available_locale(_locale)
+      :de
+    end
+
     private
 
     def invalidate_things_cache

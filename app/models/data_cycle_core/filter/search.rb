@@ -4,6 +4,7 @@ module DataCycleCore
   module Filter
     class Search < QueryBuilder
       include DataCycleCore::Filter::Common::Configurable
+      include DataCycleCore::Filter::Common::Advanced
 
       def initialize(locale = ['de'], query = nil, joined_search = false)
         @locale = locale
@@ -76,6 +77,14 @@ module DataCycleCore
 
         reflect(
           @query.where(external_system_sync.where(external_system_sync[:external_system_id].in(ids).and(external_system_sync[:syncable_id].eq(thing[:id]))).exists)
+        )
+      end
+
+      def subscribed_user_id(id = nil)
+        return self if id.blank?
+
+        reflect(
+          @query.where(subscription.where(subscription[:subscribable_id].eq(thing[:id]).and(subscription[:user_id].eq(id))).exists)
         )
       end
 
@@ -191,7 +200,15 @@ module DataCycleCore
       def classification_alias_ids(ids = nil)
         return self if ids.blank?
 
-        reflect(@query.with_classification_alias_ids(ids))
+        # reflect(@query.with_classification_alias_ids(ids))
+
+        ids = DataCycleCore::ClassificationAlias.where(id: ids).with_descendants.select(:id).arel
+
+        reflect(
+          @query.where(
+            join_classification_alias_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_alias[:id].in(ids))).exists
+          )
+        )
       end
 
       def not_classification_alias_ids(ids = nil)
@@ -247,7 +264,6 @@ module DataCycleCore
 
         date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
         query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-
         reflect(
           @query.where(query_string)
         )
@@ -272,14 +288,6 @@ module DataCycleCore
             join_classification_trees_on_classification_content.where(classification_content[:content_data_id].eq(thing[:id]).and(classification_tree[:classification_tree_label_id].in(ids))).exists
           )
         )
-
-        # reflect(
-        #   @query.where(
-        #     thing[:id].in(
-        #       join_classification_trees.where(classification_tree[:classification_tree_label_id].in(ids))
-        #     )
-        #   )
-        # )
       end
 
       def not_classification_tree_ids(ids = nil)
@@ -459,6 +467,10 @@ module DataCycleCore
 
       def external_system_sync
         DataCycleCore::ExternalSystemSync.arel_table
+      end
+
+      def subscription
+        DataCycleCore::Subscription.arel_table
       end
     end
   end

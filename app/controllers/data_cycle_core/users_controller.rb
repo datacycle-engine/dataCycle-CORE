@@ -30,7 +30,19 @@ module DataCycleCore
       query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
 
       @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
-      @total = @contents.total_count
+
+      if count_only_params[:count_only].present?
+        @count_only = true
+        @target = count_only_params[:target]
+        @total_count = @contents.total_count
+        @count_mode = count_only_params[:count_mode]
+        @content_class = count_only_params[:content_class]
+      end
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create_user
@@ -126,6 +138,10 @@ module DataCycleCore
 
     def set_user
       @user = DataCycleCore::User.find(params[:id])
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

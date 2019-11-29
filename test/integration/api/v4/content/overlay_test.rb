@@ -23,7 +23,7 @@ module DataCycleCore
           image_data_hash['name'] = 'Another Image'
           overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
-          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
+          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi_de')
           place_data_hash['name'] = 'Another Place'
           overlay_place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
@@ -66,8 +66,8 @@ module DataCycleCore
           assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
           assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
-          assert_equal(api_v4_thing_url(id: overlay_image.id), json_data.dig('image', 0, '@id'))
-          assert_equal(api_v4_thing_url(id: overlay_place.id), json_data.dig('location', 0, '@id'))
+          assert_equal(overlay_image.id, json_data.dig('image', 0, '@id'))
+          assert_equal(overlay_place.id, json_data.dig('location', 0, '@id'))
 
           # attribute link is rendered in additionalProperty
           assert(json_data.dig('additionalProperty').present?)

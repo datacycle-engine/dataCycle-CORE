@@ -75,6 +75,7 @@
           :method: file_size
           :parameters:
             :0: asset
+        :advanced_search: true
       :file_format:
         :label: Dateiformat
         :storage_location: value

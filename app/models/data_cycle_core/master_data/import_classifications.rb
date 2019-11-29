@@ -39,6 +39,7 @@ module DataCycleCore
       end
 
       def self.iterate_array(array)
+        return {} if array.blank?
         data = array.map { |item| item.is_a?(::String) ? { item => nil } : item }.reduce({}, :merge)
         data.map { |key, value|
           if value.blank? || value.is_a?(::String)
@@ -107,7 +108,7 @@ module DataCycleCore
       def self.get_label(label)
         split_data = label.split('|').map(&:squish)
         label = split_data[0]
-        visibility = split_data[1] == 'all' ? DataCycleCore.classification_visibilities.except('show_more') : (split_data[1]&.split(',')&.map(&:squish) || [])
+        visibility = split_data[1] == 'all' ? DataCycleCore.default_classification_visibilities : (split_data[1]&.split(',')&.map(&:squish) || [])
 
         DataCycleCore::ClassificationTreeLabel.find_or_create_by(name: label) do |label_data|
           label_data.seen_at = Time.zone.now

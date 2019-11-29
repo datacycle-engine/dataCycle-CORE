@@ -66,7 +66,7 @@ DataCycleCore::Engine.routes.draw do
     get 'download/(:serialize_format)', on: :member, action: :download, as: 'download'
     post :add_to_watchlist, on: :collection
   end
-  resources :classification_tree_labels, only: :show
+  resources :classification_tree_labels, only: :show, param: :ctl_id
 
   defaults format: :json do
     resource :content_locks, only: :update do
@@ -218,6 +218,8 @@ DataCycleCore::Engine.routes.draw do
         scope path: '(/:api_subversion)' do
           get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
           resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+
+          get 'universal(/:id)', to: 'universal#show', as: 'universal'
 
           resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
             get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'

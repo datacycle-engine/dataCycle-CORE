@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-json['concepts'] ||= []
+json['dc:classification'] ||= []
 
 unless content.schema.nil?
 
@@ -10,26 +10,43 @@ unless content.schema.nil?
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 
-    value = content.try(key.to_sym)
+    value = I18n.with_locale(content.first_available_locale) { content.try(key.to_sym) }
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
 
     if prop.dig('type') == 'classification' && partial_params.present?
       new_options = options.dup
-      new_options[:full] = included_attribute?('concepts', options[:include]) || included_attribute?('concepts', options[:fields])
+      new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
       partial_params[1][:options] = new_options.dup
 
       classification_data = render(*partial_params)
-      json['concepts'] += classification_data&.dig('concepts')
+
+      if classification_data&.dig('dc:classification').present?
+        json['dc:classification'] += classification_data&.dig('dc:classification')
+      else
+        classification_data.each do |c_key, c_value|
+          next if c_value.blank?
+          json[c_key] = c_value
+        end
+      end
       next
     end
 
-    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && prop.dig('api', 'transformation', 'name').present?
-      if json.dig(prop.dig('api', 'transformation', 'name')).present?
-        json.dig(prop.dig('api', 'transformation', 'name')).merge! render(*partial_params) unless partial_params.nil?
+    property_name = prop.dig('api', 'transformation', 'name')
+    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && property_name.present?
+      if json.dig(property_name).present?
+        json.dig(property_name).merge! render(*partial_params) unless partial_params.nil?
       else
-        json[prop.dig('api', 'transformation', 'name')] = render(*partial_params) unless partial_params.nil?
+        json[property_name] = render(*partial_params) unless partial_params.nil?
+      end
+      # filter out fields
+      new_fields = subtree_for(property_name, options[:fields])
+      if new_fields.present? || options[:field_filter]
+        new_include = subtree_for(property_name, options[:include])
+        json[property_name] = json[property_name].select do |p_key, _value|
+          api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key)
+        end
       end
     else
       json.merge! render(*partial_params) unless partial_params.nil?
@@ -38,5 +55,5 @@ unless content.schema.nil?
 
 end
 
-json.delete('concepts') if json['concepts'].blank?
+json.delete('dc:classification') if json['dc:classification'].blank?
 json
