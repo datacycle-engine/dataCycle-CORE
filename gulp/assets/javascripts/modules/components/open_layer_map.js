@@ -172,8 +172,8 @@ class OpenLayerMap {
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
     } else if (
       this.type == 'LineString' &&
-      ((this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
-        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined))
+      ((this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length) ||
+        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length))
     ) {
       let points = [];
       if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
@@ -190,7 +190,7 @@ class OpenLayerMap {
         });
         this.featureOld.setStyle(this.redLineStyle);
       }
-    } else if (this.type == 'LineString') {
+    } else if (this.type == 'LineString' && this.value[0] !== undefined && this.value[0].length) {
       this.feature = new ol.Feature({
         geometry: new ol.geom.LineString(this.value)
       });
