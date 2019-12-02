@@ -93,6 +93,10 @@ de:
     details:
       show: Details anzeigen
       hide: Details ausblenden
+    contents:
+      zero: Keine Inhalte
+      one: Inhalt
+      other: Inhalte
     things_count_html:
       zero: Keine Inhalte
       one: <b>%{count}</b> Inhalt
