@@ -83,7 +83,7 @@ module DataCycleCore
       end
 
       def load_schedule(relation_name)
-        DataCycleCore::Schedule.find_by(thing_id: id, relation: relation_name)
+        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name)
       end
 
       def as_of(timestamp)

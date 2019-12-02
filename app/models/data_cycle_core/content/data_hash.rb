@@ -368,14 +368,25 @@ module DataCycleCore
           .destroy_all
       end
 
-      def set_schedule(data, relation_name)
-        if data.present?
-          schedule = DataCycleCore::Schedule.find_or_initialize_by(thing_id: id, relation: relation_name)
+      def set_schedule(input_data, relation_name)
+        updated_item_keys = []
+        available_items = load_schedule(relation_name).ids
+        data = input_data || []
+
+        data.each do |item|
+          schedule =
+            if item['id'].present?
+              DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name)
+            else
+              DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
+            end
           schedule.schedule_object.from_hash(data)
           schedule.save!
-        else
-          DataCycleCore::Schedule.find_by(thing_id: id, relation: relation_name)&.destroy
+          updated_item_keys << schedule.id
         end
+
+        delete = available_items - updated_item_keys
+        DataCycleCore::Schedule.where(id: delete).destroy_all
       end
     end
   end

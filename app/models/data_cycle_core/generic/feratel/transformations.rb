@@ -136,6 +136,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
           .>> t(:add_field, 'event_schedule', ->(s) { load_event_schedules(s) })
+          .>> t(:add_field, 'schedule', ->(s) { load_schedules(s) })
           .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
@@ -500,6 +501,77 @@ module DataCycleCore
           when 'Day'
             nil
           # value.to_f * 24 * 60
+          when 'Hour'
+            value.to_f * 60
+          when 'Minute'
+            value.to_f
+          else
+            raise "Unknown duration type '#{type}'"
+          end
+        end
+
+        def self.load_schedules(data)
+          available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
+          available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
+          duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || 0
+          options = { duration: duration } if duration.positive?
+
+          res = []
+          return nil if available_dates.blank?
+
+          available_dates.each do |date|
+            dstart = nil
+            dend = nil
+            dstart = Time.zone.parse(date['From']) if date['From'].present?
+            dend = Time.zone.parse(date['To']) if date['To'].present?
+
+            if available_start_times.present?
+              available_start_times.each do |time_item|
+                tstart = time_item['Time'].to_datetime
+                dtstart = dstart + tstart.hour * 60 + tstart.minute
+                dtend = dend + tstart.hour * 60 + tstart.minute + duration
+                active_days = time_item
+                  .except('Time')
+                  .select { |_day, val| val == 'true' }
+                  .map { |day, _val| load_day_nr(day) }
+                rrule = IceCube::Rule.daily
+                rrule.hour_of_day(tstart.hour)
+                rrule.minute_of_hour(tstart.minute)
+                rrule.day(active_days)
+                rrule.until(dtend)
+                schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
+                  s.add_recurrence_rule(rrule)
+                end
+                res << schedule_object.to_hash
+              end
+            else
+              res << { dtstart: dstart, dtend: dend }
+            end
+          end
+          res.sort_by { |item| item[:dtstart] }
+        end
+
+        def self.load_day_nr(day)
+          return nil unless ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].include?(day)
+          {
+            'Mon' => 1,
+            'Tue' => 2,
+            'Wed' => 3,
+            'Thu' => 4,
+            'Fri' => 5,
+            'Sat' => 6,
+            'Sun' => 0
+          }[day]
+        end
+
+        def self.duration(type, value)
+          case type
+          when nil
+            nil
+          when 'None'
+            nil
+          when 'Day'
+            value.to_f * 24 * 60
           when 'Hour'
             value.to_f * 60
           when 'Minute'

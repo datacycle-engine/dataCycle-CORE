@@ -5,11 +5,13 @@ json ||= {}
 key_name = definition.dig('api', 'name') || key.camelize(:lower)
 
 if content.present?
-  json[key_name] = {
-    '@id' => content.id,
-    '@type' => 'Schedule'
-  }
-  json[key_name] = content.send(key)&.to_schema_org
+  json[key_name] = content.send(key)&.map do |schedule|
+    {
+      '@id' => schedule.id,
+      '@type' => 'Schedule'
+    }.merge(schedule&.to_schedule_schema_org)
+    &.compact
+  end
 end
 
 json

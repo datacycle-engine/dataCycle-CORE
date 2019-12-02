@@ -4,6 +4,7 @@ module DataCycleCore
   module ScheduleHandler
     def to_h
       item_hash = @schedule_object.to_hash
+      item_hash[:id] = id
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
       item_hash
@@ -12,28 +13,33 @@ module DataCycleCore
     def from_hash(hash)
       @schedule_object = IceCube::Schedule.from_hash(hash)
       self.dtstart = hash[:dtstart]
+      self.dtend = hash[:dtend]
+      self.relation = hash[:relation]
+      self.thing_id = hash[:thing_id]
       serialize_schedule_object
       self
     end
 
     def to_s
-      "#{@schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{dtend&.to_s(:only_time)})"
+      "#{@schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{(dtstart + duration || 0)&.to_s(:only_time)})"
     end
 
     def dow(day)
       {
-        'MO' => 'http://schema.org/Monday',
-        'TU' => 'http://schema.org/Tuesday',
-        'WE' => 'http://schema.org/Wednesday',
-        'TH' => 'http://schema.org/Thursday',
-        'FR' => 'http://schema.org/Friday',
-        'SA' => 'http://schema.org/Saturday',
-        'SU' => 'http://schema.org/Sunday'
+        1 => 'http://schema.org/Monday',
+        2 => 'http://schema.org/Tuesday',
+        3 => 'http://schema.org/Wednesday',
+        4 => 'http://schema.org/Thursday',
+        5 => 'http://schema.org/Friday',
+        6 => 'http://schema.org/Saturday',
+        0 => 'http://schema.org/Sunday'
       }[day]
     end
 
-    def to_schema_org
+    def to_schedule_schema_org
+      # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
       end_time = dtend&.to_s(:only_time)
+      end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
       repeat_frequency = nil
       by_day = nil
@@ -43,7 +49,7 @@ module DataCycleCore
         rule = @schedule_object&.recurrence_rules&.first
         rule_ical = rule.to_ical
         rule_hash = rule.to_hash
-        end_time = rule&.until_time&.in_time_zone&.to_s(:only_time)
+        end_time = rule&.until_time&.in_time_zone&.to_s(:only_time) if end_time.blank? && rule&.until_time.present?
         repeat_count = rule&.occurrence_count
         repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
         by_day = rule_hash.dig(:validations, :day)
@@ -68,6 +74,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
+      # duration = ActiveSupport::Duration.build(dtend - dtstart) if dtstart.present? && dtend.present?
       options = {
         end_time: dtend.presence,
         duration: duration.presence&.to_i
@@ -91,6 +98,7 @@ module DataCycleCore
       self.dtend = @schedule_object.recurrence_rules&.first&.until_time&.in_time_zone
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
+      self
     end
 
     def occurs_between?(from = dtstart, to = dtend)

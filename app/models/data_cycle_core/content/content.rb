@@ -213,7 +213,9 @@ module DataCycleCore
         elsif computed_property_names.include?(property_name)
           send(property_name)
         elsif schedule_property_names.include?(property_name)
-          send(property_name).to_h.presence
+          schedule_array = send(property_name)
+          schedule_array = schedule_array.map(&:to_h).presence
+          schedule_array.blank? ? [] : schedule_array.compact
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
         end

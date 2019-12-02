@@ -13,7 +13,6 @@ module ActiveRecord
           end
 
           def cast_value(value)
-            # puts "(cast_value) #{value.class} -> #{value}"
             case value
             when ::ActiveSupport::Duration
               value
@@ -30,7 +29,6 @@ module ActiveRecord
           end
 
           def serialize(value)
-            # puts "(serialize_value) #{value.class} -> #{value} // #{value.iso8601(precision: precision)}"
             case value
             when ::ActiveSupport::Duration
               value.iso8601(precision: precision)

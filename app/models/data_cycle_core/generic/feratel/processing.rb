@@ -61,7 +61,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_event(utility_object.external_source.id),
-            default: { template: 'dataCycleEvent' },
+            default: { template: 'Event' },
             config: config
           )
         end
