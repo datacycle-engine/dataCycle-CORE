@@ -25,7 +25,9 @@ describe DataCycleCore::MasterData::Validators::Schedule do
       schedule_object = IceCube::Schedule.new(Time.zone.now) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9))
       end
-      assert_equal(no_error_hash, subject.new(schedule_object, template_hash).error)
+      schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'schedule')
+      schedule.schedule_object = schedule_object
+      assert_equal(no_error_hash, subject.new([schedule.to_h], template_hash).error)
     end
 
     it 'properly returns a warning if no data are given' do

@@ -4,13 +4,25 @@ module DataCycleCore
   module MasterData
     module Validators
       class Schedule < BasicValidator
-        # TODO: dummy evaluator for now
         def validate(data, template)
           if data.blank?
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
-          elsif data.is_a?(::Hash)
-            data.deep_symbolize_keys.each do |key, value|
+          elsif data.is_a?(::Array)
+            check_data_array(data, template)
+          else
+            (@error[:error][@template_key] ||= []) << I18n.t(:general, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language)
+          end
+          @error
+        end
+
+        def check_data_array(data, template)
+          data.each do |data_item|
+            data_item.deep_symbolize_keys.each do |key, value|
               case key
+              when :thing_id
+                (@error[:error][@template_key] ||= []) << I18n.t(:thing_id, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless uuid?(value)
+              when :relation
+                (@error[:error][@template_key] ||= []) << I18n.t(:relation, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) if value.blank?
               when :start_time, :end_time
                 (@error[:error][@template_key] ||= []) << I18n.t(:time, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless hash_value_with_zone?(value)
               when :rdate, :exdate
@@ -19,12 +31,7 @@ module DataCycleCore
                 (@error[:error][@template_key] ||= []) << I18n.t(:rrule, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language) unless rrule?(value&.first)
               end
             end
-          elsif data.is_a?(::DataCycleCore::Schedule) || data.is_a?(::IceCube::Schedule)
-            # all ok
-          else
-            (@error[:error][@template_key] ||= []) << I18n.t(:general, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language)
           end
-          @error
         end
 
         def hash_value_with_zone?(data)

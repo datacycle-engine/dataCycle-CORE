@@ -415,6 +415,8 @@ de:
         time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
         date_time_array: "DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone"
         rrule: "RRULE format falsch für %{template} (%{data})."
+        thing_id: "thing_id ist ein Pflichtfeld."
+        relation: "relation ist ein Pflichtfeld."
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierguns-Daten angegeben."

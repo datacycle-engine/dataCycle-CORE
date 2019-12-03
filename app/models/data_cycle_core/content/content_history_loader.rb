@@ -88,7 +88,7 @@ module DataCycleCore
       end
 
       def load_schedule(relation_name)
-        DataCycleCore::Schedule::History.find_by(thing_history_id: id, relation: relation_name)
+        DataCycleCore::Schedule::History.find_by(thing_history_id: id, relation: relation_name).order(created_at: :asc)
       end
 
       def as_of(timestamp)

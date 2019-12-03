@@ -5,17 +5,17 @@ module DataCycleCore
     def to_h
       item_hash = @schedule_object.to_hash
       item_hash[:id] = id
+      item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
       item_hash[:dtend] = dtend if dtstart.present?
       item_hash
     end
 
-    def from_hash(hash)
+    def from_h(hash)
       @schedule_object = IceCube::Schedule.from_hash(hash)
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
       self.relation = hash[:relation]
-      self.thing_id = hash[:thing_id]
       serialize_schedule_object
       self
     end
@@ -115,6 +115,21 @@ module DataCycleCore
       before_save :serialize_schedule_object
 
       attr_accessor :schedule_object
+
+      def history?
+        true
+      end
+
+      def to_h
+        super.merge(thing_history_id: thing_history_id)
+      end
+      alias to_hash to_h
+
+      def from_h(hash)
+        self.thing_history_id = hash[:thing_history_id]
+        super
+      end
+      alias from_hash from_h
     end
 
     include ScheduleHandler
@@ -137,5 +152,20 @@ module DataCycleCore
     # EXCEPT
     # SELECT event_date from unnest(exdate) AS event_date
     # )
+
+    def history?
+      false
+    end
+
+    def to_h
+      super.merge(thing_id: thing_id)
+    end
+    alias to_hash to_h
+
+    def from_h(hash)
+      self.thing_id = hash[:thing_id]
+      super
+    end
+    alias from_hash from_h
   end
 end
