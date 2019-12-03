@@ -12,16 +12,17 @@ module DataCycleCore
     end
 
     def from_h(hash)
-      @schedule_object = IceCube::Schedule.from_hash(hash)
+      @schedule_object = nil
+      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation).present?
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
-      self.relation = hash[:relation]
+      self.relation = hash[:relation] || relation
       serialize_schedule_object
       self
     end
 
     def to_s
-      "#{@schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{(dtstart + duration || 0)&.to_s(:only_time)})"
+      "#{@schedule_object} (#{dtstart&.to_s(:only_date)} - #{dtend&.to_s(:only_date)} // #{dtstart&.to_s(:only_time)} - #{(dtstart + (duration || 0))&.to_s(:only_time)})"
     end
 
     def dow(day)
@@ -126,7 +127,7 @@ module DataCycleCore
       alias to_hash to_h
 
       def from_h(hash)
-        self.thing_history_id = hash[:thing_history_id]
+        self.thing_history_id = hash[:thing_history_id] || thing_history_id
         super
       end
       alias from_hash from_h
@@ -163,7 +164,7 @@ module DataCycleCore
     alias to_hash to_h
 
     def from_h(hash)
-      self.thing_id = hash[:thing_id]
+      self.thing_id = hash[:thing_id] || thing_id
       super
     end
     alias from_hash from_h

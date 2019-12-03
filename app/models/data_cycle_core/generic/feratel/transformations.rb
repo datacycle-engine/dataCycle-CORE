@@ -514,6 +514,7 @@ module DataCycleCore
           available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
           available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
           duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || 0
+          options = {}
           options = { duration: duration } if duration.positive?
 
           res = []
@@ -528,16 +529,18 @@ module DataCycleCore
             if available_start_times.present?
               available_start_times.each do |time_item|
                 tstart = time_item['Time'].to_datetime
-                dtstart = dstart + tstart.hour * 60 + tstart.minute
-                dtend = dend + tstart.hour * 60 + tstart.minute + duration
+                dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
+                dtend = dend + tstart.hour * 60 * 60 + tstart.minute * 60 + duration
                 active_days = time_item
                   .except('Time')
                   .select { |_day, val| val == 'true' }
                   .map { |day, _val| load_day_nr(day) }
+                  .compact
+                  .presence
                 rrule = IceCube::Rule.daily
                 rrule.hour_of_day(tstart.hour)
-                rrule.minute_of_hour(tstart.minute)
-                rrule.day(active_days)
+                rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
+                rrule.day(active_days) if active_days.present?
                 rrule.until(dtend)
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
@@ -553,15 +556,7 @@ module DataCycleCore
 
         def self.load_day_nr(day)
           return nil unless ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'].include?(day)
-          {
-            'Mon' => 1,
-            'Tue' => 2,
-            'Wed' => 3,
-            'Thu' => 4,
-            'Fri' => 5,
-            'Sat' => 6,
-            'Sun' => 0
-          }[day]
+          { 'Mon' => 1, 'Tue' => 2, 'Wed' => 3, 'Thu' => 4, 'Fri' => 5, 'Sat' => 6, 'Sun' => 0 }[day]
         end
 
         def self.duration(type, value)
@@ -571,11 +566,11 @@ module DataCycleCore
           when 'None'
             nil
           when 'Day'
-            value.to_f * 24 * 60
+            value.to_f * 24 * 60 * 60
           when 'Hour'
-            value.to_f * 60
+            value.to_f * 60 * 60
           when 'Minute'
-            value.to_f
+            value.to_f * 60
           else
             raise "Unknown duration type '#{type}'"
           end
