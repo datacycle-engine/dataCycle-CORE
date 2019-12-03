@@ -147,3 +147,5 @@
   :enabled: true
   :allowed:
     - grid
+    - list
+    - tree
