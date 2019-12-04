@@ -525,12 +525,23 @@ module DataCycleCore
             dend = nil
             dstart = Time.zone.parse(date['From']) if date['From'].present?
             dend = Time.zone.parse(date['To']) if date['To'].present?
+            options = {} if duration > 1.day && dend.present? # duration is interpreted for the entierty of all event not only a single event
 
             if available_start_times.present?
               available_start_times.each do |time_item|
                 tstart = time_item['Time'].to_datetime
                 dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
-                dtend = dend + tstart.hour * 60 * 60 + tstart.minute * 60 + duration
+                dtend = nil
+                if dend.present?
+                  dtend = dend + tstart.hour * 60 * 60 + tstart.minute * 60
+                  if duration == 1.day && dstart == dend
+                    dtend = dend.end_of_day
+                  elsif duration < 1.day
+                    dtend += duration
+                  end
+                elsif duration.present?
+                  dtend = dtstart + duration
+                end
                 active_days = time_item
                   .except('Time')
                   .select { |_day, val| val == 'true' }
