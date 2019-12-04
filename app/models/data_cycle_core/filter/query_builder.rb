@@ -57,6 +57,10 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
+      def overlap(range_l, range_r)
+        Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
+      end
+
       # def to_tsvector(field)
       #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
       # end
@@ -64,6 +68,10 @@ module DataCycleCore
       # def trgm_match(text1, text2)
       #   Arel::Nodes::InfixOperation.new('%', text1, text2)
       # end
+
+      def tstzrange(ts_l, ts_h, border = '[]')
+        Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
+      end
 
       def cast_tstz(date)
         Arel::Nodes::NamedFunction.new(

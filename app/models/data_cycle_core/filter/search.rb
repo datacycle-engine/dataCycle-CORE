@@ -50,6 +50,37 @@ module DataCycleCore
         )
       end
 
+      def schedule_search(from, to, relation)
+        return self if from.blank? || to.blank? || relation.blank?
+
+        reflect(
+          @query
+            .joins(:scheduled_data)
+            .where('schedules.relation' => relation)
+            .where(
+              overlap(
+                tstzrange(cast_tstz(Time.zone.parse(from).to_s), cast_tstz(Time.zone.parse(to).to_s)),
+                tstzrange(schedule[:dtstart], schedule[:dtend])
+              )
+            )
+          # .where("tstzrange(?::timestamp with time zone, ?::timestamp with time zone, '[]') @> ANY (SELECT event_date FROM unnest(schedules.rdate) AS event_date UNION SELECT event_date FROM unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date EXCEPT SELECT event_date FROM unnest(schedules.exdate) AS event_date)", Time.zone.parse(from).to_s, Time.zone.parse(to).to_s)
+        )
+      end
+
+      # .where("tstzrange(?::timestamp with time zone, ?::timestamp with time zone, '[]') && tstzrange(schedules.dtstart, dtend, '[]')", Time.zone.parse(from).to_s, Time.zone.parse(to).to_s)
+      # SELECT *
+      # FROM schedules
+      # WHERE
+      # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') && tstzrange(dtstart, dtend, '[]')
+      # AND
+      # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') @> ANY (
+      # SELECT event_date from unnest(rdate) AS event_date
+      # UNION
+      # SELECT event_date FROM unnest(get_occurrences(rrule::rrule, dtstart)) AS event_date
+      # EXCEPT
+      # SELECT event_date from unnest(exdate) AS event_date
+      # )
+
       def in_validity_period(current_date = Time.zone.now)
         reflect(
           @query.where(in_range(thing[:validity_range], cast_tstz(current_date)))
@@ -455,6 +486,10 @@ module DataCycleCore
 
       def search
         DataCycleCore::Search.arel_table
+      end
+
+      def schedule
+        DataCycleCore::Schedule.arel_table
       end
 
       def thing
