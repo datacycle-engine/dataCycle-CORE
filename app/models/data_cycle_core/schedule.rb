@@ -4,6 +4,7 @@ module DataCycleCore
   module ScheduleHandler
     def to_h
       item_hash = @schedule_object.to_hash
+      item_hash[:duration] = duration
       item_hash[:id] = id
       item_hash[:relation] = relation
       item_hash[:dtstart] = dtstart if dtstart.present?
@@ -14,6 +15,7 @@ module DataCycleCore
     def from_h(hash)
       @schedule_object = nil
       @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation).present?
+      self.duration = hash[:duration]
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
       self.relation = hash[:relation] || relation
@@ -75,11 +77,7 @@ module DataCycleCore
     end
 
     def load_schedule_object
-      # duration = ActiveSupport::Duration.build(dtend - dtstart) if dtstart.present? && dtend.present?
-      options = {
-        end_time: dtend.presence,
-        duration: duration.presence&.to_i
-      }.compact
+      options = { duration: duration.presence&.to_i }.compact
       @schedule_object = IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
         s.add_recurrence_rule(IceCube::Rule.from_ical(rrule)) if rrule.present? # allow only one rrule!!
         rdate.each do |rd|
