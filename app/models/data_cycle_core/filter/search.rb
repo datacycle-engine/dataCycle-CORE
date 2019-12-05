@@ -52,15 +52,15 @@ module DataCycleCore
       end
 
       def schedule_search(from, to, relation)
-        return self if from.blank? || relation.blank?
+        return self if relation.blank? || (from.blank? && to.blank?)
 
         @joined_schedule = true
 
         rdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.rdate) AS event_date'))
         occurrences = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date'))
         exdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.exdate) AS event_date'))
-        from_node = cast_tstz(Time.zone.parse(from).to_s)
-        to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(Time.zone.parse(to).to_s)
+        from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
+        to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
 
         reflect(
           @query

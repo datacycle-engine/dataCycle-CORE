@@ -63,7 +63,6 @@ module DataCycleCore
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
           query = filter.apply
-
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
@@ -92,14 +91,7 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          if from_date.blank?
-            from_date = Time.zone.now
-            from_date = to_date if from_date > to_date
-          end
-
-          query = query.event_from_time(from_date)
-          query = query.event_end_time(to_date) if to_date.present?
-          query
+          query.schedule_search(from_date, to_date, 'schedule')
         end
 
         def apply_place_query_filters(query)
