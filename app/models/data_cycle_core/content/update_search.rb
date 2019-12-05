@@ -29,44 +29,20 @@ module DataCycleCore
           boost = schema.dig('boost') || 1.0
           schema_type = schema.dig('schema_type')
 
-          connection = ActiveRecord::Base.connection
-          sql_query = <<-EOS
-            INSERT INTO searches (id, content_data_id, locale, words, full_text,
-              created_at, updated_at, headline, classification_string, data_type, all_text, validity_period, boost, schema_type, advanced_attributes)
-            VALUES
-            ( DEFAULT,
-              '#{id}',
-              '#{language}',
-              to_tsvector('simple', '#{search_data[:full_text]}'),
-              '#{search_data[:full_text]}',
-              '#{created_at}',
-              '#{Time.zone.now.to_s(:long_usec)}',
-              '#{search_data[:headline]}',
-              '#{search_data[:classification_string]}',
-              '#{template_name}',
-              '#{search_data[:all_text]}',
-              '#{validity_string}',
-              #{boost},
-              '#{schema_type}',
-              '#{advanced_search_attributes.to_json}'
-            )
-            ON CONFLICT (content_data_id, locale)
-            WHERE content_data_id = '#{id}' AND locale = '#{language}'
-            DO UPDATE SET
-              words = EXCLUDED.words,
-              full_text = EXCLUDED.full_text,
-              created_at = EXCLUDED.created_at,
-              updated_at = EXCLUDED.updated_at,
-              headline = EXCLUDED.headline,
-              classification_string = EXCLUDED.classification_string,
-              data_type = EXCLUDED.data_type,
-              all_text = EXCLUDED.all_text,
-              validity_period = EXCLUDED.validity_period,
-              boost = EXCLUDED.boost,
-              schema_type = EXCLUDED.schema_type,
-              advanced_attributes = EXCLUDED.advanced_attributes;
-          EOS
-          connection.exec_query(ActiveRecord::Base.send(:sanitize_sql_for_conditions, sql_query))
+          DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
+            s.full_text = search_data[:full_text]
+            s.created_at = created_at
+            s.updated_at = Time.zone.now.to_s(:long_usec)
+            s.headline = search_data[:headline]
+            s.classification_string = search_data[:classification_string]
+            s.data_type = template_name
+            s.all_text = search_data[:all_text]
+            s.validity_period = validity_string
+            s.boost = boost
+            s.schema_type = schema_type
+            s.advanced_attributes = advanced_search_attributes
+            s.save!
+          end
         end
         # ap "### inside update time: #{(Time.zone.now - timestamp)}: #{id}"
       end
