@@ -1589,6 +1589,34 @@ CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
 
 
 --
+-- Name: index_schedule_histories_on_from_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_histories_on_from_to ON public.schedule_histories USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedule_histories_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_histories USING btree (thing_history_id);
+
+
+--
+-- Name: index_schedules_on_from_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_from_to ON public.schedules USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedules_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_thing_id ON public.schedules USING btree (thing_id);
+
+
+--
 -- Name: index_searches_on_advanced_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2110,6 +2138,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190920075014'),
 ('20191113092141'),
 ('20191119110348'),
-('20191129131046');
+('20191129131046'),
+('20191205123950');
 
 

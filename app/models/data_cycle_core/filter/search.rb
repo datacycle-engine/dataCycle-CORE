@@ -6,9 +6,10 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Configurable
       include DataCycleCore::Filter::Common::Advanced
 
-      def initialize(locale = ['de'], query = nil, joined_search = false)
+      def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
         @joined_search = joined_search
+        @joined_schedule = joined_schedule
         if locale.nil?
           @query = query || DataCycleCore::Thing
         else
@@ -51,35 +52,25 @@ module DataCycleCore
       end
 
       def schedule_search(from, to, relation)
-        return self if from.blank? || to.blank? || relation.blank?
+        return self if from.blank? || relation.blank?
+
+        @joined_schedule = true
+
+        rdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.rdate) AS event_date'))
+        occurrences = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date'))
+        exdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.exdate) AS event_date'))
+        from_node = cast_tstz(Time.zone.parse(from).to_s)
+        to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(Time.zone.parse(to).to_s)
 
         reflect(
           @query
+            .where(overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date])))
             .joins(:scheduled_data)
             .where('schedules.relation' => relation)
-            .where(
-              overlap(
-                tstzrange(cast_tstz(Time.zone.parse(from).to_s), cast_tstz(Time.zone.parse(to).to_s)),
-                tstzrange(schedule[:dtstart], schedule[:dtend])
-              )
-            )
-          # .where("tstzrange(?::timestamp with time zone, ?::timestamp with time zone, '[]') @> ANY (SELECT event_date FROM unnest(schedules.rdate) AS event_date UNION SELECT event_date FROM unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date EXCEPT SELECT event_date FROM unnest(schedules.exdate) AS event_date)", Time.zone.parse(from).to_s, Time.zone.parse(to).to_s)
+            .where(overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend])))
+            .where(in_range(tstzrange(from_node, to_node), any(Arel::Nodes::Except.new(rdates.union(occurrences), exdates))))
         )
       end
-
-      # .where("tstzrange(?::timestamp with time zone, ?::timestamp with time zone, '[]') && tstzrange(schedules.dtstart, dtend, '[]')", Time.zone.parse(from).to_s, Time.zone.parse(to).to_s)
-      # SELECT *
-      # FROM schedules
-      # WHERE
-      # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') && tstzrange(dtstart, dtend, '[]')
-      # AND
-      # tstzrange('2010-01-01 00:00:00+02'::timestamp with time zone - duration, '2020-12-31 00:00:00+02'::timestamp with time zone, '[]') @> ANY (
-      # SELECT event_date from unnest(rdate) AS event_date
-      # UNION
-      # SELECT event_date FROM unnest(get_occurrences(rrule::rrule, dtstart)) AS event_date
-      # EXCEPT
-      # SELECT event_date from unnest(exdate) AS event_date
-      # )
 
       def in_validity_period(current_date = Time.zone.now)
         reflect(
@@ -212,7 +203,7 @@ module DataCycleCore
       end
 
       def distinct_by_content_id(order_string = nil)
-        return self unless (@joined_search && @locale.blank?) || @locale&.many?
+        return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
 
         reflect(
           DataCycleCore::Thing.joins(:searches)
@@ -224,7 +215,7 @@ module DataCycleCore
       end
 
       def count_distinct
-        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
+        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
