@@ -1,17 +1,23 @@
 # frozen_string_literal: true
 
+def serialize_schedule(schedule, filter, fields, include = [])
+  data = { '@id' => schedule.id, '@type' => 'Schedule' }.merge(schedule&.to_schedule_schema_org)&.compact
+  filter ? data&.select { |key, _value| api_default_attributes.include?(key) || select_attributes(fields).include?(key) || select_attributes(include).include?(key) } : data
+end
+
+options ||= {}
 json ||= {}
 
-key_name = definition.dig('api', 'name') || key.camelize(:lower)
-
 if content.present?
+  key_name = definition.dig('api', 'name') || key.camelize(:lower)
+  new_fields = subtree_for(key_name, options[:fields])
   json[key_name] = content.send(key)&.map do |schedule|
-    {
-      '@id' => schedule.id,
-      '@type' => 'Schedule'
-    }.merge(schedule&.to_schedule_schema_org)
-    &.compact
+    serialize_schedule(schedule, options[:field_filter], new_fields, options[:include])
   end
+elsif id.present? # for universal endpoint
+  schedule = DataCycleCore::Schedule.find(id)
+  new_fields = options[:fields] || []
+  json.merge!(serialize_schedule(schedule, options[:field_filter], new_fields))
 end
 
 json

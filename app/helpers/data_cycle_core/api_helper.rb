@@ -77,7 +77,7 @@ module DataCycleCore
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
-      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
+      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
