@@ -214,7 +214,12 @@ describe DataCycleCore::MasterData::DataConverter do
     it 'normalizes unicode' do
       a = "Henry\u2163"
       b = 'HenryIV'
-      assert_equal(subject.string_to_string(a), subject.string_to_string(b))
+      assert subject.string_to_string(a) != subject.string_to_string(b)
+    end
+
+    it 'keep specific unicode characters' do
+      a = 'm²'
+      assert_equal a, subject.string_to_string(a)
     end
   end
 end
