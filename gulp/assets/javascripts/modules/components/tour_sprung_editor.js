@@ -277,7 +277,9 @@ class TourSprungEditor {
 
     if (except !== undefined) markers = markers.not($(except).find(markerIdentifier));
 
-    let points = this.value.map(item => [item[1], item[0]]);
+    let points = [];
+
+    if (this.value[0].length) points = this.value.map(item => [item[1], item[0]]);
 
     if (markers.length) {
       markers.each((_, v) => {
@@ -296,7 +298,7 @@ class TourSprungEditor {
       });
     }
 
-    this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+    if (points.length) this.map.leaflet.fitBounds(points, { padding: [50, 50] });
   }
   configureEditor() {
     if (this.type == 'LineString') {
