@@ -9,6 +9,10 @@ class Validator {
       .siblings('.edit-header')
       .find('.submit-edit-form')
       .first();
+    this.saveButton = this.form
+      .siblings('.edit-header')
+      .find('.save-content-button')
+      .first();
     this.mergeDuplicateButton = this.form
       .siblings('.edit-header')
       .find('.merge-with-duplicate')
@@ -39,6 +43,11 @@ class Validator {
     this.submitButton.on('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
+      this.form.trigger('submit', { saveAndClose: true });
+    });
+    this.saveButton.on('click', event => {
+      event.preventDefault();
+      event.stopImmediatePropagation();
       this.form.trigger('submit');
     });
     this.mergeDuplicateButton.on('click', event => {
@@ -57,6 +66,7 @@ class Validator {
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
     this.form.on('dc:form:disable', this.disable.bind(this));
+    this.form.on('dc:form:enable', this.enable.bind(this));
 
     if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
@@ -143,12 +153,14 @@ class Validator {
   }
   disable() {
     $.rails.disableFormElement(this.submitButton);
+    $.rails.disableFormElement(this.saveButton);
     $.rails.disableFormElement(this.mergeDuplicateButton);
     $.rails.disableFormElements(this.form);
   }
   enable() {
     if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
       $.rails.enableFormElement(this.submitButton);
+      $.rails.enableFormElement(this.saveButton);
       $.rails.enableFormElement(this.mergeDuplicateButton);
       $.rails.enableFormElements(this.form);
       this.form.find('input#duplicate_id').remove();
@@ -304,7 +316,9 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false }) {
+  submitForm(
+    confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false, saveAndClose: false }
+  ) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
         text:
@@ -364,13 +378,14 @@ class Validator {
       });
     }
 
-    this.triggerFormSubmit();
+    this.triggerFormSubmit(confirmations && confirmations.saveAndClose);
   }
-  triggerFormSubmit() {
+  triggerFormSubmit(saveAndClose = false) {
     if (this.form.closest('.reveal').hasClass('in-object-browser')) {
       return this.form.trigger('submit_without_redirect');
     } else {
       $(window).off('beforeunload');
+      if (saveAndClose) this.form.append('<input type="hidden" name="save_and_close" value="1">');
       this.form.trigger('submit.rails');
     }
   }
@@ -393,7 +408,8 @@ class Validator {
             finalize: true,
             confirm: true,
             warnings: warnings.length ? warnings : undefined,
-            merge: eventData !== undefined ? eventData.mergeConfirm : undefined
+            merge: eventData && eventData.mergeConfirm,
+            saveAndClose: eventData && eventData.saveAndClose
           };
 
           this.submitForm(confirmations);

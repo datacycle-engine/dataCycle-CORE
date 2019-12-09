@@ -393,7 +393,7 @@ de:
     delete_translation: 'Übersetzung (%{data}) löschen'
     delete_with_translated_html: 'Eingebetteten Datensatz löschen?<br><br>Es werden auch vorhandene Übersetzungen dieses eingebetteten Datensatzes gelöscht!'
     discard_changes: Änderungen verwerfen
-    save_changes: Änderungen speichern
+    save_changes: Speichern und schließen
     merge_with_duplicate: Änderungen speichern und Duplikat löschen
     reload: Seite neu laden
     redirect_to_login: zur Anmeldung
@@ -404,6 +404,7 @@ de:
     add_items_to_watch_list: 'zu %{data} hinzufügen'
     add: hinzufügen
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
+    save_without_redirect: Zwischenspeichern
 
   validation:
     errors:

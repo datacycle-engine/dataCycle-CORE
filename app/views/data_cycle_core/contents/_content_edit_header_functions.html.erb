@@ -8,7 +8,7 @@
           <i class="fa fa-pencil" aria-hidden="true"></i> <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('actions.edit', locale: DataCycleCore.ui_language) %>
         <% end %>
       </div>
-      <ul>
+      <ul class="edit-links-bar">
         <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
 
         <%= yield :additional_functions %>
@@ -49,6 +49,8 @@
             data: {
               tooltip: true
             }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <%= button_tag tag.i(class: 'fa fa-floppy-o', aria_hidden: true), class: 'save-content-button', title: t('actions.save_without_redirect', locale: DataCycleCore.ui_language), data: { disable: true, tooltip: true } %>
 
           <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
             class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
