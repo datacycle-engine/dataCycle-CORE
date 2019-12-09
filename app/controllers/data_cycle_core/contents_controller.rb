@@ -154,7 +154,7 @@ module DataCycleCore
 
         if params[:new_locale].present?
           redirect_to(edit_thing_path(@content, watch_list_params.merge(locale: params[:new_locale])))
-        elsif (Rails.env.development? || params[:splitview]) && !params[:finalize] && !params[:duplicate_id]
+        elsif !params[:save_and_close] && !params[:finalize] && !params[:duplicate_id]
           redirect_back(fallback_location: root_path)
         else
           redirect_to(thing_path(@content, watch_list_params.merge(locale: I18n.locale)))

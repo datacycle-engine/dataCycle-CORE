@@ -17,7 +17,7 @@ module DataCycleCore
           end
           Rails.application.reload_routes!
 
-          before_action :check_lock_state, only: [:edit, :merge_with_duplicate], if: -> { is_a?(DataCycleCore::ContentsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
+          before_action :check_lock_state, only: [:edit, :split_view, :merge_with_duplicate], if: -> { is_a?(DataCycleCore::ContentsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
           before_action :update_lock_state, only: :update, if: -> { is_a?(DataCycleCore::ContentsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter
 
           before_action :check_lock_states, only: :bulk_edit, if: -> { is_a?(DataCycleCore::WatchListsController) } # rubocop:disable Lint/UnneededCopDisableDirective, Rails/LexicallyScopedActionFilter

@@ -21,7 +21,8 @@ module DataCycleCore
           datahash: @content.get_data_hash.merge({
             'timeline_item' => timeline_item
           })
-        }
+        },
+        save_and_close: true
       }, headers: {
         referer: edit_thing_path(@content)
       }
@@ -51,7 +52,8 @@ module DataCycleCore
       patch thing_path(content_with_timeline_item), params: {
         thing: {
           datahash: content_hash
-        }
+        },
+        save_and_close: true
       }, headers: {
         referer: edit_thing_path(content_with_timeline_item)
       }

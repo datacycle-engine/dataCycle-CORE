@@ -1706,7 +1706,7 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .merge-with-duplicate, .bulk-delete-button)
+[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button)
   > .fa {
   font-size: inherit;
   line-height: inherit;
@@ -2102,21 +2102,6 @@ section.duplicate-candidates {
         margin: 0 auto;
       }
     }
-  }
-}
-
-button.merge-with-duplicate {
-  height: 5rem;
-  width: 5rem;
-  margin: -0.75rem 0 -0.75rem 0.5rem;
-  float: right;
-  outline: none;
-  z-index: 100;
-  &:focus {
-    outline: none;
-  }
-  &:disabled {
-    cursor: not-allowed;
   }
 }
 
