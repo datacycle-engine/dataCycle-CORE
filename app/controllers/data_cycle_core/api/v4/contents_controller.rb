@@ -11,7 +11,7 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations)
+            query = build_search_query.includes(:translations, :scheduled_data)
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -50,7 +50,7 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
         end
 
         def build_search_query

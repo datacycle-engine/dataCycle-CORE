@@ -349,8 +349,9 @@ module DataCycleCore
         )
       end
 
-      def self.get_order_by_query_string(search)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank?
+      def self.get_order_by_query_string(search, events = false)
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('schedules.dtend ASC NULLS LAST, things.end_date ASC NULLS LAST, things.updated_at DESC')) if events == true
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(

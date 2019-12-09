@@ -8,11 +8,19 @@ end
 options ||= {}
 json ||= {}
 
+ap options
+ap subtree_for(definition.dig('api', 'name') || key.camelize(:lower), options[:fields])
+ap included_attribute?(definition.dig('api', 'name') || key.camelize(:lower), options[:include])
+
 if content.present?
   key_name = definition.dig('api', 'name') || key.camelize(:lower)
   new_fields = subtree_for(key_name, options[:fields])
   json[key_name] = content.send(key)&.map do |schedule|
-    serialize_schedule(schedule, options[:field_filter], new_fields, options[:include])
+    if included_attribute?(key_name, options[:include])
+      serialize_schedule(schedule, options[:field_filter], new_fields, subtree_for(key_name, options[:include]))
+    else
+      serialize_schedule(schedule, true, new_fields, subtree_for(key_name, options[:include]))
+    end
   end
 elsif id.present? # for universal endpoint
   schedule = DataCycleCore::Schedule.find(id)
