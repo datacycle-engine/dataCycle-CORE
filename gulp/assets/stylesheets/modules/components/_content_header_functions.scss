@@ -117,21 +117,6 @@
             }
           }
         }
-        .merge-with-duplicate ~ .submit {
-          height: 4rem;
-          width: 4rem;
-          margin-top: -0.25rem;
-          margin-bottom: -0.25rem;
-          .fa {
-            line-height: 4rem;
-            font-size: 2.8rem;
-            width: 4rem;
-            height: 4rem;
-          }
-          &.content-lock .pie-text {
-            top: 0.5rem;
-          }
-        }
         a {
           padding: 0;
         }
