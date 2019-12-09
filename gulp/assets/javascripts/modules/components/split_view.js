@@ -3,7 +3,6 @@ class SplitView {
   constructor(container = document) {
     this.container = $(container);
     this.locale = this.container.closest('.split-content').data('locale');
-    this.submitButton = this.container.closest('edit-form').find('.edit-header .submit-edit-form');
     this.selectors = [
       '> .object-browser',
       '> .embedded-object',

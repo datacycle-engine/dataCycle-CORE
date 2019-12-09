@@ -8,17 +8,6 @@
         <i class="fa fa-code-fork" aria-hidden="true"></i> <%= t("content_type.#{@content.template_name.underscore_blanks}", default: @content.template_name.titleize, locale: DataCycleCore.ui_language) + ' ' + t('duplicate.merge', locale: DataCycleCore.ui_language) %>
       <% end %>
 
-      <% content_for :additional_edit_buttons do %>
-        <%= button_tag tag.i(class: 'fa fa-code-fork', aria_hidden: true),
-          class: 'button-prime merge-with-duplicate',
-          title: t('actions.merge_with_duplicate', locale: DataCycleCore.ui_language),
-          data: {
-            tooltip: true,
-            disable: true,
-            confirm: t('common.merge_warning_html', locale: DataCycleCore.ui_language)
-          } if DataCycleCore::Feature::DuplicateCandidate.enabled? %>
-      <% end %>
-
       <%= render 'form',
         key_prefix: 'thing[datahash]',
         content: @content,
@@ -27,6 +16,7 @@
         form_data_attributes: {
           duplicate_id: @split_source.id
         },
+        additional_submit_properties: DataCycleCore::Feature::DuplicateCandidate.enabled? ? { title: t('actions.merge_with_duplicate', locale: DataCycleCore.ui_language), additional_class: 'merge-with-duplicate' } : nil,
         link_action: :merge_with_duplicate %>
     </div>
   </div>

@@ -15,7 +15,7 @@ class DataCycleNormalizer {
   }
   normalizeForm(event) {
     event.preventDefault();
-    this.disableForm();
+    this.form_element.trigger('dc:form:disable');
     this.resetElements();
     this.form_data = this.form_element.serializeArray().filter(value => {
       return value.name != '_method';
@@ -63,7 +63,7 @@ class DataCycleNormalizer {
         );
       })
       .always(data => {
-        this.enableForm();
+        this.form_element.trigger('dc:form:enable');
       });
   }
   mapFieldNamesToValues(data, parent_string = '') {
@@ -123,34 +123,6 @@ class DataCycleNormalizer {
           .closest('.change-selector')
           .slideUp();
       });
-  }
-  disableForm() {
-    this.form_element
-      .siblings('.edit-header')
-      .find('.submit-edit-form')
-      .first()
-      .attr('disabled', true);
-    $.rails.disableFormElement(
-      this.form_element
-        .siblings('.edit-header')
-        .find('.normalize-content-button')
-        .first()
-    );
-    $.rails.disableFormElements(this.form_element);
-  }
-  enableForm() {
-    this.form_element
-      .siblings('.edit-header')
-      .find('.submit-edit-form')
-      .first()
-      .attr('disabled', false);
-    $.rails.enableFormElement(
-      this.form_element
-        .siblings('.edit-header')
-        .find('.normalize-content-button')
-        .first()
-    );
-    $.rails.enableFormElements(this.form_element);
   }
   resetElements() {
     this.form_element.find('.normalized').removeClass('normalized new remove change select');
