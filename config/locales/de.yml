@@ -216,6 +216,7 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
+    address_not_found: Adresse nicht gefunden
 
   external_connection_states:
     success: Erfolgreich synchronisiert

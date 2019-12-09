@@ -19,7 +19,7 @@ module DataCycleCore
           render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if external_source.blank? || address_params.blank? || address_params.values.all?(&:blank?)
 
           endpoint = DataCycleCore.features.dig(:geocode, :endpoint).constantize.new(external_source.credentials.symbolize_keys)
-          geocoded_data = endpoint.geocode(address_params.to_h)
+          geocoded_data = endpoint.geocode(address_params.to_h, locale_params[:locale])
 
           render plain: [geocoded_data.presence&.x, geocoded_data.presence&.y].compact.to_json, content_type: 'application/json'
         end
@@ -28,6 +28,10 @@ module DataCycleCore
 
         def address_params
           params.permit(:street_address, :postal_code, :address_locality, :address_country)
+        end
+
+        def locale_params
+          params.permit(:locale)
         end
       end
     end

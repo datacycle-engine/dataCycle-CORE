@@ -371,7 +371,11 @@ class OpenLayerMap {
     $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
 
     let addressKey = $(event.currentTarget).data('address-key');
-    let address = {};
+    let locale = $(event.currentTarget).data('locale');
+    let notFoundText = $(event.currentTarget).data('not-found-text');
+    let address = {
+      locale: locale
+    };
 
     $('.form-element.object.' + addressKey)
       .find('.form-element')
@@ -395,6 +399,10 @@ class OpenLayerMap {
           this.source.addFeature(this.feature);
           this.map.removeInteraction(this.draw);
           this.setNewCoordinates();
+        } else {
+          new ConfirmationModal({
+            text: notFoundText
+          });
         }
       })
       .fail((jqxhr, textStatus, error) => {
