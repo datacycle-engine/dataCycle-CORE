@@ -39,13 +39,14 @@ module DataCycleCore
       def fulltext_search(name)
         return self if name.blank?
 
+        normalized_name = name.unicode_normalize(:nfkc)
         @query = @query.joins(:searches)
         @joined_search = true
 
         reflect(
           @query.where(
-            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
-              .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
+            search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
+              .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
           )
         )
       end
