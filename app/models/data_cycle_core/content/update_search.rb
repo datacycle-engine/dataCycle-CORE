@@ -30,13 +30,13 @@ module DataCycleCore
           schema_type = schema.dig('schema_type')
 
           DataCycleCore::Search.where(content_data_id: id, locale: language).first_or_initialize.tap do |s|
-            s.full_text = search_data[:full_text]
+            s.full_text = search_data[:full_text]&.unicode_normalize(:nfkc)
             s.created_at = created_at
             s.updated_at = Time.zone.now.to_s(:long_usec)
             s.headline = search_data[:headline]
             s.classification_string = search_data[:classification_string]
             s.data_type = template_name
-            s.all_text = search_data[:all_text]
+            s.all_text = search_data[:all_text]&.unicode_normalize(:nfkc)
             s.validity_period = validity_string
             s.boost = boost
             s.schema_type = schema_type

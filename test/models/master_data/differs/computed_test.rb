@@ -33,7 +33,8 @@ describe DataCycleCore::MasterData::Differs::Computed do
     it 'recognizes equivalent unicode strings' do
       a = "Henry\u2163"
       b = 'HenryIV'
-      assert_nil(subject.new(a, b, template_hash).diff_hash)
+
+      assert_equal('~', subject.new(a, b, template_hash).diff_hash[0])
     end
 
     it 'recognizes non equal strings' do

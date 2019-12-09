@@ -9,7 +9,8 @@
             data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
             data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
             data-type="<%= (value.presence&.geometry_type || RGeo::Feature::LineString).to_s %>"
-            data-value="[<%= value.presence&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") || [] %>]">
+            data-value="[<%= value.presence&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") || [] %>]"
+            data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
           </div>
       </div>
   <% elsif value.try(:geometry_type) == RGeo::Feature::Point || value.blank? %>

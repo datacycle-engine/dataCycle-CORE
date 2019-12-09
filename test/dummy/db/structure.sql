@@ -1900,6 +1900,13 @@ CREATE INDEX words_idx ON public.searches USING gin (full_text public.gin_trgm_o
 
 
 --
+-- Name: searches tsvectorsearchupdate; Type: TRIGGER; Schema: public; Owner: -
+--
+
+CREATE TRIGGER tsvectorsearchupdate BEFORE INSERT OR UPDATE ON public.searches FOR EACH ROW EXECUTE PROCEDURE tsvector_update_trigger('words', 'pg_catalog.simple', 'full_text');
+
+
+--
 -- PostgreSQL database dump complete
 --
 
@@ -2049,6 +2056,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190821101746'),
 ('20190920075014'),
 ('20191113092141'),
-('20191119110348');
+('20191119110348'),
+('20191204141710');
 
 

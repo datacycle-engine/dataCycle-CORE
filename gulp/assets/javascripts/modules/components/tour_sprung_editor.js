@@ -8,6 +8,7 @@ class TourSprungEditor {
     this.value = this.container.data('value');
     this.beforeValue = this.container.data('before-position');
     this.afterValue = this.container.data('after-position');
+    this.markerPath = this.container.data('marker-path') || [];
     this.type = this.container.data('type');
     this.iconPaths = this.container.data('icon-paths');
     this.editable = this.container.parent('.geographic').hasClass('editable');
@@ -20,6 +21,7 @@ class TourSprungEditor {
     this.credentials = this.mapOptions.credentials;
     this.drawableEvent;
     this.marker;
+    this.routeMarkers = [];
     this.map;
 
     this.setup();
@@ -149,11 +151,20 @@ class TourSprungEditor {
     else if (this.type == 'LineString' && this.editable) {
       if (this.value[0].length > 0) this.drawInitialRoute();
 
+      if (this.markerPath !== undefined && this.markerPath.length) {
+        this.addRouteMarkerEvents();
+        this.drawRouteMarkers();
+      }
+
       MTK.event.addListener(this.map.editor, 'update', data => {
         this.setRouteDataFieldValue(data);
         this.setHiddenFieldValue(data.routeVertices[0]);
       });
-    } else if (this.type == 'LineString' && this.value[0].length > 0) this.drawInitialLineString();
+    } else if (this.type == 'LineString' && this.value[0].length > 0) {
+      this.drawInitialLineString();
+
+      if (this.markerPath !== undefined && this.markerPath.length) this.drawRouteMarkers(undefined, 'content-tiles');
+    }
   }
   drawableMarker() {
     this.drawableEvent = MTK.event.addListener(this.map, 'click', event => {
@@ -223,6 +234,71 @@ class TourSprungEditor {
           iconAnchor: [15, 40]
         })
       }).addTo(this.map.leaflet);
+  }
+  addRouteMarkerEvents() {
+    let identifier =
+      '.form-element.linked[data-key*="thing[datahash]"]' +
+      this.markerPath.map(p => '[data-key*="[' + p + ']"]').join('');
+
+    $(document).on('change', identifier, event => {
+      event.stopPropagation();
+      this.drawRouteMarkers();
+    });
+
+    let embeddedIdentifiers = [];
+
+    this.markerPath.forEach(v => {
+      embeddedIdentifiers.push(
+        (embeddedIdentifiers[embeddedIdentifiers.length - 1] || '') + '[data-key*="[' + v + ']"]'
+      );
+    });
+
+    embeddedIdentifiers.forEach(v => {
+      $(document).on(
+        'dc:html:remove',
+        '.embedded-object[data-key*="thing[datahash]"]' + v + ' > .content-object-item',
+        event => {
+          event.stopPropagation();
+          this.drawRouteMarkers(event.currentTarget);
+        }
+      );
+    });
+  }
+  drawRouteMarkers(except = undefined, parentClass = 'media-thumbs') {
+    this.routeMarkers.forEach(m => m.remove());
+
+    let markerIdentifier =
+      '.' +
+      parentClass +
+      ' [data-location-for*="thing[datahash]"]' +
+      this.markerPath.map(p => '[data-location-for*="[' + p + ']"]').join('');
+
+    let markers = $(markerIdentifier);
+
+    if (except !== undefined) markers = markers.not($(except).find(markerIdentifier));
+
+    let points = [];
+
+    if (this.value[0].length) points = this.value.map(item => [item[1], item[0]]);
+
+    if (markers.length) {
+      markers.each((_, v) => {
+        let coords = $(v).data('location-data');
+        points.push([coords.lat, coords.lng]);
+
+        this.routeMarkers.push(
+          new L.Marker($P(coords.lat, coords.lng), {
+            draggable: false,
+            icon: L.icon({
+              iconUrl: this.iconPaths.default,
+              iconAnchor: [16, 32]
+            })
+          }).addTo(this.map.leaflet)
+        );
+      });
+    }
+
+    if (points.length) this.map.leaflet.fitBounds(points, { padding: [50, 50] });
   }
   configureEditor() {
     if (this.type == 'LineString') {
