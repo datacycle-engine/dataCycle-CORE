@@ -66,7 +66,8 @@ module DataCycleCore
       patch thing_path(@content), params: {
         thing: {
           datahash: @content.get_data_hash.merge('name' => updated_name)
-        }
+        },
+        save_and_close: true
       }, headers: {
         referer: edit_thing_path(@content)
       }
