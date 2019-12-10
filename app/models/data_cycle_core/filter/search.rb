@@ -39,21 +39,20 @@ module DataCycleCore
 
       def fulltext_search(name)
         return self if name.blank?
-
-        @query = @query.joins(:searches)
         @joined_search = true
 
         reflect(
-          @query.where(
-            search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
-              .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
-          )
+          @query
+            .joins(:searches)
+            .where(
+              search[:all_text].matches_all(name.split(' ').map { |item| "%#{item.strip}%" })
+                .or(tsmatch(search[:words], tsquery(quoted(name.squish))))
+            )
         )
       end
 
       def schedule_search(from, to, relation)
         return self if relation.blank? || (from.blank? && to.blank?)
-
         @joined_schedule = true
 
         rdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.rdate) AS event_date'))
@@ -64,11 +63,16 @@ module DataCycleCore
 
         reflect(
           @query
-            .where(overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date])))
-            .joins(:scheduled_data)
-            .where('schedules.relation' => relation)
-            .where(overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend])))
-            .where(in_range(tstzrange(from_node, to_node), any(Arel::Nodes::Except.new(rdates.union(occurrences), exdates))))
+            .left_outer_joins(:scheduled_data)
+            .where(in_json(thing[:schema], 'schema_type').eq(Arel::Nodes.build_quoted('Event')))
+            .where(
+              overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
+              .or(
+                schedule[:relation].eq(Arel::Nodes.build_quoted(relation))
+                .and(overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend])))
+                .and(in_range(tstzrange(from_node, to_node), any(Arel::Nodes::Except.new(rdates.union(occurrences), exdates))))
+              )
+            )
         )
       end
 
@@ -206,16 +210,25 @@ module DataCycleCore
         return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
 
         reflect(
-          DataCycleCore::Thing.joins(:searches)
-            .where(searches: {
-              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-            })
-            .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          if (@joined_search && @locale.blank?) || @locale&.many?
+            DataCycleCore::Thing.joins(:searches)
+              .where(searches: {
+                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+              })
+              .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          elsif @joined_schedule
+            DataCycleCore::Thing
+              .where(things: {
+                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+              })
+              .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          end
         )
       end
 
       def count_distinct
-        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
+        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
+        # @query.except(:order, :limit, :offset).count('DISTINCT id') if @joined_schedule
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
@@ -351,7 +364,7 @@ module DataCycleCore
 
       def self.get_order_by_query_string(search, events = false)
         return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('schedules.dtend ASC NULLS LAST, things.end_date ASC NULLS LAST, things.updated_at DESC')) if events == true
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.end_date ASC NULLS LAST, things.updated_at DESC')) if events == true
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(

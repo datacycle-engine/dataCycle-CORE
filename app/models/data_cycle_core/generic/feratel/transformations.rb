@@ -137,6 +137,9 @@ module DataCycleCore
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
           .>> t(:add_field, 'event_schedule', ->(s) { load_event_schedules(s) })
           .>> t(:add_field, 'schedule', ->(s) { load_schedules(s) })
+          .>> t(:add_field, 'start_date', ->(s) { s.dig('schedule')&.map { |schedule| schedule.dig(:dtstart) }&.min })
+          .>> t(:add_field, 'end_date', ->(s) { s.dig('schedule')&.map { |schedule| schedule.dig(:dtend) }&.max })
+          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
@@ -556,7 +559,7 @@ module DataCycleCore
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
-                res << schedule_object.to_hash
+                res << schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
               end
             else
               res << { dtstart: dstart, dtend: dend }

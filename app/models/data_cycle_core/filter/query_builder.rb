@@ -61,6 +61,10 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
       end
 
+      def in_json(json, key)
+        Arel::Nodes::InfixOperation.new('->>', json, quoted(key))
+      end
+
       def any(set)
         Arel::Nodes::UnaryOperation.new('ANY', set)
       end
