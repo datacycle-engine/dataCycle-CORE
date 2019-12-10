@@ -1,7 +1,7 @@
 version: '3.1'
 services:
   postgres:
-    image: 'patrickrainer/data_cycle_postgis:test'
+    image: 'patrickrainer/data_cycle_postgis:latest'
     environment:
     - ALLOW_IP_RANGE=0.0.0.0/0
     ports:
