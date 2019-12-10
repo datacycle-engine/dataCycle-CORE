@@ -216,7 +216,6 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
-    address_not_found: Adresse nicht gefunden
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -459,6 +458,8 @@ de:
       convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
       end_date: "Kein End-Datum angegeben, setze auf 9999-12-31."
       start_date: "Kein Start-Datum angegeben, setze auf 1970-01-01."
+      address_not_found: Adresse nicht gefunden
+      address_ambiguous: Adresse nicht eindeutig
   controllers:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."

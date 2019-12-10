@@ -372,7 +372,6 @@ class OpenLayerMap {
 
     let addressKey = $(event.currentTarget).data('address-key');
     let locale = $(event.currentTarget).data('locale');
-    let notFoundText = $(event.currentTarget).data('not-found-text');
     let address = {
       locale: locale
     };
@@ -387,7 +386,9 @@ class OpenLayerMap {
     $.getJSON('/things/geocode_address/', address)
       .done(data => {
         if (data.error !== undefined) {
-          console.log(data.error);
+          new ConfirmationModal({
+            text: data.error
+          });
         } else if (data !== undefined && data.length == 2 && this.feature !== undefined) {
           this.feature.setGeometry(new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
           this.setNewCoordinates();
@@ -399,10 +400,6 @@ class OpenLayerMap {
           this.source.addFeature(this.feature);
           this.map.removeInteraction(this.draw);
           this.setNewCoordinates();
-        } else {
-          new ConfirmationModal({
-            text: notFoundText
-          });
         }
       })
       .fail((jqxhr, textStatus, error) => {

@@ -58,8 +58,7 @@
           title: t('actions.geocode', locale: DataCycleCore.ui_language, title: content&.schema&.dig('properties', DataCycleCore::Feature::Geocode.address_source(content), 'label')),
           data: {
             address_key: DataCycleCore::Feature::Geocode.address_source(content),
-            locale: I18n.locale.to_s,
-            not_found_text: t('common.address_not_found', locale: DataCycleCore.ui_language)
+            locale: I18n.locale.to_s
           } if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore::Feature::Geocode.allowed?(content) %>
       <% end %>
     </div>

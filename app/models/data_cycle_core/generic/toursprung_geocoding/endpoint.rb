@@ -11,15 +11,20 @@ module DataCycleCore
           @options = options
         end
 
-        def geocode(address, locale = :de)
-          return if address.blank?
-          return unless address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash)
+        def geocode(address, locale = I18n.locale)
+          return OpenStruct.new(error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Adresse', locale: DataCycleCore.ui_language)) unless address.present? && (address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash))
 
           address_string = [address.dig('street_address'), address.dig('postal_code'), address.dig('address_locality'), address.dig('address_country')].join(',')
           data = load_data(address: address_string, locale: locale)
-          return if data.blank?
+          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.blank?
 
-          parse_geo(data.first)
+          return OpenStruct.new(error: I18n.t(:address_ambiguous, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if data.many?
+
+          geodata = parse_geo(data.first)
+
+          return OpenStruct.new(error: I18n.t(:address_not_found, scope: [:validation, :warnings], locale: DataCycleCore.ui_language)) if geodata.try(:x).blank? || geodata.try(:y).blank?
+
+          geodata
         end
 
         # def reverse_geocode(geo, locale = :de)
@@ -37,7 +42,7 @@ module DataCycleCore
         def parse_geo(raw_data)
           return if raw_data.blank?
           factory = RGeo::Geographic.simple_mercator_factory
-          factory.point(raw_data.dig('lon'), raw_data.dig('lat'))
+          factory.point(raw_data.dig('lon')&.to_f&.round(5), raw_data.dig('lat')&.to_f&.round(5))
         end
 
         def load_data(latlng: nil, address: nil, locale: :de)
@@ -46,8 +51,10 @@ module DataCycleCore
             req.headers['Accept'] = 'application/json'
             req.params['q'] = address if address.present?
             req.params['language'] = locale.to_s
+            req.params['limit'] = 2
             req.params['apiKey'] = @key
           end
+
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + 'geocode/json'} / latlng:#{latlng} / address:#{address}", response) unless response.success?
           data = JSON.parse(response.body)
 

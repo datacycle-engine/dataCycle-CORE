@@ -446,7 +446,6 @@ class TourSprungEditor {
 
     let addressKey = $(event.currentTarget).data('address-key');
     let locale = $(event.currentTarget).data('locale');
-    let notFoundText = $(event.currentTarget).data('not-found-text');
     let address = {
       locale: locale
     };
@@ -461,17 +460,17 @@ class TourSprungEditor {
     $.getJSON('/things/geocode_address/', address)
       .done(data => {
         if (data.error !== undefined) {
-          console.log(data.error);
+          new ConfirmationModal({
+            text: data.error
+          });
         } else if (data && data.length == 2 && this.marker !== undefined) {
           this.marker.setLatLng({ lng: data[0], lat: data[1] });
           this.map.leaflet.setView(this.marker.getLatLng());
           this.setCoordinates(this.marker.getLatLng());
         } else if (data && data.length == 2 && this.marker === undefined) {
           this.drawMarker({ lng: data[0], lat: data[1] });
-        } else {
-          new ConfirmationModal({
-            text: notFoundText
-          });
+          this.map.leaflet.setView(this.marker.getLatLng());
+          this.setCoordinates(this.marker.getLatLng());
         }
       })
       .fail((jqxhr, textStatus, error) => {
