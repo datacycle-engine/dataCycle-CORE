@@ -923,6 +923,21 @@ $filter-border: #aaa;
         }
       }
     }
+    .result-count {
+      display: flex;
+      flex-flow: column;
+      justify-content: center;
+      padding: 0.6rem;
+      margin-right: auto;
+      border: 1px solid $light-gray;
+
+      .loading {
+        padding: 0;
+        .fa {
+          font-size: 1.3rem;
+        }
+      }
+    }
   }
 }
 

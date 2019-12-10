@@ -161,7 +161,8 @@ module DataCycleCore
         patch thing_path(@content), params: {
           thing: {
             datahash: @content.get_data_hash
-          }
+          },
+          save_and_close: true
         }, headers: {
           referer: edit_thing_path(@content)
         }

@@ -14,6 +14,38 @@
     min-width: 1.2rem;
   }
   > ul {
+    &.edit-links-bar {
+      display: flex;
+      flex-flow: row;
+      justify-content: flex-end;
+      align-items: center;
+
+      > li > a {
+        display: block;
+      }
+      > li.buttons {
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+      }
+
+      .save-content-button {
+        opacity: 0.3;
+        transition: all ease-in-out 0.25s;
+        outline: none;
+
+        .fa {
+          font-size: 1.4rem;
+          line-height: 1.4rem;
+        }
+
+        &:hover,
+        &:focus {
+          opacity: 1;
+        }
+      }
+    }
+
     position: relative;
     > li {
       &.buttons {
@@ -21,6 +53,9 @@
           .fa {
             font-size: 1.5rem;
           }
+        }
+        .submit-edit-form {
+          margin-left: 5px;
         }
         .submit {
           float: right;
@@ -82,21 +117,6 @@
             }
           }
         }
-        .merge-with-duplicate ~ .submit {
-          height: 4rem;
-          width: 4rem;
-          margin-top: -0.25rem;
-          margin-bottom: -0.25rem;
-          .fa {
-            line-height: 4rem;
-            font-size: 2.8rem;
-            width: 4rem;
-            height: 4rem;
-          }
-          &.content-lock .pie-text {
-            top: 0.5rem;
-          }
-        }
         a {
           padding: 0;
         }
@@ -115,7 +135,7 @@
             color: $primary-color;
           }
           &.discard {
-            color: rgba($black, 0.5);
+            color: $black;
             &:hover,
             &:focus {
               color: $black;

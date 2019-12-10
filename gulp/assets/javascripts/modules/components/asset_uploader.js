@@ -207,53 +207,42 @@ class AssetUploader {
   }
   validateFiles(event) {
     if (event.target.files == undefined || event.target.files.length == 0) return;
-    var that = this;
     var new_files = event.target.files;
-    // this.reveal.find('ul.accordion').foundation('up', this.reveal.find('ul.accordion .accordion-content'));
     for (var i = 0; i < new_files.length; i++) {
-      var reader = new FileReader();
-      reader.onloadstart = (function(the_file) {
-        return function(e) {
-          if (that.files.filter(f => f.name == the_file.name).length == 0) {
-            that.files.push(the_file);
-            var file_options = {
-              file: the_file,
-              target: event.currentTarget,
-              html: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
-            };
-            that.renderFileField(file_options);
-          } else {
-            reader.abort();
-          }
+      let the_file = new_files[i];
+
+      if (this.files.filter(f => f.name == the_file.name).length == 0) {
+        this.files.push(the_file);
+        var file_options = {
+          file: the_file,
+          target: event.currentTarget,
+          html: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
         };
-      })(new_files[i]);
-      reader.onload = (function(the_file) {
-        return function(e) {
-          var type_validations = [];
-          var file_extension = the_file.name
-            .split('.')
-            .pop()
-            .toLowerCase();
-          var file_name = the_file.name
-            .split('.')
-            .shift()
-            .replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_');
-          for (const key in that.validations) {
-            if (that.validations[key].format.indexOf(file_extension) !== -1)
-              type_validations.push(that.validations[key]);
-          }
-          var file_options = {
-            file: the_file,
-            target: event.currentTarget,
-            validations: type_validations,
-            file_extension: file_extension,
-            file_name: file_name,
-            chosen_validation: type_validations[0]
-          };
-          that.validateFile(file_options);
-        };
-      })(new_files[i]);
-      reader.readAsDataURL(new_files[i]);
+        this.renderFileField(file_options);
+      }
+
+      var type_validations = [];
+      var file_extension = the_file.name
+        .split('.')
+        .pop()
+        .toLowerCase();
+      var file_name = the_file.name
+        .split('.')
+        .shift()
+        .replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_');
+
+      for (const key in this.validations) {
+        if (this.validations[key].format.indexOf(file_extension) !== -1) type_validations.push(this.validations[key]);
+      }
+      var file_options = {
+        file: the_file,
+        target: event.currentTarget,
+        validations: type_validations,
+        file_extension: file_extension,
+        file_name: file_name,
+        chosen_validation: type_validations[0]
+      };
+      this.validateFile(file_options);
     }
   }
   filePrependHTML(file_options) {

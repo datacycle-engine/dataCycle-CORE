@@ -61,57 +61,53 @@
           </div>
         <% end %>
 
-        <div class="filtertags activefilter">
-          <span class="icon">
-            <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %></b>
-            <% if @total&.positive? %>
-              <span class="result-count">
-                (<b><%= @total %></b> <%= filter_model.model_name.human(count: @total, locale: DataCycleCore.ui_language) %>)
-                <b>:</b>
-              </span>
-            <% end %>
-          </span>
-          <span class="filter-groups">
-            <% if filter_model == DataCycleCore::User && @roles.present? %>
-              <span class="tag-group tags user_roles">
-                <i class="tag-group-label">
-                  <i class="fa fa-tags" aria-hidden="true"></i>
-                  <%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
-                </i>
-                <span class="tags-container">
-                  <% @roles.presence&.each do |item| %>
-                    <label for="<%= item.id %>">
-                      <a class="tag">
-                        <%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %>
-                        <i class="fa fa-times" aria-hidden="true"></i>
-                      </a>
-                    </label>
-                  <% end %>
-                </span>
+        <% if filter_model == DataCycleCore::User %>
+          <div class="filtertags activefilter">
+            <span class="icon">
+              <i class="fa fa-check" aria-hidden="true"></i> <b><%= t('common.active_filters', locale: DataCycleCore.ui_language) %>:</b>
+            </span>
+            <span class="filter-groups">
+              <% if filter_model == DataCycleCore::User && @roles.present? %>
+                <span class="tag-group tags user_roles">
+                  <i class="tag-group-label">
+                    <i class="fa fa-tags" aria-hidden="true"></i>
+                    <%= DataCycleCore::Role.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
+                  </i>
+                  <span class="tags-container">
+                    <% @roles.presence&.each do |item| %>
+                      <label for="<%= item.id %>">
+                        <a class="tag">
+                          <%= t('roles.'+item.name, locale: DataCycleCore.ui_language) %>
+                          <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                      </label>
+                    <% end %>
+                  </span>
 
-              </span>
-            <% end %>
-            <% if filter_model == DataCycleCore::User && @user_groups.present? %>
-              <span class="tag-group tags user_groups">
-                <i class="tag-group-label">
-                  <i class="fa fa-tags" aria-hidden="true"></i>
-                  <%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
-                </i>
-                <span class="tags-container">
-                  <% @user_groups.presence&.each do |item| %>
-                    <label for="<%= item.id %>">
-                      <a class="tag">
-                        <%= item.name %>
-                        <i class="fa fa-times" aria-hidden="true"></i>
-                      </a>
-                    </label>
-                  <% end %>
                 </span>
+              <% end %>
+              <% if filter_model == DataCycleCore::User && @user_groups.present? %>
+                <span class="tag-group tags user_groups">
+                  <i class="tag-group-label">
+                    <i class="fa fa-tags" aria-hidden="true"></i>
+                    <%= DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>:
+                  </i>
+                  <span class="tags-container">
+                    <% @user_groups.presence&.each do |item| %>
+                      <label for="<%= item.id %>">
+                        <a class="tag">
+                          <%= item.name %>
+                          <i class="fa fa-times" aria-hidden="true"></i>
+                        </a>
+                      </label>
+                    <% end %>
+                  </span>
 
-              </span>
-            <% end %>
-          </span>
-        </div>
+                </span>
+              <% end %>
+            </span>
+          </div>
+        <% end %>
 
         <div class=" filterbuttons clearfix">
           <div class="filterbuttons-left">

@@ -84,70 +84,78 @@ module DataCycleCore
       end
 
       def related_contents
-        tree_query = <<-SQL
-          WITH RECURSIVE content_tree(id) AS (
-              SELECT things.id
-              FROM things
-              INNER JOIN content_contents ON things.id = content_contents.content_a_id
-              WHERE content_contents.content_b_id = '#{id}'
-            UNION ALL
-              SELECT things.id
-              FROM things
-              INNER JOIN content_contents ON things.id = content_contents.content_a_id
-              INNER JOIN content_tree ON content_tree.id = content_contents.content_b_id
-              WHERE things.content_type = 'embedded'
-          )
-          SELECT DISTINCT id FROM content_tree
-        SQL
-
-        self.class.where("things.id IN (#{tree_query})")
-      end
-
-      def linked_contents
-        tree_query = <<-SQL
-          WITH RECURSIVE content_tree(id) AS (
-            SELECT things.id, array[things.id] as all_things
-            FROM things
-            INNER JOIN content_contents ON things.id = content_contents.content_b_id
-            WHERE content_contents.content_a_id = '#{id}'
-            AND things.content_type != 'embedded'
-          UNION ALL
-            SELECT things.id, content_tree.all_things||things.id
-            FROM things
-            INNER JOIN content_contents ON things.id = content_contents.content_b_id
-            INNER JOIN content_tree ON content_tree.id = content_contents.content_a_id
-            AND things.id <> ALL (content_tree.all_things)
-          )
-          SELECT DISTINCT id FROM content_tree
-        SQL
-
-        self.class.where("things.id IN (#{tree_query})")
-      end
-
-      def embedded_contents
-        things_id = history? ? 'thing_histories.id' : 'things.id'
         content_content_table = history? ? 'content_content_histories' : 'content_contents'
         content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
         content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
 
         tree_query = <<-SQL
           WITH RECURSIVE content_tree(id) AS (
-            SELECT #{things_id} as id, array[#{things_id}] as all_things
-            FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{things_id} = #{content_content_table}.#{content_b_id}
-            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
-            AND #{self.class.table_name}.content_type = 'embedded'
-          UNION ALL
-            SELECT #{things_id} as id, content_tree.all_things||#{things_id}
-            FROM #{self.class.table_name}
-            INNER JOIN #{content_content_table} ON #{things_id} = #{content_content_table}.#{content_b_id}
-            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
-            AND  #{things_id} <> ALL (content_tree.all_things)
+              SELECT #{self.class.table_name}.id
+              FROM #{self.class.table_name}
+              INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_a_id}
+              WHERE #{content_content_table}.#{content_b_id} = '#{id}'
+            UNION ALL
+              SELECT #{self.class.table_name}.id
+              FROM #{self.class.table_name}
+              INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_a_id}
+              INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_b_id}
+              WHERE #{self.class.table_name}.content_type = 'embedded'
           )
           SELECT DISTINCT id FROM content_tree
         SQL
 
-        self.class.where("#{things_id} IN (#{tree_query})")
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+      end
+
+      def linked_contents
+        # does not work for Histories, due to thing ids (instead of thing_history ids) in content_content_histories
+        content_content_table = history? ? 'content_content_histories' : 'content_contents'
+        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
+        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
+
+        tree_query = <<-SQL
+          WITH RECURSIVE content_tree(id) AS (
+            SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
+            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
+            AND #{self.class.table_name}.content_type != 'embedded'
+          UNION ALL
+            SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
+            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
+            AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
+      end
+
+      def embedded_contents
+        content_content_table = history? ? 'content_content_histories' : 'content_contents'
+        content_b_id = history? ? 'content_b_history_id' : 'content_b_id'
+        content_a_id = history? ? 'content_a_history_id' : 'content_a_id'
+
+        tree_query = <<-SQL
+          WITH RECURSIVE content_tree(id) AS (
+            SELECT #{self.class.table_name}.id as id, array[#{self.class.table_name}.id] as all_things
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
+            WHERE #{content_content_table}.#{content_a_id} = '#{id}'
+            AND #{self.class.table_name}.content_type = 'embedded'
+          UNION ALL
+            SELECT #{self.class.table_name}.id as id, content_tree.all_things||#{self.class.table_name}.id
+            FROM #{self.class.table_name}
+            INNER JOIN #{content_content_table} ON #{self.class.table_name}.id = #{content_content_table}.#{content_b_id}
+            INNER JOIN content_tree ON content_tree.id = #{content_content_table}.#{content_a_id}
+            AND #{self.class.table_name}.id <> ALL (content_tree.all_things)
+          )
+          SELECT DISTINCT id FROM content_tree
+        SQL
+
+        self.class.where("#{self.class.table_name}.id IN (#{tree_query})")
       end
     end
   end

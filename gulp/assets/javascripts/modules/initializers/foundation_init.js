@@ -3,6 +3,8 @@ var foundation = require('foundation-sites');
 
 module.exports.initialize = function() {
   Foundation.Tooltip.defaults.clickOpen = false;
+  Foundation.Reveal.defaults.closeOnClick = false;
+  Foundation.Reveal.defaults.multipleOpened = true;
   $(document).foundation();
 
   $(document).on('dc:html:changed', '*', event => {

@@ -4,7 +4,7 @@ function run_backup {
         echo 'Wrong numbere of a arguments'
         exit 1
     fi
-    /usr/bin/duplicity incr --no-encryption --full-if-older-than 1W $1 $2 --log-file $3 --include-filelist <%= fetch(:application) %>-filelist.txt
+    /usr/bin/duplicity incr --no-encryption --full-if-older-than 1W $1 $2 --log-file $3 --include-filelist /home/<%= fetch(:deploy_user) %>/scripts/<%= fetch(:application) %>-filelist.txt
     /usr/bin/duplicity remove-older-than 2M --no-encryption --force $2  --log-file $3
     /usr/bin/duplicity remove-all-inc-of-but-n-full 2 --no-encryption --force $2  --log-file $3
 }
@@ -18,6 +18,13 @@ function dump_database {
     RAILS_ENV=$3 /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec rake data_cycle_core:db:dump[$2_$3_backup,sql]
     cd $dir
 }
+function dump_mongo_database {
+    if [[ $# -eq 0 ]] ; then
+        echo 'Wrong numbere of a arguments'
+        exit 1
+    fi
+    mongodump -o $1/db/mongod_db/
+}
 
 PROJECT_NAME=<%= fetch(:application) %>
 DATACYCLE_ENV=<%= fetch(:rails_env) %>
@@ -27,5 +34,6 @@ BACKUP_SERVER=sftp://ftp13192830-pixelpoint@wp13192830.server-he.de
 REMOTE_DIR=/datacycle/$PROJECT_NAME/$DATACYCLE_ENV
 REMOTE_URL=$BACKUP_SERVER$REMOTE_DIR
 
+dump_mongo_database $LOCAL_DIR
 dump_database $LOCAL_DIR $PROJECT_NAME $DATACYCLE_ENV
 run_backup $LOCAL_DIR $REMOTE_URL $LOG_FILE

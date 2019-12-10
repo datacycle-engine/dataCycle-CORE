@@ -1,16 +1,22 @@
 <section class="search-results" id="search-results">
   <% @mode ||= 'grid' %>
 
-  <% if DataCycleCore::Feature::ViewMode.enabled? %>
-    <div class="mode-container">
+  <div class="mode-container">
+    <span class="result-count">
+      <span class="count-full remote-render"
+        id="count-full-results"
+        data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups).merge({ action: controller.action_name, controller: controller.controller_name, mode: @mode, count_only: true, ctl_id: @classification_tree_label&.id, content_class: local_assigns[:content_class] || 'things', count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label' })).to_json %>"
+        >-</span>
+    </span>
+
+    <% if DataCycleCore::Feature::ViewMode.enabled? %>
       <div class="mode-switcher">
-        <!--<span class="mode-switcher-title"><%= t('common.mode_switcher_title', locale: DataCycleCore.ui_language) %>:</span>-->
         <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
           <%= mode_link(mode, @mode == mode, request.params) %>
         <% end %>
       </div>
-    </div>
-  <% end %>
+    <% end %>
+  </div>
 
   <% if @mode == 'tree' || contents.present? %>
 

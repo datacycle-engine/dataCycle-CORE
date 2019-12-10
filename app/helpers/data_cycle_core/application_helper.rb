@@ -50,6 +50,14 @@ module DataCycleCore
       end
     end
 
+    def result_count(mode, result_count, content_class)
+      if mode.in?(['classification_alias', 'ca_recursive', 'container'])
+        result_count&.positive? ? number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language) : '-'
+      else
+        t("common.#{content_class}_count_html", count: result_count.to_i, delimited_count: number_with_delimiter(result_count.to_i, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language)
+      end
+    end
+
     def mode_link(mode, selected, params_hash)
       case mode
       when 'tree'
