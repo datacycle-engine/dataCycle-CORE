@@ -36,7 +36,7 @@ module DataCycleCore
       end
 
       def self.string_to_string(value)
-        value&.unicode_normalize(:nfc)&.delete("\u0000") # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
+        value&.unicode_normalize(:nfc)&.delete("\u0000")&.strip # jsonb does not support \u0000 (https://www.postgresql.org/docs/11/datatype-json.html)
       end
 
       def self.geographic_to_string(value)

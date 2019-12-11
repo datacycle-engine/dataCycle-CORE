@@ -371,7 +371,10 @@ class OpenLayerMap {
     $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
 
     let addressKey = $(event.currentTarget).data('address-key');
-    let address = {};
+    let locale = $(event.currentTarget).data('locale');
+    let address = {
+      locale: locale
+    };
 
     $('.form-element.object.' + addressKey)
       .find('.form-element')
@@ -383,7 +386,9 @@ class OpenLayerMap {
     $.getJSON('/things/geocode_address/', address)
       .done(data => {
         if (data.error !== undefined) {
-          console.log(data.error);
+          new ConfirmationModal({
+            text: data.error
+          });
         } else if (data !== undefined && data.length == 2 && this.feature !== undefined) {
           this.feature.setGeometry(new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
           this.setNewCoordinates();
