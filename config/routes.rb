@@ -216,21 +216,30 @@ DataCycleCore::Engine.routes.draw do
       end
       namespace :v4 do
         scope path: '(/:api_subversion)' do
-          get 'things/deleted', to: 'contents#deleted', as: 'contents_deleted'
-          resources(*CONTENT_TABLE.map(&:to_sym), only: [:index, :show])
+          match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
 
-          get 'universal(/:id)', to: 'universal#show', as: 'universal'
+          match 'things', to: 'things#index', via: [:get, :post]
+          match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
 
-          resources :concept_schemes, only: [:index, :show], controller: :classification_trees do
-            get 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
+
+          match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
+          match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
+
+          resources :concept_schemes, only: [], controller: :classification_trees do
+            match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
           end
 
-          get 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter'
-          resources :collections, only: [:index, :show, :create], controller: :watch_lists do
+          match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+          post 'collections/create', to: 'watch_lists#create'
+          resources :collections, only: [], controller: :watch_lists do
             post :add_item, on: :member
             post :remove_item, on: :member
             get :download_and_reset, on: :member
           end
+          match 'collections', to: 'watch_lists#index', via: [:get, :post]
+          match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
 
           namespace :authentication, path: :auth do
             post :login
@@ -238,7 +247,9 @@ DataCycleCore::Engine.routes.draw do
             post :logout
           end
 
-          resources :users, only: [:index, :show, :create], controller: :users
+          post 'users/create', to: 'users#create'
+          match 'users', to: 'users#index', via: [:get, :post]
+          match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
         end
       end
     end
