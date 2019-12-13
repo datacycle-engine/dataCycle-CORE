@@ -30,7 +30,6 @@ module DataCycleCore
 
         test '/api/v4/collections/:id default results' do
           get api_v4_collection_path(id: @watch_list.id)
-
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)

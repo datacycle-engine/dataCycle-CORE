@@ -30,7 +30,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(@trees, json_data['@graph'].size)
           assert_equal(@trees, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes parameter filter[:modified_since]' do
@@ -41,7 +41,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(@trees, json_data['@graph'].size)
           assert_equal(@trees, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes parameter filter[:deleted_since]' do
@@ -52,7 +52,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(0, json_data['@graph'].size)
           assert_equal(0, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
 
           DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
           DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').destroy
@@ -64,7 +64,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes/id/concepts parameter filter[:created_since]' do
@@ -77,7 +77,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(classifications, json_data['@graph'].size)
           assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes/id/concepts parameter filter[:modified_since]' do
@@ -90,7 +90,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(classifications, json_data['@graph'].size)
           assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes/id/concepts parameter filter[:deleted_since]' do
@@ -105,7 +105,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(0, json_data['@graph'].size)
           assert_equal(0, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
 
           DataCycleCore::ClassificationAlias.for_tree('Test').destroy_all
           get classifications_api_v4_concept_scheme_path(id: tree_id, filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
@@ -115,7 +115,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(classifications, json_data['@graph'].size)
           assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
       end
     end
