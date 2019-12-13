@@ -13,7 +13,6 @@ require 'mongoid'
 
 # event scheduling
 require 'ice_cube'
-require 'rrule'
 
 # authentication
 require 'devise'

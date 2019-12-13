@@ -73,9 +73,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'transproc', '~> 1.0'
 
   # gems for event-schedules
-  s.add_dependency 'icalendar'
   s.add_dependency 'ice_cube'
-  s.add_dependency 'rrule'
 
   # File Upload
   s.add_dependency 'carrierwave', '~> 0.5'
