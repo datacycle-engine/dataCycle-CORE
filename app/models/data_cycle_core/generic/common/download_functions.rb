@@ -25,7 +25,7 @@ module DataCycleCore
 
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
-                    item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash)
+                    item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
                     item.dump[language] = data_hash
                   end
                   item.save!
@@ -74,7 +74,7 @@ module DataCycleCore
 
                           item = mongo_item.find_or_initialize_by('external_id': item_id)
                           item.dump ||= {}
-                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data)
+                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base))
                           item.dump[locale] = item_data
                           item.save!
                           logging.item_processed(item_name, item_id, item_count, max_string)
@@ -132,7 +132,7 @@ module DataCycleCore
 
                         item_data.each do |language, data_hash|
                           next unless locales.include?(language.to_sym)
-                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash)
+                          item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
                           item.dump[language] = data_hash
                           logging.item_processed(item_name, item_id, item_count, max_string)
                         end
@@ -177,8 +177,12 @@ module DataCycleCore
           Hash[item.to_a.map { |k, v| [k, v.is_a?(::Hash) ? bson_to_hash(v) : (v.is_a?(::Array) ? v.map { |i| bson_to_hash(i) } : v)] }]
         end
 
-        def self.diff?(a, b)
-          diff(a, b).count.positive?
+        def self.diff?(a, b, options = {})
+          if options[:diff_base] && (a.try(:dig, *options[:diff_base].split('.')) || b.try(:dig, *options[:diff_base].split('.')))
+            diff(a.try(:dig, *options[:diff_base].split('.')), b.try(:dig, *options[:diff_base].split('.'))).count.positive?
+          else
+            diff(a, b).count.positive?
+          end
         end
 
         def self.diff(a, b)
