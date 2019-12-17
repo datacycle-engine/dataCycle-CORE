@@ -5,12 +5,13 @@ module DataCycleCore
     module OutdoorActive
       class Endpoint < DataCycleCore::Export::Common::Endpoint::GenericEndpoint
         def initialize(**options)
-          @host = options.dig(:host)
+          super
+
           @key = options.dig(:key)
         end
 
         def update_request(data:, external_system_data: {})
-          response = Faraday.new.get do |req|
+          response = connection.get do |req|
             req.url File.join([@host])
 
             req.params['key'] = @key
@@ -32,7 +33,7 @@ module DataCycleCore
 
         def job_status_request(data:, external_system_data:)
           job_id = external_system_data.dig('job_id')
-          response = Faraday.new.get do |req|
+          response = connection.get do |req|
             req.url File.join([@host])
             req.params['jobid'] = job_id
           end
