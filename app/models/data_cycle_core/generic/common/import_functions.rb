@@ -103,7 +103,10 @@ module DataCycleCore
                   source_filter = options&.dig(:import, :source_filter) || {}
 
                   source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                  durations = []
+
+                  GC.start
+
+                  times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     if options.dig(:iterator_type) == :aggregate
@@ -112,22 +115,25 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                     end
                     iterate.each do |content|
-                      durations << Benchmark.realtime do
-                        item_count += 1
-                        next if options[:min_count].present? && item_count < options[:min_count]
-                        data_processor.call(
-                          utility_object: utility_object,
-                          raw_data: content[:dump][locale],
-                          locale: locale,
-                          options: options
-                        )
-
-                        next unless (item_count % delta).zero?
-
-                        GC.start
-                        logging.info("Imported   #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
-                      end
                       break if options[:max_count].present? && item_count >= options[:max_count]
+
+                      item_count += 1
+                      next if options[:min_count].present? && item_count < options[:min_count]
+
+                      data_processor.call(
+                        utility_object: utility_object,
+                        raw_data: content[:dump][locale],
+                        locale: locale,
+                        options: options
+                      )
+
+                      next unless (item_count % delta).zero?
+
+                      GC.start
+
+                      times << Time.current
+
+                      logging.info("Imported   #{item_count} items in #{(times[-1] - times[0]).round(3)} seconds", "ðt: #{(times[-1] - times[-2]).round(3)}")
                     end
                   end
                 ensure
