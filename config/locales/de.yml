@@ -216,6 +216,8 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
+    embedded_move_down: nach unten verschieben
+    embedded_move_up: nach oben verschieben
 
   external_connection_states:
     success: Erfolgreich synchronisiert
