@@ -21,8 +21,8 @@
 
         <span class="detail-content">
             <%= object.to_s.try(:html_safe) %>
-            <% appointments = object.schedule_object.next_occurrences(5) %>
-            <% if appointments.size.positive? %>
+            <% appointments = object.try(:schedule_object)&.next_occurrences(5) %>
+            <% if appointments&.size&.positive? %>
               <p>
                 <br/>
                 upcoming:

@@ -50,6 +50,9 @@
             :type: daterange
           :show:
             :content_area: header
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -132,18 +135,20 @@
                 - Ort
         :api:
           :name: location
-      :schedule:
+      :event_schedule:
         :label: Termine
         :type: schedule
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
-      :event_schedule:
+      :schedule:
         :label: Event-Schedule
         :type: embedded
         :template_name: EventSchedule
         :translated: true
+        :api:
+          :disabled: true
       :super_event:
         :label: Veranstaltungsserie
         :type: linked
