@@ -20,7 +20,15 @@
         <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
         <span class="detail-content">
-            <%= object.to_s.try(:html_safe) %>
+            <%
+                object_string = ''
+                begin
+                    object_string = object.try(:to_s)&.try(:html_safe)
+                rescue
+                    object_string = ''
+                end
+            %>
+            <%= object_string %>
             <% appointments = object.try(:schedule_object)&.next_occurrences(5) %>
             <% if appointments&.size&.positive? %>
               <p>
