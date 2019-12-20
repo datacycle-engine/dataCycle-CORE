@@ -39,7 +39,6 @@
   <%= f.label :text_file, DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language) %>
 
   <%= f.hidden_field :asset_id %>
-
   <%= render 'data_cycle_core/assets/asset_list', assets: Array(data_link.text_file), class: 'editable' %>
 
   <button type="button" class="button asset-selector-button data-link-asset" data-disable data-open="asset-selector-data-link-<%= data_link.id %>"><%= t('common.select_asset', data: DataCycleCore::DataLink.human_attribute_name("text_file", locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></button>
@@ -62,6 +61,11 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
+
+  <% if DataCycleCore.features.dig(:translated_data_link_mails, :enabled) %>
+    <%= f.label :locale, DataCycleCore::DataLink.human_attribute_name("locale", locale: DataCycleCore.ui_language) %>
+    <%= f.select :locale, available_locales_with_names.slice(*DataCycleCore.features.dig(:translated_data_link_mails, :locales).map(&:to_sym)).invert %>
+  <% end %>
 
   <%= f.label :comment, DataCycleCore::DataLink.human_attribute_name("comment", locale: DataCycleCore.ui_language) %>
   <%= f.text_area :comment, class: "large-textfield", label: false %>
