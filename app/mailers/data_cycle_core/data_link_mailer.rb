@@ -6,6 +6,7 @@ module DataCycleCore
       @data_link = data_link
       @user = data_link.creator
       @receiver = data_link.receiver
+      @locale = data_link.locale.presence || DataCycleCore.ui_language
 
       if data_link.item.is_a?(DataCycleCore::WatchList)
         @title = data_link.item.try(:name)
@@ -16,7 +17,7 @@ module DataCycleCore
       end
       @url = url
 
-      mail(to: @receiver.email, cc: @user.email, subject: 'Geteilter Link zu einem Inhalt')
+      mail(to: @receiver.email, cc: @user.email, subject: t('data_link_mailer.send_subject', locale: @locale))
     end
 
     def updated_items(data_link)
@@ -25,10 +26,11 @@ module DataCycleCore
       @data_link = data_link
       @user = data_link.creator
       @receiver = data_link.receiver
+      @locale = data_link.locale.presence || DataCycleCore.ui_language
       @title = data_link.item.try(:name)
       @url = data_link_url(data_link)
 
-      mail(to: @receiver.email, cc: @user.email, subject: 'Geteilte Inhaltssammlung wurde aktualisiert')
+      mail(to: @receiver.email, cc: @user.email, subject: t('data_link_mailer.update_subject', locale: @locale))
     end
   end
 end
