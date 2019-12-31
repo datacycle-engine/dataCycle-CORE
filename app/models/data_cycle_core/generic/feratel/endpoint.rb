@@ -18,9 +18,11 @@ module DataCycleCore
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
           range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
           range_parameters = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-            mongo.where({ 'dump.de.ParentID' => @primary_range_id }).to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }.presence
+            mongo.where({ 'dump.de.ParentID' => /#{@primary_range_id}/i })
+              .to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }
+              .presence
           end
-          range_parameters.presence || [[@primary_range_code, @primary_range_id]]
+          (range_parameters.presence || []) + [[@primary_range_code, @primary_range_id]]
         end
 
         def load_range_ids(range_code = 'RG')
