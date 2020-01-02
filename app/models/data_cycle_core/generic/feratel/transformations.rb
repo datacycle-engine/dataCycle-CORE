@@ -87,14 +87,24 @@ module DataCycleCore
 
         def self.feratel_to_image
           t(:stringify_keys)
-          .>> t(:add_field, 'name', ->(s) { s.dig('Names', 'Translation', 'text') })
+          .>> t(:add_field, 'name', lambda { |s|
+            s.dig('Names', 'Translation', 'text') || ">> NO NAME << (\##{s.dig('Id')})"
+          })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('URL').is_a?(String) ? s.dig('URL') : s.dig('URL', 'text') })
-          .>> t(:rename_keys, { 'Id' => 'external_key', 'Width' => 'width', 'Height' => 'height', 'Size' => 'content_size', 'Extension' => 'file_format', 'Copyright' => 'caption' })
+          .>> t(:rename_keys, {
+            'Id' => 'external_key',
+            'Width' => 'width',
+            'Height' => 'height',
+            'Size' => 'content_size',
+            'Extension' => 'file_format',
+            'Copyright' => 'caption'
+          })
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
           .>> t(:map_value, 'content_size', ->(v) { v.to_i })
-          .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom', 'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
+          .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
+                               'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
           .>> t(:strip_all)
         end
 
