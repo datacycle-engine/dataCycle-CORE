@@ -102,7 +102,7 @@ module DataCycleCore
           })
           .>> t(:map_value, 'width', ->(v) { v.to_i })
           .>> t(:map_value, 'height', ->(v) { v.to_i })
-          .>> t(:map_value, 'content_size', ->(v) { v.to_i })
+          .>> t(:map_value, 'content_size', ->(v) { v.to_i.kilobytes })
           .>> t(:reject_keys, ['Type', 'Class', 'Systems', 'Order', 'ShowFrom',
                                'ShowTo', 'ChangeDate', 'Systems', 'Systems', 'Names'])
           .>> t(:strip_all)
