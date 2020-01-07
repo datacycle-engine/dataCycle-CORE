@@ -111,8 +111,8 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def content_view_cache_key(item:, locale: 'de', mode:)
-      "#{item.class}_#{item.id}_#{locale}_#{item.updated_at}_#{item.template_updated_at}_#{mode}"
+    def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}"
     end
 
     def filterable_classification_aliases(allowed_labels, excluded = [])
