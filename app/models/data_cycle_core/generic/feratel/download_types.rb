@@ -18,7 +18,7 @@ module DataCycleCore
         end
 
         def self.data_name(data)
-          [data['Name']['Translation']].flatten.first.try(:[], 'text')
+          [data.dig('Name', 'Translation')].flatten.first.try(:[], 'text')
         end
       end
     end
