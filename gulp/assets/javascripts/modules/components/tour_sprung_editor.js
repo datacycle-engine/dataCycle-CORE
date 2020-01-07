@@ -47,7 +47,11 @@ class TourSprungEditor {
         map: {
           location: defaultMapPosition,
           mapType: 'terrain_v2',
-          controls: controls
+          controls: controls,
+          options: {
+            scrollWheelZoom: false,
+            gestureHandling: true
+          }
         }
       },
       this.configureMap.bind(this)
@@ -398,20 +402,22 @@ class TourSprungEditor {
     this.setHiddenFieldValue(coords);
   }
   setHiddenFieldValue(coords) {
-    if (coords === undefined)
+    if (coords === undefined) {
       this.container
         .parent('.geographic')
         .siblings('.location-data')
         .first()
         .removeAttr('value');
-    else {
+      this.value = undefined;
+    } else {
       let parsedCoords = coords;
       if (Array.isArray(coords)) {
         parsedCoords = coords.map(item => Number(item[1].toFixed(5)) + ' ' + Number(item[0].toFixed(5)));
+        this.value = coords.map(item => [item[1], item[0]]);
       } else {
         parsedCoords = [Number(coords.lng.toFixed(5)) + ' ' + Number(coords.lat.toFixed(5))];
+        this.value = [coords.lat, coords.lng];
       }
-
       this.container
         .parent('.geographic')
         .siblings('.location-data')
