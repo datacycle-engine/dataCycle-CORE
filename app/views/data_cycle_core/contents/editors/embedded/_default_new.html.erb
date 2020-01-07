@@ -8,8 +8,8 @@
       <span class="embedded-header">
         <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, internal_template, :edit)) %>
           <span class="draggable-handle"><i class="fa fa-bars" aria-hidden="true"></i></span>
-          <span class="swap-prev swap-button disabled" title="<%= t('common.embedded_move_up') %>" data-tooltip><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
-          <span class="swap-next swap-button disabled" title="<%= t('common.embedded_move_down') %>" data-tooltip><i class="fa fa-arrow-down" aria-hidden="true"></i></span>
+          <span class="swap-prev swap-button disabled" title="<%= t('common.embedded_move_up' locale: DataCycleCore.ui_language) %>" data-tooltip><i class="fa fa-arrow-up" aria-hidden="true"></i></span>
+          <span class="swap-next swap-button disabled" title="<%= t('common.embedded_move_down' locale: DataCycleCore.ui_language) %>" data-tooltip><i class="fa fa-arrow-down" aria-hidden="true"></i></span>
         <% end %>
         <%= render 'data_cycle_core/shared/icon', icon_type: internal_template.template_name.downcase %> <%= definition['label'] %>
         <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
