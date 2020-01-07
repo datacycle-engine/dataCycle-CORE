@@ -20,7 +20,7 @@
 
     <% if content.is_a?(DataCycleCore::Thing) %>
 
-      <% cache(content_view_cache_key(item: content, locale: params[:language], mode: 'list'), expires_in: 1.year + Random.rand(7.days)) do %>
+      <% cache(content_view_cache_key(item: content, locale: params[:language] || @language, mode: 'list', watch_list: @watch_list), expires_in: 1.year + Random.rand(7.days)) do %>
         <%= render_content_tile(item: content, mode: 'list') %>
       <% end %>
 
