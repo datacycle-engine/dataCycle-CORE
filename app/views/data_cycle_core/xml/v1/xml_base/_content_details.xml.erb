@@ -21,9 +21,9 @@
 
 <%= render *content_partial('container_children_properties', { content: content, options: options }) if DataCycleCore::Feature::Container.enabled? && content.content_type?('container') %>
 
-<%= render *content_partial('overlay_properties', { content: content, options: options }) %>
-
 <%= render *content_partial('properties', { content: content, options: options }) %>
+
+<%= render *content_partial('overlay_properties', { content: content, options: options }) %>
 
 <%#= render render_partial('combined_properties'), content: content, options: options %>
 
