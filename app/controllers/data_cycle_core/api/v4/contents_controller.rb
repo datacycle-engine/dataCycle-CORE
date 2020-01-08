@@ -7,6 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         before_action :prepare_url_parameters
+        rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
