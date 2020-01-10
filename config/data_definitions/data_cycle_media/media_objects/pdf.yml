@@ -41,7 +41,7 @@
         :api:
           :disabled: true
       :description:
-        :label: Teasertext
+        :label: Beschreibung
         :type: string
         :storage_location: column
         :search: true
@@ -67,7 +67,7 @@
         :api:
           :disabled: true
       :content_url:
-        :label: URL
+        :label: PDF URL
         :storage_location: value
         :type: computed
         :compute:
@@ -165,6 +165,51 @@
           :method: file_format
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+          :show:
+            :type: date
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :advanced_search: true
+      :author:
+        :label: Fotograf
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :keywords:
         :label: Keywords
         :storage_location: translated_value
