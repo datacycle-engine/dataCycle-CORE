@@ -110,6 +110,7 @@
         :template_name: Preis
         :translated: true
         :advanced_search: true
+      # schema.org: correct name: eligible_region
       :eligable_region:
         :label: Ort
         :type: linked
@@ -197,6 +198,7 @@
             :label: URL
             :type: string
             :storage_location: translated_value
+      # schema.org: correct name: image
       :image:
         :label: Bilder
         :type: linked
