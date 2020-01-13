@@ -234,6 +234,12 @@
       :hrs_dd_events:
         :type: mixin
         :name: hrs_dd_events
+      :marche_events:
+        :type: mixin
+        :name: marche_events
+      :puglia_events:
+        :type: mixin
+        :name: puglia_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

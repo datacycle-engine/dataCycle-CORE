@@ -1,0 +1,29 @@
+---
+- :data:
+    :name: puglia_events
+    :type: mixin
+    :properties:
+      :puglia_type:
+        :label: EventsPuglia - Type
+        :type: classification
+        :tree_label: EventsPuglia - Type
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :puglia_category:
+        :label: EventsPuglia - Category
+        :type: classification
+        :tree_label: EventsPuglia - Category
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :puglia_ticket_type:
+        :label: EventsPuglia - Ticket-Type
+        :type: classification
+        :tree_label: EventsPuglia - Ticket-Type
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
