@@ -29,8 +29,8 @@
 :overlay:
   :enabled: true
 
-#:container:
-#  :enabled: true
+:container:
+  :enabled: true
 
 :external_media_archive:
   :enabled: false
