@@ -40,6 +40,9 @@ unless content.schema.nil?
       else
         json[property_name] = render(*partial_params) unless partial_params.nil?
       end
+
+      json[property_name]['@type'] = prop.dig('api', 'transformation', 'type') if prop.dig('api', 'transformation', 'type').present?
+
       # filter out fields
       new_fields = subtree_for(property_name, options[:fields])
       if new_fields.present? || options[:field_filter]
