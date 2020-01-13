@@ -77,12 +77,22 @@
         :ui:
           :show:
             :content_area: header
+      :gender_api:
+        :label: Geschlecht
+        :storage_location: value
+        :type: computed
+        :compute:
+          :type: string
+          :module: Utility::Compute::Classification
+          :method: description
+          :parameters:
+            :0: gender
+        :ui:
+          :show:
+            :disabled: true
         :api:
+          :name: gender
           :partial: gender
-          :type: GenderType
-          :transformation:
-            :method: serialize
-            :name: string
       :member_of:
         :label: Organisation
         :type: linked
