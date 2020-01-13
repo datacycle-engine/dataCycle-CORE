@@ -4,7 +4,7 @@ json ||= {}
 
 key_name = definition.dig('api', 'name') || key.camelize(:lower)
 
-if content.translations.size > 1 && content.translatable_property_names.include?(key)
+if content.translatable_property_names.include?(key) && content.translations.size > 1 && (options[:languages].size > 1 && content.available_locales.map(&:to_s).include?(options[:languages].first))
   translated_properties = {}
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
     o_key_name = o_definition.dig('api', 'name') || o_key
