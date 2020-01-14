@@ -26,6 +26,8 @@
             :disabled: true
         :api:
           :minimal: true
+          :v4:
+            :name: title
       :description:
         :label: Beschreibung
         :type: string
