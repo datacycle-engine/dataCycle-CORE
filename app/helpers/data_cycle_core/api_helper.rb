@@ -5,7 +5,7 @@ module DataCycleCore
     include DataHashHelper
 
     def api_default_attributes
-      ['@id', '@type', '@language']
+      ['@id', '@type', '@language', 'name']
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
