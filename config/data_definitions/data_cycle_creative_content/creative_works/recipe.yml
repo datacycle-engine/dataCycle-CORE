@@ -33,16 +33,35 @@
       :validity_period:
         :type: mixin
         :name: validity_period
+      :recipe_category:
+        :label: Kategorie
+        :type: classification
+        :tree_label: Rezeptkategorien
+        :api:
+          :partial: string
+      :recipe_course:
+        :label: Gang
+        :type: classification
+        :tree_label: Gang (Rezept)
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :creative_attributes:
-        :type: mixin
-        :name: creative_attributes
-      :recipe_instructions:
-        :label: Zutatengruppe
-        :type: embedded
-        :template_name: Zutatengruppe
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :author:
+        :label: Autor
+        :type: linked
+        :template_name: Person
+        :validations:
+          :max: 1
       :recipe_yield:
         :label: Portionen
         :type: string
@@ -69,31 +88,24 @@
             :append: M
             :prepend: PT
         :advanced_search: true
-      :recipe_course:
-        :label: 'Gang'
-        :type: classification
-        :tree_label: 'Rezept-Gänge'
-      :recipe_category:
-        :label: 'Kategorie'
-        :type: classification
-        :tree_label: 'Rezept-Kategorien'
-        :api:
-          :partial: string
-      :keywords:
-        :label: Keywords
+      :text:
+        :label: Fließtext
+        :type: string
         :storage_location: translated_value
-        :type: computed
-        :compute:
-          :type: string
-          :module: Utility::Compute::Classification
-          :method: keywords
-          :parameters:
-            :0: tags
-            :1: recipe_course
-            :2: recipe_category
+        :search: true
         :ui:
-          :show:
-            :disabled: true
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :recipe_instructions:
+        :label: Rezeptkomponente
+        :type: embedded
+        :template_name: Rezeptkomponente
       :data_type:
         :label: Inhaltstyp
         :type: classification
@@ -107,7 +119,7 @@
         :name: additional_properties
 
 - :data:
-    :name: Zutatengruppe
+    :name: Rezeptkomponente
     :type: object
     :schema_type: CreativeWork
     :content_type: embedded
