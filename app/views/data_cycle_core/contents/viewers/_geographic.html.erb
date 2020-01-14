@@ -35,6 +35,19 @@
               data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
             </div>
         </div>
+      <% elsif value.try(:geometry_type) == RGeo::Feature::MultiLineString %> <%# only show points for now, not the lines %>
+          <div class="geographic">
+              <div id="map_<%= SecureRandom.hex(16) %>"
+                class="geographic-map linestring"
+                data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
+                data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
+                data-before-position="[<%= options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") if options.dig(:item_diff, 0) == '~' %>]"
+                data-after-position="[<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") : options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") %>]"
+                data-type="LineString"
+                data-value="[<%= value.map { |line| line.points.map { |p| "[#{p.x}, #{p.y}]" }}.join(",") %>]"
+                data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
+              </div>
+          </div>
     <% end %>
 
     <div class="map-info <%= 'linestring-info' if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>">
