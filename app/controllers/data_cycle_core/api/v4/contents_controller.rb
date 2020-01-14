@@ -12,7 +12,7 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations, :scheduled_data, :classifications)
+            query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -23,7 +23,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
         end
 

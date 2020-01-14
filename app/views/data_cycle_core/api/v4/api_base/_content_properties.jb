@@ -1,12 +1,11 @@
 # frozen_string_literal: true
 
 json ||= {}
-json['dc:classification'] ||= []
-
 unless content.schema.nil?
 
   ordered_validation_properties(validation: content.schema).each do |key, prop|
     next if prop.dig('api', 'disabled') && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
+    next if prop.dig('type') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 
@@ -14,24 +13,6 @@ unless content.schema.nil?
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
-
-    if prop.dig('type') == 'classification' && partial_params.present?
-      new_options = options.dup
-      new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
-      partial_params[1][:options] = new_options.dup
-
-      classification_data = render(*partial_params)
-
-      if classification_data&.dig('dc:classification').present?
-        json['dc:classification'] += classification_data&.dig('dc:classification')
-      else
-        classification_data.each do |c_key, c_value|
-          next if c_value.blank?
-          json[c_key] = c_value
-        end
-      end
-      next
-    end
 
     api_property_definition = api_definition(prop)
     property_name = api_property_definition.dig('transformation', 'name')
@@ -58,6 +39,4 @@ unless content.schema.nil?
   end
 
 end
-
-json.delete('dc:classification') if json['dc:classification'].blank?
 json
