@@ -113,12 +113,18 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
+        :api:
+          :v4:
+            :name: 'dc:linked_thing'
       :is_linked_to:
         :label: Verknüpft mit
         :type: linked
         :inverse_of: linked_thing
         :link_direction: inverse
         :global: true
+        :api:
+          :v4:
+            :name: 'dc:is_linked_to'
       :subject_of:
         :label: Thema von
         :type: linked
