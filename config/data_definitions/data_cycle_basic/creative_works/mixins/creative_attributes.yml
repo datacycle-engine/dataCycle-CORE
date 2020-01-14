@@ -15,6 +15,20 @@
         :search: true
         :api:
           :name: name
+      :about:
+        :label: Hauptthema
+        :type: linked
+        :inverse_of: subject_of
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
       :description:
         :label: Teasertext
         :type: string
@@ -49,20 +63,6 @@
         :label: Ort
         :type: linked
         :template_name: POI
-      :about:
-        :label: Hauptthema
-        :type: linked
-        :inverse_of: subject_of
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-                - Ort
-                - Veranstaltung
-                - Veranstaltungsserie
       :url:
         :label: Link
         :type: string
