@@ -71,6 +71,13 @@
             :label: Wasserqualität
             :type: string
             :storage_location: value
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :area:
         :label: Fläche
         :type: number
@@ -85,6 +92,13 @@
             :options:
               :data-unit: km²
         :advanced_search: true
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :depth:
         :label: Tiefe
         :type: number
@@ -99,6 +113,13 @@
             :options:
               :data-unit: m
         :advanced_search: true
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :geo:
         :type: mixin
         :name: geo
@@ -111,6 +132,9 @@
         :label: Link
         :type: string
         :storage_location: translated_value
+        :api:
+          :v4:
+            :name: sameAs
       :data_type:
         :label: Inhaltstyp
         :type: classification
