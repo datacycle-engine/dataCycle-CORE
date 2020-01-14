@@ -61,8 +61,8 @@ module DataCycleCore
           end
 
           # content data
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('eventPeriod', 'endDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('startDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('endDate'))
           assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
           assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
