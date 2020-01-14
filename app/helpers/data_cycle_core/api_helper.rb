@@ -11,12 +11,13 @@ module DataCycleCore
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
+      api_property_definition = api_definition(definition)
       api_version = @api_version || 2
       partials = [
         "#{definition['type'].underscore}_#{key.underscore}",
-        "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
+        "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
         "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-        "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
+        "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
         definition&.dig('compute', 'type')&.underscore,
         definition['type'].underscore,
         'default'
@@ -39,6 +40,10 @@ module DataCycleCore
 
     def attribute_key(key, definition)
       definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+    end
+
+    def api_definition(definition, api_version = @api_version)
+      definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
     end
 
     def included_attribute?(name, attribute_list)

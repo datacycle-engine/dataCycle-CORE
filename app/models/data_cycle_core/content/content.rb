@@ -116,9 +116,13 @@ module DataCycleCore
         }.keys
       end
 
-      def combined_property_names
+      def combined_property_names(api_version = nil)
         property_definitions.select { |_, definition|
-          definition.dig('api', 'transformation', 'method') == 'combine'
+          if api_version.present? && definition.dig('api', api_version).present?
+            definition.dig('api', api_version, 'transformation', 'method') == 'combine'
+          else
+            definition.dig('api', 'transformation', 'method') == 'combine'
+          end
         }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
       end
 

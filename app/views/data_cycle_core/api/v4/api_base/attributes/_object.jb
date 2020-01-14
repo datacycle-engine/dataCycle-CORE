@@ -28,10 +28,11 @@ else
   end
 end
 
+api_property_definition = api_definition(definition)
 object_properties = translated_properties || non_translated_properties
-object_properties = { '@type' => definition.dig('api', 'type') }.merge(object_properties) if definition.dig('api', 'type').present?
+object_properties = { '@type' => api_property_definition.dig('type') }.merge(object_properties) if api_property_definition.dig('type').present?
 
-if definition.dig('api', 'transformation', 'method') == 'unwrap' || definition.dig('api', 'transformation', 'method') == 'merge_object'
+if api_property_definition.dig('transformation', 'method') == 'unwrap' || api_property_definition.dig('transformation', 'method') == 'merge_object'
   json.merge! object_properties
 else
   json[key_name] = object_properties
