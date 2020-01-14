@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-key_name = definition.dig('api', 'name') || key
+key_name = attribute_key(key, definition)
 json ||= {}
 
 json[key_name.camelize(:lower)] = value.to_h.values.map(&:iso8601).join('/') if value.present?

@@ -37,6 +37,10 @@ module DataCycleCore
       end
     end
 
+    def attribute_key(key, definition)
+      definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+    end
+
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
       attribute_list.map { |item| item.first == name }.inject(&:|)

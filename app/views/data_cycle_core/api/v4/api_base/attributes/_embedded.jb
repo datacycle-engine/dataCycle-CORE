@@ -5,7 +5,7 @@ json ||= {}
 data = content.load_embedded_objects(key, true, options[:languages]).includes(:translations, :classifications)
 
 if data.present?
-  key_new = definition.dig('api', 'name') || key.camelize(:lower)
+  key_new = attribute_key(key, definition)
   new_fields = subtree_for(key_new, options[:fields])
 
   json[key_new] = []

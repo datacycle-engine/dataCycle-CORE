@@ -1,6 +1,6 @@
 # frozen_string_literal: true
 
-key_new = definition.dig('api', 'name') || key
+key_new = attribute_key(key, definition)
 data_value = nil
 
 single_value = !content.translatable_property_names.include?(key) || (options[:languages].size == 1 && content.available_locales.map(&:to_s).include?(options[:languages].first))

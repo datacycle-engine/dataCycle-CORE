@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 json ||= {}
-key_name = definition.dig('api', 'name') || key
+key_name = attribute_key(key, definition)
 
 json['@type'] = definition.dig('api', 'type') if definition.dig('api', 'type').present?
 json['@type'] = definition.dig('api', 'transformation', 'type') if definition.dig('api', 'transformation', 'type').present?
