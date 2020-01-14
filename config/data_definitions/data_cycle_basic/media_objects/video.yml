@@ -212,6 +212,13 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :director:
         :label: Regie
         :type: linked
