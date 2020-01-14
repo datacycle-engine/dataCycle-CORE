@@ -1,15 +1,24 @@
 - Inhaltstypen | filter:
   - $$Text:
-    - $$Strukturierter Artikel
+    - $$Biografie
+    - $$Interview
+    - $$Quiz
     - $$Rezept
+    - $$Social Media Posting
+  - $$Zeitleiste
 # embedded
-  - $$Rezeptkomponente
+  - $$Zeitleiste-Eintrag
+  - $$Frage
+  - $$Antwort
+  - $$Zutatengruppe
   - $$Zutat
+# container
+  - $$Thema
 
-- Rezeptkategorien | all:
-  - Gebäck
-  - Mehlspeise
-  - asiatisch
+- Rezept-Gänge | all:
 
-- Gang (Rezept) | all:
-  - Vorspeise
+- Rezept-Kategorien | all:
+
+- Themenbereiche | all:
+
+- Zielgruppen | all:
