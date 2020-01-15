@@ -1,21 +1,37 @@
 # frozen_string_literal: true
 
-json ||= {}
-unless content.schema.nil?
+def valid_key?(key, options)
+  api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key)
+end
 
+json ||= {}
+
+unless content.schema.nil?
   ordered_validation_properties(validation: content.schema).each do |key, prop|
     next if prop.dig('api', 'disabled') && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
     next if prop.dig('type') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 
+    api_property_definition = api_definition(prop)
+    property_name = api_property_definition.dig('transformation', 'name')
+
+    if options[:fields].present?
+      is_valid_key = false
+      is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
+      validation_keys = [attribute_key(key, prop)]
+      validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
+      validation_keys.each { |key|
+        is_valid_key = true if valid_key?(key, options)
+      }
+      next unless is_valid_key
+    end
+
     value = I18n.with_locale(content.first_available_locale) { content.try(key.to_sym) }
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
 
-    api_property_definition = api_definition(prop)
-    property_name = api_property_definition.dig('transformation', 'name')
     if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
       if json.dig(property_name).present?
         json.dig(property_name).merge! render(*partial_params) unless partial_params.nil?

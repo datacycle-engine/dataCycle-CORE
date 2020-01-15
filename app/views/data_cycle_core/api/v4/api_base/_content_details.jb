@@ -6,12 +6,16 @@ default_options = {
   include: @include_parameters,
   fields: @fields_parameters,
   languages: @language,
-  field_filter: @field_filter
+  field_filter: @field_filter,
+  transformation_mapping: content.attribute_transformation_mapping('v4')
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json ||= {}
+
+#test = content.attribute_transformation_mapping('v4')
+#raise nil.inspect
 
 json.merge! render 'content_header', content: content, options: options
 
@@ -24,8 +28,4 @@ json.merge! render 'overlay_properties', content: content, options: options if c
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
-if options[:fields].blank?
-  json
-else
-  json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key) }
-end
+json
