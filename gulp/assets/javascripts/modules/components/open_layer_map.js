@@ -196,9 +196,13 @@ class OpenLayerMap {
         geometry: new ol.geom.LineString(this.value)
       });
       this.feature.setStyle(this.defaultLineStyle);
-    } else if (this.type == 'MultiLineString') {
+    } else if (this.type == 'MultiLineString' && this.value[0] !== undefined && this.value[0].length) {
+      var first = this.value[0];
+      var array = first.map(function(line){
+        return JSON.parse('[' + line + ']');
+      })
       this.feature = new ol.Feature({
-        geometry: new ol.geom.MultiLineString(this.value.map(function(line){ return ol.geom.LineString(line) }))
+        geometry: new ol.geom.MultiLineString(array)
       });
       this.feature.setStyle(this.defaultLineStyle);
     }
@@ -544,6 +548,10 @@ class OpenLayerMap {
       this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
     } else if (this.type == 'Point' && (this.feature !== undefined || this.featureOld !== undefined)) {
       this.map.getView().setCenter((this.feature || this.featureOld).getGeometry().getCoordinates());
+    } else if (this.type == 'MultiLineString' && (this.feature !== undefined || this.featureOld !== undefined)) {
+      let extent = new ol.extent.createEmpty();
+      if (this.feature !== undefined) extent = new ol.extent.extend(extent, this.feature.getGeometry().getExtent());
+      this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
     } else {
       if (
         this.defaultPosition !== undefined &&
