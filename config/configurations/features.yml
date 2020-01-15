@@ -149,3 +149,7 @@
     - grid
     - list
     - tree
+
+:translated_data_link_mails:
+  :enabled: false
+  :only_config: true

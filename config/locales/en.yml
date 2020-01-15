@@ -20,7 +20,7 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  hello: "Hello!"
   order:
     header: "Order"
     title: "Title"
@@ -114,6 +114,17 @@ en:
       data_cycle_core/watch_list:
         name: Name
         user_group_ids: Usergroups
+      data_cycle_core/data_link:
+        comment: Comment
+        permissions: Permissions
+        validity_period: Validity Period (from - until)
+        valid_from: valid from
+        valid_until: until
+        permissions_download: download
+        permissions_read: read
+        permissions_write: edit
+        text_file: "Additional Information (PDF)"
+        locale: "Email-Language"
 
   date:
     formats:
@@ -126,3 +137,27 @@ en:
           village: Snow depth Location
           base: Valley (Piste)
           top: Mountain (Piste)
+
+  data_link_mailer:
+    content_download: Download Content
+    content_read: Read Content
+    content_write: Edit Content
+    watch_list:
+      default: the content collection
+    thing:
+      default: the content
+    send_subject: Shared content link
+    update_subject: updated shared content collection
+    notice: Notice
+
+  terms:
+    valid: valid
+    from: from
+    until: until
+
+  data_cycle_core:
+    data_links:
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you and asks for your additions and feedback.<br><br>Please make any changes to text, images and videos directly in the form.</span>"
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you and asks for your additions and feedback.</span>"
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you.<br><br>%{n_type} is ready for download.</span>"
+      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” was updated and contents were added or removed.</span>"

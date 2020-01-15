@@ -120,7 +120,7 @@ module DataCycleCore
 
       def invalidate_cache
         related_contents.ids.each do |item_id|
-          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+          Rails.cache.delete_matched("*#{self.class.name.underscore}_#{item_id}*")
         end
       end
 

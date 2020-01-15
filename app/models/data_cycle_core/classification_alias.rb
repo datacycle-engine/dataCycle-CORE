@@ -214,7 +214,7 @@ module DataCycleCore
 
     def invalidate_cache
       primary_classification&.things&.ids&.uniq&.each do |item_id|
-        Rails.cache.delete_matched("*DataCycleCore::Thing_#{item_id}*")
+        Rails.cache.delete_matched("*data_cycle_core/thing_#{item_id}*")
       end
     end
   end

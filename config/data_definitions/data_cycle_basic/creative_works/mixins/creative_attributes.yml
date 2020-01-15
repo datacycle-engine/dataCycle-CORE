@@ -4,20 +4,10 @@
     :type: mixin
     :properties:
       :alternative_headline:
-        :label: Subüberschrift
+        :label: Unterüberschrift
         :type: string
         :storage_location: translated_value
         :search: true
-      :description:
-        :label: Teasertext
-        :type: string
-        :storage_location: column
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
       :link_name:
         :label: Linktitel
         :type: string
@@ -25,24 +15,8 @@
         :search: true
         :api:
           :name: name
-      :text:
-        :label: Fließtext
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: full
-      :author:
-        :label: Autor
-        :type: linked
-        :template_name: Person
-        :validations:
-          :max: 1
       :about:
-        :label: About
+        :label: Hauptthema
         :type: linked
         :inverse_of: subject_of
         :stored_filter:
@@ -55,6 +29,32 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
+      :description:
+        :label: Teasertext
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :author:
+        :label: Autor
+        :type: linked
+        :template_name: Person
+        :validations:
+          :max: 1
+      :text:
+        :label: Fließtext
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
       :image:
         :label: Bilder
         :type: linked

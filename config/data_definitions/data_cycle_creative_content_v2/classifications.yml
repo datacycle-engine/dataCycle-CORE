@@ -1,0 +1,15 @@
+- Inhaltstypen | filter:
+  - $$Text:
+    - $$Strukturierter Artikel
+    - $$Rezept
+# embedded
+  - $$Rezeptkomponente
+  - $$Zutat
+
+- Rezeptkategorien | all:
+  - Gebäck
+  - Mehlspeise
+  - asiatisch
+
+- Gang (Rezept) | all:
+  - Vorspeise
