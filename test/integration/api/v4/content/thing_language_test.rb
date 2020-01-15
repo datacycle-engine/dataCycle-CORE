@@ -32,8 +32,8 @@ module DataCycleCore
 
           header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content, languages)
-          assert_equal(header, data)
-          assert_compact_header(json_data.dig('dc:classification'))
+          assert_equal(header.except('name'), data.except('name'))
+          assert_compact_classification_header(json_data.dig('dc:classification'))
           assert_equal(['de', 'en'], json_data.dig('name').map { |item| item.dig('@language') }.sort)
           assert_equal(['Test-POI', 'Test-POI-en'], json_data.dig('name').map { |item| item.dig('@value') }.sort)
         end

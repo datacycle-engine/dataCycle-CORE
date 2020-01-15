@@ -17,7 +17,7 @@ module DataCycleCore
 
         setup do
           @routes = Engine.routes
-          @tree = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').first
+          @tree = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first
           @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
