@@ -40,7 +40,8 @@ CREATE TABLE public.activities (
     data jsonb,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -69,7 +70,8 @@ CREATE TABLE public.asset_contents (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -192,7 +194,8 @@ CREATE TABLE public.classification_contents (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -273,7 +276,8 @@ CREATE TABLE public.classification_content_histories (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -350,7 +354,8 @@ CREATE TABLE public.content_content_histories (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -366,7 +371,8 @@ CREATE TABLE public.content_contents (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -386,7 +392,8 @@ CREATE TABLE public.data_links (
     comment text,
     valid_from timestamp without time zone,
     valid_until timestamp without time zone,
-    asset_id uuid
+    asset_id uuid,
+    locale character varying
 );
 
 
@@ -469,7 +476,8 @@ CREATE TABLE public.things (
     boost numeric,
     content_type character varying,
     representation_of_id uuid
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -718,7 +726,8 @@ CREATE TABLE public.searches (
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
     advanced_attributes jsonb
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -736,7 +745,8 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[]
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -795,7 +805,8 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -812,7 +823,8 @@ CREATE TABLE public.thing_history_translations (
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -828,7 +840,8 @@ CREATE TABLE public.thing_translations (
     description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -2147,6 +2160,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191119110348'),
 ('20191129131046'),
 ('20191204141710'),
-('20191205123950');
+('20191205123950'),
+('20191219123847'),
+('20191219143016');
 
 
