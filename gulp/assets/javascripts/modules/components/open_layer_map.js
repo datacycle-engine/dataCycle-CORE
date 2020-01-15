@@ -10,7 +10,8 @@ var ol = {
   Feature: require('ol/feature').default,
   geom: {
     Point: require('ol/geom/point').default,
-    LineString: require('ol/geom/linestring').default
+    LineString: require('ol/geom/linestring').default,
+    MultiLineString: require('ol/geom/multilinestring').default
   },
   source: {
     OSM: require('ol/source/osm').default,
@@ -193,6 +194,11 @@ class OpenLayerMap {
     } else if (this.type == 'LineString' && this.value[0] !== undefined && this.value[0].length) {
       this.feature = new ol.Feature({
         geometry: new ol.geom.LineString(this.value)
+      });
+      this.feature.setStyle(this.defaultLineStyle);
+    } else if (this.type == 'MultiLineString') {
+      this.feature = new ol.Feature({
+        geometry: new ol.geom.MultiLineString(this.value.map(function(line){ return ol.geom.LineString(line) }))
       });
       this.feature.setStyle(this.defaultLineStyle);
     }

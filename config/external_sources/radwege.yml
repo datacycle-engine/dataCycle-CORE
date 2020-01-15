@@ -9,13 +9,13 @@ config:
     tours:
       sorting: 1
       source_type: tours
-      endpoint: Generic::GeoImport::Endpoint
-      download_strategy: Generic::GeoImport::Download
+      endpoint: DataCycleCore::Generic::GeoImport::Endpoint
+      download_strategy: DataCycleCore::Generic::GeoImport::Download
   import_config:
     tours:
       sorting: 1
       source_type: tours
-      import_strategy: Generic::GeoImport::Import
+      import_strategy: DataCycleCore::Generic::GeoImport::Import
       transformations:
         tour:
           template: Tour
