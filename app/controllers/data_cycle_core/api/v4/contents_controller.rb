@@ -7,11 +7,12 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         before_action :prepare_url_parameters
+        rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations, :scheduled_data)
+            query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -22,7 +23,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
         end
 
@@ -54,15 +55,24 @@ module DataCycleCore
         end
 
         def build_search_query
-          stored_filter_id = permitted_params[:id] || nil
-          if stored_filter_id.present?
-            @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            authorize! :api, @stored_filter
+          endpoint_id = permitted_params[:id]
+          filter_watch_list = false
+          if endpoint_id.present?
+            @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+
+            if @stored_filter
+              authorize! :api, @stored_filter
+            elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
+              filter_watch_list = true
+            else
+              raise ActiveRecord::RecordNotFound
+            end
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
           query = filter.apply
+          query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 

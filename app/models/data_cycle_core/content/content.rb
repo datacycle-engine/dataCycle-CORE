@@ -116,10 +116,48 @@ module DataCycleCore
         }.keys
       end
 
-      def combined_property_names
+      def combined_property_names(api_version = nil)
         property_definitions.select { |_, definition|
-          definition.dig('api', 'transformation', 'method') == 'combine'
+          if api_version.present? && definition.dig('api', api_version).present?
+            definition.dig('api', api_version, 'transformation', 'method') == 'combine'
+          else
+            definition.dig('api', 'transformation', 'method') == 'combine'
+          end
         }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
+      end
+
+      def attribute_transformation_mapping(api_version = nil)
+        # api:name
+        unwraped_keys = []
+        property_definitions.select { |_, definition|
+          if api_version.present? && definition.dig('api', api_version).present?
+            definition.dig('api', api_version, 'transformation', 'method') == 'unwrap'
+          else
+            definition.dig('api', 'transformation', 'method') == 'unwrap'
+          end
+        }.each do |k, v|
+          unwraped_keys << [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
+          # v.dig('properties').keys.each {|prop_keys|
+          #   unwraped_keys << [prop_keys.camelize(:lower),k]
+          # }
+        end
+
+        # nested_keys = []
+        # property_definitions.select { |_, definition|
+        #   if api_version.present? && definition.dig('api', api_version).present?
+        #     definition.dig('api', api_version, 'transformation', 'method') == 'nest'
+        #   else
+        #     definition.dig('api', 'transformation', 'method') == 'nest'
+        #   end
+        # }.each {|k,v|
+        #   if api_version.present? && v.dig('api', api_version).present?
+        #     name = v.dig('api', api_version, 'transformation', 'name')
+        #   else
+        #     name = v.dig('api', 'transformation', 'name')
+        #   end
+        #   nested_keys << [name.camelize(:lower),k]
+        # }
+        unwraped_keys.to_h
       end
 
       def plain_property_names

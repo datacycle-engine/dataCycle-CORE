@@ -120,7 +120,7 @@ module ActiveSupport
         time << "#{parts[:hours]}H"     if parts.key?(:hours)
         time << "#{parts[:minutes]}M"   if parts.key?(:minutes)
         if parts.key?(:seconds)
-          time << "#{sprintf(@precision ? "%0.0#{@precision}f" : '%g', parts[:seconds])}S" # rubocop:disable Style/FormatString, Stype/FormatStringToken
+          time << "#{sprintf(@precision ? "%0.0#{@precision}f" : '%g', parts[:seconds])}S" # rubocop:disable Style/FormatString, Style/FormatStringToken
         end
         output << "T#{time}" unless time.empty?
         "#{sign}#{output}"

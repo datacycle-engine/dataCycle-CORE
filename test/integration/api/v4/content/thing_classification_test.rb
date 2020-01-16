@@ -33,7 +33,7 @@ module DataCycleCore
           data = full_header_data(@content)
           assert_equal(header, data)
 
-          assert_compact_header(json_data.dig('dc:classification'))
+          assert_compact_classification_header(json_data.dig('dc:classification'))
         end
 
         test 'concepts at /api/v4/things/:id with include concepts --> full data' do

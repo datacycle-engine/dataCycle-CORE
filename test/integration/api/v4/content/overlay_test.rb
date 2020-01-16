@@ -54,15 +54,15 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content_overlay)
-          assert_equal(header, data)
+          assert_equal(header.except('name'), data.except('name'))
 
           ['image', 'sub_event', 'location'].each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
           # content data
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('eventPeriod', 'startDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('eventPeriod', 'endDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('startDate'))
+          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('endDate'))
           assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
           assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))

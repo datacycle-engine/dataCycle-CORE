@@ -25,6 +25,14 @@ display_language = I18n.default_locale if languages.blank?
       'dc:has_concept' => {
         '@id' => 'https://schema.datacycle.at/has_concept',
         '@type' => '@id'
+      },
+      'dc:linked_thing' => {
+        '@id' => 'https://schema.datacycle.at/linked_thing',
+        '@container' => '@set'
+      },
+      'dc:is_linked_to' => {
+        '@id' => 'https://schema.datacycle.at/is_linked_to',
+        '@container' => '@set'
       }
     }.compact
   ]

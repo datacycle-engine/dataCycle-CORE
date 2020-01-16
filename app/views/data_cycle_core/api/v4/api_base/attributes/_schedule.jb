@@ -9,11 +9,11 @@ options ||= {}
 json ||= {}
 
 ap options
-ap subtree_for(definition.dig('api', 'name') || key.camelize(:lower), options[:fields])
-ap included_attribute?(definition.dig('api', 'name') || key.camelize(:lower), options[:include])
+ap subtree_for(attribute_key(key, definition), options[:fields])
+ap included_attribute?(attribute_key(key, definition), options[:include])
 
 if content.present?
-  key_name = definition.dig('api', 'name') || key.camelize(:lower)
+  key_name = attribute_key(key, definition)
   new_fields = subtree_for(key_name, options[:fields])
   json[key_name] = content.send(key)&.map do |schedule|
     if included_attribute?(key_name, options[:include])

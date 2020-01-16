@@ -27,6 +27,9 @@
         :ui:
           :edit:
             :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :start_date:
             :label: Startzeitpunkt

@@ -33,6 +33,8 @@
         :ui:
           :show:
             :disabled: true
+        :api:
+          :name: headline
       :content_classifications:
         :type: mixin
         :name: content_classifications

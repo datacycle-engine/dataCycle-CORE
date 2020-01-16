@@ -26,6 +26,10 @@ module DataCycleCore
       head :bad_request
     end
 
+    def too_many_requests
+      head :too_many_requests, { 'Retry-After': 60 }
+    end
+
     def not_found(exception)
       exception_message = exception&.message&.encode('UTF-8', 'binary', invalid: :replace, undef: :replace, replace: '')
       respond_to do |format|
