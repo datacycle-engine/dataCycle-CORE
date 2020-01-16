@@ -4,25 +4,25 @@
     :type: mixin
     :properties:
       :puglia_type:
-        :label: EventsPuglia - Type
+        :label: EventsPuglia - Types
         :type: classification
-        :tree_label: EventsPuglia - Type
+        :tree_label: EventsPuglia - Types
         :external: true
         :ui:
           :show:
             :content_area: header
       :puglia_category:
-        :label: EventsPuglia - Category
+        :label: EventsPuglia - Categories
         :type: classification
-        :tree_label: EventsPuglia - Category
+        :tree_label: EventsPuglia - Categories
         :external: true
         :ui:
           :show:
             :content_area: header
       :puglia_ticket_type:
-        :label: EventsPuglia - Ticket-Type
+        :label: EventsPuglia - Ticket-Types
         :type: classification
-        :tree_label: EventsPuglia - Ticket-Type
+        :tree_label: EventsPuglia - Ticket-Types
         :external: true
         :ui:
           :show:
