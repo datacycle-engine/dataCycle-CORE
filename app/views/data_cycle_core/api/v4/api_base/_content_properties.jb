@@ -18,7 +18,7 @@ unless content.schema.nil?
 
     if options[:fields].present?
       is_valid_key = false
-      is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
+      is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present? && valid_key?(property_name, options)
       validation_keys = [attribute_key(key, prop)]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
       validation_keys.each { |key|
