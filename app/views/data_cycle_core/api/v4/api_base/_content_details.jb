@@ -14,8 +14,8 @@ options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json ||= {}
 
-#test = content.attribute_transformation_mapping('v4')
-#raise nil.inspect
+# test = content.attribute_transformation_mapping('v4')
+# raise nil.inspect
 
 json.merge! render 'content_header', content: content, options: options
 
