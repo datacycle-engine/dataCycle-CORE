@@ -110,7 +110,8 @@ CREATE TABLE public.classification_aliases (
     assignable boolean DEFAULT true,
     internal_description character varying,
     name_i18n jsonb DEFAULT '{}'::jsonb,
-    description_i18n jsonb DEFAULT '{}'::jsonb
+    description_i18n jsonb DEFAULT '{}'::jsonb,
+    uri character varying
 );
 
 
@@ -335,7 +336,8 @@ CREATE TABLE public.classifications (
     external_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    uri character varying
 );
 
 
@@ -2162,6 +2164,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191204141710'),
 ('20191205123950'),
 ('20191219123847'),
-('20191219143016');
+('20191219143016'),
+('20200116143539');
 
 
