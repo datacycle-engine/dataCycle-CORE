@@ -246,6 +246,19 @@ de:
     active_version: Aktuelle Version
     look_at_version: Version ansehen
 
+  data_link_mailer:
+    content_download: Inhalt herunterladen
+    content_read: Inhalt lesen
+    content_write: Inhalt bearbeiten
+    watch_list:
+      default: die Inhaltssammlung
+    thing:
+      nominativ: der Inhalt
+      akkusativ: den Inhalt
+    send_subject: Geteilter Link zu einem Inhalt
+    update_subject: Geteilte Inhaltssammlung wurde aktualisiert
+    notice: Hinweis
+
   filter:
     add: Filter hinzufügen
     language: Sprache
@@ -695,6 +708,7 @@ de:
         permissions_read: lesen
         permissions_write: bearbeiten
         text_file: "Weitere Infos (PDF)"
+        locale: "E-Mail Sprache"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
@@ -743,9 +757,10 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
     data_links:
-      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor."
-      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback."
-      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und dieser Inhalt steht nun zum Download bereit."
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>"
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>"
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>"
+      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>"
 
     documentation:
       root: Dokumentation

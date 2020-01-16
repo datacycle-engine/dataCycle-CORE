@@ -111,8 +111,8 @@ module DataCycleCore
       key.gsub(/datahash/, 'properties').scan(/\[(.*?)\]/).flatten || []
     end
 
-    def content_view_cache_key(item:, locale: 'de', mode:)
-      "#{item.class}_#{item.id}_#{locale}_#{item.updated_at}_#{item.template_updated_at}_#{mode}"
+    def content_view_cache_key(item:, locale: 'de', mode:, watch_list:)
+      "#{item.class.name.underscore}_#{item.id}_#{locale}_#{item.updated_at&.to_i}_#{item.template_updated_at&.to_i}_#{mode}_#{watch_list&.id}"
     end
 
     def filterable_classification_aliases(allowed_labels, excluded = [])
@@ -248,9 +248,9 @@ module DataCycleCore
 
       return render_linked_viewer(key: key, definition: definition, value: value, parameters: parameters, content: content) if definition['type'] == 'linked' && definition['link_direction'] == 'inverse'
 
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
+      return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
 
-      return render('data_cycle_core/contents/editors/hidden', key: key, definition: definition, value: value, content: content) if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
+      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
       if definition&.dig('ui', 'edit', 'partial').present?
         partials = [definition&.dig('ui', 'edit', 'partial')]
