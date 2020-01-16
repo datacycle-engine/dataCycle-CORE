@@ -4,12 +4,11 @@ json ||= {}
 
 key_name = attribute_key(key, definition)
 api_property_definition = api_definition(definition)
-object_options = {fields: (options[:fields] + subtree_for(key_name, options[:fields])), include: (options[:include] + subtree_for(key_name, options[:include]))}
+object_options = { fields: (options[:fields] + subtree_for(key_name, options[:fields])), include: (options[:include] + subtree_for(key_name, options[:include])) }
 
 if content.translatable_property_names.include?(key) && content.translations.size > 1 && (options[:languages].size > 1 && content.available_locales.map(&:to_s).include?(options[:languages].first))
   translated_properties = {}
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
-
     next if options[:field_filter] && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
 
     o_key_name = attribute_key(o_key, o_definition)
@@ -28,7 +27,6 @@ else
   non_translated_properties = {}
 
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
-
     next if options[:field_filter] && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
 
     partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
