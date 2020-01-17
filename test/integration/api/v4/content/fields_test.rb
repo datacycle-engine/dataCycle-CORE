@@ -53,13 +53,13 @@ module DataCycleCore
         end
 
         def default_fields
-          ['@context', '@id', '@type', 'name', 'dc:entity_url']
+          ['@context', '@id', '@type', 'name']
         end
 
         test 'testing EventOverlay with fields parameter (filtering unstructured data)' do
           fields = ['dc:entity_url']
           json_data = load_api_data(fields)
-          assert_equal(default_fields.sort, json_data.keys.sort)
+          assert_equal((fields + default_fields).sort, json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields parameter (filtering objects)' do
