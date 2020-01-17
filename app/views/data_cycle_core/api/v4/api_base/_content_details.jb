@@ -14,15 +14,12 @@ options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
 
 json ||= {}
 
-# test = content.attribute_transformation_mapping('v4')
-# raise nil.inspect
-
 json.merge! render 'content_header', content: content, options: options
 
 json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || (included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields]))
 
 json.merge! render 'content_properties', content: content, options: options
-json.merge! render 'combined_properties', content: content, options: options
+json.merge! render 'combined_properties', content: content, options: options if options[:field_filter] == false || (included_attribute?('additionalProperty', options[:include]) || included_attribute?('additionalProperty', options[:fields]))
 json.merge! render 'overlay_properties', content: content, options: options if content.content_type?('entity')
 
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
