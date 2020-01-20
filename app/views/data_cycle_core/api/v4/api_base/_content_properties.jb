@@ -1,5 +1,12 @@
 # frozen_string_literal: true
 
+def include_valid_key?(keys, options)
+  keys.each do |key|
+    return true if valid_key?(key, options)
+  end
+  false
+end
+
 def valid_key?(key, options)
   api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key)
 end
@@ -16,12 +23,14 @@ unless content.schema.nil?
     api_property_definition = api_definition(prop)
     property_name = api_property_definition.dig('transformation', 'name')
 
-    if options[:fields].present?
+    if options[:field_filter].present?
       is_valid_key = false
       is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present? && valid_key?(property_name, options)
+
       validation_keys = [attribute_key(key, prop)]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
-      validation_keys.each { |val_key| is_valid_key = true if valid_key?(val_key, options) }
+      is_valid_key = true if include_valid_key?(validation_keys, options)
+
       next unless is_valid_key
     end
 
@@ -29,8 +38,8 @@ unless content.schema.nil?
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
-
     if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
+
       if json.dig(property_name).present?
         json.dig(property_name).merge! render(*partial_params) unless partial_params.nil?
       else

@@ -63,7 +63,7 @@ de:
     import_full: Import (full)
     import: Import
     download: Download
-    download_import: Download/Import
+    download_import: Download&Import
 
 
   notification:
@@ -648,6 +648,7 @@ de:
         description: 'Beschreibungstext'
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
+        uri: Externe URI
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

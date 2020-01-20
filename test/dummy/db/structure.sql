@@ -108,9 +108,9 @@ CREATE TABLE public.classification_aliases (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
-    internal_description character varying,
     name_i18n jsonb DEFAULT '{}'::jsonb,
-    description_i18n jsonb DEFAULT '{}'::jsonb
+    description_i18n jsonb DEFAULT '{}'::jsonb,
+    uri character varying
 );
 
 
@@ -335,7 +335,8 @@ CREATE TABLE public.classifications (
     external_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    uri character varying
 );
 
 
@@ -725,7 +726,8 @@ CREATE TABLE public.searches (
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
-    advanced_attributes jsonb
+    advanced_attributes jsonb,
+    classification_mapping jsonb
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
@@ -1637,6 +1639,13 @@ CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin 
 
 
 --
+-- Name: index_searches_on_classification_mapping; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_classification_mapping ON public.searches USING gin (classification_mapping);
+
+
+--
 -- Name: index_searches_on_content_data_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2162,6 +2171,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191204141710'),
 ('20191205123950'),
 ('20191219123847'),
-('20191219143016');
+('20191219143016'),
+('20200116143539'),
+('20200117095949');
 
 

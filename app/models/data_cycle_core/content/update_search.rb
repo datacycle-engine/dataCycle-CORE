@@ -23,6 +23,7 @@ module DataCycleCore
         I18n.with_locale(language) do
           search_data = walk_embedded_data(self)
           advanced_search_attributes = walk_advanced(self)
+          classification_mapping = walk_classifications(self)
 
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
@@ -41,6 +42,7 @@ module DataCycleCore
             s.boost = boost
             s.schema_type = schema_type
             s.advanced_attributes = advanced_search_attributes
+            s.classification_mapping = classification_mapping
             s.save!
           end
         end
@@ -94,6 +96,20 @@ module DataCycleCore
           end
         end
         advanced_data
+      end
+
+      def walk_classifications(object)
+        classification_mapping = {
+          classification_aliases: object.classification_aliases.map(&:id),
+          classification_ancestors: []
+        }
+        object.classification_aliases.each do |c|
+          c.ancestors.each do |a|
+            classification_mapping[:classification_ancestors] << a.id if a.class.name == 'DataCycleCore::ClassificationAlias'
+          end
+        end
+        classification_mapping[:classification_ancestors].uniq!
+        classification_mapping
       end
 
       def parse_advanced_data(object)

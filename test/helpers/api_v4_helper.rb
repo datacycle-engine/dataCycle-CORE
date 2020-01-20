@@ -3,7 +3,7 @@
 module DataCycleCore
   module ApiV4Helper
     def full_header_attributes
-      ['@id', '@type', 'dc:entity_url', 'name']
+      ['@id', '@type', 'name']
     end
 
     def full_classification_header_attributes
@@ -14,7 +14,6 @@ module DataCycleCore
       full_header_attributes
         .zip([thing.id,
               thing.schema.dig('api', 'type') || thing.schema.dig('schema_type'),
-              api_v4_thing_url(id: thing.id, language: languages),
               header_name(thing, languages)]).to_h
     end
 
