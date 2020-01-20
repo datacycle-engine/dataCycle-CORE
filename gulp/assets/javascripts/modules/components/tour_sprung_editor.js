@@ -23,6 +23,7 @@ class TourSprungEditor {
     this.marker;
     this.routeMarkers = [];
     this.map;
+    this.geoCodeButton = $('.geocode-address-button');
 
     this.setup();
   }
@@ -46,7 +47,11 @@ class TourSprungEditor {
         map: {
           location: defaultMapPosition,
           mapType: 'terrain_v2',
-          controls: controls
+          controls: controls,
+          options: {
+            scrollWheelZoom: false,
+            gestureHandling: true
+          }
         }
       },
       this.configureMap.bind(this)
@@ -54,6 +59,8 @@ class TourSprungEditor {
   }
   initEventHandlers() {
     this.container.on('dc:import:data', this.importData.bind(this));
+
+    if (this.geoCodeButton !== undefined) this.geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
 
     this.container
       .parent('.geographic')
@@ -395,20 +402,22 @@ class TourSprungEditor {
     this.setHiddenFieldValue(coords);
   }
   setHiddenFieldValue(coords) {
-    if (coords === undefined)
+    if (coords === undefined) {
       this.container
         .parent('.geographic')
         .siblings('.location-data')
         .first()
         .removeAttr('value');
-    else {
+      this.value = undefined;
+    } else {
       let parsedCoords = coords;
       if (Array.isArray(coords)) {
         parsedCoords = coords.map(item => Number(item[1].toFixed(5)) + ' ' + Number(item[0].toFixed(5)));
+        this.value = coords.map(item => [item[1], item[0]]);
       } else {
         parsedCoords = [Number(coords.lng.toFixed(5)) + ' ' + Number(coords.lat.toFixed(5))];
+        this.value = [coords.lat, coords.lng];
       }
-
       this.container
         .parent('.geographic')
         .siblings('.location-data')
@@ -435,6 +444,49 @@ class TourSprungEditor {
     }
 
     this.routeDataField.val(JSON.stringify(data));
+  }
+  initGeoCodingActions(event) {
+    event.preventDefault();
+
+    $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+
+    let addressKey = $(event.currentTarget).data('address-key');
+    let locale = $(event.currentTarget).data('locale');
+    let address = {
+      locale: locale
+    };
+
+    $('.form-element.object.' + addressKey)
+      .find('.form-element')
+      .find('input')
+      .each((index, elem) => {
+        address[elem.name.get_key()] = elem.value;
+      });
+
+    $.getJSON('/things/geocode_address/', address)
+      .done(data => {
+        if (data.error !== undefined) {
+          new ConfirmationModal({
+            text: data.error
+          });
+        } else if (data && data.length == 2 && this.marker !== undefined) {
+          this.marker.setLatLng({ lng: data[0], lat: data[1] });
+          this.map.leaflet.setView(this.marker.getLatLng());
+          this.setCoordinates(this.marker.getLatLng());
+        } else if (data && data.length == 2 && this.marker === undefined) {
+          this.drawMarker({ lng: data[0], lat: data[1] });
+          this.map.leaflet.setView(this.marker.getLatLng());
+          this.setCoordinates(this.marker.getLatLng());
+        }
+      })
+      .fail((jqxhr, textStatus, error) => {
+        console.log(textStatus + ', ' + error);
+      })
+      .always(() => {
+        $(event.currentTarget)
+          .find('i.fa')
+          .remove();
+      });
   }
 }
 

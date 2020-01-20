@@ -10,7 +10,8 @@ var ol = {
   Feature: require('ol/feature').default,
   geom: {
     Point: require('ol/geom/point').default,
-    LineString: require('ol/geom/linestring').default
+    LineString: require('ol/geom/linestring').default,
+    MultiLineString: require('ol/geom/multilinestring').default
   },
   source: {
     OSM: require('ol/source/osm').default,
@@ -195,6 +196,15 @@ class OpenLayerMap {
         geometry: new ol.geom.LineString(this.value)
       });
       this.feature.setStyle(this.defaultLineStyle);
+    } else if (this.type == 'MultiLineString' && this.value[0] !== undefined && this.value[0].length) {
+      var first = this.value[0];
+      var array = first.map(function(line){
+        return JSON.parse('[' + line + ']');
+      })
+      this.feature = new ol.Feature({
+        geometry: new ol.geom.MultiLineString(array)
+      });
+      this.feature.setStyle(this.defaultLineStyle);
     }
   }
   initEventHandlers() {
@@ -371,7 +381,10 @@ class OpenLayerMap {
     $(event.currentTarget).append(' <i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
 
     let addressKey = $(event.currentTarget).data('address-key');
-    let address = {};
+    let locale = $(event.currentTarget).data('locale');
+    let address = {
+      locale: locale
+    };
 
     $('.form-element.object.' + addressKey)
       .find('.form-element')
@@ -383,7 +396,9 @@ class OpenLayerMap {
     $.getJSON('/things/geocode_address/', address)
       .done(data => {
         if (data.error !== undefined) {
-          console.log(data.error);
+          new ConfirmationModal({
+            text: data.error
+          });
         } else if (data !== undefined && data.length == 2 && this.feature !== undefined) {
           this.feature.setGeometry(new ol.geom.Point(data).transform('EPSG:4326', 'EPSG:3857'));
           this.setNewCoordinates();
@@ -533,6 +548,10 @@ class OpenLayerMap {
       this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
     } else if (this.type == 'Point' && (this.feature !== undefined || this.featureOld !== undefined)) {
       this.map.getView().setCenter((this.feature || this.featureOld).getGeometry().getCoordinates());
+    } else if (this.type == 'MultiLineString' && (this.feature !== undefined || this.featureOld !== undefined)) {
+      let extent = new ol.extent.createEmpty();
+      if (this.feature !== undefined) extent = new ol.extent.extend(extent, this.feature.getGeometry().getExtent());
+      this.map.getView().fit(extent, { padding: [50, 50, 50, 50] });
     } else {
       if (
         this.defaultPosition !== undefined &&

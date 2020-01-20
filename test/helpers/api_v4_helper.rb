@@ -3,7 +3,7 @@
 module DataCycleCore
   module ApiV4Helper
     def full_header_attributes
-      ['@id', '@type', 'dc:entity_url']
+      ['@id', '@type', 'name']
     end
 
     def full_classification_header_attributes
@@ -14,11 +14,29 @@ module DataCycleCore
       full_header_attributes
         .zip([thing.id,
               thing.schema.dig('api', 'type') || thing.schema.dig('schema_type'),
-              api_v4_thing_url(id: thing.id, language: languages)])
-        .to_h
+              header_name(thing, languages)]).to_h
+    end
+
+    def header_name(thing, languages = 'de')
+      language_arr = languages.split(',')
+      return (thing.title || thing.template_name) if language_arr.size == 1
+      language_arr.map! do |lang|
+        I18n.with_locale(lang) do
+          { '@language' => I18n.locale.to_s, '@value' => (thing.title || thing.template_name) }
+        end
+      end
     end
 
     def assert_compact_header(array)
+      array.each do |hash|
+        assert_equal(['@id', '@type', 'name'], hash.keys)
+        assert(hash.dig('@id').present?)
+        assert(hash.dig('@type').present?)
+        assert(hash.dig('name').present?)
+      end
+    end
+
+    def assert_compact_classification_header(array)
       array.each do |hash|
         assert_equal(['@id', '@type'], hash.keys)
         assert(hash.dig('@id').present?)

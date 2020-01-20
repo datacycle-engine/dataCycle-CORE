@@ -231,7 +231,6 @@ module.exports.initialize = function() {
     $('.filters .advanced-filters #add_advanced_filter').on('change', event => {
       event.preventDefault();
       $(event.target).prop('disabled', true);
-      console.log($(event.target))
       $.ajax({
         url: $(event.target).data('url'),
         method: 'GET',

@@ -95,6 +95,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -204,6 +207,62 @@
           :method: quality
           :parameters:
             :0: asset
+      :upload_date:
+        :label: Hochgeladen am
+        :type: datetime
+        :storage_location: value
+        :ui:
+          :edit:
+            :type: date
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+          :show:
+            :type: date
+        :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :advanced_search: true
+      :youtube_url:
+        :label: YouTube URL
+        :type: string
+        :storage_location: value
+        :validations:
+          :format: url
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
+      :director:
+        :label: Regie
+        :type: linked
+        :template_name: Person
+      :contributor:
+        :label: Kamera
+        :type: linked
+        :template_name: Person
+      :copyright_holder:
+        :label: Rechteinhaber
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+      :copyright_year:
+        :label: Copyright - Jahr
+        :type: number
+        :storage_location: value
+        :advanced_search: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :keywords:
         :label: Keywords
         :storage_location: translated_value

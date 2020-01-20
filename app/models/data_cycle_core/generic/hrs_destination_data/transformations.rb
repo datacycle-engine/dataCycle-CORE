@@ -61,10 +61,10 @@ module DataCycleCore
         end
 
         def self.parse_event_period(dates, event_data)
-          return nil if dates.size > 1
-          date = dates.first.in_time_zone
-          end_date = date
-          end_date = date + event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
+          return nil if dates.blank?
+          date = dates.map(&:in_time_zone).min
+          end_date = dates.map(&:in_time_zone).max
+          end_date += event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
           {
             'start_date' => date,
             'end_date' => end_date
@@ -76,7 +76,7 @@ module DataCycleCore
           dates.map do |date_string|
             date = date_string.in_time_zone
             end_date = date
-            end_date = date + event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
+            end_date += event_data.dig('duration').to_f.hours if event_data.dig('duration').present?
             {
               'event_period' => {
                 'start_date' => date,

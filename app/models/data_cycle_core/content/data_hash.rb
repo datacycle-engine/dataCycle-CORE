@@ -120,7 +120,7 @@ module DataCycleCore
 
       def invalidate_cache
         related_contents.ids.each do |item_id|
-          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+          Rails.cache.delete_matched("*#{self.class.name.underscore}_#{item_id}*")
         end
       end
 
@@ -149,6 +149,8 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
+        when 'schedule'
+          set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
         when 'key'
@@ -364,6 +366,27 @@ module DataCycleCore
           .with_assets(old_id, asset_type)
           .with_relation(relation_name)
           .destroy_all
+      end
+
+      def set_schedule(input_data, relation_name)
+        updated_item_keys = []
+        available_items = load_schedule(relation_name).ids
+        data = input_data || []
+
+        data.each do |item|
+          schedule =
+            if item['id'].present?
+              DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name)
+            else
+              DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
+            end
+          schedule.from_hash(item)
+          schedule.save!
+          updated_item_keys << schedule.id
+        end
+
+        delete = available_items - updated_item_keys
+        DataCycleCore::Schedule.where(id: delete).destroy_all
       end
     end
   end

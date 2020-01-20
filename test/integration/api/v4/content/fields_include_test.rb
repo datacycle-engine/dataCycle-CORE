@@ -51,7 +51,7 @@ module DataCycleCore
         end
 
         def add_default(array)
-          (['@context', '@id', '@type'] + array).sort
+          (['@context', '@id', '@type', 'name'] + array).sort
         end
 
         def add_header(array)
@@ -63,7 +63,7 @@ module DataCycleCore
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(add_default(fields), json_data.keys.sort)
+          assert_equal(add_default([]), json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields and include parameter (one included data)' do
@@ -81,7 +81,7 @@ module DataCycleCore
           includes = ['location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(add_default(['name']), json_data.keys.sort)
+          assert_equal(add_default([]), json_data.keys.sort)
         end
       end
     end

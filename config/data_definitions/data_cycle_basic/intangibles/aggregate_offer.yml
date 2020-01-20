@@ -66,6 +66,12 @@
           :transformation:
             :method: nest
             :name: dataCycleProperty
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :content_text:
         :label: Inhaltsbeschreibung (lang)
         :type: string
@@ -80,6 +86,12 @@
           :transformation:
             :method: nest
             :name: dataCycleProperty
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :feratel_offer_classifications:
         :type: mixin
         :name: feratel_offer_classifications
@@ -110,16 +122,23 @@
         :template_name: Preis
         :translated: true
         :advanced_search: true
+      # schema.org: correct name: eligible_region
       :eligable_region:
         :label: Ort
         :type: linked
         :template_name: Örtlichkeit
+        :api:
+          :v4:
+            :name: eligibleRegion
       :url:
         :label: Angebots URL
         :type: string
         :storage_location: translated_value
         :validations:
           :format: url
+        :api:
+          :v4:
+            :name: sameAs
       :offered_by:
         :label: Ansprechpartner
         :type: linked
@@ -204,6 +223,8 @@
         :api:
           :name: photo
           :minimal: true
+          :v4:
+            :name: image
       :additional_aggregate_offer_properties:
         :type: mixin
         :name: additional_aggregate_offer_properties

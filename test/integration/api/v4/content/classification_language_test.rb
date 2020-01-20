@@ -17,7 +17,7 @@ module DataCycleCore
 
         setup do
           @routes = Engine.routes
-          @tree = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').first
+          @tree = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first
           @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
@@ -30,7 +30,7 @@ module DataCycleCore
           assert_equal('de', json_data.dig('@context', 1, '@language'))
           assert_equal(@trees, json_data['@graph'].size)
           assert_equal(@trees, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes for :en (exists als available_locales)' do

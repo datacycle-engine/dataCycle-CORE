@@ -6,6 +6,8 @@ module DataCycleCore
       def self.execute_all(data, action)
         get_webhooks_for(action, data).each do |external_system, webhook|
           execute(external_system, webhook, data, action)
+        rescue SystemStackError => exception
+          Appsignal.set_error(exception)
         end
       end
 

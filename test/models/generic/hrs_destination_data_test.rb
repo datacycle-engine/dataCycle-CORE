@@ -70,8 +70,8 @@ module DataCycleCore
         assert_equal(1, data.hrs_dd_categories.count)
         assert_equal(1, data.organizer.count)
         assert_equal(0, data.image.count)
-        assert_nil(data.event_period.start_date)
-        assert_nil(data.event_period.end_date)
+        assert(data.event_period.start_date.present?)
+        assert(data.event_period.end_date.present?)
         assert_equal(2, data.sub_event.count)
       end
 

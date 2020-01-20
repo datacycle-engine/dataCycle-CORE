@@ -7,11 +7,12 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         before_action :prepare_url_parameters
+        rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations)
+            query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -22,7 +23,7 @@ module DataCycleCore
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
         end
 
@@ -50,20 +51,28 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
         end
 
         def build_search_query
-          stored_filter_id = permitted_params[:id] || nil
-          if stored_filter_id.present?
-            @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            authorize! :api, @stored_filter
+          endpoint_id = permitted_params[:id]
+          filter_watch_list = false
+          if endpoint_id.present?
+            @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+
+            if @stored_filter
+              authorize! :api, @stored_filter
+            elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
+              filter_watch_list = true
+            else
+              raise ActiveRecord::RecordNotFound
+            end
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
           query = filter.apply
-
+          query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
@@ -92,14 +101,7 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          if from_date.blank?
-            from_date = Time.zone.now
-            from_date = to_date if from_date > to_date
-          end
-
-          query = query.event_from_time(from_date)
-          query = query.event_end_time(to_date) if to_date.present?
-          query
+          query.schedule_search(from_date, to_date, 'schedule')
         end
 
         def apply_place_query_filters(query)
@@ -111,6 +113,7 @@ module DataCycleCore
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
+          @mode_parameters = permitted_params.dig(:mode)
           @field_filter = @fields_parameters.present?
           @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))

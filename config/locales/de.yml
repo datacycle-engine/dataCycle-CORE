@@ -63,7 +63,7 @@ de:
     import_full: Import (full)
     import: Import
     download: Download
-    download_import: Download/Import
+    download_import: Download&Import
 
 
   notification:
@@ -216,6 +216,8 @@ de:
         none: Originalformat
     help: Hilfe
     mode_switcher_title: Ansicht
+    embedded_move_down: nach unten verschieben
+    embedded_move_up: nach oben verschieben
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -436,6 +438,13 @@ de:
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: "%{template} ist kein String, sondern %{label}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
+      schedule:
+        general: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash."
+        time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: "DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone"
+        rrule: "RRULE format falsch für %{template} (%{data})."
+        thing_id: "thing_id ist ein Pflichtfeld."
+        relation: "relation ist ein Pflichtfeld."
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierguns-Daten angegeben."
@@ -471,6 +480,8 @@ de:
       convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
       end_date: "Kein End-Datum angegeben, setze auf 9999-12-31."
       start_date: "Kein Start-Datum angegeben, setze auf 1970-01-01."
+      address_not_found: Adresse nicht gefunden
+      address_ambiguous: Adresse nicht eindeutig
   controllers:
     error:
       invalid_parent: "Ungültiges Eltern Objekt."
@@ -637,6 +648,7 @@ de:
         description: 'Beschreibungstext'
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
+        uri: Externe URI
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer

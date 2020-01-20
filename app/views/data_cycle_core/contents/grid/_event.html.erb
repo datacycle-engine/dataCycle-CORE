@@ -1,4 +1,3 @@
-
 <% I18n.with_locale(item.first_available_locale(@language)) do %>
 
     <%= link_to thing_path(item, watch_list_id: @watch_list&.id, locale: I18n.locale), class: 'content-link' do %>
@@ -9,6 +8,7 @@
             <%= render 'data_cycle_core/contents/grid/attributes/title', local_assigns if item.try(:title).present? %>
 
             <%= render 'data_cycle_core/contents/grid/attributes/event_period', local_assigns if item.try(:event_period).present? %>
+            <%= render 'data_cycle_core/contents/grid/attributes/content_location', local_assigns if item.try(:content_location).present? %>
 
             <%= render 'data_cycle_core/contents/grid/attributes/description', local_assigns if item.try(:desc).present? %>
 
