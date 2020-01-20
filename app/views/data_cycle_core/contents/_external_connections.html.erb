@@ -16,7 +16,7 @@
 
   <% content.external_system_syncs.each do |external_relation| %>
     <div class="external-connection">
-      <span class="copy-to-clipboard" title="<b><%= DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language) + ':</b> '  + external_relation.external_key.to_s + (external_relation.status.present? ? "<br><b>#{t('common.status', locale: DataCycleCore.ui_language)}:</b> #{t("external_connection_states.#{external_relation.status}", locale: DataCycleCore.ui_language)}" : '') %>" data-tooltip data-value="<%= external_relation.external_key %>" data-allow-html="true">
+      <span class="copy-to-clipboard" title="<b><%= DataCycleCore::Thing.human_attribute_name(:external_key, locale: DataCycleCore.ui_language) + ':</b> ' + external_relation.external_key.to_s + (external_relation.status.present? ? "<br><b>#{t('common.status', locale: DataCycleCore.ui_language)}:</b> #{t("external_connection_states.#{external_relation.status}", locale: DataCycleCore.ui_language)}" : '') %><br><b><%= t('common.date', locale: DataCycleCore.ui_language) %>:</b> <%= l(external_relation.updated_at, locale: DataCycleCore.ui_language) %>" data-tooltip data-value="<%= external_relation.external_key %>" data-allow-html="true">
         <span class="external-system-icon fa-stack <%= external_relation.status %>">
           <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
           <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
