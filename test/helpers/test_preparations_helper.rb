@@ -9,13 +9,14 @@ module DataCycleCore
         common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status',
-                'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type'],
+                'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type',
+                'piemonte_tag', 'piemonte_scope', 'piemonte_category', 'piemonte_coverage', 'piemonte_data_source'],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
                 'google_business_primary_category', 'google_business_additional_categories', 'feratel_status', 'topic',
-                'feratel_content_score', 'feratel_facilities'],
+                'feratel_content_score', 'feratel_facilities', 'piemonte_venue_category'],
         person: [],
         products: []
       }.freeze

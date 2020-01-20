@@ -45,7 +45,7 @@ module DataCycleCore
 
         def address_block
           return if schema_type != 'Place'
-          ((try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}<br>" : '') + (try(:address)&.street_address.present? ? address.street_address&.gsub(', ', '<br>') : ''))
+          ((try(:address)&.postal_code.present? || try(:address)&.address_locality.present? ? "#{address.postal_code} #{address.address_locality}<br>" : '') + (try(:address)&.street_address.present? ? address.street_address : ''))
         end
 
         def coordinates
