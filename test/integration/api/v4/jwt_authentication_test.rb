@@ -152,7 +152,7 @@ module DataCycleCore
             email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at"
           })
 
-          post api_v4_users_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
+          post api_v4_users_create_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
 
           assert_response :created
           assert_equal response.content_type, 'application/json'
@@ -172,7 +172,7 @@ module DataCycleCore
 
           user_data['email'] = "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
 
-          post api_v4_users_path, headers: {
+          post api_v4_users_create_path, headers: {
             Authorization: "Bearer #{new_token}"
           }, params: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }
 

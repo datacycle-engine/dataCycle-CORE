@@ -26,9 +26,9 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.6.3'
 
   # rails
-  # s.add_dependency 'jquery-rails'
   s.add_dependency 'rails', '~> 5.2.3'
   s.add_dependency 'rake'
+  s.add_dependency 'sprockets', '4.0.0.beta8'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
@@ -37,16 +37,11 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-geojson'
   # mongoDB driver
   s.add_dependency 'mongoid'
-  # change mongoid version if bullet gem is used
-  # s.add_dependency 'mongoid', '>= 4.0.0', '< 7.0.0'
-  # s.add_dependency 'arel-helpers'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday_middleware'
   # JSON Parser
   s.add_dependency 'multi_json'
-  # SOAP Client
-  # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
   s.add_dependency 'nokogiri', '~> 1.10.3'
   # s.add_dependency 'activemodel-serializers-xml'
@@ -61,8 +56,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'awesome_print'
   # validator for json data
   s.add_dependency 'json-schema'
-  # simple logger for import/load
-  s.add_dependency 'logging'
   # background-jobs
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
@@ -78,6 +71,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'dry-validation', '~> 0.11'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
+
+  # gems for event-schedules
+  s.add_dependency 'ice_cube'
 
   # File Upload
   s.add_dependency 'carrierwave', '~> 0.5'

@@ -2,12 +2,16 @@
 
 json ||= {}
 
-key_name = definition.dig('api', 'name') || key.camelize(:lower)
+key_name = attribute_key(key, definition)
+api_property_definition = api_definition(definition)
+object_options = { fields: (options[:fields] + subtree_for(key_name, options[:fields])), include: (options[:include] + subtree_for(key_name, options[:include])) }
 
-if content.translations.size > 1 && content.translatable_property_names.include?(key)
+if content.translatable_property_names.include?(key) && content.translations.size > 1 && (options[:languages].size > 1 && content.available_locales.map(&:to_s).include?(options[:languages].first))
   translated_properties = {}
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
-    o_key_name = o_definition.dig('api', 'name') || o_key
+    next if options[:field_filter] && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
+
+    o_key_name = attribute_key(o_key, o_definition)
     translated_properties[o_key_name.camelize(:lower)] = []
     content.translations.each do |translation|
       I18n.with_locale(translation.locale) do
@@ -23,15 +27,17 @@ else
   non_translated_properties = {}
 
   ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+    next if options[:field_filter] && !valid_key?(attribute_key(o_key, o_definition), object_options) && api_property_definition.dig('transformation', 'method') != 'merge_object'
+
     partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
     non_translated_properties.merge!(render(*partial_params)) unless partial_params.nil?
   end
 end
 
 object_properties = translated_properties || non_translated_properties
-object_properties = { '@type' => definition.dig('api', 'type') }.merge(object_properties) if definition.dig('api', 'type').present?
+object_properties = { '@type' => api_property_definition.dig('type') }.merge(object_properties) if api_property_definition.dig('type').present?
 
-if definition.dig('api', 'transformation', 'method') == 'unwrap' || definition.dig('api', 'transformation', 'method') == 'merge_object'
+if api_property_definition.dig('transformation', 'method') == 'unwrap' || api_property_definition.dig('transformation', 'method') == 'merge_object'
   json.merge! object_properties
 else
   json[key_name] = object_properties

@@ -116,64 +116,59 @@ module DataCycleCore
         }.keys
       end
 
-      def plain_property_names
+      def combined_property_names(api_version = nil)
         property_definitions.select { |_, definition|
-          PLAIN_PROPERTY_TYPES.include?(definition['type'])
-        }.keys
-      end
-
-      def linked_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'linked'
-        }.keys
-      end
-
-      def embedded_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'embedded'
-        }.keys
-      end
-
-      def global_property_names
-        property_definitions.select { |_, definition|
-          definition['global'] == true
-        }.keys
-      end
-
-      def included_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'object'
-        }.keys
-      end
-
-      def computed_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'computed'
-        }.keys
-      end
-
-      def combined_property_names
-        property_definitions.select { |_, definition|
-          definition.dig('api', 'transformation', 'method') == 'combine'
+          if api_version.present? && definition.dig('api', api_version).present?
+            definition.dig('api', api_version, 'transformation', 'method') == 'combine'
+          else
+            definition.dig('api', 'transformation', 'method') == 'combine'
+          end
         }.sort_by { |_k, v| v.dig('sorting') }.to_h.keys
       end
 
-      def classification_property_names
+      def attribute_transformation_mapping(api_version = nil)
+        # find transformation method: unwrap
         property_definitions.select { |_, definition|
-          definition['type'] == 'classification'
-        }.keys
+          if api_version.present? && definition.dig('api', api_version).present?
+            definition.dig('api', api_version, 'transformation', 'method') == 'unwrap'
+          else
+            definition.dig('api', 'transformation', 'method') == 'unwrap'
+          end
+        }.map { |k, v|
+          [k, v.dig('properties').keys.map { |prop_key| prop_key.camelize(:lower) }]
+        }.to_h
+      end
+
+      def plain_property_names
+        name_property_selector { |definition| PLAIN_PROPERTY_TYPES.include?(definition['type']) }
+      end
+
+      def linked_property_names
+        name_property_selector { |definition| definition['type'] == 'linked' }
+      end
+
+      def embedded_property_names
+        name_property_selector { |definition| definition['type'] == 'embedded' }
+      end
+
+      def included_property_names
+        name_property_selector { |definition| definition['type'] == 'object' }
+      end
+
+      def computed_property_names
+        name_property_selector { |definition| definition['type'] == 'computed' }
+      end
+
+      def classification_property_names
+        name_property_selector { |definition| definition['type'] == 'classification' }
       end
 
       def asset_property_names
-        property_definitions.select { |_, definition|
-          definition['type'] == 'asset'
-        }.keys
+        name_property_selector { |definition| definition['type'] == 'asset' }
       end
 
-      def search_property_names
-        property_definitions.select { |_, definition|
-          definition['search'] == true
-        }.keys
+      def schedule_property_names
+        name_property_selector { |definition| definition['type'] == 'schedule' }
       end
 
       def searchable_embedded_property_names
@@ -195,7 +190,15 @@ module DataCycleCore
       end
 
       def geo_properties
-        property_definitions.select { |_, val| val['type'] == 'geographic' }
+        property_selector { |definition| definition['type'] == 'geographic' }
+      end
+
+      def global_property_names
+        name_property_selector { |definition| definition['global'] == true }
+      end
+
+      def search_property_names
+        name_property_selector { |definition| definition['search'] == true }
       end
 
       def to_h(timestamp = Time.zone.now)
@@ -226,6 +229,10 @@ module DataCycleCore
           send(property_name)
         elsif computed_property_names.include?(property_name)
           send(property_name)
+        elsif schedule_property_names.include?(property_name)
+          schedule_array = send(property_name)
+          schedule_array = schedule_array.map(&:to_h).presence
+          schedule_array.blank? ? [] : schedule_array.compact
         else
           raise StandardError, "cannot determine how to serialize #{property_name}"
         end
@@ -278,6 +285,8 @@ module DataCycleCore
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])
               load_computed_attribute(key[0], key[1])
+            elsif schedule_property_names.include?(key[0])
+              load_schedule(key[0])
             else
               raise NotImplementedError
             end
@@ -323,13 +332,6 @@ module DataCycleCore
             raise StandardError, "Template includes wrong definitions for included sub_property #{key}, given: #{item}!"
           end
         }.inject(&:merge)
-      end
-
-      def set_property_value(property_name, property_definition, value)
-        raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
-        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
-             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
-        reload_memoized [property_name, property_definition]
       end
 
       def convert_to_type(type, value)
@@ -387,6 +389,13 @@ module DataCycleCore
 
       def self.shared_template_features
         all.map { |t| t.schema['features'].to_a }.inject(:&).to_h
+      end
+
+      def set_property_value(property_name, property_definition, value)
+        raise NotImplementedError unless PLAIN_PROPERTY_TYPES.include?(property_definition['type'])
+        send(NEW_STORAGE_LOCATION[property_definition['storage_location']] + '=',
+             (send(NEW_STORAGE_LOCATION[property_definition['storage_location']]) || {}).merge({ property_name => value }))
+        reload_memoized [property_name, property_definition]
       end
 
       private

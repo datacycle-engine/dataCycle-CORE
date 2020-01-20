@@ -63,7 +63,7 @@ de:
     import_full: Import (full)
     import: Import
     download: Download
-    download_import: Download/Import
+    download_import: Download&Import
 
 
   notification:
@@ -246,6 +246,19 @@ de:
     active_version: Aktuelle Version
     look_at_version: Version ansehen
 
+  data_link_mailer:
+    content_download: Inhalt herunterladen
+    content_read: Inhalt lesen
+    content_write: Inhalt bearbeiten
+    watch_list:
+      default: die Inhaltssammlung
+    thing:
+      nominativ: der Inhalt
+      akkusativ: den Inhalt
+    send_subject: Geteilter Link zu einem Inhalt
+    update_subject: Geteilte Inhaltssammlung wurde aktualisiert
+    notice: Hinweis
+
   filter:
     add: Filter hinzufügen
     language: Sprache
@@ -425,6 +438,13 @@ de:
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: "%{template} ist kein String, sondern %{label}."
       geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
+      schedule:
+        general: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash."
+        time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: "DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone"
+        rrule: "RRULE format falsch für %{template} (%{data})."
+        thing_id: "thing_id ist ein Pflichtfeld."
+        relation: "relation ist ein Pflichtfeld."
       number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
       no_data: "Keine Daten angegeben."
       no_validation: "Keine Validierguns-Daten angegeben."
@@ -628,6 +648,7 @@ de:
         description: 'Beschreibungstext'
         classification_ids: Klassifizierungs-Mapping
         internal_name: Sprachneutraler Name
+        uri: Externe URI
       data_cycle_core/user_group:
         name: Name
         user_ids: Benutzer
@@ -688,6 +709,7 @@ de:
         permissions_read: lesen
         permissions_write: bearbeiten
         text_file: "Weitere Infos (PDF)"
+        locale: "E-Mail Sprache"
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
@@ -736,9 +758,10 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
     data_links:
-      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor."
-      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback."
-      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und dieser Inhalt steht nun zum Download bereit."
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>"
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>"
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>"
+      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>"
 
     documentation:
       root: Dokumentation

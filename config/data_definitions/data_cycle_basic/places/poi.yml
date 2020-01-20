@@ -67,6 +67,13 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :outdoor_active:
         :type: mixin
         :name: outdoor_active

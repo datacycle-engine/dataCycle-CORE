@@ -34,7 +34,7 @@ def render_description(content, languages, one)
   return unless languages.size.positive?
   return_data = nil
   if one
-    return_data = content.description || content.internal_description
+    return_data = content.description
   else
     value_container = []
     languages.each do |language|

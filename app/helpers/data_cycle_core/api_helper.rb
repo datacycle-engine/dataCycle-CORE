@@ -5,18 +5,19 @@ module DataCycleCore
     include DataHashHelper
 
     def api_default_attributes
-      ['@id', '@type', '@language']
+      ['@id', '@type', '@language', 'name']
     end
 
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
+      api_property_definition = api_definition(definition)
       api_version = @api_version || 2
       partials = [
-        key.underscore.to_s,
-        "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
+        "#{definition['type'].underscore}_#{key.underscore}",
+        "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
         "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-        "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
+        "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
         definition&.dig('compute', 'type')&.underscore,
         definition['type'].underscore,
         'default'
@@ -35,6 +36,14 @@ module DataCycleCore
         next unless lookup_context.exists?(partial, [], true)
         return partial
       end
+    end
+
+    def attribute_key(key, definition)
+      definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+    end
+
+    def api_definition(definition, api_version = @api_version)
+      definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
     end
 
     def included_attribute?(name, attribute_list)
@@ -77,7 +86,7 @@ module DataCycleCore
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
-      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
+      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError

@@ -45,6 +45,14 @@ module DataCycleCore
         [from, to]
       end
 
+      def name_property_selector
+        property_selector { |definition| yield(definition) }.keys
+      end
+
+      def property_selector
+        property_definitions.select { |_, definition| yield(definition) }
+      end
+
       def duplicate_data_hash(data_hash)
         data_hash.deep_reject { |k, _v| k == 'id' || asset_property_names.include?(k) || computed_property_names.include?(k) }
       end

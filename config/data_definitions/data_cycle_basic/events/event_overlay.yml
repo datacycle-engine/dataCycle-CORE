@@ -27,6 +27,9 @@
         :ui:
           :edit:
             :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -82,6 +85,9 @@
         :template_name: Örtlichkeit
         :api:
           :name: location
+      :schedule:
+        :label: Termine
+        :type: schedule      
       :data_type:
         :label: Inhaltstyp
         :type: classification

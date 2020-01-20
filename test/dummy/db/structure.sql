@@ -40,7 +40,8 @@ CREATE TABLE public.activities (
     data jsonb,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -69,7 +70,8 @@ CREATE TABLE public.asset_contents (
     seen_at timestamp without time zone,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -106,9 +108,9 @@ CREATE TABLE public.classification_aliases (
     internal boolean DEFAULT false,
     deleted_at timestamp without time zone,
     assignable boolean DEFAULT true,
-    internal_description character varying,
     name_i18n jsonb DEFAULT '{}'::jsonb,
-    description_i18n jsonb DEFAULT '{}'::jsonb
+    description_i18n jsonb DEFAULT '{}'::jsonb,
+    uri character varying
 );
 
 
@@ -192,7 +194,8 @@ CREATE TABLE public.classification_contents (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -273,7 +276,8 @@ CREATE TABLE public.classification_content_histories (
     updated_at timestamp without time zone NOT NULL,
     external_source_id uuid,
     relation character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -331,7 +335,8 @@ CREATE TABLE public.classifications (
     external_type character varying,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    deleted_at timestamp without time zone
+    deleted_at timestamp without time zone,
+    uri character varying
 );
 
 
@@ -350,7 +355,8 @@ CREATE TABLE public.content_content_histories (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -366,7 +372,8 @@ CREATE TABLE public.content_contents (
     updated_at timestamp without time zone NOT NULL,
     order_a integer,
     relation_b character varying
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -386,7 +393,8 @@ CREATE TABLE public.data_links (
     comment text,
     valid_from timestamp without time zone,
     valid_until timestamp without time zone,
-    asset_id uuid
+    asset_id uuid,
+    locale character varying
 );
 
 
@@ -469,7 +477,8 @@ CREATE TABLE public.things (
     boost numeric,
     content_type character varying,
     representation_of_id uuid
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -646,6 +655,50 @@ CREATE TABLE public.roles (
 
 
 --
+-- Name: schedule_histories; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.schedule_histories (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_history_id uuid,
+    relation character varying,
+    dtstart timestamp with time zone,
+    dtend timestamp with time zone,
+    duration interval,
+    rrule character varying,
+    rdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    exdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    external_source_id uuid,
+    external_key character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
+-- Name: schedules; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.schedules (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    thing_id uuid,
+    relation character varying,
+    dtstart timestamp with time zone,
+    dtend timestamp with time zone,
+    duration interval,
+    rrule character varying,
+    rdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    exdate timestamp with time zone[] DEFAULT '{}'::timestamp with time zone[],
+    external_source_id uuid,
+    external_key character varying,
+    seen_at timestamp without time zone,
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: schema_migrations; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -673,8 +726,10 @@ CREATE TABLE public.searches (
     all_text text,
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
-    advanced_attributes jsonb
-);
+    advanced_attributes jsonb,
+    classification_mapping jsonb
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -692,7 +747,8 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[]
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -751,7 +807,8 @@ CREATE TABLE public.thing_histories (
     boost numeric,
     content_type character varying,
     representation_of_id uuid
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -768,7 +825,8 @@ CREATE TABLE public.thing_history_translations (
     history_valid tstzrange,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -784,7 +842,8 @@ CREATE TABLE public.thing_translations (
     description text,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
-);
+)
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
 
 --
@@ -1027,6 +1086,22 @@ ALTER TABLE ONLY public.external_systems
 
 ALTER TABLE ONLY public.roles
     ADD CONSTRAINT roles_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schedule_histories schedule_histories_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedule_histories
+    ADD CONSTRAINT schedule_histories_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: schedules schedules_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.schedules
+    ADD CONSTRAINT schedules_pkey PRIMARY KEY (id);
 
 
 --
@@ -1529,10 +1604,45 @@ CREATE INDEX index_roles_on_rank ON public.roles USING btree (rank);
 
 
 --
+-- Name: index_schedule_histories_on_from_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_histories_on_from_to ON public.schedule_histories USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedule_histories_on_thing_history_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedule_histories_on_thing_history_id ON public.schedule_histories USING btree (thing_history_id);
+
+
+--
+-- Name: index_schedules_on_from_to; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_from_to ON public.schedules USING gist (tstzrange(dtstart, dtend, '[]'::text));
+
+
+--
+-- Name: index_schedules_on_thing_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_schedules_on_thing_id ON public.schedules USING btree (thing_id);
+
+
+--
 -- Name: index_searches_on_advanced_attributes; Type: INDEX; Schema: public; Owner: -
 --
 
 CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin (advanced_attributes);
+
+
+--
+-- Name: index_searches_on_classification_mapping; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_classification_mapping ON public.searches USING gin (classification_mapping);
 
 
 --
@@ -2057,6 +2167,12 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20190920075014'),
 ('20191113092141'),
 ('20191119110348'),
-('20191204141710');
+('20191129131046'),
+('20191204141710'),
+('20191205123950'),
+('20191219123847'),
+('20191219143016'),
+('20200116143539'),
+('20200117095949');
 
 

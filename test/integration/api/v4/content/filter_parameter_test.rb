@@ -31,7 +31,7 @@ module DataCycleCore
 
           assert_equal(3, json_data['@graph'].size)
           assert_equal(3, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'parameter q for fulltext_search multiple hits' do
@@ -43,7 +43,7 @@ module DataCycleCore
 
           assert_equal(2, json_data['@graph'].size)
           assert_equal(2, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         # disabled test after removed classification from full text search
@@ -66,7 +66,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'parameter filter[:from, :to] for event queries' do
@@ -78,7 +78,7 @@ module DataCycleCore
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'parameter filter[:from] for event queries' do
@@ -90,7 +90,7 @@ module DataCycleCore
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test 'parameter filter[:to] for event queries' do
@@ -102,7 +102,7 @@ module DataCycleCore
 
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
       end
     end

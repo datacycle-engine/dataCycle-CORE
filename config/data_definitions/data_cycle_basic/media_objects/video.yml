@@ -94,6 +94,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -209,6 +212,13 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :director:
         :label: Regie
         :type: linked
@@ -217,6 +227,12 @@
         :label: Kamera
         :type: linked
         :template_name: Person
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :license_fields:
         :type: mixin
         :name: license_fields

@@ -1,45 +1,53 @@
 # frozen_string_literal: true
 
+def include_valid_key?(keys, options)
+  keys.each do |key|
+    return true if valid_key?(key, options)
+  end
+  false
+end
+
+def valid_key?(key, options)
+  api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) || select_attributes(options[:include]).include?(key)
+end
+
 json ||= {}
-json['dc:classification'] ||= []
 
 unless content.schema.nil?
-
   ordered_validation_properties(validation: content.schema).each do |key, prop|
     next if prop.dig('api', 'disabled') && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
+    next if prop.dig('type') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
+
+    api_property_definition = api_definition(prop)
+    property_name = api_property_definition.dig('transformation', 'name')
+
+    if options[:field_filter].present?
+      is_valid_key = false
+      is_valid_key = true if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present? && valid_key?(property_name, options)
+
+      validation_keys = [attribute_key(key, prop)]
+      validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
+      is_valid_key = true if include_valid_key?(validation_keys, options)
+
+      next unless is_valid_key
+    end
 
     value = I18n.with_locale(content.first_available_locale) { content.try(key.to_sym) }
     next if value.blank?
 
     partial_params = render_api_attribute key: key, definition: prop, value: value, parameters: { options: options }, content: content
+    if (api_property_definition.dig('transformation', 'method') == 'nest' || api_property_definition.dig('transformation', 'method') == 'merge_object') && property_name.present?
 
-    if prop.dig('type') == 'classification' && partial_params.present?
-      new_options = options.dup
-      new_options[:full] = included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields])
-      partial_params[1][:options] = new_options.dup
-
-      classification_data = render(*partial_params)
-
-      if classification_data&.dig('dc:classification').present?
-        json['dc:classification'] += classification_data&.dig('dc:classification')
-      else
-        classification_data.each do |c_key, c_value|
-          next if c_value.blank?
-          json[c_key] = c_value
-        end
-      end
-      next
-    end
-
-    property_name = prop.dig('api', 'transformation', 'name')
-    if (prop.dig('api', 'transformation', 'method') == 'nest' || prop.dig('api', 'transformation', 'method') == 'merge_object') && property_name.present?
       if json.dig(property_name).present?
         json.dig(property_name).merge! render(*partial_params) unless partial_params.nil?
       else
         json[property_name] = render(*partial_params) unless partial_params.nil?
       end
+
+      json[property_name]['@type'] = api_property_definition.dig('transformation', 'type') if api_property_definition.dig('transformation', 'type').present?
+
       # filter out fields
       new_fields = subtree_for(property_name, options[:fields])
       if new_fields.present? || options[:field_filter]
@@ -54,6 +62,4 @@ unless content.schema.nil?
   end
 
 end
-
-json.delete('dc:classification') if json['dc:classification'].blank?
 json

@@ -6,9 +6,10 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Configurable
       include DataCycleCore::Filter::Common::Advanced
 
-      def initialize(locale = ['de'], query = nil, joined_search = false)
+      def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
         @joined_search = joined_search
+        @joined_schedule = joined_schedule
         if locale.nil?
           @query = query || DataCycleCore::Thing
         else
@@ -38,16 +39,41 @@ module DataCycleCore
 
       def fulltext_search(name)
         return self if name.blank?
-
-        normalized_name = name.unicode_normalize(:nfkc)
-        @query = @query.joins(:searches)
         @joined_search = true
+        normalized_name = name.unicode_normalize(:nfkc)
 
         reflect(
-          @query.where(
-            search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
-              .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
-          )
+          @query
+            .joins(:searches)
+            .where(
+              search[:all_text].matches_all(normalized_name.split(' ').map { |item| "%#{item.strip}%" })
+                .or(tsmatch(search[:words], tsquery(quoted(normalized_name.squish))))
+            )
+        )
+      end
+
+      def schedule_search(from, to, relation)
+        return self if relation.blank? || (from.blank? && to.blank?)
+        @joined_schedule = true
+
+        rdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.rdate) AS event_date'))
+        occurrences = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date'))
+        exdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.exdate) AS event_date'))
+        from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
+        to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
+
+        reflect(
+          @query
+            .left_outer_joins(:scheduled_data)
+            .where(in_json(thing[:schema], 'schema_type').eq(Arel::Nodes.build_quoted('Event')))
+            .where(
+              overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
+              .or(
+                schedule[:relation].eq(Arel::Nodes.build_quoted(relation))
+                .and(overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend])))
+                .and(in_range(tstzrange(from_node, to_node), any(Arel::Nodes::Except.new(rdates.union(occurrences), exdates))))
+              )
+            )
         )
       end
 
@@ -182,19 +208,28 @@ module DataCycleCore
       end
 
       def distinct_by_content_id(order_string = nil)
-        return self unless (@joined_search && @locale.blank?) || @locale&.many?
+        return self unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
 
         reflect(
-          DataCycleCore::Thing.joins(:searches)
-            .where(searches: {
-              id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id DESC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
-            })
-            .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          if (@joined_search && @locale.blank?) || @locale&.many?
+            DataCycleCore::Thing.joins(:searches)
+              .where(searches: {
+                id: @query.select('DISTINCT ON (things.id) searches.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+              })
+              .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          elsif @joined_schedule
+            DataCycleCore::Thing
+              .where(things: {
+                id: @query.select('DISTINCT ON (things.id) things.id').except(:limit, :offset).reorder(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.id ASC' + (order_string.present? ? ', ' + order_string.to_s : ''))))
+              })
+              .order(order_string.present? ? Arel.sql(order_string) : order_string)
+          end
         )
       end
 
       def count_distinct
         return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
+        # @query.except(:order, :limit, :offset).count('DISTINCT id') if @joined_schedule
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
 
@@ -328,8 +363,9 @@ module DataCycleCore
         )
       end
 
-      def self.get_order_by_query_string(search)
-        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank?
+      def self.get_order_by_query_string(search, events = false)
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.boost DESC, things.updated_at DESC')) if search.blank? && events == false
+        return ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql('things.end_date ASC NULLS LAST, things.start_date DESC NULLS LAST, things.updated_at DESC')) if events == true
         search_string = (search || '').split(' ').join('%')
 
         ActiveRecord::Base.send(
@@ -456,6 +492,10 @@ module DataCycleCore
 
       def search
         DataCycleCore::Search.arel_table
+      end
+
+      def schedule
+        DataCycleCore::Schedule.arel_table
       end
 
       def thing
