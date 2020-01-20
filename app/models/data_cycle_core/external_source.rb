@@ -13,6 +13,7 @@ module DataCycleCore
     has_many :content_content_histories
     has_many :things
     has_many :thing_histories, class_name: 'DataCycleCore::Thing::History', inverse_of: :external_source
+    has_many :schedules
 
     def download(options = {}, &block)
       ts_start = Time.zone.now

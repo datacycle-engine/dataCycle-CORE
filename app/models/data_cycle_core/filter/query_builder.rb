@@ -57,13 +57,40 @@ module DataCycleCore
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
-      # def to_tsvector(field)
-      #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
-      # end
+      def overlap(range_l, range_r)
+        Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
+      end
+
+      def in_json(json, key)
+        Arel::Nodes::InfixOperation.new('->>', json, quoted(key))
+      end
+
+      def any(set)
+        Arel::Nodes::UnaryOperation.new('ANY', set)
+      end
 
       # def trgm_match(text1, text2)
       #   Arel::Nodes::InfixOperation.new('%', text1, text2)
       # end
+
+      # def to_tsvector(field)
+      #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
+      # end
+
+      def tstzrange(ts_l, ts_h, border = '[]')
+        Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
+      end
+
+      def cast_rrule(rrule_string)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(rrule_string),
+              Arel::Nodes::SqlLiteral.new('rrule')
+            )
+          ]
+        )
+      end
 
       def cast_tstz(date)
         Arel::Nodes::NamedFunction.new(
@@ -78,7 +105,7 @@ module DataCycleCore
 
       # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@locale, query, @joined_search)
+        self.class.new(@locale, query, @joined_search, @joined_schedule)
       end
     end
   end

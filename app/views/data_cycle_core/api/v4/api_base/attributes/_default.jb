@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
-key_new = definition.dig('api', 'name') || key
-data_value = nil
+json ||= {}
+key_new = attribute_key(key, definition)
 
 single_value = !content.translatable_property_names.include?(key) || (options[:languages].size == 1 && content.available_locales.map(&:to_s).include?(options[:languages].first))
 if single_value
@@ -17,4 +17,5 @@ else
   end
 end
 
-{ key_new.camelize(:lower) => data_value }
+json = { key_new.camelize(:lower) => data_value } if data_value.present?
+json

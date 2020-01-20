@@ -3,11 +3,6 @@
     :name: media_archive
     :type: mixin
     :properties:
-      :content_location:
-        :label: Ort
-        :type: linked
-        :template_name: Örtlichkeit
-        :external: true
       :comment:
         :label: Kommentar
         :type: string

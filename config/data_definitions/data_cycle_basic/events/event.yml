@@ -50,6 +50,9 @@
             :type: daterange
           :show:
             :content_area: header
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -132,15 +135,20 @@
                 - Ort
         :api:
           :name: location
+      :event_schedule:
+        :label: Termine
+        :type: schedule
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
-      :event_schedule:
+      :schedule:
         :label: Event-Schedule
         :type: embedded
         :template_name: EventSchedule
         :translated: true
+        :api:
+          :disabled: true
       :super_event:
         :label: Veranstaltungsserie
         :type: linked
@@ -194,12 +202,18 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
+        :api:
+          :v4:
+            :name: 'dc:linked_thing'
       :is_linked_to:
         :label: Verknüpft mit
         :type: linked
         :inverse_of: linked_thing
         :link_direction: inverse
         :global: true
+        :api:
+          :v4:
+            :name: 'dc:is_linked_to'
       :subject_of:
         :label: Thema von
         :type: linked
@@ -226,6 +240,12 @@
       :hrs_dd_events:
         :type: mixin
         :name: hrs_dd_events
+      :marche_events:
+        :type: mixin
+        :name: marche_events
+      :puglia_events:
+        :type: mixin
+        :name: puglia_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

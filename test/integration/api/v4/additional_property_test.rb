@@ -27,7 +27,6 @@ module DataCycleCore
           assert_equal('de', json_data.dig('@context', 1, '@language'))
           assert_equal(@content.id, json_data['@id'])
           assert_equal(@content.schema['schema_type'], json_data['@type'])
-          assert_equal("http://www.example.com/api/v4/things/#{@content.id}?language=de", json_data['dc:entity_url'])
           assert_equal(@content.name, json_data['name'])
 
           assert_equal(1, json_data['additionalProperty'].count)

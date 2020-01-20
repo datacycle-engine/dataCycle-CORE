@@ -27,7 +27,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(count, json_data['@graph'].length)
           assert_equal(count, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test '/api/v4/things/:id' do
@@ -48,7 +48,7 @@ module DataCycleCore
           json_data = JSON.parse(response.body)
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data['links'].present?)
+          assert_equal(true, json_data.key?('links'))
         end
 
         test '/api/v4/endpoints/:uuid/ with random :uuid responds with 404' do

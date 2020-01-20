@@ -18,6 +18,8 @@
         :api:
           :minimal: true
           :name: headline
+          :v4:
+            :name: name
       :text:
         :label: Text
         :type: string

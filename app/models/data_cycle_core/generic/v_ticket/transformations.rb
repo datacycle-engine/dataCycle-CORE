@@ -41,6 +41,8 @@ module DataCycleCore
           .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
           .>> t(:add_field, 'same_as', ->(s) { s&.try(:[], 'links')&.first&.try(:[], 'url') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images')&.map { |item| item.dig('original')&.split('/')&.fetch(-3) if item.dig('original')&.split('/')&.count == 7 } || [] })
+          .>> t(:rename_keys, { 'start' => 'start_date', 'end' => 'end_date' })
+          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('event_location', 'id') })
           .>> t(:tags_to_ids, 'v_ticket_categories', external_source_id, 'VTicket - Categories - ')
           .>> t(:tags_to_ids, 'v_ticket_tags', external_source_id, 'VTicket - Tags - ')
