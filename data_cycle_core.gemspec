@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   # rails
   s.add_dependency 'rails', '~> 5.2.3'
   s.add_dependency 'rake'
-  s.add_dependency 'sprockets', '4.0.0.beta8'
+  s.add_dependency 'sprockets', '4.0.0'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
