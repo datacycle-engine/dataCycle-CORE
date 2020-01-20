@@ -246,6 +246,9 @@
       :puglia_events:
         :type: mixin
         :name: puglia_events
+      :piemonte_events:
+        :type: mixin
+        :name: piemonte_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

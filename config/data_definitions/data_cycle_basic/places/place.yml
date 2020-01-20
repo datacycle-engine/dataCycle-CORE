@@ -75,6 +75,9 @@
       :google_business:
         :type: mixin
         :name: google_business
+      :piemonte_place:
+        :type: mixin
+        :name: piemonte_place
       :data_type:
         :label: Inhaltstyp
         :type: classification
