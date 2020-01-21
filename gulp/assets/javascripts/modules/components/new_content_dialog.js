@@ -46,7 +46,8 @@ class NewContentDialog {
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
-    if (active_fieldset.hasClass('template')) $.rails.enableFormElements(this.form);
+    if (active_fieldset.hasClass('template') || active_fieldset.hasClass('no-search-warning'))
+      $.rails.enableFormElements(this.form);
     else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
   }
   checkSelectedAsset(event) {

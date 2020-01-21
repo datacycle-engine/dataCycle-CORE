@@ -220,6 +220,12 @@ de:
     embedded_move_up: nach oben verschieben
     date: Datum
 
+  upload:
+    drag_and_drop_html: '<p>%{type}upload</p><b>Ein oder mehrere %{type} einfach hier ablegen!</b>'
+    system_dialog: Bilder über Systemdialog auswählen
+    or: oder
+    select_from_datacycle: '%{data} am dataCycle Server auswählen'
+
   external_connection_states:
     success: Erfolgreich synchronisiert
     pending: wird synchronisiert

@@ -24,15 +24,6 @@
 :bild:
   :asset:
     - asset
-  :title:
-    - name
-    - caption
-    - description
-    - tags
-  :copyright:
-    - copyright_holder
-    - author
-    - validity_period
 :video:
   :asset:
     - asset

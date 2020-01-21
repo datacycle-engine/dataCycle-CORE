@@ -1,0 +1,64 @@
+.content-uploader {
+  .separator {
+    display: block;
+    margin: 1rem 0;
+    text-align: center;
+    position: relative;
+
+    &::before {
+      content: '';
+      display: block;
+      position: absolute;
+      top: 50%;
+      left: 0;
+      width: 100%;
+      border-top: 2px solid $medium-gray;
+    }
+
+    > * {
+      position: relative;
+      padding: 0 0.5rem;
+      background: $white;
+    }
+  }
+
+  .drag-and-drop-field {
+    cursor: pointer;
+    width: 100%;
+    height: 15rem;
+    border: 3px dashed $alert-color;
+    padding: 1rem;
+    display: flex;
+    flex-flow: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0.5rem 0 1rem 0;
+    transition: all 0.3s;
+
+    &.is-dragover {
+      background: $light-gray;
+    }
+    > * {
+      pointer-events: none;
+    }
+  }
+
+  .content-upload-button-field {
+    input {
+      display: none;
+    }
+    label {
+      width: 100%;
+      background-color: $light-gray;
+      color: $black;
+      margin: 0;
+
+      &:hover {
+        background-color: darken($light-gray, 10%);
+      }
+    }
+  }
+  .asset-selector-button {
+    width: 100%;
+  }
+}

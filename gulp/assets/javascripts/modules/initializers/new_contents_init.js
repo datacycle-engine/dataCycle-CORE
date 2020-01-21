@@ -1,5 +1,6 @@
 // New Content Form
 var NewContentDialog = require('./../components/new_content_dialog');
+var DragAndDropField = require('../components/drag_and_drop_field');
 
 module.exports.initialize = function() {
   $(document).on('dc:html:changed', '*', event => {
@@ -27,6 +28,12 @@ module.exports.initialize = function() {
       .find('form.multi-step')
       .each((index, element) => {
         new NewContentDialog(element);
+      });
+
+    $(container)
+      .find('.content-uploader')
+      .each((_, e) => {
+        new DragAndDropField(e);
       });
   }
 };

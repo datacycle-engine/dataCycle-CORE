@@ -6,6 +6,7 @@ class AssetUploader {
   constructor(reveal) {
     this.reveal = $(reveal);
     this.validations = this.reveal.data('validations');
+    this.contentUploader = this.reveal.data('content-uploader');
     this.file_field = this.reveal.find('input[type="file"].upload-file');
     this.upload_form = this.reveal.find('.content-upload-form');
     this.upload_button = this.upload_form.find('.asset-upload-button');
@@ -21,6 +22,10 @@ class AssetUploader {
     this.reveal.on('click', 'a.remove-file', this.removeFile.bind(this));
     this.upload_button.on('click', this.uploadFile.bind(this));
     this.upload_form.on('input', '.file-title', this.checkFileName.bind(this));
+    this.reveal.on('dc:upload:setFiles', (e, files) => {
+      console.log(files.fileList);
+      this.validateFiles(e, files.fileList);
+    });
     // prevent leaving Site while uploading!
     $(window).on('beforeunload', event => {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
@@ -205,9 +210,13 @@ class AssetUploader {
       }
     );
   }
-  validateFiles(event) {
-    if (event.target.files == undefined || event.target.files.length == 0) return;
-    var new_files = event.target.files;
+  validateFiles(event, files = undefined) {
+    if (
+      (event.target.files == undefined || event.target.files.length == 0) &&
+      (files == undefined || files.length == 0)
+    )
+      return;
+    var new_files = files && files.length ? files : event.target.files;
     for (var i = 0; i < new_files.length; i++) {
       let the_file = new_files[i];
 
@@ -215,7 +224,7 @@ class AssetUploader {
         this.files.push(the_file);
         var file_options = {
           file: the_file,
-          target: event.currentTarget,
+          target: this.file_field,
           html: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
         };
         this.renderFileField(file_options);
@@ -236,7 +245,7 @@ class AssetUploader {
       }
       var file_options = {
         file: the_file,
-        target: event.currentTarget,
+        target: this.file_field,
         validations: type_validations,
         file_extension: file_extension,
         file_name: file_name,
