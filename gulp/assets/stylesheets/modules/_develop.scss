@@ -1513,6 +1513,7 @@ select {
 
 .reveal-overlay {
   z-index: 1006;
+  overflow-y: auto;
 }
 
 .detail-type.geographic,

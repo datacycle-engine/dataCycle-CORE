@@ -300,44 +300,59 @@ ul.asset-list {
   .file-for-upload {
     position: relative;
     display: block;
-    padding: 0.2rem 4rem 0.5rem 4rem;
     min-height: 4rem;
     border: 1px solid lighten($dark-gray, 10%);
-    background-color: lighten($light-gray, 5%);
-    transition: background-color 0.25s ease-in-out;
+    display: flex;
+    flex-flow: row wrap;
+
+    > * {
+      padding: 1rem 0.5rem;
+
+      &:not(:last-of-type, .upload-progress) {
+        border-right: 1px solid $medium-gray;
+      }
+    }
 
     &:not(:last-of-type) {
       margin-bottom: 1rem;
     }
 
+    .file-data-loading {
+      color: $dark-gray;
+      font-size: 1.6rem;
+      line-height: 1.6rem;
+      padding: 1rem;
+    }
+
     .file-thumb {
-      position: absolute;
-      top: 0.5rem;
-      left: 0.5rem;
-      width: 3rem;
-      height: calc(100% - 1rem);
+      width: 9rem;
+      max-height: 9rem;
       display: flex;
+      flex-flow: column;
+      padding: 1rem 1rem 0 1rem;
       align-items: center;
-      justify-content: center;
+      justify-content: flex-start;
 
       .fa {
-        font-size: 2.5rem;
+        font-size: 4rem;
       }
       img {
         max-height: 100%;
       }
     }
-
-    .upload-number {
-      display: none;
-      position: absolute;
-      right: 0.5rem;
-      top: 0.5rem;
-      text-align: right;
-      font-size: 0.9rem;
+    .upload-number-container {
+      display: flex;
+      flex-flow: column;
       align-items: center;
-      justify-content: center;
-      height: calc(100% - 1rem);
+      justify-content: flex-end;
+      flex: auto;
+
+      .upload-number {
+        text-align: center;
+        font-size: 0.7rem;
+        padding: 5px;
+        transition: all 0.3s;
+      }
     }
 
     .remove-file {
@@ -399,18 +414,25 @@ ul.asset-list {
     }
 
     .file-info {
-      display: block;
+      display: flex;
+      flex-flow: column;
       font-size: 0.9rem;
       margin: 0;
-
-      dt,
-      dd {
-        display: inline;
-      }
-
-      dd {
-        margin-left: 0.3rem;
-      }
+    }
+    .file-label {
+      font-size: 0.9rem;
+      color: darken($medium-gray, 10%);
+      font-style: italic;
+    }
+    .file-name {
+      font-size: 1rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .file-details {
+      font-size: 0.8rem;
+      color: $dark-gray;
     }
 
     .type-selector {
@@ -440,59 +462,51 @@ ul.asset-list {
     }
 
     .upload-progress {
-      display: none;
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      height: 0.5rem;
+      height: 0.4rem;
       width: 100%;
-      background: $light-gray;
+      padding: 0;
+      background: lighten($light-gray, 5%);
 
       .upload-progress-bar {
         display: block;
         height: 100%;
         width: 0;
         background: $primary-color;
+        transition: all 0.3s;
       }
     }
 
     .error {
       display: block;
       color: $alert-color;
-      font-size: 0.9rem;
+      font-size: 0.8rem;
+    }
+
+    &.error {
+      .upload-number {
+        color: $alert-color;
+      }
+      .upload-progress {
+        background: $alert-color;
+      }
     }
 
     &.uploading {
-      .remove-file {
-        display: none;
-      }
-
       .upload-number {
-        display: block;
+        color: $primary-color;
       }
-
-      .upload-progress {
-        display: inline-block;
+      .upload-progress-bar {
+        background: $primary-color;
       }
     }
 
     &.finished {
-      background-color: lighten($success-color, 35%);
-
       .upload-number {
-        display: flex;
-        right: auto;
-        top: 0.5rem;
-        left: 0.5rem;
         color: $success-color;
-
-        .fa {
-          font-size: 3rem;
-        }
       }
 
-      > .file-thumb {
-        opacity: 0.1;
+      .upload-progress-bar {
+        background: $success-color;
       }
     }
 

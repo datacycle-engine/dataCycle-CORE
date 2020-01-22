@@ -1,29 +1,30 @@
 // Asset Uploader
-var duration_helpers = require('./../helpers/duration_helpers');
-var object_helpers = require('./../helpers/object_helpers');
+var DurationHelpers = require('./../helpers/duration_helpers');
+var ObjectHelpers = require('./../helpers/object_helpers');
+var RandomNumber = require('./../helpers/random_number_helpers');
+var MimeTypes = require('mime-types');
 
 class AssetUploader {
   constructor(reveal) {
     this.reveal = $(reveal);
     this.validations = this.reveal.data('validations');
     this.contentUploader = this.reveal.data('content-uploader');
-    this.file_field = this.reveal.find('input[type="file"].upload-file');
-    this.upload_form = this.reveal.find('.content-upload-form');
-    this.upload_button = this.upload_form.find('.asset-upload-button');
-    this.ajax_requests = [];
-    this.autocomplete_requests = {};
+    this.fileField = this.reveal.find('input[type="file"].upload-file');
+    this.uploadForm = this.reveal.find('.content-upload-form');
+    this.uploadButton = this.uploadForm.find('.asset-upload-button');
+    this.ajaxRequests = [];
+    this.autocompleteRequests = {};
     this.files = [];
     this.init();
+    console.log(this.validations);
   }
   init() {
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
-    this.file_field.on('change', this.validateFiles.bind(this));
+    this.fileField.on('change', this.validateFiles.bind(this));
     this.reveal.on('click', 'a.remove-file', this.removeFile.bind(this));
-    this.upload_button.on('click', this.uploadFile.bind(this));
-    this.upload_form.on('input', '.file-title', this.checkFileName.bind(this));
+    this.uploadButton.on('click', this.uploadFile.bind(this));
     this.reveal.on('dc:upload:setFiles', (e, files) => {
-      console.log(files.fileList);
       this.validateFiles(e, files.fileList);
     });
     // prevent leaving Site while uploading!
@@ -49,90 +50,48 @@ class AssetUploader {
       .addClass('uploading')
       .find('.error')
       .remove();
-    $(element)
-      .find('.type-selector input[type="radio"], input.file-title')
-      .attr('disabled', true);
-    $(element)
-      .find('.file-override, .file-title-restore')
-      .hide();
   }
-  checkFileName(event) {
-    var key = $(event.target).prop('title');
-    var name = $(event.target).val();
-    if (name != key && !$(event.target).siblings('.file-title-restore').length) {
-      $(event.target).after('<i class="fa fa-undo file-title-restore" aria-hidden="true"></i>');
-    } else if (name == key) {
-      $(event.target)
-        .siblings('.file-title-restore')
-        .remove();
-    }
-    if (
-      $(event.target)
-        .closest('.file-for-upload')
-        .find('.asset-type')
-        .first()
-        .val() != 'DataCycleCore::TextFile'
-    )
-      return;
-    if (this.autocomplete_requests[key] === undefined) this.autocomplete_requests[key] = [];
-    this.autocomplete_requests[key].forEach(request => {
-      request.abort();
-      this.autocomplete_requests[key] = this.autocomplete_requests[key].filter(r => r != request);
-    });
-    this.autocomplete_requests[key].push(
-      $.ajax({
-        url: '/files/assets/find',
-        method: 'GET',
-        data: {
-          q: name
-        },
-        dataType: 'json',
-        contentType: 'application/json'
-      }).done(data => {
-        if (data != null && !$(event.target).siblings('.file-override').length) {
-          $(event.target).after(
-            '<i class="fa fa-exclamation-triangle file-override" aria-hidden="true"  title="Es existiert bereits eine Datei mit demselben Namen, diese wird überschrieben!" data-id="' +
-              data.id +
-              '"></i>'
-          );
-        } else if (data == null) {
-          $(event.target)
-            .siblings('.file-override')
-            .remove();
-        }
-      })
-    );
-  }
-  uploadFile(event) {
-    event.preventDefault();
+  uploadFile(event = null) {
+    event && event.preventDefault();
     if (this.files.length > 0) {
-      this.upload_form.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', true);
+      this.uploadForm.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', true);
       this.files.forEach(element => {
-        var file_element = this.reveal.find('.file-for-upload[data-file="' + element.name + '"]');
+        var fileElement = this.reveal.find('.file-for-upload[data-file="' + element.name + '"]');
         var data = new FormData();
         data.append('asset[file]', element);
         data.append(
           'asset[type]',
-          $(file_element)
+          $(fileElement)
             .find('input[type="hidden"].asset-type')
             .val()
         );
         data.append(
           'asset[name]',
-          $(file_element)
-            .find('input[type="text"].file-title')
+          $(fileElement)
+            .find('input[type="hidden"].file-title')
             .val()
         );
-        var url = this.upload_form.data('url');
+        console.log(fileElement.find('input[type="hidden"].file-title').val());
+        console.log(
+          $(fileElement)
+            .find('input[type="hidden"].file-title')
+            .val()
+        );
+        console.log(
+          $(fileElement)
+            .find('input[type="hidden"].asset-type')
+            .val()
+        );
+        var url = this.uploadForm.data('url');
         var type = 'POST';
-        var override = $(file_element).find('.file-override');
+        var override = $(fileElement).find('.file-override');
         if (override.length) {
           url += '/' + override.data('id');
           type = 'PATCH';
         }
-        this.prepareFileForUpload(file_element);
+        this.prepareFileForUpload(fileElement);
         var startTime = new Date().getTime();
-        this.ajax_requests.push(
+        this.ajaxRequests.push(
           $.ajax({
             url: url,
             type: type,
@@ -151,19 +110,17 @@ class AssetUploader {
                     if (e.lengthComputable) {
                       var elapsedtime = (new Date().getTime() - startTime) / 1000;
                       var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
-                      file_element.find('.upload-progress-bar').css('width', (e.loaded / e.total) * 100 + '%');
-                      file_element
+                      fileElement.find('.upload-progress-bar').css('width', (e.loaded / e.total) * 100 + '%');
+                      fileElement
                         .find('.upload-number')
                         .html(
                           Math.round((e.loaded / e.total) * 100) +
-                            '%<br><span class="eta">' +
-                            duration_helpers.seconds_to_human_time(eta) +
+                            '% hochgeladen, <span class="eta">' +
+                            DurationHelpers.seconds_to_human_time(eta) +
                             '</span>'
                         );
                       if (e.loaded == e.total) {
-                        file_element
-                          .find('.upload-number')
-                          .html('<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>');
+                        fileElement.find('.upload-number').html('wird verarbeitet...');
                       }
                     }
                   },
@@ -174,22 +131,20 @@ class AssetUploader {
             }
           })
             .done(data => {
-              if (data.error != undefined) {
-                this.resetFileField(file_element);
-                file_element.addClass('error').append('<span class="error"><b>Fehler:</b> ' + data.error + '</span>');
+              if (data.error) {
+                this.resetFileField(fileElement);
+                this.renderError(fileElement, data.error);
               } else {
-                file_element.removeClass('uploading').addClass('finished');
-                file_element.find('.upload-number').html('<i class="fa fa-check" aria-hidden="true"></i>');
-                file_element.removeAttr('data-file');
-                file_element.removeData('file');
+                fileElement.removeClass('uploading').addClass('finished');
+                fileElement.find('.upload-number').html('hochgeladen, OK');
+                fileElement.removeAttr('data-file');
+                fileElement.removeData('file');
                 this.files = this.files.filter(e => e !== element);
               }
             })
             .fail(data => {
-              this.resetFileField(file_element);
-              file_element
-                .addClass('error')
-                .append('<span class="error"><b>Fehler:</b> ' + data.statusText + '</span>');
+              this.resetFileField(fileElement);
+              this.renderError(fileElement, data.statusText);
             })
         );
       });
@@ -197,18 +152,31 @@ class AssetUploader {
     }
   }
   checkRequests() {
-    $.when.apply(undefined, this.ajax_requests).then(
+    $.when.apply(undefined, this.ajaxRequests).then(
       () => {
-        this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
-        this.ajax_requests = [];
+        this.uploadForm.find('.upload-file, .asset-upload-label').attr('disabled', false);
+        this.ajaxRequests = [];
         this.updateUploadButton();
       },
       () => {
-        this.upload_form.find('.upload-file, .asset-upload-label').attr('disabled', false);
-        this.ajax_requests = [];
+        this.uploadForm.find('.upload-file, .asset-upload-label').attr('disabled', false);
+        this.ajaxRequests = [];
         this.updateUploadButton();
       }
     );
+  }
+  renderError(field, error) {
+    field.find('.upload-number').html('Uploadfehler');
+    if (field.addClass('error').find('.file-info .error').length)
+      field
+        .addClass('error')
+        .find('.file-info .error')
+        .append(error);
+    else
+      field
+        .addClass('error')
+        .find('.file-info')
+        .append('<span class="error">' + error + '</span>');
   }
   validateFiles(event, files = undefined) {
     if (
@@ -218,211 +186,209 @@ class AssetUploader {
       return;
     var new_files = files && files.length ? files : event.target.files;
     for (var i = 0; i < new_files.length; i++) {
-      let the_file = new_files[i];
+      let theFile = new_files[i];
 
-      if (this.files.filter(f => f.name == the_file.name).length == 0) {
-        this.files.push(the_file);
-        var file_options = {
-          file: the_file,
-          target: this.file_field,
-          html: '<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i>'
+      if (this.files.filter(f => f.name == theFile.name).length == 0) {
+        this.files.push(theFile);
+        var fileOptions = {
+          file: theFile,
+          target: this.fileField,
+          html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>'
         };
-        this.renderFileField(file_options);
+        this.renderFileField(fileOptions);
       }
 
-      var type_validations = [];
-      var file_extension = the_file.name
-        .split('.')
-        .pop()
-        .toLowerCase();
-      var file_name = the_file.name
-        .split('.')
-        .shift()
-        .replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_');
+      var typeValidations = [];
+      var fileExtension = MimeTypes.extension(theFile.type) || theFile.type.split('/').pop();
 
       for (const key in this.validations) {
-        if (this.validations[key].format.indexOf(file_extension) !== -1) type_validations.push(this.validations[key]);
+        if (this.validations[key].format.indexOf(fileExtension) !== -1) typeValidations.push(this.validations[key]);
       }
-      var file_options = {
-        file: the_file,
-        target: this.file_field,
-        validations: type_validations,
-        file_extension: file_extension,
-        file_name: file_name,
-        chosen_validation: type_validations[0]
+      var fileOptions = {
+        file: theFile,
+        id: RandomNumber.generateRandomId(),
+        target: this.fileField,
+        validations: typeValidations,
+        fileExtension: fileExtension,
+        chosenValidation: typeValidations[0]
       };
-      this.validateFile(file_options);
+      this.validateFile(fileOptions);
     }
   }
-  filePrependHTML(file_options) {
+  fileThumbHtml(thumbHtml) {
     return (
-      '<label class="file-title-label"><i class="fa fa-pencil" aria-hidden="true"></i><input type="text" class="file-title" title="' +
-      file_options.file.name +
-      '" value="' +
-      (file_options.updated_name !== undefined ? file_options.updated_name : file_options.file.name) +
-      '"></label>'
+      '<div class="file-thumb">' +
+      thumbHtml +
+      '<span class="upload-number-container"><span class="upload-number"></span></span></div>'
     );
   }
-  fileMediaHTML(file_options) {
+  fileMediaHTML(fileOptions, additionalFileInfo = '') {
     return (
-      '<dl class="file-info"><dt>Format:</dt><dd>' +
-      file_options.file.type.split('/').pop() +
-      '</dd>, <dt>Größe:</dt><dd>' +
-      file_options.file.size.file_size(1) +
-      '</dd>'
+      '<div class="file-info"><span class="file-label">Titel</span><span class="file-name" title="' +
+      (fileOptions.file && fileOptions.file.name) +
+      '">' +
+      (fileOptions.file && fileOptions.file.name) +
+      '</span><span class="file-details">' +
+      fileOptions.file.type.split('/').pop() +
+      ', ' +
+      fileOptions.file.size.file_size(1) +
+      additionalFileInfo +
+      '</span></div>'
     );
   }
-  fileAppendHTML(file_options) {
-    var append_html = '';
-    if (file_options.validations.length > 1) {
-      append_html += '<span class="type-selector"><b>Typ: </b>';
-      file_options.validations.forEach((validation, index) => {
-        append_html +=
-          '<label title="' +
-          validation.translation_description +
-          '"><input type="radio" id="' +
-          file_options.file_name +
-          '_' +
-          validation.class.replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_') +
-          '_selector" name="' +
-          file_options.file_name +
-          '_radio" value="' +
-          validation.class +
-          '"' +
-          (validation.class == file_options.chosen_validation.class ? ' checked="checked"' : '') +
-          '>' +
-          validation.translation +
-          (validation.translation_description != '' ? ' <i class="fa fa-info-circle" aria-hidden="true"></i>' : '') +
-          '</label>';
-      });
-      append_html += '</span>';
-    } else {
-      append_html +=
-        '<span class="type-selector"><b>Typ: </b> ' +
-        (file_options.chosen_type_validation !== undefined
-          ? file_options.chosen_type_validation.translation
-          : 'Unbekannt') +
-        '</span>';
-    }
-    append_html +=
-      '<input type="hidden" class="asset-type" name="asset-type" id="' +
-      file_options.file_name +
+  fileAppendHTML(fileOptions) {
+    // var appendHtml = '';
+    // if (fileOptions.validations.length > 1) {
+    //   appendHtml += '<span class="type-selector"><b>Typ: </b>';
+    //   fileOptions.validations.forEach((validation, index) => {
+    //     appendHtml +=
+    //       '<label title="' +
+    //       validation.translation_description +
+    //       '"><input type="radio" id="' +
+    //       fileOptions.file_name +
+    //       '_' +
+    //       validation.class.replace(/([^A-Za-z0-9[\]{}_.:-])\s?/g, '_') +
+    //       '_selector" name="' +
+    //       fileOptions.file_name +
+    //       '_radio" value="' +
+    //       validation.class +
+    //       '"' +
+    //       (validation.class == fileOptions.chosen_validation.class ? ' checked="checked"' : '') +
+    //       '>' +
+    //       validation.translation +
+    //       (validation.translation_description != '' ? ' <i class="fa fa-info-circle" aria-hidden="true"></i>' : '') +
+    //       '</label>';
+    //   });
+    //   appendHtml += '</span>';
+    // } else {
+    //   appendHtml +=
+    //     '<span class="type-selector"><b>Typ: </b> ' +
+    //     (fileOptions.chosenTypeValidation !== undefined
+    //       ? fileOptions.chosenTypeValidation.translation
+    //       : 'Unbekannt') +
+    //     '</span>';
+    // }
+    // appendHtml +=
+    //   '<input type="hidden" class="asset-type" name="asset-type" id="' +
+    //   fileOptions.file_name +
+    //   '_asset_type" value="' +
+    //   (fileOptions.chosenTypeValidation !== undefined ? fileOptions.chosenTypeValidation.class : null) +
+    //   '">';
+    // appendHtml +=
+    //   '<span class="upload-progress"><span class="upload-progress-bar"></span></span>';
+    return (
+      '<input type="hidden" class="file-title" name="file-title" id="' +
+      fileOptions.id +
+      '_file_title" value="' +
+      fileOptions.file.name +
+      '"><input type="hidden" class="asset-type" name="asset-type" id="' +
+      fileOptions.id +
       '_asset_type" value="' +
-      (file_options.chosen_type_validation !== undefined ? file_options.chosen_type_validation.class : null) +
-      '">';
-    append_html +=
-      '<span class="upload-progress"><span class="upload-progress-bar"></span></span>' +
-      '<a href="#" class="remove-file"><i aria-hidden="true" class="fa fa-times"></i></a>' +
-      '<span class="upload-number"></span>';
-    return append_html;
+      (fileOptions.chosenTypeValidation && fileOptions.chosenTypeValidation.class) +
+      '"><span class="upload-progress"><span class="upload-progress-bar"></span></span>'
+    );
   }
-  validateFile(file_options = {}) {
-    if (this.files.filter(f => f.name == file_options.file.name).length == 0) {
-      this.files.push(file_options.file);
+  validateFile(fileOptions = {}) {
+    if (this.files.filter(f => f.name == fileOptions.file.name).length == 0) {
+      this.files.push(fileOptions.file);
     }
-    file_options.chosen_type_validation = file_options.chosen_validation || file_options.validations[0];
-    file_options.prepend_html = this.filePrependHTML(file_options);
-    file_options.media_html = this.fileMediaHTML(file_options);
-    file_options.append_html = this.fileAppendHTML(file_options);
-    file_options.file_url = URL.createObjectURL(file_options.file);
+    fileOptions.chosenTypeValidation = fileOptions.validations[0];
+    fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
+    fileOptions.appendHtml = this.fileAppendHTML(fileOptions);
+    fileOptions.fileUrl = URL.createObjectURL(fileOptions.file);
     var validator =
-      file_options.chosen_type_validation !== undefined
-        ? file_options.chosen_type_validation.class.split('::').pop() + 'Validator'
+      fileOptions.chosenTypeValidation !== undefined
+        ? fileOptions.chosenTypeValidation.class.split('::').pop() + 'Validator'
         : '';
     if (typeof this[validator] == 'function') {
-      this[validator](file_options);
+      this[validator](fileOptions);
     } else {
-      this.DefaultValidator(file_options);
+      this.DefaultValidator(fileOptions);
     }
   }
-  ImageValidator(file_options) {
+  ImageValidator(fileOptions) {
     var that = this;
-    file_options.prepend_html += '<span class="file-thumb"><img src="' + file_options.file_url + '"></span>';
-    var the_image = new Image();
-    the_image.onload = function() {
-      file_options.media_html +=
-        ', <dt>Abmessungen:</dt><dd>' + the_image.naturalWidth + 'x' + the_image.naturalHeight + '</dt></dl>';
-      file_options.validation_options = {
-        width: the_image.naturalWidth,
-        height: the_image.naturalHeight
+    fileOptions.prependHtml = this.fileThumbHtml('<img src="' + fileOptions.fileUrl + '">');
+    var theImage = new Image();
+    theImage.onload = function() {
+      fileOptions.mediaHtml = that.fileMediaHTML(
+        fileOptions,
+        ', ' + theImage.naturalWidth + 'x' + theImage.naturalHeight + 'px'
+      );
+      fileOptions.validationOptions = {
+        width: theImage.naturalWidth,
+        height: theImage.naturalHeight
       };
-      that.validateAndRender(file_options);
+      that.validateAndRender(fileOptions);
     };
-    the_image.onerror = function() {
-      file_options.media_html += '</dl>';
-      that.validateAndRender(file_options);
+    theImage.onerror = function() {
+      that.validateAndRender(fileOptions);
     };
-    the_image.src = file_options.file_url;
+    theImage.src = fileOptions.fileUrl;
   }
-  VideoValidator(file_options) {
+  VideoValidator(fileOptions) {
     var that = this;
-    file_options.prepend_html +=
-      '<span class="file-thumb"><i class="fa fa-video-camera" aria-hidden="true"></i></span>';
-    var the_video = document.createElement('video');
-    the_video.onloadedmetadata = function() {
+    fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-video-camera" aria-hidden="true"></i>');
+    var theVideo = document.createElement('video');
+    theVideo.onloadedmetadata = function() {
       window.URL.revokeObjectURL(this.src);
-      file_options.media_html +=
-        ', <dt>Abmessungen:</dt><dd>' +
-        the_video.videoWidth +
-        'x' +
-        the_video.videoHeight +
-        '</dd>, <dt>Dauer:</dt><dd>' +
-        duration_helpers.seconds_to_human_time(the_video.duration) +
-        '</dd></dl>';
-      file_options.validation_options = {
-        width: the_video.videoWidth,
-        height: the_video.videoHeight
+      fileOptions.mediaHtml = that.fileMediaHTML(
+        fileOptions,
+        ', ' +
+          theVideo.videoWidth +
+          'x' +
+          theVideo.videoHeight +
+          'px, ' +
+          DurationHelpers.seconds_to_human_time(theVideo.duration)
+      );
+      fileOptions.validationOptions = {
+        width: theVideo.videoWidth,
+        height: theVideo.videoHeight
       };
-      that.validateAndRender(file_options);
+      that.validateAndRender(fileOptions);
     };
-    the_video.onerror = function() {
-      file_options.media_html += '</dl>';
-      that.validateAndRender(file_options);
+    theVideo.onerror = function() {
+      that.validateAndRender(fileOptions);
     };
-    the_video.setAttribute('src', file_options.file_url);
+    theVideo.setAttribute('src', fileOptions.fileUrl);
   }
-  AudioValidator(file_options) {
-    file_options.prepend_html +=
-      '<span class="file-thumb"><i class="fa fa-file-audio-o" aria-hidden="true"></i></span>';
-    file_options.media_html += '</dl>';
-    this.validateAndRender(file_options);
+  AudioValidator(fileOptions) {
+    fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-file-audio-o" aria-hidden="true"></i>');
+    this.validateAndRender(fileOptions);
   }
-  PdfValidator(file_options) {
-    file_options.prepend_html += '<span class="file-thumb"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>';
-    file_options.media_html += '</dl>';
-    this.validateAndRender(file_options);
+  PdfValidator(fileOptions) {
+    fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-file-pdf-o" aria-hidden="true"></i>');
+    this.validateAndRender(fileOptions);
   }
-  TextFileValidator(file_options) {
-    file_options.prepend_html += '<span class="file-thumb"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>';
-    file_options.media_html += '</dl>';
-    this.validateAndRender(file_options);
+  TextFileValidator(fileOptions) {
+    fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-file-text-o" aria-hidden="true"></i>');
+    this.validateAndRender(fileOptions);
   }
-  DefaultValidator(file_options) {
-    file_options.prepend_html += '<span class="file-thumb"><i class="fa fa-file-o" aria-hidden="true"></i></span>';
-    file_options.media_html += '</dl>';
-    this.validateAndRender(file_options);
+  DefaultValidator(fileOptions) {
+    fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-file-o" aria-hidden="true"></i>');
+    this.validateAndRender(fileOptions);
   }
-  validateAndRender(file_options) {
-    file_options.html = file_options.prepend_html + file_options.media_html + file_options.append_html;
-    file_options.valid = this.validate(file_options);
-    if (file_options.chosen_type_validation !== undefined && !file_options.valid.valid) {
-      file_options.html += '<span class="error"><b>Fehler:</b> ' + file_options.valid.messages.join(', ') + '</span>';
-      this.files = this.files.filter(f => f.name != file_options.file.name);
-    } else if (file_options.chosen_type_validation === undefined) {
-      file_options.html +=
-        '<span class="error"><b>Fehler:</b> Nicht unterstützes Format (' + file_options.file_extension + ')</span>';
-      this.files = this.files.filter(f => f.name != file_options.file.name);
+  validateAndRender(fileOptions) {
+    fileOptions.html = fileOptions.prependHtml + fileOptions.mediaHtml + fileOptions.appendHtml;
+    fileOptions.valid = this.validate(fileOptions);
+    if (fileOptions.chosenTypeValidation !== undefined && !fileOptions.valid.valid) {
+      fileOptions.errors = fileOptions.valid.messages.join(', ');
+      this.files = this.files.filter(f => f.name != fileOptions.file.name);
+    } else if (fileOptions.chosenTypeValidation === undefined) {
+      fileOptions.errors = 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')';
+      this.files = this.files.filter(f => f.name != fileOptions.file.name);
     }
-    this.renderFileField(file_options);
+    this.renderFileField(fileOptions);
+    if (this.contentUploader) this.uploadFile();
   }
-  validate(file_options) {
+  validate(fileOptions) {
     var valid = true;
     var messages = [];
-    for (var key in file_options.chosen_type_validation) {
+    for (var key in fileOptions.chosenTypeValidation) {
       if (typeof this['validate_' + key] == 'function') {
-        let validation_value = this['validate_' + key](file_options, file_options.chosen_type_validation[key]);
-        valid &= validation_value.valid;
-        if (validation_value.message !== undefined) messages.push(validation_value.message);
+        let validationValue = this['validate_' + key](fileOptions, fileOptions.chosenTypeValidation[key]);
+        valid &= validationValue.valid;
+        if (validationValue.message !== undefined) messages.push(validationValue.message);
       }
     }
     return {
@@ -431,54 +397,37 @@ class AssetUploader {
     };
   }
   updateUploadButton() {
-    if (this.files.length > 0 && this.ajax_requests.length == 0) this.upload_button.attr('disabled', false);
-    else this.upload_button.attr('disabled', true);
+    if (this.files.length > 0 && this.ajaxRequests.length == 0) this.uploadButton.attr('disabled', false);
+    else this.uploadButton.attr('disabled', true);
   }
-  renderFileField(file_options) {
-    file_options.file_field = this.reveal.find('.file-for-upload[data-file="' + file_options.file.name + '"]');
-    if (!file_options.file_field.length) {
-      file_options.file_field = $(
-        '<span class="file-for-upload" data-file="' + file_options.file.name + '"></span>'
-      ).insertBefore(file_options.target);
+  renderEditOverlay(fileOptions) {
+    return '<div class="reveal" id="' + fileOptions.id + '_edit_overlay" data-reveal></div>';
+  }
+  renderFileField(fileOptions) {
+    fileOptions.fileField = this.reveal.find('.file-for-upload[data-file="' + fileOptions.file.name + '"]');
+    if (!fileOptions.fileField.length) {
+      fileOptions.fileField = $(
+        '<div class="file-for-upload" data-file="' +
+          fileOptions.id +
+          '" data-open="' +
+          fileOptions.id +
+          '_edit_overlay"></div>'
+      ).insertBefore(fileOptions.target);
     }
-    file_options.file_field.html(file_options.html);
-    this.fileFieldEvents(file_options);
+    fileOptions.fileField.html(fileOptions.html);
+    fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
+    if (fileOptions.errors) this.renderError(fileOptions.fileField, fileOptions.errors);
+
     this.updateUploadButton();
-    file_options.file_field.find('input.file-title').trigger('input');
   }
-  fileFieldEvents(file_options) {
-    file_options.file_field
-      .find('.type-selector input[type="radio"][name="' + file_options.file_name + '_radio"]')
-      .off('change')
-      .on('change', e => {
-        file_options.chosen_validation = file_options.validations.find(v => {
-          return v.class == $(e.target).val();
-        });
-        file_options.updated_name = file_options.file_field.find('input.file-title').val();
-        this.validateFile(file_options);
-      });
-    file_options.file_field
-      .find('input.file-title')
-      .off('keypress keydown keyup')
-      .on('keypress keydown keyup', e => {
-        if (e.keyCode == 13) e.preventDefault();
-      });
-    file_options.file_field.off('click', '.file-title-restore').on('click', '.file-title-restore', event => {
-      file_options.file_field
-        .find('input.file-title')
-        .val(file_options.file_field.find('input.file-title').prop('title'))
-        .trigger('input');
-      $(event.target).remove();
-    });
-  }
-  validate_file_size(file_options, validations) {
+  validate_file_size(fileOptions, validations) {
     var messages = '';
     var valid = true;
-    if (validations.max !== undefined && file_options.file.size > validations.max) {
+    if (validations.max !== undefined && fileOptions.file.size > validations.max) {
       valid = false;
       messages += 'Datei zu groß (maximal ' + validations.max.file_size(0) + ')';
     }
-    if (validations.min !== undefined && file_options.file.size < validations.min) {
+    if (validations.min !== undefined && fileOptions.file.size < validations.min) {
       valid = false;
       messages += 'Datei zu klein (mindestens ' + validations.min.file_size(0) + ')';
     }
@@ -487,19 +436,20 @@ class AssetUploader {
       message: valid ? undefined : messages
     };
   }
-  validate_format(file_options, validations) {
-    var valid = validations.indexOf(file_options.file_extension) !== -1;
+  validate_format(fileOptions, validations) {
+    var valid = validations.indexOf(fileOptions.fileExtension) !== -1;
+
     return {
       valid: valid,
-      message: valid ? undefined : 'Nicht unterstützes Format (' + file_options.file_extension + ')'
+      message: valid ? undefined : 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')'
     };
   }
-  validate_dimensions(file_options, validations) {
-    if (file_options.validation_options !== undefined) {
-      var additional = object_helpers.reject(validations, ['landscape', 'portrait', 'exclude']);
+  validate_dimensions(fileOptions, validations) {
+    if (fileOptions.validationOptions !== undefined) {
+      var additional = ObjectHelpers.reject(validations, ['landscape', 'portrait', 'exclude']);
       if (
-        object_helpers.get(['exclude', 'format'], validations) !== null &&
-        object_helpers.get(['exclude', 'format'], validations).indexOf(file_options.file_extension) !== -1
+        ObjectHelpers.get(['exclude', 'format'], validations) !== null &&
+        ObjectHelpers.get(['exclude', 'format'], validations).indexOf(fileOptions.fileExtension) !== -1
       ) {
         return {
           valid: true,
@@ -510,9 +460,9 @@ class AssetUploader {
         if (
           additional[key].max !== undefined &&
           ((additional[key].max.height !== undefined &&
-            file_options.validation_options.height <= additional[key].max.height) ||
+            fileOptions.validationOptions.height <= additional[key].max.height) ||
             (additional[key].max.width !== undefined &&
-              file_options.validation_options.width <= additional[key].max.width))
+              fileOptions.validationOptions.width <= additional[key].max.width))
         ) {
           return {
             valid: true,
@@ -522,9 +472,9 @@ class AssetUploader {
         if (
           additional[key].min !== undefined &&
           ((additional[key].min.height !== undefined &&
-            file_options.validation_options.height >= additional[key].min.height) ||
+            fileOptions.validationOptions.height >= additional[key].min.height) ||
             (additional[key].min.width !== undefined &&
-              file_options.validation_options.width >= additional[key].min.width))
+              fileOptions.validationOptions.width >= additional[key].min.width))
         ) {
           return {
             valid: true,
@@ -533,38 +483,38 @@ class AssetUploader {
         }
       }
       if (
-        (file_options.validation_options.width >= file_options.validation_options.height &&
-          ((object_helpers.get(['landscape', 'min', 'width'], validations) !== null &&
-            file_options.validation_options.width < validations.landscape.min.width) ||
-            (object_helpers.get(['landscape', 'min', 'height'], validations) !== null &&
-              file_options.validation_options.height < validations.landscape.min.height))) ||
-        (file_options.validation_options.width < file_options.validation_options.height &&
-          ((object_helpers.get(['portrait', 'min', 'width'], validations) !== null &&
-            file_options.validation_options.width < validations.portrait.min.width) ||
-            (object_helpers.get(['portrait', 'min', 'height'], validations) !== null &&
-              file_options.validation_options.height < validations.portrait.min.height)))
+        (fileOptions.validationOptions.width >= fileOptions.validationOptions.height &&
+          ((ObjectHelpers.get(['landscape', 'min', 'width'], validations) !== null &&
+            fileOptions.validationOptions.width < validations.landscape.min.width) ||
+            (ObjectHelpers.get(['landscape', 'min', 'height'], validations) !== null &&
+              fileOptions.validationOptions.height < validations.landscape.min.height))) ||
+        (fileOptions.validationOptions.width < fileOptions.validationOptions.height &&
+          ((ObjectHelpers.get(['portrait', 'min', 'width'], validations) !== null &&
+            fileOptions.validationOptions.width < validations.portrait.min.width) ||
+            (ObjectHelpers.get(['portrait', 'min', 'height'], validations) !== null &&
+              fileOptions.validationOptions.height < validations.portrait.min.height)))
       ) {
         var message =
           'Bild zu klein (' +
-          file_options.validation_options.width +
+          fileOptions.validationOptions.width +
           'x' +
-          file_options.validation_options.height +
+          fileOptions.validationOptions.height +
           '), sollte' +
-          (object_helpers.get(['landscape', 'min'], validations) !== null
+          (ObjectHelpers.get(['landscape', 'min'], validations) !== null
             ? ' für Querformat mind. ' +
-              object_helpers.get(['landscape', 'min', 'width'], validations) +
+              ObjectHelpers.get(['landscape', 'min', 'width'], validations) +
               'x' +
-              object_helpers.get(['landscape', 'min', 'height'], validations)
+              ObjectHelpers.get(['landscape', 'min', 'height'], validations)
             : '') +
-          (object_helpers.get(['landscape', 'min'], validations) !== null &&
-          object_helpers.get(['portrait', 'min'], validations) !== null
+          (ObjectHelpers.get(['landscape', 'min'], validations) !== null &&
+          ObjectHelpers.get(['portrait', 'min'], validations) !== null
             ? ','
             : '') +
-          (object_helpers.get(['portrait', 'min'], validations) !== null
+          (ObjectHelpers.get(['portrait', 'min'], validations) !== null
             ? ' für Hochformat mind. ' +
-              object_helpers.get(['portrait', 'min', 'width'], validations) +
+              ObjectHelpers.get(['portrait', 'min', 'width'], validations) +
               'x' +
-              object_helpers.get(['portrait', 'min', 'height'], validations)
+              ObjectHelpers.get(['portrait', 'min', 'height'], validations)
             : '') +
           ' sein.';
         return {
@@ -573,38 +523,38 @@ class AssetUploader {
         };
       }
       if (
-        (file_options.validation_options.width >= file_options.validation_options.height &&
-          ((object_helpers.get(['landscape', 'max', 'width'], validations) !== null &&
-            file_options.validation_options.width > validations.landscape.max.width) ||
-            (object_helpers.get(['landscape', 'max', 'height'], validations) !== null &&
-              file_options.validation_options.height > validations.landscape.max.height))) ||
-        (file_options.validation_options.width < file_options.validation_options.height &&
-          ((object_helpers.get(['portrait', 'max', 'width'], validations) !== null &&
-            file_options.validation_options.width > validations.portrait.max.width) ||
-            (object_helpers.get(['portrait', 'max', 'height'], validations) !== null &&
-              file_options.validation_options.height > validations.portrait.max.height)))
+        (fileOptions.validationOptions.width >= fileOptions.validationOptions.height &&
+          ((ObjectHelpers.get(['landscape', 'max', 'width'], validations) !== null &&
+            fileOptions.validationOptions.width > validations.landscape.max.width) ||
+            (ObjectHelpers.get(['landscape', 'max', 'height'], validations) !== null &&
+              fileOptions.validationOptions.height > validations.landscape.max.height))) ||
+        (fileOptions.validationOptions.width < fileOptions.validationOptions.height &&
+          ((ObjectHelpers.get(['portrait', 'max', 'width'], validations) !== null &&
+            fileOptions.validationOptions.width > validations.portrait.max.width) ||
+            (ObjectHelpers.get(['portrait', 'max', 'height'], validations) !== null &&
+              fileOptions.validationOptions.height > validations.portrait.max.height)))
       ) {
         var message =
           'Bild zu groß (' +
-          file_options.validation_options.width +
+          fileOptions.validationOptions.width +
           'x' +
-          file_options.validation_options.height +
+          fileOptions.validationOptions.height +
           '), sollte' +
-          (object_helpers.get(['landscape', 'max'], validations) !== null
+          (ObjectHelpers.get(['landscape', 'max'], validations) !== null
             ? ' für Querformat max. ' +
-              object_helpers.get(['landscape', 'max', 'width'], validations) +
+              ObjectHelpers.get(['landscape', 'max', 'width'], validations) +
               'x' +
-              object_helpers.get(['landscape', 'max', 'height'], validations)
+              ObjectHelpers.get(['landscape', 'max', 'height'], validations)
             : '') +
-          (object_helpers.get(['landscape', 'max'], validations) !== null &&
-          object_helpers.get(['portrait', 'max'], validations) !== null
+          (ObjectHelpers.get(['landscape', 'max'], validations) !== null &&
+          ObjectHelpers.get(['portrait', 'max'], validations) !== null
             ? ','
             : '') +
-          (object_helpers.get(['portrait', 'max'], validations) !== null
+          (ObjectHelpers.get(['portrait', 'max'], validations) !== null
             ? ' für Hochformat max. ' +
-              object_helpers.get(['portrait', 'max', 'width'], validations) +
+              ObjectHelpers.get(['portrait', 'max', 'width'], validations) +
               'x' +
-              object_helpers.get(['portrait', 'max', 'height'], validations)
+              ObjectHelpers.get(['portrait', 'max', 'height'], validations)
             : '') +
           ' sein.';
         return {
@@ -626,12 +576,6 @@ class AssetUploader {
     $(field)
       .find('.upload-progress-bar')
       .css('width', '0');
-    $(field)
-      .find('.type-selector input[type="radio"], input.file-title')
-      .attr('disabled', false);
-    $(field)
-      .find('.file-override, .file-title-restore')
-      .show();
   }
 }
 
