@@ -138,6 +138,8 @@
       :event_schedule:
         :label: Termine
         :type: schedule
+        :api:
+          :disabled: true
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
@@ -148,7 +150,9 @@
         :template_name: EventSchedule
         :translated: true
         :api:
-          :disabled: true
+          :name: eventSchedule
+          :v4:
+            :disabled: true
       :super_event:
         :label: Veranstaltungsserie
         :type: linked
