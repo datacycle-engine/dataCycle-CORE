@@ -36,7 +36,8 @@
     transition: all 0.3s;
 
     &.is-dragover {
-      background: $light-gray;
+      border-color: $success-color;
+      background: rgba($success-color, 0.5);
     }
     > * {
       pointer-events: none;
@@ -60,5 +61,9 @@
   }
   .asset-selector-button {
     width: 100%;
+  }
+  .callout {
+    font-size: 0.9rem;
+    margin-top: 0.5rem;
   }
 }

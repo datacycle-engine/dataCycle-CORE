@@ -185,44 +185,34 @@ module DataCycleCore
       end
     end
 
-    def merge_uploader_white_list(asset_type: nil)
-      uploader_validations = {}.with_indifferent_access
+    def uploader_validation(asset_type:)
+      if asset_type == 'text_file'
+        return {} unless can?(:create, DataCycleCore::DataLink)
 
-      if can?(:create, DataCycleCore::DataLink)
-        uploader_validations = {
-          text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
-            class: 'DataCycleCore::TextFile',
-            translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-            translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
-          })
-        }.with_indifferent_access
+        return (DataCycleCore.uploader_validations[:text_file] || {}).with_indifferent_access.merge({
+          class: 'DataCycleCore::TextFile',
+          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+        })
       end
 
-      return uploader_validations if asset_type == 'text_file'
+      templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
 
-      if asset_type.present?
-        uploader_validations.delete(:text_file)
-
-        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
-      else
-        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value->> 'type' = ? OR things.template_name IN(?))", true, 'asset', DataCycleCore.features.dig(:external_media_archive, :enabled) ? ['Bild', 'Video'] : nil)
-      end
-
+      creatable = false
       templates.each do |t|
-        next unless t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset')
-
-        uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
-
-        next if uploader_model.nil?
-
-        uploader_validations[uploader_model.name.demodulize.underscore.to_sym] = {
-          format: uploader_model.uploaders[:file].new&.extension_white_list || [],
-          class: uploader_model.name,
-          translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
-        }.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
+        creatable ||= (t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset'))
       end
-      uploader_validations
+
+      uploader_model = "data_cycle_core/#{asset_type}".classify.safe_constantize
+
+      return {} unless creatable && uploader_model
+
+      {
+        format: uploader_model.uploaders[:file].new&.extension_white_list || [],
+        class: uploader_model.name,
+        translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+      }.with_indifferent_access.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
     end
 
     def render_content_partial(partial, parameters)

@@ -35,6 +35,7 @@ class NewContentDialog {
     });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
+    this.form.find('.translated-attribute.active').trigger('dc:remote:render');
   }
   updateForm() {
     this.updateCrumbs();

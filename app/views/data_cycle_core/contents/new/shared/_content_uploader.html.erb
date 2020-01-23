@@ -1,5 +1,16 @@
 <div class="content-uploader" data-asset-uploader="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
+  <% uploader_validation = uploader_validation(asset_type: local_assigns[:type]) %>
   <% type_translation = "data_cycle_core/#{local_assigns.dig(:type)}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
+
+  <% if local_assigns[:type].present? && uploader_validation.present? %>
+    <div class="callout primary">
+      <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
+      <ul class="no-bullet">
+        <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
+      </ul>
+    </div>
+  <% end %>
+
   <div class="drag-and-drop-field">
     <%= t('upload.drag_and_drop_html', locale: DataCycleCore.ui_language, type: type_translation) %>
   </div>
@@ -7,7 +18,7 @@
   <p class="text-center"><b><%= t('upload.system_dialog', locale: DataCycleCore.ui_language) %></b></p>
 
   <div class="content-upload-button-field">
-    <input type="file" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
+    <input type="file" accept="<%= uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', ') %>" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
     <label class="button secondary" for="<%= local_assigns.dig(:options, :prefix) %>content-upload-button">
       <%= t('common.select_asset', locale: DataCycleCore.ui_language, data: type_translation) %>
     </label>
@@ -26,7 +37,7 @@
         <a class="select-asset-link button" data-open="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
           <%= t('common.select_asset', locale: DataCycleCore.ui_language, data: type_translation) %>
         </a>
-        <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type) %>
+        <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, remote_options: to_query_params(local_assigns.except(:button_class)) %>
       </div>
     </div>
     <button class="close-button" data-close aria-label="Close modal" type="button">

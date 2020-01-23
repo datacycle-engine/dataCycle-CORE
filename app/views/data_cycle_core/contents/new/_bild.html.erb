@@ -16,11 +16,48 @@
       </div>
     <% end %>
   </fieldset>
-<% else %>
+<% elsif options&.dig(:render_attributes) %>
+  <%= render 'data_cycle_core/contents/new/shared/locales_list', local_assigns if template.translatable? && I18n.available_locales&.many? %>
+
   <% new_dialog_config = DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) %>
   <% new_dialog_config ||= DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) %>
   <% new_dialog_config ||= DataCycleCore.new_dialog.dig('default') %>
 
+  <% new_dialog_config&.each_with_index do |(field_title, a_keys), index| %>
+    <fieldset>
+      <% if index === 0 %>
+        <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge(template.translatable? ? { locale: DataCycleCore.ui_language } : {}) %>
+      <% else %>
+        <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
+      <% end %>
+
+      <% a_keys.presence&.each do |a_key| %>
+        <% a_key = Array.wrap(a_key) %>
+        <% a_definition = template.schema.dig('properties', *a_key)&.deep_reject{ |k, v| k == 'readonly' } %>
+        <% next unless a_definition.present? %>
+
+        <% if template.translatable_property?(a_key.last, a_definition) %>
+          <%= render 'data_cycle_core/contents/editors/translatable_field', local_assigns.merge(key: a_key, value: a_key.first == 'name' ? local_assigns[:search_param] : nil) %>
+        <% else %>
+          <%= render_attribute_editor key: 'thing[datahash]' + a_key.map{ |k| "[#{k}]" if k != 'properties' }.join,
+                                      definition: a_definition,
+                                      value: a_key.first == 'name' ? local_assigns[:search_param] : nil,
+                                      content: template,
+                                      parameters: {
+                                        options: local_assigns[:options]
+                                      } %>
+        <% end %>
+      <% end %>
+    </fieldset>
+  <% end %>
+
+  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+    <fieldset>
+      <legend><%= t('new_step_title.agbs', locale: DataCycleCore.ui_language) %></legend>
+      <%= render 'agbs', options: local_assigns[:options] %>
+    </fieldset>
+  <% end %>
+<% else %>
   <fieldset class="no-search-warning no-submit">
     <legend><%= t('actions.new', data: t("content_type.#{template&.template_name&.underscore_blanks}", default: template&.template_name, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></legend>
 
