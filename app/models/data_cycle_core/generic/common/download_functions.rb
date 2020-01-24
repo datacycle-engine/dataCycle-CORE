@@ -80,7 +80,7 @@ module DataCycleCore
                         item.dump ||= {}
                         item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base))
                         item.dump[locale] = item_data
-                        item.save! if item.data_has_changed
+                        item.save!
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       rescue StandardError => e
                         Appsignal.send_error(e, nil, 'background')
