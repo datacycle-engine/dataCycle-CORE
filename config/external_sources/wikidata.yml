@@ -1,0 +1,40 @@
+---
+name: Wikidata
+credentials:
+  host: https://query.wikidata.org/sparql
+default_values:
+  locales: [de]
+config:
+  download_config:
+    pois:
+      sorting: 1
+      source_type: pois
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::Download
+    images:
+      sorting: 2
+      source_type: images
+      read_type: pois
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::DownloadImage
+    classifications:
+      sorting: 3
+      source_type: classifications
+      top_classifications:
+        - Q960648
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::DownloadClassifications
+  import_config:
+    classifications:
+      sorting: 1
+      source_type: classifications
+      import_strategy: DataCycleCore::Generic::Wikidata::ImportClassifications
+      locales: [de,en]
+    images:
+      sorting: 90
+      source_type: images
+      import_strategy: DataCycleCore::Generic::Wikidata::ImportImage
+    pois:
+      sorting: 100
+      source_type: pois
+      import_strategy: DataCycleCore::Generic::Wikidata::Import
