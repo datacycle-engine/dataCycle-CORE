@@ -5,6 +5,13 @@ body.documentation {
 
   main {
     min-height: calc(100vh - 19rem);
+
+    max-width: 80rem;
+    margin: auto;
+  }
+
+  h3 {
+    font-style: italic;
   }
 
   h4 {
@@ -19,9 +26,12 @@ body.documentation {
     padding: 1rem;
   }
 
-  p,
-  pre {
+  p {
     margin-bottom: 1rem;
+  }
+
+  pre {
+    margin-bottom: 2rem;
   }
 
   li > p {
