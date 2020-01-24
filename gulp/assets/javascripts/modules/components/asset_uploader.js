@@ -18,8 +18,6 @@ class AssetUploader {
     this.autocompleteRequests = {};
     this.files = [];
     this.init();
-
-    console.log(this.validation);
   }
   init() {
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
@@ -325,6 +323,8 @@ class AssetUploader {
         force_render: true
       };
     this.remoteOptions.search_param = fileOptions.file.name;
+    this.remoteOptions.content_uploader = true;
+    this.remoteOptions.asset_class = fileOptions.validation.class;
     this.remoteOptions.options.prefix = fileOptions.id;
     this.remoteOptions.options.render_attributes = true;
 

@@ -2,14 +2,25 @@
 class NewContentDialog {
   constructor(form) {
     this.form = $(form);
-    this.next_button = this.form.find('.next');
-    this.prev_button = this.form.find('.prev');
-    this.reset_button = this.form.find('.button.reset');
+    this.nextButton = this.form.find('.next');
+    this.prevButton = this.form.find('.prev');
+    this.resetButton = this.form.find('.button.reset');
     this.crumbs = this.form.find('.form-crumbs');
+    this.contentUploader = this.form.data('content-uploader');
     this.id = this.form.closest('.new-content-form').attr('id');
     this.locale = this.form.find(':input[name="locale"]').val();
+    this.reveal = this.form.closest('.reveal.new-content-reveal');
+    this.referencedAssetField;
+    this.nextAssetButton;
+    this.prevAssetButton;
+    this.init();
     this.initEventHandlers();
     this.updateForm();
+  }
+  init() {
+    if (this.contentUploader) {
+      this.setReferencedAssetField();
+    }
   }
   initEventHandlers() {
     if (this.form.find('fieldset.active').length == 0)
@@ -17,8 +28,8 @@ class NewContentDialog {
         .find('fieldset')
         .first()
         .addClass('active');
-    this.next_button.on('click', this.next.bind(this));
-    this.prev_button.on('click', this.prev.bind(this));
+    this.nextButton.on('click', this.next.bind(this));
+    this.prevButton.on('click', this.prev.bind(this));
     this.form.on('click', '.form-crumb-link', this.goTo.bind(this));
     this.form.on('reset', this.resetForm.bind(this));
     this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
@@ -34,36 +45,78 @@ class NewContentDialog {
       }
     });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
-    this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
     this.form.find('.translated-attribute.active').trigger('dc:remote:render');
+
+    if (this.referencedAssetField) {
+      this.updateNavigationButtons();
+      this.reveal.on('open.zf.reveal', this.updateNavigationButtons.bind(this));
+    }
+  }
+
+  setReferencedAssetField() {
+    const id = this.form.closest('.reveal.new-content-reveal').attr('id');
+    const referenceField = $('.file-for-upload[data-open="' + id + '"]');
+    if (referenceField.length) this.referencedAssetField = referenceField;
+  }
+  createNextAssetButton() {
+    this.nextAssetButton = $(
+      '<a href="#" class="next-asset-button button-prime"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+    ).insertAfter(this.reveal);
+    this.nextAssetButton.on('click', this.nextAssetForm.bind(this));
+  }
+  createPrevAssetButton() {
+    this.prevAssetButton = $(
+      '<a href="#" class="prev-asset-button button-prime"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>'
+    ).insertBefore(this.reveal);
+    this.prevAssetButton.on('click', this.prevAssetForm.bind(this));
+  }
+  updateNavigationButtons(event) {
+    event && event.preventDefault();
+
+    if (this.referencedAssetField.siblings('.file-for-upload').length) {
+      if (!this.nextAssetButton) this.createNextAssetButton();
+      if (!this.prevAssetButton) this.createPrevAssetButton();
+    }
+
+    if (this.nextAssetButton && this.prevAssetButton) {
+      if (this.referencedAssetField.is(':last-of-type')) this.nextAssetButton.hide();
+      else this.nextAssetButton.show();
+
+      if (this.referencedAssetField.is(':first-of-type')) this.prevAssetButton.hide();
+      else this.prevAssetButton.show();
+    }
+  }
+  nextAssetForm(event) {
+    event.preventDefault();
+    this.reveal.foundation('close');
+    let nextAsset = this.referencedAssetField.next('.file-for-upload');
+
+    if (nextAsset && nextAsset.length) $('.reveal.new-content-reveal#' + nextAsset.data('open')).foundation('open');
+  }
+  prevAssetForm(event) {
+    event.preventDefault();
+    this.reveal.foundation('close');
+    let prevAsset = this.referencedAssetField.prev('.file-for-upload');
+
+    if (prevAsset && prevAsset.length) $('.reveal.new-content-reveal#' + prevAsset.data('open')).foundation('open');
   }
   updateForm() {
     this.updateCrumbs();
     this.updateWarningLevel();
-    let active_fieldset = this.form.find('fieldset.active');
+    let activeFieldset = this.form.find('fieldset.active');
     if (
-      (!active_fieldset.hasClass('iframe') && !active_fieldset.hasClass('no-search-warning')) ||
-      active_fieldset.hasClass('template')
+      (!activeFieldset.hasClass('iframe') && !activeFieldset.hasClass('no-search-warning')) ||
+      activeFieldset.hasClass('template')
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
-    if (active_fieldset.hasClass('template') || active_fieldset.hasClass('no-search-warning'))
+    if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning'))
       $.rails.enableFormElements(this.form);
     else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
   }
   checkSelectedAsset(event) {
     event.stopPropagation();
     if (!$(event.target).siblings('.form-element').length) this.next(event);
-  }
-  updateThumbnail(event, data) {
-    let form_thumbnail = this.form.find('> .form-thumbnail');
-    if (data !== undefined && data.thumb !== undefined && form_thumbnail.length) {
-      form_thumbnail.attr('src', data.thumb);
-    } else if (data !== undefined && data.thumb !== undefined) {
-      this.form.append('<img class="form-thumbnail" src="' + data.thumb + '">');
-    } else {
-      form_thumbnail.remove();
-    }
   }
   changeTranslation(target) {
     $(target)
@@ -79,9 +132,9 @@ class NewContentDialog {
   }
   next(event) {
     event.preventDefault();
-    let active_fieldset = this.form.find('fieldset.active');
+    let activeFieldset = this.form.find('fieldset.active');
     if (this.form.hasClass('validation-form')) {
-      active_fieldset.trigger('dc:form:validate', {
+      activeFieldset.trigger('dc:form:validate', {
         success_callback: () => {
           this.goTo(
             undefined,
@@ -119,7 +172,7 @@ class NewContentDialog {
     );
   }
   goTo(event, data) {
-    if (event !== undefined) event.preventDefault();
+    if (event) event.preventDefault();
     if (
       this.form.find('fieldset.active').hasClass('template') &&
       this.form.find(':input[name="template"]').val() !== null &&
@@ -127,7 +180,7 @@ class NewContentDialog {
     ) {
       this.renderContentForm();
     }
-    let index = data !== undefined ? data : $(event.target).data('index');
+    let index = data !== undefined ? data : event && $(event.target).data('index');
     this.form.find('fieldset.active').removeClass('active');
     this.form
       .find('fieldset:eq(' + index + ')')
@@ -199,7 +252,7 @@ class NewContentDialog {
       this.updateForm();
     });
   }
-  resetForm(event) {
+  resetForm(_) {
     this.form.find(':input').blur();
     $.rails.enableFormElements(this.form);
     this.form.find('.single_error').remove();

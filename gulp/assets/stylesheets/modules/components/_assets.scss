@@ -305,6 +305,10 @@ ul.asset-list {
   display: flex;
   flex-flow: row wrap;
 
+  &[data-open] {
+    cursor: pointer;
+  }
+
   > * {
     padding: 1rem 0.5rem;
 
@@ -427,7 +431,6 @@ ul.asset-list {
   }
   .file-name {
     font-size: 1rem;
-    white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
   }
@@ -523,6 +526,11 @@ ul.asset-list {
 
     .file-thumb {
       border: none;
+    }
+
+    .file-info {
+      overflow: hidden;
+      flex: 1;
     }
   }
 }

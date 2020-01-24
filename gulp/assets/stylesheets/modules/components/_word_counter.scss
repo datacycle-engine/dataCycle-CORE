@@ -13,4 +13,16 @@
   text-align: right;
   font-size: 100%;
   font-style: italic;
+  font-size: 0.9rem;
+}
+
+.reveal {
+  .counter {
+    font-size: 0.8rem;
+    bottom: -20px;
+    right: 0px;
+    height: 20px;
+    line-height: 20px;
+    color: $dark-gray;
+  }
 }

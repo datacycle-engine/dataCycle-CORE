@@ -19,11 +19,7 @@
 <% elsif options&.dig(:render_attributes) %>
   <%= render 'data_cycle_core/contents/new/shared/locales_list', local_assigns if template.translatable? && I18n.available_locales&.many? %>
 
-  <% new_dialog_config = DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig('default') %>
-
-  <% new_dialog_config&.each_with_index do |(field_title, a_keys), index| %>
+  <% new_dialog_config(template)&.each_with_index do |(field_title, a_keys), index| %>
     <fieldset>
       <% if index === 0 %>
         <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge(template.translatable? ? { locale: DataCycleCore.ui_language } : {}) %>

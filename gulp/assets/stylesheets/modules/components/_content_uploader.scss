@@ -67,3 +67,22 @@
     margin-top: 0.5rem;
   }
 }
+
+.button-prime {
+  &.next-asset-button,
+  &.prev-asset-button {
+    z-index: 1008;
+    position: fixed;
+    top: calc(50% - 2.5rem);
+  }
+  &.prev-asset-button {
+    left: 1rem;
+  }
+  &.next-asset-button {
+    right: 1rem;
+  }
+}
+
+.prev-asset-button ~ .reveal {
+  max-width: 80%;
+}

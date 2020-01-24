@@ -171,6 +171,12 @@ module DataCycleCore
       ].reject(&:blank?).flatten
     end
 
+    def new_dialog_config(template)
+      DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) ||
+        DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) ||
+        DataCycleCore.new_dialog.dig('default')
+    end
+
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
       if value.is_a? Hash
         return_html = ''

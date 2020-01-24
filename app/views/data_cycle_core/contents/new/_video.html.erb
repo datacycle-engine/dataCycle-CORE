@@ -16,11 +16,7 @@
     <% end %>
   </fieldset>
 <% else %>
-  <% new_dialog_config = DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig('default') %>
-
-  <% new_dialog_config&.each_with_index do |(field_title, attribute_keys), index| %>
+  <% new_dialog_config(template)&.each_with_index do |(field_title, attribute_keys), index| %>
     <fieldset>
       <% if index === 0 %>
         <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>

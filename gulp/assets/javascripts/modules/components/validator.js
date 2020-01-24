@@ -91,6 +91,7 @@ class Validator {
       .remove();
   }
   validateSingle(event, data) {
+    if (data && data.type === 'reset') return;
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }

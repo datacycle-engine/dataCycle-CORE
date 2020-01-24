@@ -140,7 +140,7 @@ module.exports.initialize = function() {
           .on('reset', event => {
             $(this)
               .val(null)
-              .trigger('change');
+              .trigger('change', { type: 'reset' });
           });
       });
 
@@ -258,7 +258,7 @@ module.exports.initialize = function() {
           .on('reset', event => {
             $(this)
               .val(null)
-              .trigger('change');
+              .trigger('change', { type: 'reset' });
           });
       });
   };

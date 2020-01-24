@@ -2,7 +2,7 @@
   local: !local_assigns[:object_browser],
   html: {
     class: "validation-form multi-step#{' disabled' if local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing)}",
-    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options))
+    data: to_query_params(local_assigns.slice(:template, :key, :search_param, :search_required, :scope, :parent, :content, :locale, :options, :content_uploader))
   } do %>
 
   <div class="form-crumbs"></div>
@@ -54,6 +54,11 @@
     <button class="button next" data-disable type="button">
       <%= t('actions.next', locale: DataCycleCore.ui_language) %>
     </button>
+    <% if local_assigns[:content_uploader] %>
+      <button class="button submit set-all-attributes" data-disable type="button">
+        <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language) , locale: DataCycleCore.ui_language) %>
+      </button>
+    <% end %>
     <%= button_tag t('actions.save', locale: DataCycleCore.ui_language),
       type: :submit,
       class: "button submit",
