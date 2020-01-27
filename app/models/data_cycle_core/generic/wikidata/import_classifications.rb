@@ -7,7 +7,7 @@ module DataCycleCore
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_classifications_frame(
             utility_object,
-            options.dig(:import, :tree_label) || 'Wikidata - Class',
+            options.dig(:import, :tree_label) || 'Wikidata - Classification',
             method(:classification_processing).to_proc,
             options
           )

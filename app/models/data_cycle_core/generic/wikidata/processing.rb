@@ -8,7 +8,7 @@ module DataCycleCore
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
-            transformation: DataCycleCore::Generic::Wikidata::Transformations.wikimedia_to_image,
+            transformation: DataCycleCore::Generic::Wikidata::Transformations.wikimedia_to_image(utility_object.external_source.id),
             default: { template: 'Bild' },
             config: config
           )

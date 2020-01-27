@@ -24,6 +24,7 @@ module DataCycleCore
           Enumerator.new do |yielder|
             load_image_names.each_slice(@per) do |image_names|
               load_image_data(image_names).each do |image_data|
+                image_data['categories'] = image_data.dig('imageinfo', 0, 'extmetadata', 'Categories', 'value')&.split('|')
                 yielder << image_data
               end
             end
@@ -63,7 +64,7 @@ module DataCycleCore
             req.headers['content-type'] = 'application/sparql-query'
             req.headers['user-agent'] = 'Ruby 2.6.4'
             req.body = <<-EOS
-              SELECT DISTINCT ?item ?itemLabel ?itemDescription ?classLabel ?image ?location ?url ?email ?fax ?phone ?street ?postal_code ?countryLabel ?category
+              SELECT DISTINCT ?item ?itemLabel ?itemDescription ?class ?classLabel ?image ?location ?url ?email ?fax ?phone ?street ?postal_code ?country ?countryLabel ?category
               WHERE {
                 ?item wdt:P17 wd:Q40.
                 ?class wdt:P279* wd:Q960648.

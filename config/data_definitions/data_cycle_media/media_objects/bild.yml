@@ -218,6 +218,9 @@
         :type: number
         :storage_location: value
         :advanced_search: true
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :content_location:
         :label: Ort
         :type: linked
@@ -249,6 +252,9 @@
       :cloud_vision:
         :type: mixin
         :name: cloud_vision
+      :wikidata:
+        :type: mixin
+        :name: wikidata        
       :data_type:
         :label: Inhaltstyp
         :type: classification

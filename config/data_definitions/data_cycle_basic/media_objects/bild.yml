@@ -210,6 +210,9 @@
       :license_fields:
         :type: mixin
         :name: license_fields
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
       :content_location:
         :label: Ort
         :type: linked
@@ -231,6 +234,9 @@
       :media_archive:
         :type: mixin
         :name: media_archive
+      :wikidata:
+        :type: mixin
+        :name: wikidata
       :data_type:
         :label: Inhaltstyp
         :type: classification
