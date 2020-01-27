@@ -21,6 +21,7 @@ class Validator {
       .siblings('.edit-header')
       .find('.form-element.agbs')
       .first();
+    this.contentUploader = this.form.data('content-uploader');
     this.initialFormData = [];
     this.submitFormData = [];
     this.requests = [];
@@ -96,17 +97,17 @@ class Validator {
     this.resolveRequests(false, data);
   }
   pageLeaveWarning() {
-    QuillHelpers.update_editors(this.form);
+    QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.form.serializeArray();
     $(window).on('beforeunload', event => {
-      QuillHelpers.update_editors(this.form);
+      QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray();
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
-        QuillHelpers.update_editors(this.form);
+        QuillHelpers.updateEditors(this.form);
         this.submitFormData = this.form.serializeArray();
         if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
@@ -294,7 +295,7 @@ class Validator {
   validateForm(event, data) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    QuillHelpers.update_editors(event.target);
+    QuillHelpers.updateEditors(event.target);
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
@@ -358,8 +359,8 @@ class Validator {
     this.triggerFormSubmit(confirmations);
   }
   triggerFormSubmit(confirmations = {}) {
-    if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      return this.form.trigger('submit_without_redirect');
+    if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
+      return this.form.trigger('dc:form:submitWithoutRedirect');
     } else {
       $(window).off('beforeunload');
       if (confirmations && confirmations.saveAndClose)
@@ -401,11 +402,11 @@ class Validator {
           }
         }
         if (!(this.valid && submit)) this.enable();
-        if (this.valid && eventData !== undefined && eventData.success_callback !== undefined) {
-          eventData.success_callback();
+        if (this.valid && eventData !== undefined && eventData.successCallback !== undefined) {
+          eventData.successCallback();
         }
-        if (!this.valid && eventData !== undefined && eventData.error_callback !== undefined) {
-          eventData.error_callback();
+        if (!this.valid && eventData !== undefined && eventData.errorCallback !== undefined) {
+          eventData.errorCallback();
         }
         // scroll to step in multi-step form
         if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {

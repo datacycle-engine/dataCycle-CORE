@@ -460,7 +460,7 @@ class TourSprungEditor {
       .find('.form-element')
       .find('input')
       .each((index, elem) => {
-        address[elem.name.get_key()] = elem.value;
+        address[elem.name.getKey()] = elem.value;
       });
 
     $.getJSON('/things/geocode_address/', address)

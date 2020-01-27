@@ -14,6 +14,8 @@ class AssetUploader {
     this.fileField = this.reveal.find('input[type="file"].upload-file');
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.uploadButton = this.uploadForm.find('.asset-upload-button');
+    this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
+    this.globalFieldValues = [];
     this.ajaxRequests = [];
     this.autocompleteRequests = {};
     this.files = [];
@@ -32,6 +34,9 @@ class AssetUploader {
     $(window).on('beforeunload', event => {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
+    if (this.contentUploader) {
+      this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
+    }
   }
   // removeFile(event) {
   //   var target = $(event.currentTarget).parent();
@@ -44,6 +49,112 @@ class AssetUploader {
   }
   closeReveal(event) {
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
+  }
+  setFormFieldValues(event, data = undefined) {
+    event.preventDefault();
+
+    if (!data || !data.formData) return;
+
+    this.globalFieldValues = data.formData.filter(elem => elem.name.indexOf('thing') !== 0);
+    this.renderSpecificFields(
+      data.formData.filter(elem => elem.name.indexOf('thing') === 0),
+      data.allFields,
+      data.referenceField
+    );
+  }
+  renderSpecificFields(fields, all = false, referenceField = null) {
+    let groupedFields = this.groupAttributeValues(fields);
+    if (all) {
+      this.files.forEach(file => {
+        file.attributeFieldValues = fields;
+        file.attributeFieldsValidated = true;
+        groupedFields.forEach(field => {
+          this.renderSpecificField(field, file);
+        });
+      });
+      this.updateNeighborForms(fields, referenceField);
+    } else {
+      let file = this.files.find(file => file.id == referenceField.data('id'));
+      file.attributeFieldValues = fields;
+      file.attributeFieldsValidated = true;
+      groupedFields.forEach(field => {
+        this.renderSpecificField(field, file);
+      });
+    }
+  }
+  updateNeighborForms(fields, referenceField) {
+    let neighbors = this.files;
+    if (referenceField) neighbors = neighbors.filter(file => file.id != referenceField.data('id'));
+
+    neighbors.forEach(file => {
+      let id = file.fileField.data('open');
+
+      $('#' + id)
+        .find('.new-content-form > form')
+        .trigger('dc:form:importAttributes', { attributes: fields });
+    });
+  }
+  groupAttributeValues(fields) {
+    let attributeValues = [];
+
+    fields.forEach(field => {
+      let foundAttribute = attributeValues.find(f => f.name == field.name);
+      if (foundAttribute) {
+        foundAttribute.count++;
+        foundAttribute.value = this.renderAttributeHtml(
+          foundAttribute.name,
+          '<span class="count">' + foundAttribute.count + '</span>',
+          'text-center'
+        );
+      } else if (field.value.isUuid())
+        attributeValues.push({
+          name: field.name,
+          count: 1,
+          value: this.renderAttributeHtml(field.name, '<span class="count">1</span>', 'text-center')
+        });
+      else
+        attributeValues.push({
+          name: field.name,
+          value: this.renderAttributeHtml(field.name, field.value)
+        });
+    });
+
+    return attributeValues;
+  }
+  renderAttributeHtml(name, value, classes = '') {
+    let label =
+      (this.renderedAttributes[name.getKey()] && this.renderedAttributes[name.getKey()].label) || name.getKey();
+
+    if (
+      this.renderedAttributes[name.getKey()] &&
+      this.renderedAttributes[name.getKey()].type == 'datetime' &&
+      value &&
+      value.length
+    ) {
+      value = new Date(value).toLocaleDateString();
+    }
+
+    return (
+      '<span class="file-label" title="' +
+      label +
+      '">' +
+      label +
+      '</span><span class="file-attribute-value ' +
+      classes +
+      '" title="' +
+      $('<span>' + value + '</span>').text() +
+      '">' +
+      value +
+      '</span>'
+    );
+  }
+  renderSpecificField(field, asset) {
+    if (asset.fileField.find('.asset-attribute[data-name="' + field.name + '"]').length)
+      asset.fileField.find('.asset-attribute[data-name="' + field.name + '"]').html(field.value);
+    else
+      asset.fileField
+        .find('.new-asset-attributes')
+        .append('<div class="asset-attribute" data-name="' + field.name + '">' + field.value + '</div>');
   }
   prepareFileForUpload(element) {
     $(element)
@@ -130,8 +241,6 @@ class AssetUploader {
 
     const uploadableFiles = this.files.filter(f => !f.uploaded);
 
-    console.log(uploadableFiles);
-
     if (uploadableFiles.length) {
       uploadableFiles.forEach(element => {
         this.uploadFile(element);
@@ -209,7 +318,7 @@ class AssetUploader {
     );
   }
   fileAppendHTML(fileOptions) {
-    return '<span class="upload-progress"><span class="upload-progress-bar"></span></span>';
+    return '<div class="upload-progress"><span class="upload-progress-bar"></span></div>';
   }
   validateFile(fileOptions = {}) {
     fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
@@ -285,7 +394,12 @@ class AssetUploader {
     this.validateAndRender(fileOptions);
   }
   validateAndRender(fileOptions) {
-    fileOptions.html = fileOptions.prependHtml + fileOptions.mediaHtml + fileOptions.appendHtml;
+    fileOptions.html =
+      '<div class="new-asset-attributes">' +
+      fileOptions.prependHtml +
+      fileOptions.mediaHtml +
+      '</div>' +
+      fileOptions.appendHtml;
     fileOptions.valid = this.validate(fileOptions);
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');
@@ -354,6 +468,9 @@ class AssetUploader {
     fileOptions.fileField.html(fileOptions.html);
     fileOptions.fileField.attr('data-open', fileOptions.id + '_edit_overlay');
     fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
+    $('#' + fileOptions.fileField.data('open'))
+      .find('.new-content-form.remote-render')
+      .trigger('dc:remote:render', { force: true });
     if (fileOptions.errors) this.renderError(fileOptions.fileField, fileOptions.errors);
 
     this.updateUploadButton();

@@ -184,8 +184,8 @@ class ObjectBrowser {
   }
   initNewFormHandlers(e) {
     $('#new_' + this.id + '.in-object-browser form')
-      .off('submit_without_redirect')
-      .on('submit_without_redirect', event => {
+      .off('dc:form:submitWithoutRedirect')
+      .on('dc:form:submitWithoutRedirect', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
         var form_data = $(event.target).serializeJSON();

@@ -46,13 +46,70 @@ class NewContentDialog {
     });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.find('.translated-attribute.active').trigger('dc:remote:render');
+    this.form.on('dc:form:importAttributes', this.importAttributes.bind(this));
 
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
-      this.reveal.on('open.zf.reveal', this.updateNavigationButtons.bind(this));
+      this.reveal.on('open.zf.reveal', event => {
+        this.form.trigger('dc:form:enable');
+        this.updateNavigationButtons(event);
+      });
+      this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
+      this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
     }
   }
+  copyToReferenceField(event, allFields = undefined) {
+    event.preventDefault();
 
+    let formData = this.form.serializeArray();
+
+    if (allFields) this.reveal.foundation('close');
+    else this.nextAssetForm(event);
+
+    this.referencedAssetField.trigger('dc:upload:setFormFields', {
+      formData: formData,
+      allFields: allFields,
+      referenceField: this.referencedAssetField
+    });
+  }
+  copyToAllReferenceFields(event) {
+    this.copyToReferenceField(event, true);
+  }
+  importAttributes(event, data = null) {
+    event.preventDefault();
+
+    if (!data) return;
+
+    this.form.get(0).reset();
+
+    let groupedAttributes = this.groupAttributeValues(data.attributes);
+
+    for (let key in groupedAttributes) {
+      console.log(this.form.find('[data-key="' + key + '"]').find(window.EDITORSELECTORS.join(', ')));
+      this.form
+        .find('[data-key="' + key + '"]')
+        .find(window.EDITORSELECTORS.join(', '))
+        .trigger('dc:import:data', {
+          label: key.getKey(),
+          value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
+          locale: this.locale
+        });
+    }
+  }
+  groupAttributeValues(values) {
+    let groupedValues = {};
+
+    values.forEach(v => {
+      let key = v.name.normalizeKey();
+      if (groupedValues[key]) {
+        if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]];
+
+        groupedValues[key].push(v.value);
+      } else groupedValues[key] = v.value;
+    });
+
+    return groupedValues;
+  }
   setReferencedAssetField() {
     const id = this.form.closest('.reveal.new-content-reveal').attr('id');
     const referenceField = $('.file-for-upload[data-open="' + id + '"]');
@@ -135,7 +192,7 @@ class NewContentDialog {
     let activeFieldset = this.form.find('fieldset.active');
     if (this.form.hasClass('validation-form')) {
       activeFieldset.trigger('dc:form:validate', {
-        success_callback: () => {
+        successCallback: () => {
           this.goTo(
             undefined,
             this.form.find('fieldset').index(

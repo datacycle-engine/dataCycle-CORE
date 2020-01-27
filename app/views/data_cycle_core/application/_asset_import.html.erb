@@ -1,9 +1,9 @@
 <% uploader_validation ||= uploader_validation(asset_type: local_assigns[:asset_type]) %>
-
 <div class="reveal full asset-upload-reveal"
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
   data-validation="<%= uploader_validation.to_json %>"
+  data-rendered-attributes="<%= local_assigns[:rendered_attributes].to_json %>"
   data-content-uploader="true"
   data-remote-options="<%= local_assigns[:remote_options]&.to_json %>"
   data-type="<%= local_assigns[:asset_type] %>"

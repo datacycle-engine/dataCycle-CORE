@@ -177,6 +177,10 @@ module DataCycleCore
         DataCycleCore.new_dialog.dig('default')
     end
 
+    def new_attribute_labels(template)
+      template&.schema&.dig('properties')&.slice(*new_dialog_config(template).values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label')] }.to_h : { k => v.slice('type', 'label') } }&.reduce({}, :merge)
+    end
+
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
       if value.is_a? Hash
         return_html = ''

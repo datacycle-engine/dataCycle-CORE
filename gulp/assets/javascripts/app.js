@@ -10,6 +10,22 @@ var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
 let ActionCable = require('actioncable');
 var initializers = [];
+window.EDITORSELECTORS = [
+  '> .object-browser',
+  '> .embedded-object',
+  '> input[type=text]',
+  '> .editor-block > .quill-editor',
+  '> .v-select > select.multi-select',
+  '> .v-select > select.single-select',
+  '> .v-select > select.async-select',
+  '> ul.classification-checkbox-list',
+  '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
+  '> .asset-selector-button',
+  '> .geographic > .geographic-map',
+  '> :checkbox',
+  '> :input[type="number"]',
+  '> .duration-slider > div > input[type="number"]'
+];
 window.actionCable = ActionCable.createConsumer();
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));

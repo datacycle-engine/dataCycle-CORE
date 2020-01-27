@@ -127,14 +127,14 @@ module.exports.initialize = function() {
           }
 
           editor.on('selection-change', (range, oldRange, source) => {
-            if (range == null) quill_helpers.update_editors(editor.container);
+            if (range == null) quill_helpers.updateEditors(editor.container);
           });
 
           $(editor.container)
             .closest('form')
             .on('reset', event => {
               editor.clipboard.dangerouslyPasteHTML($(editor.container).data('default-value') || '');
-              quill_helpers.update_editors(editor.container);
+              quill_helpers.updateEditors(editor.container);
             });
 
           $(editor.container).on('dc:import:data', function(event, data) {
