@@ -9,6 +9,11 @@
           <span class="locale">(<%= I18n.locale.to_s %>)</span>
         </span>
         <span class="title" title="<%= item.title %>"><%= item.title %></span>
+        <% if item.respond_to?(:is_valid?) && !item.try(:is_valid?) %>
+          <span class="validity_period">
+            <%= render partial: 'data_cycle_core/contents/validity_period', locals: {dataCycleObject: item} %>
+          </span>
+        <% end %>
       <% end %>
     </div>
 
@@ -27,5 +32,4 @@
     data-remote-render-params="<%= to_query_params(item: item, mode: 'list').to_json %>"
     data-remote-options="<%= to_query_params(locale: I18n.locale.to_s, language: @language).to_json %>">
   </div>
-
 <% end %>
