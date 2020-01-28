@@ -1707,7 +1707,7 @@ select {
 }
 
 [data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button)
-  > .fa {
+> .fa {
   font-size: inherit;
   line-height: inherit;
 }
@@ -2175,6 +2175,64 @@ section.duplicate-candidates {
     margin-right: 0.3rem;
     .fa {
       font-size: 1rem;
+    }
+  }
+}
+
+//.object-browser-overlay
+.object-thumbs{
+  .external-source-icon{
+    line-height: 1.5;
+    height: 1.5rem;
+    position: relative;
+    &.default-view{
+      display: block;
+      float: right;
+    }
+  }
+  .external-source-title{
+    display: none;
+  }
+}
+.object-browser-overlay{
+  .tile-top{
+    position: relative;
+    padding-bottom: 1rem;
+  }
+  .external-source-icon{
+    line-height: 1.5;
+    height: 1.5rem;
+    position: relative;
+    float: right;
+  }
+  .external-source-title{
+    display: none;
+  }
+  .external-sources-tiles{
+    color: $dark-gray;
+    text-align: right;
+    padding-top: 1.5rem;
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    display: block;
+    padding-right: 1rem;
+    .external-source-icon{
+      position: relative;
+      color: $dark-gray;
+      float: none;
+    }
+    .external-source-title{
+      display: inline-block;
+      position: relative;
+    }
+  }
+}
+.chosen-items-container{
+  .external-sources-tiles, .external-source-icon{
+    display: none;
+    &.default-view{
+      display: none;
     }
   }
 }
