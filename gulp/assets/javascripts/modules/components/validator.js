@@ -308,7 +308,7 @@ class Validator {
     this.resolveRequests($(event.target).is(this.form), data);
   }
   submitForm(
-    confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false, saveAndClose: false }
+    confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
   ) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
@@ -360,19 +360,19 @@ class Validator {
   }
   triggerFormSubmit(confirmations = {}) {
     if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
-      return this.form.trigger('dc:form:submitWithoutRedirect');
+      return this.form.trigger('dc:form:submitWithoutRedirect', confirmations);
     } else {
       $(window).off('beforeunload');
       if (confirmations && confirmations.saveAndClose)
         this.form.append('<input type="hidden" name="save_and_close" value="1">');
-      if (confirmations && confirmations.merge)
+      if (confirmations && confirmations.mergeConfirm)
         this.form.append(
           '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
         );
       this.form.trigger('submit.rails');
     }
   }
-  resolveRequests(submit = false, eventData = undefined) {
+  resolveRequests(submit = false, eventData = {}) {
     this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];
@@ -387,15 +387,15 @@ class Validator {
         if (this.valid && submit) {
           this.queryCount = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          let confirmations = {
-            finalize: true,
-            confirm: true,
-            warnings: warnings.length ? warnings : undefined,
-            merge: eventData && eventData.mergeConfirm,
-            saveAndClose: eventData && eventData.saveAndClose
-          };
 
-          this.submitForm(confirmations);
+          eventData = Object.assign({}, eventData || {}, {
+            finalize: true,
+            confirm: true
+          });
+
+          if (warnings.length) Object.assign(eventData, { warnings: warnings });
+
+          this.submitForm(eventData);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });

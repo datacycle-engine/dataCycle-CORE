@@ -21,6 +21,25 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def bulk_create
+      new_thing_params = params.dig('thing')
+
+      return if new_thing_params.blank?
+
+      item_count = new_thing_params.keys.size
+      index = 0
+
+      ActionCable.server.broadcast "bulk_create_#{current_user.id}", progress: 0, items: item_count
+
+      new_thing_params.each do |_key, thing_params|
+        thing_hash = content_params(params[:template], thing_params)
+
+        content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
+
+        ActionCable.server.broadcast "bulk_create_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors)
+      end
+    end
+
     def show
       @content = DataCycleCore::Thing.find(params[:id])
 
@@ -82,7 +101,7 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path) && return if @content.nil?
+        redirect_back(fallback_location: root_path) && return if @content.try(:errors).present?
 
         respond_to do |format|
           if @content.present?
@@ -375,10 +394,15 @@ module DataCycleCore
       params.require(:life_cycle).permit(:name, :id)
     end
 
-    def content_params(template_name)
+    def content_params(template_name, params_hash = nil)
       datahash = DataCycleCore::DataHashService.get_object_params(template_name)
       translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
-      params.require(:thing).permit(datahash: datahash, translations: translations)
+
+      if params_hash.present?
+        params_hash.permit(datahash: datahash, translations: translations)
+      else
+        params.require(:thing).permit(datahash: datahash, translations: translations)
+      end
     end
 
     def new_params

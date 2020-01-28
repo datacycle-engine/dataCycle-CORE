@@ -67,7 +67,7 @@ module DataCycleCore
 
       valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
 
-      return if valid[:error].present?
+      return OpenStruct.new(errors: valid[:error]) if valid[:error].present?
       object
     end
 

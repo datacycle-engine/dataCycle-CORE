@@ -80,6 +80,11 @@ module.exports.initialize = function() {
             cal.setDate($(this).val(), true, cal.config.altFormat);
             cal.close();
           });
+          $(input).on('dc:flatpickr:setDate', (e, value) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            cal.setDate(value, true);
+          });
         }
       });
 
@@ -106,6 +111,11 @@ module.exports.initialize = function() {
             cal.setDate($(this).val(), true, cal.config.altFormat);
             cal.close();
           });
+          $(input).on('dc:flatpickr:setDate', (e, value) => {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            cal.setDate(value, true);
+          });
         }
       });
 
@@ -119,12 +129,10 @@ module.exports.initialize = function() {
     init(event.target);
   });
 
-  $('.edit-content-form .form-element.datetime input.flatpickr-input').on('dc:import:data', function(event, data) {
+  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', function(event, data) {
     event.stopImmediatePropagation();
-    if ($(event.target).val().length === 0) {
-      $(event.target)
-        .val(data.value)
-        .trigger('change');
+    if ($(event.target).val().length === 0 || (data && data.force)) {
+      $(event.target).trigger('dc:flatpickr:setDate', data.value);
     } else {
       var confirmationModal = new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -133,9 +141,7 @@ module.exports.initialize = function() {
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function() {
-          $(event.target)
-            .val(data.value)
-            .trigger('change');
+          $(event.target).trigger('dc:flatpickr:setDate', data.value);
         }.bind(this)
       });
     }

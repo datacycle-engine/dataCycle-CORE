@@ -53,7 +53,7 @@ class AssetSelector {
     if (data === undefined || data.value === undefined || data.value[0] === undefined) return;
     let id = data.value[0];
 
-    if (this.selectedAssetId !== undefined) {
+    if (this.selectedAssetId !== undefined && !data.force) {
       new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
         confirmationText: 'Ja',

@@ -138,7 +138,7 @@ module.exports.initialize = function() {
             });
 
           $(editor.container).on('dc:import:data', function(event, data) {
-            if (editor.getText().trim().length > 1) {
+            if (editor.getText().trim().length > 1 && (!data || !data.force)) {
               var confirmationModal = new ConfirmationModal({
                 text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
                 confirmationText: 'Ja',

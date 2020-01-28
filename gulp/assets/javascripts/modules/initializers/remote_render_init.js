@@ -19,21 +19,18 @@ module.exports.initialize = function() {
   $(document).on(
     'open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:toggler:show down.zf.accordion',
     '*',
-    (event, data) => {
+    event => {
       event.stopPropagation();
 
-      let items = $(event.target)
+      $(event.target)
         .find('.remote-render')
-        .addBack('.remote-render');
-
-      if (!data || !data.force)
-        items = items.filter((_, elem) => {
+        .addBack('.remote-render')
+        .filter((_, elem) => {
           return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+        })
+        .each((_, element) => {
+          load_remote_partial(element);
         });
-
-      items.each((_, element) => {
-        load_remote_partial(element);
-      });
     }
   );
 

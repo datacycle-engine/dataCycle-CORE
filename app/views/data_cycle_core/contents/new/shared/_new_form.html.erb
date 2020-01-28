@@ -59,12 +59,12 @@
         <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language) , locale: DataCycleCore.ui_language) %>
       </button>
     <% end %>
-    <%= button_tag t('actions.save', locale: DataCycleCore.ui_language),
+    <%= button_tag t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language),
       type: :submit,
       class: "button submit",
       disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing),
       data: {
-        disable_with: "#{t('actions.save', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
+        disable_with: "#{t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"
         } %>
   </div>
 

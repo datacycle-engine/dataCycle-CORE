@@ -212,7 +212,7 @@ class ObjectBrowser {
         });
       });
   }
-  removeThumbObject(element) {
+  removeThumbObject(element, triggerChange = true) {
     let item, elem_id;
 
     if ($(element).is(':input[type="hidden"]')) {
@@ -231,7 +231,7 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
-    this.element.closest('.form-element').trigger('change');
+    if (triggerChange) this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
     this.element
@@ -397,7 +397,7 @@ class ObjectBrowser {
   }
   reset(event) {
     this.element.find('.media-thumbs li.item').each((_, element) => {
-      this.removeThumbObject(element);
+      this.removeThumbObject(element, false);
     });
   }
   setPreselected() {

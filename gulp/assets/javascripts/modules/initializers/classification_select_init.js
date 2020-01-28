@@ -154,8 +154,11 @@ module.exports.initialize = function() {
         $(this).on('dc:import:data', (event, data) => {
           if (data.value !== undefined) {
             let value = $(event.target).val();
-            if (!Array.isArray(value)) value = [value].filter(el => el !== null);
-            if (!Array.isArray(data.value)) data.value = [data.value].filter(el => el !== null);
+            if (!Array.isArray(value)) value = [value];
+            if (!Array.isArray(data.value)) data.value = [data.value];
+            value = value.filter(Boolean);
+            data.value = data.value.filter(Boolean);
+
             let diff = data.value.diff(value);
             if (diff.length)
               $(event.target)

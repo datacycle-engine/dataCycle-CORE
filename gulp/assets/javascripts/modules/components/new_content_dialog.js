@@ -1,4 +1,4 @@
-// Ajax Callback Queue
+// New Content Dialog
 class NewContentDialog {
   constructor(form) {
     this.form = $(form);
@@ -8,7 +8,8 @@ class NewContentDialog {
     this.crumbs = this.form.find('.form-crumbs');
     this.contentUploader = this.form.data('content-uploader');
     this.id = this.form.closest('.new-content-form').attr('id');
-    this.locale = this.form.find(':input[name="locale"]').val();
+    this.locale = this.form.find(':input[name="locale"]').val() || 'de';
+    this.activeLocale = this.locale;
     this.reveal = this.form.closest('.reveal.new-content-reveal');
     this.referencedAssetField;
     this.nextAssetButton;
@@ -46,7 +47,6 @@ class NewContentDialog {
     });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.find('.translated-attribute.active').trigger('dc:remote:render');
-    this.form.on('dc:form:importAttributes', this.importAttributes.bind(this));
 
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
@@ -54,55 +54,72 @@ class NewContentDialog {
         this.form.trigger('dc:form:enable');
         this.updateNavigationButtons(event);
       });
+      this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
       this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
+      this.form.on('dc:html:initialized', '.translated-attribute', event => {
+        event.stopPropagation();
+        this.triggerSyncWithContentUploader(event);
+      });
+      this.triggerSyncWithContentUploader();
     }
   }
-  copyToReferenceField(event, allFields = undefined) {
+  copyToReferenceField(event, config = {}) {
     event.preventDefault();
 
     let formData = this.form.serializeArray();
 
-    if (allFields) this.reveal.foundation('close');
+    if (config && config.allFields) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFields: allFields,
-      referenceField: this.referencedAssetField
+      allFields: config && config.allFields
     });
   }
   copyToAllReferenceFields(event) {
-    this.copyToReferenceField(event, true);
+    this.form.trigger('submit', { allFields: true });
   }
-  importAttributes(event, data = null) {
+  triggerSyncWithContentUploader(event = null) {
+    let key;
+
+    if (event)
+      key = $(event.currentTarget)
+        .find('> .form-element')
+        .data('key');
+
+    this.referencedAssetField.trigger('dc:upload:syncWithForm', { key: key, locale: event ? this.activeLocale : null });
+  }
+  importAttributeValues(event, data = null) {
     event.preventDefault();
 
-    if (!data) return;
+    if (!data || !data.attributes) return;
+    if (!data || !data.locale) this.form.get(0).reset();
 
-    this.form.get(0).reset();
-
-    let groupedAttributes = this.groupAttributeValues(data.attributes);
+    let groupedAttributes = this.groupAttributeValues(data.attributes, data.locale);
 
     for (let key in groupedAttributes) {
-      console.log(this.form.find('[data-key="' + key + '"]').find(window.EDITORSELECTORS.join(', ')));
       this.form
         .find('[data-key="' + key + '"]')
         .find(window.EDITORSELECTORS.join(', '))
         .trigger('dc:import:data', {
           label: key.getKey(),
           value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
-          locale: this.locale
+          locale: data.locale || 'de',
+          force: true
         });
     }
   }
-  groupAttributeValues(values) {
+  groupAttributeValues(values, locale = null) {
     let groupedValues = {};
 
     values.forEach(v => {
+      if (locale && (!v.name.includes('translations') || !v.name.includes(locale))) return;
+
       let key = v.name.normalizeKey();
-      if (groupedValues[key]) {
-        if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]];
+
+      if (groupedValues[key] || v.value.isUuid()) {
+        if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]].filter(Boolean);
 
         groupedValues[key].push(v.value);
       } else groupedValues[key] = v.value;
@@ -176,6 +193,7 @@ class NewContentDialog {
     if (!$(event.target).siblings('.form-element').length) this.next(event);
   }
   changeTranslation(target) {
+    this.activeLocale = $(target).data('locale');
     $(target)
       .closest('.translated-attribute-locales')
       .find('.translated-attribute-locale')

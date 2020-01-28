@@ -28,6 +28,12 @@
         multiple: true,
         accept: uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', '),
         class: 'upload-file' %>
+      <div class="buttons">
+        <button type="button" class="button asset-create-button" data-disable>
+          <%= tag.i(class: 'fa fa-check') %>
+          <%= t('actions.new', data: "data_cycle_core/#{local_assigns.dig(:asset_type)}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+        </button>
+      </div>
     </div>
   </div>
   <button class="close-button"
