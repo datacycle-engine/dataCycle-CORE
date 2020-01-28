@@ -38,6 +38,8 @@
         :api:
           :name: image
           :minimal: true
+          :v4:
+            :name: photo
       :image:
         :label: Bilder
         :type: linked
@@ -45,6 +47,8 @@
         :api:
           :name: photo
           :minimal: true
+          :v4:
+            :name: image
       :logo:
         :label: Logo
         :type: linked
