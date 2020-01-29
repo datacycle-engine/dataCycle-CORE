@@ -17,6 +17,7 @@ module DataCycleCore
         can :api, DataCycleCore::StoredFilter
 
         can :advanced_filter, :backend
+        cannot :create_duplicate, DataCycleCore::Asset
       end
     end
   end

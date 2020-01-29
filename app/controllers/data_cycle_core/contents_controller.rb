@@ -29,15 +29,21 @@ module DataCycleCore
       item_count = new_thing_params.keys.size
       index = 0
 
-      ActionCable.server.broadcast "bulk_create_#{current_user.id}", progress: 0, items: item_count
+      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
 
       new_thing_params.each do |_key, thing_params|
         thing_hash = content_params(params[:template], thing_params)
 
         content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
 
-        ActionCable.server.broadcast "bulk_create_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors)
+        ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
       end
+
+      flash[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+
+      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash
+
+      head(:ok)
     end
 
     def show

@@ -29,8 +29,9 @@ module DataCycleCore
       @asset = object_type.constantize.new(asset_params)
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
+
       if @asset.save
-        render json: @asset
+        render json: @asset.attributes.merge(duplicate: @asset.try(:duplicate_candidates).present?)
       else
         render(json: { error: @asset.errors.full_messages.join(', ') })
       end

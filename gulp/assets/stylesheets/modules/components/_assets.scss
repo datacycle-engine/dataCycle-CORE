@@ -347,12 +347,15 @@ ul.asset-list {
     padding: 1rem 1rem 0 1rem;
     align-items: center;
     justify-content: flex-start;
+    position: relative;
 
     .fa {
       font-size: 4rem;
     }
-    img {
-      max-height: 9rem;
+    img,
+    object {
+      max-width: 100%;
+      max-height: 6rem;
     }
   }
   .upload-number-container {
@@ -433,9 +436,15 @@ ul.asset-list {
     display: flex;
     flex-flow: column;
     font-size: 0.9rem;
-    flex: auto;
+    flex: 1;
     margin: 0;
     min-width: 5rem;
+
+    &.linked,
+    &.classification,
+    &.embedded {
+      max-width: 5rem;
+    }
   }
   .file-label {
     font-size: 0.9rem;
@@ -519,7 +528,11 @@ ul.asset-list {
     color: $alert-color;
     font-size: 0.8rem;
   }
-
+  .notice {
+    display: block;
+    color: $warning-color;
+    font-size: 0.8rem;
+  }
   &.error {
     .upload-number {
       color: $alert-color;
@@ -544,12 +557,75 @@ ul.asset-list {
     }
 
     .upload-progress-bar {
+      background: $warning-color;
+    }
+
+    .file-thumb::before {
+      font-family: 'FontAwesome';
+      content: '\f00c';
+      position: absolute;
+      top: 0;
+      left: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: $success-color;
+      width: calc(100% - 2rem);
+      height: calc(100% - 2.5rem);
+      margin: 1rem 1rem 1.5rem 1rem;
+      background: rgba($white, 0.5);
+      font-size: 4rem;
+      line-height: 4rem;
+    }
+  }
+
+  &.validated {
+    .upload-progress-bar {
       background: $success-color;
+    }
+  }
+
+  .error-overlay {
+    display: flex;
+    opacity: 0;
+    pointer-events: none;
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    background: rgba($white, 0.8);
+    transition: all 0.3s;
+
+    .button {
+      border-radius: 50%;
+      height: 3rem;
+      width: 3rem;
+      display: flex;
+      padding: 0;
+      align-items: center;
+      justify-content: center;
+      &:not(:last-of-type) {
+        margin-right: 1rem;
+      }
+
+      .fa {
+        font-size: 1.5rem;
+      }
     }
   }
 
   &.error {
     height: auto;
+
+    &:hover {
+      .error-overlay {
+        opacity: 1;
+        pointer-events: initial;
+      }
+    }
   }
 }
 

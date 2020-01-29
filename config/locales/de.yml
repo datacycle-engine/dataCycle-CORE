@@ -531,6 +531,7 @@ de:
       merged_with_duplicate: Inhalte wurden zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
+      bulk_created: Inhalte wurden erstellt
     info:
       not_modified: "%{data} wurde nicht geändert."
       created_duplication: "%{data} wurde erfolgreich dupliziert."
