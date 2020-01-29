@@ -236,9 +236,6 @@
       :license_fields:
         :type: mixin
         :name: license_fields
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel        
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties

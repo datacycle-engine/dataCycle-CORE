@@ -210,9 +210,6 @@
       :license_fields:
         :type: mixin
         :name: license_fields
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel
       :content_location:
         :label: Ort
         :type: linked

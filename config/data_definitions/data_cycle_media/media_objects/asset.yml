@@ -124,10 +124,7 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
-        :advanced_search: true
-      :cc_rel:
-        :type: mixin
-        :name: cc_rel        
+        :advanced_search: true       
       :content_location:
         :label: Ort
         :type: linked
