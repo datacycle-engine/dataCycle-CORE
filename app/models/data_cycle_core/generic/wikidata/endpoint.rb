@@ -8,14 +8,17 @@ module DataCycleCore
           @host = host
           @options = options
           @read_type = options[:read_type] if options[:read_type].present?
-          @top_classifications = options[:top_classifications] || ['Q960648']
+          @top_classifications = options.dig(:options, :top_classifications) || ['Q960648']
+          @countries = options.dig(:options, :countries) || ['Q40']
           @per = 50
         end
 
         def pois(*)
           Enumerator.new do |yielder|
-            load_data.each do |poi_data|
-              yielder << poi_data
+            @countries.each do |country_code|
+              load_data(country_code).each do |poi_data|
+                yielder << poi_data
+              end
             end
           end
         end
@@ -57,16 +60,16 @@ module DataCycleCore
           end
         end
 
-        def load_data
+        def load_data(country_code)
           response = Faraday.new.post do |req|
             req.url(@host)
             req.headers['Accept'] = 'application/sparql-results+json'
             req.headers['content-type'] = 'application/sparql-query'
             req.headers['user-agent'] = 'Ruby 2.6.4'
             req.body = <<-EOS
-              SELECT DISTINCT ?item ?itemLabel ?itemDescription ?class ?classLabel ?image ?location ?url ?email ?fax ?phone ?street ?postal_code ?country ?countryLabel ?category
+              SELECT DISTINCT ?item ?itemLabel ?itemDescription ?class ?classLabel ?image ?location ?url ?email ?fax ?phone ?street ?old_street ?postal_code ?country ?countryLabel ?category
               WHERE {
-                ?item wdt:P17 wd:Q40.
+                ?item wdt:P17 wd:#{country_code}.
                 ?class wdt:P279* wd:Q960648.
                 ?item wdt:P31 ?class.
                 OPTIONAL { ?item wdt:P18 ?image. }
@@ -76,6 +79,7 @@ module DataCycleCore
                 OPTIONAL { ?item wdt:P2900 ?fax. }
                 OPTIONAL { ?item wdt:P1329 ?phone. }
                 OPTIONAL { ?item wdt:P6375 ?street. }
+                OPTIONAL { ?item wdt:P969 ?old_street. }
                 OPTIONAL { ?item wdt:P281 ?postal_code. }
                 OPTIONAL { ?item wdt:P17 ?country. }
                 OPTIONAL { ?item wdt:P373 ?category. }
@@ -83,7 +87,7 @@ module DataCycleCore
               }
             EOS
           end
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host}", response) unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host} / for #{country_code}", response) unless response.success?
           JSON.parse(response.body).dig('results', 'bindings')
         end
 

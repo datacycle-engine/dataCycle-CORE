@@ -9,6 +9,10 @@ config:
     pois:
       sorting: 1
       source_type: pois
+      countries:
+        - Q40  # Österreich
+        - Q39  # Schweiz
+        - Q183 # Deutschland
       endpoint: DataCycleCore::Generic::Wikidata::Endpoint
       download_strategy: DataCycleCore::Generic::Wikidata::Download
     images:
@@ -21,7 +25,7 @@ config:
       sorting: 3
       source_type: classifications
       top_classifications:
-        - Q960648
+        - Q960648 # point of interest
       endpoint: DataCycleCore::Generic::Wikidata::Endpoint
       download_strategy: DataCycleCore::Generic::Wikidata::DownloadClassifications
   import_config:

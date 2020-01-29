@@ -20,8 +20,9 @@ module DataCycleCore
           .>> t(:add_field, 'url', ->(s) { s.dig('url', 'value') })
           .>> t(:nest, 'contact_info', ['url'])
           .>> t(:add_field, 'address_country', ->(s) { s.dig('countryLabel', 'value') })
-          .>> t(:add_field, 'street_address', ->(s) { s.dig('street', 'value') })
+          .>> t(:add_field, 'street_address', ->(s) { s.dig('street', 'value') || s.dig('old_street', 'value') })
           .>> t(:nest, 'address', ['street_address', 'address_country'])
+          .>> t(:add_field, 'country_code', ->(s) { get_country_code(s.dig('countryLabel', 'value')) })
         end
 
         def self.wikimedia_to_image(external_source_id)
@@ -38,7 +39,7 @@ module DataCycleCore
           .>> t(:add_field, 'attribution_url', ->(s) { parse_attribution_url(s.dig('imageinfo', 0, 'extmetadata').slice('Artist')&.dig('Artist', 'value')) })
           .>> t(:add_field, 'attribution_name', ->(s) { parse_attribution_name(s.dig('imageinfo', 0, 'extmetadata').slice('Artist')&.dig('Artist', 'value')) })
           .>> t(:add_field, 'license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'LicenseUrl', 'value') || s.dig('imageinfo', 0, 'extmetadata', 'LicenseShortName', 'value') })
-          .>> t(:add_field, 'mandatory_license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'Copyrighted', 'value').casecmp?('true') }) # only for Bild-template in data-cycle-basic set!!
+          .>> t(:add_field, 'mandatory_license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'Copyrighted', 'value')&.casecmp?('true') }) # only for Bild-template in data-cycle-basic set!!
         end
 
         def self.parse_attribution_name(artist_data)
@@ -63,6 +64,11 @@ module DataCycleCore
         def self.get_location(string)
           return nil if string.blank?
           RGeo::Geographic.spherical_factory(srid: 4326).parse_wkt(string)
+        end
+
+        def self.get_country_code(string)
+          countries = { 'Österreich' => 'AT', 'Deutschland' => 'DE', 'Schweiz' => 'CH' }
+          DataCycleCore::ClassificationAlias.for_tree('Ländercodes').find_by(name: countries.dig(string))&.classifications&.ids
         end
       end
     end
