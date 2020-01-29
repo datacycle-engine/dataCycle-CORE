@@ -302,6 +302,11 @@ config:
       tag_name_path: 'AdditionalServices.AdditionalService.Products.Product.Details.AccommodationType.text'
       external_id_prefix: 'Feratel - Unterkunftstype - '
       locales: [de]
+    locations:
+      sorting: 24
+      source_type: locations
+      tree_label: Feratel - Orte
+      import_strategy: DataCycleCore::Generic::Feratel::ImportLocations
     infrastructures:
       sorting: 50
       source_type: infrastructure_items
