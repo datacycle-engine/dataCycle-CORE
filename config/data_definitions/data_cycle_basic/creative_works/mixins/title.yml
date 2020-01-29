@@ -16,3 +16,10 @@
         :api:
           :minimal: true
           :name: headline
+      :internal_name:
+        :label: Arbeitstitel
+        :type: string
+        :storage_location: value
+        :search: true
+        :api:
+          :disabled: true
