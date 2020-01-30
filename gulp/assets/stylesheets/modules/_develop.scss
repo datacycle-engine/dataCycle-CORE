@@ -2183,7 +2183,7 @@ section.duplicate-candidates {
 }
 
 //.object-browser-overlay
-.object-thumbs{
+.object-thumbs, .object_browser.media.linked{
   .external-source-icon{
     line-height: 1.5;
     height: 1.5rem;
@@ -2195,6 +2195,11 @@ section.duplicate-candidates {
   }
   .external-source-title{
     display: none;
+  }
+}
+.object_browser.media.linked{
+  .external-source-icon{
+    float: right;
   }
 }
 .object-browser-overlay{
