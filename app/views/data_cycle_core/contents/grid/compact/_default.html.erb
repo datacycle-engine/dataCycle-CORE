@@ -11,6 +11,16 @@
         <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.parameterize(separator: '_') %>
 
         <%= tag.span "#{object.title} (#{I18n.locale.to_s})", class: 'name' if object.try(:title).present? %>
+        <% if object.respond_to?(:internal_name) && object.internal_name.present? %>
+            <span class="title working-title" title="<%= object.internal_name %>">
+                (<%= sanitize(strip_links(truncate(object.internal_name, length: 70, separator: " ", escape: false))) %>)
+            </span>
+        <% end %>
+
+    </div>
+
+    <div class="tile-properties">
+        <%= yield_content!(:additional_tile_attributes) %>
     </div>
 
     <% if object.try(:external_source).present? %>
@@ -24,10 +34,6 @@
             </span>
         </div>
     <% end %>
-
-    <div class="tile-properties">
-      <%= yield_content!(:additional_tile_attributes) %>
-    </div>
   <% end %>
 <% end %>
 

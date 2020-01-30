@@ -836,6 +836,9 @@ a.has-tip {
 #subscribe li {
   text-align: center;
 }
+.title.working-title{
+  font-style: italic;
+}
 
 .new-item,
 .new-content-reveal {
@@ -2195,6 +2198,9 @@ section.duplicate-candidates {
   }
 }
 .object-browser-overlay{
+  .tile-properties{
+    padding-bottom: 1rem;
+  }
   .tile-top{
     position: relative;
     padding-bottom: 1rem;

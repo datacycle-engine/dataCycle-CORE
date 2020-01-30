@@ -19,7 +19,7 @@
       :internal_name:
         :label: Arbeitstitel
         :type: string
-        :storage_location: value
+        :storage_location: column
         :search: true
         :api:
           :disabled: true
