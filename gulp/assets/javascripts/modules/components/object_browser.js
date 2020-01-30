@@ -149,15 +149,19 @@ class ObjectBrowser {
       }
     });
     this.overlay.on('dc:import:complete', (event, data) => {
-      if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
+      this.excluded = this.excluded.mergeUnique(data && data.ids);
       this.overlay
         .children('.items')
-        .find('[data-id=' + data.id + ']')
+        .find('[data-id=' + data.ids[0] + ']')
         .get(0)
         .scrollIntoView({
           behavior: 'smooth'
         });
-      this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
+
+      data.ids.forEach(id => {
+        this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+      });
+
       $('#new_' + this.id + '.in-object-browser form').trigger('reset');
     });
     $(document).on(
@@ -208,6 +212,35 @@ class ObjectBrowser {
           method: 'POST',
           data: JSON.stringify(form_data),
           dataType: 'script',
+          contentType: 'application/json'
+        });
+      })
+      .off('dc:form:setContentIds')
+      .on('dc:form:setContentIds', (event, data) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (!data || !data.contentIds || !data.contentIds.length) return;
+
+        $.ajax({
+          url: this.url + '/render_in_overlay',
+          method: 'POST',
+          dataType: 'script',
+          data: JSON.stringify({
+            ids: data.contentIds,
+            type: this.type,
+            locale: this.locale,
+            overlay_id: '#object_browser_' + this.id,
+            key: this.key,
+            definition: this.definition,
+            editable: this.editable,
+            options: this.options,
+            content_id: this.content_id,
+            class: this.class,
+            prefix: this.prefix,
+            objects: this.chosen,
+            new_overlay_id: '#new_' + this.id
+          }),
           contentType: 'application/json'
         });
       });
@@ -448,13 +481,13 @@ class ObjectBrowser {
   // import media from media_archive reveal
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-      var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+      let authToken = $('meta[name=csrf-token]').attr('content');
       $.ajax({
         type: 'POST',
         url: '/things/import',
         dataType: 'script',
         data: JSON.stringify({
-          authenticity_token: AUTH_TOKEN,
+          authenticity_token: authToken,
           type: this.type + '_object',
           data: event.originalEvent.data.data,
           locale: this.locale,

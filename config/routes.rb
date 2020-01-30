@@ -282,6 +282,7 @@ DataCycleCore::Engine.routes.draw do
     post :show
     post :details
     post :find
+    post :render_in_overlay
   end
 
   post 'contents/upload', to: 'contents#upload'

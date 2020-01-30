@@ -12,6 +12,7 @@ class AssetUploader {
     this.type = this.reveal.data('type');
     this.remoteOptions = this.reveal.data('remote-options') || {};
     this.contentUploader = this.reveal.data('content-uploader');
+    this.contentUploaderField = $('.content-uploader[data-asset-uploader="' + this.reveal.attr('id') + '"]');
     this.fileField = this.reveal.find('input[type="file"].upload-file');
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.uploadButton = this.uploadForm.find('.asset-upload-button');
@@ -90,7 +91,13 @@ class AssetUploader {
             this.createButton.find('.progress-value').text(progress + '%');
             this.createButton.find('.progress-bar > .progress-filled').css('width', progress + '%');
           }
-          if (data.redirect_path) {
+          if (data.created && this.reveal.hasClass('in-object-browser') && this.contentUploaderField.length) {
+            this.contentUploaderField
+              .closest('form.validation-form')
+              .trigger('dc:form:setContentIds', { contentIds: data.content_ids });
+            this.reveal.foundation('close');
+            this.reset();
+          } else if (data.redirect_path) {
             window.location.href = data.redirect_path;
           }
         }
@@ -361,6 +368,14 @@ class AssetUploader {
   //     });
   //   }
   // }
+  reset() {
+    this.uploadForm.find('.file-for-upload').remove();
+    this.files = [];
+
+    this.createButton.find('.progress-value').html('');
+    this.createButton.find('.progress-bar > .progress-filled').css('width', '0%');
+    this.updateCreateButton();
+  }
   enableButtons() {
     this.uploadForm.find('.upload-file, .asset-upload-label').attr('disabled', false);
     this.ajaxRequests = [];
@@ -423,7 +438,7 @@ class AssetUploader {
       file: file,
       target: this.fileField,
       html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>',
-      fileExtension: MimeTypes.extension(file.type) || file.type.split('/').pop(),
+      fileExtension: this.getFileExtension(file),
       validation: this.validation,
       uploaded: false
     };
@@ -432,6 +447,14 @@ class AssetUploader {
     this.renderInitialFileField(fileOptions);
     this.validateFile(fileOptions);
     this.updateCreateButton();
+  }
+  getFileExtension(file) {
+    let mimeType = MimeTypes.lookup(file.name) || file.type;
+    let nameExtension = file.name.split('.').pop();
+
+    if (MimeTypes.extensions[mimeType] && MimeTypes.extensions[mimeType].includes(nameExtension)) return nameExtension;
+
+    return MimeTypes.extension(mimeType) || file.type.split('/').pop();
   }
   fileThumbHtml(thumbHtml) {
     return (
@@ -447,7 +470,7 @@ class AssetUploader {
       '">' +
       (fileOptions.file && fileOptions.file.name) +
       '</span><span class="file-details">' +
-      fileOptions.file.type.split('/').pop() +
+      fileOptions.fileExtension +
       ', ' +
       fileOptions.file.size.file_size(1) +
       additionalFileInfo +
@@ -546,10 +569,10 @@ class AssetUploader {
     fileOptions.valid = this.validate(fileOptions);
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');
-      this.files = this.files.filter(f => f.id != fileOptions.id);
+      // this.files = this.files.filter(f => f.id != fileOptions.id);
     } else if (!fileOptions.validation) {
       fileOptions.errors = 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')';
-      this.files = this.files.filter(f => f.id != fileOptions.id);
+      // this.files = this.files.filter(f => f.id != fileOptions.id);
     }
     this.renderFileField(fileOptions);
     if (this.contentUploader && !fileOptions.errors) this.uploadFile(fileOptions);
@@ -637,6 +660,11 @@ class AssetUploader {
     };
   }
   validate_format(fileOptions, validations) {
+    validations.forEach(format => {
+      let mimeType = MimeTypes.lookup(format);
+      if (mimeType) validations = validations.concat(MimeTypes.extensions[mimeType]);
+    });
+
     var valid = validations.indexOf(fileOptions.fileExtension) !== -1;
 
     return {

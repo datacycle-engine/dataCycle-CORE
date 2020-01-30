@@ -28,6 +28,7 @@ module DataCycleCore
 
       item_count = new_thing_params.keys.size
       index = 0
+      content_ids = []
 
       ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
 
@@ -35,13 +36,14 @@ module DataCycleCore
         thing_hash = content_params(params[:template], thing_params)
 
         content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
+        content_ids << content.id if content.try(:id).present?
 
         ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
       end
 
       flash[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
 
-      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash
+      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
 
       head(:ok)
     end

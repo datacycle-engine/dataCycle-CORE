@@ -1,7 +1,7 @@
 <% uploader_validation ||= uploader_validation(asset_type: local_assigns[:asset_type]) %>
 <% type_class = "data_cycle_core/#{local_assigns.dig(:asset_type)}".classify.constantize %>
 
-<div class="reveal full asset-upload-reveal"
+<div class="reveal full asset-upload-reveal <%= 'in-object-browser' if local_assigns.dig(:remote_options, :object_browser) %>"
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
   data-validation="<%= uploader_validation.to_json %>"
