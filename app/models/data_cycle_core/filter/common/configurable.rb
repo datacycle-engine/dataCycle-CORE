@@ -20,6 +20,11 @@ module DataCycleCore
 
           external_source(ids)
         end
+
+        def without_external_sources(definition)
+          return self if definition.blank?
+          without_external_source
+        end
       end
     end
   end
