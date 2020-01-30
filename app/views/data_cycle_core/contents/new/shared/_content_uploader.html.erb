@@ -15,13 +15,8 @@
     <%= t('upload.drag_and_drop_html', locale: DataCycleCore.ui_language, type: type_translation) %>
   </div>
 
-  <p class="text-center"><b><%= t('upload.system_dialog', locale: DataCycleCore.ui_language) %></b></p>
-
   <div class="content-upload-button-field">
     <input type="file" accept="<%= uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', ') %>" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
-    <label class="button secondary" for="<%= local_assigns.dig(:options, :prefix) %>content-upload-button">
-      <%= t('common.select_asset', locale: DataCycleCore.ui_language, data: type_translation) %>
-    </label>
   </div>
 
   <p class="separator"><b><%= t('upload.or', locale: DataCycleCore.ui_language) %></b></p>

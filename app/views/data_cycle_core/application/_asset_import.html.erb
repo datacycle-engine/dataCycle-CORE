@@ -32,7 +32,7 @@
         multiple: true,
         accept: uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', '),
         class: 'upload-file' %>
-      <div class="buttons">
+      <span class="buttons">
         <button type="button" class="button asset-create-button" disabled="disabled">
           <span class="progress-bar"><span class="progress-filled"></span></span>
           <span class="button-text">
@@ -41,7 +41,7 @@
             <span class="progress-value"></span>
           </span>
         </button>
-      </div>
+      </span>
     </div>
   </div>
   <button class="close-button"

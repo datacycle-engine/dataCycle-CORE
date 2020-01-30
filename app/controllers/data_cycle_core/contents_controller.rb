@@ -36,7 +36,7 @@ module DataCycleCore
         thing_hash = content_params(params[:template], thing_params)
 
         content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
-        content_ids << content.id if content.try(:id).present?
+        # content_ids << content.id if content.try(:id).present?
 
         ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
       end

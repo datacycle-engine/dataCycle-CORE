@@ -29,6 +29,7 @@ class DragAndDropField {
       })
       .on('click', e => {
         e.preventDefault();
+        e.stopPropagation();
         this.fileField.trigger('click');
       });
 

@@ -221,10 +221,10 @@ de:
     date: Datum
 
   upload:
-    drag_and_drop_html: '<p>%{type}upload</p><b>Ein oder mehrere %{type} einfach hier ablegen!</b>'
+    drag_and_drop_html: '<p>%{type}upload</p><p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>%{type} über den Systemdialog auswählen</b></u></p>'
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
-    select_from_datacycle: '%{data} am dataCycle Server auswählen'
+    select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
 
   external_connection_states:
     success: Erfolgreich synchronisiert

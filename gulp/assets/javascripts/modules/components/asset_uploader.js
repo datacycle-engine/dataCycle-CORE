@@ -32,8 +32,6 @@ class AssetUploader {
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
     this.fileField.on('change', this.validateFiles.bind(this));
-    // this.reveal.on('click', 'a.remove-file', this.removeFile.bind(this));
-    // this.uploadButton.on('click', this.uploadFiles.bind(this));
     this.reveal.on('dc:upload:setFiles', (e, files) => {
       this.validateFiles(e, files.fileList);
     });
@@ -45,17 +43,18 @@ class AssetUploader {
       this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
       this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
       this.createButton.on('click', this.createAssets.bind(this));
-      this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFile.bind(this));
+      this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
       this.reveal.on('click', '.file-for-upload .retry-upload-button', this.retryUpload.bind(this));
     }
     this.initActionCable();
   }
-  removeFile(event) {
+  removeFileHandler(event) {
     event.preventDefault();
     event.stopPropagation();
     let target = $(event.currentTarget)
       .closest('.file-for-upload')
       .remove();
+
     this.files = this.files.filter(f => f.id != target.data('id'));
     this.updateCreateButton();
   }
@@ -65,10 +64,7 @@ class AssetUploader {
     let target = $(event.currentTarget).closest('.file-for-upload');
     let file = this.files.find(f => f.id == target.data('id'));
 
-    if (file) {
-      file.uploadError = null;
-      this.uploadFile(file);
-    }
+    if (file) this.uploadFile(file);
   }
   openReveal(event) {
     this.reveal.parent('.reveal-overlay').addClass('content-reveal-overlay');
@@ -91,14 +87,22 @@ class AssetUploader {
             this.createButton.find('.progress-value').text(progress + '%');
             this.createButton.find('.progress-bar > .progress-filled').css('width', progress + '%');
           }
-          if (data.created && this.reveal.hasClass('in-object-browser') && this.contentUploaderField.length) {
-            this.contentUploaderField
-              .closest('form.validation-form')
-              .trigger('dc:form:setContentIds', { contentIds: data.content_ids });
-            this.reveal.foundation('close');
-            this.reset();
-          } else if (data.redirect_path) {
-            window.location.href = data.redirect_path;
+          if (data.content_ids) {
+            this.reset(data.content_ids);
+
+            if (
+              !this.files.length &&
+              data.created &&
+              this.reveal.hasClass('in-object-browser') &&
+              this.contentUploaderField.length
+            ) {
+              this.contentUploaderField
+                .closest('form.validation-form')
+                .trigger('dc:form:setContentIds', { contentIds: data.content_ids });
+              this.reveal.foundation('close');
+            } else if (!this.files.length && data.redirect_path) {
+              window.location.href = data.redirect_path;
+            }
           }
         }
       }
@@ -357,20 +361,18 @@ class AssetUploader {
     );
     this.checkRequests();
   }
-  // uploadFiles(event) {
-  //   event.preventDefault();
-
-  //   const uploadableFiles = this.files.filter(f => !f.uploaded);
-
-  //   if (uploadableFiles.length) {
-  //     uploadableFiles.forEach(element => {
-  //       this.uploadFile(element);
-  //     });
-  //   }
-  // }
-  reset() {
-    this.uploadForm.find('.file-for-upload').remove();
-    this.files = [];
+  reset(ids = null) {
+    if (ids) {
+      $(this.files.filter(f => ids.includes(f.id)).map(f => f.fileField)).remove();
+      this.files = this.files.filter(f => !ids.includes(f.id));
+      this.files.forEach(file => {
+        file.createError = true;
+        this.renderError(file, 'Fehler beim Speichern des Inhalts!');
+      });
+    } else {
+      this.uploadForm.find('.file-for-upload').remove();
+      this.files = [];
+    }
 
     this.createButton.find('.progress-value').html('');
     this.createButton.find('.progress-bar > .progress-filled').css('width', '0%');
@@ -389,7 +391,7 @@ class AssetUploader {
   }
   renderErrorHtml(file, cssClass, message) {
     let fileInfoFields = file.fileField.add(file.fileFormField).find('.file-info');
-    if (fileInfoFields.find('.' + cssClass).length) fileInfoFields.find('.' + cssClass).append(message);
+    if (fileInfoFields.find('.' + cssClass).length) fileInfoFields.find('.' + cssClass).text(message);
     else fileInfoFields.append('<span class="' + cssClass + '">' + message + '</span>');
   }
   renderError(file, error) {
@@ -400,22 +402,11 @@ class AssetUploader {
       .html('Uploadfehler');
 
     this.renderErrorHtml(file, 'error', error);
-    this.updateErrorButtons(file);
+    this.updateOverlayButtons(file);
   }
-  updateErrorButtons(file) {
-    let errorOverlay = file.fileField.find('.error-overlay');
-    if (!errorOverlay.length) {
-      errorOverlay = $('<div class="error-overlay"></div>').appendTo(file.fileField);
-    }
-
-    let errorButtons = '';
-    if (file.retryUpload)
-      errorButtons +=
-        '<button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button>';
-    errorButtons +=
-      '<button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button>';
-
-    errorOverlay.html(errorButtons);
+  updateOverlayButtons(file) {
+    if (file.retryUpload) file.fileField.addClass('retry');
+    else file.fileField.removeClass('retry');
   }
   validateFiles(event, files = undefined) {
     if (
@@ -478,7 +469,7 @@ class AssetUploader {
     );
   }
   fileAppendHTML(fileOptions) {
-    return '<div class="upload-progress"><span class="upload-progress-bar"></span></div>';
+    return '<div class="upload-progress"><span class="upload-progress-bar"></span></div><div class="button-overlay"><button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button></div>';
   }
   validateFile(fileOptions = {}) {
     fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
@@ -597,7 +588,13 @@ class AssetUploader {
     else this.uploadButton.attr('disabled', true);
   }
   updateCreateButton() {
-    if (this.files.length && !this.files.filter(f => !f.uploaded || !f.attributeFieldsValidated).length)
+    console.log(this.files);
+    console.log(this.files.filter(f => f.attributeFieldsValidated && f.uploaded));
+
+    if (
+      this.files.length &&
+      this.files.filter(f => f.attributeFieldsValidated && (!f.uploaded || f.createError)).length
+    )
       $.rails.enableFormElement(this.createButton);
     else $.rails.disableFormElement(this.createButton);
   }
@@ -626,6 +623,9 @@ class AssetUploader {
       .attr('data-remote-options', JSON.stringify(this.remoteOptions));
 
     fileOptions.fileFormField = $(fileOptions.fileField.clone().removeAttr('data-open')).prependTo(html);
+    fileOptions.fileField
+      .find('.button-overlay .edit-upload-button')
+      .attr('data-open', fileOptions.id + '_edit_overlay');
 
     return html;
   }
@@ -637,9 +637,9 @@ class AssetUploader {
   renderFileField(fileOptions) {
     fileOptions.fileField = this.reveal.find('.file-for-upload[data-id="' + fileOptions.id + '"]');
     fileOptions.fileField.html(fileOptions.html);
-    fileOptions.fileField.attr('data-open', fileOptions.id + '_edit_overlay');
     fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
     if (fileOptions.errors) this.renderError(fileOptions, fileOptions.errors);
+    else this.updateOverlayButtons(fileOptions);
 
     this.updateUploadButton();
   }

@@ -549,6 +549,10 @@ ul.asset-list {
     .upload-progress-bar {
       background: $primary-color;
     }
+
+    .button-overlay .cancel-upload-button {
+      display: none;
+    }
   }
 
   &.finished {
@@ -585,7 +589,13 @@ ul.asset-list {
     }
   }
 
-  .error-overlay {
+  &.retry {
+    .button-overlay .retry-upload-button {
+      display: block;
+    }
+  }
+
+  .button-overlay {
     display: flex;
     opacity: 0;
     pointer-events: none;
@@ -614,18 +624,21 @@ ul.asset-list {
       .fa {
         font-size: 1.5rem;
       }
+
+      &.retry-upload-button {
+        display: none;
+      }
+    }
+  }
+  &:hover {
+    .button-overlay {
+      opacity: 1;
+      pointer-events: initial;
     }
   }
 
   &.error {
     height: auto;
-
-    &:hover {
-      .error-overlay {
-        opacity: 1;
-        pointer-events: initial;
-      }
-    }
   }
 }
 
@@ -641,6 +654,10 @@ ul.asset-list {
     .file-info {
       overflow: hidden;
       flex: 1;
+    }
+    .button-overlay {
+      display: none;
+      pointer-events: none;
     }
   }
 }

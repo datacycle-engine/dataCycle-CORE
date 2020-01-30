@@ -128,8 +128,11 @@ class NewContentDialog {
     return groupedValues;
   }
   setReferencedAssetField() {
-    const id = this.form.closest('.reveal.new-content-reveal').attr('id');
-    const referenceField = $('.file-for-upload[data-open="' + id + '"]');
+    const id = this.form
+      .closest('.reveal.new-content-reveal')
+      .find('.file-for-upload')
+      .data('id');
+    const referenceField = $('.content-upload-form > .file-for-upload[data-id="' + id + '"]');
     if (referenceField.length) this.referencedAssetField = referenceField;
   }
   createNextAssetButton() {
