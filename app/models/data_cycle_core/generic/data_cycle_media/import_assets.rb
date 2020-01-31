@@ -44,26 +44,19 @@ module DataCycleCore
                     'asset' => asset_file.id
                   }
 
-                  if options.dig(:import, :tags_from_folders)
+                  if options.dig(:import, :tags_from_folders) || options.dig(:import, :extract_tags, :mode) == 'folder'
                     image_data['tags'] = Pathname(File.dirname(p).gsub(Regexp.union(local_dirs.map { |ld| File.expand_path(ld) }), '')).each_filename.to_a
+                  elsif options.dig(:import, :extract_tags, :mode) == 'filename' && options.dig(:import, :extract_tags, :delimiter).present?
+                    image_data['tags'] = title.split(options.dig(:import, :extract_tags, :delimiter)).slice(0..-2)
+                  end
+
+                  if image_data.dig('tags').present?
                     process_tags(
                       raw_data: image_data,
-                      options: { import: utility_object.external_source.config.dig('import_config', 'tags')&.deep_symbolize_keys }
+                      options: { import: options.dig(:import, :extract_tags)&.deep_symbolize_keys }
                     )
                   end
 
-                  # update_item
-
-                  # fixed_item = DataCycleCore::Thing.find_by(
-                  #   name: title
-                  # )
-
-                  # version to restore images
-                  # next unless fixed_item
-                  # fixed_item.set_data_hash(data_hash: fixed_item.get_data_hash.merge(image_data))
-                  # next unless fixed_item
-
-                  # original Version
                   new_object = process_content(utility_object: utility_object, raw_data: image_data, options: options)
                   next unless new_object
                   File.delete(p) if credentials.dig('delete')

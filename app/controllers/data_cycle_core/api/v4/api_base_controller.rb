@@ -26,6 +26,7 @@ module DataCycleCore
           offset: 0
         }.freeze
 
+        after_action :log_activity
         before_action :authenticate, :set_default_response_format
 
         def permitted_params
@@ -70,6 +71,11 @@ module DataCycleCore
         def parse_language(language_string)
           return nil if language_string&.strip.blank?
           language_string.split(',')&.map(&:strip)&.select { |t| I18n.available_locales.include?(t.to_sym) }
+        end
+
+        def log_activity
+          activity_data = permitted_params.to_h.merge(controller: params.dig('controller'), action: params.dig('action'))
+          current_user.activities.create(activity_type: "api_v#{@api_version}", data: activity_data)
         end
 
         private

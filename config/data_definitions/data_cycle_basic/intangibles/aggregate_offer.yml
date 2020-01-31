@@ -92,6 +92,9 @@
             :transformation:
               :method: combine
               :name: additionalProperty
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
       :feratel_offer_classifications:
         :type: mixin
         :name: feratel_offer_classifications
