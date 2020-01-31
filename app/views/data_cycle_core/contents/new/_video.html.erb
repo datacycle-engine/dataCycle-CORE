@@ -16,30 +16,5 @@
     <% end %>
   </fieldset>
 <% else %>
-  <% new_dialog_config(template)&.each_with_index do |(field_title, attribute_keys), index| %>
-    <fieldset>
-      <% if index === 0 %>
-        <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
-      <% else %>
-        <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
-      <% end %>
-
-      <% attribute_keys&.each do |attribute_key| %>
-        <%= render_attribute_editor key: "thing[datahash][#{attribute_key}]",
-                                    definition: template.schema.dig('properties', attribute_key).deep_reject{ |k, v| k == 'readonly' },
-                                    value: attribute_key == 'name' ? local_assigns[:search_param] : nil,
-                                    content: template,
-                                    parameters: {
-                                      options: local_assigns[:options]
-                                    } if template.schema.dig('properties', attribute_key).present? %>
-      <% end %>
-    </fieldset>
-  <% end %>
-
-  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
-    <fieldset>
-      <legend><%= t('new_step_title.agbs', locale: DataCycleCore.ui_language) %></legend>
-      <%= render 'agbs', options: local_assigns[:options] %>
-    </fieldset>
-  <% end %>
+  <%= render 'data_cycle_core/contents/new/asset', local_assigns %>
 <% end %>

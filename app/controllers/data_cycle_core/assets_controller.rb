@@ -14,11 +14,12 @@ module DataCycleCore
       @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
       @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
       @assets = @assets.page(@page).per(25)
+      @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
       @total = @assets.total_count
     end
 
     def create
-      return if asset_params[:file].blank? || asset_params[:type].blank?
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
 
       object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
@@ -80,7 +81,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :selected, locked_assets: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, selected: [], locked_assets: [], types: [])
     end
 
     def find_params

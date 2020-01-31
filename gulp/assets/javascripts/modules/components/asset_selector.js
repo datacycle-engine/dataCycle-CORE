@@ -5,12 +5,12 @@ class AssetSelector {
   constructor(button, asset_selectors) {
     this.button = $(button);
     this.reveal = $('#' + this.button.data('open'));
+    this.contentUploaderId = this.reveal.data('content-uploader-id');
     this.assetList = this.reveal.find('ul.asset-list');
     this.selectButton = this.reveal.find('.select-asset-link');
     this.hiddenField = $('#' + this.reveal.data('hidden-field-id'));
     this.multiSelect = $('#' + this.reveal.data('multi-select'));
     this.selectedAssetList = this.hiddenField.siblings('.asset-list');
-    this.selectedAssetId = this.hiddenField.attr('value');
     this.selectedAssetIds = [];
     this.selectedAssetThumb = this.selectedAssetList
       .find('img')
@@ -25,9 +25,11 @@ class AssetSelector {
     this.total = 0;
     this.per = 25;
     this.lastAssetType = '';
+    this.assets = [];
     this.init();
   }
   init() {
+    if (this.hiddenField.attr('value')) this.selectedAssetIds = [this.hiddenField.attr('value')];
     this.reveal.on('open.zf.reveal', event => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
     this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
@@ -53,7 +55,7 @@ class AssetSelector {
     if (data === undefined || data.value === undefined || data.value[0] === undefined) return;
     let id = data.value[0];
 
-    if (this.selectedAssetId !== undefined && !data.force) {
+    if (this.selectedAssetIds && this.selectedAssetIds.length && !data.force) {
       new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
         confirmationText: 'Ja',
@@ -92,7 +94,7 @@ class AssetSelector {
     );
   }
   updateSelectButton(event, data) {
-    if (data !== undefined && this.selectedAssetId == data.selected_asset) {
+    if (data && this.selectedAssetIds.includes(data.selected_asset)) {
       this.selectButton.attr('disabled', true).removeData('value');
       this.resetSelector(event);
     }
@@ -116,7 +118,7 @@ class AssetSelector {
         data: {
           html_target: this.assetList.prop('id'),
           types: this.assetList.data('asset-types'),
-          selected: this.selectedAssetId,
+          selected: this.selectedAssetIds,
           locked_assets: this.uniqueLockedAssetIds(),
           page: this.page,
           last_asset_type: this.lastAssetType,
@@ -130,9 +132,14 @@ class AssetSelector {
     );
   }
   updateButtons(event, data) {
+    if (data && data.assets && data.assets.length) {
+      if (data.append) this.assets = this.assets.concat(data.assets);
+      else this.assets = data.assets;
+    }
+
     if (data !== undefined) {
-      if (data.selected !== undefined && data.selected != '' && data.total != 0)
-        this.selectButton.attr('disabled', false).data('value', data.selected);
+      if (data.selected && data.selected.length && data.total != 0)
+        this.selectButton.attr('disabled', false).data('value', data.selected[0]);
       if (data.total !== undefined) this.total = data.total;
       if (data.page !== undefined) this.page = data.page + 1;
       if (data.last_asset_type !== undefined) this.lastAssetType = data.last_asset_type;
@@ -174,7 +181,7 @@ class AssetSelector {
           $(event.currentTarget)
             .siblings('li')
             .removeClass('active');
-          this.selectedAssetId = '';
+          this.selectedAssetIds = [];
           this.selectButton.attr('disabled', true).removeData('value');
         }
       } else {
@@ -186,23 +193,23 @@ class AssetSelector {
           $(event.currentTarget)
             .siblings('li')
             .removeClass('active');
-          this.selectedAssetId = $(event.currentTarget).data('id');
+          this.selectedAssetIds = [$(event.currentTarget).data('id')];
         }
         this.selectButton.attr('disabled', false).data('value', $(event.currentTarget).data('id'));
       }
     }
   }
   updateHiddenField(value = undefined) {
-    this.selectedAssetId = value;
+    this.selectedAssetIds = [value];
     this.selectedAssetThumb = this.selectedAssetList
       .find('img')
       .first()
       .attr('src');
     if (value !== undefined) {
       this.hiddenField.val(value);
-      this.formElement.trigger('dc:asset:selected', { id: this.selectedAssetId, thumb: this.selectedAssetThumb });
+      this.formElement.trigger('dc:asset:selected', { id: this.selectedAssetIds[0], thumb: this.selectedAssetThumb });
     } else this.hiddenField.removeAttr('value');
-    this.formElement.trigger('dc:asset:changed', { id: this.selectedAssetId, thumb: this.selectedAssetThumb });
+    this.formElement.trigger('dc:asset:changed', { id: this.selectedAssetIds[0], thumb: this.selectedAssetThumb });
   }
   setAssetId(event, data) {
     this.updateHiddenField(data.id);
@@ -210,8 +217,10 @@ class AssetSelector {
   selectAssets(event) {
     event.preventDefault();
 
-    if (this.multiSelect) {
-      $('#' + this.selectButton.data('open')).trigger('dc:upload:setIds', this.selectedAssetIds);
+    if (this.contentUploaderId) {
+      $('#' + this.contentUploaderId).trigger('dc:upload:setIds', {
+        assets: this.assets.filter(a => this.selectedAssetIds.includes(a.id))
+      });
     } else {
       this.selectedAssetList.html(this.assetList.find('li.active').clone()).foundation();
       this.updateHiddenField(this.selectButton.data('value'));

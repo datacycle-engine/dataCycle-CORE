@@ -32,8 +32,6 @@
     - author
     - validity_period
 :video:
-  :asset:
-    - asset
   :title:
     - name
     - caption

@@ -550,8 +550,10 @@ ul.asset-list {
       background: $primary-color;
     }
 
-    .button-overlay .cancel-upload-button {
-      display: none;
+    .button-overlay {
+      .cancel-upload-button {
+        display: none;
+      }
     }
   }
 
@@ -589,8 +591,8 @@ ul.asset-list {
     }
   }
 
-  &.retry {
-    .button-overlay .retry-upload-button {
+  &.retry:not(.uploading) {
+    .button-overlay .button.retry-upload-button {
       display: block;
     }
   }
