@@ -54,6 +54,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :price_range:
         :label: Preis-Info
         :type: string

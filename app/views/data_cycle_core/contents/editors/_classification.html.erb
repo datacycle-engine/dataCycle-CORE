@@ -25,6 +25,7 @@
           ]
         )
         &.order(internal_name: :asc) %>
+      <%= hidden_field_tag key + '[]', nil %>
       <% if classification_items.size > DataCycleCore.max_asynch_classification_items || (DataCycleCore::Feature::AutoTagging.allowed?(content) && DataCycleCore.features.dig(:auto_tagging, :attribute_keys).include?(key.attribute_name_from_key)) %>
           <%= select_tag(
             key,

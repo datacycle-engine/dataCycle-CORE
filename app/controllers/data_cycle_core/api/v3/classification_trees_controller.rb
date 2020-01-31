@@ -78,6 +78,7 @@ module DataCycleCore
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v3, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @api_version = 3
         end
 
         def permitted_parameter_keys

@@ -179,7 +179,14 @@ module DataCycleCore
     def download_file_name(content, language)
       content_title = content.try(:title) || content.try(:name)
       content_title += "_#{language}" if language.present?
-      (content_title.blank? ? File.basename(content.try(:asset)&.file&.path) : content_title.parameterize(separator: '_')).to_s
+
+      return content_title.parameterize(separator: '_').to_s if content_title.present?
+
+      if content.try(:asset)&.file&.path&.present?
+        File.basename(content.try(:asset)&.file&.path)
+      else
+        "#{content.template_name}_#{SecureRandom.uuid}"
+      end
     end
 
     def serializer_for_content(content, serialize_format = nil)

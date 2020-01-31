@@ -99,6 +99,12 @@ module DataCycleCore
         )
       end
 
+      def without_external_source
+        reflect(
+          @query.where(thing[:external_source_id].eq(nil))
+        )
+      end
+
       def external_system(ids = nil)
         return self if ids.blank?
 

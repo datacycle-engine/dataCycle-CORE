@@ -21,6 +21,15 @@
             <span class="delete-thumbnail"><i aria-hidden="true" class="fa fa-times"></i></span>
         <% end %>
         <%= render 'data_cycle_core/contents/grid/attributes/warnings', content: object, locale: render_locale %>
+        <% if object.try(:external_source).present? %>
+            <span class="external-source-icon fa-stack" title="<b><%= object.external_source.name %></b>" data-tooltip data-allow-html="true" data-template-classes="external-connection-tooltip">
+                <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
+                <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
+                <span class="external-source-title">
+                    <%= object.external_source.name %>
+                </span>
+            </span>
+        <% end %>
     </div>
 
     <div class="width-content reveal media-preview" id="media-reveal<%= local_assigns.dig(:options, :prefix) %>-<%= object.id %>" data-reveal>
