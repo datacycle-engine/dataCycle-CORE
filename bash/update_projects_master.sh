@@ -68,6 +68,8 @@ for project in "${PROJECTS[@]}"
         bundle update $UPDATE_GEM
     fi
     bundle install
+    # add new robots.txt
+    cp "$dir/migrations/robots.txt" "$dir/$project_dir/public"
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
