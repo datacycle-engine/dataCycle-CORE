@@ -69,7 +69,7 @@ for project in "${PROJECTS[@]}"
     fi
     bundle install
     # add new robots.txt
-    cp "$dir/migrations/robots.txt" "$dir/$project_dir/public"
+    # cp "$dir/migrations/robots.txt" "$dir/$project_dir/public"
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
