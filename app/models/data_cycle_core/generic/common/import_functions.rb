@@ -49,7 +49,7 @@ module DataCycleCore
             if utility_object.asset_download
               content.asset&.remove_file!
 
-              if data.dig('binary_file').present? && data.dig('binary_file_name')
+              if data.dig('binary_file').present? && data.dig('binary_file_name').present?
                 tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
                 tempfile.binmode
                 tempfile.write(data.dig('binary_file'))
