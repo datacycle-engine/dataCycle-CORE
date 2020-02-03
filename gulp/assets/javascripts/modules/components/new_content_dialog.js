@@ -50,6 +50,7 @@ class NewContentDialog {
 
     if (this.referencedAssetField) {
       this.updateNavigationButtons();
+      this.addCopyAttributeButtons(this.form);
       this.reveal.on('open.zf.reveal', event => {
         this.form.trigger('dc:form:enable');
         this.updateNavigationButtons(event);
@@ -59,6 +60,7 @@ class NewContentDialog {
       this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
       this.form.on('dc:html:initialized', '.translated-attribute', event => {
         event.stopPropagation();
+        this.addCopyAttributeButtons(event.currentTarget);
         this.triggerSyncWithContentUploader(event);
       });
       this.triggerSyncWithContentUploader();
@@ -74,11 +76,50 @@ class NewContentDialog {
 
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFields: config && config.allFields
+      allFields: config && config.allFields,
+      valid: true
     });
   }
   copyToAllReferenceFields(event) {
     this.form.trigger('submit', { allFields: true });
+  }
+  copySingleToAllReferenceFields(event) {
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    let formElement = $(event.currentTarget).closest('.form-element');
+
+    this.form.trigger('dc:form:validateForm', {
+      submit: false,
+      successCallback: event => {
+        this.copyValueToAllReferenceFields(formElement, true);
+      },
+      errorCallback: event => {
+        this.copyValueToAllReferenceFields(formElement, false);
+      }
+    });
+  }
+  copyValueToAllReferenceFields(formElement, valid = false) {
+    let formData = formElement.find(':input').serializeArray();
+
+    this.referencedAssetField.trigger('dc:upload:setFormFields', {
+      formData: formData,
+      allFields: true,
+      valid: valid
+    });
+  }
+  addCopyAttributeButtons(container) {
+    let formFields = $(container)
+      .find('> fieldset > .form-element, > .form-element')
+      .addBack('.form-element');
+
+    let button = $(
+      '<button class="copy-attribute-to-all" title="für alle Bilder übernehmen"><i class="fa fa-clone" aria-hidden="true"></i></button>'
+    );
+
+    formFields.addClass('floated-copy-button');
+    button.prependTo(formFields);
+    button.on('click', this.copySingleToAllReferenceFields.bind(this));
   }
   triggerSyncWithContentUploader(event = null) {
     let key;
@@ -168,14 +209,16 @@ class NewContentDialog {
     this.reveal.foundation('close');
     let nextAsset = this.referencedAssetField.next('.file-for-upload');
 
-    if (nextAsset && nextAsset.length) $('.reveal.new-content-reveal#' + nextAsset.data('open')).foundation('open');
+    if (nextAsset && nextAsset.length)
+      $('.reveal.new-content-reveal#' + nextAsset.find('.edit-upload-button').data('open')).foundation('open');
   }
   prevAssetForm(event) {
     event.preventDefault();
     this.reveal.foundation('close');
     let prevAsset = this.referencedAssetField.prev('.file-for-upload');
 
-    if (prevAsset && prevAsset.length) $('.reveal.new-content-reveal#' + prevAsset.data('open')).foundation('open');
+    if (prevAsset && prevAsset.length)
+      $('.reveal.new-content-reveal#' + prevAsset.find('.edit-upload-button').data('open')).foundation('open');
   }
   updateForm() {
     this.updateCrumbs();

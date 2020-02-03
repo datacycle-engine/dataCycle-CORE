@@ -71,9 +71,6 @@ class AssetUploader {
     if (parsedAssets.length) {
       parsedAssets.forEach(f => {
         this.checkFileAndQueue(f.file, f);
-        // this.updateFileAttributes(file, {
-        //   duplicate: f.asset.duplicate_candidates && f.asset.duplicate_candidates.length
-        // });
       });
     }
   }
@@ -197,28 +194,30 @@ class AssetUploader {
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFields,
-      selectedFile
+      selectedFile,
+      data.valid
     );
     this.updateCreateButton();
   }
-  renderSpecificFields(fields, all = false, selectedFile = null) {
-    let groupedFields = this.groupAttributeValues(fields);
+  renderSpecificFields(fields, all = false, selectedFile = null, valid = false) {
     if (all) {
       this.files.forEach(file => {
-        this.updateFileField(file, fields, groupedFields);
+        this.updateFileField(file, fields, valid);
       });
       this.updateNeighborForms(fields, selectedFile);
-    } else this.updateFileField(selectedFile, fields, groupedFields);
+    } else this.updateFileField(selectedFile, fields, valid);
   }
-  updateFileField(file, fields, groupedFields) {
+  updateFileField(file, fields, valid = false) {
     file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
-    file.attributeFieldsValidated = true;
-    file.fileField
-      .add(file.fileFormField)
-      .addClass('validated')
-      .removeAttr('title');
-    groupedFields.forEach((field, i, arr) => {
-      this.renderSpecificField(field, file, arr[i - 1]);
+    file.attributeFieldsValidated = file.attributeFieldsValidated || valid;
+    this.setAttributeValues(file, fields);
+    if (file.attributeFieldsValidated)
+      file.fileField
+        .add(file.fileFormField)
+        .addClass('validated')
+        .removeAttr('title');
+    Object.keys(file.attributeValues).forEach((field, i, arr) => {
+      this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });
   }
   updateNeighborForms(fields, selectedFile) {
@@ -229,61 +228,54 @@ class AssetUploader {
       file.fileField.trigger('dc:form:importAttributeValues', { attributes: fields });
     });
   }
-  groupAttributeValues(fields) {
-    let attributeValues = [];
+  setAttributeValues(file, fields) {
+    if (!file.attributeValues || !Object.keys(file.attributeValues).length)
+      file.attributeValues = ObjectHelpers.deepCopy(this.renderedAttributes);
 
-    fields.forEach(field => {
-      if (field.name.includes('[translations]') && !field.name.includes('[translations][de]')) return;
+    Object.keys(file.attributeValues).forEach(key => {
+      let values = fields.filter(
+        f => f.name.includes(key) && (!f.name.includes('[translations]') || f.name.includes('[translations][de]'))
+      );
 
-      let foundAttribute = attributeValues.find(f => f.name == field.name);
-      if (foundAttribute) {
-        if (!field.value || !field.value.length) return;
-        if (Number.isNaN(foundAttribute.count)) foundAttribute.count = 0;
-
-        foundAttribute.count++;
-        foundAttribute.value = this.renderAttributeHtml(
-          foundAttribute.name,
-          '<span class="count">' + foundAttribute.count + '</span>',
-          'text-center'
-        );
-      } else if (
-        this.renderedAttributes[field.name.getKey()] &&
-        ['linked', 'embedded', 'classification'].includes(this.renderedAttributes[field.name.getKey()].type)
+      if (
+        ['linked', 'embedded', 'classification'].includes(file.attributeValues[key].type) ||
+        (values && values.length > 1)
       ) {
-        let count = field.value && field.value.length ? 1 : 0;
-        attributeValues.push({
-          name: field.name,
+        let count = values.filter(v => v.value && v.value.length).length;
+
+        Object.assign(file.attributeValues[key], {
           count: count,
-          type: 'count',
-          value: this.renderAttributeHtml(field.name, '<span class="count">' + count + '</span>', 'text-center')
+          name: key,
+          value: this.renderAttributeHtml(
+            file.attributeValues[key],
+            '<span class="count">' + count + '</span>',
+            'text-center'
+          )
         });
-      } else
-        attributeValues.push({
-          name: field.name,
-          value: this.renderAttributeHtml(field.name, field.value)
+      } else if (values.length) {
+        Object.assign(file.attributeValues[key], {
+          name: key,
+          value: this.renderAttributeHtml(file.attributeValues[key], values[0] && values[0].value)
         });
+      } else if (!file.attributeValues[key].value) {
+        Object.assign(file.attributeValues[key], {
+          name: key,
+          value: this.renderAttributeHtml(file.attributeValues[key])
+        });
+      }
     });
-
-    return attributeValues;
+    return file.attributeValues;
   }
-  renderAttributeHtml(name, value, classes = '') {
-    let label =
-      (this.renderedAttributes[name.getKey()] && this.renderedAttributes[name.getKey()].label) || name.getKey();
-
-    if (
-      this.renderedAttributes[name.getKey()] &&
-      this.renderedAttributes[name.getKey()].type == 'datetime' &&
-      value &&
-      value.length
-    ) {
+  renderAttributeHtml(attribute, value = '', classes = '') {
+    if (attribute.type == 'datetime' && value && value.length) {
       value = new Date(value).toLocaleDateString();
     }
 
     return (
       '<span class="file-label" title="' +
-      label +
+      attribute.label +
       '">' +
-      label +
+      attribute.label +
       '</span><span class="file-attribute-value ' +
       classes +
       '" title="' +
@@ -303,15 +295,7 @@ class AssetUploader {
     else asset.fileField.find('.new-asset-attributes').append(this.attributeValueHtml(field));
   }
   attributeValueHtml(field) {
-    return (
-      '<div class="asset-attribute ' +
-      (this.renderedAttributes[field.name.getKey()] && this.renderedAttributes[field.name.getKey()].type) +
-      '" data-name="' +
-      field.name +
-      '">' +
-      field.value +
-      '</div>'
-    );
+    return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
   }
   prepareFileForUpload(file) {
     file.fileField
@@ -499,7 +483,8 @@ class AssetUploader {
         html: '<i class="fa fa-circle-o-notch fa-spin file-data-loading"></i>',
         fileExtension: this.getFileExtension(file),
         validation: this.validation,
-        uploaded: false
+        uploaded: false,
+        attributeValues: {}
       },
       fileOptions
     );

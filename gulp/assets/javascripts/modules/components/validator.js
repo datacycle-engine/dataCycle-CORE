@@ -50,7 +50,7 @@ class Validator {
       event.stopImmediatePropagation();
       this.form.trigger('submit');
     });
-    this.form.on('submit', this.validateForm.bind(this));
+    this.form.on('submit dc:form:validateForm', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
     }
@@ -373,6 +373,8 @@ class Validator {
     }
   }
   resolveRequests(submit = false, eventData = {}) {
+    if (eventData.hasOwnProperty('submit')) submit = eventData.submit;
+
     this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];

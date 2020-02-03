@@ -307,6 +307,10 @@
     position: absolute;
     top: 1rem;
     left: 1rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    max-width: calc(100% - 3rem);
   }
 
   .image,

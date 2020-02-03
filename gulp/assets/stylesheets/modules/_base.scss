@@ -239,6 +239,7 @@ footer {
 
   > .title {
     padding: 0 5rem 1rem 5rem;
+    word-break: break-word;
   }
 
   .button-prime {
@@ -1173,6 +1174,16 @@ body .v-select {
           label.agb-link {
             font-size: 1rem;
           }
+        }
+        &.floated-copy-button {
+          margin-right: 4rem;
+        }
+        .copy-attribute-to-all {
+          float: right;
+          width: 3rem;
+          height: 3rem;
+          margin-right: -4rem;
+          margin-top: 1rem;
         }
       }
       li {
