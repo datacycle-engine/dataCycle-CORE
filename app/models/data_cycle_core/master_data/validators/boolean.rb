@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Validators
       class Boolean < BasicValidator
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           @template_key = template['label']
           if data.is_a?(::TrueClass) || data.is_a?(::FalseClass)
             # all good

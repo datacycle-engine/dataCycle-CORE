@@ -8,7 +8,7 @@ module DataCycleCore
           ['required']
         end
 
-        def validate(data, template)
+        def validate(data, template, strict = false)
           check_reference_array(Array(data), template)
           @error
         end

@@ -32,7 +32,7 @@
         <a class="select-asset-link button">
           <%= t('common.select_asset', locale: DataCycleCore.ui_language, data: type_translation) %>
         </a>
-        <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, remote_options: to_query_params(local_assigns.except(:button_class)), rendered_attributes: new_attribute_labels(template), asset_key: local_assigns[:template]&.asset_property_names&.first %>
+        <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, remote_options: to_query_params(local_assigns.except(:button_class)), rendered_attributes: new_attribute_labels(template), asset_key: local_assigns[:template]&.asset_property_names&.first, template_name: template&.template_name %>
       </div>
     </div>
     <button class="close-button" data-close aria-label="Close modal" type="button">

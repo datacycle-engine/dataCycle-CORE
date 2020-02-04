@@ -10,6 +10,7 @@ class AssetUploader {
     this.reveal = $(reveal);
     this.validation = this.reveal.data('validation');
     this.type = this.reveal.data('type');
+    this.templateName = this.reveal.data('template');
     this.remoteOptions = this.reveal.data('remote-options') || {};
     this.contentUploader = this.reveal.data('content-uploader');
     this.contentUploaderField = $('.content-uploader[data-asset-uploader="' + this.reveal.attr('id') + '"]');
@@ -170,6 +171,35 @@ class AssetUploader {
       contentType: 'application/x-www-form-urlencoded'
     });
   }
+  validateAttributes(file) {
+    let formData = [
+      { name: 'template', value: this.templateName },
+      { name: 'strict', value: '1' }
+    ];
+    formData = formData.concat(file.attributeFieldValues || []);
+
+    $.ajax({
+      url: '/things/validate',
+      method: 'POST',
+      data: formData,
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded'
+    }).always(data => {
+      this.updateFileValidated(file, data);
+    });
+  }
+  updateFileValidated(file, data) {
+    if (data && data.error && Object.keys(data.error).length) {
+      file.attributeFieldsValidated = false;
+    } else {
+      file.attributeFieldsValidated = true;
+      file.fileField
+        .add(file.fileFormField)
+        .addClass('validated')
+        .removeAttr('title');
+    }
+    this.updateCreateButton();
+  }
   syncWithForm(event, data = null) {
     event.preventDefault();
 
@@ -194,28 +224,21 @@ class AssetUploader {
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
       data.allFields,
-      selectedFile,
-      data.valid
+      selectedFile
     );
-    this.updateCreateButton();
   }
-  renderSpecificFields(fields, all = false, selectedFile = null, valid = false) {
+  renderSpecificFields(fields, all = false, selectedFile = null) {
     if (all) {
       this.files.forEach(file => {
-        this.updateFileField(file, fields, valid);
+        this.updateFileField(file, fields);
       });
       this.updateNeighborForms(fields, selectedFile);
-    } else this.updateFileField(selectedFile, fields, valid);
+    } else this.updateFileField(selectedFile, fields);
   }
-  updateFileField(file, fields, valid = false) {
+  updateFileField(file, fields) {
     file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
-    file.attributeFieldsValidated = file.attributeFieldsValidated || valid;
     this.setAttributeValues(file, fields);
-    if (file.attributeFieldsValidated)
-      file.fileField
-        .add(file.fileFormField)
-        .addClass('validated')
-        .removeAttr('title');
+    this.validateAttributes(file);
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });

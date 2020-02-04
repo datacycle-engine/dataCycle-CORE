@@ -1106,6 +1106,23 @@ body .v-select {
           color: $light-gray;
         }
       }
+
+      .copy-attribute-to-all {
+        float: right;
+        width: 3rem;
+        height: 2.5rem;
+        margin-top: 1.5rem;
+        padding: 0.5rem;
+        text-align: center;
+        cursor: pointer;
+        &:hover {
+          color: $dark-gray;
+        }
+      }
+
+      .copy-attribute-to-all + .form-element {
+        margin-right: 4rem;
+      }
       .form-element {
         min-height: 3rem;
         margin-bottom: 1rem;
@@ -1174,16 +1191,6 @@ body .v-select {
           label.agb-link {
             font-size: 1rem;
           }
-        }
-        &.floated-copy-button {
-          margin-right: 4rem;
-        }
-        .copy-attribute-to-all {
-          float: right;
-          width: 3rem;
-          height: 3rem;
-          margin-right: -4rem;
-          margin-top: 1rem;
         }
       }
       li {

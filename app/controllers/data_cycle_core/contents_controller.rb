@@ -297,7 +297,7 @@ module DataCycleCore
       object_params = content_params(@object.template_name)
       translation_values = object_params[:translations]&.values&.first || {}
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
-      valid = @object.validate(datahash)
+      valid = @object.validate(datahash, nil, params[:strict] == '1')
       render json: valid.to_json
     end
 

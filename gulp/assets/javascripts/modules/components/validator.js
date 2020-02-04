@@ -269,6 +269,9 @@ class Validator {
         value: template
       });
     }
+
+    console.log('fail');
+
     return $.ajax({
       type: 'POST',
       url: url,

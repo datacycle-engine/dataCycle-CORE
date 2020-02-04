@@ -12,7 +12,7 @@ module DataCycleCore
           ['uuid', 'url', 'email']
         end
 
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|

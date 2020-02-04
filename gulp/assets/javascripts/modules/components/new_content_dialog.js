@@ -46,6 +46,7 @@ class NewContentDialog {
       }
     });
     this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
+    this.form.on('click', '.copy-attribute-to-all', this.copySingleToAllReferenceFields.bind(this));
     this.form.find('.translated-attribute.active').trigger('dc:remote:render');
 
     if (this.referencedAssetField) {
@@ -87,25 +88,14 @@ class NewContentDialog {
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    let formElement = $(event.currentTarget).closest('.form-element');
-
-    this.form.trigger('dc:form:validateForm', {
-      submit: false,
-      successCallback: event => {
-        this.copyValueToAllReferenceFields(formElement, true);
-      },
-      errorCallback: event => {
-        this.copyValueToAllReferenceFields(formElement, false);
-      }
-    });
-  }
-  copyValueToAllReferenceFields(formElement, valid = false) {
+    let formElement = $(event.currentTarget).next('.form-element');
     let formData = formElement.find(':input').serializeArray();
+
+    console.log(formData);
 
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFields: true,
-      valid: valid
+      allFields: true
     });
   }
   addCopyAttributeButtons(container) {
@@ -117,9 +107,7 @@ class NewContentDialog {
       '<button class="copy-attribute-to-all" title="für alle Bilder übernehmen"><i class="fa fa-clone" aria-hidden="true"></i></button>'
     );
 
-    formFields.addClass('floated-copy-button');
-    button.prependTo(formFields);
-    button.on('click', this.copySingleToAllReferenceFields.bind(this));
+    button.insertBefore(formFields);
   }
   triggerSyncWithContentUploader(event = null) {
     let key;
