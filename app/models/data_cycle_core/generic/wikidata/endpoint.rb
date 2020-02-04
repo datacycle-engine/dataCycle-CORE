@@ -108,11 +108,14 @@ module DataCycleCore
           if response.success?
             JSON.parse(response.body).dig('query', 'pages').values
           elsif response.status.to_i == 504 && retry_count < 5 # server is request rate limited!
-            sleep 20
+            sleep(20)
             load_image_data(image_names, retry_count + 1)
           else
             raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host}", response) unless response.success?
           end
+        rescue Net::ReadTimeout
+          sleep(20)
+          load_image_data(image_names, retry_count + 1)
         end
 
         def load_classification_data(root_class)
