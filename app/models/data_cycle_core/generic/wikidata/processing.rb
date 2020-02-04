@@ -15,6 +15,7 @@ module DataCycleCore
         end
 
         def self.process_poi(utility_object, raw_data, config)
+          return if raw_data.dig('itemLabel', 'xml:lang').blank? # reject items without labels in either de, or en.
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
