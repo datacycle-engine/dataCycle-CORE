@@ -727,7 +727,8 @@ CREATE TABLE public.searches (
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
     advanced_attributes jsonb,
-    classification_mapping jsonb
+    classification_aliases_mapping uuid[],
+    classification_ancestors_mapping uuid[]
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
@@ -1639,10 +1640,17 @@ CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin 
 
 
 --
--- Name: index_searches_on_classification_mapping; Type: INDEX; Schema: public; Owner: -
+-- Name: index_searches_on_classification_aliases_mapping; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_searches_on_classification_mapping ON public.searches USING gin (classification_mapping);
+CREATE INDEX index_searches_on_classification_aliases_mapping ON public.searches USING gin (classification_aliases_mapping);
+
+
+--
+-- Name: index_searches_on_classification_ancestors_mapping; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_classification_ancestors_mapping ON public.searches USING gin (classification_ancestors_mapping);
 
 
 --
@@ -1663,7 +1671,7 @@ CREATE UNIQUE INDEX index_searches_on_content_data_id_and_locale ON public.searc
 -- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
+CREATE INDEX index_searches_on_locale ON public.searches USING btree (content_data_id, locale);
 
 
 --
@@ -1842,10 +1850,10 @@ CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema 
 
 
 --
--- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
+-- Name: index_things_on_template_content_type_validity_range; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
+CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
 
 
 --
@@ -2173,6 +2181,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219123847'),
 ('20191219143016'),
 ('20200116143539'),
-('20200117095949');
+('20200117095949'),
+('20200131103229');
 
 
