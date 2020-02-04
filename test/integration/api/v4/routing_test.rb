@@ -79,7 +79,7 @@ module DataCycleCore
         end
 
         test '/api/v4/concept_schemes/id' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first
+          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
           get api_v4_concept_scheme_path(id: tree_id)
           assert_response :success
 
