@@ -1,0 +1,53 @@
+---
+name: Wikidata
+credentials:
+  host: https://query.wikidata.org/sparql
+default_options:
+  locales: [de]
+config:
+  download_config:
+    pois:
+      sorting: 1
+      source_type: pois
+      countries:
+        - Q40  # Österreich
+        - Q39  # Schweiz
+        - Q183 # Deutschland
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::Download
+    images:
+      sorting: 2
+      source_type: images
+      read_type: pois
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::DownloadImage
+    classifications:
+      sorting: 3
+      source_type: classifications
+      top_classifications:
+        - Q960648 # point of interest
+      endpoint: DataCycleCore::Generic::Wikidata::Endpoint
+      download_strategy: DataCycleCore::Generic::Wikidata::DownloadClassifications
+  import_config:
+    classifications:
+      sorting: 1
+      source_type: classifications
+      import_strategy: DataCycleCore::Generic::Wikidata::ImportClassifications
+      locales: [de,en]
+    image_classifications:
+      sorting: 2
+      source_type: images
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Wikidata - Image Categories
+      tag_path: 'categories'
+      tag_id_path: 'categories'
+      tag_name_path: 'categories'
+      external_id_prefix: 'Wikidata - Image Categories - '
+    images:
+      sorting: 90
+      source_type: images
+      import_strategy: DataCycleCore::Generic::Wikidata::ImportImage
+    pois:
+      sorting: 100
+      source_type: pois
+      import_strategy: DataCycleCore::Generic::Wikidata::Import

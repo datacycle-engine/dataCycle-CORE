@@ -60,3 +60,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Overlay"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel
