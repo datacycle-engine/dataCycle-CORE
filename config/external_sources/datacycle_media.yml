@@ -24,7 +24,8 @@ config:
         mode: folder
 #        mode: filename
 #        delimiter: '_'
-        tree_label: 'Tags'
+#        tree_label: 'Medien - Tags'
+#        attribute_name: 'media_tags'
       transformations:
         asset:
           template: Bild
