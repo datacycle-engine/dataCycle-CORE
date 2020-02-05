@@ -11,6 +11,6 @@
   <fieldset class="no-search-warning no-submit">
     <legend><%= t('actions.new', data: t("content_type.#{template&.template_name&.underscore_blanks}", default: template&.template_name, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %></legend>
 
-    <%= render 'data_cycle_core/contents/new/shared/content_uploader', local_assigns.merge(type: template&.schema&.dig('properties', template&.asset_property_names&.first, 'asset_type')) %>
+    <%= render 'data_cycle_core/contents/new/shared/content_uploader', local_assigns.merge(type: template&.schema&.dig('properties', template&.asset_property_names&.first, 'asset_type'), create_content: true) %>
   </fieldset>
 <% end %>

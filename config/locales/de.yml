@@ -221,7 +221,7 @@ de:
     date: Datum
 
   upload:
-    drag_and_drop_html: '<p>%{type}upload</p><p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>%{type} über den Systemdialog auswählen</b></u></p>'
+    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>%{type} über den Systemdialog auswählen</b></u></p>'
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
@@ -429,6 +429,7 @@ de:
     save_without_redirect: Zwischenspeichern
     set_and_next: 'übernehmen und weiter'
     set_all_attributes: 'für alle %{data} übernehmen'
+    close_overlay: Overlay schließen
 
   validation:
     errors:

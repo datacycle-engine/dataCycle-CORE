@@ -18,7 +18,6 @@ class AssetUploader {
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.uploadButton = this.uploadForm.find('.asset-upload-button');
     this.createButton = this.uploadForm.find('.asset-create-button');
-    this.createButtonHtml = this.createButton.html();
     this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
     this.createDuplicates = this.reveal.data('create-duplicates') || false;
     this.overlayId = this.reveal.attr('id');
@@ -42,12 +41,13 @@ class AssetUploader {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
+    this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
+    this.reveal.on('click', '.file-for-upload .retry-upload-button', this.retryUpload.bind(this));
+
     if (this.contentUploader) {
       this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
       this.reveal.on('dc:upload:syncWithForm', '.file-for-upload', this.syncWithForm.bind(this));
       this.createButton.on('click', this.createAssets.bind(this));
-      this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
-      this.reveal.on('click', '.file-for-upload .retry-upload-button', this.retryUpload.bind(this));
     }
     this.initActionCable();
   }
@@ -106,6 +106,7 @@ class AssetUploader {
     this.reveal.parent('.reveal-overlay').addClass('content-reveal-overlay');
   }
   closeReveal(event) {
+    this.contentUploaderField.trigger('dc:upload:filesChanged');
     $('.asset-selector-reveal:visible').trigger('open.zf.reveal');
   }
   initActionCable() {
@@ -145,8 +146,7 @@ class AssetUploader {
   createAssets(event) {
     event.preventDefault();
     this.saving = true;
-    if (!this.createButton.prop('disabled')) $.rails.disableFormElement(this.createButton);
-
+    if (this.contentUploader && !this.createButton.prop('disabled')) $.rails.disableFormElement(this.createButton);
     if (!this.files.length) return;
 
     let formData = this.globalFieldValues;
@@ -220,10 +220,12 @@ class AssetUploader {
 
     let selectedFile = this.files.find(file => file.id == $(event.currentTarget).data('id'));
 
-    this.globalFieldValues = data.formData.filter(elem => elem.name.indexOf('thing') !== 0);
+    this.globalFieldValues = this.globalFieldValues.mergeUnique(
+      data.formData.filter(elem => elem.name.indexOf('thing') !== 0)
+    );
     this.renderSpecificFields(
       data.formData.filter(elem => elem.name.indexOf('thing') === 0),
-      data.allFields,
+      data.allFiles,
       selectedFile
     );
   }
@@ -232,31 +234,36 @@ class AssetUploader {
       this.files.forEach(file => {
         this.updateFileField(file, fields);
       });
-      this.updateNeighborForms(fields, selectedFile);
+      this.updateNeighborForms(selectedFile);
     } else this.updateFileField(selectedFile, fields);
   }
   updateFileField(file, fields) {
-    file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
-    this.setAttributeValues(file, fields);
+    if (file.attributeFieldValues) {
+      file.attributeFieldValues = file.attributeFieldValues
+        .filter(v => !fields.find(f => f.name == v.name))
+        .concat(ObjectHelpers.deepCopy(fields));
+    } else file.attributeFieldValues = ObjectHelpers.deepCopy(fields);
+
+    this.setAttributeValues(file);
     this.validateAttributes(file);
     Object.keys(file.attributeValues).forEach((field, i, arr) => {
       this.renderSpecificField(file.attributeValues[field], file, file.attributeValues[arr[i - 1]]);
     });
   }
-  updateNeighborForms(fields, selectedFile) {
+  updateNeighborForms(selectedFile) {
     let neighbors = this.files;
     if (selectedFile) neighbors = neighbors.filter(file => file.id != selectedFile.id);
 
     neighbors.forEach(file => {
-      file.fileField.trigger('dc:form:importAttributeValues', { attributes: fields });
+      file.fileField.trigger('dc:form:importAttributeValues', { attributes: file.attributeFieldValues });
     });
   }
-  setAttributeValues(file, fields) {
+  setAttributeValues(file) {
     if (!file.attributeValues || !Object.keys(file.attributeValues).length)
       file.attributeValues = ObjectHelpers.deepCopy(this.renderedAttributes);
 
     Object.keys(file.attributeValues).forEach(key => {
-      let values = fields.filter(
+      let values = file.attributeFieldValues.filter(
         f => f.name.includes(key) && (!f.name.includes('[translations]') || f.name.includes('[translations][de]'))
       );
 
@@ -549,7 +556,14 @@ class AssetUploader {
     );
   }
   fileAppendHTML(fileOptions) {
-    return '<div class="upload-progress"><span class="upload-progress-bar"></span></div><div class="button-overlay"><button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button><button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button></div>';
+    let html =
+      '<div class="upload-progress"><span class="upload-progress-bar"></span></div><div class="button-overlay">';
+    if (this.contentUploader)
+      html +=
+        '<button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
+    html +=
+      '<button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button></div>';
+    return html;
   }
   validateFile(fileOptions = {}) {
     fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
@@ -644,7 +658,7 @@ class AssetUploader {
       fileOptions.errors = 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')';
     }
     this.renderFileField(fileOptions);
-    if (this.contentUploader && !fileOptions.errors) this.uploadFile(fileOptions);
+    if (!fileOptions.errors) this.uploadFile(fileOptions);
   }
   validate(fileOptions) {
     var valid = true;
@@ -666,9 +680,9 @@ class AssetUploader {
     else this.uploadButton.attr('disabled', true);
   }
   updateCreateButton(error = null) {
-    if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length)
+    if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
       $.rails.enableFormElement(this.createButton);
-    else {
+    } else {
       $.rails.disableFormElement(this.createButton);
       if (!error) error = 'Fehlende Metadaten!';
     }
@@ -719,7 +733,7 @@ class AssetUploader {
   renderFileField(fileOptions) {
     fileOptions.fileField = this.reveal.find('.file-for-upload[data-id="' + fileOptions.id + '"]');
     fileOptions.fileField.html(fileOptions.html);
-    fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
+    if (this.contentUploader) fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
     if (fileOptions.errors) this.renderError(fileOptions, fileOptions.errors);
     else this.updateOverlayButtons(fileOptions);
 

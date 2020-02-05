@@ -1,3 +1,5 @@
+let QuillHelpers = require('./../helpers/quill_helpers');
+
 // New Content Dialog
 class NewContentDialog {
   constructor(form) {
@@ -70,33 +72,54 @@ class NewContentDialog {
   copyToReferenceField(event, config = {}) {
     event.preventDefault();
 
+    QuillHelpers.updateEditors(this.form);
     let formData = this.form.serializeArray();
 
-    if (config && config.allFields) this.reveal.foundation('close');
+    if (config && config.allFiles) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
       formData: formData,
-      allFields: config && config.allFields,
-      valid: true
+      allFiles: config && config.allFiles
     });
   }
   copyToAllReferenceFields(event) {
-    this.form.trigger('submit', { allFields: true });
+    this.form.trigger('submit', { allFiles: true });
   }
   copySingleToAllReferenceFields(event) {
+    let buttonHtml = $(event.currentTarget).html();
+    $(event.currentTarget)
+      .html('<i class="fa fa-circle-o-notch fa-spin"></i>')
+      .addClass('disabled');
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    let formElement = $(event.currentTarget).next('.form-element');
-    let formData = formElement.find(':input').serializeArray();
-
-    console.log(formData);
+    QuillHelpers.updateEditors(this.form);
+    let formData = this.form.serializeArray();
+    let formElementKey = $(event.currentTarget)
+      .next('.form-element')
+      .data('key');
 
     this.referencedAssetField.trigger('dc:upload:setFormFields', {
-      formData: formData,
-      allFields: true
+      formData: formData.filter(f => f.name.includes(formElementKey) || !f.name.includes('thing')),
+      allFiles: true
     });
+    $(event.currentTarget)
+      .html(buttonHtml)
+      .removeClass('disabled');
+    this.showNotice($(event.currentTarget), 'Attribut wurde übernommen!');
+  }
+  showNotice(target, text) {
+    let notice = $('<span class="copy-attribute-notice">' + text + '</span>');
+    $(notice).appendTo(target);
+    setTimeout(
+      function() {
+        notice.fadeOut('fast', function() {
+          notice.remove();
+        });
+      }.bind(this),
+      1000
+    );
   }
   addCopyAttributeButtons(container) {
     let formFields = $(container)
@@ -141,6 +164,10 @@ class NewContentDialog {
   }
   groupAttributeValues(values, locale = null) {
     let groupedValues = {};
+
+    console.log(values);
+
+    if (!values || !values.length) return groupedValues;
 
     values.forEach(v => {
       if (locale && (!v.name.includes('translations') || !v.name.includes(locale))) return;

@@ -1966,6 +1966,7 @@ input.normalized {
 }
 
 .translated-attribute-container {
+  position: relative;
   .translated-attribute {
     display: none;
     &.active {
@@ -2439,5 +2440,10 @@ button.button-prime.small.bulk-delete-button {
       text-shadow: none;
       cursor: not-allowed;
     }
+  }
+}
+
+.accordion {
+  &.no-margin {
   }
 }

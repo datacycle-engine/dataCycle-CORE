@@ -5,17 +5,22 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      @html_target = permitted_params[:html_target]
-      @selected = permitted_params[:selected]
-      @append = permitted_params[:append] || false
-      @page = permitted_params[:page] || 1
-      @last_asset_type = permitted_params[:last_asset_type]
-      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(type: :asc, updated_at: :desc)
-      @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
-      @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
-      @assets = @assets.page(@page).per(25)
-      @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
-      @total = @assets.total_count
+      respond_to do |format|
+        format.js do
+          @html_target = permitted_params[:html_target]
+          @selected = permitted_params[:selected]
+          @append = permitted_params[:append] || false
+          @page = permitted_params[:page] || 1
+          @last_asset_type = permitted_params[:last_asset_type]
+          @assets = DataCycleCore::Asset.accessible_by(current_ability).order(type: :asc, updated_at: :desc)
+          @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
+          @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
+          @assets = @assets.page(@page).per(25)
+          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+          @total = @assets.total_count
+        end
+        format.json { render json: DataCycleCore::Asset.where(type: permitted_params[:type]).accessible_by(current_ability).order(name: :asc).pluck(:name, :id) }
+      end
     end
 
     def create

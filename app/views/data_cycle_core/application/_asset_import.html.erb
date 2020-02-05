@@ -1,17 +1,17 @@
 <% uploader_validation ||= uploader_validation(asset_type: local_assigns[:asset_type]) %>
 <% type_class = "data_cycle_core/#{local_assigns.dig(:asset_type)}".classify.constantize %>
 
-<div class="reveal full asset-upload-reveal <%= 'in-object-browser' if local_assigns.dig(:remote_options, :object_browser) %>"
+<div class="reveal full asset-upload-reveal<%= ' in-object-browser' if local_assigns.dig(:remote_options, :object_browser) %><%= local_assigns[:create_content] ? ' create-content-reveal' : ' create-asset-reveal' %>"
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
   data-validation="<%= uploader_validation.to_json %>"
-  data-rendered-attributes="<%= local_assigns[:rendered_attributes].to_json %>"
-  data-content-uploader="true"
-  data-asset-key="<%= local_assigns[:asset_key] %>"
+  data-rendered-attributes="<%= new_attribute_labels(template).to_json if local_assigns[:create_content] %>"
+  data-content-uploader="<%= local_assigns[:create_content] || false %>"
+  data-asset-key="<%= local_assigns[:template]&.asset_property_names&.first if local_assigns[:create_content] %>"
   data-create-duplicates="<%= can?(:create_duplicate, type_class) %>"
   data-remote-options="<%= local_assigns[:remote_options]&.to_json %>"
   data-type="<%= local_assigns[:asset_type] %>"
-  data-template="<%= local_assigns[:template_name] %>"
+  data-template="<%= template&.template_name if local_assigns[:create_content] %>"
   data-multiple-opened="true" data-v-offset="0">
   <h2><%= t('data_cycle_core.upload') %></h2>
   <div class="uploader-flex">
@@ -42,6 +42,7 @@
             <span class="progress-value"></span>
           </span>
         </button>
+        <button type="button" data-close class="button asset-reload-button"><%= t('actions.close_overlay', locale: DataCycleCore.ui_language) %></button>
       </span>
     </div>
   </div>

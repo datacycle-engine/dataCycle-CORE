@@ -296,6 +296,28 @@ ul.asset-list {
       }
     }
   }
+
+  .asset-reload-button {
+    display: none;
+  }
+
+  &.create-asset-reveal {
+    .asset-reload-button {
+      display: block;
+    }
+    .asset-create-button {
+      display: none;
+      pointer-events: none;
+    }
+
+    .file-for-upload {
+      &.finished {
+        .upload-progress-bar {
+          background: $success-color;
+        }
+      }
+    }
+  }
 }
 .file-for-upload {
   position: relative;
@@ -560,6 +582,12 @@ ul.asset-list {
   &.finished {
     .upload-number {
       color: $success-color;
+    }
+
+    &.asset-uploader-file {
+      .upload-progress-bar {
+        background: $success-color;
+      }
     }
 
     .upload-progress-bar {

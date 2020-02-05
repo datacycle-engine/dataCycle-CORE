@@ -270,8 +270,6 @@ class Validator {
       });
     }
 
-    console.log('fail');
-
     return $.ajax({
       type: 'POST',
       url: url,

@@ -257,6 +257,14 @@ module.exports.initialize = function() {
         });
 
         $(this)
+          .closest('.form-element')
+          .on('dc:upload:filesChanged', event => {
+            event.preventDefault();
+
+            reloadData(this);
+          });
+
+        $(this)
           .closest('form')
           .on('reset', event => {
             $(this)
@@ -272,6 +280,24 @@ module.exports.initialize = function() {
       .each((_, element) => {
         $(element).select2('destroy');
       });
+  }
+
+  function reloadData(elem) {
+    let reloadPath = $(elem).data('reload-path');
+    let type = $(elem).data('type');
+
+    if (!reloadPath || !reloadPath.length || !type || !type.length) return;
+
+    $.getJSON(reloadPath, { type: type }).done(data => {
+      if (!data || !data.length) return;
+
+      data.forEach(d => {
+        if (!$(elem).find("option[value='" + d[1] + "']").length)
+          $(elem)
+            .append(new Option(d[0], d[1], false, false))
+            .trigger('change');
+      });
+    });
   }
 
   $(document).on('dc:html:changed', '*', event => {
