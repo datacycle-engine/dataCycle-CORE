@@ -102,5 +102,66 @@ module DataCycleCore
         raise NotImplementedError
       end
     end
+
+    def api_plain_context(languages)
+      display_language = nil
+      display_language = languages if languages.is_a?(::String)
+      display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
+      display_language = I18n.default_locale if languages.blank?
+
+      [
+        'http://schema.org',
+        {
+          '@base' => api_v4_universal_url(id: nil),
+          '@language' => display_language,
+          'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
+          'dct' => 'http://purl.org/dc/terms/',
+          'cc' => 'http://creativecommons.org/ns#',
+          'dc' => 'https://schema.datacycle.at/',
+          'dc:entity_url' => {
+            '@id' => 'https://schema.datacycle.at/entity_url',
+            '@type' => '@id'
+          },
+          'dc:classification' => {
+            '@id' => 'https://schema.datacycle.at/classification',
+            '@container' => '@set'
+          },
+          'dc:has_concept' => {
+            '@id' => 'https://schema.datacycle.at/has_concept',
+            '@type' => '@id'
+          },
+          'dc:linked_thing' => {
+            '@id' => 'https://schema.datacycle.at/linked_thing',
+            '@container' => '@set'
+          },
+          'dc:is_linked_to' => {
+            '@id' => 'https://schema.datacycle.at/is_linked_to',
+            '@container' => '@set'
+          }
+        }.compact
+      ]
+    end
+
+    def api_plain_meta(count, pages)
+      {
+        total: count,
+        pages: pages
+      }
+    end
+
+    def api_plain_links
+      object_url = (lambda do |params|
+        File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+      end)
+      if request.request_method == 'POST'
+        common_params = {}
+      else
+        common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+      end
+      links = {}
+      links[:prev] = object_url.call(common_params.merge(page: { number: @contents.prev_page, size: @contents.limit_value })) if @contents.prev_page
+      links[:next] = object_url.call(common_params.merge(page: { number: @contents.next_page, size: @contents.limit_value })) if @contents.next_page
+      links
+    end
   end
 end
