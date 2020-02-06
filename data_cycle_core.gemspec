@@ -81,7 +81,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'mini_magick'
   s.add_dependency 'pdf-reader'
   s.add_dependency 'streamio-ffmpeg'
-  s.add_dependency 'taglib-ruby'
+  s.add_dependency 'taglib-ruby', '~> 1.0.0'
 
   # Image Optimization
   s.add_dependency 'image_optim'
