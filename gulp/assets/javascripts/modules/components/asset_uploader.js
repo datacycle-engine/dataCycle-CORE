@@ -1,9 +1,10 @@
 // Asset Uploader
-var DurationHelpers = require('./../helpers/duration_helpers');
-var ObjectHelpers = require('./../helpers/object_helpers');
-var RandomNumber = require('./../helpers/random_number_helpers');
-var MimeTypes = require('mime-types');
-var ActionCable = require('actioncable');
+let DurationHelpers = require('./../helpers/duration_helpers');
+let ObjectHelpers = require('./../helpers/object_helpers');
+let RandomNumber = require('./../helpers/random_number_helpers');
+let MimeTypes = require('mime-types');
+let ActionCable = require('actioncable');
+let AssetValidator = require('./asset_validator');
 
 class AssetUploader {
   constructor(reveal) {
@@ -16,8 +17,7 @@ class AssetUploader {
     this.contentUploaderField = $('.content-uploader[data-asset-uploader="' + this.reveal.attr('id') + '"]');
     this.fileField = this.reveal.find('input[type="file"].upload-file');
     this.uploadForm = this.reveal.find('.content-upload-form');
-    this.uploadButton = this.uploadForm.find('.asset-upload-button');
-    this.createButton = this.uploadForm.find('.asset-create-button');
+    this.createButton = this.uploadForm.find('.content-create-button');
     this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
     this.createDuplicates = this.reveal.data('create-duplicates') || false;
     this.overlayId = this.reveal.attr('id');
@@ -30,6 +30,7 @@ class AssetUploader {
     this.init();
   }
   init() {
+    this.reveal.addClass('initialized');
     this.reveal.on('open.zf.reveal', this.openReveal.bind(this));
     this.reveal.on('closed.zf.reveal', this.closeReveal.bind(this));
     this.fileField.on('change', this.validateFiles.bind(this));
@@ -341,7 +342,7 @@ class AssetUploader {
       return;
     }
 
-    this.uploadForm.find('.upload-file, .asset-upload-label, .asset-upload-button').attr('disabled', true);
+    this.uploadForm.find('.upload-file').attr('disabled', true);
 
     var data = new FormData();
     data.append('asset[file]', file.file);
@@ -460,9 +461,8 @@ class AssetUploader {
     this.updateCreateButton();
   }
   enableButtons() {
-    this.uploadForm.find('.upload-file, .asset-upload-label').attr('disabled', false);
+    this.uploadForm.find('.upload-file').attr('disabled', false);
     this.ajaxRequests = [];
-    this.updateUploadButton();
   }
   checkRequests() {
     $.when.apply(undefined, this.ajaxRequests).then(
@@ -569,9 +569,12 @@ class AssetUploader {
     fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
     fileOptions.appendHtml = this.fileAppendHTML(fileOptions);
     if (!fileOptions.fileUrl) fileOptions.fileUrl = URL.createObjectURL(fileOptions.file);
-    var validator = (fileOptions.validation && fileOptions.validation.class.split('::').pop() + 'Validator') || '';
-    if (typeof this[validator] == 'function') {
-      this[validator](fileOptions);
+
+    let validatorString =
+      (fileOptions.validation && fileOptions.validation.class.split('::').pop() + 'Validator') || '';
+
+    if (typeof this[validatorString] == 'function') {
+      this[validatorString](fileOptions);
     } else {
       this.DefaultValidator(fileOptions);
     }
@@ -651,7 +654,10 @@ class AssetUploader {
       fileOptions.mediaHtml +
       '</div>' +
       fileOptions.appendHtml;
-    fileOptions.valid = this.validate(fileOptions);
+
+    fileOptions.validator = new AssetValidator(fileOptions);
+    fileOptions.valid = fileOptions.validator.validate();
+
     if (fileOptions.validation && !fileOptions.valid.valid) {
       fileOptions.errors = fileOptions.valid.messages.join(', ');
     } else if (!fileOptions.validation) {
@@ -659,25 +665,6 @@ class AssetUploader {
     }
     this.renderFileField(fileOptions);
     if (!fileOptions.errors) this.uploadFile(fileOptions);
-  }
-  validate(fileOptions) {
-    var valid = true;
-    var messages = [];
-    for (var key in fileOptions.validation) {
-      if (typeof this['validate_' + key] == 'function') {
-        let validationValue = this['validate_' + key](fileOptions, fileOptions.validation[key]);
-        valid &= validationValue.valid;
-        if (validationValue.message !== undefined) messages.push(validationValue.message);
-      }
-    }
-    return {
-      valid: valid,
-      messages: messages
-    };
-  }
-  updateUploadButton() {
-    if (this.files.length > 0 && this.ajaxRequests.length == 0) this.uploadButton.attr('disabled', false);
-    else this.uploadButton.attr('disabled', true);
   }
   updateCreateButton(error = null) {
     if (this.files.length && !this.files.filter(f => !f.attributeFieldsValidated || !f.uploaded).length) {
@@ -736,161 +723,6 @@ class AssetUploader {
     if (this.contentUploader) fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
     if (fileOptions.errors) this.renderError(fileOptions, fileOptions.errors);
     else this.updateOverlayButtons(fileOptions);
-
-    this.updateUploadButton();
-  }
-  validate_file_size(fileOptions, validations) {
-    var messages = '';
-    var valid = true;
-    if (validations.max !== undefined && fileOptions.file.size > validations.max) {
-      valid = false;
-      messages += 'Datei zu groß (maximal ' + validations.max.file_size(0) + ')';
-    }
-    if (validations.min !== undefined && fileOptions.file.size < validations.min) {
-      valid = false;
-      messages += 'Datei zu klein (mindestens ' + validations.min.file_size(0) + ')';
-    }
-    return {
-      valid: valid,
-      message: valid ? undefined : messages
-    };
-  }
-  validate_format(fileOptions, validations) {
-    validations.forEach(format => {
-      let mimeType = MimeTypes.lookup(format);
-      if (mimeType) validations = validations.concat(MimeTypes.extensions[mimeType]);
-    });
-
-    var valid = validations.indexOf(fileOptions.fileExtension) !== -1;
-
-    return {
-      valid: valid,
-      message: valid ? undefined : 'Nicht unterstützes Format (' + fileOptions.fileExtension + ')'
-    };
-  }
-  validate_dimensions(fileOptions, validations) {
-    if (fileOptions.validationOptions !== undefined) {
-      var additional = ObjectHelpers.reject(validations, ['landscape', 'portrait', 'exclude']);
-      if (
-        ObjectHelpers.get(['exclude', 'format'], validations) !== null &&
-        ObjectHelpers.get(['exclude', 'format'], validations).indexOf(fileOptions.fileExtension) !== -1
-      ) {
-        return {
-          valid: true,
-          message: undefined
-        };
-      }
-      for (var key in additional) {
-        if (
-          additional[key].max !== undefined &&
-          ((additional[key].max.height !== undefined &&
-            fileOptions.validationOptions.height <= additional[key].max.height) ||
-            (additional[key].max.width !== undefined &&
-              fileOptions.validationOptions.width <= additional[key].max.width))
-        ) {
-          return {
-            valid: true,
-            message: undefined
-          };
-        }
-        if (
-          additional[key].min !== undefined &&
-          ((additional[key].min.height !== undefined &&
-            fileOptions.validationOptions.height >= additional[key].min.height) ||
-            (additional[key].min.width !== undefined &&
-              fileOptions.validationOptions.width >= additional[key].min.width))
-        ) {
-          return {
-            valid: true,
-            message: undefined
-          };
-        }
-      }
-      if (
-        (fileOptions.validationOptions.width >= fileOptions.validationOptions.height &&
-          ((ObjectHelpers.get(['landscape', 'min', 'width'], validations) !== null &&
-            fileOptions.validationOptions.width < validations.landscape.min.width) ||
-            (ObjectHelpers.get(['landscape', 'min', 'height'], validations) !== null &&
-              fileOptions.validationOptions.height < validations.landscape.min.height))) ||
-        (fileOptions.validationOptions.width < fileOptions.validationOptions.height &&
-          ((ObjectHelpers.get(['portrait', 'min', 'width'], validations) !== null &&
-            fileOptions.validationOptions.width < validations.portrait.min.width) ||
-            (ObjectHelpers.get(['portrait', 'min', 'height'], validations) !== null &&
-              fileOptions.validationOptions.height < validations.portrait.min.height)))
-      ) {
-        var message =
-          'Bild zu klein (' +
-          fileOptions.validationOptions.width +
-          'x' +
-          fileOptions.validationOptions.height +
-          '), sollte' +
-          (ObjectHelpers.get(['landscape', 'min'], validations) !== null
-            ? ' für Querformat mind. ' +
-              ObjectHelpers.get(['landscape', 'min', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['landscape', 'min', 'height'], validations)
-            : '') +
-          (ObjectHelpers.get(['landscape', 'min'], validations) !== null &&
-          ObjectHelpers.get(['portrait', 'min'], validations) !== null
-            ? ','
-            : '') +
-          (ObjectHelpers.get(['portrait', 'min'], validations) !== null
-            ? ' für Hochformat mind. ' +
-              ObjectHelpers.get(['portrait', 'min', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['portrait', 'min', 'height'], validations)
-            : '') +
-          ' sein.';
-        return {
-          valid: false,
-          message: message
-        };
-      }
-      if (
-        (fileOptions.validationOptions.width >= fileOptions.validationOptions.height &&
-          ((ObjectHelpers.get(['landscape', 'max', 'width'], validations) !== null &&
-            fileOptions.validationOptions.width > validations.landscape.max.width) ||
-            (ObjectHelpers.get(['landscape', 'max', 'height'], validations) !== null &&
-              fileOptions.validationOptions.height > validations.landscape.max.height))) ||
-        (fileOptions.validationOptions.width < fileOptions.validationOptions.height &&
-          ((ObjectHelpers.get(['portrait', 'max', 'width'], validations) !== null &&
-            fileOptions.validationOptions.width > validations.portrait.max.width) ||
-            (ObjectHelpers.get(['portrait', 'max', 'height'], validations) !== null &&
-              fileOptions.validationOptions.height > validations.portrait.max.height)))
-      ) {
-        var message =
-          'Bild zu groß (' +
-          fileOptions.validationOptions.width +
-          'x' +
-          fileOptions.validationOptions.height +
-          '), sollte' +
-          (ObjectHelpers.get(['landscape', 'max'], validations) !== null
-            ? ' für Querformat max. ' +
-              ObjectHelpers.get(['landscape', 'max', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['landscape', 'max', 'height'], validations)
-            : '') +
-          (ObjectHelpers.get(['landscape', 'max'], validations) !== null &&
-          ObjectHelpers.get(['portrait', 'max'], validations) !== null
-            ? ','
-            : '') +
-          (ObjectHelpers.get(['portrait', 'max'], validations) !== null
-            ? ' für Hochformat max. ' +
-              ObjectHelpers.get(['portrait', 'max', 'width'], validations) +
-              'x' +
-              ObjectHelpers.get(['portrait', 'max', 'height'], validations)
-            : '') +
-          ' sein.';
-        return {
-          valid: false,
-          message: message
-        };
-      }
-    }
-    return {
-      valid: true,
-      message: undefined
-    };
   }
   resetFileField(file) {
     file.fileField.add(file.fileFormField).removeClass('uploading error');

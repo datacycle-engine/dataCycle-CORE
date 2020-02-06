@@ -2,26 +2,16 @@ var ConfirmationModal = require('./confirmation_modal');
 
 // Asset Selector
 class AssetSelector {
-  constructor(button, asset_selectors) {
-    this.button = $(button);
-    this.reveal = $('#' + this.button.data('open'));
+  constructor(selector) {
+    this.reveal = $(selector);
     this.contentUploaderId = this.reveal.data('content-uploader-id');
     this.assetList = this.reveal.find('ul.asset-list');
     this.selectButton = this.reveal.find('.select-asset-link');
-    this.hiddenField = $('#' + this.reveal.data('hidden-field-id'));
     this.multiSelect = $('#' + this.reveal.data('multi-select'));
-    this.selectedAssetList = this.hiddenField.siblings('.asset-list');
     this.selectedAssetIds = [];
-    this.selectedAssetThumb = this.selectedAssetList
-      .find('img')
-      .first()
-      .attr('src');
-    this.formElement = this.button.closest('.form-element');
-    this.assetSelectors = asset_selectors;
     this.page = 1;
     this.loading = false;
     this.requests = [];
-    this.importRequests = [];
     this.total = 0;
     this.per = 25;
     this.lastAssetType = '';
@@ -29,19 +19,17 @@ class AssetSelector {
     this.init();
   }
   init() {
-    if (this.hiddenField.attr('value')) this.selectedAssetIds = [this.hiddenField.attr('value')];
-    this.reveal.on('open.zf.reveal', event => this.loadAssets(false));
+    this.reveal.addClass('initialized');
+    this.reveal.on('open.zf.reveal', _ => this.loadAssets(false));
     this.assetList.on('click', 'li:not(.locked)', this.clickOnAsset.bind(this));
     this.reveal.on('click', '.select-asset-link:not([disabled])', this.selectAssets.bind(this));
-    this.selectedAssetList.on('click', '.asset-deselect', this.deselect.bind(this));
-    this.selectedAssetList.on('dc:asset:selected', this.setAssetId.bind(this));
-    this.button.closest('form').on('reset', this.resetSelector.bind(this));
     this.assetList.on('dc:asset_list:changed', this.updateButtons.bind(this));
     this.assetList.parent().on('scroll', this.loadMoreOnScroll.bind(this));
-    this.selectButton.on('dc:selected_asset:changed', this.updateSelectButton.bind(this));
-    this.button.on('dc:import:data', this.checkDataToImport.bind(this));
   }
   loadMoreOnScroll(event) {
+    event.preventDefault();
+    event.stopPropagation();
+
     if (
       this.assetList[0].scrollHeight - this.assetList.parent().scrollTop() - 200 <=
         this.assetList.parent().outerHeight() &&
@@ -49,54 +37,6 @@ class AssetSelector {
       this.assetList.children('li').length < this.total
     ) {
       this.loadAssets();
-    }
-  }
-  checkDataToImport(event, data) {
-    if (data === undefined || data.value === undefined || data.value[0] === undefined) return;
-    let id = data.value[0];
-
-    if (this.selectedAssetIds && this.selectedAssetIds.length && !data.force) {
-      new ConfirmationModal({
-        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-        confirmationText: 'Ja',
-        cancelText: 'Nein',
-        confirmationClass: 'success',
-        cancelable: true,
-        confirmationCallback: function() {
-          this.importData(id);
-        }.bind(this)
-      });
-    } else {
-      this.importData(id);
-    }
-  }
-  importData(id) {
-    $.rails.disableFormElement(this.button);
-    this.selectedAssetList.html('<div class="loading"><i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></div>');
-
-    this.importRequests.forEach(request => {
-      request.abort();
-      this.importRequests = this.importRequests.filter(r => r != request);
-    });
-    this.importRequests.push(
-      $.ajax({
-        url: '/files/assets/' + id + '/duplicate',
-        method: 'POST',
-        data: JSON.stringify({
-          html_target: this.hiddenField.prop('id')
-        }),
-        dataType: 'script',
-        contentType: 'application/json'
-      }).always((data, text, jqXHR) => {
-        this.importRequests = this.importRequests.filter(r => r != jqXHR);
-        $.rails.enableFormElement(this.button);
-      })
-    );
-  }
-  updateSelectButton(event, data) {
-    if (data && this.selectedAssetIds.includes(data.selected_asset)) {
-      this.selectButton.attr('disabled', true).removeData('value');
-      this.resetSelector(event);
     }
   }
   loadAssets(append = true) {
@@ -119,7 +59,6 @@ class AssetSelector {
           html_target: this.assetList.prop('id'),
           types: this.assetList.data('asset-types'),
           selected: this.selectedAssetIds,
-          locked_assets: this.uniqueLockedAssetIds(),
           page: this.page,
           last_asset_type: this.lastAssetType,
           append: append
@@ -158,13 +97,6 @@ class AssetSelector {
       this.loading = false;
     }
   }
-  uniqueLockedAssetIds() {
-    return this.assetSelectors
-      .filter(selector => {
-        return selector.button.data('open') != this.button.data('open') && selector.selected_asset_id != undefined;
-      })
-      .map(selector => selector.selected_asset_id);
-  }
   clickOnAsset(event) {
     if (
       $(event.target).closest('.asset-file-link-tag').length == 0 &&
@@ -199,20 +131,8 @@ class AssetSelector {
       }
     }
   }
-  updateHiddenField(value = undefined) {
-    this.selectedAssetIds = [value];
-    this.selectedAssetThumb = this.selectedAssetList
-      .find('img')
-      .first()
-      .attr('src');
-    if (value !== undefined) {
-      this.hiddenField.val(value);
-      this.formElement.trigger('dc:asset:selected', { id: this.selectedAssetIds[0], thumb: this.selectedAssetThumb });
-    } else this.hiddenField.removeAttr('value');
-    this.formElement.trigger('dc:asset:changed', { id: this.selectedAssetIds[0], thumb: this.selectedAssetThumb });
-  }
-  setAssetId(event, data) {
-    this.updateHiddenField(data.id);
+  setAssetId(_, data) {
+    if (data && data.id) this.selectedAssetIds = [data.id];
   }
   selectAssets(event) {
     event.preventDefault();
@@ -221,9 +141,6 @@ class AssetSelector {
       $('#' + this.contentUploaderId).trigger('dc:upload:setIds', {
         assets: this.assets.filter(a => this.selectedAssetIds.includes(a.id))
       });
-    } else {
-      this.selectedAssetList.html(this.assetList.find('li.active').clone()).foundation();
-      this.updateHiddenField(this.selectButton.data('value'));
     }
     this.reveal.foundation('close');
   }
@@ -232,11 +149,6 @@ class AssetSelector {
     $(event.target)
       .closest('li')
       .remove();
-    this.updateHiddenField();
-  }
-  resetSelector(event) {
-    this.selectedAssetList.empty();
-    this.updateHiddenField();
   }
 }
 

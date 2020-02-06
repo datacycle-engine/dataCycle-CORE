@@ -8,26 +8,17 @@ var AssetUploader = require('./../components/asset_uploader');
 module.exports.initialize = function() {
   // Asset Selector
 
-  var asset_selectors = [];
-  var asset_uploaders = [];
+  var assetSelectors = [];
+  var assetUploaders = [];
 
-  function init(container = document) {
-    $(container)
-      .find('.asset-selector-button')
-      .each((index, element) => {
-        if ($(element).hasClass('data-link-asset')) {
-          new AssetSelector(element, asset_selectors);
-        } else {
-          asset_selectors.push(new AssetSelector(element, asset_selectors));
-        }
-      });
-    $('.asset-upload-reveal')
-      .filter((index, element) => {
-        return asset_uploaders.map(element => element.reveal.prop('id')).indexOf(element.id) === -1;
-      })
-      .each((index, element) => {
-        asset_uploaders.push(new AssetUploader(element));
-      });
+  function init(_) {
+    $('.asset-selector-reveal:not(.initialized)').each((_, element) => {
+      assetSelectors.push(new AssetSelector(element));
+    });
+
+    $('.asset-upload-reveal:not(.initialized)').each((_, element) => {
+      assetUploaders.push(new AssetUploader(element));
+    });
 
     toggleAssetVersion();
     toggleAssetTransformation();
@@ -69,15 +60,11 @@ module.exports.initialize = function() {
     event.preventDefault();
     event.stopPropagation();
     if ($(event.target).hasClass('asset-selector-reveal')) {
-      asset_selectors = asset_selectors.filter(value => {
+      assetSelectors = assetSelectors.filter(value => {
         return value.reveal.id != $(event.target).id;
       });
-
-      asset_selectors.forEach(selector => {
-        selector.asset_selectors = asset_selectors;
-      });
     } else if ($(event.target).hasClass('asset-upload-reveal')) {
-      asset_uploaders = asset_uploaders.filter(value => {
+      assetUploaders = assetUploaders.filter(value => {
         return value.reveal.id != $(event.target).id;
       });
     }

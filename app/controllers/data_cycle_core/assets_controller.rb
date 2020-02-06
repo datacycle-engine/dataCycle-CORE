@@ -14,7 +14,6 @@ module DataCycleCore
           @last_asset_type = permitted_params[:last_asset_type]
           @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
           @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
-          @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
           @assets = @assets.page(@page).per(25)
           @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
           @total = @assets.total_count
@@ -86,7 +85,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, selected: [], locked_assets: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, selected: [], types: [])
     end
 
     def find_params

@@ -11,7 +11,6 @@ class SplitView {
     this.setupClassificationButtons();
     this.setupTextFieldButtons();
     this.setupDateTimeButtons();
-    this.setupAssetSelectorButtons();
     this.setupGeographicButtons();
     this.setupBooleanButtons();
     this.setupNumberButtons();
@@ -87,11 +86,6 @@ class SplitView {
   setupDateTimeButtons() {
     this.availableEditors(['date_picker']).each((_, elem) => {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
-    });
-  }
-  setupAssetSelectorButtons() {
-    this.availableEditors(['asset_selector']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
     });
   }
   setupGeographicButtons() {

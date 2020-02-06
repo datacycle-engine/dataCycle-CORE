@@ -47,7 +47,6 @@ class NewContentDialog {
         this.next(event);
       }
     });
-    this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
     this.form.on('click', '.copy-attribute-to-all', this.copySingleToAllReferenceFields.bind(this));
     this.form.find('.translated-attribute.active').trigger('dc:remote:render');
 
@@ -246,10 +245,6 @@ class NewContentDialog {
     if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning'))
       $.rails.enableFormElements(this.form);
     else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
-  }
-  checkSelectedAsset(event) {
-    event.stopPropagation();
-    if (!$(event.target).siblings('.form-element').length) this.next(event);
   }
   changeTranslation(target) {
     this.activeLocale = $(target).data('locale');

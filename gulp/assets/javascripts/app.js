@@ -20,7 +20,6 @@ window.EDITORSELECTORS = [
   '> .v-select > select.async-select',
   '> ul.classification-checkbox-list',
   '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
-  '> .asset-selector-button',
   '> .geographic > .geographic-map',
   '> :checkbox',
   '> :input[type="number"]',

@@ -4,7 +4,7 @@
     <legend><%= t('common.create_via_mediaarchive', data: 'Bild', locale: DataCycleCore.ui_language) %></legend>
 
     <% if external_system.present? %>
-      <%= render 'asset_upload', key: local_assigns[:key] || 'iframe_image', asset_type: 'image' %>
+      <%#= render 'asset_upload', key: local_assigns[:key] || 'iframe_image', asset_type: 'image' %>
 
       <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= external_system.credentials.dig('host') %>/admin/media/import_iframe?type=Image&token=<%= external_system.credentials.dig('token') %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>" data-uploader-id="asset-upload-reveal-<%= local_assigns[:key] || 'iframe_image' %>">
         <p>Formular konnte nicht geladen werden</p>
