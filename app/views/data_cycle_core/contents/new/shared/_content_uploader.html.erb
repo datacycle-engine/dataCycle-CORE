@@ -3,9 +3,9 @@
   <% type_translation = "data_cycle_core/#{local_assigns.dig(:type)}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
 
   <% if local_assigns[:type].present? && uploader_validation.present? %>
-    <div class="callout primary">
+    <div class="callout primary content-uploader-validations">
       <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
-      <ul class="no-bullet">
+      <ul>
         <%= uploader_validation_to_text(uploader_validation&.except(:translation, :translation_description, :class)).html_safe %>
       </ul>
     </div>

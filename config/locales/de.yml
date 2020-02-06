@@ -814,26 +814,26 @@ de:
   uploader:
     restrictions: 'Einschränkungen'
     validation:
-      format: 'Erlaubte Formate: %{data}'
+      format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       dimensions:
         exclude:
-          format: 'Folgende Formate sind in jeder Größe erlaubt: %{data}'
+          format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
         landscape:
           min:
-            width: 'Minimale Breite für Medien im Querformat: %{data}px'
-            height: 'Minimale Höhe für Medien im Querformat: %{data}px'
+            width: 'Minimale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
         portrait:
           min:
-            width: 'Minimale Breite für Medien im Hochformat: %{data}px'
-            height: 'Minimale Höhe für Medien im Hochformat: %{data}px'
+            width: 'Minimale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
         logo:
           max:
-            height: 'Maximale Höhe für Logos: %{data}px'
+            height: 'Maximale Höhe für Logos: <span class="value">%{data}px</span>'
       codec:
-        video: 'Erlaubte Video-Codecs: %{data}'
-        audio: 'Erlaubte Audio-Codecs: %{data}'
+        video: 'Erlaubte Video-Codecs: <span class="value">%{data}</span>'
+        audio: 'Erlaubte Audio-Codecs: <span class="value">%{data}</span>'
       file_size:
-        max: 'Maximale Dateigröße: %{data}'
+        max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
 
     close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
                           Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'

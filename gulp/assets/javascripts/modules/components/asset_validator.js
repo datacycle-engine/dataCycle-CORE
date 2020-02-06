@@ -1,3 +1,5 @@
+let MimeTypes = require('mime-types');
+
 // Ajax Callback Queue
 class AssetValidator {
   constructor(file) {
