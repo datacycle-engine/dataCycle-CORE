@@ -13,21 +13,31 @@ module DataCycleCore
 
       api_property_definition = api_definition(definition)
       api_version = @api_version || 2
-      partials = [
-        "#{definition['type'].underscore}_#{key.underscore}",
-        "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
-        "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-        "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
-        definition&.dig('compute', 'type')&.underscore,
-        definition['type'].underscore,
-        'default'
-      ].reject(&:blank?)
+      if api_version == 4
+        partials = [
+          "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
+          (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          definition['type'].underscore,
+          'default'
+        ].reject(&:blank?)
+      else
+        partials = [
+          "#{definition['type'].underscore}_#{key.underscore}",
+          "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
+          "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+          "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
+          definition&.dig('compute', 'type')&.underscore,
+          definition['type'].underscore,
+          'default'
+        ].reject(&:blank?)
+      end
 
       api_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
       if @api_subversion.present?
         subversion_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/#{@api_subversion}/api_base/attributes/#{p}" }
         api_partials = subversion_partials + api_partials
       end
+
       return first_existing_partial(api_partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
     end
 
