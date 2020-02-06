@@ -165,8 +165,6 @@ class NewContentDialog {
   groupAttributeValues(values, locale = null) {
     let groupedValues = {};
 
-    console.log(values);
-
     if (!values || !values.length) return groupedValues;
 
     values.forEach(v => {

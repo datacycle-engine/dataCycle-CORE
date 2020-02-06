@@ -221,7 +221,7 @@ de:
     date: Datum
 
   upload:
-    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>%{type} über den Systemdialog auswählen</b></u></p>'
+    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
@@ -623,8 +623,8 @@ de:
         one: Asset
         other: Assets
       data_cycle_core/text_file:
-        one: Textdokument (Externer Link)
-        other: Textdokumente (Externer Link)
+        one: Textdokument
+        other: Textdokumente
       data_cycle_core/pdf:
         one: Pdf
         other: Pdfs

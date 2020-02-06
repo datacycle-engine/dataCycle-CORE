@@ -1036,6 +1036,60 @@ a.email-link {
 }
 
 .data-link-reveal {
+  input,
+  select,
+  textarea {
+    margin-bottom: 0;
+  }
+  .form-element:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+
+  .content-uploader {
+    .callout {
+      display: none;
+    }
+    .drag-and-drop-field {
+      height: 8rem;
+      font-size: 0.9rem;
+
+      > * {
+        margin-bottom: 0.2rem;
+      }
+    }
+  }
+
+  .form-element {
+    &.grid-x {
+      display: flex;
+      flex-flow: row;
+
+      &.align-center {
+        align-items: center;
+      }
+
+      .cell {
+        flex: 1;
+        &.no-grow {
+          flex-grow: 0;
+        }
+        .flatpickr-wrapper {
+          display: block;
+
+          input {
+            margin: 0;
+          }
+        }
+      }
+
+      &.grid-margin-x {
+        .cell:not(:last-of-type) {
+          margin-right: 1rem;
+        }
+      }
+    }
+  }
+
   textarea {
     min-height: 10rem;
   }

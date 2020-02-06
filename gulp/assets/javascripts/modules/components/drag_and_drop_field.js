@@ -17,11 +17,9 @@ class DragAndDropField {
         e.stopPropagation();
       })
       .on('dragenter dragover', e => {
-        console.log('drag in');
         this.dragAndDropField.addClass('is-dragover');
       })
       .on('dragleave dragend drop', e => {
-        console.log('drag out');
         this.dragAndDropField.removeClass('is-dragover');
       })
       .on('drop', e => {

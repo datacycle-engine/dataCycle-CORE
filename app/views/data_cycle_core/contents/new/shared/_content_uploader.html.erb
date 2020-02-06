@@ -19,7 +19,7 @@
     <input type="file" accept="<%= uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', ') %>" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
   </div>
 
-  <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, template: local_assigns[:template], create_content: local_assigns[:create_content] %>
+  <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, template: local_assigns[:template], create_content: local_assigns[:create_content], remote_options: to_query_params(local_assigns.except(:button_class)) %>
 
   <% if local_assigns[:create_content] %>
     <p class="separator"><b><%= t('upload.or', locale: DataCycleCore.ui_language) %></b></p>
