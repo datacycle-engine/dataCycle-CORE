@@ -56,6 +56,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :contains_place:
         :label: Services
         :type: linked

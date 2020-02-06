@@ -2,7 +2,6 @@
 - :data:
     :name: contact_info
     :type: mixin
-    # schema.org: APIv2 Breaking Change (transformations)
     :properties:
       :contact_info:
         :label: Kontakt
@@ -14,6 +13,15 @@
             :name: address
         :advanced_search: true
         :properties:
+          :name:
+            :label: Ansprechpartner
+            :type: string
+            :storage_location: translated_value
+            :advanced_search: true
+            :api:
+              :name: contact_name
+              :v4:
+                :name: name
           :telephone:
             :label: Telefonnummer
             :type: string

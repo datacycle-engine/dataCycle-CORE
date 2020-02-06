@@ -13,6 +13,7 @@ display_language = I18n.default_locale if languages.blank?
       '@language' => display_language,
       'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
       'dct' => 'http://purl.org/dc/terms/',
+      'cc' => 'http://creativecommons.org/ns#',
       'dc' => 'https://schema.datacycle.at/',
       'dc:entity_url' => {
         '@id' => 'https://schema.datacycle.at/entity_url',

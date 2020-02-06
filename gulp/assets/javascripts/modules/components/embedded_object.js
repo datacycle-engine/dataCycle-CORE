@@ -87,6 +87,8 @@ class EmbeddedObject {
         event.preventDefault();
         event.stopImmediatePropagation();
 
+        if ($(event.currentTarget).hasClass('has-tip')) $(event.currentTarget).foundation('hide');
+
         let currentObject = $(event.currentTarget).closest('.content-object-item');
         let switchObject;
 

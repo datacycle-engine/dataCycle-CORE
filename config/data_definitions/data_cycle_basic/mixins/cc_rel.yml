@@ -1,0 +1,50 @@
+---
+- :data:
+    :name: cc_rel
+    :type: mixin
+    :properties:
+      :license:
+        :label: Copyright / Lizenz
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:license'
+      :more_permissions:
+        :label: Weitere Kriterien
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:morePermissions'
+      :attribution_name:
+        :label: Zuschreibungsname
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionName'
+      :attribution_url:
+        :label: Zuschreibungsurl
+        :type: string
+        :storage_location: value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:attributionUrl'
+      :use_guidelines:
+        :label: Verwendungsrichtlinie
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :external: true
+        :api:
+          :v4:
+            :name: 'cc:use_guidlines'

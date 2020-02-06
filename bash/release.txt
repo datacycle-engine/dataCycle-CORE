@@ -16,3 +16,4 @@ DataCycleBurgenland;git@git.pixelpoint.biz:data-cycle/data-cycle-burgenland.git
 DataCycleUrlaubAmBauernhof;git@git.pixelpoint.biz:data-cycle/data-cycle-urlaub-am-bauernhof.git
 DataCycleKaerntnerEventDB;git@git.pixelpoint.biz:data-cycle/data-cycle-kaerntner-veranstaltungsdb.git
 DataCycleFeratelItaly;git@git.pixelpoint.biz:data-cycle/data-cycle-feratel-italy.git
+DataCycleRheinlandPfalz;git@git.pixelpoint.biz:data-cycle/data-cycle-rheinland-pfalz.git

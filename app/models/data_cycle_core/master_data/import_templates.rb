@@ -3,49 +3,51 @@
 module DataCycleCore
   module MasterData
     module ImportTemplates
-      CONTENT_TABLES = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things', 'intangibles'].freeze
+      CONTENT_SETS = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things', 'intangibles'].freeze
 
       def self.import_all(validation: true, template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
-        mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_tables: CONTENT_TABLES)
+        import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
+        mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
         errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
-        format_duplicates = duplicates&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
-        format_mixin_duplicates = mixin_duplicates&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
         format_errors = errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
         # TODO: add notice + warning
-        return format_errors, format_duplicates, format_mixin_duplicates
+        return format_errors, reformat_duplicates(duplicates), reformat_duplicates(mixin_duplicates)
+      end
+
+      def self.reformat_duplicates(hash)
+        hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
       end
 
       def self.import_template_list(template_paths: nil)
         template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
-        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_TABLES)
+        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
         import_hash.map { |_key, value| value }.reduce([], :+).map { |item| item[:name] }.uniq.sort
       end
 
-      def self.check_for_duplicates(template_paths, content_tables)
+      def self.check_for_duplicates(template_paths, content_sets)
         import_list = {}
         collisions = {}
-        content_tables.each do |content_table_name|
-          import_list[content_table_name.to_sym] = []
-          collisions[content_table_name.to_sym] = {}
+        content_sets.each do |content_set_name|
+          import_list[content_set_name.to_sym] = []
+          collisions[content_set_name.to_sym] = {}
         end
 
         template_paths.each do |core_template_path|
-          content_tables.each do |content_table_name|
-            files = core_template_path + content_table_name + '*.yml'
+          content_sets.each do |content_set_name|
+            files = core_template_path + content_set_name + '*.yml'
             file_names = Dir[files]
             file_names.each do |file_name|
               data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
               data_templates.each_index do |index|
-                already_exist_index = import_list[content_table_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
+                already_exist_index = import_list[content_set_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
                 new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }
                 if already_exist_index.nil?
-                  import_list[content_table_name.to_sym] += [new_template_data]
+                  import_list[content_set_name.to_sym] += [new_template_data]
                 else
-                  collisions[content_table_name.to_sym] = collisions[content_table_name.to_sym].merge({ new_template_data[:name] => [import_list[content_table_name.to_sym][already_exist_index].except(:name, :position)] }) if collisions[content_table_name.to_sym][new_template_data[:name]].blank?
-                  collisions[content_table_name.to_sym][new_template_data[:name]] += [{ file: file_name }]
-                  import_list[content_table_name.to_sym][already_exist_index] = new_template_data
+                  collisions[content_set_name.to_sym] = collisions[content_set_name.to_sym].merge({ new_template_data[:name] => [import_list[content_set_name.to_sym][already_exist_index].except(:name, :position)] }) if collisions[content_set_name.to_sym][new_template_data[:name]].blank?
+                  collisions[content_set_name.to_sym][new_template_data[:name]] += [{ file: file_name }]
+                  import_list[content_set_name.to_sym][already_exist_index] = new_template_data
                 end
               end
             end
@@ -56,21 +58,21 @@ module DataCycleCore
 
       def self.import_all_templates(template_hash:, validation: true, mixins:)
         errors = {}
-        template_hash.each do |content_table, template_list|
-          errors = errors.merge({ content_table => import_content_templates(template_list: template_list, content_table: content_table, validation: validation, mixins: mixins) })
+        template_hash.each do |content_set, template_list|
+          errors = errors.merge({ content_set => import_content_templates(template_list: template_list, content_set: content_set, validation: validation, mixins: mixins) })
         end
         errors
       end
 
-      def self.import_content_templates(template_list:, content_table:, validation: true, mixins:)
+      def self.import_content_templates(template_list:, content_set:, validation: true, mixins:)
         errors = {}
         template_list.each do |template_location|
           template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
-          template[:data] = transform_schema(schema: template[:data].dup, content_table: content_table, mixins: mixins)
+          template[:data] = transform_schema(schema: template[:data].dup, content_set: content_set, mixins: mixins)
           error = {}
           error = validate(template) if validation
           if error.blank?
-            # puts "write data_set (#{content_table}): #{template[:data][:name]}"
+            # puts "write data_set (#{content_set}): #{template[:data][:name]}"
             data_set = DataCycleCore::Thing
               .find_or_initialize_by(
                 template_name: template[:data][:name],
@@ -90,36 +92,36 @@ module DataCycleCore
         puts e.backtrace
       end
 
-      def self.transform_schema(content_table: nil, schema: {}, mixins:)
+      def self.transform_schema(content_set: nil, schema: {}, mixins:)
         schema[:boost] = schema[:boost] || 1.0
-        schema[:features] = transform_features(schema: schema, content_table: content_table)
-        schema[:properties] = transform_properties(schema: schema, content_table: content_table, mixins: mixins)
+        schema[:features] = transform_features(schema: schema, content_set: content_set)
+        schema[:properties] = transform_properties(schema: schema, content_set: content_set, mixins: mixins)
         schema
       end
 
-      def self.transform_features(schema: {}, content_table: nil)
-        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_table.to_sym, schema.dig(:name).to_sym, :features).present?
+      def self.transform_features(schema: {}, content_set: nil)
+        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
         schema.dig(:features) || {}
       end
 
-      def self.transform_properties(schema: {}, content_table: nil, mixins: nil)
+      def self.transform_properties(schema: {}, content_set: nil, mixins: nil)
         new_properties = {}.with_indifferent_access
         sorting = 1
 
         schema[:properties].each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
-            if !content_table.nil? && mixins.dig(content_table.to_sym, property_value[:name].to_sym).present?
-              active_mixin = mixins[content_table.to_sym]
+            if !content_set.nil? && mixins.dig(content_set.to_sym, property_value[:name].to_sym).present?
+              mixin_set = content_set.to_sym
             elsif mixins.dig(:default, property_value[:name].to_sym).present?
-              active_mixin = mixins[:default]
+              mixin_set = :default
             else
               raise "mixin for #{property_value[:name]} not found".inspect
             end
 
-            next if active_mixin.dig(property_value[:name].to_sym, :properties).blank?
+            next if mixins.dig(mixin_set, property_value[:name].to_sym, :properties).blank?
 
-            active_mixin[property_value[:name].to_sym][:properties].each do |key, prop|
+            mixins.dig(mixin_set, property_value[:name].to_sym, :properties).each do |key, prop|
               new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
             end
 
@@ -128,7 +130,7 @@ module DataCycleCore
           end
         end
 
-        new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_table, schema.dig(:name), :properties) || {})
+        new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_set, schema.dig(:name), :properties) || {})
       end
 
       def self.add_sorting(hash, sorting)

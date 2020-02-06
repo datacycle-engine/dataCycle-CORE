@@ -30,7 +30,7 @@ module DataCycleCore
         template = YAML.safe_load(File.open(path), [Symbol])[template_index]
 
         template[:data] = DataCycleCore::MasterData::ImportTemplates.transform_schema(schema: template[:data].dup,
-                                                                                      content_table: DEFAULT_CONTENT_TABLE,
+                                                                                      content_set: DEFAULT_CONTENT_TABLE,
                                                                                       mixins: nil)
         errors = DataCycleCore::MasterData::ImportTemplates.validate(template)
 

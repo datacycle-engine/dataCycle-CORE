@@ -14,8 +14,8 @@ class TourSprungEditor {
     this.editable = this.container.parent('.geographic').hasClass('editable');
     this.mapOptions = this.container.data('map-options');
     this.routeDataField = this.container
-      .closest('.geographic.form-element')
-      .siblings(':hidden[name="thing[datahash][route_data]"]')
+      .closest('.form-element')
+      .find(':hidden[name="thing[datahash][route_data]"]')
       .first();
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.credentials = this.mapOptions.credentials;

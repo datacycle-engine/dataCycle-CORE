@@ -12,7 +12,14 @@
           :required: true
         :ui:
           :show:
-            :disabled: true
+            :content_area: none
         :api:
           :minimal: true
           :name: headline
+      :internal_name:
+        :label: Arbeitstitel
+        :type: string
+        :storage_location: column
+        :search: true
+        :api:
+          :disabled: true

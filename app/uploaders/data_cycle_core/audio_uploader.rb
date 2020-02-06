@@ -26,7 +26,7 @@ module DataCycleCore
             audio_properties: {
               bitrate: properties.bitrate,
               channels: properties.channels,
-              length: properties.length,
+              length: properties.length_in_seconds,
               sample_rate: properties.sample_rate
             }
           }
