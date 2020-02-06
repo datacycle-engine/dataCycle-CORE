@@ -102,7 +102,7 @@ module DataCycleCore
 
         def self.process_tags(raw_data:, options:)
           tree_label = options.dig(:import, :tree_label) || 'Tags'
-          attribute_name = options.dig(:import,:attribute_name) || 'tags'
+          attribute_name = options.dig(:import, :attribute_name) || 'tags'
           keywords = DataCycleCore::Generic::Common::ImportTags.unwind_project_data(
             raw_data,
             [attribute_name],
