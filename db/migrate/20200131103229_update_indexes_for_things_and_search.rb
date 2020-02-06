@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class UpdateIndexesForThingsAndSearch < ActiveRecord::Migration[5.2]
   def up
     # remove obsolete columns
@@ -14,6 +16,7 @@ class UpdateIndexesForThingsAndSearch < ActiveRecord::Migration[5.2]
     add_index :searches, :classification_aliases_mapping, using: :gin
     add_index :searches, :classification_ancestors_mapping, using: :gin
   end
+
   def down
     add_column :searches, :classification_mapping, :jsonb
     add_index :searches, :classification_mapping, using: :gin

@@ -12,7 +12,8 @@ module DataCycleCore
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+            query = build_search_query
+            # query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
@@ -71,7 +72,7 @@ module DataCycleCore
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
-          query = filter.apply
+          query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)

@@ -5,6 +5,7 @@ module DataCycleCore
     class Search < QueryBuilder
       include DataCycleCore::Filter::Common::Configurable
       include DataCycleCore::Filter::Common::Advanced
+      include DataCycleCore::Filter::Common::ClassificationMapping
 
       def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
