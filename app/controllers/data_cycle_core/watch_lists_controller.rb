@@ -204,7 +204,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
       delete_items.find_each.with_index do |content, index|
-        if can?(:destroy, content) && content.external_source_id.blank?
+        if can?(:destroy, content)
           content.destroy_content
         else
           cant_delete_count += 1
