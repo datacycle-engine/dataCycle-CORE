@@ -1671,7 +1671,7 @@ CREATE UNIQUE INDEX index_searches_on_content_data_id_and_locale ON public.searc
 -- Name: index_searches_on_locale; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_searches_on_locale ON public.searches USING btree (content_data_id, locale);
+CREATE INDEX index_searches_on_locale ON public.searches USING btree (locale);
 
 
 --
