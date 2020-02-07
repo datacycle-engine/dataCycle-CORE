@@ -69,14 +69,14 @@ module DataCycleCore
               item.to_api_list
             end
           end
-          json_meta = api_plain_meta(@contents.total_count, @contents.total_pages)
           json_links = api_plain_links
-          {
+          list_hash = {
             '@context' => json_context,
             '@graph' => json_contents,
-            'meta' => json_meta,
             'links' => json_links
           }
+          list_hash['meta'] = api_plain_meta(@contents.total_count, @contents.total_pages) unless @mode_parameters == 'strict'
+          list_hash
         end
 
         def apply_ordering(query)
