@@ -301,6 +301,17 @@ module DataCycleCore
         end
       end
 
+      def geo_radius(values)
+        # TODO: values -> (lon, lat, val)?, sanitize?, tests, Remove transforms
+        # ST_DWithin(ST_Transform(the_geom, 3857), ST_Transform(ST_SetSRID(ST_MakePoint(9.736144, 47.260191), 4326), 3857), 3000)
+
+        return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
+
+        reflect(
+          @query.where(st_dwithin(st_transform(thing[:location], 3857), st_transform(st_setsrid(st_makepoint(values&.dig('lon'), values&.dig('lat')), 4326), 3857), values&.dig('distance').to_i))
+        )
+      end
+
       def validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 

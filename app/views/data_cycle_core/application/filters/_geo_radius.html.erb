@@ -1,0 +1,31 @@
+<div data-id="<%= filter_name %>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+  <%= hidden_field_tag "f[#{index}][t]", :geo_radius %>
+  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+  </div>
+
+<%
+=begin%>
+  TODO: labels instead of spans
+<%
+=end%>
+
+  <div class="advanced-filter-selector">
+    <span class="separator"><%= t("terms.lon", locale: DataCycleCore.ui_language) %></span>
+    <%= number_field_tag "f[#{index}][v][lon]", value&.dig('lon'), { step: 'any', required: true, placeholder: t('common.longitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
+    <span class="separator"><%= t("terms.lat", locale: DataCycleCore.ui_language) %></span>
+    <%= number_field_tag "f[#{index}][v][lat]", value&.dig('lat'), { step: 'any', required: true, placeholder: t('common.latitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
+    <span class="separator"><%= t("terms.distance", locale: DataCycleCore.ui_language) %></span>
+    <%= number_field_tag "f[#{index}][v][distance]", value&.dig('distance'), { required: true, placeholder: t('common.distance', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>

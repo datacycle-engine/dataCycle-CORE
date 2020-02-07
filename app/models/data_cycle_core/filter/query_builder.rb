@@ -49,6 +49,22 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
+      def st_dwithin(geom1, geom2, distance)
+        Arel::Nodes::NamedFunction.new('ST_DWithin', [geom1, geom2, distance])
+      end
+
+      def st_transform(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_Transform', [geom, srid])
+      end
+
+      def st_setsrid(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_SetSRID', [geom, srid])
+      end
+
+      def st_makepoint(x, y)
+        Arel::Nodes::NamedFunction.new('ST_MakePoint', [Arel::Nodes::SqlLiteral.new(x), Arel::Nodes::SqlLiteral.new(y)])
+      end
+
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end
