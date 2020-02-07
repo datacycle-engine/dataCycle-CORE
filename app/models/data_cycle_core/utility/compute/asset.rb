@@ -4,6 +4,10 @@ module DataCycleCore
   module Utility
     module Compute
       module Asset
+        def self.file_name(**args)
+          DataCycleCore::Asset.find_by(id: args.dig(:computed_parameters)&.first)&.try(:name)&.to_s || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+        end
+
         def self.file_size(**args)
           DataCycleCore::Asset.find_by(id: args.dig(:computed_parameters)&.first)&.try(:file_size)&.to_i || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
         end

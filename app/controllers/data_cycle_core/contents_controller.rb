@@ -35,11 +35,12 @@ module DataCycleCore
       new_thing_params.each do |_key, thing_params|
         thing_hash = content_params(params[:template], thing_params)
 
-        content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
+        I18n.with_locale(create_locale(thing_params)) do
+          content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
+          content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
 
-        content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
-
-        ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+          ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+        end
       end
 
       flash[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
@@ -99,7 +100,7 @@ module DataCycleCore
 
       @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
 
-      I18n.with_locale(locale_params[:locale]) do
+      I18n.with_locale(create_locale) do
         object_params = content_params(params[:template])
 
         if source_params.present?
@@ -381,6 +382,11 @@ module DataCycleCore
 
     def watch_list_params
       { watch_list_id: @watch_list&.id }
+    end
+
+    def create_locale(params_hash = nil)
+      locale_param = (params_hash&.dig(:locale) || params.dig(:thing, :locale))
+      I18n.available_locales.include?(locale_param&.to_sym) ? locale_param : I18n.locale.to_s
     end
 
     def locale_params

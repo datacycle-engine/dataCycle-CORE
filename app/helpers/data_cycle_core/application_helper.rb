@@ -174,7 +174,7 @@ module DataCycleCore
     def new_dialog_config(template, except = nil)
       (DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) ||
         DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) ||
-        DataCycleCore.new_dialog.dig('default')).transform_values { |v| v.except(except) }
+        DataCycleCore.new_dialog.dig('default')).transform_values { |v| v&.except(except) }
     end
 
     def new_attribute_labels(template)

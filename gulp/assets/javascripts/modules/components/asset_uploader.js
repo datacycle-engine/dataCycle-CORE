@@ -19,9 +19,11 @@ class AssetUploader {
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.createButton = this.uploadForm.find('.content-create-button');
     this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
+    this.showNewForm = Object.keys(this.renderedAttributes).length > 0;
     this.createDuplicates = this.reveal.data('create-duplicates') || false;
+    this.locale = this.reveal.data('locale') || 'de';
     this.overlayId = this.reveal.attr('id');
-    this.assetKey = this.reveal.data('asset_key') || 'asset';
+    this.assetKey = this.reveal.data('asset-key') || 'asset';
     this.globalFieldValues = [];
     this.ajaxRequests = [];
     this.autocompleteRequests = {};
@@ -152,9 +154,11 @@ class AssetUploader {
 
     let formData = this.globalFieldValues;
     formData.push({ name: 'overlay_id', value: this.overlayId });
+    if (!formData.find(f => f.name.includes('template')) && this.templateName && this.templateName.length)
+      formData.push({ name: 'template', value: this.templateName });
 
     this.files.forEach((file, i) => {
-      let attributeValues = ObjectHelpers.deepCopy(file.attributeFieldValues);
+      let attributeValues = ObjectHelpers.deepCopy(file.attributeFieldValues) || [];
       attributeValues.push({ name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id });
       attributeValues.push({ name: 'thing[uploader_field_id]', value: file.id });
       attributeValues.forEach(a => {
@@ -175,7 +179,8 @@ class AssetUploader {
   validateAttributes(file) {
     let formData = [
       { name: 'template', value: this.templateName },
-      { name: 'strict', value: '1' }
+      { name: 'strict', value: '1' },
+      { name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id }
     ];
     formData = formData.concat(file.attributeFieldValues || []);
 
@@ -265,7 +270,9 @@ class AssetUploader {
 
     Object.keys(file.attributeValues).forEach(key => {
       let values = file.attributeFieldValues.filter(
-        f => f.name.includes(key) && (!f.name.includes('[translations]') || f.name.includes('[translations][de]'))
+        f =>
+          f.name.includes(key) &&
+          (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
 
       if (
@@ -440,6 +447,7 @@ class AssetUploader {
         .find('.upload-number')
         .html('hochgeladen, OK');
       file.asset = Object.assign({}, file.asset, data);
+      if (!this.showNewForm) this.updateFileValidated(file, {});
     }
     this.updateCreateButton(error);
   }
@@ -558,7 +566,7 @@ class AssetUploader {
   fileAppendHTML(fileOptions) {
     let html =
       '<div class="upload-progress"><span class="upload-progress-bar"></span></div><div class="button-overlay">';
-    if (this.contentUploader)
+    if (this.contentUploader && this.showNewForm)
       html +=
         '<button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
     html +=
@@ -720,7 +728,9 @@ class AssetUploader {
   renderFileField(fileOptions) {
     fileOptions.fileField = this.reveal.find('.file-for-upload[data-id="' + fileOptions.id + '"]');
     fileOptions.fileField.html(fileOptions.html);
-    if (this.contentUploader) fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
+
+    if (this.contentUploader && this.showNewForm)
+      fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
     if (fileOptions.errors) this.renderError(fileOptions, fileOptions.errors);
     else this.updateOverlayButtons(fileOptions);
   }

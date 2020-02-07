@@ -3,7 +3,7 @@
 <% new_dialog_config(template, 'asset')&.each_with_index do |(field_title, a_keys), index| %>
   <fieldset>
     <% if index === 0 %>
-      <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge((template.translatable? && I18n.available_locales&.many?) ? { locale: DataCycleCore.ui_language } : {}) %>
+      <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns.merge((template.translatable? && I18n.available_locales&.many?) ? { locale: (current_user&.default_locale || DataCycleCore.ui_language) } : {}) %>
     <% else %>
       <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
     <% end %>
@@ -15,7 +15,7 @@
       <% a_definition = template.schema.dig('properties', *a_key)&.deep_reject{ |k, v| k == 'readonly' } %>
       <% next unless a_definition.present? %>
 
-      <% if template.translatable_property?(a_key.last, a_definition) %>
+      <% if template.translatable? && template.translatable_property?(a_key.last, a_definition) %>
         <%= render 'data_cycle_core/contents/editors/translatable_field', local_assigns.merge(key: a_key, value: a_key.first == 'name' ? local_assigns[:search_param] : nil) %>
       <% else %>
         <%= render_attribute_editor key: 'thing[datahash]' + a_key.map{ |k| "[#{k}]" if k != 'properties' }.join,

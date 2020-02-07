@@ -9,6 +9,7 @@
   data-content-uploader="<%= local_assigns[:create_content] || false %>"
   data-asset-key="<%= local_assigns[:template]&.asset_property_names&.first if local_assigns[:create_content] %>"
   data-create-duplicates="<%= can?(:create_duplicate, type_class) %>"
+  data-locale="<%= local_assigns.dig(:remote_options, :locale) || I18n.locale.to_s %>"
   data-remote-options="<%= local_assigns[:remote_options]&.to_json %>"
   data-type="<%= local_assigns[:asset_type] %>"
   data-template="<%= template&.template_name if local_assigns[:create_content] %>"

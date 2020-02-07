@@ -1,4 +1,5 @@
 let MimeTypes = require('mime-types');
+let ObjectHelpers = require('./../helpers/object_helpers');
 
 // Ajax Callback Queue
 class AssetValidator {
