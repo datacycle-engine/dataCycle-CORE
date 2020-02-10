@@ -20,7 +20,7 @@ module DataCycleCore
       }, headers: {
         referer: root_path
       }
-      assert response.body.include?('thing[translations][de][name]')
+      assert response.body.include?('thing[datahash][name]')
     end
 
     test 'remote render' do
@@ -56,7 +56,7 @@ module DataCycleCore
       }, headers: {
         referer: edit_thing_path(@content)
       }
-      assert response.body.include?('thing[translations][de][name]')
+      assert response.body.include?('thing[datahash][name]')
     end
   end
 end

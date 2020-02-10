@@ -1394,6 +1394,20 @@ CREATE INDEX index_asset_contents_on_content_data_id ON public.asset_contents US
 
 
 --
+-- Name: index_assets_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id);
+
+
+--
+-- Name: index_assets_on_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
+
+
+--
 -- Name: index_classification_aliases_on_deleted_at; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2173,6 +2187,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219123847'),
 ('20191219143016'),
 ('20200116143539'),
-('20200117095949');
+('20200117095949'),
+('20200205143630');
 
 
