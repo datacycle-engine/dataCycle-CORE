@@ -38,7 +38,7 @@
   <div class="form-element">
     <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_locale", t('common.language', locale: DataCycleCore.ui_language) %>
     <div class="v-select white">
-      <%= select_tag 'thing[locale]', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale), {
+      <%= select_tag 'thing[locale]', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale || local_assigns[:locale]), {
         class: 'single-select',
         data: {
           allow_clear: false
