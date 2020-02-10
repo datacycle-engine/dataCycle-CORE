@@ -265,6 +265,7 @@ de:
     send_subject: Geteilter Link zu einem Inhalt
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
+    from: '%{from}'
 
   filter:
     add: Filter hinzufügen
