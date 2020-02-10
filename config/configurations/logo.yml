@@ -1,5 +1,5 @@
 normal: 'logo.svg'
-inverted: 'logo.svg'
+inverted: 'logo_inverted.svg'
 email: 'eml-datacycle.png'
 print: 'logo.png'
 alt_text: 'dataCycle Logo'
