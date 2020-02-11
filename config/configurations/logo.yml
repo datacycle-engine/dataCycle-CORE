@@ -5,3 +5,4 @@ print: 'logo.png'
 alt_text: 'dataCycle Logo'
 mail_dimensions:
   height: '65px'
+customercolor: '#009fe3'
