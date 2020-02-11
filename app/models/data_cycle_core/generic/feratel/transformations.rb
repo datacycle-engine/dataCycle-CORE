@@ -59,11 +59,15 @@ module DataCycleCore
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
           .>> t(:add_field, 'description', ->(s) { Array.wrap(s.dig('Descriptions', 'Description')).detect { |item| item['Type'] == 'ServiceDescription' }.try(:[], 'text') })
-          .>> t(:unwarp_additional_service_description, ['Meeting Point', 'Equipment', 'Requirements', 'Included Services', 'Difficulty'])
+          .>> t(:add_service_description, 'meeting_point', 'Meeting Point')
+          .>> t(:add_service_description, 'equipment', 'Equipment')
+          .>> t(:add_service_description, 'requirements', 'Requirements')
+          .>> t(:add_service_description, 'included_services', 'Included Services')
+          .>> t(:add_service_description, 'difficulty', 'Difficulty')
           .>> t(:rename_keys, { 'Id' => 'external_key', 'AdditionalServiceDescription' => 'text' })
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
-          .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
+          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
           .>> t(:compact)
         end
@@ -617,7 +621,7 @@ module DataCycleCore
         def self.load_schedules(data)
           available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
           available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
-          duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || 0
+          duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || duration(data.dig('Durations', 'Type'), data.dig('Durations', 'Duration')) || 0
           options = {}
           options = { duration: duration } if duration.positive?
 
