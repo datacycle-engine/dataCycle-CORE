@@ -142,6 +142,40 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_asp(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_local_business(utility_object.external_source.id),
+            default: { template: 'LocalBusiness' },
+            config: config
+          )
+        end
+
+        def self.process_as(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_additional_service(utility_object.external_source.id),
+            default: { template: 'Service' },
+            config: config
+          )
+        end
+
+        # def self.process_offer(utility_object, raw_data, config)
+        #   return if raw_data.dig('Products', 'Product').blank?
+        #
+        #   Array.wrap(raw_data.dig('Products', 'Product')).each do |offer_data|
+        #     DataCycleCore::Generic::Common::ImportFunctions.process_step(
+        #       utility_object: utility_object,
+        #       raw_data: offer_data.merge({ 'provider_id' => raw_data.dig('provider_id'), 'service_id' => raw_data.dig('Id') }),
+        #       transformation: DataCycleCore::Generic::Feratel::Transformations.to_offer(utility_object.external_source.id),
+        #       default: { template: 'Angebot' },
+        #       config: config
+        #     )
+        #   end
+        # end
       end
     end
   end

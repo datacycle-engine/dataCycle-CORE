@@ -1,0 +1,112 @@
+- :data:
+    :name: Service
+    :type: object
+    :schema_type: Intangible
+    :content_type: entity
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Titel
+        :type: string
+        :storage_type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :api:
+          :minimal: true
+        :ui:
+          :show:
+            :disabled: true
+      :description:
+        :label: Beschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+      :text:
+        :label: Beschreibung (lang)
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :url:
+        :label: Angebots URL
+        :type: string
+        :storage_location: translated_value
+        :validations:
+          :format: url
+        :api:
+          :v4:
+            :name: sameAs
+      :offeres:
+        :label: Angebote
+        :type: linked
+        :template_name: Offer
+      :hours_available:
+        :label: Verfügbarkeit
+        :type: embedded
+        :template_name: EventSchedule
+        :translated: true
+        :api:
+          :name: eventSchedule
+          :v4:
+            :disabled: true
+      :provider:
+        :label: Dienstleister
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - LocalBusiness
+                - Unterkunft
+                - Organisation
+      # :potentialAction:
+      #   :label: Buchungs-Url
+      #   :type: object
+      #   :storage_location: translated_value
+      #   :api:
+      #     :type: Action
+      #   :properties:
+      #     :name:
+      #       :label: Name
+      #       :type: string
+      #       :storage_location: translated_value
+      #     :url:
+      #       :label: URL
+      #       :type: string
+      #       :storage_location: translated_value
+      :data_type:
+        :label: Inhaltstype
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: Service
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true

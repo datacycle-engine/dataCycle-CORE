@@ -80,6 +80,22 @@ module DataCycleCore
           }.reduce(data.reject { |k, _| k == 'ContentDescriptions' }, &:merge)
         end
 
+        def self.unwarp_additional_service_description(data, description_names)
+          raise ArgumentError unless data.is_a?(Hash)
+
+          description_data = Array.wrap(data.dig('Descriptions', 'Description'))
+            .select { |item| description_names.include?(item['Name']) && item['Type'] == 'AdditionalService' }
+
+          ordered_data = []
+          description_names.each { |item_name| ordered_data.push(description_data.detect { |item| item.dig('Name') == item_name && item.dig('text').present? }) }
+
+          description_text = ordered_data
+            .compact
+            .map { |item| "<li>#{item.dig('Name')}#{item.try(:[], 'text')}</li>" }
+            .inject(:+)
+          data.merge({ 'AdditionalServiceDescription' => description_text.present? ? "<ul>#{description_text}</ul>" : nil })
+        end
+
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
