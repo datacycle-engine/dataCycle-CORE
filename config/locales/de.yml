@@ -72,6 +72,24 @@ de:
       day: täglich
       week: wöchentlich
 
+  schedule:
+    dtstart: Startzeitpunkt
+    dtend: Endzeitpunkt
+    full_day: Ganztägig
+    rrule: Wiederholungen
+    once: einmalig
+    daily: täglich
+    weekly: wöchentlich
+    monthly: monatlich
+    yearly: jährlich
+    every:
+      maskulin: jeden
+      feminin: jede
+    day: Tag
+    week: Woche
+    'on': am
+
+
   common:
     'true': Ja
     'false': Nein

@@ -20,6 +20,10 @@ module DataCycleCore
       locales.sort_by { |_, v| v.to_s }.to_h
     end
 
+    def ice_cube_select_options
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly]).prepend(:once).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), r] }
+    end
+
     def display_flash_messages_new(closable: true)
       capture do
         flash.each do |key, value|
@@ -164,11 +168,7 @@ module DataCycleCore
     end
 
     def feature_templates(key, definition, content)
-      [
-        definition&.dig('features').try(:keys),
-        content&.schema&.dig('features')&.select { |_, v| v.is_a?(Hash) && v['attribute_keys'].presence&.include?(key.parameterize(separator: '_')) }&.keys,
-        DataCycleCore.features.select { |_, v| v.is_a?(Hash) && v[:attribute_keys].presence&.include?(key.parameterize(separator: '_')) }.keys
-      ].reject(&:blank?).flatten
+      DataCycleCore::FeatureService.enabled_features(content&.schema || definition, key.attribute_name_from_key)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
@@ -252,18 +252,15 @@ module DataCycleCore
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
-      if definition&.dig('ui', 'edit', 'partial').present?
-        partials = [definition&.dig('ui', 'edit', 'partial')]
-      else
-        partials = [
-          key.attribute_name_from_key,
-          feature_templates(key, definition, content),
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}",
-          definition['type'].underscore_blanks.to_s
-        ]
-      end
+      partials = [
+        definition&.dig('ui', 'edit', 'partial').presence,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        *feature_templates(key, definition, content),
+        ("#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}" if definition&.dig('ui', 'edit', 'type').present?),
+        definition['type'].underscore_blanks.to_s
+      ].compact
 
-      partials = partials.reject(&:blank?).flatten.map { |p| "data_cycle_core/contents/editors/#{p}" }
+      partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
 
       # TODO: check if required ? refactor readonly
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
@@ -277,20 +274,17 @@ module DataCycleCore
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
-      if definition&.dig('ui', 'show', 'partial').present?
-        partials = [definition&.dig('ui', 'show', 'partial')]
-      else
-        partials = [
-          key.attribute_name_from_key.to_s,
-          feature_templates(key, definition, content),
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'show', 'type')&.underscore_blanks}",
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
-          definition.dig('compute', 'type')&.underscore_blanks&.to_s,
-          definition['type'].underscore_blanks.to_s
-        ]
-      end
+      partials = [
+        definition&.dig('ui', 'show', 'partial').presence,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        *feature_templates(key, definition, content),
+        ("#{definition['type'].underscore_blanks}_#{definition.dig('ui', 'show', 'type').underscore_blanks}" if definition&.dig('ui', 'show', 'type').present?),
+        ("#{definition['type'].underscore_blanks}_#{definition.dig('validations', 'format').underscore_blanks}" if definition&.dig('validations', 'format').present?),
+        (definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?),
+        definition['type'].underscore_blanks.to_s
+      ].compact
 
-      partials = partials.reject(&:blank?).flatten.map { |p| "data_cycle_core/contents/viewers/#{p}" }
+      partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
       parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
 
@@ -426,9 +420,9 @@ module DataCycleCore
 
     def render_first_existing_partial(partials, parameters)
       partials.each do |partial|
-        logger.debug("  Try rendering partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+        logger.debug("  Try partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
 
-        logger.debug "  Rendered partial #{partial}"
+        logger.debug "  Rendered #{partial}"
         return render(partial, parameters)
       end
 

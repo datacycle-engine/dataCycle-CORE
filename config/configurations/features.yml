@@ -153,3 +153,7 @@
 :translated_data_link_mails:
   :enabled: false
   :only_config: true
+
+:translatable:
+  :enabled: true
+  :only_config: true
