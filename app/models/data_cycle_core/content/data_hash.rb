@@ -21,6 +21,7 @@ module DataCycleCore
       before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
+      before_save_data_hash :set_schedule_values, if: -> { schedule_property_names.present? }
       after_saved_data_hash :execute_update_webhooks
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
@@ -74,6 +75,19 @@ module DataCycleCore
       def set_computed_values
         computed_property_names.each do |computed_property|
           @data_hash[computed_property] = DataCycleCore::Utility::Compute::Base.computed_values(computed_property, properties_for(computed_property), @data_hash, self)
+        end
+      end
+
+      def set_schedule_values
+        schedule_property_names.each do |schedule_property|
+          @data_hash[schedule_property].presence&.each do |schedule_value|
+            schedule_value[:start_time] = {
+              time: schedule_value[:duration]&.delete(:start)
+            }
+            if schedule_value.dig(:start_time, :time).present? && schedule_value.dig(:duration, :end).present?
+              schedule_value[:duration] = (schedule_value[:duration]&.delete(:end)&.to_datetime - schedule_value.dig(:start_time, :time).to_datetime).days.to_i
+            end
+          end
         end
       end
 
@@ -381,6 +395,7 @@ module DataCycleCore
               DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
             end
           schedule.from_hash(item)
+          binding.pry
           schedule.save!
           updated_item_keys << schedule.id
         end

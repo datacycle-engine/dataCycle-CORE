@@ -20,7 +20,7 @@ module DataCycleCore
           return if a.is_a?(ActiveRecord::Relation) && b.is_a?(ActiveRecord::Relation)
           a_uuids = parse_uuids(a)
           changes = []
-          a_uuids.each do |a_item|
+          a.each do |a_item|
             a_uuid = nil
             a_data = nil
             if a_item.is_a?(::Hash)
@@ -29,14 +29,14 @@ module DataCycleCore
             end
             if a_item.is_a?(DataCycleCore::Schedule) || a_item.is_a?(DataCycleCore::Schedule::History)
               a_uuid = a_item.id
-              a_data = a_item.to_hash
+              a_data = a_item.schedule_object.to_hash
             end
             next if a_uuid.nil?
-            b_data = find_uuid(b, a_uuid)
-            change = diff(a_data, b_data)
+            b_data = find_item(b, a_uuid)
+            change = diff_schedule(a_data, b_data)
             changes << a_uuid if change.present?
           end
-          changes.size.positive? ? [['~', change.sort]] : nil
+          changes.size.positive? ? [['~', changes.sort]] : nil
         end
 
         def diff_schedule(a, b)
@@ -74,7 +74,7 @@ module DataCycleCore
           elsif a.is_a?(::Array)
             a.map { |item|
               if item.is_a?(::Hash)
-                item&.dig('id') || item&.dig(:id)
+                item&.dig('id') || item&.dig(:id) || "new_#{item.hash}"
               elsif item.is_a?(DataCycleCore::Schedule)
                 item.id
               end

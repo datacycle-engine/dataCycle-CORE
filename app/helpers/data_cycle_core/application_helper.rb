@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def ice_cube_select_options
-      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly]).prepend(:once).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), r] }
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule"] }
     end
 
     def display_flash_messages_new(closable: true)
@@ -389,9 +389,10 @@ module DataCycleCore
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        key.attribute_name_from_key,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        definition['type'].underscore_blanks.to_s,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
+      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end

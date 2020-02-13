@@ -65,7 +65,6 @@ de:
     download: Download
     download_import: Download&Import
 
-
   notification:
     frequency:
       always: sofort bei Änderung
@@ -77,7 +76,7 @@ de:
     dtend: Endzeitpunkt
     full_day: Ganztägig
     rrule: Wiederholungen
-    once: einmalig
+    single_occurrence: einmalig
     daily: täglich
     weekly: wöchentlich
     monthly: monatlich
@@ -85,10 +84,14 @@ de:
     every:
       maskulin: jeden
       feminin: jede
+      neutrum: jedes
     day: Tag
     week: Woche
     'on': am
-
+    month: Monat
+    weekday: Wochentag
+    dayofmonth: Tag des Monats
+    year: Jahr
 
   common:
     'true': Ja
