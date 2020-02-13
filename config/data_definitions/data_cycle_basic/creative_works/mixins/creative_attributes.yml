@@ -62,7 +62,12 @@
       :content_location:
         :label: Ort
         :type: linked
-        :template_name: POI
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
       :url:
         :label: Link
         :type: string
