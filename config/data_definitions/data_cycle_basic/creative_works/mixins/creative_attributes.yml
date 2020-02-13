@@ -59,6 +59,10 @@
         :label: Bilder
         :type: linked
         :template_name: Bild
+      :video:
+        :label: Videos
+        :type: linked
+        :template_name: Video
       :content_location:
         :label: Ort
         :type: linked
