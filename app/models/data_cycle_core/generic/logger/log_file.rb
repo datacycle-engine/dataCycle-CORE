@@ -33,6 +33,7 @@ module DataCycleCore
             @log.error "Error: #{error}"
           end
           @log.error "  DATA: #{JSON.pretty_generate(data).gsub(/\n/, "\n  ")}" if data
+          @log.error error.full_message
         end
 
         def info(title, id)

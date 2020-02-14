@@ -12,7 +12,25 @@ module DataCycleCore
           @sales_channel_id = sales_channel_id
           @options = options
           @read_type = options[:read_type] if options[:read_type].present?
+          @per = 100
         end
+
+        # def load_items_index(lang: 'de')
+        #   raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
+        #   index_array = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+        #     mongo.where({ "dump.#{lang}" => { '$exists' => true } }).to_a
+        #       .map { |data| [data.dump[lang.to_s]['Id'], data.dump[lang.to_s]['range_code'], data.dump[lang.to_s]['range_id']] }
+        #   end
+        #   index_hash = {}
+        #   index_array.each do |item|
+        #     if index_hash.key?(item[1..2])
+        #       index_hash[item[1..2]] = index_hash[item[1..2]].push(item[0])
+        #     else
+        #       index_hash[item[1..2]] = [item[0]]
+        #     end
+        #   end
+        #   index_hash
+        # end
 
         def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
@@ -109,11 +127,11 @@ module DataCycleCore
         end
 
         def additional_service_providers(lang: :de)
-          enumerate_items_large(:additional_service_providers, '&lt\;ServiceProvider Id', lang: lang)
+          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', lang: lang)
         end
 
         def events(lang: :de)
-          enumerate_items_large(:events, '&lt\;Event Id', lang: lang)
+          enumerate_two_stages(:events, '//Events/Event', lang: lang)
         end
 
         def packages(lang: :de)
@@ -125,13 +143,52 @@ module DataCycleCore
         end
 
         def accommodations(lang: :de)
-          enumerate_items_large(:accommodations, '&lt\;ServiceProvider Id', lang: lang)
+          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', lang: lang)
         end
 
         def serial_events(lang: :de)
           # enumerate_items_large(:serial_events, '&lt\;SerialEvent ', lang: lang) # untested!!
           enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
         end
+
+        def enumerate_two_stages(type, xpath, lang: :de)
+          # load all relevant item_ids
+          item_hash = {}
+          load_range_ids_new.map { |range_code, range_id|
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true).xpath(xpath).map do |xml_raw_data|
+              [xml_raw_data['Id'], range_code, range_id]
+            end
+          }.map { |range_array| item_hash[range_array[0][1..2]] = range_array.map { |item| item[0] }.uniq if range_array.size.positive? }
+
+          # load item details
+          Enumerator.new do |yielder|
+            item_ids = []
+            item_hash.each do |range, ids|
+              ids.each_slice(@per) do |id_slice|
+                load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice).xpath(xpath).each do |xml_data|
+                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+                  unless item_ids.include?(item['Id'] || item['Order'])
+                    item_ids << item['Id'] || item['Order']
+                    yielder << item
+                  end
+                end
+              end
+            end
+          end
+        end
+
+        # def enumerate_single_items(type, xpath, lang: :de)
+        #   Enumerator.new do |yielder|
+        #     load_items_index(lang: lang).each do |range, ids|
+        #       ids.each_slice(@per) do |id_slice|
+        #         load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice).xpath(xpath).each do |xml_data|
+        #           item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+        #           yielder << item
+        #         end
+        #       end
+        #     end
+        #   end
+        # end
 
         def enumerate_items_large(type, pattern, lang: :de)
           Enumerator.new do |yielder|
@@ -162,14 +219,15 @@ module DataCycleCore
           end
         end
 
-        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id)
+        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           else
             url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
           end
 
-          request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids)
+          method_name = index ? "create_#{type}_index_request_xml" : "create_#{type}_request_xml"
+          request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
 
           # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
           # puts
@@ -183,6 +241,28 @@ module DataCycleCore
 
           envelop = Nokogiri::XML(response.body)
 
+          data = Nokogiri::XML(envelop.children.first.content)
+          data.remove_namespaces!
+
+          raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
+          data
+        end
+
+        def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:)
+          url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids)
+
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          response = Faraday.new.post do |req|
+            req.url url
+            req.options.timeout = 1200
+            req.body = { 'xmlString' => request_parameters }
+          end
+
+          envelop = Nokogiri::XML(response.body)
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
@@ -221,9 +301,10 @@ module DataCycleCore
 
           if data_array[0].nil?
             envelop = Nokogiri::XML.parse(response.body)
+            raise StandardError, response.body if envelop.children.first&.try(:name) == 'html'
+
             data = Nokogiri::XML(envelop.children.first.content)
             data.remove_namespaces!
-
             raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
           end
           data_array.compact
@@ -326,13 +407,37 @@ module DataCycleCore
           end
         end
 
-        def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+        def create_additional_service_providers_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.ServiceProvider('Type' => 'AdditionalService', 'Status' => 'All')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.ServiceProviders do
+                xml.Details('DateFrom' => '1980-01-01')
+              end
+            end
+          end
+        end
+
+        def create_additional_service_providers_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           start_date = Time.zone.now.to_s[0..9]
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
-                xml.ServiceProvider('Type' => 'AdditionalService')
+                xml.PreSelectedServiceProviderIDs do
+                  Array.wrap(item_ids).each do |id|
+                    xml.Item(id)
+                  end
+                end
+                xml.ServiceProvider('Type' => 'AdditionalService', 'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -369,6 +474,31 @@ module DataCycleCore
           end
         end
 
+        def create_events_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.PreSelectedEventIDs do
+                  Array.wrap(item_ids).each do |id|
+                    xml.Item(id)
+                  end
+                end
+                xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
+                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.Events do
+                xml.Details('DateFrom' => '1980-01-01')
+              end
+            end
+          end
+        end
+
         def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
@@ -397,12 +527,36 @@ module DataCycleCore
           end
         end
 
-        def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+        def create_accommodations_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.ServiceProvider('Type' => 'Accommodation', 'Status' => 'All')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.ServiceProviders do
+                xml.Details('DateFrom' => '1980-01-01')
+              end
+            end
+          end
+        end
+
+        def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           start_date = Time.zone.now.to_s[0..9]
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
+                xml.PreSelectedServiceProviderIDs do
+                  Array.wrap(item_ids).each do |id|
+                    xml.Item(id)
+                  end
+                end
                 xml.ServiceProvider('Type' => 'Accommodation', 'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
