@@ -76,7 +76,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          key = { key.to_sym => [:id, duration: [:start, :end], rrules: [:rule_type, :interval, :until, validations: [day_of_week: []]]] }
+          key = { key.to_sym => [:id, :full_day, start_time: [:time], end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day_of_week: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -96,6 +96,38 @@ module DataCycleCore
 
     class << self
       private
+
+      def set_schedule_values(value)
+        return nil if value.blank? || value.values.blank?
+
+        value.values.map { |s|
+          next nil if s.dig('start_time', 'time').blank?
+
+          start_time = s.dig('start_time', 'time')&.in_time_zone
+          end_time = s.dig('end_time', 'time')&.in_time_zone
+
+          if s['full_day'] == '1'
+            start_time = start_time.beginning_of_day
+            s['duration'] = 1.day
+            s.delete('end_time')
+          end
+
+          s['start_time'] = {
+            time: start_time.to_s,
+            zone: start_time.time_zone.name
+          }
+
+          if s['end_time'].present?
+            s['end_time'] = {
+              time: end_time.to_s,
+              zone: end_time.time_zone.name
+            }
+          end
+
+          s.delete('rrules') if s.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule'
+          s.slice('id', 'start_time', 'duration', 'end_time', 'rrules')
+        }.compact
+      end
 
       def flatten_recursive(datahash, template_hash)
         temp_datahash = {}
@@ -124,7 +156,7 @@ module DataCycleCore
 
               value = temp_value
             elsif type == 'schedule'
-              value = value.values
+              value = set_schedule_values value
             elsif value['value'].is_a?(::Array)
               value['value'] = value['value'].reject(&:blank?)
             end

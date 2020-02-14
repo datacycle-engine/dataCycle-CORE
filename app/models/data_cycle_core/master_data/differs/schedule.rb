@@ -18,7 +18,6 @@ module DataCycleCore
         def schedule_change(a, b, template)
           return if a.blank? || b.blank? || template.blank?
           return if a.is_a?(ActiveRecord::Relation) && b.is_a?(ActiveRecord::Relation)
-          a_uuids = parse_uuids(a)
           changes = []
           a.each do |a_item|
             a_uuid = nil
@@ -58,7 +57,7 @@ module DataCycleCore
               data = item
               iuuid = item.dig('id') || item.dig(:id)
             end
-            if item.is_a?(DataCycleCore::Schedule) || a_item.is_a?(DataCycleCore::Schedule::History)
+            if item.is_a?(DataCycleCore::Schedule) || item.is_a?(DataCycleCore::Schedule::History)
               data = item.to_hash
               iuuid = item.id
             end

@@ -18,17 +18,17 @@
     <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
       <div class="daterange">
         <div class="form-element dtstart">
-          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][dt][start]")}", t('schedule.dtstart', locale: DataCycleCore.ui_language) %>
-          <%= datetime_field_tag "#{key}[#{index}][dtstart]", nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][dt][start]")}", data: { type: 'datepicker' } %>
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", t('schedule.dtstart', locale: DataCycleCore.ui_language) %>
+          <%= datetime_field_tag "#{key}[#{index}][start_time][time]", nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", data: { type: 'datepicker' } %>
         </div>
 
         <div class="form-element dtend">
-          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][dt][end]")}", t('schedule.dtend', locale: DataCycleCore.ui_language) %>
-          <%= datetime_field_tag "#{key}[#{index}][dtend]", nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][dt][end]")}", data: { type: 'datepicker' } %>
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", t('schedule.dtend', locale: DataCycleCore.ui_language) %>
+          <%= datetime_field_tag "#{key}[#{index}][end_time][time]", nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", data: { type: 'datepicker' } %>
         </div>
 
         <div class="form-element fullday">
-          <%= check_box_tag "#{key}[#{index}][full_day]", id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][full_day]")}", data: { type: 'datepicker' } %>
+          <%= check_box_tag "#{key}[#{index}][full_day]", '1', false, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][full_day]")}", data: { type: 'datepicker' } %>
           <%= label_tag "#{key}[#{index}][full_day]", t('schedule.full_day', locale: DataCycleCore.ui_language) %>
         </div>
       </div>
