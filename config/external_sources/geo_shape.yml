@@ -1,0 +1,57 @@
+---
+name: OpenStreetMap
+credentials:
+  storage_type: local
+#  directory: ./tmp/import_files/files/
+  directory: ./test/fixtures/files/shp
+  #  directory: /home/pixelpoint/data_cycle_core/media
+  delete: false
+config:
+  download_config:
+    # could be used to download assets to local storage
+    shp:
+      sorting: 1
+      source_type: shp
+      endpoint:  DataCycleCore::Generic::GeoShape::Endpoint
+      download_strategy:  DataCycleCore::Generic::GeoShape::Download
+  import_config:
+    shp:
+      sorting: 1
+      source_type: shp
+      srid: 3035
+      geometry_type: DataCycleCore::ClassificationPolygon
+      import_strategy: DataCycleCore::Generic::GeoShape::Import
+      tree_label: Administrative Einheiten
+      extract_tags:
+        # mode: folder
+        mode: filename
+#        delimiter: '_'
+#        tree_label: 'Medien - Tags'
+#        attribute_name: 'media_tags'
+      # transformations:
+        # asset:
+        #   template: Bild
+    # videos:
+    #   sorting: 2
+    #   source_type: videos
+    #   asset_type: DataCycleCore::Video
+    #   import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+    #   transformations:
+    #     asset:
+    #       template: Video
+    # audio:
+    #   sorting: 3
+    #   source_type: audio
+    #   asset_type: DataCycleCore::Audio
+    #   import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+    #   transformations:
+    #     asset:
+    #       template: Audio
+    # pdf:
+    #   sorting: 4
+    #   source_type: pdf
+    #   asset_type: DataCycleCore::Pdf
+    #   import_strategy: DataCycleCore::Generic::DataCycleMedia::ImportAssets
+    #   transformations:
+    #     asset:
+    #       template: PDF
