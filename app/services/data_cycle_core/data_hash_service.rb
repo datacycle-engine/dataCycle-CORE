@@ -69,7 +69,7 @@ module DataCycleCore
       end
 
       I18n.with_locale(locale) do
-        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true, partial_update: true)
+        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
         OpenStruct.new(errors: valid[:error]) if valid[:error].present?
       end
 
