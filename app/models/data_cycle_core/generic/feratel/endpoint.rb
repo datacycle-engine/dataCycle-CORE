@@ -15,23 +15,6 @@ module DataCycleCore
           @per = 100
         end
 
-        # def load_items_index(lang: 'de')
-        #   raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
-        #   index_array = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-        #     mongo.where({ "dump.#{lang}" => { '$exists' => true } }).to_a
-        #       .map { |data| [data.dump[lang.to_s]['Id'], data.dump[lang.to_s]['range_code'], data.dump[lang.to_s]['range_id']] }
-        #   end
-        #   index_hash = {}
-        #   index_array.each do |item|
-        #     if index_hash.key?(item[1..2])
-        #       index_hash[item[1..2]] = index_hash[item[1..2]].push(item[0])
-        #     else
-        #       index_hash[item[1..2]] = [item[0]]
-        #     end
-        #   end
-        #   index_hash
-        # end
-
         def load_range_ids_new
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
           range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
@@ -123,7 +106,8 @@ module DataCycleCore
         end
 
         def infrastructure_items(lang: :de)
-          enumerate_items_large(:infrastructure_items, '&lt\;InfrastructureItem Id', lang: lang)
+          # enumerate_items_large(:infrastructure_items, '&lt\;InfrastructureItem Id', lang: lang)
+          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', lang: lang)
         end
 
         def additional_service_providers(lang: :de)
@@ -176,19 +160,6 @@ module DataCycleCore
             end
           end
         end
-
-        # def enumerate_single_items(type, xpath, lang: :de)
-        #   Enumerator.new do |yielder|
-        #     load_items_index(lang: lang).each do |range, ids|
-        #       ids.each_slice(@per) do |id_slice|
-        #         load_data_item(type, lang: lang, range_code: range[0], range_ids: range[1], item_ids: id_slice).xpath(xpath).each do |xml_data|
-        #           item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
-        #           yielder << item
-        #         end
-        #       end
-        #     end
-        #   end
-        # end
 
         def enumerate_items_large(type, pattern, lang: :de)
           Enumerator.new do |yielder|
@@ -379,10 +350,34 @@ module DataCycleCore
           end
         end
 
-        def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+        def create_infrastructure_items_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
+                xml.Infrastructure('Status' => 'All')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.Infrastructure do
+                xml.Details('DateFrom' => '1980-01-01')
+              end
+            end
+          end
+        end
+
+        def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters do
+                xml.PreSelectedInfrastructureIDs do
+                  Array.wrap(item_ids).each do |id|
+                    xml.Item(id)
+                  end
+                end
                 xml.Infrastructure
                 xml.Languages do
                   Array(lang).each do |l|
