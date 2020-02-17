@@ -281,6 +281,21 @@ WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', 
 
 
 --
+-- Name: classification_polygons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_polygons (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    admin_level integer,
+    classification_alias_id uuid,
+    geom public.geometry(MultiPolygon,3035),
+    geog public.geography(MultiPolygon,4326),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -476,7 +491,8 @@ CREATE TABLE public.things (
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
-    representation_of_id uuid
+    representation_of_id uuid,
+    geom public.geometry(Point,4326)
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
@@ -993,6 +1009,14 @@ ALTER TABLE ONLY public.classification_contents
 
 
 --
+-- Name: classification_polygons classification_polygons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_polygons
+    ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: classification_aliases classifications_aliases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1272,6 +1296,13 @@ CREATE UNIQUE INDEX child_parent_index ON public.classification_trees USING btre
 --
 
 CREATE INDEX classification_content_data_history_id_idx ON public.classification_content_histories USING btree (content_data_history_id);
+
+
+--
+-- Name: classification_polygons_geom_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_polygons_geom_idx ON public.classification_polygons USING gist (geom);
 
 
 --
@@ -1982,6 +2013,13 @@ CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btre
 
 
 --
+-- Name: things_spatial_geom_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX things_spatial_geom_idx ON public.things USING gist (geom);
+
+
+--
 -- Name: unique_by_shareable; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2173,6 +2211,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219123847'),
 ('20191219143016'),
 ('20200116143539'),
-('20200117095949');
+('20200117095949'),
+('20200213132354');
 
 
