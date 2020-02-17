@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class CreateClassificationPolygons < ActiveRecord::Migration[5.2]
   def change
     create_table :classification_polygons, id: :uuid do |t|
