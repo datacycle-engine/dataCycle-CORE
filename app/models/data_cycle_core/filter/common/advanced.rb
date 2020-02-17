@@ -11,7 +11,7 @@ module DataCycleCore
           not_equal: '<>'
         }.freeze
 
-        def in_schedule(value=nil)
+        def in_schedule(value = nil)
           from_date = nil
           to_date = nil
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
