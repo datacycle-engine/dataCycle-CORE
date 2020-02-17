@@ -60,7 +60,7 @@
   :enabled: true
   :classification_alias_ids:
     - Inhaltstypen
-  :autoload_last_filter: false
+  :autoload_last_filter: true
 
 :advanced_filter:
   :enabled: true
