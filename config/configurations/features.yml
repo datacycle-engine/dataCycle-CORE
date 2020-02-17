@@ -71,6 +71,7 @@
   :classification_tree_ids: true
   :date_range: all
   :validity_period: true
+  :in_schedule: true
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric
