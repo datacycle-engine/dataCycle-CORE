@@ -6,18 +6,25 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
+        include DataCycleCore::ApiHelper
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
+            query = build_search_query
+            # query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-            render 'index'
+
+            if list_api_request?
+              render plain: list_api_request.to_json, content_type: 'application/json'
+            else
+              render 'index'
+            end
           end
         end
 
@@ -50,6 +57,28 @@ module DataCycleCore
 
         private
 
+        def list_api_request?
+          return true if @include_parameters.blank? && select_attributes(@fields_parameters).include?('dct:modified') && select_attributes(@fields_parameters).size == 1
+          false
+        end
+
+        def list_api_request
+          json_context = api_plain_context(@language)
+          json_contents = @contents.map do |item|
+            Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+              item.to_api_list
+            end
+          end
+          json_links = api_plain_links
+          list_hash = {
+            '@context' => json_context,
+            '@graph' => json_contents,
+            'links' => json_links
+          }
+          list_hash['meta'] = api_plain_meta(@contents.total_count, @contents.total_pages) unless @mode_parameters == 'strict'
+          list_hash
+        end
+
         def apply_ordering(query)
           query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
         end
@@ -71,7 +100,7 @@ module DataCycleCore
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
-          query = filter.apply
+          query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
@@ -86,7 +115,7 @@ module DataCycleCore
             permitted_params.dig(:filter, :concepts).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids(classifications)
+              query = query.experimental_classification_alias_ids(classifications)
             end
           end
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
