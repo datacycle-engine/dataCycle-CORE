@@ -49,7 +49,16 @@ module DataCycleCore
             if utility_object.asset_download
               content.asset&.remove_file!
 
-              asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+              if data.dig('binary_file').present? && data.dig('binary_file_name').present?
+                tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
+                tempfile.binmode
+                tempfile.write(data.dig('binary_file'))
+                tempfile.close
+                asset = config.dig(:asset_type).constantize.new(file: Pathname.new(Rails.root.join('tmp', data.dig('binary_file_name'))).open)
+                File.delete(Rails.root.join('tmp', data.dig('binary_file_name')))
+              else
+                asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+              end
               asset.save!
               global_data['asset'] = asset.id
             else

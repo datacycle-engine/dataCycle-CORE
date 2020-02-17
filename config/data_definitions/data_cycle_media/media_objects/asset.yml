@@ -124,7 +124,7 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
-        :advanced_search: true
+        :advanced_search: true       
       :content_location:
         :label: Ort
         :type: linked

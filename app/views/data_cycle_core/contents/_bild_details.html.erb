@@ -48,12 +48,12 @@
                             </dd>
                         <% end %>
 
-                        <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions'].any?{|val| content.try(val.to_sym).present? } %>
+                        <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidlines'].any?{|val| content.try(val.to_sym).present? } %>
                             <dt>
                                 <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
                             </dt>
 
-                            <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year'].each do |property_name| %>
+                            <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidlines'].each do |property_name| %>
                                 <% next if content.try(property_name.to_sym).blank? %>
                                 <dd>
                                     <%= render_attribute_viewer key: property_name,
