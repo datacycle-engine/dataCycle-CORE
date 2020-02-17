@@ -72,6 +72,7 @@
   :date_range: all
   :validity_period: true
   :geo_radius: true
+  :geo_within_classification: true
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric

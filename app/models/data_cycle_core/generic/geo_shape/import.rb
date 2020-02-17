@@ -49,6 +49,7 @@ module DataCycleCore
                   # it should read the content of the files ordered(ASC) by adminlevel row by row
                   RGeo::Shapefile::Reader.open(shapefile, { srid: srid }) do |file|
                     # binding.pry
+                    item_count = 0
 
                     file.each do |record|
                       attributes = record.attributes
@@ -60,21 +61,32 @@ module DataCycleCore
                       # poly_id = create_classification_polygon(record.geometry)
                       # classifications_array.push(relation_id, name, external_source_id.from_config, poly_id)
                       classifications_array.push({ classification_polygon_id: classification_polygon[:id], external_key: attributes['id'], adminlevel: attributes['adminlevel'], name: attributes['locname'], parent_external_key: attributes['parent_id'], external_source_id: external_source_id, tree_name: tree_label })
+
+                      item_count += 1
                     end
                   end
+
+                  logging.info("Imported #{item_count} items", "Duration: #{durations.sum.round(6)} seconds")
 
                   # binding.pry
                   # sort array and loop
                   classifications_array.sort_by! { |classification| classification[:adminlevel] }
 
                   classifications_array.each do |classification|
-                    classification_alias = import_classification(classification_data: classification, parent_external_key: classification[:external_source_id])
+                    # for now we ignore polygons without parent
+                    # TODO: move polygons without parent in their own parent
+                    # binding.pry
+                    next if classification[:parent_external_key].zero? && classification[:adminlevel] > 2
+
+                    classification_alias = import_classification(classification_data: classification, parent_external_key: classification[:parent_external_key])
                     # binding.pry
                     classification_polygon = DataCycleCore::ClassificationPolygon.find(classification[:classification_polygon_id])
                     # binding.pry
                     classification_polygon.classification_alias_id = classification_alias.id
                     classification_polygon.save!
                   end
+
+                  logging.info('Created Classification', "Duration: #{durations.sum.round(6)} seconds")
 
                   # create classification and add FK to class_poly
 
@@ -119,7 +131,7 @@ module DataCycleCore
               end
 
               GC.start
-              logging.info("Imported #{item_count} items", "Duration: #{durations.sum.round(6)} seconds")
+              # logging.info("Imported #{item_count} items", "Duration: #{durations.sum.round(6)} seconds")
             ensure
               logging.phase_finished(phase_name.to_s, item_count)
             end
@@ -171,6 +183,8 @@ module DataCycleCore
         def self.import_classification(classification_data:, parent_external_key:)
           # binding.pry
           parent_classification_alias = parent_external_key ? DataCycleCore::ClassificationAlias.includes(:primary_classification, classification_tree: [:classification_tree_label]).find_by(classification_trees: { classification_tree_labels: { name: classification_data[:tree_name] } }, classifications: { external_key: parent_external_key }) : nil
+
+          # TODO: if no parent and adminlevel > 2 create or add to "Other Admin_levels"
 
           classification = DataCycleCore::Classification.includes(primary_classification_alias: [classification_tree: :classification_tree_label]).where(external_key: classification_data[:external_key], primary_classification_alias: { classification_trees: { classification_tree_labels: { name: classification_data[:tree_name] } } }).first_or_initialize do |c|
             c.name = classification_data[:name]

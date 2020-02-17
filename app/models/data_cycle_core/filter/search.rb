@@ -322,6 +322,21 @@ module DataCycleCore
         )
       end
 
+      # TODO: allow multiple (or?), test
+      def geo_within_classification(ids)
+        # binding.pry
+        return self if ids.blank?
+
+        sub_query = Arel::SelectManager.new
+          .project(classification_polygon[:geom])
+          .from(classification_polygon)
+          .where(classification_polygon[:classification_alias_id].eq(ids[0]))
+
+        reflect(
+          @query.where(st_contains(sub_query, thing[:geom]).eq('true'))
+        )
+      end
+
       def not_validity_period(d = nil)
         return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
 
@@ -517,6 +532,10 @@ module DataCycleCore
 
       def thing
         DataCycleCore::Thing.arel_table
+      end
+
+      def classification_polygon
+        DataCycleCore::ClassificationPolygon.arel_table
       end
 
       def duplicate_candidate

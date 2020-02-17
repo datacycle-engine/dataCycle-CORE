@@ -65,6 +65,10 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakePoint', [Arel::Nodes::SqlLiteral.new(x), Arel::Nodes::SqlLiteral.new(y)])
       end
 
+      def st_contains(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Contains', [geom1, geom2])
+      end
+
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end

@@ -306,6 +306,7 @@ de:
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
     geo_radius: Umkreis
+    geo_within_classification: In Polygon
 
 
   filter_groups:
@@ -319,6 +320,7 @@ de:
     boolean: nach booleschen Kriterien filtern...
     advanced_attributes: nach Attributen filtern...
     geo_radius: nach Umkreis filtern...
+    geo_within_classification: In Polygon...
 
   object_browser:
     details:
