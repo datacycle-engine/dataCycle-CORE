@@ -39,9 +39,9 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params.dig(:filter, :deleted_since)
+          if permitted_params.dig(:filter, :deltedSince)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deltedSince)))
             )
           end
           @contents = apply_paging(deleted_contents)
@@ -51,7 +51,7 @@ module DataCycleCore
           # json-api: sort
           super + [
             :id, :language, :include, :fields, :format,
-            { filter: [:search, :box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+            { filter: [:search, :box, :modifiedSince, :createdSince, :deltedSince, :from, :to, { classifications: [] }] }
           ]
         end
 
@@ -105,14 +105,14 @@ module DataCycleCore
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
-          query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
-          query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
+          query = query.modifiedSince(permitted_params.dig(:filter, :modifiedSince)) if permitted_params.dig(:filter, :modifiedSince)
+          query = query.createdSince(permitted_params.dig(:filter, :createdSince)) if permitted_params.dig(:filter, :createdSince)
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
-          if permitted_params&.dig(:filter, :concepts)
-            permitted_params.dig(:filter, :concepts).map { |classifications|
+          if permitted_params&.dig(:filter, :classifications)
+            permitted_params.dig(:filter, :classifications).map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
               query = query.experimental_classification_alias_ids(classifications)
