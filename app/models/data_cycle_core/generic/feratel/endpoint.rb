@@ -474,15 +474,10 @@ module DataCycleCore
           end
         end
 
-        def create_events_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
+        def create_events_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
-                xml.PreSelectedEventIDs do
-                  Array.wrap(item_ids).each do |id|
-                    xml.Item(id)
-                  end
-                end
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
                            'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
                 xml.Languages do
@@ -499,10 +494,15 @@ module DataCycleCore
           end
         end
 
-        def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+        def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters do
+                xml.PreSelectedEventIDs do
+                  Array.wrap(item_ids).each do |id|
+                    xml.Item(id)
+                  end
+                end
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
                            'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
                 xml.Languages do
