@@ -19,28 +19,8 @@
 
         <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-        <span class="detail-content">
-            <%
-                object_string = ''
-                begin
-                    object_string = object.try(:to_s)&.try(:html_safe)
-                rescue
-                    object_string = ''
-                end
-            %>
-            <%= object_string %>
-            <% appointments = object.try(:schedule_object)&.next_occurrences(5) %>
-            <% if appointments&.size&.positive? %>
-              <p>
-                <br/>
-                upcoming:
-                <ul>
-                  <% appointments.each do |date| %>
-                    <li><%= "#{date.start_time.to_s(:only_date)} #{date.start_time.to_s(:only_time)}" %></li>
-                  <% end %>
-                </ul>
-              </p>
-            <% end %>
+        <span class="detail-content events-calender-view">
+          <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: object.try(:schedule_object)&.next_occurrences(5), as: :date, locals: { object: object } %>
         </span>
 
     <% end %>

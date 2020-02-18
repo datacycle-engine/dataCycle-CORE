@@ -104,7 +104,7 @@ module DataCycleCore
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
-          end_time = s.dig('end_time', 'time')&.in_time_zone
+          end_time = s.dig('end_time', 'time')&.in_time_zone || (start_time + 1 * 60 * 60)
 
           if s['full_day'] == '1'
             start_time = start_time.beginning_of_day

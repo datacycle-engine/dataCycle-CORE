@@ -155,3 +155,58 @@
     }
   }
 }
+
+.events-calender-view {
+  .calender-leaf {
+    display: inline-block;
+    position: relative;
+    width: 7rem;
+    text-align: center;
+
+    .leaf-date {
+      display: flex;
+      padding: 2.5rem 0.7rem 0.5rem 0.7rem;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .leaf-background {
+      position: absolute;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      font-size: 7rem;
+      text-align: center;
+    }
+    .leaf-month {
+      font-size: 0.8rem;
+    }
+    .leaf-year {
+      font-size: 0.8rem;
+    }
+    .leaf-day {
+      font-weight: bold;
+      font-size: 1.6rem;
+      line-height: 1.6rem;
+    }
+    .leaf-duration {
+      font-size: 0.8rem;
+      border: 7px solid;
+      border-radius: 5px;
+      width: 6.5rem;
+      border-bottom-left-radius: 7px;
+      border-bottom-right-radius: 7px;
+      padding: 0 5px;
+      position: absolute;
+      top: 6.5rem;
+      left: 0.25rem;
+    }
+
+    .leaf-duration ~ .leaf-date {
+      margin-bottom: 2rem;
+    }
+  }
+}

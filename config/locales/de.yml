@@ -1021,6 +1021,7 @@ de:
       long: "%A, %d. %B %Y, %H:%M Uhr"
       short: "%d. %B, %H:%M Uhr"
       edit: "%d.%m.%Y - %H:%M"
+      time_only: "%H:%M"
     pm: nachmittags
 
   external_sources:
