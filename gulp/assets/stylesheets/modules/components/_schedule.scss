@@ -1,3 +1,7 @@
+.detail-header.editor .schedule-editor .daterange .form-element {
+  display: flex;
+}
+
 .schedule-editor {
   .daterange,
   .daterange:hover {
@@ -65,6 +69,7 @@
       box-shadow: none;
       border: none;
       min-width: 100px;
+      width: auto;
 
       &[type='number'] {
         min-width: 4rem;
@@ -93,23 +98,26 @@
         margin: 0;
         color: $black;
         margin: 0 0 0 0.5rem;
+      }
 
-        &:hover {
-          background: $dark-gray;
-          color: $white;
-        }
+      input:not(:disabled) ~ label:hover {
+        background: $dark-gray;
+        color: $white;
       }
 
       input:checked ~ label {
         background: $dark-gray;
         color: $white;
       }
+      input:disabled ~ label {
+        cursor: not-allowed;
+      }
     }
   }
 
   .form-element {
     display: flex;
-    flex-flow: row;
+    flex-flow: row nowrap;
     align-items: center;
     background: $light-gray;
     padding: 0.5rem 1rem;
@@ -124,6 +132,17 @@
       top: 0 !important;
       margin-right: 1rem;
       padding: 0 !important;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+
+      .fa {
+        margin-right: 5px;
+      }
+    }
+
+    input {
+      width: auto;
     }
 
     select {
