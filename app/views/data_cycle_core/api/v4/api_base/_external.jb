@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+json ||= {}
+json['identifier'] ||= []
+json['identifier'] <<
+  {
+    '@type' => 'PropertyValue',
+    'propertyID' => content.external_source.name,
+    'value' => content.external_key
+  }
+json
