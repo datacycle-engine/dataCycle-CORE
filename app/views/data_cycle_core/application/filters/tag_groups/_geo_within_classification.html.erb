@@ -1,0 +1,21 @@
+<span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
+  <i class="tag-group-label">
+    <i class="fa fa-tags" aria-hidden="true"></i>
+      <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+  </i>
+
+    <% classification_alias = DataCycleCore::ClassificationAlias
+        .where(id: value)
+        .map { |c| [c.id, c] }.to_h %>
+        
+  <span class="tags-container">
+    <% if classification_alias.is_a?(Hash) %>
+        <% value.each do |ca_id| %>
+            <span class="tag"><%= classification_alias[ca_id].try(:internal_name) %></span>
+        <% end %>
+    <% else %>
+        <span class="tag"><%= value %></span>
+    <% end %>
+  </span>
+    <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+</span>

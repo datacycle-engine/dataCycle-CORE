@@ -301,10 +301,8 @@ module DataCycleCore
         end
       end
 
+      # TODO: values -> (lon, lat, val)?, sanitize?, tests, Remove transforms
       def geo_radius(values)
-        # TODO: values -> (lon, lat, val)?, sanitize?, tests, Remove transforms
-        # ST_DWithin(ST_Transform(the_geom, 3857), ST_Transform(ST_SetSRID(ST_MakePoint(9.736144, 47.260191), 4326), 3857), 3000)
-
         return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
         reflect(
@@ -322,18 +320,23 @@ module DataCycleCore
         )
       end
 
-      # TODO: allow multiple (or?), test
+      # TODO: test
       def geo_within_classification(ids)
         # binding.pry
         return self if ids.blank?
 
-        sub_query = Arel::SelectManager.new
-          .project(classification_polygon[:geom])
-          .from(classification_polygon)
-          .where(classification_polygon[:classification_alias_id].eq(ids[0]))
+        contains_queries = []
+        ids.each do |id|
+          sub_query = Arel::SelectManager.new
+            .project(classification_polygon[:geom])
+            .from(classification_polygon)
+            .where(classification_polygon[:classification_alias_id].eq(id))
+
+          contains_queries << st_contains(sub_query, st_transform(thing[:location], 3035))
+        end
 
         reflect(
-          @query.where(st_contains(sub_query, thing[:geom]).eq('true'))
+          @query.where(contains_queries.reduce(:or))
         )
       end
 

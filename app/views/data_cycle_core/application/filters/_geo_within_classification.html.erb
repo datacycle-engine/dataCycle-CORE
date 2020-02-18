@@ -12,8 +12,6 @@
     <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
-<%# TODO:  %>
-
   <div class="advanced-filter-selector">
     <% #binding.pry
     classification_items = DataCycleCore::ClassificationTreeLabel
@@ -27,29 +25,33 @@
             ]
           ]
         ]
-      ) || [] %>
+      ) || [] 
+    classification_alias = DataCycleCore::ClassificationAlias
+      .where(id: value)
+      .map { |c| [c.id, c] }.to_h
+    %>
 
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
-        <%= #binding.pry
-        select_tag(
+        <%= select_tag(
           "f[#{index}][v]",
           value.blank? ? nil : options_for_select(
             value.map { |c|
-              # [
-              #   @selected_classification_aliases[c].try(:internal_name),
-              #   c,
-              #   {
-              #     title: [
-              #       @selected_classification_aliases[c].full_path,
-              #       @selected_classification_aliases[c].description
-              #     ].reject(&:blank?).join("\n\n")
-              #   }
-              # ]
+              [
+                classification_alias[c].try(:internal_name),
+                c,
+                {
+                  title: [
+                    classification_alias[c].full_path,
+                    classification_alias[c].description
+                  ].reject(&:blank?).join("\n\n")
+                }
+              ]
             }, value
           ),
           {
             multiple: true,
             class: 'async-select',
+            # TODO: tree_label aus filter-Config holen, wording konfigurierbar machen?
             data: {
               tree_label: 'Administrative Einheiten',
               max: 20,
