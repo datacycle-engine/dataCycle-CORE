@@ -142,6 +142,26 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_asp(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_local_business(utility_object.external_source.id),
+            default: { template: 'LocalBusiness' },
+            config: config
+          )
+        end
+
+        def self.process_as(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_additional_service(utility_object.external_source.id),
+            default: { template: 'Service' },
+            config: config
+          )
+        end
       end
     end
   end
