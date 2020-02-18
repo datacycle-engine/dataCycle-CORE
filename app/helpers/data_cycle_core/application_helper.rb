@@ -21,7 +21,7 @@ module DataCycleCore
     end
 
     def ice_cube_select_options
-      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
     end
 
     def display_flash_messages_new(closable: true)

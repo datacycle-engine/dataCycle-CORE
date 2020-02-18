@@ -108,7 +108,8 @@ module.exports.initialize = function() {
     $($element)
       .find('input[type=datetime-local]')
       .each((_, elem) => {
-        if (!$(elem).attr('readonly')) newCals.push(initDatePicker(elem, flatPickrTimeOptions));
+        if (!$(elem).attr('readonly'))
+          newCals.push(initDatePicker(elem, $(elem).data('disable-time') ? flatPickrOptions : flatPickrTimeOptions));
       });
 
     $($element)
