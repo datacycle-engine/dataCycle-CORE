@@ -15,15 +15,79 @@ module DataCycleCore
           @per = 100
         end
 
-        def load_range_ids_new
-          raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
-          range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
-          range_parameters = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-            mongo.where({ 'dump.de.ParentID' => /#{@primary_range_id}/i })
-              .to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }
-              .presence
-          end
-          (range_parameters.presence || []) + [[@primary_range_code, @primary_range_id]]
+        # basic download of data
+        def categories(lang: :de)
+          enumerate_items(:categories, '//Categories/Category', lang: lang)
+        end
+
+        def classifications(lang: :de)
+          enumerate_items(:classifications, '//Classifications/Classification', lang: lang)
+        end
+
+        def custom_attributes(lang: :de)
+          enumerate_items(:custom_attributes, '//CustomAttributes/CustomAttribute', lang: lang)
+        end
+
+        def facilities(lang: :de)
+          enumerate_items(:facilities, '//Facilities/Facility', lang: lang)
+        end
+
+        def facility_groups(lang: :de)
+          enumerate_items(:facility_groups, '//FacilityGroups/FacilityGroup', lang: lang)
+        end
+
+        def holiday_themes(lang: :de)
+          enumerate_items(:holiday_themes, '//HolidayThemes/HolidayTheme', lang: lang)
+        end
+
+        def infrastructure_topics(lang: :de)
+          enumerate_items(:infrastructure_topics, '//InfrastructureTopics/InfrastructureTopic', lang: lang)
+        end
+
+        def infrastructure_types(lang: :de)
+          enumerate_items(:infrastructure_types, '//InfrastructureTypes/InfrastructureType', lang: lang)
+        end
+
+        def locations(lang: :de)
+          enumerate_items(:locations, '//Location', lang: lang)
+        end
+
+        def rating_questions(lang: :de)
+          enumerate_items(:rating_questions, '//RatingQuestions/RatingQuestion', lang: lang)
+        end
+
+        def serial_events(lang: :de)
+          enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
+        end
+
+        def stars(lang: :de)
+          enumerate_items(:stars, '//Stars/Star', lang: lang)
+        end
+
+        # download of large data with temporary file
+        def packages(lang: :de)
+          enumerate_items_large(:packages, '&lt\;Package Id', lang: lang)
+        end
+
+        def package_containers(lang: :de)
+          enumerate_items_large(:package_containers, '&lt\;Package Id', lang: lang)
+        end
+
+        # two stage download, first generate an index and then page the index to download full data
+        def infrastructure_items(lang: :de)
+          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', lang: lang)
+        end
+
+        def additional_service_providers(lang: :de)
+          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', lang: lang)
+        end
+
+        def events(lang: :de)
+          enumerate_two_stages(:events, '//Events/Event', lang: lang)
+        end
+
+        def accommodations(lang: :de)
+          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', lang: lang)
         end
 
         def load_range_ids(range_code = 'RG')
@@ -61,78 +125,32 @@ module DataCycleCore
           end
         end
 
-        def locations(lang: :de)
-          enumerate_items(:locations, '//Location', lang: lang)
+        def enumerate_items(type, xpath, lang: :de)
+          Enumerator.new do |yielder|
+            item_ids = []
+            ['RG', 'DI', 'TO'].each do |range_code|
+              load_range_ids(range_code).each do |range_id|
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
+                  unless item_ids.include?(item['Id'] || item['Order'])
+                    item_ids << item['Id'] || item['Order']
+                    yielder << item
+                  end
+                end
+              end
+            end
+          end
         end
 
-        def categories(lang: :de)
-          enumerate_items_large(:categories, '&lt\;Category Id', lang: lang)
-        end
-
-        def holiday_themes(lang: :de)
-          enumerate_items_large(:holiday_themes, '&lt\;HolidayTheme Id', lang: lang)
-        end
-
-        def infrastructure_types(lang: :de)
-          enumerate_items_large(:infrastructure_types, '&lt\;InfrastructureType Type', lang: lang)
-        end
-
-        def infrastructure_topics(lang: :de)
-          enumerate_items_large(:infrastructure_topics, '&lt\;InfrastructureTopic ', lang: lang)
-        end
-
-        def custom_attributes(lang: :de)
-          enumerate_items_large(:custom_attributes, '&lt\;CustomAttribute ', lang: lang)
-        end
-
-        def facility_groups(lang: :de)
-          enumerate_items_large(:facility_groups, '&lt\;FacilityGroup ', lang: lang)
-        end
-
-        def facilities(lang: :de)
-          enumerate_items_large(:facilities, '&lt\;Facility ', lang: lang)
-        end
-
-        def stars(lang: :de)
-          enumerate_items_large(:stars, '&lt\;Star ', lang: lang)
-        end
-
-        def classifications(lang: :de)
-          enumerate_items_large(:classifications, '&lt\;Classification ', lang: lang)
-        end
-
-        def rating_questions(lang: :de)
-          enumerate_items_large(:rating_questions, '&lt\;RatingQuestion ', lang: lang)
-        end
-
-        def infrastructure_items(lang: :de)
-          # enumerate_items_large(:infrastructure_items, '&lt\;InfrastructureItem Id', lang: lang)
-          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', lang: lang)
-        end
-
-        def additional_service_providers(lang: :de)
-          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', lang: lang)
-        end
-
-        def events(lang: :de)
-          enumerate_two_stages(:events, '//Events/Event', lang: lang)
-        end
-
-        def packages(lang: :de)
-          enumerate_items_large(:packages, '&lt\;Package Id', lang: lang)
-        end
-
-        def package_containers(lang: :de)
-          enumerate_items_large(:package_containers, '&lt\;Package Id', lang: lang)
-        end
-
-        def accommodations(lang: :de)
-          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', lang: lang)
-        end
-
-        def serial_events(lang: :de)
-          # enumerate_items_large(:serial_events, '&lt\;SerialEvent ', lang: lang) # untested!!
-          enumerate_items(:serial_events, '//SerialEvents/SerialEvent', lang: lang)
+        def load_range_ids_new
+          raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
+          range_types = { 'Region' => 'RG', 'District' => 'DI', 'Town' => 'TO' }
+          range_parameters = DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            mongo.where({ 'dump.de.ParentID' => /#{@primary_range_id}/i })
+              .to_a.map { |r| [range_types[r.dump['de']['_Type']], r.dump['de']['Id']] }
+              .presence
+          end
+          (range_parameters.presence || []) + [[@primary_range_code, @primary_range_id]]
         end
 
         def enumerate_two_stages(type, xpath, lang: :de)
@@ -163,27 +181,14 @@ module DataCycleCore
 
         def enumerate_items_large(type, pattern, lang: :de)
           Enumerator.new do |yielder|
+            item_ids = []
             load_range_ids_new.each do |range_code, range_id|
               load_data_large(type, lang: lang, range_code: range_code, range_ids: range_id, pattern: pattern).each do |xml_raw_data|
                 xml_data = Nokogiri::XML.parse(Nokogiri::HTML.parse(xml_raw_data))
                 item = { '_Type' => xml_data.root.name.singularize }.merge(xml_data.root.to_hash)
-                yielder << item
-              end
-            end
-          end
-        end
-
-        def enumerate_items(type, xpath, lang: :de)
-          Enumerator.new do |yielder|
-            item_ids = []
-            ['RG', 'DI', 'TO'].each do |range_code|
-              load_range_ids(range_code).each do |range_id|
-                load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
-                  item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
-                  unless item_ids.include?(item['Id'] || item['Order'])
-                    item_ids << item['Id'] || item['Order']
-                    yielder << item
-                  end
+                unless item_ids.include?(item['Id'] || item['Order'])
+                  item_ids << item['Id'] || item['Order']
+                  yielder << item
                 end
               end
             end
