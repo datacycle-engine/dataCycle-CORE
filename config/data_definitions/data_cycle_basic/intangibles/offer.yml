@@ -1,7 +1,7 @@
 - :data:
     :name: Angebot
     :type: object
-    :schema_type: Intengible
+    :schema_type: Intangible
     :content_type: embedded
     :api:
       :type: Offer
@@ -74,10 +74,17 @@
               :aliases:
                 - Person
                 - Organisation
+                - LocalBusiness
       :item_offered:
         :label: Angebotene Leistung
         :type: linked
-        :template_name: Unterkunft
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Unterkunkt
+                - Service
       :offer_period:
         :label: Angebotszeitraum
         :type: object

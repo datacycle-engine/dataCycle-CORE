@@ -41,11 +41,12 @@ module DataCycleCore
         end
 
         def self.download_sequential(download_object:, data_id:, data_name:, options:)
+          success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             init_mongo_db(download_object) do
@@ -85,6 +86,7 @@ module DataCycleCore
                       rescue StandardError => e
                         Appsignal.send_error(e, nil, 'background')
                         logging.error(item_name, item_id, item_data, e)
+                        success = false
                       end
 
                       next unless (item_count % delta).zero?
@@ -93,21 +95,24 @@ module DataCycleCore
 
                       times << Time.current
 
-                      logging.info("Downloaded #{item_count} items in #{(times[-1] - times[0]).round(3)} seconds", "ðt: #{(times[-1] - times[-2]).round(3)}")
+                      logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
                   end
                 rescue StandardError => e
                   Appsignal.send_error(e, nil, 'background')
-                  logging.error(nil, nil, e.backtrace, e)
+                  logging.error(nil, nil, nil, e)
+                  success = false
                 ensure
                   logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
                 end
               end
             end
           end
+          success
         end
 
         def self.download_parallel(download_object:, data_id:, data_name:, options:)
+          success = true
           delta = 100
 
           init_mongo_db(download_object) do
@@ -150,6 +155,7 @@ module DataCycleCore
                     rescue StandardError => e
                       Appsignal.send_error(e, nil, 'background')
                       logging.error(item_name, item_id, item_data, e)
+                      success = false
                     end
 
                     next unless (item_count % delta).zero?
@@ -158,17 +164,19 @@ module DataCycleCore
 
                     times << Time.current
 
-                    logging.info("Downloaded #{item_count} items in #{(times[-1] - times[0]).round(3)} seconds", "ðt: #{(times[-1] - times[-2]).round(3)}")
+                    logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                   end
                 end
               rescue StandardError => e
                 Appsignal.send_error(e, nil, 'background')
                 logging.error(nil, nil, nil, e)
+                success = false
               ensure
                 logging.phase_finished(download_object.source_type.collection_name.to_s, item_count)
               end
             end
           end
+          success
         end
 
         def self.init_logging(download_object)

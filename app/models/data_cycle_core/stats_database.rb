@@ -67,7 +67,9 @@ module DataCycleCore
                 "no collections found": 0
               },
               last_import: 'never',
-              last_download: 'never'
+              last_download: 'never',
+              last_successful_import: 'never',
+              last_successful_download: 'never'
             }
           )
         else
@@ -79,17 +81,10 @@ module DataCycleCore
           }
           mongo_data = Hash[Mongoid.client(external_source.id).collections.map { |item| [item.name.humanize, item.count] }]
 
-          if external_source.last_import.nil?
-            last_import = 'never'
-          else
-            last_import = external_source.last_import.to_s
-          end
-
-          if external_source.last_download.nil?
-            last_download = 'never'
-          else
-            last_download = external_source.last_download.to_s
-          end
+          last_download = external_source.last_download.presence || 'never'
+          last_import = external_source.last_import.presence || 'never'
+          last_successful_download = external_source.last_successful_download.presence || 'never'
+          last_successful_import = external_source.last_successful_import.presence || 'never'
 
           @import_modules.push(
             {
@@ -98,8 +93,10 @@ module DataCycleCore
               database: mongo_database,
               db_size: mongo_dbsize,
               tables: mongo_data,
+              last_download: last_download,
               last_import: last_import,
-              last_download: last_download
+              last_successful_download: last_successful_download,
+              last_successful_import: last_successful_import
             }
           )
         end
