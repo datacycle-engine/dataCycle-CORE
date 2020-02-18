@@ -110,8 +110,8 @@ module DataCycleCore
           assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
         end
 
-        test 'parameter filter[:concepts]' do
-          get api_v4_things_path(filter: { concepts: [@content.country_code.first.classification_aliases.first.id] })
+        test 'parameter filter[:classifications]' do
+          get api_v4_things_path(filter: { classifications: [@content.country_code.first.classification_aliases.first.id] })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
