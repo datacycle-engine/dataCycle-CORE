@@ -39,9 +39,9 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params.dig(:filter, :deltedSince)
+          if permitted_params.dig(:filter, :deletedSince)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deltedSince)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deletedSince)))
             )
           end
           @contents = apply_paging(deleted_contents)
@@ -51,7 +51,7 @@ module DataCycleCore
           # json-api: sort
           super + [
             :id, :language, :include, :fields, :format,
-            { filter: [:search, :box, :modifiedSince, :createdSince, :deltedSince, :from, :to, { classifications: [] }] }
+            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree' => [], 'classification.without_subtree' => [] }] }
           ]
         end
 
