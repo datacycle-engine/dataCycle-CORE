@@ -1,7 +1,6 @@
 # frozen_string_literal: true
 
 json ||= {}
-
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 # json.set! key_new do
 

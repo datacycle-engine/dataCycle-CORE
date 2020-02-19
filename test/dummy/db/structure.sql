@@ -590,7 +590,8 @@ CREATE TABLE public.external_sources (
     last_import timestamp without time zone,
     default_options jsonb,
     last_successful_download timestamp without time zone,
-    last_successful_import timestamp without time zone
+    last_successful_import timestamp without time zone,
+    identifier character varying
 );
 
 
@@ -622,7 +623,8 @@ CREATE TABLE public.external_systems (
     default_options jsonb,
     data jsonb,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    identifier character varying
 );
 
 
@@ -2185,6 +2187,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200116143539'),
 ('20200117095949'),
 ('20200131103229'),
-('20200217100339');
+('20200217100339'),
+('20200218151417');
 
 

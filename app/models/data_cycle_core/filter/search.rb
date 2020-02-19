@@ -235,7 +235,7 @@ module DataCycleCore
       end
 
       def count_distinct
-        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many?
+        return @query.except(:order, :limit, :offset).count unless (@joined_search && @locale.blank?) || @locale&.many? || @joined_schedule
         # @query.except(:order, :limit, :offset).count('DISTINCT id') if @joined_schedule
         @query.except(:order, :limit, :offset).count('DISTINCT things.id')
       end
