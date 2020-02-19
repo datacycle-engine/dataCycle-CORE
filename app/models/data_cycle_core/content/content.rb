@@ -70,6 +70,14 @@ module DataCycleCore
         content_type == 'embedded'
       end
 
+      def synch?
+        external_system_syncs.present?
+      end
+
+      def external?
+        external_source.present?
+      end
+
       def schema_type
         schema&.dig('schema_type')
       end
