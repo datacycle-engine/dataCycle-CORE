@@ -28,7 +28,7 @@ module DataCycleCore
             end
             if a_item.is_a?(DataCycleCore::Schedule) || a_item.is_a?(DataCycleCore::Schedule::History)
               a_uuid = a_item.id
-              a_data = a_item.schedule_object.to_hash
+              a_data = a_item.to_h
             end
             next if a_uuid.nil?
             b_data = find_item(b, a_uuid)
@@ -52,7 +52,7 @@ module DataCycleCore
         def find_item(array, uuid)
           array.each do |item|
             data = nil
-            uuid = nil
+            iuuid = nil
             if item.is_a?(::Hash)
               data = item
               iuuid = item.dig('id') || item.dig(:id)
