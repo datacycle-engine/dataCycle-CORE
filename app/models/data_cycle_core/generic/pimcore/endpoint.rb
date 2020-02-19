@@ -4,10 +4,15 @@ module DataCycleCore
   module Generic
     module Pimcore
       class Endpoint
-        def initialize(host: nil, end_point: nil, apikey: nil, **_options)
+        def initialize(host: nil, url_part: nil, end_point: nil, apikey: nil, **options)
           @host = host
+          @url_part = url_part
           @end_point = end_point
           @apikey = apikey
+          @read_type = options[:read_type] if options[:read_type].present?
+          @bergerlebnis = options.dig(:endpoint_bergerlebnis)
+          @event = options.dig(:endpoint_event)
+          @eventreihe = options.dig(:endpoint_eventreihe)
         end
 
         def infrastructures(lang: :de)
@@ -22,18 +27,66 @@ module DataCycleCore
           end
         end
 
+        def bergerlebnis(lang: :de)
+          page_event(@bergerlebnis, 'bergerlebnis', lang.to_s)
+        end
+
+        def event(lang: :de)
+          page_event(@event, 'event', lang.to_s)
+        end
+
+        def eventreihe(lang: :de)
+          page_event(@eventreihe, 'eventreihe', lang.to_s)
+        end
+
         protected
 
         def load_data(page = 1, lang = :de)
           sleep 30
+
           response = Faraday.new.get do |req|
-            req.url File.join([@host, lang, @end_point])
+            req.url File.join([@host, @url_part, lang.to_s, @end_point])
             req.params['apikey'] = @apikey
             req.params['page'] = page
           end
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
+        end
+
+        def page_event(end_point, type, lang)
+          bergerlebnis = []
+          bergerlebnis = load_bergerlebnis_ids if type == 'event'
+          first_page = load_events(end_point, 1)
+          max_pages = first_page['pages'].to_i
+          Enumerator.new do |yielder|
+            (1..max_pages).each do |page|
+              load_events(end_point, page)['items'].each do |event_data|
+                event_data['localizedData'] = event_data['localizedData'][lang]
+                event_data['isBergerlebnis'] = true if event_data.dig('id').in?(bergerlebnis)
+                yielder << event_data.merge('import_type' => type)
+              end
+            end
+          end
+        end
+
+        def load_events(end_point, page = 1)
+          response = Faraday.new.get do |req|
+            req.url File.join([@host, end_point])
+            req.params['page'] = page
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
+          JSON.parse(response.body)
+        end
+
+        def load_bergerlebnis_ids
+          raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
+          bergerlebnis_ids = nil
+          DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
+            bergerlebnis_ids = mongo.where({ 'external_id' => { '$exists' => true } }).to_a.map { |i| i['external_id'].to_i }
+          end
+          bergerlebnis_ids
         end
       end
     end

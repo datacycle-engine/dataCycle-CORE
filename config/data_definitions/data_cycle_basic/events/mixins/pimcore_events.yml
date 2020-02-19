@@ -1,5 +1,5 @@
 ---
 - :data:
-    :name: pimcore_categories
+    :name: pimcore_events
     :type: mixin
     :properties: ~
