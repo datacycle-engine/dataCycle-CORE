@@ -19,28 +19,30 @@
 
         <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-        <span class="detail-content">
-            <%
-                object_string = ''
-                begin
-                    object_string = object.try(:to_s)&.try(:html_safe)
-                rescue
-                    object_string = ''
-                end
-            %>
-            <%= object_string %>
-            <% appointments = object.try(:schedule_object)&.next_occurrences(5) %>
-            <% if appointments&.size&.positive? %>
-              <p>
-                <br/>
-                upcoming:
-                <ul>
-                  <% appointments.each do |date| %>
-                    <li><%= "#{date.start_time.to_s(:only_date)} #{date.start_time.to_s(:only_time)}" %></li>
-                  <% end %>
-                </ul>
-              </p>
-            <% end %>
+        <% next_occurrences = object.try(:schedule_object)&.next_occurrences(5) %>
+
+        <span class="detail-content events-calender-view">
+          <%= link_to t('schedule.prev', locale: DataCycleCore.ui_language),
+            load_more_schedule_path(object, direction: :previous, target: "load_prev_#{object&.id}_#{sanitize_to_id(key)}", from_time: Time.zone.now, class_name: object.class.name),
+            type: 'button',
+            class: 'button load-prev',
+            id: "load_prev_#{object&.id}_#{sanitize_to_id(key)}",
+            remote: true,
+            data: {
+              disable_with: "#{t('schedule.prev', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
+            } unless next_occurrences&.include?(object.try(:schedule_object)&.first) %>
+
+          <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: next_occurrences, as: :date, locals: { object: object } %>
+
+          <%= link_to t('schedule.next', locale: DataCycleCore.ui_language),
+            load_more_schedule_path(object, direction: :next, target: "load_next_#{object&.id}_#{sanitize_to_id(key)}", from_time: next_occurrences.last, class_name: object.class.name),
+            type: 'button',
+            class: 'button load-next',
+            id: "load_next_#{object&.id}_#{sanitize_to_id(key)}",
+            remote: true,
+            data: {
+              disable_with: "#{t('schedule.next', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
+            } if object.try(:schedule_object)&.recurrence_rules.present? && (object.try(:schedule_object)&.recurrence_rules&.first&.until_time.blank? || (object.try(:schedule_object)&.last.present? && next_occurrences&.exclude?(object.try(:schedule_object)&.last) && object.try(:schedule_object)&.last > Time.zone.now)) %>
         </span>
 
     <% end %>

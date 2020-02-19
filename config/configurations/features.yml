@@ -60,7 +60,7 @@
   :enabled: true
   :classification_alias_ids:
     - Inhaltstypen
-  :autoload_last_filter: false
+  :autoload_last_filter: true
 
 :advanced_filter:
   :enabled: true
@@ -153,4 +153,8 @@
 
 :translated_data_link_mails:
   :enabled: false
+  :only_config: true
+
+:translatable:
+  :enabled: true
   :only_config: true

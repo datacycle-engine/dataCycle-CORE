@@ -278,11 +278,7 @@ module DataCycleCore
       end
 
       def enabled_features
-        features = []
-        features << collect_properties.map { |k| schema&.dig('properties', *k, 'features')&.keys }
-        features << schema&.dig('features')&.keys
-        features << DataCycleCore.features.select { |_, v| v[:enabled] }.keys.map(&:to_s)
-        features.flatten.uniq.compact
+        @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
       def get_property_value(property_name, property_definition)
