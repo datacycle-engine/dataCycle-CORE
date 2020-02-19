@@ -97,7 +97,7 @@ module DataCycleCore
     class << self
       private
 
-      def set_schedule_values(value)
+      def schedule_values(value)
         return nil if value.blank? || value.values.blank?
 
         value.values.map { |s|
@@ -158,7 +158,7 @@ module DataCycleCore
 
               value = temp_value
             elsif type == 'schedule'
-              value = set_schedule_values value
+              value = schedule_values value
             elsif value['value'].is_a?(::Array)
               value['value'] = value['value'].reject(&:blank?)
             end
