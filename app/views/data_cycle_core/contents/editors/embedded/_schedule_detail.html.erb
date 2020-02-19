@@ -54,11 +54,11 @@
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][end_time][time]",
-            value&.dig(:end_time, :time).blank? ? nil : l(value&.dig(:end_time, :time)&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language),
+            value&.dig(:end_time, :time).blank? ? (value&.dig(:rrules, 0, :until).blank? ? nil : l(value&.dig(:rrules, 0, :until).in_time_zone, format: :edit, locale: DataCycleCore.ui_language)) : l(value&.dig(:end_time, :time)&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", readonly: true %>
         <% else %>
-          <%= datetime_field_tag "#{key}[#{index}][end_time][time]", value&.dig(:end_time, :time)&.in_time_zone, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", data: { type: 'datepicker', disable_time: value&.dig(:duration) == 1.day } %>
+          <%= datetime_field_tag "#{key}[#{index}][end_time][time]", value&.dig(:end_time, :time)&.in_time_zone || value&.dig(:rrules, 0, :until)&.in_time_zone, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", data: { type: 'datepicker', disable_time: value&.dig(:duration) == 1.day } %>
         <% end %>
       </div>
 

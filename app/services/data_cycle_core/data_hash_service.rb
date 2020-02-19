@@ -104,12 +104,13 @@ module DataCycleCore
           next nil if s.dig('start_time', 'time').blank?
 
           start_time = s.dig('start_time', 'time')&.in_time_zone
-          end_time = s.dig('end_time', 'time')&.in_time_zone || (start_time + 1 * 60 * 60)
+          end_time = s.dig('end_time', 'time')&.in_time_zone || start_time
 
           if s['full_day'] == '1'
             start_time = start_time.beginning_of_day
-            s['duration'] = 1.day
-            s.delete('end_time')
+            s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
+          elsif end_time.present?
+            s['duration'] = end_time - start_time
           end
 
           s['start_time'] = {
@@ -117,12 +118,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          if s['end_time'].present?
-            s['end_time'] = {
-              time: end_time.to_s,
-              zone: end_time.time_zone.name
-            }
-          end
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.change(hour: start_time.to_datetime.hour, min: start_time.to_datetime.minute) + s['duration'] if s.dig('rrules', 0, 'until').present?
 
           if s.dig('rrules', 0, 'rule_type') == 'IceCube::WeeklyRule'
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
@@ -131,7 +127,7 @@ module DataCycleCore
           end
 
           s.delete('rrules') if s.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule'
-          s.slice('id', 'start_time', 'duration', 'end_time', 'rrules')
+          s.slice('id', 'start_time', 'duration', 'rrules')
         }.compact
       end
 

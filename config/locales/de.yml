@@ -92,6 +92,8 @@ de:
     weekday: Wochentag
     dayofmonth: Tag des Monats
     year: Jahr
+    next: Weitere Termine
+    prev: Vorherige Termine
 
   common:
     'true': Ja
