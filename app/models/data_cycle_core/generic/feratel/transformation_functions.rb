@@ -80,6 +80,17 @@ module DataCycleCore
           }.reduce(data.reject { |k, _| k == 'ContentDescriptions' }, &:merge)
         end
 
+        def self.add_service_description(data, attribute_name, description_name)
+          raise ArgumentError unless data.is_a?(Hash)
+
+          description = Array.wrap(data.dig('Descriptions', 'Description'))
+            .detect { |item| item['Name'] == description_name && item['Type'] == 'AdditionalService' }
+            &.dig('text')
+
+          return data if description.blank?
+          data.merge({ attribute_name => description })
+        end
+
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 

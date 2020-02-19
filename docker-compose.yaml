@@ -13,12 +13,12 @@ services:
   web:
     build: .
     environment:
-    # - RAILS_ENV=test
+#    - RAILS_ENV=production
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
     - POSTGRES_PORT=5432
-    - POSTGRES_VERSION=11
+#    - POSTGRES_VERSION=11
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna

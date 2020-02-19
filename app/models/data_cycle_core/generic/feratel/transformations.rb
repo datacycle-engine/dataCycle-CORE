@@ -8,6 +8,100 @@ module DataCycleCore
           DataCycleCore::Generic::Feratel::TransformationFunctions[*args]
         end
 
+        def self.to_local_business(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, 'Id' => 'external_key')
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Names') || s.dig('Details', 'Name') })
+          .>> t(:reject_keys, ['Names', 'Name'])
+          .>> t(:unwrap_address, 'Object')
+          .>> t(:add_field, 'street_address', ->(s) { s.dig('Address', 'AddressLine1') })
+          .>> t(:add_field, 'address_locality', ->(s) { s.dig('Address', 'Town') })
+          .>> t(:add_field, 'postal_code', ->(s) { s.dig('Address', 'ZipCode') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('Address', 'Country') })
+          .>> t(:add_field, 'country_code', ->(s) { [DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Ländercodes', s.dig('Address', 'Country'))] })
+          .>> t(:nest, 'address', ['street_address', 'address_country', 'address_locality', 'postal_code'])
+          .>> t(:add_field, 'fax_number', ->(s) { s.dig('Address', 'Fax') })
+          .>> t(:add_field, 'telephone', ->(s) { s.dig('Address', 'Phone') })
+          .>> t(:add_field, 'email', ->(s) { s.dig('Address', 'Email') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('Address', 'URL') })
+          .>> t(:nest, 'contact_info', ['email', 'fax_number', 'telephone', 'url'])
+          .>> t(:reject_keys, ['Address'])
+          .>> t(:add_field, 'currencies_accepted', ->(s) { s.dig('Details', 'CurrencyCode') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'DataOwner')).hexdigest}"] : [] })
+          .>> t(:add_links, 'feratel_content_score', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('QualityDetails', 'ContentScore').present? ? ["Feratel - ContentScore - #{s&.dig('QualityDetails', 'ContentScore')&.to_f&.round}"] : [] })
+          .>> t(:add_field, 'makes_offer', ->(s) { load_offers(s, external_source_id) })
+          .>> t(:reject_keys, ['Link', 'Details', 'CustomAttributes', 'QualityDetails'])
+          .>> t(:strip_all)
+          .>> t(:compact)
+        end
+
+        def self.load_offers(s, external_source_id)
+          data = Array.wrap(s.dig('AdditionalServices', 'AdditionalService'))
+            &.map { |item| item.merge({ 'Products' => Array.wrap(item.dig('Products', 'Product')) }) }
+            &.map { |item| item.dig('Products').map { |product| product.merge({ 'service_id' => item.dig('Id') }) } }
+            &.flatten
+            &.compact
+            &.map do |item|
+              if DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: item.dig('Id')).present?
+                to_offer(external_source_id).call(item).merge({ 'id' => DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: item.dig('Id')).id })
+              else
+                to_offer(external_source_id).call(item)
+              end
+            end
+          data
+        end
+
+        def self.to_additional_service(_external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:add_field, 'description', ->(s) { Array.wrap(s.dig('Descriptions', 'Description')).detect { |item| item['Type'] == 'ServiceDescription' }.try(:[], 'text') })
+          .>> t(:add_service_description, 'meeting_point', 'Meeting Point')
+          .>> t(:add_service_description, 'equipment', 'Equipment')
+          .>> t(:add_service_description, 'requirements', 'Requirements')
+          .>> t(:add_service_description, 'included_services', 'Included Services')
+          .>> t(:add_service_description, 'difficulty', 'Difficulty')
+          .>> t(:rename_keys, { 'Id' => 'external_key', 'AdditionalServiceDescription' => 'text' })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
+          .>> t(:strip_all)
+          .>> t(:compact)
+        end
+        # .>> t(:add_links, 'provider', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
+
+        def self.to_offer(external_source_id)
+          t(:stringify_keys)
+          .>> t(:flatten_translations)
+          .>> t(:flatten_texts)
+          .>> t(:rename_keys, { 'Id' => 'external_key' })
+          .>> t(:add_links, 'item_offered', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('service_id')] })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
+          .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
+          .>> t(:add_field, 'price_specification', ->(s) { load_price(s, external_source_id) })
+          .>> t(:strip_all)
+          .>> t(:compact)
+        end
+        # .>> t(:add_links, 'offered_by', DataCycleCore::Thing, external_source_id, ->(s) { [s.dig('provider_id')] })
+
+        def self.load_price(s, external_source_id)
+          external_key = "Price:#{s.dig('external_key')}"
+          price = DataCycleCore::Thing.find_by(external_source_id: external_source_id, external_key: external_key)
+          data = {
+            'min_price' => s.dig('Price', 'Range', 'From')&.to_f,
+            'max_price' => s.dig('Price', 'Range', 'To')&.to_f,
+            'external_key' => external_key
+          }
+          if price.present?
+            [data.merge({ 'id' => price.id })]
+          else
+            [data]
+          end
+        end
+
         def self.feratel_to_accommodation(external_source_id)
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
@@ -527,7 +621,7 @@ module DataCycleCore
         def self.load_schedules(data)
           available_dates = data.dig('Dates', 'Date').is_a?(Hash) ? [data.dig('Dates', 'Date')] : data.dig('Dates', 'Date')
           available_start_times = data.dig('StartTimes', 'StartTime').is_a?(Hash) ? [data.dig('StartTimes', 'StartTime')] : data.dig('StartTimes', 'StartTime')
-          duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || 0
+          duration = duration(data.dig('Duration', 'Type'), data.dig('Duration', 'text')) || duration(data.dig('Durations', 'Type'), data.dig('Durations', 'Duration')) || 0
           options = {}
           options = { duration: duration } if duration.positive?
 
