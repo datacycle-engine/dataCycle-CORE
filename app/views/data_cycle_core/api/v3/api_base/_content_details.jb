@@ -30,4 +30,6 @@ json.merge! json_overlay
 
 json.merge! render 'combined_properties', content: content, options: options
 
+json.merge! render 'external', content: content if content.content_type == 'entity' && (content.external? || content.synch?)
+
 json
