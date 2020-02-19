@@ -190,24 +190,32 @@ DataCycleCore::Engine.routes.draw do
       namespace :v3 do
         scope path: '(/:api_subversion)' do
           type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+          match 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter', via: [:get, :post]
 
-          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: []) do
             get :gpx, on: :member
           end
 
-          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
+          (CONTENT_TABLES_FALLBACK + CONTENT_TABLE).each do |content_type|
+            match content_type, to: "#{content_type}#index", as: content_type, via: [:get, :post]
+            match "#{content_type}/:id", to: "#{content_type}#show", as: content_type.singularize, via: [:get, :post]
+          end
+
+          match 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search', via: [:get, :post]
+          match 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted', via: [:get, :post]
 
           get 'authorize/download_token', to: 'contents#download_token'
 
-          resources :classification_trees, only: [:index, :show] do
-            # get :classifications, on: :member
-            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+          resources :classification_trees, only: [] do
+            match 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
           end
+          match 'classification_trees', to: 'classification_trees#index', as: 'classification_trees', via: [:get, :post]
+          match 'classification_trees/:id', to: 'classification_trees#show', as: 'classification_tree', via: [:get, :post]
 
-          resources :collections, only: [:index, :show], controller: :watch_lists
-          resources :users, only: [:index], controller: :users
+          match 'collections', to: 'watch_lists#index', as: 'collections', via: [:get, :post]
+          match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+          match 'users', to: 'users#index', as: 'users', via: [:get, :post]
 
           scope 'external_sources/:external_source_id' do
             resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
