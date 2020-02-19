@@ -51,7 +51,7 @@ module DataCycleCore
           # json-api: sort
           super + [
             :id, :language, :include, :fields, :format,
-            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree' => [], 'classification.without_subtree' => [] }] }
+            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree': [], 'classifications.without_subtree': [] }] }
           ]
         end
 
@@ -111,15 +111,34 @@ module DataCycleCore
 
           query = query.in_validity_period
 
-          if permitted_params&.dig(:filter, :classifications)
-            permitted_params.dig(:filter, :classifications).map { |classifications|
-              classifications.split(',').map(&:strip).reject(&:blank?)
-            }.reject(&:empty?).each do |classifications|
-              query = query.experimental_classification_alias_ids(classifications)
-            end
-          end
+          query = apply_classification_filters(query)
+
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id
+          query
+        end
+
+        def apply_classification_filters(query)
+          return query if permitted_params&.dig(:filter, 'classifications.with_subtree').blank? && permitted_params&.dig(:filter, 'classifications.without_subtree').blank?
+          with_subtree = permitted_params&.dig(:filter, 'classifications.with_subtree')
+          without_subtree = permitted_params&.dig(:filter, 'classifications.without_subtree')
+
+          if with_subtree.present?
+            with_subtree.map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids_with_subtree(classifications)
+            end
+          end
+
+          if without_subtree.present?
+            without_subtree.map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids_without_subtree(classifications)
+            end
+          end
+
           query
         end
 
