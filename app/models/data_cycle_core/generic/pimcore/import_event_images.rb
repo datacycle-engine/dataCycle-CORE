@@ -22,12 +22,13 @@ module DataCycleCore
             next if raw_data.dig('images').blank?
             teaser = raw_data.dig('images', 'teaser')
             size = raw_data.dig('images', 'gallery').size
-            raw_data.dig('images', 'gallery').each_with_index do |image_data, index|
-              image_hash = image_data.dup
+            image_urls = ([raw_data.dig('images', 'teaser')].compact + raw_data.dig('images', 'gallery').map { |item| item.dig('link') }.compact).uniq
+            image_urls.each_with_index do |image_url, index|
+              image_hash = { 'link' => image_url }
               image_hash['index'] = index + 1
               image_hash['gallery_size'] = size
-              image_hash['name'] = raw_data.dig('localizedData', 'name').to_s + " (#{index + 1}/#{size})"
-              image_hash['teaser'] = true if image_data.dig('link') == teaser
+              image_hash['name'] = image_url.split('/').last
+              image_hash['teaser'] = true if image_url == teaser
               DataCycleCore::Generic::Pimcore::Processing.process_event_image(
                 utility_object,
                 image_hash,

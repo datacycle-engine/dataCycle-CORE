@@ -44,9 +44,10 @@ module DataCycleCore
           .>> t(:add_field, 'pimcore_tags', ->(s) { get_tags(s) })
           .>> t(:add_links, 'pimcore_locations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('locations'))&.map { |name| "Pimcore - Location - #{name}" } || [] })
           .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
-          .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name') })
-          .>> t(:rename_keys, { 'link' => 'url' })
-          .>> t(:add_field, 'description', ->(s) { [s.dig('shortText').presence, s.dig('longText').presence].compact.join('<br/>') })
+          .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name').presence })
+          .>> t(:add_field, 'url', ->(s) { s.dig('localizedData', 'bergerlebnisPage').presence || s.dig('localizedData', 'link') })
+          .>> t(:add_field, 'potential_action', ->(s) { s.dig('localizedData', 'bookingLink') })
+          .>> t(:add_field, 'description', ->(s) { [s.dig('localizedData', 'shortText').presence, s.dig('localizedData', 'longText').presence].compact.join('<br/>') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
           .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
           .>> t(:add_field, 'end_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateTo')) })
@@ -91,8 +92,9 @@ module DataCycleCore
         end
 
         def self.get_image_external_keys(hash)
-          return [] if hash['gallery'].blank?
-          hash.dig('gallery').map { |data| "Pimcore - EventImage - #{data.dig('link')}" }
+          return [] if hash['gallery'].blank? && hash['teaser'].blank?
+          image_urls = ([hash.dig('teaser')].compact + hash.dig('gallery')&.map { |item| item.dig('link') }&.compact).uniq
+          image_urls.map { |data| "Pimcore - EventImage - #{data}" }
         end
 
         def self.opening_hours(data, external_source_id, external_key)
@@ -134,10 +136,10 @@ module DataCycleCore
           array.map { |schedule|
             dstart = get_time(schedule.dig('dateFrom'))
             dend = get_time(schedule.dig('dateTo'))
-            tstart = schedule.dig('timeFrom').to_datetime.in_time_zone
-            tend = schedule.dig('timeTo').to_datetime.in_time_zone
-            dtstart = dstart + tstart.hour * 60 * 60 + tstart.min * 60
-            dtend = dend + tend.hour * 60 * 60 + tend.min * 60
+            tstart = schedule.dig('timeFrom').to_datetime
+            tend = schedule.dig('timeTo').to_datetime
+            dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
+            dtend = dend + tend.hour * 60 * 60 + tend.minute * 60
             duration = tend - tstart
             active_days = weekdays
               .select { |day, _val| schedule.dig(day) == '1' }
@@ -145,7 +147,7 @@ module DataCycleCore
               .compact.presence
             rrule = active_days&.size.to_i.in?(1..6) ? IceCube::Rule.weekly : IceCube::Rule.daily
             rrule.hour_of_day(tstart.hour)
-            rrule.minute_of_hour(tstart.min) if tstart.min.positive?
+            rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?
             rrule.day(active_days) if active_days.present?
             rrule.until(dtend)
             options = {}

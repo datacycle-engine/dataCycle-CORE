@@ -42,7 +42,7 @@ module DataCycleCore
         protected
 
         def load_data(page = 1, lang = :de)
-          sleep 30
+          sleep 2 # rate limit requests
 
           response = Faraday.new.get do |req|
             req.url File.join([@host, @url_part, lang.to_s, @end_point])
@@ -56,14 +56,20 @@ module DataCycleCore
 
         def page_event(end_point, type, lang)
           bergerlebnis = []
-          bergerlebnis = load_bergerlebnis_ids if type == 'event'
+          bergerlebnis, bergerlebnis_data = load_bergerlebnis_ids(lang) if type == 'event'
           first_page = load_events(end_point, 1)
           max_pages = first_page['pages'].to_i
           Enumerator.new do |yielder|
             (1..max_pages).each do |page|
               load_events(end_point, page)['items'].each do |event_data|
-                event_data['localizedData'] = event_data['localizedData'][lang]
-                event_data['isBergerlebnis'] = true if event_data.dig('id').in?(bergerlebnis)
+                if event_data.dig('id').in?(bergerlebnis) # enrich data with bergerlebnis data
+                  event_data['isBergerlebnis'] = true
+                  bergerlebnis_attributes = bergerlebnis_data.detect { |i| i.dig('external_id').to_s == event_data.dig('id').to_s }
+                  event_data['localizedData'] = bergerlebnis_attributes['localizedData']
+                  event_data['difficulty'] = bergerlebnis_attributes['difficulty']
+                else
+                  event_data['localizedData'] = event_data['localizedData'][lang]
+                end
                 yielder << event_data.merge('import_type' => type)
               end
             end
@@ -80,13 +86,16 @@ module DataCycleCore
           JSON.parse(response.body)
         end
 
-        def load_bergerlebnis_ids
+        def load_bergerlebnis_ids(lang)
           raise ArgumentError, 'missing read_type for loading location ranges' if @read_type.nil?
           bergerlebnis_ids = nil
+          bergerlebnis_data = {}
           DataCycleCore::Generic::Collection2.with(@read_type) do |mongo|
-            bergerlebnis_ids = mongo.where({ 'external_id' => { '$exists' => true } }).to_a.map { |i| i['external_id'].to_i }
+            all_data = mongo.where({ 'external_id' => { '$exists' => true } }).to_a
+            bergerlebnis_ids = all_data.map { |i| i['external_id'].to_i }
+            bergerlebnis_data = all_data.map { |i| { 'external_id' => i['external_id'], 'localizedData' => i.dump.dig(lang.to_s, 'localizedData'), 'difficulty' => i.dump.dig(lang.to_s, 'difficulty') } }
           end
-          bergerlebnis_ids
+          return bergerlebnis_ids, bergerlebnis_data
         end
       end
     end
