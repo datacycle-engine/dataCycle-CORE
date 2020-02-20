@@ -1,0 +1,212 @@
+.detail-header.editor .schedule-editor .daterange .form-element {
+  display: flex;
+}
+
+.schedule-editor {
+  .daterange,
+  .daterange:hover {
+    background: none;
+    box-shadow: none;
+    border: none;
+    padding: 0;
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+
+    > * {
+      margin-bottom: 1rem;
+    }
+
+    .fullday {
+      position: relative;
+
+      label {
+        position: absolute;
+        line-height: 1.2rem;
+      }
+    }
+  }
+
+  .rrules {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+
+    .daily,
+    .weekly,
+    .monthly,
+    .yearly {
+      display: none;
+    }
+
+    &.daily {
+      .daily {
+        display: inherit;
+      }
+    }
+
+    &.weekly {
+      .weekly {
+        display: inherit;
+      }
+    }
+
+    &.monthly {
+      .monthly {
+        display: inherit;
+      }
+    }
+
+    &.yearly {
+      .yearly {
+        display: inherit;
+      }
+    }
+
+    input,
+    input:hover {
+      background: none;
+      box-shadow: none;
+      border: none;
+      min-width: 100px;
+      width: auto;
+
+      &[type='number'] {
+        min-width: 4rem;
+        width: 4rem;
+      }
+    }
+
+    .weekday-checkbox {
+      position: relative;
+      input {
+        visibility: hidden;
+        position: absolute;
+        right: 0;
+        pointer-events: none;
+      }
+
+      label {
+        left: 0;
+        border: 1px solid $dark-gray;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        height: 2rem;
+        width: 2rem;
+        font-weight: 600;
+        margin: 0;
+        color: $black;
+        margin: 0 0 0 0.5rem;
+      }
+
+      input:not(:disabled) ~ label:hover {
+        background: $dark-gray;
+        color: $white;
+      }
+
+      input:checked ~ label {
+        background: $dark-gray;
+        color: $white;
+      }
+      input:disabled ~ label {
+        cursor: not-allowed;
+      }
+    }
+  }
+
+  .form-element {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    background: $light-gray;
+    padding: 0.5rem 1rem;
+
+    &:not(:last-of-type) {
+      margin-right: 1rem;
+    }
+
+    label {
+      position: relative;
+      left: 0 !important;
+      top: 0 !important;
+      margin-right: 1rem;
+      padding: 0 !important;
+      white-space: nowrap;
+      display: flex;
+      align-items: center;
+
+      .fa {
+        margin-right: 5px;
+      }
+    }
+
+    input {
+      width: auto;
+    }
+
+    select {
+      margin: 0 !important;
+      height: 2rem;
+    }
+
+    .flatpickr-input {
+      background: transparent;
+    }
+  }
+}
+
+.events-calender-view {
+  .calender-leaf {
+    display: inline-block;
+    position: relative;
+    width: 7rem;
+    text-align: center;
+
+    .leaf-date {
+      display: flex;
+      padding: 2.5rem 0.7rem 0.5rem 0.7rem;
+      flex-flow: column nowrap;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .leaf-background {
+      position: absolute;
+      pointer-events: none;
+      left: 0;
+      top: 0;
+      height: 100%;
+      width: 100%;
+      font-size: 7rem;
+      text-align: center;
+    }
+    .leaf-month {
+      font-size: 0.8rem;
+    }
+    .leaf-year {
+      font-size: 0.8rem;
+    }
+    .leaf-day {
+      font-weight: bold;
+      font-size: 1.6rem;
+      line-height: 1.6rem;
+    }
+    .leaf-duration {
+      font-size: 0.8rem;
+      border: 7px solid;
+      border-radius: 5px;
+      width: 6.5rem;
+      border-bottom-left-radius: 7px;
+      border-bottom-right-radius: 7px;
+      padding: 0 5px;
+      position: absolute;
+      top: 6.5rem;
+      left: 0.25rem;
+    }
+
+    .leaf-duration ~ .leaf-date {
+      margin-bottom: 2rem;
+    }
+  }
+}

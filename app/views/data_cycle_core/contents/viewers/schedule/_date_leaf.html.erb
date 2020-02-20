@@ -1,0 +1,13 @@
+<span class="calender-leaf">
+  <% if object.duration != 1.day && object.schedule_object.try(:start_time).present? && object.schedule_object.try(:end_time).present? %>
+    <span class="leaf-duration"><%= l(object.schedule_object&.start_time, format: :time_only, locale: DataCycleCore.ui_language) %> - <%= l(object.schedule_object&.end_time, format: :time_only, locale: DataCycleCore.ui_language) %></span>
+  <% end %>
+
+  <span class="leaf-date">
+    <i class="fa fa-calendar-o leaf-background" aria-hidden="true"></i>
+
+    <span class="leaf-month"><%= l(date, format: "%b", locale: DataCycleCore.ui_language) %></span>
+    <span class="leaf-day"><%= l(date, format: "%e", locale: DataCycleCore.ui_language) %></span>
+    <span class="leaf-year"><%= l(date, format: "%Y", locale: DataCycleCore.ui_language) %></span>
+  </span>
+</span>

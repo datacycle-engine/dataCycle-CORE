@@ -124,6 +124,10 @@ DataCycleCore::Engine.routes.draw do
     end
   end
 
+  resources :schedules, only: [] do
+    get :load_more, on: :member
+  end
+
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download/:id', to: 'dash_board#download', as: 'admin_download'
   get  '/admin/download_import/:id', to: 'dash_board#download_import', as: 'admin_download_import'
@@ -214,11 +218,12 @@ DataCycleCore::Engine.routes.draw do
           end
         end
       end
+
       namespace :v4 do
         scope path: '(/:api_subversion)' do
           match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
 
-          match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test?
+          match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
           match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
 
           match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]

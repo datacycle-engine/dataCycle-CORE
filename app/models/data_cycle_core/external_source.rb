@@ -16,30 +16,35 @@ module DataCycleCore
     has_many :schedules
 
     def download(options = {}, &block)
+      success = true
       ts_start = Time.zone.now
       download_config.sort { |d1, d2|
         d1.second['sorting'] <=> d2.second['sorting']
       }.each do |(name, _)|
-        download_single(name, options, &block)
+        success &&= download_single(name, options, &block)
       end
       self.last_download = ts_start
+      self.last_successful_download = ts_start if success
       save
+      success
     end
 
     def download_single(name, options = {})
+      success = true
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
       if credentials.is_a?(Hash)
         utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credentials))
-        full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+        success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
       else
         credentials.each do |credential|
           utility_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: self, locales: locales, credentials: credential))
-          full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
+          success &&= full_options.dig(:download, :download_strategy).constantize.download_content(utility_object: utility_object, options: full_options.merge(locales: locales).deep_symbolize_keys)
         end
       end
+      success
     end
     alias single_download download_single
 
@@ -53,12 +58,14 @@ module DataCycleCore
 
     def import(options = {}, &block)
       ts_start = Time.zone.now
+      self.last_import = ts_start
+      save
       import_config.sort { |d1, d2|
         d1.second['sorting'] <=> d2.second['sorting']
       }.each do |(name, _)|
         import_single(name, options, &block)
       end
-      self.last_import = ts_start
+      self.last_successful_import = ts_start
       save
     end
 

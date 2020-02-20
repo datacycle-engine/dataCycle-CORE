@@ -39,9 +39,9 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params.dig(:filter, :deleted_since)
+          if permitted_params.dig(:filter, :deletedSince)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deletedSince)))
             )
           end
           @contents = apply_paging(deleted_contents)
@@ -51,7 +51,7 @@ module DataCycleCore
           # json-api: sort
           super + [
             :id, :language, :include, :fields, :format,
-            { filter: [:search, :box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree': [], 'classifications.without_subtree': [] }] }
           ]
         end
 
@@ -105,21 +105,40 @@ module DataCycleCore
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
-          query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
-          query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
+          query = query.modifiedSince(permitted_params.dig(:filter, :modifiedSince)) if permitted_params.dig(:filter, :modifiedSince)
+          query = query.createdSince(permitted_params.dig(:filter, :createdSince)) if permitted_params.dig(:filter, :createdSince)
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
-          if permitted_params&.dig(:filter, :concepts)
-            permitted_params.dig(:filter, :concepts).map { |classifications|
-              classifications.split(',').map(&:strip).reject(&:blank?)
-            }.reject(&:empty?).each do |classifications|
-              query = query.experimental_classification_alias_ids(classifications)
-            end
-          end
+          query = apply_classification_filters(query)
+
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id
+          query
+        end
+
+        def apply_classification_filters(query)
+          return query if permitted_params&.dig(:filter, 'classifications.with_subtree').blank? && permitted_params&.dig(:filter, 'classifications.without_subtree').blank?
+          with_subtree = permitted_params&.dig(:filter, 'classifications.with_subtree')
+          without_subtree = permitted_params&.dig(:filter, 'classifications.without_subtree')
+
+          if with_subtree.present?
+            with_subtree.map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids_with_subtree(classifications)
+            end
+          end
+
+          if without_subtree.present?
+            without_subtree.map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids_without_subtree(classifications)
+            end
+          end
+
           query
         end
 
