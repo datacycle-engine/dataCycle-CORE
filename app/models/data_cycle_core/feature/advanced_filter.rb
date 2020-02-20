@@ -24,6 +24,28 @@ module DataCycleCore
           end
         end
 
+        def geo_within_classification(value)
+          if value.is_a?(Array)
+            value.map do |c|
+              [
+                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
+                'geo_within_classification',
+                data: { name: c }
+              ]
+            end
+          # elsif value.is_a?(Hash)
+          #   value.keys.map do |c|
+          #     [
+          #       I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
+          #       'geo_within_classification',
+          #       data: { name: c }
+          #     ]
+          #   end
+          else
+            []
+          end
+        end
+
         def date_range(value)
           if value == 'all'
             ['created_at', 'updated_at'].map do |c|

@@ -72,7 +72,13 @@
   :date_range: all
   :validity_period: true
   :geo_radius: true
-  :geo_within_classification: true
+  :geo_within_classification: 
+    - Administrative Einheiten
+  # :geo_filter:
+  #   :geo_radius: true
+  #   :geo_within_classification: 
+  #     - Administrative Einheiten
+
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric

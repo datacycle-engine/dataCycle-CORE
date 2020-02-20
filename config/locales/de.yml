@@ -143,6 +143,8 @@ de:
     no_translation: Keine Übersetzung vorhanden
     max: maximal
     min: mindestens
+    in: in
+    not_in: nicht in
     landscape: Querformat
     portrait: Hochformat
     height: Höhe
@@ -222,6 +224,7 @@ de:
     longitude: Längengrad
     latitude: Breitengrad
     distance: Radius
+    center_point: Mittelpunkt
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -306,7 +309,7 @@ de:
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
     geo_radius: Umkreis
-    geo_within_classification: In Polygon
+    geo_within_classification: Lage
 
 
   filter_groups:
@@ -320,7 +323,7 @@ de:
     boolean: nach booleschen Kriterien filtern...
     advanced_attributes: nach Attributen filtern...
     geo_radius: nach Umkreis filtern...
-    geo_within_classification: In Polygon...
+    geo_within_classification: nach geografischer Lage filtern...
 
   object_browser:
     details:
@@ -336,9 +339,9 @@ de:
     until: bis
     min: min
     max: max
-    lon: lon
-    lat: lat
-    distance: Radius
+    # lon: lon
+    # lat: lat
+    # distance: Radius
 
   list_titles:
     teaser: Teasertext

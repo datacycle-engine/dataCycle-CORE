@@ -15,11 +15,11 @@
 =end%>
 
   <div class="advanced-filter-selector">
-    <span class="separator"><%= t("terms.lon", locale: DataCycleCore.ui_language) %></span>
+    <span class="separator"><%= t("common.center_point", locale: DataCycleCore.ui_language) %></span>
     <%= number_field_tag "f[#{index}][v][lon]", value&.dig('lon'), { step: 'any', required: true, placeholder: t('common.longitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
-    <span class="separator"><%= t("terms.lat", locale: DataCycleCore.ui_language) %></span>
+    
     <%= number_field_tag "f[#{index}][v][lat]", value&.dig('lat'), { step: 'any', required: true, placeholder: t('common.latitude', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
-    <span class="separator"><%= t("terms.distance", locale: DataCycleCore.ui_language) %></span>
+    <span class="separator"><%= t("common.distance", locale: DataCycleCore.ui_language) %></span>
     <%= number_field_tag "f[#{index}][v][distance]", value&.dig('distance'), { required: true, placeholder: t('common.distance', locale: DataCycleCore.ui_language), class: 'filter-text' } %>
   </div>
 

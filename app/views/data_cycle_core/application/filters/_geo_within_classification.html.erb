@@ -4,18 +4,18 @@
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
 
   <div class="advanced-filter-title">
-    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
+    <%= binding.pry
+    render 'data_cycle_core/shared/icon', icon_type: filter_name %>
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
 
   <div class="advanced-filter-mode">
-    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.has", locale: DataCycleCore.ui_language), 'i'], [t("common.has_not", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
+    <%= select_tag "f[#{index}][m]", options_for_select([[t("common.in", locale: DataCycleCore.ui_language), 'i'], [t("common.not_in", locale: DataCycleCore.ui_language), 'e']], filter_method) %>
   </div>
 
   <div class="advanced-filter-selector">
-    <% #binding.pry
-    classification_items = DataCycleCore::ClassificationTreeLabel
-      .find_by(name: 'Administrative Einheiten')
+    <% classification_items = DataCycleCore::ClassificationTreeLabel
+      .find_by(name: filter_title)
       &.classification_trees
       &.includes(
         :parent_classification_alias, sub_classification_alias: [
@@ -25,11 +25,7 @@
             ]
           ]
         ]
-      ) || [] 
-    classification_alias = DataCycleCore::ClassificationAlias
-      .where(id: value)
-      .map { |c| [c.id, c] }.to_h
-    %>
+      ) || [] %>
 
     <% if classification_items.size > DataCycleCore.max_asynch_classification_items %>
         <%= select_tag(
@@ -37,12 +33,12 @@
           value.blank? ? nil : options_for_select(
             value.map { |c|
               [
-                classification_alias[c].try(:internal_name),
+                @selected_classification_aliases[c].try(:internal_name),
                 c,
                 {
                   title: [
-                    classification_alias[c].full_path,
-                    classification_alias[c].description
+                    @selected_classification_aliases[c].full_path,
+                    @selected_classification_aliases[c].description
                   ].reject(&:blank?).join("\n\n")
                 }
               ]
@@ -51,9 +47,8 @@
           {
             multiple: true,
             class: 'async-select',
-            # TODO: tree_label aus filter-Config holen, wording konfigurierbar machen?
             data: {
-              tree_label: 'Administrative Einheiten',
+              tree_label: filter_title,
               max: 20,
               placeholder: '',
               alias_ids: true
@@ -84,7 +79,7 @@
             multiple: true,
             class: 'multi-select',
             data: {
-              tree_label: 'Administrative Einheiten',
+              tree_label: filter_title,
               max: 20,
               placeholder: ''
             }

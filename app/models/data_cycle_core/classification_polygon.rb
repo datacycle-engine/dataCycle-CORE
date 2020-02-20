@@ -3,9 +3,5 @@
 module DataCycleCore
   class ClassificationPolygon < ApplicationRecord
     belongs_to :classfication_alias
-
-    # acts_as_paranoid
-
-    # TODO:  paranoid?
   end
 end

@@ -311,16 +311,6 @@ module DataCycleCore
         )
       end
 
-      def validity_period(d = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
-
-        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-        reflect(
-          @query.where(query_string)
-        )
-      end
-
       # TODO: test
       def geo_within_classification(ids)
         # binding.pry
@@ -338,6 +328,34 @@ module DataCycleCore
 
         reflect(
           @query.where(contains_queries.reduce(:or))
+        )
+      end
+
+      def not_geo_within_classification(ids)
+        return self if ids.blank?
+
+        contains_queries = []
+        ids.each do |id|
+          sub_query = Arel::SelectManager.new
+            .project(classification_polygon[:geom])
+            .from(classification_polygon)
+            .where(classification_polygon[:classification_alias_id].eq(id))
+
+          contains_queries << st_disjoint(sub_query, st_transform(thing[:location], 3035))
+        end
+
+        reflect(
+          @query.where(contains_queries.reduce(:or))
+        )
+      end
+
+      def validity_period(d = nil)
+        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
+
+        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
+        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
+        reflect(
+          @query.where(query_string)
         )
       end
 
