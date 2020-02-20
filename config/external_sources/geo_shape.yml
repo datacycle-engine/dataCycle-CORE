@@ -20,5 +20,6 @@ config:
       source_type: shp
       srid: 3035
       geometry_type: DataCycleCore::ClassificationPolygon
+      db_table: classification_polygons
       import_strategy: DataCycleCore::Generic::GeoShape::Import
       tree_label: Administrative Einheiten

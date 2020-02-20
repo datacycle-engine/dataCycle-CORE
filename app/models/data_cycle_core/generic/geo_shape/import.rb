@@ -17,6 +17,7 @@ module DataCycleCore
           local_dirs = Array(credentials.dig('directory'))
           geometry_type = options.dig(:import, :geometry_type).constantize
           srid = options.dig(:import, :srid).to_i
+          db_table = options.dig(:import, :db_table)
           tree_label = options.dig(:import, :tree_label)
           external_source_id = utility_object.external_source.id
 
@@ -76,6 +77,10 @@ module DataCycleCore
                 break if options[:max_count].present? && item_count >= options[:max_count]
                 logging.info('Created Classification', "Duration: #{durations.sum.round(6)} seconds")
               end
+
+              # Vacuum Analyze to update the index on the spatial table
+              logging.info("Start VACCUM ANALYZE #{db_table}", '')
+              ActiveRecord::Base.connection.execute("VACUUM ANALYZE #{db_table};") unless db_table.nil?
 
               GC.start
             ensure
