@@ -491,8 +491,7 @@ CREATE TABLE public.things (
     validity_range tstzrange,
     boost numeric,
     content_type character varying,
-    representation_of_id uuid,
-    geom public.geometry(Point,4326)
+    representation_of_id uuid
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
 
@@ -1561,6 +1560,13 @@ CREATE INDEX index_classifications_on_deleted_at ON public.classifications USING
 
 
 --
+-- Name: index_classifications_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classifications_on_external_key ON public.classifications USING btree (external_key);
+
+
+--
 -- Name: index_classifications_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1869,6 +1875,13 @@ CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of
 
 
 --
+-- Name: index_things_on_location_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_spatial ON public.things USING gist (location);
+
+
+--
 -- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -2020,13 +2033,6 @@ CREATE INDEX name_idx ON public.classification_aliases USING gin (internal_name 
 --
 
 CREATE UNIQUE INDEX parent_child_index ON public.classification_trees USING btree (parent_classification_alias_id, classification_alias_id);
-
-
---
--- Name: things_spatial_geom_idx; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE INDEX things_spatial_geom_idx ON public.things USING gist (geom);
 
 
 --
@@ -2222,9 +2228,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219143016'),
 ('20200116143539'),
 ('20200117095949'),
-('20200213132354'),
 ('20200131103229'),
 ('20200213132354'),
-('20200217100339');
+('20200217100339'),
+('20200219111406');
 
 

@@ -63,7 +63,6 @@ module DataCycleCore
                       uncategorized_classification = { external_key: pc[:external_key].to_s + '_uncategorized', adminlevel: 4, name: 'Nicht zugeordnet', parent_external_key: pc[:external_key], external_source_id: pc[:external_source_id], tree_name: pc[:tree_name] }
 
                       import_classification(classification_data: uncategorized_classification, parent_external_key: uncategorized_classification[:parent_external_key])
-                      # binding.pry
                       classification[:parent_external_key] = uncategorized_classification[:external_key]
                     end
 
@@ -79,8 +78,12 @@ module DataCycleCore
               end
 
               # Vacuum Analyze to update the index on the spatial table
-              logging.info("Start VACCUM ANALYZE #{db_table}", '')
-              ActiveRecord::Base.connection.execute("VACUUM ANALYZE #{db_table};") unless db_table.nil?
+              unless db_table.nil?
+                logging.info("Start VACCUM ANALYZE #{db_table}", '')
+
+                quoted_table = ActiveRecord::Base.connection.quote_column_name(db_table)
+                ActiveRecord::Base.connection.execute("VACUUM ANALYZE #{quoted_table}")
+              end
 
               GC.start
             ensure
