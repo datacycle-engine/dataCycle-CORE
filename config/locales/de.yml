@@ -302,6 +302,9 @@ de:
     elevation: Meereshöhe
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
+    in_schedule:
+      absolute: Absolut
+      relative: Relativ
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...

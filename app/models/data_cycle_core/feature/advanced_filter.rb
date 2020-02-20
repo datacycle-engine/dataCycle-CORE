@@ -68,7 +68,6 @@ module DataCycleCore
 
         def default(key, value)
           return [] unless value
-
           [
             [
               I18n.t("filter.#{key.parameterize(separator: '_')}", default: key.capitalize, locale: DataCycleCore.ui_language),
@@ -85,6 +84,17 @@ module DataCycleCore
               I18n.t("filter.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
               'advanced_attributes',
               data: { name: k, advancedType: v.dig('type') }
+            ]
+          end
+        end
+
+        def in_schedule(value)
+          return [] unless value
+          value.map do |k, v|
+            [
+              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              'in_schedule',
+              data: { name: k }
             ]
           end
         end
