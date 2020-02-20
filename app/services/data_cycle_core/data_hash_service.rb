@@ -118,7 +118,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.change(hour: start_time.to_datetime.hour, min: start_time.to_datetime.minute) + s['duration'] if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
 
           if s.dig('rrules', 0, 'rule_type') == 'IceCube::WeeklyRule'
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
