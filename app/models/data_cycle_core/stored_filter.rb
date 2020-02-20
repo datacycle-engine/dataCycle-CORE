@@ -36,8 +36,7 @@ module DataCycleCore
         next unless query.respond_to?(t)
 
         # TODO: move to production with more options (not etc...)
-        t = "experimental_#{t}" if experimental && filter['t'] == 'classification_alias_ids'
-
+        t = "#{t}_with_subtree" if experimental && (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids')
         if query.method(t)&.parameters&.size == 3
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
         elsif query.method(t)&.parameters&.size == 2

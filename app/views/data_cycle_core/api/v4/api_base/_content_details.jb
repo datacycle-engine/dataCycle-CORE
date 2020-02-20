@@ -25,4 +25,6 @@ json.merge! render 'overlay_properties', content: content, options: options if c
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
+json.merge! render 'external', content: content if (included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])) && (content.external? || content.synch?)
+
 json

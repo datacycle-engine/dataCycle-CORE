@@ -656,6 +656,7 @@ module DataCycleCore
                   .map { |day, _val| load_day_nr(day) }
                   .compact
                   .presence
+
                 rrule = active_days&.size.to_i.in?(1..6) ? IceCube::Rule.weekly : IceCube::Rule.daily
                 rrule.hour_of_day(tstart.hour)
                 rrule.minute_of_hour(tstart.minute) if tstart.minute.positive?

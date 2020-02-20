@@ -11,6 +11,14 @@ module DataCycleCore
           not_equal: '<>'
         }.freeze
 
+        def in_schedule(value = nil)
+          from_date = nil
+          to_date = nil
+          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
+          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('until')) if value.dig('until').present?
+          schedule_search(from_date, to_date, 'schedule')
+        end
+
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "equals_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)

@@ -111,7 +111,7 @@ module DataCycleCore
         end
 
         test 'parameter filter[:classifications]' do
-          get api_v4_things_path(filter: { classifications: [@content.country_code.first.classification_aliases.first.id] })
+          get api_v4_things_path(filter: { 'classifications.with_subtree': [@content.country_code.first.classification_aliases.first.id] })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')

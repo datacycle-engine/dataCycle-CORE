@@ -5,7 +5,8 @@ require 'test_helper'
 module DataCycleCore
   class ContentFeatureTest < ActiveSupport::TestCase
     test 'content_objects allows querying active features' do
-      content = DataCycleCore::Thing.new
+      content = DataCycleCore::TestPreparations.data_set_object('Artikel')
+
       assert(content.enabled_features.size.positive?)
     end
 

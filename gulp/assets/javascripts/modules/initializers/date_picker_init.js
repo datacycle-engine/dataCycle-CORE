@@ -3,120 +3,34 @@ var Deutsch = require('flatpickr/dist/l10n/de.js').default.de;
 var ConfirmationModal = require('./../components/confirmation_modal');
 
 module.exports.initialize = function() {
-  //  TODO: dont fire change event on setup/setSibling
   var calenders = [];
 
-  let remove_event_handlers = function(event) {
-    event.preventDefault();
-    event.stopPropagation();
-    event.stopImmediatePropagation();
+  let flatPickrOptions = {
+    locale: Deutsch,
+    altFormat: 'd.m.Y',
+    enableTime: false,
+    altInput: true,
+    time_24hr: true,
+    allowInput: true,
+    static: true,
+    onClose: setSibling
   };
 
-  let get_id_from_calender = function(instance) {
-    return instance.element.id.replace(/_from|_until|_start|_end/gi, '');
-  };
-
-  let set_sibling = function(selectedDates, dateStr, instance) {
-    if (calenders.indexOf(instance) >= 0) {
-      var siblings = calenders.filter(function(val) {
-        return get_id_from_calender(val) == get_id_from_calender(instance);
-      });
-      if (siblings.length == 2) {
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .on('change', remove_event_handlers);
-        if (instance == siblings[0]) siblings[1].set('minDate', dateStr);
-        if (instance == siblings[1]) siblings[0].set('maxDate', dateStr);
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .off('change', remove_event_handlers);
-      }
-    }
-  };
-
-  let setup = function(cals) {
-    for (var i = 0; i < cals.length; i++) {
-      var siblings = cals.filter(function(val) {
-        return get_id_from_calender(val) == get_id_from_calender(cals[i]);
-      });
-
-      if (siblings.length == 2) {
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .on('change', remove_event_handlers);
-        siblings[0].set('maxDate', siblings[1].input.value);
-        siblings[1].set('minDate', siblings[0].input.value);
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .off('change', remove_event_handlers);
-      }
-      i++;
-    }
-  };
-
-  let init = function($element) {
-    let new_cals = [];
-    $($element)
-      .find('input[type=datetime-local]')
-      .each(function() {
-        if (!$(this).attr('readonly')) {
-          var cal = $(this).flatpickr({
-            locale: Deutsch,
-            altFormat: 'd.m.Y H:i',
-            enableTime: true,
-            altInput: true,
-            time_24hr: true,
-            allowInput: true,
-            static: true,
-            onClose: set_sibling
-          });
-
-          new_cals.push(cal);
-          var input = $(this).next('input');
-          $(input).on('change', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            cal.setDate($(this).val(), true, cal.config.altFormat);
-            cal.close();
-          });
-        }
-      });
-
-    $($element)
-      .find('input[type=date]')
-      .each(function() {
-        if (!$(this).attr('readonly')) {
-          var cal = $(this).flatpickr({
-            locale: Deutsch,
-            altFormat: 'd.m.Y',
-            altInput: true,
-            time_24hr: true,
-            allowInput: true,
-            static: true,
-            onClose: set_sibling
-          });
-
-          new_cals.push(cal);
-          var input = $(this).next('input');
-          $(input).on('change', function(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            e.stopImmediatePropagation();
-            cal.setDate($(this).val(), true, cal.config.altFormat);
-            cal.close();
-          });
-        }
-      });
-
-    setup(new_cals);
-    calenders = calenders.concat(new_cals);
+  let flatPickrTimeOptions = {
+    altFormat: 'd.m.Y H:i',
+    enableTime: true
   };
 
   init(document);
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.target);
+  });
+
+  $(document).on('dc:date:initialize', '*', (event, data) => {
+    event.stopPropagation();
+    reInit(event.target, data);
   });
 
   $('.edit-content-form .form-element.datetime input.flatpickr-input').on('dc:import:data', function(event, data) {
@@ -140,4 +54,106 @@ module.exports.initialize = function() {
       });
     }
   });
+
+  function removeEventHandlers(event) {
+    event.preventDefault();
+    event.stopPropagation();
+    event.stopImmediatePropagation();
+  }
+
+  function getIdFromCalender(instance) {
+    return instance.element.id.replace(/_from|_until|_start|_end/gi, '');
+  }
+
+  function setSibling(selectedDates, dateStr, instance) {
+    if (calenders.indexOf(instance) >= 0) {
+      var siblings = calenders.filter(function(val) {
+        return getIdFromCalender(val) == getIdFromCalender(instance);
+      });
+      if (siblings.length == 2) {
+        $(siblings[0].input)
+          .add(siblings[1].input)
+          .on('change', removeEventHandlers);
+        if (instance == siblings[0]) siblings[1].set('minDate', dateStr);
+        if (instance == siblings[1]) siblings[0].set('maxDate', dateStr);
+        $(siblings[0].input)
+          .add(siblings[1].input)
+          .off('change', removeEventHandlers);
+      }
+    }
+  }
+
+  function setup(cals) {
+    for (var i = 0; i < cals.length; i++) {
+      var siblings = cals.filter(function(val) {
+        return getIdFromCalender(val) == getIdFromCalender(cals[i]);
+      });
+
+      if (siblings.length == 2) {
+        $(siblings[0].input)
+          .add(siblings[1].input)
+          .on('change', removeEventHandlers);
+        siblings[0].set('maxDate', siblings[1].input.value);
+        siblings[1].set('minDate', siblings[0].input.value);
+        $(siblings[0].input)
+          .add(siblings[1].input)
+          .off('change', removeEventHandlers);
+      }
+      i++;
+    }
+  }
+
+  function init($element) {
+    let newCals = [];
+    $($element)
+      .find('input[type=datetime-local]')
+      .each((_, elem) => {
+        if (!$(elem).attr('readonly'))
+          newCals.push(initDatePicker(elem, $(elem).data('disable-time') ? flatPickrOptions : flatPickrTimeOptions));
+      });
+
+    $($element)
+      .find('input[type=date]')
+      .each((_, elem) => {
+        if (!$(elem).attr('readonly')) newCals.push(initDatePicker(elem));
+      });
+
+    setup(newCals);
+    calenders = calenders.concat(newCals);
+  }
+
+  function reInit(element, options = {}) {
+    let newCals = [];
+
+    $(element)
+      .find('input[data-type=datepicker]')
+      .each((_, item) => {
+        if (!$(item).attr('readonly'))
+          newCals.push(initDatePicker(item, options && options.enableTime ? flatPickrTimeOptions : flatPickrOptions));
+      });
+
+    setup(newCals);
+    calenders = calenders.concat(newCals);
+  }
+
+  function initDatePicker(elem, options = {}) {
+    var cal = $(elem).flatpickr(Object.assign({}, flatPickrOptions, options));
+
+    var input = $(elem).next('input');
+    $(input).on('change', function(e) {
+      e.preventDefault();
+      e.stopPropagation();
+      e.stopImmediatePropagation();
+      cal.setDate($(elem).val(), true, cal.config.altFormat);
+      cal.close();
+    });
+
+    $(input).on('dc:date:destroy', e => {
+      e.preventDefault();
+      cal.destroy();
+      calenders = calenders.filter(c => c.element != elem);
+    });
+
+    return cal;
+  }
 };
