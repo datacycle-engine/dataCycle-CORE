@@ -1,9 +1,10 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
     <i class="tag-group-label">
         <i class="fa fa-calendar" aria-hidden="true"></i>
-        <%= t("filter_groups.in_schedule", default: title, locale: DataCycleCore.ui_language) %>
+        <%= t("filter_groups.#{(local_assigns[:filter_type] || :in_schedule)}", default: title, locale: DataCycleCore.ui_language) %>
         <%= t("filter.in_schedule.#{key}", default: title, locale: DataCycleCore.ui_language) %>
     </i>
+
     <% if key == 'relative' %>
         <% if value&.dig('from','n').present? %>
             <i class="tag-group-label"><%= t("terms.from", locale: DataCycleCore.ui_language) %></i>

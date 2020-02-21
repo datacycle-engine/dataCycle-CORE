@@ -11,23 +11,6 @@ module DataCycleCore
           not_equal: '<>'
         }.freeze
 
-        def in_schedule(value = nil, mode = nil)
-          return if value.blank?
-          mode ||= 'absolute'
-
-          from_date = nil
-          to_date = nil
-
-          if mode == 'absolute'
-            from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
-            to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('until')) if value.dig('until').present?
-          else
-            from_date = relative_to_absolute_date(value.dig('from'))
-            to_date = relative_to_absolute_date(value.dig('until'))
-          end
-          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'schedule')
-        end
-
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
           advanced_type = "equals_advanced_#{type}".to_sym
           raise 'Unknown advanced_attribute search' unless respond_to?(advanced_type)
@@ -110,19 +93,6 @@ module DataCycleCore
 
         private
 
-        def relative_to_absolute_date(value)
-          distance = value.dig('n')&.presence&.to_i
-          return if distance.blank?
-
-          unit = value.dig('unit') || 'day'
-          if value.dig('mode') == 'p'
-            date = Time.zone.now + distance.send(unit)
-          else
-            date = Time.zone.now - distance.send(unit)
-          end
-          date
-        end
-
         def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
           num_range = "[#{value&.dig('min').presence&.to_f},#{value&.dig('max').presence&.to_f}]"
@@ -144,7 +114,6 @@ module DataCycleCore
         def advanced_date(value = nil, attribute_path = nil, comparision = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
           date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           case comparision
           when :equal

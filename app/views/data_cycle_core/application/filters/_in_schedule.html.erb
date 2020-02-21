@@ -8,7 +8,7 @@
     <div class="advanced-filter-title">
         <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
         <span>
-            <%= t("filter_groups.in_schedule", default: filter_title, locale: DataCycleCore.ui_language) %>
+            <%= t("filter_groups.#{(local_assigns[:filter_type] || :in_schedule)}", default: filter_title, locale: DataCycleCore.ui_language) %>
             <%#= t("filter.in_schedule.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %>
         </span>
     </div>

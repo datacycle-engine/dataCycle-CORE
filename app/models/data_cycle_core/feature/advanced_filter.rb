@@ -98,6 +98,17 @@ module DataCycleCore
             ]
           end
         end
+
+        def validity_period(value)
+          return [] unless value
+          value.map do |k, _v|
+            [
+              I18n.t("filter.in_schedule.#{k.parameterize(separator: '_')}", default: k, locale: DataCycleCore.ui_language),
+              'validity_period',
+              data: { name: k }
+            ]
+          end
+        end
       end
     end
   end

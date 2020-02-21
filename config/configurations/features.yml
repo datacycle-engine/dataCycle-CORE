@@ -70,7 +70,9 @@
   :creator: true
   :classification_tree_ids: true
   :date_range: all
-  :validity_period: true
+  :validity_period:
+    :absolute: true
+    :relative: true
   :in_schedule:
     :absolute: true
     :relative: true
