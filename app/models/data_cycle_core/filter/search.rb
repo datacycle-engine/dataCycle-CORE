@@ -302,18 +302,17 @@ module DataCycleCore
         end
       end
 
-      # TODO: values -> (lon, lat, val)?, sanitize?, tests, Remove transforms
+      # TODO: tests
       def geo_radius(values)
         return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
         reflect(
-          @query.where(st_dwithin(st_transform(thing[:location], 3857), st_transform(st_setsrid(st_makepoint(values&.dig('lon'), values&.dig('lat')), 4326), 3857), values&.dig('distance').to_i))
+          @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon'), values&.dig('lat')), 4326)), values&.dig('distance').to_i))
         )
       end
 
       # TODO: test
       def geo_within_classification(ids)
-        # binding.pry
         return self if ids.blank?
 
         contains_queries = []

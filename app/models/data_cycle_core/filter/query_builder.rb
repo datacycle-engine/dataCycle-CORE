@@ -127,6 +127,17 @@ module DataCycleCore
         )
       end
 
+      def cast_geography(geom)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              geom,
+              Arel::Nodes::SqlLiteral.new('geography')
+            )
+          ]
+        )
+      end
+
       # chain method for Builder pattern
       def reflect(query)
         self.class.new(@locale, query, @joined_search, @joined_schedule)
