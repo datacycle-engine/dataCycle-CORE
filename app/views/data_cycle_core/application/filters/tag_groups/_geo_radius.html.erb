@@ -5,13 +5,12 @@
   </i>
 
   <span class="tags-container">
-  <% #binding.pry TODO: make it right
-  unless value['lon'].empty? and value['lon'].empty? %>
-    <span class="tag"><%= t("common.center_point", locale: DataCycleCore.ui_language) %> <%= value['lon'] %>°, <%= value['lat'] %>°</span>
+  <% unless value['lon'].empty? or value['lat'].empty? %>
+    <span class="tag"><%= t("common.center_point", locale: DataCycleCore.ui_language) %>: <%= value['lon'] %>°, <%= value['lat'] %>°</span>
   <% end %>
 
   <% unless value['distance'].empty? %>
-    <span class="tag"><%= t("common.distance", locale: DataCycleCore.ui_language) %> <%= value['distance'] %></span>
+    <span class="tag"><%= t("common.distance", locale: DataCycleCore.ui_language) %>: <%= value['distance'] %> m</span>
   <% end %>
   </span>
 

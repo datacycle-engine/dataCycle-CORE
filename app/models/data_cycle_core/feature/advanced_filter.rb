@@ -24,23 +24,29 @@ module DataCycleCore
           end
         end
 
-        def geo_within_classification(value)
-          if value.is_a?(Array)
-            value.map do |c|
-              [
-                I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
-                'geo_within_classification',
-                data: { name: c }
-              ]
+        def geo_filter(value)
+          value_arr = []
+          if value.is_a?(Hash)
+            value.each do |k, v|
+              if v.is_a?(Array)
+                v.map do |c|
+                  value_arr << [
+                    I18n.t("filter.#{c.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
+                    'geo_filter',
+                    data: { name: c, advancedType: k }
+                  ]
+                end
+              elsif v
+                value_arr << [
+                  I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_language),
+                  'geo_filter',
+                  data: { name: k, advancedType: k }
+                ]
+              else
+                value_arr << []
+              end
             end
-          # elsif value.is_a?(Hash)
-          #   value.keys.map do |c|
-          #     [
-          #       I18n.t("filter.#{c.to_s.parameterize(separator: '_')}", default: c, locale: DataCycleCore.ui_language),
-          #       'geo_within_classification',
-          #       data: { name: c }
-          #     ]
-          #   end
+            value_arr
           else
             []
           end

@@ -225,6 +225,10 @@ de:
     latitude: Breitengrad
     distance: Radius
     center_point: Mittelpunkt
+    placeholder:
+      longitude: Längengrad, z.B. 14,30
+      latitude: Breitengrad, z.B. 46,61
+      distance: Radius in Metern
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -324,6 +328,7 @@ de:
     advanced_attributes: nach Attributen filtern...
     geo_radius: nach Umkreis filtern...
     geo_within_classification: nach geografischer Lage filtern...
+    geo_filter: nach geografischer Lage filtern...
 
   object_browser:
     details:
@@ -339,9 +344,6 @@ de:
     until: bis
     min: min
     max: max
-    # lon: lon
-    # lat: lat
-    # distance: Radius
 
   list_titles:
     teaser: Teasertext
