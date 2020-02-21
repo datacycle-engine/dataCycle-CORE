@@ -22,6 +22,18 @@ module DataCycleCore
           )
         end
 
+        def inactive_things(value = nil, mode = nil)
+          return if value.blank?
+          from_date, to_date = date_from_filter_object(value, mode)
+
+          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
+          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND upper(things.validity_range) <@ ?::tstzrange', date_range])
+
+          reflect(
+            @query.where(query_string)
+          )
+        end
+
         # TODO: check if required
         def not_validity_period(value = nil, mode = nil)
           from_date, to_date = date_from_filter_object(value, mode)

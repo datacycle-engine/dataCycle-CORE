@@ -73,6 +73,9 @@
   :validity_period:
     :absolute: true
     :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
   :in_schedule:
     :absolute: true
     :relative: true
