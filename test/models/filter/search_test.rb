@@ -198,6 +198,23 @@ module DataCycleCore
       assert_equal(1, DataCycleCore::Filter::Search.new(:de).within_box(1, 1, 20, 20).count)
     end
 
+    test 'supports geo radius' do
+      binding.pry
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_radius({ lon: 10, lat: 10, radius: 1 }).count)
+    end
+
+    test 'supports geo search within polygon' do
+      alias_id = find_alias_ids('Tags', 'Tag 3')
+
+      # binding.pry
+      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(9 9, 10 9, 10 10, 9 10, 9 9)'::geometry, 4326)),3035) as poly;
+      # MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4321000 -1449189.8978359215, 4321000 -1346008.5785293942, 4203672.330657466 -1345324.7581222942, 4202934.644239654 -1448504.9553259471)))
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4321000 -1449189.8978359215, 4321000 -1346008.5785293942, 4203672.330657466 -1345324.7581222942, 4202934.644239654 -1448504.9553259471)))'), classification_alias_id: alias_id[0], id: 1)
+
+      binding.pry
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
+    end
+
     private
 
     def create_content(template_name, data = {})
