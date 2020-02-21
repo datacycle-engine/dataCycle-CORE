@@ -303,8 +303,13 @@ de:
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
     in_schedule:
-      absolute: Absolut
-      relative: Relativ
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
+
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -316,6 +321,7 @@ de:
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
     advanced_attributes: nach Attributen filtern...
+    in_schedule: nach Termin filtern...
 
   object_browser:
     details:
@@ -935,6 +941,7 @@ de:
       month: Monat
       second: Sekunde
       year: Jahr
+      week: Woche
   number:
     currency:
       format:

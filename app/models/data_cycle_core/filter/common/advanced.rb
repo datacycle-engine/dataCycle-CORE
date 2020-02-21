@@ -11,12 +11,21 @@ module DataCycleCore
           not_equal: '<>'
         }.freeze
 
-        def in_schedule(value = nil)
+        def in_schedule(value = nil, mode = nil)
+          return if value.blank?
+          mode ||= 'absolute'
+
           from_date = nil
           to_date = nil
-          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
-          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('until')) if value.dig('until').present?
-          schedule_search(from_date, to_date, 'schedule')
+
+          if mode == 'absolute'
+            from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
+            to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('until')) if value.dig('until').present?
+          else
+            from_date = relative_to_absolute_date(value.dig('from'))
+            to_date = relative_to_absolute_date(value.dig('until'))
+          end
+          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'schedule')
         end
 
         def advanced_attributes(value = nil, type = nil, attribute_path = nil)
@@ -100,6 +109,19 @@ module DataCycleCore
         end
 
         private
+
+        def relative_to_absolute_date(value)
+          distance = value.dig('n')&.presence&.to_i
+          return if distance.blank?
+
+          unit = value.dig('unit') || 'day'
+          if value.dig('mode') == 'p'
+            date = Time.zone.now + distance.send(unit)
+          else
+            date = Time.zone.now - distance.send(unit)
+          end
+          date
+        end
 
         def advanced_numeric(value = nil, attribute_path = nil, comparision = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?

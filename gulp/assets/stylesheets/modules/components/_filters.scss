@@ -170,6 +170,14 @@ $filter-border: #aaa;
           }
         }
       }
+      .advanced-filter.in-schedule{
+        .advanced-filter-selector{
+          > select, input{
+            margin-right: 0.5rem;
+            height: 2.4375rem;
+          }
+        }
+      }
     }
 
     .date-range {
