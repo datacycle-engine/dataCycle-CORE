@@ -337,6 +337,14 @@ de:
     depth_of_fresh_snow: Neuschnee
     geo_radius: Umkreis
     geo_within_classification: Lage
+    inactive_things: Abgelaufene Inhalte
+    in_schedule:
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
 
 
   filter_groups:
@@ -352,6 +360,8 @@ de:
     geo_radius: nach Umkreis filtern...
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
+    in_schedule: nach Termin filtern...
+    inactive_things: Abgelaufenen Inhalten filtern...
 
   object_browser:
     details:
