@@ -46,7 +46,9 @@ module DataCycleCore
                       classification_polygon = geometry_type.new(admin_level: attributes['adminlevel'], geom: record.geometry)
                       next unless classification_polygon.save
 
-                      classifications_array.push({ classification_polygon_id: classification_polygon[:id], external_key: attributes['id'], adminlevel: attributes['adminlevel'], name: attributes['locname'], parent_external_key: attributes['parent_id'], external_source_id: external_source_id, tree_name: tree_label })
+                      uri = attributes['wikidata'].blank? ? '' : 'https://www.wikidata.org/wiki/' + attributes['wikidata']
+
+                      classifications_array.push({ classification_polygon_id: classification_polygon[:id], external_key: attributes['id'], adminlevel: attributes['adminlevel'], name: attributes['locname'], parent_external_key: attributes['parent_id'], external_source_id: external_source_id, tree_name: tree_label, uri: uri })
 
                       polygon_count += 1
                     end
@@ -60,7 +62,7 @@ module DataCycleCore
                     if classification[:parent_external_key].zero? && classification[:adminlevel] > 2
                       pc = classifications_array.detect { |f| f[:adminlevel] == 2 }
 
-                      uncategorized_classification = { external_key: pc[:external_key].to_s + '_uncategorized', adminlevel: 4, name: 'Nicht zugeordnet', parent_external_key: pc[:external_key], external_source_id: pc[:external_source_id], tree_name: pc[:tree_name] }
+                      uncategorized_classification = { external_key: pc[:external_key].to_s + '_uncategorized', adminlevel: 4, name: 'Nicht zugeordnet', parent_external_key: pc[:external_key], external_source_id: pc[:external_source_id], tree_name: pc[:tree_name], uri: pc[:uri] }
 
                       import_classification(classification_data: uncategorized_classification, parent_external_key: uncategorized_classification[:parent_external_key])
                       classification[:parent_external_key] = uncategorized_classification[:external_key]
@@ -104,6 +106,7 @@ module DataCycleCore
             c.description = classification_data[:description] if classification_data[:description].present?
             c.external_key = classification_data[:external_key]
             c.external_source_id = classification_data[:external_source_id]
+            c.uri = classification_data[:uri]
           end
 
           if classification.new_record?
