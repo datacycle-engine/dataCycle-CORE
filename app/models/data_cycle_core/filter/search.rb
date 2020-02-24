@@ -302,7 +302,6 @@ module DataCycleCore
         end
       end
 
-      # TODO: tests
       def geo_radius(values)
         return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
@@ -311,7 +310,6 @@ module DataCycleCore
         )
       end
 
-      # TODO: test
       def geo_within_classification(ids)
         return self if ids.blank?
 

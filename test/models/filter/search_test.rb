@@ -199,20 +199,27 @@ module DataCycleCore
     end
 
     test 'supports geo radius' do
-      binding.pry
-      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_radius({ lon: 10, lat: 10, radius: 1 }).count)
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_radius({ 'lon' => '10', 'lat' => '10', 'distance' => '10' }).count)
     end
 
     test 'supports geo search within polygon' do
       alias_id = find_alias_ids('Tags', 'Tag 3')
 
-      # binding.pry
-      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(9 9, 10 9, 10 10, 9 10, 9 9)'::geometry, 4326)),3035) as poly;
-      # MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4321000 -1449189.8978359215, 4321000 -1346008.5785293942, 4203672.330657466 -1345324.7581222942, 4202934.644239654 -1448504.9553259471)))
-      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4321000 -1449189.8978359215, 4321000 -1346008.5785293942, 4203672.330657466 -1345324.7581222942, 4202934.644239654 -1448504.9553259471)))'), classification_alias_id: alias_id[0], id: 1)
+      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(9 9, 11 9, 11 11, 9 11, 9 9)'::geometry, 4326)),3035) as poly;
+      # MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4439065.355760346 -1448504.9553259471, 4437568.345904839 -1241795.1900585638, 4204431.654095161 -1241795.1900585638, 4202934.644239654 -1448504.9553259471)))
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4439065.355760346 -1448504.9553259471, 4437568.345904839 -1241795.1900585638, 4204431.654095161 -1241795.1900585638, 4202934.644239654 -1448504.9553259471)))'), classification_alias_id: alias_id[0], id: 1)
 
-      binding.pry
       assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
+    end
+
+    test 'supports geo search not within polygon' do
+      alias_id = find_alias_ids('Tags', 'Tag 2')
+
+      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(19 19, 21 19, 21 21, 19 21, 19 19)'::geometry, 4326)),3035) as poly;
+      # MULTIPOLYGON (((5306514.722896763 -348639.8906273227, 5524232.402444027 -322040.9900201331, 5503178.7795628775 -109815.77694823965, 5289291.622551791 -136167.21943095466, 5306514.722896763 -348639.8906273227)))
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((5306514.722896763 -348639.8906273227, 5524232.402444027 -322040.9900201331, 5503178.7795628775 -109815.77694823965, 5289291.622551791 -136167.21943095466, 5306514.722896763 -348639.8906273227)))'), classification_alias_id: alias_id[0], id: 2)
+
+      assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
     end
 
     private
