@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         embedded_property_names.each do |content_name|
-          load_embedded_objects(content_name, false).each_with_index do |content_item, index|
+          load_embedded_objects(content_name, nil, false).each_with_index do |content_item, index|
             new_content_history = content_item.to_history(save_time: save_time)
             from = [new_content_history.updated_at, save_time].min
             DataCycleCore::ContentContent::History.create!({

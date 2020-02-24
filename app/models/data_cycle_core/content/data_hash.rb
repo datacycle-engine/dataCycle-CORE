@@ -252,7 +252,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
         data = input_data || []
 
         data.each_index do |index|

@@ -2,7 +2,7 @@
 
 json ||= {}
 # data = content.send(key).includes(:translations, :classifications)
-data = content.load_embedded_objects(key, true, options[:languages]).includes(:translations, :classifications)
+data = content.load_embedded_objects(key, nil, true, options[:languages]).includes(:translations, :classifications)
 
 if data.present?
   key_new = attribute_key(key, definition)

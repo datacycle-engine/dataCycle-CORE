@@ -11,6 +11,7 @@ default_options = {
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
 options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+options[:gobal_filter] = @stored_filters&.global || false
 
 json ||= {}
 
