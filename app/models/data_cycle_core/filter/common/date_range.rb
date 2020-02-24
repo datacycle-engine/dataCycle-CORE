@@ -16,7 +16,6 @@ module DataCycleCore
 
           date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-
           reflect(
             @query.where(query_string)
           )
@@ -34,7 +33,6 @@ module DataCycleCore
           )
         end
 
-        # TODO: check if required
         def not_validity_period(value = nil, mode = nil)
           from_date, to_date = date_from_filter_object(value, mode)
 
@@ -71,19 +69,23 @@ module DataCycleCore
 
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
-
-          from_date = nil
-          to_date = nil
+          value.stringify_keys!
 
           if mode == 'absolute'
-            from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('from')) if value.dig('from').present?
-            to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(value.dig('until')) if value.dig('until').present?
+            from_date = date_from_single_value(value.dig('from'))
+            to_date = date_from_single_value(value.dig('until'))
           else
             from_date = relative_to_absolute_date(value.dig('from'))
             to_date = relative_to_absolute_date(value.dig('until'))
           end
 
           return from_date, to_date
+        end
+
+        def date_from_single_value(value)
+          return if value.blank?
+          return value if value.is_a?(::Date)
+          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
 
         def relative_to_absolute_date(value)

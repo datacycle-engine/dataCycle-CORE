@@ -22,6 +22,9 @@ module DataCycleCore
         multiling.set_data_hash(data_hash: { name: 'XYZ en', validity_period: validity_period }.stringify_keys)
         multiling.save!
       end
+
+      create_content('Artikel', { name: 'inactive article', validity_period: { valid_from: (DateTime.current - 2.weeks).beginning_of_day.to_s, valid_until: (DateTime.current - 1.week).end_of_day.to_s } })
+      create_content('Artikel', { name: 'future inactive article', validity_period: { valid_from: (DateTime.current + 1.week).beginning_of_day.to_s, valid_until: (DateTime.current + 2.weeks).end_of_day.to_s } })
     end
 
     def upload_image(file_name)
@@ -89,7 +92,7 @@ module DataCycleCore
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
-      assert_equal(5, items.count)
+      assert_equal(7, items.count)
     end
 
     # test 'test method only_frontend_valid (excludes places)' do
@@ -110,7 +113,7 @@ module DataCycleCore
       assert_equal(1, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_external_source(external_source_id)
-      assert_equal(6, items.count)
+      assert_equal(8, items.count)
     end
 
     test 'test query for subscriptions' do
@@ -130,7 +133,7 @@ module DataCycleCore
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(:de)
         .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
-      assert_equal(7, items.count)
+      assert_equal(9, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
@@ -142,7 +145,18 @@ module DataCycleCore
       assert_equal(7, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
-      assert_equal(0, items.count)
+      assert_equal(2, items.count)
+    end
+
+    test 'test query for inactive items' do
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: Date.current.end_of_day })
+      assert_equal(2, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: (Date.current + 3.weeks).end_of_day })
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: Date.current.beginning_of_day, until: (Date.current + 3.weeks).end_of_day })
+      assert_equal(2, items.count)
     end
 
     test 'test query for boolean -> duplicate_candidates' do
@@ -166,7 +180,7 @@ module DataCycleCore
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
-      assert_equal(8, items.count)
+      assert_equal(10, items.count)
       DataCycleCore::ImageUploader.enable_processing = false
     end
 
@@ -176,7 +190,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_classification_tree_ids(tree_label_id)
-      assert_equal(4, items.count)
+      assert_equal(6, items.count)
     end
 
     test 'has method to include joined tables' do
