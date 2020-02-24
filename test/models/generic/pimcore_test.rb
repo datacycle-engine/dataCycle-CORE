@@ -57,8 +57,6 @@ module DataCycleCore
         data = DataCycleCore::Thing.find_by(template: false, template_name: 'POI')
         assert_equal(1, data.image.count)
         assert_equal(1, data.primary_image.count)
-        assert_equal(1, data.pimcore_city.count)
-        assert_equal(1, data.pimcore_categories.count)
       end
 
       def teardown

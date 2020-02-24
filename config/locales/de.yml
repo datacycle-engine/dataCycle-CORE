@@ -65,12 +65,35 @@ de:
     download: Download
     download_import: Download&Import
 
-
   notification:
     frequency:
       always: sofort bei Änderung
       day: täglich
       week: wöchentlich
+
+  schedule:
+    dtstart: Startzeitpunkt
+    dtend: Endzeitpunkt
+    full_day: Ganztägig
+    rrule: Wiederholungen
+    single_occurrence: einmalig
+    daily: täglich
+    weekly: wöchentlich
+    monthly: monatlich
+    yearly: jährlich
+    every:
+      maskulin: jeden
+      feminin: jede
+      neutrum: jedes
+    day: Tag
+    week: Woche
+    'on': am
+    month: Monat
+    weekday: Wochentag
+    dayofmonth: Tag des Monats
+    year: Jahr
+    next: Weitere Termine
+    prev: Vorherige Termine
 
   common:
     'true': Ja
@@ -1016,6 +1039,7 @@ de:
       long: "%A, %d. %B %Y, %H:%M Uhr"
       short: "%d. %B, %H:%M Uhr"
       edit: "%d.%m.%Y - %H:%M"
+      time_only: "%H:%M"
     pm: nachmittags
 
   external_sources:

@@ -60,7 +60,7 @@
   :enabled: true
   :classification_alias_ids:
     - Inhaltstypen
-  :autoload_last_filter: false
+  :autoload_last_filter: true
 
 :advanced_filter:
   :enabled: true
@@ -71,11 +71,11 @@
   :classification_tree_ids: true
   :date_range: all
   :validity_period: true
+  :in_schedule: false
   :geo_filter:
     :geo_radius: true
     :geo_within_classification: 
       - Administrative Einheiten
-
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric
@@ -157,4 +157,8 @@
 
 :translated_data_link_mails:
   :enabled: false
+  :only_config: true
+
+:translatable:
+  :enabled: true
   :only_config: true

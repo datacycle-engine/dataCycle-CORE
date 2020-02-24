@@ -106,7 +106,9 @@ module DataCycleCore
 
     def reset
       self.last_import = nil
+      self.last_successful_import = nil
       self.last_download = nil
+      self.last_successful_download = nil
       save!
       reload
     end
