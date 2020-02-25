@@ -111,7 +111,7 @@ module DataCycleCore
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
-                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
+                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_successful_import }) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
 
                   GC.start
 

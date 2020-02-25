@@ -229,6 +229,9 @@
       :piemonte_events:
         :type: mixin
         :name: piemonte_events
+      :pimcore_events:
+        :type: mixin
+        :name: pimcore_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

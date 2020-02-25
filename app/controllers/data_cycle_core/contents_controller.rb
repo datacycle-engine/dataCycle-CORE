@@ -197,7 +197,7 @@ module DataCycleCore
       I18n.with_locale(@content.first_available_locale(destroy_params[:locale])) do
         destroy_content_params = { current_user: current_user }
         if @content.external_source_id.present?
-          destroy_content_params[:save_history] = false
+          destroy_content_params[:save_history] = true
           destroy_content_params[:destroy_linked] = true
         end
 

@@ -80,7 +80,9 @@ module DataCycleCore
       temp_params = []
 
       template_hash['properties'].each do |key, value|
-        if value['type'] == 'embedded'
+        if value['type'] == 'schedule'
+          key = { key.to_sym => [:id, :full_day, start_time: [:time], end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+        elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }
         elsif value['type'] == 'object' && !value['properties'].nil? && !value['properties'].empty?
@@ -100,12 +102,47 @@ module DataCycleCore
     class << self
       private
 
+      def schedule_values(value)
+        return nil if value.blank? || value.values.blank?
+
+        value.values.map { |s|
+          next nil if s.dig('start_time', 'time').blank?
+
+          start_time = s.dig('start_time', 'time')&.in_time_zone
+          end_time = s.dig('end_time', 'time')&.in_time_zone || start_time
+
+          if s['full_day'] == '1'
+            start_time = start_time.beginning_of_day
+            s['duration'] = (end_time.beginning_of_day - start_time.beginning_of_day) + 1.day
+          elsif end_time.present?
+            s['duration'] = end_time - start_time
+          end
+
+          s['start_time'] = {
+            time: start_time.to_s,
+            zone: start_time.time_zone.name
+          }
+
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
+
+          if s.dig('rrules', 0, 'rule_type') == 'IceCube::WeeklyRule'
+            s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
+          else
+            s.dig('rrules', 0, 'validations')&.delete('day')
+          end
+
+          s.delete('rrules') if s.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule'
+          s.slice('id', 'start_time', 'duration', 'rrules')
+        }.compact
+      end
+
       def flatten_recursive(datahash, template_hash)
         temp_datahash = {}
 
         datahash.each do |key, value|
           properties = template_hash['properties'][key]
           type = properties['type'] == 'computed' ? properties.dig('compute', 'type') : properties['type']
+
           if value.is_a?(::Hash)
 
             if type == 'embedded'
@@ -125,6 +162,8 @@ module DataCycleCore
               end
 
               value = temp_value
+            elsif type == 'schedule'
+              value = schedule_values value
             elsif value['value'].is_a?(::Array)
               value['value'] = value['value'].reject(&:blank?)
             end

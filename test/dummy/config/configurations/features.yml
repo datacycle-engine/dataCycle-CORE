@@ -52,6 +52,10 @@
 :advanced_filter:
   :boolean:
     - duplicate_candidates
+  :geo_filter:
+    :geo_radius: true
+    :geo_within_classification:
+      - Administrative Einheiten
   :advanced_attributes:
     # media
     :width:

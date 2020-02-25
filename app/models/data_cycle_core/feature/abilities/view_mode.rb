@@ -6,7 +6,7 @@ module DataCycleCore
       class ViewMode < DataCycleCore::Ability
         def initialize(user, _session = {})
           can :grid, :view_mode
-          can DataCycleCore.features.dig('view_mode', 'allowed').map(&:to_sym), :view_mode if user.has_rank?(99)
+          can DataCycleCore.features.dig('view_mode', 'allowed').map(&:to_sym), :view_mode if user.has_rank?(5)
         end
       end
     end

@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
+  s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
   s.add_dependency 'mongoid'
   # REST Client

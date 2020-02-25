@@ -19,9 +19,9 @@ module DataCycleCore
       DataCycleCore.features
         .select { |_, v| !v.dig(:only_config) == true }
         .each_key do |key|
-          module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-          include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-        end
+        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+      end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
       extend  DataCycleCore::Content::ContentFilters
@@ -45,6 +45,15 @@ module DataCycleCore
         end
       end
 
+      def to_api_list
+        {
+          '@id' => id,
+          '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
+          'dct:modified' => updated_at,
+          'dct:created' => created_at
+        }
+      end
+
       def respond_to?(method_name, include_all = false)
         (property_names.map { |item| [item.to_sym, (item.to_s + '=').to_sym] }.flatten + linked_property_names.map { |item| item + '_ids' }).include?(method_name.to_sym) || super
       end
@@ -61,6 +70,14 @@ module DataCycleCore
         content_type == 'embedded'
       end
 
+      def synch?
+        external_system_syncs.present?
+      end
+
+      def external?
+        external_source.present?
+      end
+
       def schema_type
         schema&.dig('schema_type')
       end
@@ -73,9 +90,9 @@ module DataCycleCore
         schema.dig('content_type') != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
           (
-            schema.dig('features', 'creatable', 'scope').blank? ||
+          schema.dig('features', 'creatable', 'scope').blank? ||
             schema.dig('features', 'creatable', 'scope')&.include?(scope)
-          )
+        )
       end
 
       def property_definitions
@@ -261,11 +278,7 @@ module DataCycleCore
       end
 
       def enabled_features
-        features = []
-        features << collect_properties.map { |k| schema&.dig('properties', *k, 'features')&.keys }
-        features << schema&.dig('features')&.keys
-        features << DataCycleCore.features.select { |_, v| v[:enabled] }.keys.map(&:to_s)
-        features.flatten.uniq.compact
+        @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
       def get_property_value(property_name, property_definition)
@@ -371,18 +384,18 @@ module DataCycleCore
       def self.shared_ordered_properties(user)
         all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
           .find_each.map { |t|
-            t.schema.dig('properties')
-              .except(*(DataCycleCore.internal_data_attributes + ['id']))
-              .select { |k, v|
-                ['computed', 'asset'].exclude?(v['type']) &&
-                  user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
-                  user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
-                  t.allowed_feature_attribute?(k.attribute_name_from_key)
-              }
-              .sort_by { |_, v| v['sorting'] }
-              .to_h
-              .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
-          }
+          t.schema.dig('properties')
+            .except(*(DataCycleCore.internal_data_attributes + ['id']))
+            .select { |k, v|
+              ['computed', 'asset'].exclude?(v['type']) &&
+                user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                t.allowed_feature_attribute?(k.attribute_name_from_key)
+            }
+            .sort_by { |_, v| v['sorting'] }
+            .to_h
+            .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
+        }
           .inject(:&).to_h
           .select { |_, v| (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')) }
       end

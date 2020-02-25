@@ -73,7 +73,7 @@ for project in "${PROJECTS[@]}"
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
-    git push origin master
+    git push origin develop
     cd "$dir"
     rm -Rf "$dir/$project_dir"
 done

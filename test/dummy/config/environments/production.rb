@@ -65,6 +65,14 @@ Rails.application.configure do
   # Use a different cache store in production.
   # config.cache_store = :mem_cache_store
 
+  if Rails.root.join('tmp', 'caching-dev.txt').exist?
+    if Rails.application.secrets.dig(:redis_server).present?
+      config.cache_store = :redis_cache_store, {
+        url: "redis://#{Rails.application.secrets.redis_server}:#{Rails.application.secrets.redis_port}/#{Rails.application.secrets.redis_cache_database}",
+        namespace: Rails.application.secrets.redis_cache_namespace
+      }
+    end
+  end
   # Use a real queuing backend for Active Job (and separate queues per environment)
   # config.active_job.queue_adapter     = :resque
   # config.active_job.queue_name_prefix = "dummy_#{Rails.env}"
@@ -97,7 +105,7 @@ Rails.application.configure do
   # Do not dump schema after migrations.
   config.active_record.dump_schema_after_migration = false
 
-  config.action_mailer.default_url_options = { host: 'core-production.datacycle.at', protocol: 'http' }
+  config.action_mailer.default_url_options = { host: ENV.fetch('APP_HOST', 'localhost:3000'), protocol: ENV.fetch('APP_PROTOCOL', 'http') }
   config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
   config.action_cable.url = "#{config.force_ssl ? 'wss' : 'ws'}://#{config.action_mailer.default_url_options&.dig(:host)}/cable"
   config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]

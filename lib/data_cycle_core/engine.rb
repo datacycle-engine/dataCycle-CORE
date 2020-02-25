@@ -9,6 +9,7 @@ require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
 require 'rgeo-geojson'
+require 'rgeo-shapefile'
 require 'mongoid'
 
 # event scheduling

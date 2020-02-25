@@ -16,7 +16,7 @@ module DataCycleCore
     # n => String               | das Filterlabel (z.B. 'Inhaltspools')
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
-    def apply
+    def apply(experimental: false)
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
       query = DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
@@ -35,6 +35,8 @@ module DataCycleCore
         end
         next unless query.respond_to?(t)
 
+        # TODO: move to production with more options (not etc...)
+        t = "#{t}_with_subtree" if experimental && (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !language.include?('all')
         if query.method(t)&.parameters&.size == 3
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
         elsif query.method(t)&.parameters&.size == 2

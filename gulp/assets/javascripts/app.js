@@ -58,6 +58,7 @@ initializers.push(require('./modules/initializers/watch_list'));
 initializers.push(require('./modules/initializers/reload_required_init'));
 initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));
+initializers.push(require('./modules/initializers/schedule_editor_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));

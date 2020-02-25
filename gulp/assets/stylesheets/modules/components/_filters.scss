@@ -129,6 +129,7 @@ $filter-border: #aaa;
           }
           .filter-text {
             margin: 0;
+            padding: 0.2rem 0.5rem;
             height: 2.2rem;
             border-radius: 4px;
             border-color: $filter-border;
@@ -167,6 +168,14 @@ $filter-border: #aaa;
               margin-bottom: 0;
               line-height: 1.5;
             }
+          }
+        }
+      }
+      .advanced-filter.in-schedule{
+        .advanced-filter-selector{
+          > select, input{
+            margin-right: 0.5rem;
+            height: 2.4375rem;
           }
         }
       }

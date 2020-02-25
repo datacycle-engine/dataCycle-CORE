@@ -41,7 +41,7 @@ module DataCycleCore
 
         test '/api/v4/things/deleted' do
           @test_content.destroy_content
-          get api_v4_contents_deleted_path(filter: { deleted_since: '01-01-2010' })
+          get api_v4_contents_deleted_path(filter: { deletedSince: '01-01-2010' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
