@@ -71,12 +71,13 @@ module DataCycleCore
         def build_search_query
           endpoint_id = permitted_params[:id]
           filter_watch_list = false
+          @linked_stored_filter = nil
           if endpoint_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
 
             if @stored_filter
               authorize! :api, @stored_filter
-              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
             elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
               filter_watch_list = true
             else
