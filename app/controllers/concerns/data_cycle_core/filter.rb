@@ -40,6 +40,8 @@ module DataCycleCore
           t = filter['t']
         end
 
+        t = "#{t}_with_subtree" if can?(:experimental_features, :dash_board) && (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !@language.include?('all')
+
         next unless query.respond_to?(t)
         if query.method(t)&.parameters&.size == 3
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)

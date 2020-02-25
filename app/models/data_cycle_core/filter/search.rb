@@ -6,6 +6,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Configurable
       include DataCycleCore::Filter::Common::Advanced
       include DataCycleCore::Filter::Common::ClassificationMapping
+      include DataCycleCore::Filter::Common::DateRange
 
       def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
@@ -260,28 +261,6 @@ module DataCycleCore
         reflect(@query.without_classification_alias_ids(ids))
       end
 
-      def date_range(d = nil, attribute_path = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
-
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
-
-        reflect(
-          @query.where(query_string)
-        )
-      end
-
-      def not_date_range(d = nil, attribute_path = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
-
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
-
-        reflect(
-          @query.where.not(query_string)
-        )
-      end
-
       def boolean(value, filter_method)
         if respond_to?(filter_method)
           send(filter_method, value)
@@ -343,27 +322,6 @@ module DataCycleCore
 
         reflect(
           @query.where(contains_queries.reduce(:or))
-        )
-      end
-
-      def validity_period(d = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
-
-        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-        reflect(
-          @query.where(query_string)
-        )
-      end
-
-      def not_validity_period(d = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
-
-        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
-
-        reflect(
-          @query.where.not(query_string)
         )
       end
 
