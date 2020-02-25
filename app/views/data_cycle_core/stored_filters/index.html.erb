@@ -62,12 +62,14 @@
                           <%= f.check_box :api %>
                             <%= f.label :api %>
                         </div>
-                        <div class="form-element">
-                          <div class="v-select">
-                            <%= f.label :api_users %>
-                            <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
-                          </div>
-                        </div>
+                        <% if can?(:create_api_with_users, stored_search) %>
+                            <div class="form-element">
+                              <div class="v-select">
+                                <%= f.label :api_users %>
+                                <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+                              </div>
+                            </div>
+                        <% end %>
                         <div class="buttons">
                           <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
                             data: {
