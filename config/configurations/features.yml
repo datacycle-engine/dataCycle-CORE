@@ -73,9 +73,9 @@
   :validity_period: true
   :in_schedule: false
   :geo_filter:
-    :geo_radius: true
-    :geo_within_classification: 
-      - Administrative Einheiten
+    :geo_radius: false
+    :geo_within_classification: false
+      # - Administrative Einheiten
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric

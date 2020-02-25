@@ -25,8 +25,8 @@ module DataCycleCore
         end
 
         def geo_filter(value)
-          value_arr = []
           if value.is_a?(Hash)
+            value_arr = []
             value.each do |k, v|
               if v.is_a?(Array)
                 v.map do |c|
@@ -42,8 +42,6 @@ module DataCycleCore
                   'geo_filter',
                   data: { name: k, advancedType: k }
                 ]
-              else
-                value_arr << []
               end
             end
             value_arr
