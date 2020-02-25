@@ -281,6 +281,21 @@ WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', a
 
 
 --
+-- Name: classification_polygons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_polygons (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    admin_level integer,
+    classification_alias_id uuid,
+    geom public.geometry(MultiPolygon,3035),
+    geog public.geography(MultiPolygon,4326),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
+
+
+--
 -- Name: classification_tree_label_statistics; Type: VIEW; Schema: public; Owner: -
 --
 
@@ -998,6 +1013,14 @@ ALTER TABLE ONLY public.classification_contents
 
 
 --
+-- Name: classification_polygons classification_polygons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_polygons
+    ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
+
+
+--
 -- Name: classification_aliases classifications_aliases_pkey; Type: CONSTRAINT; Schema: public; Owner: -
 --
 
@@ -1280,6 +1303,13 @@ CREATE INDEX classification_content_data_history_id_idx ON public.classification
 
 
 --
+-- Name: classification_polygons_geom_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_polygons_geom_idx ON public.classification_polygons USING gist (geom);
+
+
+--
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1529,6 +1559,13 @@ CREATE INDEX index_classification_trees_on_parent_classification_alias_id ON pub
 --
 
 CREATE INDEX index_classifications_on_deleted_at ON public.classifications USING btree (deleted_at);
+
+
+--
+-- Name: index_classifications_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classifications_on_external_key ON public.classifications USING btree (external_key);
 
 
 --
@@ -1837,6 +1874,20 @@ CREATE UNIQUE INDEX index_things_on_id ON public.things USING btree (id);
 --
 
 CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of);
+
+
+--
+-- Name: index_things_on_location_geography_cast; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_geography_cast ON public.things USING gist (public.geography(location));
+
+
+--
+-- Name: index_things_on_location_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_spatial ON public.things USING gist (location);
 
 
 --
@@ -2187,8 +2238,11 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200116143539'),
 ('20200117095949'),
 ('20200131103229'),
+('20200213132354'),
 ('20200217100339'),
 ('20200218132801'),
-('20200218151417');
+('20200218151417'),
+('20200219111406'),
+('20200221115053');
 
 

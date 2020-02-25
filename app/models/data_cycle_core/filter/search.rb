@@ -6,6 +6,7 @@ module DataCycleCore
       include DataCycleCore::Filter::Common::Configurable
       include DataCycleCore::Filter::Common::Advanced
       include DataCycleCore::Filter::Common::ClassificationMapping
+      include DataCycleCore::Filter::Common::DateRange
 
       def initialize(locale = ['de'], query = nil, joined_search = false, joined_schedule = false)
         @locale = locale
@@ -260,28 +261,6 @@ module DataCycleCore
         reflect(@query.without_classification_alias_ids(ids))
       end
 
-      def date_range(d = nil, attribute_path = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
-
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
-
-        reflect(
-          @query.where(query_string)
-        )
-      end
-
-      def not_date_range(d = nil, attribute_path = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
-
-        date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
-
-        reflect(
-          @query.where.not(query_string)
-        )
-      end
-
       def boolean(value, filter_method)
         if respond_to?(filter_method)
           send(filter_method, value)
@@ -302,24 +281,47 @@ module DataCycleCore
         end
       end
 
-      def validity_period(d = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
+      def geo_radius(values)
+        return self if values&.dig('lon').blank? || values&.dig('lat').blank? || values&.dig('distance').blank?
 
-        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
         reflect(
-          @query.where(query_string)
+          @query.where(st_dwithin(cast_geography(thing[:location]), cast_geography(st_setsrid(st_makepoint(values&.dig('lon'), values&.dig('lat')), 4326)), values&.dig('distance').to_i))
         )
       end
 
-      def not_validity_period(d = nil)
-        return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? }
+      def geo_within_classification(ids)
+        return self if ids.blank?
 
-        date_range = "[#{d&.dig('from')&.to_datetime&.noon&.to_s},#{d&.dig('until')&.to_datetime&.noon&.to_s}]"
-        query_string = Thing.send(:sanitize_sql_for_conditions, ['things.validity_range @> ?::tstzrange', date_range])
+        contains_queries = []
+        ids.each do |id|
+          sub_query = Arel::SelectManager.new
+            .project(classification_polygon[:geom])
+            .from(classification_polygon)
+            .where(classification_polygon[:classification_alias_id].eq(id))
+
+          contains_queries << st_contains(sub_query, st_transform(thing[:location], 3035))
+        end
 
         reflect(
-          @query.where.not(query_string)
+          @query.where(contains_queries.reduce(:or))
+        )
+      end
+
+      def not_geo_within_classification(ids)
+        return self if ids.blank?
+
+        contains_queries = []
+        ids.each do |id|
+          sub_query = Arel::SelectManager.new
+            .project(classification_polygon[:geom])
+            .from(classification_polygon)
+            .where(classification_polygon[:classification_alias_id].eq(id))
+
+          contains_queries << st_disjoint(sub_query, st_transform(thing[:location], 3035))
+        end
+
+        reflect(
+          @query.where(contains_queries.reduce(:or))
         )
       end
 
@@ -507,6 +509,10 @@ module DataCycleCore
 
       def thing
         DataCycleCore::Thing.arel_table
+      end
+
+      def classification_polygon
+        DataCycleCore::ClassificationPolygon.arel_table
       end
 
       def duplicate_candidate

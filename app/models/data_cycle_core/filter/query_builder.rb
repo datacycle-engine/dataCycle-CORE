@@ -49,6 +49,30 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
+      def st_dwithin(geom1, geom2, distance)
+        Arel::Nodes::NamedFunction.new('ST_DWithin', [geom1, geom2, distance])
+      end
+
+      def st_transform(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_Transform', [geom, srid])
+      end
+
+      def st_setsrid(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_SetSRID', [geom, srid])
+      end
+
+      def st_makepoint(x, y)
+        Arel::Nodes::NamedFunction.new('ST_MakePoint', [Arel::Nodes::SqlLiteral.new(x), Arel::Nodes::SqlLiteral.new(y)])
+      end
+
+      def st_contains(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Contains', [geom1, geom2])
+      end
+
+      def st_disjoint(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Disjoint', [geom1, geom2])
+      end
+
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end
@@ -98,6 +122,17 @@ module DataCycleCore
             Arel::Nodes::As.new(
               quoted(date),
               Arel::Nodes::SqlLiteral.new('timestamp with time zone')
+            )
+          ]
+        )
+      end
+
+      def cast_geography(geom)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              geom,
+              Arel::Nodes::SqlLiteral.new('geography')
             )
           ]
         )

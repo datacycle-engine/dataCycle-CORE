@@ -166,6 +166,8 @@ de:
     no_translation: Keine Übersetzung vorhanden
     max: maximal
     min: mindestens
+    in: in
+    not_in: nicht in
     landscape: Querformat
     portrait: Hochformat
     height: Höhe
@@ -242,6 +244,14 @@ de:
     embedded_move_down: nach unten verschieben
     embedded_move_up: nach oben verschieben
     date: Datum
+    longitude: Längengrad
+    latitude: Breitengrad
+    distance: Radius
+    center_point: Mittelpunkt
+    placeholder:
+      longitude: Längengrad, z.B. 14,30
+      latitude: Breitengrad, z.B. 46,61
+      distance: Radius in Metern
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -325,6 +335,17 @@ de:
     elevation: Meereshöhe
     depth_of_snow: Schneehöhe
     depth_of_fresh_snow: Neuschnee
+    geo_radius: Umkreis
+    geo_within_classification: Lage
+    inactive_things: Abgelaufene Inhalte
+    in_schedule:
+      absolute: Fester Zeitraum
+      relative: Relativer Zeitraum
+      before: vor
+      in: in
+      num: Anzahl
+      unit: Einheit
+
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -332,10 +353,15 @@ de:
     creator: nach Personen filtern...
     external_source: nach Externer Quellen filtern...
     external_system: nach Externer Verknüpfungen filtern...
-    validity_period: nach Zeitraum filtern...
+    validity_period: nach Gültigkeitszeitraum filtern...
     date_range: nach Datum filtern...
     boolean: nach booleschen Kriterien filtern...
     advanced_attributes: nach Attributen filtern...
+    geo_radius: nach Umkreis filtern...
+    geo_within_classification: nach geografischer Lage filtern...
+    geo_filter: nach geografischer Lage filtern...
+    in_schedule: nach Termin filtern...
+    inactive_things: Abgelaufenen Inhalten filtern...
 
   object_browser:
     details:
@@ -955,6 +981,7 @@ de:
       month: Monat
       second: Sekunde
       year: Jahr
+      week: Woche
   number:
     currency:
       format:

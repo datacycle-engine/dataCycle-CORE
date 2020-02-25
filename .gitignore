@@ -25,3 +25,5 @@ package-lock.json
 coverage
 .env
 benchmark/
+
+.DS_Store

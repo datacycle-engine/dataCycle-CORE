@@ -60,6 +60,12 @@
                 - Organisation
         :inverse_of: member_of
         :link_direction: inverse
+      :content_location:
+        :label: Standort
+        :type: linked
+        :template_name: Örtlichkeit
+        :api:
+          :name: location
       :linked_data:
         :type: mixin
         :name: linked_data
