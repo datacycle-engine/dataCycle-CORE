@@ -104,7 +104,7 @@ module DataCycleCore
     end
 
     def stored_filter_params
-      params.require(:stored_filter).permit(:id, :name, :system, :api, api_users: [])
+      params.require(:stored_filter).permit(:id, :name, :system, :api, :linked_stored_filter_id, api_users: [])
     end
   end
 end

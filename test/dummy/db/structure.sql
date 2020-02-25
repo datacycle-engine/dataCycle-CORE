@@ -767,7 +767,7 @@ CREATE TABLE public.stored_filters (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     api_users text[],
-    global boolean
+    linked_stored_filter_id uuid
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 

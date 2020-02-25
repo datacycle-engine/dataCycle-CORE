@@ -7,6 +7,9 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
+    belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :filter_uses
+    has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, dependent: :nullify, inverse_of: :linked_stored_filter
+
     # Mögliche Filter-Parameter: c, t, v, m, n
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'

@@ -76,6 +76,7 @@ module DataCycleCore
 
             if @stored_filter
               authorize! :api, @stored_filter
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present
             elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
               filter_watch_list = true
             else
