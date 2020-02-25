@@ -38,8 +38,13 @@ module DataCycleCore
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
         elsif property_definition
-          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-          get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+          if name.to_s.in?(embedded_property_names + linked_property_names)
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
+            get_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
+          else
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
+            get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+          end
         else
           super
         end
@@ -281,7 +286,7 @@ module DataCycleCore
         @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition)
+      def get_property_value(property_name, property_definition, filter = nil)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if plain_property_names.include?(key[0])
@@ -291,9 +296,9 @@ module DataCycleCore
             elsif classification_property_names.include?(key[0])
               load_classifications(key[0])
             elsif linked_property_names.include?(key[0])
-              load_linked_objects(key[0])
+              load_linked_objects(key[0], key[3])
             elsif embedded_property_names.include?(key[0])
-              load_embedded_objects(key[0])
+              load_embedded_objects(key[0], key[3])
             elsif asset_property_names.include?(key[0])
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])
@@ -304,7 +309,7 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition, I18n.locale]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter]]
       end
 
       def load_json_attribute(property_name, property_definition)

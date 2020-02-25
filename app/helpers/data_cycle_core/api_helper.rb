@@ -91,9 +91,9 @@ module DataCycleCore
       data_value
     end
 
-    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
+    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil)
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       elsif item.is_a?(DataCycleCore::Thing::History)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)

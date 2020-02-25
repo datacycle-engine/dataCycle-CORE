@@ -17,6 +17,23 @@ module DataCycleCore
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
+        def add_stored_filter
+          DataCycleCore::StoredFilter.create(
+            name: 'fulltext',
+            user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+            language: ['de'],
+            parameters: [{
+              'n' => 'Suchbegriff',
+              't' => 'fulltext_search',
+              'v' => 'test'
+            }, {
+              't' => 'order',
+              'v' => "things.boost * (8 * similarity(searches.classification_string, '%Test-POI%') + 4 * similarity(searches.headline, '%Test-POI%') + 2 * ts_rank_cd(searches.words, plainto_tsquery('simple', 'Test-POI'),16) + 1 * similarity(searches.full_text, '%Test-POI%')) DESC NULLS LAST, things.updated_at DESC"
+            }],
+            api: true
+          )
+        end
+
         test '/api/v4/things' do
           count = DataCycleCore::Thing.where(template: false).with_content_type('entity').count
 
@@ -49,6 +66,62 @@ module DataCycleCore
           assert_equal(1, json_data['@graph'].size)
           assert_equal(1, json_data['meta']['total'].to_i)
           assert_equal(true, json_data.key?('links'))
+        end
+
+        test '/api/v4/endpoints/:uuid with a valid stored_filter' do
+          fulltext_filter = add_stored_filter
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(2, json_data['@graph'].size)
+          assert_equal(2, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          poi = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-POI' }
+          assert_equal(1, poi.dig('image')&.size)
+
+          tour = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-TOUR' }
+          assert_equal(1, tour.dig('image')&.size)
+          assert_equal(1, tour.dig('poi', 0, 'image')&.size)
+        end
+
+        test '/api/v4/endpoints/:uuid with a valid stored_filter and filter for linked' do
+          height_filter = DataCycleCore::StoredFilter.create(
+            name: 'height < 1000px',
+            user_id: DataCycleCore::User.find_by(email: 'tester@datacycle.at').id,
+            language: ['de'],
+            parameters: [{
+              'c' => 'a',
+              'm' => 'i',
+              'n' => 'height',
+              'q' => 'numeric',
+              't' => 'advanced_attributes',
+              'v' => { 'max' => '1000', 'min' => '' }
+            }, {
+              't' => 'order',
+              'v' => 'things.boost DESC, things.updated_at DESC'
+            }],
+            api: false
+          )
+          fulltext_filter = add_stored_filter
+          fulltext_filter.linked_stored_filter_id = height_filter.id
+          fulltext_filter.save
+
+          get api_v4_stored_filter_path(id: fulltext_filter.id, include: 'image,poi.image')
+
+          assert_equal(response.content_type, 'application/json')
+          json_data = JSON.parse(response.body)
+          assert_equal(2, json_data['@graph'].size)
+          assert_equal(2, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          poi = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-POI' }
+          assert_nil(poi.dig('image'))
+
+          tour = json_data.dig('@graph').detect { |i| i.dig('name') == 'Test-TOUR' }
+          assert_nil(tour.dig('image'))
+          assert_nil(tour.dig('poi', 0, 'image'))
         end
 
         test '/api/v4/endpoints/:uuid/ with random :uuid responds with 404' do

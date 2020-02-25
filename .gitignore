@@ -21,6 +21,7 @@ gemsurance_report.html
 test/dummy/public/uploads
 test/dummy/public/assets
 test/dummy/db/backups
+test/fixtures/files/shp
 rdoc/
 package-lock.json
 coverage

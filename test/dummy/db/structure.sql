@@ -766,7 +766,8 @@ CREATE TABLE public.stored_filters (
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    api_users text[]
+    api_users text[],
+    linked_stored_filter_id uuid
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
@@ -2243,6 +2244,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200218132801'),
 ('20200218151417'),
 ('20200219111406'),
-('20200221115053');
+('20200221115053'),
+('20200224143507');
 
 
