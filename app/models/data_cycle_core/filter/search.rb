@@ -86,15 +86,9 @@ module DataCycleCore
         filter = DataCycleCore::StoredFilter.find(filter_id)
         return self if filter.blank?
 
-        if inverse
-          thing_id = :content_b_id
-          relation = :relation_b
-          filtered_id = :content_a_id
-        else
-          thing_id = :content_a_id
-          relation = :relation_a
-          filtered_id = :content_b_id
-        end
+        thing_id = :content_a_id
+        relation = :relation_a
+        filtered_id = :content_b_id
 
         filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
         subquery = Arel::SelectManager.new
