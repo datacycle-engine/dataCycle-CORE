@@ -1,0 +1,34 @@
+<div data-id="<%= filter_name%>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
+  <%= hidden_field_tag "f[#{index}][t]", 'relation_filter' %>
+  <%= hidden_field_tag "f[#{index}][n]", filter_title %>
+  <%= hidden_field_tag "f[#{index}][q]", filter_name %>
+
+  <div class="advanced-filter-title">
+    <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
+    <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
+  </div>
+
+  <div class="advanced-filter-mode">
+    <%= t("common.has", locale: DataCycleCore.ui_language) %>
+    <%= hidden_field_tag "f[#{index}][m]", 'i' %>
+  </div>
+
+  <div class="advanced-filter-selector">
+    <%= select_tag("f[#{index}][v]",
+      options_for_select(DataCycleCore::StoredFilter.where.not(name: nil).map { |e| ["#{e.name}", e.id, { title: e.name }] }, value),
+      {
+        include_blank: true,
+        multiple: false,
+        class: 'single-select',
+        data: {
+          placeholder: ''
+        }
+      }) %>
+  </div>
+
+  <% if can?(:advanced_filter, :backend) %>
+    <div class="buttons">
+      <a class="remove-advanced-filter" data-target="<%= filter_name %>_<%= index %>"><i aria-hidden="true" class="fa fa-times"></i></a>
+    </div>
+  <% end %>
+</div>
