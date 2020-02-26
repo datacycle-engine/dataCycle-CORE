@@ -2,6 +2,8 @@
   <%= hidden_field_tag "f[#{index}][t]", 'relation_filter' %>
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
   <%= hidden_field_tag "f[#{index}][q]", filter_advanced_type %>
+  <%= hidden_field_tag "f[#{index}][c]", 'a' %>
+
   <div class="advanced-filter-title">
     <%= render 'data_cycle_core/shared/icon', icon_type: filter_name %>
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
