@@ -80,7 +80,7 @@ module DataCycleCore
         )
       end
 
-      def relation_filter(filter_id = nil, name = nil, inverse = false)
+      def relation_filter(filter_id = nil, name = nil)
         return self if name.blank?
         return self if filter_id.blank?
         filter = DataCycleCore::StoredFilter.find(filter_id)
