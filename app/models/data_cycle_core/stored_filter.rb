@@ -7,6 +7,9 @@ module DataCycleCore
 
     has_many :activities, as: :activitiable, dependent: :destroy
 
+    belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :filter_uses, dependent: nil
+    has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
+
     # Mögliche Filter-Parameter: c, t, v, m, n
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
@@ -41,6 +44,8 @@ module DataCycleCore
           query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
         elsif query.method(t)&.parameters&.size == 2
           query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
+        elsif t == 'order'
+          query = query.send(t, Arel.sql(filter['v']))
         else
           query = query.send(t, filter['v'])
         end

@@ -775,6 +775,7 @@ de:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
         api_users: Für API zugelassene Benutzer
+        linked_stored_filter_id: Filter für verknüpfte Inhalte
         name: Name
       data_cycle_core/asset:
         name: Name
