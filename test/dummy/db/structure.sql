@@ -925,7 +925,11 @@ CREATE TABLE public.users (
     provider character varying,
     uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    confirmation_token character varying,
+    confirmed_at timestamp without time zone,
+    confirmation_sent_at timestamp without time zone,
+    unconfirmed_email character varying
 );
 
 
@@ -2260,6 +2264,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200218151417'),
 ('20200219111406'),
 ('20200221115053'),
-('20200224143507');
+('20200224143507'),
+('20200226121349');
 
 

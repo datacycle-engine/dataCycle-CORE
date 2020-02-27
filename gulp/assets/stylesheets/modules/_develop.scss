@@ -2576,3 +2576,11 @@ button.button-prime.small.bulk-delete-button {
 .fallback-title{
   line-height: 1;
 }
+.preview-link{
+  text-align: left;
+  a{
+    display: block;
+    padding-bottom: 0.5rem;
+    padding-top: 0.5rem;
+  }
+}

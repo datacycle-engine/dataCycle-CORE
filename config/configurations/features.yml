@@ -172,3 +172,9 @@
 
 :user_registration:
   :enabled: false
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:

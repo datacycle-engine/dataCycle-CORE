@@ -51,11 +51,13 @@
                     <% end %>
                   <% end %>
 
-                    <%= render 'data_cycle_core/application/downloads/download_indesign', content: stored_search if can?(:download_indesign, stored_search) %>
+                  <%= render 'data_cycle_core/application/downloads/download_indesign', content: stored_search if can?(:download_indesign, stored_search) %>
 
                   <%= render 'data_cycle_core/application/downloads/download_zip', content: stored_search if can?(:download_zip, stored_search) %>
 
                   <%= render 'data_cycle_core/application/downloads/download', content: stored_search if can?(:download, stored_search) %>
+
+                  <%= render 'data_cycle_core/application/preview/widget', content: stored_search if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>
 
                   <% if can?(:create_api, stored_search) %>
                     <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" title="<%= t('common.change_api_access', locale: DataCycleCore.ui_language) %>" data-tooltip>
@@ -102,6 +104,7 @@
                   <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                   <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                   <% end if can?(:destroy, stored_search) %>
+
                 </span>
               </li>
             <% end %>

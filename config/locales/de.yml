@@ -252,6 +252,10 @@ de:
       longitude: Längengrad, z.B. 14,30
       latitude: Breitengrad, z.B. 46,61
       distance: Radius in Metern
+    available_widgets: Verfügbare Widgets
+    widgets:
+      list: Listenansicht
+      map: Map
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -453,6 +457,7 @@ de:
     download_zip: "Inhalte als ZIP-Archiv herunterladen"
     download_asset: "Datei herunterladen"
     download_asset_version: "Datei herunterladen (%{data}-Version)"
+    preview_content: Vorschau anzeigen
     processing_asset: "Datei wird verarbeitet ..."
     processing_image: "Bild wird verarbeitet ..."
     searching: suche
