@@ -255,7 +255,7 @@ de:
     available_widgets: Verfügbare Widgets
     widgets:
       list: Listenansicht
-      map: Map
+      map: Kartenansicht
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'

@@ -770,6 +770,15 @@ $filter-border: #aaa;
             a.button {
               margin: 1rem;
             }
+            .preview-widget-list{
+              text-align: right;
+              position: relative;
+              display: block;
+              a{
+                position: relative;
+                display: inline-block;
+              }
+            }
           }
         }
 
