@@ -2596,3 +2596,23 @@ button.button-prime.small.bulk-delete-button {
     }
   }
 }
+.password-field{
+  position: relative;
+  .columns.end{
+    position: relative;
+  }
+  .password-visibility-toggle {
+    position: absolute;
+    top: 0.2rem;
+    right: 0;
+    height: 100%;
+    width: 4em;
+    text-align: center;
+    .svg-inline--fa {
+      height: 100%;
+      width: 100%;
+      padding: 0 calc((100% - 1.5em) / 2);
+      cursor: pointer;
+    }
+  }
+}

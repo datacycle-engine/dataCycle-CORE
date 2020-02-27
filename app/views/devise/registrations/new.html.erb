@@ -28,21 +28,16 @@
                     </div>
                 </div>
 
-                <div class="row">
+                <div class="row password-field">
                     <div class="small-3 columns">
                         <label for="user_password" class="text-right middle">Passwort:</label>
                     </div>
                     <div class="small-8 columns end">
-                        <%= f.input :password, required: true, label: false %>
-                    </div>
-                </div>
-
-                <div class="row">
-                    <div class="small-3 columns">
-                        <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
-                    </div>
-                    <div class="small-8 columns end">
-                        <%= f.input :password_confirmation, required: true, label: false %>
+                       <%= f.input :password, required: true, label: false %>
+                      <span class="password-visibility-toggle">
+                          <i class="fa fa-eye toggle-show"></i>
+                          <i class="fa fa-eye-slash toggle-hide hide"></i>
+                      </span>
                     </div>
                 </div>
 
