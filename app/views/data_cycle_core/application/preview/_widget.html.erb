@@ -5,7 +5,7 @@
   <i class="fa fa-eye" aria-hidden="true"></i>
 </a>
 
-<div class="dropdown-pane no-bullet align-right bottom" id="preview-widget-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet align-right bottom preview-widget-pane" id="preview-widget-<%= content.id %>" data-dropdown data-hover="true" data-hover-pane="true">
   <h5><%= t('common.available_widgets', locale: DataCycleCore.ui_language) %></h5>
   <% DataCycleCore::Feature::Preview.available_widgets.each do |k,v| %>
     <div class="preview-link">

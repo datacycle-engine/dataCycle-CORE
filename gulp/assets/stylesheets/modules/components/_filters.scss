@@ -1020,7 +1020,7 @@ $filter-border: #aaa;
       }
 
       &.content-item {
-        padding: 0.8rem 7rem 0.8rem 1rem;
+        padding: 0.8rem 1rem 0.8rem 1rem;
         background-color: white;
 
         .content-title {
@@ -1053,9 +1053,17 @@ $filter-border: #aaa;
           }
 
           &.buttons {
+            max-width: inherit;
+            text-align: right;
             position: absolute;
-            top: 0.8rem;
-            right: 1rem;
+            top: 2.5rem;
+            right: 0.5rem;
+            .dropdown-pane.preview-widget-pane{
+              &:before{
+                content: "";
+              }
+              top: calc(100% + 0.5rem) !important;
+            }
           }
 
           &.content-date {
