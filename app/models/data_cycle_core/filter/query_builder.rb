@@ -138,6 +138,136 @@ module DataCycleCore
         )
       end
 
+      def join_classification_alias
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_alias_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def classification_content
+        DataCycleCore::ClassificationContent.arel_table
+      end
+
+      def classification
+        Classification.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
+      end
+
+      def classification_group
+        ClassificationGroup.arel_table
+      end
+
+      def classification_alias
+        ClassificationAlias.arel_table
+      end
+
+      def watch_list_data_hash
+        DataCycleCore::WatchListDataHash.arel_table
+      end
+
+      def content_content
+        DataCycleCore::ContentContent.arel_table
+      end
+
+      def search
+        DataCycleCore::Search.arel_table
+      end
+
+      def schedule
+        DataCycleCore::Schedule.arel_table
+      end
+
+      def thing
+        DataCycleCore::Thing.arel_table
+      end
+
+      def classification_polygon
+        DataCycleCore::ClassificationPolygon.arel_table
+      end
+
+      def duplicate_candidate
+        DataCycleCore::Thing::DuplicateCandidate.arel_table
+      end
+
+      def external_system_sync
+        DataCycleCore::ExternalSystemSync.arel_table
+      end
+
+      def subscription
+        DataCycleCore::Subscription.arel_table
+      end
+
       # chain method for Builder pattern
       def reflect(query)
         self.class.new(@locale, query, @joined_search, @joined_schedule)

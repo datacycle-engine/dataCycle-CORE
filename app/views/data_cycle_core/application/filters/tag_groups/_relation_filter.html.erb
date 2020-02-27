@@ -1,13 +1,9 @@
-default
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
   <i class="tag-group-label">
-    <i class="fa fa-tags" aria-hidden="true"></i>
+    <i class="fa fa-arrow-circle-o-right" aria-hidden="true"></i>
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+    <% item_name = DataCycleCore::StoredFilter.find(value).name %>
+    <span class="tag" title="<%=item_name.to_s%>"><%=item_name%></span>
   </i>
-
-  <% value.each do |tag| %>
-    <span class="tag"><%= tag %></span>
-  <% end %>
-
   <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>
