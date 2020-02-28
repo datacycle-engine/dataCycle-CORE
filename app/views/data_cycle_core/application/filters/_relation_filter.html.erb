@@ -9,7 +9,7 @@
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
   <div class="advanced-filter-mode">
-    <%= t("common.has", locale: DataCycleCore.ui_language) %>
+    <%= t("filter.relation_filter.contained_in", locale: DataCycleCore.ui_language) %>
     <%= hidden_field_tag "f[#{index}][m]", 'i' %>
   </div>
   <div class="advanced-filter-selector">
