@@ -11,7 +11,7 @@ json = {}
 unless options[:header_type] == :overlay
   json['@id'] = content.id
   json['@type'] = content.schema.dig('api', 'type') || content.try(:schema_type) || content.class.name.demodulize
-  json['dc:entity_url'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if select_attributes(options[:fields]).include?('dc:entity_url')
+  json['dc:entityUrl'] = api_v4_thing_url(@api_subversion, content, { language: serialize_language(@language) }) if select_attributes(options[:fields]).include?('dc:entityUrl')
   json['dct:modified'] = content.updated_at if select_attributes(options[:fields]).include?('dct:modified')
   json['dct:created'] = content.created_at if select_attributes(options[:fields]).include?('dct:created')
   json['name'] = content.title || content.template_name

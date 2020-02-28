@@ -13,9 +13,9 @@ if options[:full]
   json.merge!({
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme',
-    'dc:entity_url' => uri,
+    'dc:entityUrl' => uri,
     'skos:prefLabel' => value_data,
-    'dc:has_concept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
+    'dc:hasConcept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
   }).compact
 else
   json.merge!({

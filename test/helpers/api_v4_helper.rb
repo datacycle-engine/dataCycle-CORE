@@ -7,7 +7,7 @@ module DataCycleCore
     end
 
     def full_classification_header_attributes
-      ['@id', '@type', 'dc:entity_url', 'skos:prefLabel', 'dct:description', 'skos:inScheme', 'skos:ancestors', 'skos:broader', 'skos:topConceptOf', 'dct:created', 'dct:updated', 'dct:deleted']
+      ['@id', '@type', 'dc:entityUrl', 'skos:prefLabel', 'dct:description', 'skos:inScheme', 'skos:ancestors', 'skos:broader', 'skos:topConceptOf', 'dct:created', 'dct:updated', 'dct:deleted']
     end
 
     def full_header_data(thing, languages = 'de')
