@@ -39,12 +39,14 @@ module DataCycleCore
           .>> t(:add_field, 'attribution_url', ->(s) { s.dig('imageinfo', 0, 'descriptionurl') })
           .>> t(:add_field, 'attribution_name', ->(s) { parse_attribution_name(s.dig('imageinfo', 0, 'extmetadata').slice('Artist')&.dig('Artist', 'value')) })
           .>> t(:add_field, 'license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'LicenseUrl', 'value') || s.dig('imageinfo', 0, 'extmetadata', 'LicenseShortName', 'value') })
+          .>> t(:add_field, 'wikidata_license_classification', ->(s) { [DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Wikidata - Lizenzen', s.dig('imageinfo', 0, 'extmetadata', 'LicenseShortName', 'value'))] })
           .>> t(:add_field, 'mandatory_license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'Copyrighted', 'value')&.casecmp?('true') }) # only for Bild-template in data-cycle-basic set!!
         end
 
         def self.generate_thumb_url(url)
-          return if url.blank?
+          return if url.blank? == ''
           parts = url.split('/')
+          return url unless parts[3] == 'wikimedia' && parts[4] == 'org'
           (parts[0..4] + ['thumb'] + parts[5..-1] + ['800px-' + parts.last]).join('/')
         end
 
