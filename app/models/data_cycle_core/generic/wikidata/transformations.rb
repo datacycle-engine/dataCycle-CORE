@@ -31,15 +31,21 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'ObjectName', 'value') || s.dig('title') })
           .>> t(:add_field, 'description', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'ImageDescription', 'value') })
           .>> t(:add_field, 'content_url', ->(s) { s.dig('imageinfo', 0, 'url') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('content_url') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { generate_thumb_url(s.dig('content_url')) })
           .>> t(:add_field, 'width', ->(s) { s.dig('imageinfo', 0, 'width') })
           .>> t(:add_field, 'height', ->(s) { s.dig('imageinfo', 0, 'height') })
           .>> t(:add_field, 'content_size', ->(s) { s.dig('imageinfo', 0, 'size') })
           .>> t(:add_field, 'upload_date', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'DateTime', 'value')&.in_time_zone })
-          .>> t(:add_field, 'attribution_url', ->(s) { parse_attribution_url(s.dig('imageinfo', 0, 'extmetadata').slice('Artist')&.dig('Artist', 'value')) })
+          .>> t(:add_field, 'attribution_url', ->(s) { s.dig('imageinfo', 0, 'descriptionurl') })
           .>> t(:add_field, 'attribution_name', ->(s) { parse_attribution_name(s.dig('imageinfo', 0, 'extmetadata').slice('Artist')&.dig('Artist', 'value')) })
           .>> t(:add_field, 'license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'LicenseUrl', 'value') || s.dig('imageinfo', 0, 'extmetadata', 'LicenseShortName', 'value') })
           .>> t(:add_field, 'mandatory_license', ->(s) { s.dig('imageinfo', 0, 'extmetadata', 'Copyrighted', 'value')&.casecmp?('true') }) # only for Bild-template in data-cycle-basic set!!
+        end
+
+        def self.generate_thumb_url(url)
+          return if url.blank?
+          parts = url.split('/')
+          (parts[0..4] + ['thumb'] + parts[5..-1] + ['800px-' + parts.last]).join('/')
         end
 
         def self.parse_attribution_name(artist_data)
