@@ -1,0 +1,34 @@
+---
+name: open.destination.one
+credentials:
+  host: http://meta.et4.de/rest.ashx
+  end_point: search/
+  experience: demo_dahoam
+  licensekey: d432db10e1f921f4a8bb78b2b0210a9a0be574c0
+default_options:
+  locales: [de]
+config:
+  download_config:
+    events:
+      sorting: 1
+      source_type: events
+      endpoint: DataCycleCore::Generic::OpenDestinationOne::Endpoint
+      download_strategy: DataCycleCore::Generic::OpenDestinationOne::Download
+  import_config:
+    # categories:
+    #   sorting: 1
+    #   source_type: infrastructures
+    #   import_strategy: DataCycleCore::Generic::Common::ImportTags
+    #   tree_label: 'Pimcore - Categories'
+    #   tag_id_path: 'categories.id'
+    #   tag_name_path: 'categories.name'
+    #   external_id_prefix: 'Pimcore - Category - '
+    events:
+      sorting: 10
+      source_type: events
+      import_strategy: DataCycleCore::Generic::Pimcore::ImportInfrastructure
+      transformations:
+        image:
+          template: Bild
+        infrastructure:
+          template: POI
