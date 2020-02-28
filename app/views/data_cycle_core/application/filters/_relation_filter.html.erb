@@ -14,7 +14,11 @@
   </div>
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(DataCycleCore::StoredFilter.where.not(name: nil).map { |e| ["#{e.name}", e.id, { title: e.name }] }, value),
+      options_for_select(
+        (
+          DataCycleCore::StoredFilter.accessible_by(current_ability).where.not(name: nil) +
+          DataCycleCore::StoredFilter.where(id: local_assigns[:value])
+        ).map { |e| ["#{e.name}", e.id, { title: e.name }] }, value),
       {
         include_blank: true,
         multiple: false,
