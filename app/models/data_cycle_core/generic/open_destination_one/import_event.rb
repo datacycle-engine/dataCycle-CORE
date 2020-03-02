@@ -28,17 +28,28 @@ module DataCycleCore
               )
             end
 
-            # DataCycleCore::Generic::Pimcore::Processing.process_organization(
-            #   utility_object,
-            #   raw_data.dig('organiser'),
-            #   options.dig(:import, :transformations, :organization)
-            # )
+            raw_data.dig('image').each do |image_data|
+              DataCycleCore::Generic::OpenDestinationOne::Processing.process_image(
+                utility_object,
+                image_data,
+                options.dig(:import, :transformations, :image)
+              )
+            end
 
-            # DataCycleCore::Generic::Pimcore::Processing.process_event(
-            #   utility_object,
-            #   raw_data,
-            #   options.dig(:import, :transformations, :event)
-            # )
+            if raw_data.dig('organizer').present?
+              organizer_data = DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(raw_data.dig('organizer'))
+              DataCycleCore::Generic::OpenDestinationOne::Processing.process_organizer(
+                utility_object,
+                organizer_data,
+                options.dig(:import, :transformations, :organization)
+              )
+            end
+
+            DataCycleCore::Generic::OpenDestinationOne::Processing.process_event(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :event)
+            )
           end
         end
       end

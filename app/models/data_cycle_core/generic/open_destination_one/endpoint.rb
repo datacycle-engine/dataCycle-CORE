@@ -14,6 +14,7 @@ module DataCycleCore
         def events(*)
           Enumerator.new do |yielder|
             load_data(type: 'Event', template: 'schemaorg').each do |event|
+              event['keywords'] = event.dig('keywords').split(',')
               yielder << event
             end
           end

@@ -15,14 +15,15 @@ config:
       endpoint: DataCycleCore::Generic::OpenDestinationOne::Endpoint
       download_strategy: DataCycleCore::Generic::OpenDestinationOne::Download
   import_config:
-    # categories:
-    #   sorting: 1
-    #   source_type: infrastructures
-    #   import_strategy: DataCycleCore::Generic::Common::ImportTags
-    #   tree_label: 'Pimcore - Categories'
-    #   tag_id_path: 'categories.id'
-    #   tag_name_path: 'categories.name'
-    #   external_id_prefix: 'Pimcore - Category - '
+    keywords:
+      sorting: 1
+      source_type: events
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: 'open.destination.one - Keywords'
+      tag_path: 'keywords'
+      tag_id_path: 'keywords'
+      tag_name_path: 'keywords'
+      external_id_prefix: 'open.destination.one - Keyword - '
     events:
       sorting: 10
       source_type: events
@@ -32,5 +33,5 @@ config:
           template: Örtlichkeit
         image:
           template: Bild
-        infrastructure:
-          template: POI
+        organizer:
+          template: Organization
