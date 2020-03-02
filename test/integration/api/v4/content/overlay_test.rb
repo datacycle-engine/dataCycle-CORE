@@ -56,7 +56,7 @@ module DataCycleCore
           data = full_header_data(@content_overlay)
           assert_equal(header.except('name'), data.except('name'))
 
-          ['image', 'sub_event', 'location'].each do |embedded|
+          ['image', 'location'].each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 
