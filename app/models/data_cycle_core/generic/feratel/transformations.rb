@@ -680,6 +680,7 @@ module DataCycleCore
         end
 
         def self.duration(type, value)
+          return nil if value.is_a?(::Array)
           case type
           when nil
             nil
