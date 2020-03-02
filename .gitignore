@@ -7,6 +7,9 @@ test/dummy/log/*.log
 test/dummy/tmp/
 test/dummy/public/eyebase/*
 test/dummy/public/downloads/*
+test/dummy/public/uploads
+test/dummy/public/assets
+test/dummy/db/backups
 test/fixtures/files/shp
 tmp/
 .byebug_history
@@ -18,10 +21,6 @@ public/assets
 *.log
 gemsurance_report.html
 /.idea
-test/dummy/public/uploads
-test/dummy/public/assets
-test/dummy/db/backups
-test/fixtures/files/shp
 rdoc/
 package-lock.json
 coverage
