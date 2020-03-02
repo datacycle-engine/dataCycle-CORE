@@ -26,8 +26,10 @@ config:
     events:
       sorting: 10
       source_type: events
-      import_strategy: DataCycleCore::Generic::Pimcore::ImportInfrastructure
+      import_strategy: DataCycleCore::Generic::OpenDestinationOne::ImportEvent
       transformations:
+        place:
+          template: Örtlichkeit
         image:
           template: Bild
         infrastructure:

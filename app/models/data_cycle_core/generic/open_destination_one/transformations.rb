@@ -2,30 +2,32 @@
 
 module DataCycleCore
   module Generic
-    module Pimcore
+    module OpenDestinationOne
       module Transformations
         def self.t(*args)
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
         def self.to_event(external_source_id)
-          t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s)] })
-          .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('place' => true).to_s)] })
-          .>> t(:add_field, 'organizer_key', ->(s) { Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s) })
-          .>> t(:add_field, 'external_key', ->(s) { s.dig('id') })
-          .>> t(:add_field, 'pimcore_tags', ->(s) { get_tags(s) })
-          .>> t(:add_links, 'pimcore_locations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('locations'))&.map { |name| "Pimcore - Location - #{name}" } || [] })
-          .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
-          .>> t(:add_field, 'name', ->(s) { s.dig('localizedData', 'name').presence })
-          .>> t(:add_field, 'url', ->(s) { s.dig('localizedData', 'bergerlebnisPage').presence || s.dig('localizedData', 'link') })
-          .>> t(:add_field, 'potential_action', ->(s) { s.dig('localizedData', 'bookingLink') })
-          .>> t(:add_field, 'description', ->(s) { [s.dig('localizedData', 'shortText').presence, s.dig('localizedData', 'longText').presence].compact.join('<br/>') })
-          .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
-          .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
-          .>> t(:add_field, 'end_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateTo')) })
-          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
-          .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s.dig('localizedData', 'dateInfo', 'dateItems')) })
-          .>> t(:reject_keys, ['id', 'images', 'localizedDate', 'organiser', 'locations', 'categories'])
+          t(:rename_keys, { 'license' => 'attribution_url', 'keywords' => 'open_destination_one_keywords', 'identifier' => 'external_key' })
+          .>> t(:reject_keys, ['@context', '@type'])
+        end
+        # .>> t(:add_field, 'start_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateFrom')) })
+        # .>> t(:add_field, 'end_date', ->(s) { get_time(s.dig('localizedData', 'dateInfo', 'dateTo')) })
+        # .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+        # .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s.dig('localizedData', 'dateInfo', 'dateItems')) })
+        # .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { get_image_external_keys(s.dig('images')) })
+        # .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s)] })
+        # .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('place' => true).to_s)] })
+        # .>> t(:add_field, 'organizer_key', ->(s) { Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s.dig('organiser')).merge('organization' => true).to_s) })
+        # .>> t(:add_field, 'pimcore_tags', ->(s) { get_tags(s) })
+        # .>> t(:add_links, 'pimcore_locations', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('locations'))&.map { |name| "Pimcore - Location - #{name}" } || [] })
+        # .>> t(:add_links, 'pimcore_categories', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('categories'))&.map { |name| "Pimcore - Event-Category - #{name}" } || [] })
+
+        def self.to_place
+          t(:underscore_keys)
+          .>> t(:add_field, 'external_key', ->(s) { Digest::MD5.hexdigest(DataCycleCore::Generic::Common::DownloadFunctions.bson_to_hash(s).to_s) })
+          .>> t(:add_field, 'country_code', ->(s) { s.dig('address', 'addressCountry') == 'Deutschland' ? [DataCycleCore::ClassificationAlias.classification_for_tree_with_name('Ländercodes', 'DE')] : [] })
         end
 
         def self.opening_hours(data, external_source_id, external_key)
