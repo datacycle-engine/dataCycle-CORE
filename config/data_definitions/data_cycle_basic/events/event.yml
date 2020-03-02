@@ -220,6 +220,9 @@
       :hrs_dd_events:
         :type: mixin
         :name: hrs_dd_events
+      :open_destination_one_events:
+        :type: mixin
+        :name: open_destination_one_events
       :marche_events:
         :type: mixin
         :name: marche_events
