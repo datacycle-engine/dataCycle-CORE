@@ -275,6 +275,8 @@ class AssetUploader {
           (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
 
+      console.log(values);
+
       if (
         ['linked', 'embedded', 'classification'].includes(file.attributeValues[key].type) ||
         (values && values.length > 1)

@@ -1,5 +1,4 @@
 <%= render 'data_cycle_core/contents/new/shared/locales_list', local_assigns if template.translatable? && I18n.available_locales&.many? %>
-
 <% new_dialog_config(template, 'asset')&.each_with_index do |(field_title, a_keys), index| %>
   <fieldset>
     <% if index === 0 %>
@@ -7,14 +6,11 @@
     <% else %>
       <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
     <% end %>
-
     <%= tag.div(callouts&.dig(field_title.to_sym, :text), class: "callout #{callouts&.dig(field_title.to_sym, :classes).presence || 'primary'}") if local_assigns[:callouts] && callouts&.dig(field_title.to_sym).present? %>
-
     <% a_keys.presence&.each do |a_key| %>
       <% a_key = Array.wrap(a_key) %>
       <% a_definition = template.schema.dig('properties', *a_key)&.deep_reject{ |k, v| k == 'readonly' } %>
       <% next unless a_definition.present? %>
-
       <% if template.translatable? && template.translatable_property?(a_key.last, a_definition) %>
         <%= render 'data_cycle_core/contents/editors/translatable_field', local_assigns.merge(key: a_key, value: a_key.first == 'name' ? local_assigns[:search_param] : nil) %>
       <% else %>

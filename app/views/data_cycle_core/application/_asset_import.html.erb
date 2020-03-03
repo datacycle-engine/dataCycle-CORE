@@ -1,6 +1,5 @@
 <% uploader_validation ||= uploader_validation(asset_type: local_assigns[:asset_type]) %>
 <% type_class = "data_cycle_core/#{local_assigns.dig(:asset_type)}".classify.constantize %>
-
 <div class="reveal full asset-upload-reveal<%= ' in-object-browser' if local_assigns.dig(:remote_options, :object_browser) %><%= local_assigns[:create_content] ? ' create-content-reveal' : ' create-asset-reveal' %>"
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
@@ -21,7 +20,6 @@
         <a href="#" class="accordion-title"><%= t('common.warning', locale: DataCycleCore.ui_language) %></a>
         <div class="accordion-content" data-tab-content>
           <%= t('uploader.close_warning_html', locale: DataCycleCore.ui_language) %>
-
           <%= link_to (request.fullpath.include?('remote_render') ? request.referrer : request.fullpath), target: :_blank do %>
             <i class="fa fa-external-link" aria-hidden="true"></i>
             <%= t('uploader.continue_in_new_tab', locale: DataCycleCore.ui_language) %>
@@ -39,7 +37,7 @@
           <span class="progress-bar"><span class="progress-filled"></span></span>
           <span class="button-text">
             <%= tag.i(class: 'fa fa-check') %>
-            <%= t('actions.new', data: type_class.model_name.human(count: 2, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
+            <%= t('actions.new_asset', data: type_class.model_name.human(count: 2, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>
             <span class="progress-value"></span>
           </span>
         </button>

@@ -1110,12 +1110,17 @@ body .v-select {
       .copy-attribute-to-all {
         position: relative;
         float: right;
-        width: 3rem;
-        height: 2.5rem;
-        margin-top: 1.5rem;
-        padding: 0.5rem;
+        width: 2rem;
+        height: 2rem;
+        margin-top: 1.9rem;
+        padding: 0.25rem;
         text-align: center;
         cursor: pointer;
+
+        .fa {
+          font-size: 1.2rem;
+          line-height: 1.5rem;
+        }
         &:hover {
           color: $dark-gray;
         }
@@ -1136,8 +1141,10 @@ body .v-select {
         white-space: nowrap;
         z-index: 13;
         border-radius: 5px;
-        top: 0.5rem;
+        top: 0;
         box-shadow: 0 0 3px #ccc;
+        line-height: 1.5rem;
+        font-size: 0.9rem;
       }
 
       .copy-attribute-to-all + .form-element {

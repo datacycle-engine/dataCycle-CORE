@@ -95,6 +95,15 @@ class NewContentDialog {
 
     QuillHelpers.updateEditors(this.form);
     let formData = this.form.serializeArray();
+
+    formData.forEach((v, i) => {
+      if (v && v.value.isUuid()) {
+        console.log(this.form.find(':input[name="' + v.name + '"]'));
+      }
+    });
+
+    console.log(formData);
+
     let formElementKey = $(event.currentTarget)
       .next('.form-element')
       .data('key');
@@ -126,7 +135,7 @@ class NewContentDialog {
       .addBack('.form-element');
 
     let button = $(
-      '<button class="copy-attribute-to-all" title="für alle Bilder übernehmen"><i class="fa fa-clone" aria-hidden="true"></i></button>'
+      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
     );
 
     button.insertBefore(formFields);

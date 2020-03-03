@@ -427,6 +427,7 @@ de:
     delete: löschen
     choose_type: "Inhaltstyp wählen"
     new: "%{data} erstellen"
+    new_asset: "%{data} speichern"
     generate: "%{data} generieren"
     send: versenden
     send_with_data: "%{data} versenden"

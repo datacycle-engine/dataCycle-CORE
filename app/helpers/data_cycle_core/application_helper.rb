@@ -171,14 +171,14 @@ module DataCycleCore
       DataCycleCore::FeatureService.enabled_features(content&.schema || definition, key.attribute_name_from_key)
     end
 
-    def new_dialog_config(template, except = nil)
+    def new_dialog_config(template, except = nil, filter = nil)
       (DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) ||
         DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) ||
-        DataCycleCore.new_dialog.dig('default')).transform_values { |v| v&.except(except) }
+        DataCycleCore.new_dialog.dig('default')).transform_values { |v| v&.select { |t| t.include?(filter.to_s) }&.map { |t| t.remove('**list').squish }&.except(except) }
     end
 
     def new_attribute_labels(template)
-      template&.schema&.dig('properties')&.slice(*new_dialog_config(template).values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label')] }.to_h : { k => v.slice('type', 'label') } }&.reduce({}, :merge)
+      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label')] }.to_h : { k => v.slice('type', 'label') } }&.reduce({}, :merge)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
