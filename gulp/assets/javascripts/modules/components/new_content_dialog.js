@@ -77,45 +77,52 @@ class NewContentDialog {
     if (config && config.allFiles) this.reveal.foundation('close');
     else this.nextAssetForm(event);
 
-    this.referencedAssetField.trigger('dc:upload:setFormFields', {
-      formData: formData,
-      allFiles: config && config.allFiles
-    });
+    this.parseFormData(formData, null, config && config.allFiles);
   }
   copyToAllReferenceFields(event) {
     this.form.trigger('submit', { allFiles: true });
   }
   copySingleToAllReferenceFields(event) {
-    let buttonHtml = $(event.currentTarget).html();
-    $(event.currentTarget)
-      .html('<i class="fa fa-circle-o-notch fa-spin"></i>')
-      .addClass('disabled');
+    $(event.currentTarget).addClass('disabled');
     event.preventDefault();
     event.stopImmediatePropagation();
-
-    QuillHelpers.updateEditors(this.form);
-    let formData = this.form.serializeArray();
-
-    formData.forEach((v, i) => {
-      if (v && v.value.isUuid()) {
-        console.log(this.form.find(':input[name="' + v.name + '"]'));
-      }
-    });
-
-    console.log(formData);
 
     let formElementKey = $(event.currentTarget)
       .next('.form-element')
       .data('key');
+    let target = $(event.currentTarget);
+    QuillHelpers.updateEditors(this.form);
+    let formData = this.form.serializeArray();
+    formData = formData.filter(f => f.name.includes(formElementKey) || !f.name.includes('thing'));
 
-    this.referencedAssetField.trigger('dc:upload:setFormFields', {
-      formData: formData.filter(f => f.name.includes(formElementKey) || !f.name.includes('thing')),
-      allFiles: true
+    this.parseFormData(formData, target, true);
+  }
+  parseFormData(formData, target = null, allFiles = false) {
+    let requests = [];
+
+    formData.forEach((v, i) => {
+      if (v && v.value.isUuid()) {
+        requests.push(
+          $.get('/api/v4/universal/' + v.value + '?fields=name,skos:prefLabel').done(data => {
+            v.text = data && (data['skos:prefLabel'] || data.name);
+          })
+        );
+      }
     });
-    $(event.currentTarget)
-      .html(buttonHtml)
-      .removeClass('disabled');
-    this.showNotice($(event.currentTarget), 'Attribut wurde übernommen!');
+
+    Promise.all(requests)
+      .then(data => this.setUploaderFormFields(formData, target, allFiles))
+      .catch(error => this.setUploaderFormFields(formData, target, allFiles));
+  }
+  setUploaderFormFields(formData, target = null, allFiles = false) {
+    this.referencedAssetField.trigger('dc:upload:setFormFields', {
+      formData: formData,
+      allFiles: allFiles
+    });
+    if (target) {
+      target.removeClass('disabled');
+      this.showNotice(target, 'Attribut wurde übernommen!');
+    }
   }
   showNotice(target, text) {
     let notice = $('<span class="copy-attribute-notice">' + text + '</span>');
@@ -135,7 +142,7 @@ class NewContentDialog {
       .addBack('.form-element');
 
     let button = $(
-      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></button>'
+      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="copy-icon fa fa-arrow-right" aria-hidden="true"></i><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
     );
 
     button.insertBefore(formFields);

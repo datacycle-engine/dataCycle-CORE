@@ -36,7 +36,7 @@ module.exports.initialize = function() {
         var that = this;
 
         $(this).on('dc:import:data', (event, data) => {
-          if (data.value !== undefined) {
+          if (data.value && data.value.length) {
             let async_select = $(event.target);
             let value = async_select.val();
             if (!Array.isArray(value)) value = [value].filter(el => el !== null);
@@ -152,7 +152,7 @@ module.exports.initialize = function() {
         var that = this;
 
         $(this).on('dc:import:data', (event, data) => {
-          if (data.value !== undefined) {
+          if (data.value && data.value.length) {
             let value = $(event.target).val();
             if (!Array.isArray(value)) value = [value];
             if (!Array.isArray(data.value)) data.value = [data.value];

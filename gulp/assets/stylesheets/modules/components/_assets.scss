@@ -247,6 +247,10 @@ ul.asset-list {
     overflow: auto;
     height: calc(100vh - 10rem);
     padding-right: 0.5rem;
+    .drag-and-drop-field {
+      height: 8rem;
+      margin-top: 1rem;
+    }
     .content-upload-form {
       .buttons {
         position: absolute;
@@ -329,6 +333,7 @@ ul.asset-list {
   transition: all 0.3s;
 
   .new-asset-attributes {
+    flex: auto;
     display: flex;
     flex-flow: row;
     > * {
@@ -461,31 +466,12 @@ ul.asset-list {
     flex: 1;
     margin: 0;
     min-width: 3rem;
-
-    &.linked,
-    &.classification,
-    &.embedded {
-      max-width: 5rem;
-    }
   }
   .file-label {
     font-size: 0.9rem;
     color: darken($medium-gray, 10%);
     font-style: italic;
     margin-bottom: 0.3rem;
-  }
-  .file-attribute-value {
-    .count {
-      padding: 0.2rem;
-      background: $light-gray;
-      border-radius: 0.8rem;
-      height: 1.6rem;
-      line-height: 1.2rem;
-      text-align: center;
-      font-size: 1rem;
-      min-width: 1.6rem;
-      display: inline-block;
-    }
   }
   .file-name {
     font-size: 1rem;
@@ -497,6 +483,9 @@ ul.asset-list {
   .file-attribute-value {
     overflow: hidden;
     text-overflow: ellipsis;
+  }
+  .file-name,
+  .file-label {
     white-space: nowrap;
   }
   .file-details {
@@ -572,7 +561,7 @@ ul.asset-list {
       background: $primary-color;
     }
 
-    .button-overlay {
+    .file-buttons {
       .cancel-upload-button {
         display: none;
       }
@@ -620,24 +609,18 @@ ul.asset-list {
   }
 
   &.retry:not(.uploading) {
-    .button-overlay .button.retry-upload-button {
+    .file-buttons .button.retry-upload-button {
       display: block;
     }
   }
 
-  .button-overlay {
+  .file-buttons {
     display: flex;
-    opacity: 0;
-    pointer-events: none;
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 100%;
     align-items: center;
     justify-content: center;
     background: rgba($white, 0.8);
     transition: all 0.3s;
+    padding: 1rem;
 
     .button {
       border-radius: 50%;
@@ -648,7 +631,7 @@ ul.asset-list {
       align-items: center;
       justify-content: center;
       &:not(:last-of-type) {
-        margin-right: 1rem;
+        margin-right: 0.5rem;
       }
 
       .fa {
@@ -658,12 +641,6 @@ ul.asset-list {
       &.retry-upload-button {
         display: none;
       }
-    }
-  }
-  &:hover {
-    .button-overlay {
-      opacity: 1;
-      pointer-events: initial;
     }
   }
 
@@ -685,7 +662,7 @@ ul.asset-list {
       overflow: hidden;
       flex: 1;
     }
-    .button-overlay {
+    .file-buttons {
       display: none;
       pointer-events: none;
     }

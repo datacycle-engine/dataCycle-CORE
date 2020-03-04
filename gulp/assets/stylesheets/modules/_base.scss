@@ -1117,6 +1117,10 @@ body .v-select {
         text-align: center;
         cursor: pointer;
 
+        .loading-icon {
+          display: none;
+        }
+
         .fa {
           font-size: 1.2rem;
           line-height: 1.5rem;
@@ -1128,6 +1132,13 @@ body .v-select {
           color: $light-gray;
           cursor: not-allowed;
           pointer-events: none;
+
+          .loading-icon {
+            display: block;
+          }
+          .copy-icon {
+            display: none;
+          }
         }
       }
 

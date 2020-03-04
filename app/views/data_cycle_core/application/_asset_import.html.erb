@@ -4,6 +4,7 @@
   id="asset-upload-reveal-<%= local_assigns[:key] || 'default' %>"
   data-reveal
   data-validation="<%= uploader_validation.to_json %>"
+  data-form-attributes="<%= new_dialog_config(template).to_json if local_assigns[:create_content] %>"
   data-rendered-attributes="<%= new_attribute_labels(template).to_json if local_assigns[:create_content] %>"
   data-content-uploader="<%= local_assigns[:create_content] || false %>"
   data-asset-key="<%= local_assigns[:template]&.asset_property_names&.first if local_assigns[:create_content] %>"
@@ -43,6 +44,9 @@
         </button>
         <button type="button" data-close class="button asset-reload-button"><%= t('actions.close_overlay', locale: DataCycleCore.ui_language) %></button>
       </span>
+    </div>
+    <div class="drag-and-drop-field">
+      <%= t('upload.drag_and_drop_html', locale: DataCycleCore.ui_language, type: type_translation) %>
     </div>
   </div>
   <button class="close-button"

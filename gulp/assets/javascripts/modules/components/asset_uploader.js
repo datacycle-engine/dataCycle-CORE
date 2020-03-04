@@ -19,7 +19,8 @@ class AssetUploader {
     this.uploadForm = this.reveal.find('.content-upload-form');
     this.createButton = this.uploadForm.find('.content-create-button');
     this.renderedAttributes = this.reveal.data('rendered-attributes') || {};
-    this.showNewForm = Object.keys(this.renderedAttributes).length > 0;
+    this.formAttributes = this.reveal.data('form-attributes') || {};
+    this.showNewForm = Object.keys(this.formAttributes).length > 0;
     this.createDuplicates = this.reveal.data('create-duplicates') || false;
     this.locale = this.reveal.data('locale') || 'de';
     this.overlayId = this.reveal.attr('id');
@@ -244,6 +245,8 @@ class AssetUploader {
     } else this.updateFileField(selectedFile, fields);
   }
   updateFileField(file, fields) {
+    if (!file.valid.valid) return;
+
     if (file.attributeFieldValues) {
       file.attributeFieldValues = file.attributeFieldValues
         .filter(v => !fields.find(f => f.name == v.name))
@@ -275,27 +278,22 @@ class AssetUploader {
           (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
 
-      console.log(values);
-
-      if (
-        ['linked', 'embedded', 'classification'].includes(file.attributeValues[key].type) ||
-        (values && values.length > 1)
-      ) {
-        let count = values.filter(v => v.value && v.value.length).length;
-
+      if (file.attributeValues[key].type == 'boolean') {
+        let value = values && values.length && values.filter(v => v.value.includes('true')).length ? 'ja' : 'nein';
         Object.assign(file.attributeValues[key], {
-          count: count,
+          name: key,
+          value: this.renderAttributeHtml(file.attributeValues[key], value)
+        });
+      } else if (values && values.length) {
+        Object.assign(file.attributeValues[key], {
           name: key,
           value: this.renderAttributeHtml(
             file.attributeValues[key],
-            '<span class="count">' + count + '</span>',
-            'text-center'
+            values
+              .map(v => v.text || v.value)
+              .filter(Boolean)
+              .join(', ')
           )
-        });
-      } else if (values.length) {
-        Object.assign(file.attributeValues[key], {
-          name: key,
-          value: this.renderAttributeHtml(file.attributeValues[key], values[0] && values[0].value)
         });
       } else if (!file.attributeValues[key].value) {
         Object.assign(file.attributeValues[key], {
@@ -306,7 +304,7 @@ class AssetUploader {
     });
     return file.attributeValues;
   }
-  renderAttributeHtml(attribute, value = '', classes = '') {
+  renderAttributeHtml(attribute, value = '') {
     if (attribute.type == 'datetime' && value && value.length) {
       value = new Date(value).toLocaleDateString();
     }
@@ -316,9 +314,7 @@ class AssetUploader {
       attribute.label +
       '">' +
       attribute.label +
-      '</span><span class="file-attribute-value ' +
-      classes +
-      '" title="' +
+      '</span><span class="file-attribute-value" title="' +
       $('<span>' + value + '</span>').text() +
       '">' +
       value +
@@ -332,7 +328,7 @@ class AssetUploader {
       asset.fileField
         .find('.new-asset-attributes .asset-attribute[data-name="' + previousField.name + '"]')
         .after(this.attributeValueHtml(field));
-    else asset.fileField.find('.new-asset-attributes').append(this.attributeValueHtml(field));
+    else asset.fileField.find('.new-asset-attributes .file-buttons').before(this.attributeValueHtml(field));
   }
   attributeValueHtml(field) {
     return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
@@ -562,18 +558,21 @@ class AssetUploader {
       ', ' +
       fileOptions.file.size.file_size(1) +
       additionalFileInfo +
-      '</span></div>'
+      '</span></div>' +
+      this.buttonHtml()
     );
   }
-  fileAppendHTML(fileOptions) {
-    let html =
-      '<div class="upload-progress"><span class="upload-progress-bar"></span></div><div class="button-overlay">';
+  buttonHtml() {
+    let html = '<div class="file-buttons">';
     if (this.contentUploader && this.showNewForm)
       html +=
         '<button class="button edit-upload-button" title="Inhalt bearbeiten"><i class="fa fa-pencil" aria-hidden="true"></i></button>';
     html +=
       '<button class="button retry-upload-button" title="Erneut hochladen"><i class="fa fa-refresh" aria-hidden="true"></i></button><button class="button cancel-upload-button alert" title="Datei entfernen"><i class="fa fa-minus" aria-hidden="true"></i></button></div>';
     return html;
+  }
+  fileAppendHTML(fileOptions) {
+    return '<div class="upload-progress"><span class="upload-progress-bar"></span></div>';
   }
   validateFile(fileOptions = {}) {
     fileOptions.mediaHtml = this.fileMediaHTML(fileOptions);
@@ -712,9 +711,7 @@ class AssetUploader {
       .attr('data-remote-options', JSON.stringify(this.remoteOptions));
 
     fileOptions.fileFormField = $(fileOptions.fileField.clone().removeAttr('data-open')).prependTo(html);
-    fileOptions.fileField
-      .find('.button-overlay .edit-upload-button')
-      .attr('data-open', fileOptions.id + '_edit_overlay');
+    fileOptions.fileField.find('.file-buttons .edit-upload-button').attr('data-open', fileOptions.id + '_edit_overlay');
 
     return html;
   }
@@ -733,8 +730,10 @@ class AssetUploader {
 
     if (this.contentUploader && this.showNewForm)
       fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
-    if (fileOptions.errors) this.renderError(fileOptions, fileOptions.errors);
-    else this.updateOverlayButtons(fileOptions);
+    if (fileOptions.errors) {
+      this.renderError(fileOptions, fileOptions.errors);
+      fileOptions.fileField.find('.file-buttons .edit-upload-button').hide();
+    } else this.updateOverlayButtons(fileOptions);
   }
   resetFileField(file) {
     file.fileField.add(file.fileFormField).removeClass('uploading error');

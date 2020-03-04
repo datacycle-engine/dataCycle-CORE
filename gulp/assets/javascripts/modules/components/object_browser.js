@@ -140,10 +140,11 @@ class ObjectBrowser {
     this.element.on('dc:import:data', (event, data) => {
       let new_items = [];
       if (data.external_ids != undefined) new_items = data.external_ids;
-      else if (data.value != undefined)
+      else if (data.value && data.value.length) {
         new_items = data.value.diff(
           $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
         );
+      }
       if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
         this.findObjects(new_items, data.external_ids != undefined);
       }

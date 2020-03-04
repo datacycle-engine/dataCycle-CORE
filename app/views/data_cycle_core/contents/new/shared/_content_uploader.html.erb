@@ -1,7 +1,6 @@
 <div class="content-uploader" data-asset-uploader="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
   <% uploader_validation = uploader_validation(asset_type: local_assigns[:type]) %>
   <% type_translation = "data_cycle_core/#{local_assigns.dig(:type)}".classify.constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language) %>
-
   <% if local_assigns[:type].present? && uploader_validation.present? %>
     <div class="callout primary content-uploader-validations">
       <%= tag.i class: 'fa fa-info-circle', aria_hidden: true, title: uploader_validation[:translation_description] if uploader_validation[:translation_description].present? %>
@@ -10,22 +9,16 @@
       </ul>
     </div>
   <% end %>
-
   <div class="drag-and-drop-field">
     <%= t('upload.drag_and_drop_html', locale: DataCycleCore.ui_language, type: type_translation) %>
   </div>
-
   <div class="content-upload-button-field">
     <input type="file" accept="<%= uploader_validation[:format].presence&.map{ |e| ".#{e}" }&.join(', ') %>" class="content-upload-field" id="<%= local_assigns.dig(:options, :prefix) %>content-upload-button" name="asset[]" multiple>
   </div>
-
-  <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, template: local_assigns[:template], create_content: local_assigns[:create_content], remote_options: to_query_params(local_assigns.except(:button_class)) %>
-
+  <%= render 'data_cycle_core/application/asset_import', key: "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}", asset_type: local_assigns.dig(:type), uploader_validation: uploader_validation, template: local_assigns[:template], create_content: local_assigns[:create_content], remote_options: to_query_params(local_assigns.except(:button_class)), type_translation: type_translation %>
   <% if local_assigns[:create_content] %>
     <p class="separator"><b><%= t('upload.or', locale: DataCycleCore.ui_language) %></b></p>
-
     <button type="button" class="button asset-selector-button" data-disable data-open="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>"><%= t('upload.select_from_datacycle', data: type_translation, locale: DataCycleCore.ui_language) %></button>
-
     <div class="full reveal asset-selector-reveal" id="asset-selector-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>" data-reveal data-multiple-opened="true" data-v-offset="0" data-multi-select="true" data-content-uploader-id="asset-upload-reveal-<%= "#{local_assigns.dig(:options, :prefix)}#{local_assigns.dig(:type)}" %>">
       <div class="asset-list-container">
         <h3><%= t('common.select_asset_title', locale: DataCycleCore.ui_language) %></h3>
