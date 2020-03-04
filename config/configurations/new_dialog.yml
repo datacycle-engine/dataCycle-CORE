@@ -1,6 +1,6 @@
 :default:
   :name:
-    - name
+    - name **list
 :person:
   :name:
     - given_name
@@ -9,31 +9,28 @@
 :place:
   :name:
     - name
-    -
-      - address
+    - - address
       - properties
       - street_address
-    -
-      - address
+    - - address
       - properties
       - postal_code
-    -
-      - address
+    - - address
       - properties
       - address_locality
 :bild:
   :title:
-    - name
+    - name **list
     - caption
     - description
     - tags
   :copyright:
-    - copyright_holder
-    - author
+    - copyright_holder **list
+    - author **list
     - validity_period
 :video:
   :title:
-    - name
+    - name **list
     - caption
     - description
     - tags
