@@ -161,8 +161,6 @@ module DataCycleCore
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*', 'location.svg', 'location_before.svg', 'location_after.svg', 'eml-datacycle.png', 'eml-datacycle-border.png', 'eml-logo.png', 'eml-user.jpg', 'logo.svg', 'logo_inverted.svg', 'logo.png']
-
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application
     # config.action_controller.raise_on_unfiltered_parameters = true
