@@ -59,10 +59,11 @@ module DataCycleCore
 
         def url(data)
           return if data.blank?
+          schemes = ['http', 'https']
+
           begin
-            uri = URI.parse data
-            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
-          rescue URI::InvalidURIError
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
+          rescue Addressable::URI::InvalidURIError
             (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
           end
         end
