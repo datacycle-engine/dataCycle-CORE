@@ -250,6 +250,11 @@ ul.asset-list {
     .drag-and-drop-field {
       height: 8rem;
       margin-top: 1rem;
+      opacity: 0.5;
+      &:hover,
+      &.is-dragover {
+        opacity: 1;
+      }
     }
     .content-upload-form {
       .buttons {
