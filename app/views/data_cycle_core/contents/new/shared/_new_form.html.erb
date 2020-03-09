@@ -56,8 +56,8 @@
     </button>
     <% if local_assigns[:content_uploader] %>
       <button class="button submit set-all-attributes" data-disable type="button">
-        <i class="fa fa-clone" aria-hidden="true"></i>
         <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language) , locale: DataCycleCore.ui_language) %>
+        <i class="fa fa-arrow-right" aria-hidden="true"></i>
       </button>
     <% end %>
     <%= button_tag t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language),
