@@ -196,7 +196,7 @@ namespace :data_cycle_core do
       when 'sql' then 'p'
       when 'tar' then 't'
       when 'dir' then 'd'
-      else 'p'
+      else 'c'
       end
     end
 
