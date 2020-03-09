@@ -383,7 +383,7 @@ module DataCycleCore
                     xml.Item(id)
                   end
                 end
-                xml.Infrastructure
+                xml.Infrastructure('Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -479,7 +479,8 @@ module DataCycleCore
             xml.BasicData do
               xml.Filters do
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
-                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
+                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
+                           'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -504,7 +505,8 @@ module DataCycleCore
                   end
                 end
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
-                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
+                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
+                           'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
