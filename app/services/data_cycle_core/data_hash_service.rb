@@ -48,7 +48,7 @@ module DataCycleCore
         template = get_internal_template(template_name)
         object.schema = template.schema
         object.template_name = template.template_name
-        object.created_by = current_user.id
+        object.created_by = current_user&.id
         object.is_part_of = is_part_of if is_part_of.present?
         object.save
       end
