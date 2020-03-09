@@ -17,6 +17,7 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
+                - Zertifikat
         :api:
           :v4:
             :name: 'dc:linkedThing'
