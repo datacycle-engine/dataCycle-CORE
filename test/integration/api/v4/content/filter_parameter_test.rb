@@ -18,8 +18,15 @@ module DataCycleCore
           @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)
           @content.save
           @content2 = DataCycleCore::DummyDataHelper.create_data('event')
-          @content2.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+          @content2.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_schedule: [create_schedule(8.days.ago.midday, 8.days.from_now, 4.hours).to_hash], event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
           sign_in(User.find_by(email: 'tester@datacycle.at'))
+        end
+
+        def create_schedule(dtstart, dtend, duration)
+          end_time = dtstart + duration
+          IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
+            s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+          end
         end
 
         test 'parameter q for fulltext_search with empty string --> all' do
