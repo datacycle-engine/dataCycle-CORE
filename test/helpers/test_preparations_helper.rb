@@ -155,6 +155,17 @@ module DataCycleCore
       @content.reload
     end
 
+    def self.generate_schedule(dtstart, dtend, duration)
+      schedule = DataCycleCore::Schedule.new
+      dtstart = dtstart
+      dtend = dtend
+      end_time = dtstart + duration
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+      end
+      schedule
+    end
+
     def self.create_watch_list(name: nil)
       return if name.blank?
 
