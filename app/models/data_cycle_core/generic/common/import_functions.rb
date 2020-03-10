@@ -366,7 +366,8 @@ module DataCycleCore
             classification_alias = DataCycleCore::ClassificationAlias.create!(
               external_source_id: external_source_id,
               name: classification_data[:name],
-              description: classification_data[:description]
+              description: classification_data[:description],
+              uri: classification_data[:uri]
             )
 
             DataCycleCore::ClassificationGroup.create!(
