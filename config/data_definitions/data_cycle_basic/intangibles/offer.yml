@@ -12,7 +12,6 @@
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
       :description:
@@ -47,7 +46,6 @@
       :price:
         :label: Preis
         :type: string
-        :storage_type: string
         :storage_location: translated_value
       :price_specification:
         :label: Preis
