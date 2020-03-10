@@ -136,7 +136,8 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          query.schedule_search(from_date, to_date, 'schedule')
+          # binding.pry
+          query.schedule_search(from_date, to_date)
         end
 
         def apply_place_query_filters(query)
