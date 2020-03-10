@@ -8,7 +8,7 @@ module DataCycleCore
           ['min', 'max', 'required']
         end
 
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           if blank?(data)
             check_reference_array(data, template)
           elsif data.is_a?(::Array) || data.is_a?(ActiveRecord::Relation)

@@ -8,8 +8,7 @@ module DataCycleCore
       @filters = pre_filters.dup
       query = query.dup if query.present?
       @language ||= Array(params.fetch(:language) { [current_user.default_locale] })
-
-      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'))
+      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @filters.find { |f| f['t'] == 'in_schedule' }.present?)
 
       if @filters.none? { |f| f['t'] == 'order' }
         @filters.push(

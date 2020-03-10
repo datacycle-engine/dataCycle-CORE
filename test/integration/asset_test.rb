@@ -20,9 +20,6 @@ module DataCycleCore
         selected: '00000000-0000-0000-0000-000000000000',
         types: [
           'DataCycleCore::Image'
-        ],
-        locked_assets: [
-          '00000000-0000-0000-0000-000000000001'
         ]
       }, headers: {
         referer: root_path

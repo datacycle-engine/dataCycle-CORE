@@ -21,6 +21,7 @@ module.exports.initialize = function() {
     '*',
     event => {
       event.stopPropagation();
+
       $(event.target)
         .find('.remote-render')
         .addBack('.remote-render')

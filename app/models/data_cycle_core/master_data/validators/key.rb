@@ -4,7 +4,7 @@ module DataCycleCore
   module MasterData
     module Validators
       class Key < BasicValidator
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           @template_key = template['label']
           if data.is_a?(::String)
             uuid?(data)

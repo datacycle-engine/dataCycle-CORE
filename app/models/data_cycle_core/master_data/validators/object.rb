@@ -28,12 +28,13 @@ module DataCycleCore
 
         # validate data as specified in the keys of the data template
         # data hash with key names as specified in the schema
-        def validate(data, template_data)
+        def validate(data, template_data, strict = false)
           return if data.blank?
           data_keys = data.keys
           template_data.each do |key, key_item|
             @template_key = key
-            unless data_keys.include?(key)
+
+            if !strict && data_keys.exclude?(key)
               (@error[:warning][key] ||= []) << I18n.t(:no_evaluate, scope: [:validation, :warnings], data: key, locale: DataCycleCore.ui_language)
               next
             end
@@ -45,7 +46,7 @@ module DataCycleCore
 
             unless key_item['type'] == 'object'
               # puts "validate(#{key}/#{key_item['type']}) -> #{data[key]} // #{key_item}"
-              validator_object = basic_types[key_item['type']].new(data[key], key_item, key)
+              validator_object = basic_types[key_item['type']].new(data[key], key_item, key, strict)
               merge_errors(validator_object.error) unless validator_object.nil?
               next
             end
@@ -61,7 +62,7 @@ module DataCycleCore
             end
 
             if key_item.key?('properties')
-              validator_object = basic_types[key_item['type']].new(data[key], key_item['properties'])
+              validator_object = basic_types[key_item['type']].new(data[key], key_item['properties'], '', strict)
               merge_errors(validator_object.error) unless validator_object.nil?
             else
               (@error[:error][key] ||= []) << I18n.t(:wrong_object_type, scope: [:validation, :errors], data: key_item['label'], locale: DataCycleCore.ui_language)

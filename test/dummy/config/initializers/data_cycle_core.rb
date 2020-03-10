@@ -4,8 +4,6 @@ DataCycleCore.setup do |config|
   # general settings
   I18n.available_locales = [:de, :en].freeze
 
-  # only required for DataCycleCore dummy app
-  Rails.application.config.assets.precompile += ['logo.svg', 'logo.png', 'location.svg']
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
   # Require `belongs_to` associations by default. Previous versions had false.

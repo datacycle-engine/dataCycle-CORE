@@ -74,7 +74,7 @@ module.exports.initialize = function() {
       'ajax:before',
       '.edit_classification_alias, .new_classification_alias',
       (event, xhr, options) => {
-        quill_helpers.update_editors(event.target);
+        quill_helpers.updateEditors(event.target);
       }
     );
 

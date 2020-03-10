@@ -90,7 +90,7 @@ module DataCycleCore
       end
 
       def any(set)
-        Arel::Nodes::UnaryOperation.new('ANY', set)
+        Arel::Nodes::UnaryOperation.new('ANY', Arel::Nodes::Grouping.new(set))
       end
 
       # def trgm_match(text1, text2)

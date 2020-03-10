@@ -13,11 +13,11 @@ module DataCycleCore
             redirect_to api_v4_thing_path(id: permitted_params[:id], params: permitted_params.except(:id))
           elsif DataCycleCore::ClassificationTreeLabel.find_by(id: permitted_params[:id]).present?
             redirect_to api_v4_concept_scheme_path(id: permitted_params[:id], params: permitted_params.except(:id))
-          elsif DataCycleCore::ClassificationAlias.find_by(id: permitted_params[:id]).present?
-            concept = DataCycleCore::ClassificationAlias.find_by(id: permitted_params[:id])
+          elsif (concept = DataCycleCore::ClassificationAlias.find_by(id: permitted_params[:id])).present?
             redirect_to classifications_api_v4_concept_scheme_path(id: concept.classification_tree_label.id, classification_id: permitted_params[:id], params: permitted_params.except(:id))
-          elsif DataCycleCore::Schedule.find_by(id: permitted_params[:id]).present?
-            @content = DataCycleCore::Schedule.find(permitted_params[:id])
+          elsif (concept = DataCycleCore::Classification.find_by(id: permitted_params[:id])&.primary_classification_alias).present?
+            redirect_to classifications_api_v4_concept_scheme_path(id: concept.classification_tree_label.id, classification_id: concept.id, params: permitted_params.except(:id))
+          elsif (@content = DataCycleCore::Schedule.find_by(id: permitted_params[:id])).present?
             render template: 'data_cycle_core/api/v4/schedules/show', locals: { id: permitted_params[:id] }, layout: false
           else
             render json: { error: "Could not find any item with id=#{permitted_params[:id]}" }, layout: false, status: :bad_request

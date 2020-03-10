@@ -17,7 +17,7 @@ module DataCycleCore
       end
       @url = url
 
-      mail(to: @receiver.email, cc: @user.email, subject: t('data_link_mailer.send_subject', locale: @locale))
+      mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: t('data_link_mailer.send_subject', locale: @locale))
     end
 
     def updated_items(data_link)
@@ -30,7 +30,7 @@ module DataCycleCore
       @title = data_link.item.try(:name)
       @url = data_link_url(data_link)
 
-      mail(to: @receiver.email, cc: @user.email, subject: t('data_link_mailer.update_subject', locale: @locale))
+      mail(to: @receiver.email, cc: @user.email, from: t('data_link_mailer.from', from: self.class.default[:from], locale: @locale, default: self.class.default[:from]), subject: t('data_link_mailer.update_subject', locale: @locale))
     end
   end
 end

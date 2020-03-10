@@ -56,6 +56,11 @@ module DataCycleCore
       definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
     end
 
+    def attribute_disabled?(definition, api_version = @api_version)
+      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
+      definition.dig('api', 'disabled') || false
+    end
+
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
       attribute_list.map { |item| item.first == name }.inject(&:|)

@@ -8,6 +8,11 @@
         <div class="show-for-print">
             <img src="<%= thumbnail_url %>" />
         </div>
+        <% if thumbnail_url.blank? %>
+            <div class="fallback-title">
+                <%= object.title %> (<%= I18n.locale.to_s %>)
+            </div>
+        <% end %>
         <% if object.title.present? %>
             <div class="description">
                 <%= object.title %> (<%= I18n.locale.to_s %>)

@@ -1,6 +1,6 @@
 // QuillJS Helpermethods
 module.exports = {
-  update_editors: (container = document) => {
+  updateEditors: (container = document) => {
     $(container)
       .find('.quill-editor')
       .addBack('.quill-editor')

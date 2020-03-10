@@ -1,40 +1,40 @@
 de:
   title: dataCycle
-  hello: "Guten Tag!"
-  welcome: "Willkommen!"
+  hello: 'Guten Tag!'
+  welcome: 'Willkommen!'
   order:
-    header: "Sortierung"
-    title: "Titel"
-    updated: "Bearbeitet"
-  submit: "Erstellen"
+    header: 'Sortierung'
+    title: 'Titel'
+    updated: 'Bearbeitet'
+  submit: 'Erstellen'
 
   locales:
-    de: "deutsch"
-    en: "englisch"
-    ar: "arabisch"
-    bg: "bulgarisch"
-    cs: "tschechisch"
-    da: "dänisch"
-    es: "spanisch"
-    fr: "französisch"
-    fi: "finnisch"
-    it: "italienisch"
-    hu: "ungarisch"
-    hr: "kroatisch"
-    ja: "japanisch"
-    ko: "koreanisch"
-    nl: "holländisch"
-    pt: "portugiesisch"
-    pl: "polnisch"
-    ro: "rumänisch"
-    ru: "russisch"
-    sl: "slowenisch"
-    sk: "slowakisch"
-    sv: "schwedisch"
-    tr: "türkisch"
-    uk: "ukrainisch"
-    'de-CH': "schweizer-deutsch"
-    'nl-BE': "flämisch"
+    de: 'deutsch'
+    en: 'englisch'
+    ar: 'arabisch'
+    bg: 'bulgarisch'
+    cs: 'tschechisch'
+    da: 'dänisch'
+    es: 'spanisch'
+    fr: 'französisch'
+    fi: 'finnisch'
+    it: 'italienisch'
+    hu: 'ungarisch'
+    hr: 'kroatisch'
+    ja: 'japanisch'
+    ko: 'koreanisch'
+    nl: 'holländisch'
+    pt: 'portugiesisch'
+    pl: 'polnisch'
+    ro: 'rumänisch'
+    ru: 'russisch'
+    sl: 'slowenisch'
+    sk: 'slowakisch'
+    sv: 'schwedisch'
+    tr: 'türkisch'
+    uk: 'ukrainisch'
+    'de-CH': 'schweizer-deutsch'
+    'nl-BE': 'flämisch'
     zh: chinesisch
 
   roles:
@@ -101,12 +101,12 @@ de:
     loading: 'Laden ...'
     load_more: ... weitere Einträge laden
     are_you_sure: 'Sind Sie sicher?'
-    language: "Sprache"
+    language: 'Sprache'
     all: Alle
-    choose_language: "Sprache wählen"
-    searchterm: "Suchbegriff"
-    active_filters: "Aktuelle Suche"
-    no_results: "Es wurden keine Inhalte für Ihre Filterkriterien gefunden."
+    choose_language: 'Sprache wählen'
+    searchterm: 'Suchbegriff'
+    active_filters: 'Aktuelle Suche'
+    no_results: 'Es wurden keine Inhalte für Ihre Filterkriterien gefunden.'
     additional_filters:
       show: weitere Filter anzeigen
       hide: weitere Filter ausblenden
@@ -173,7 +173,7 @@ de:
     height: Höhe
     width: Breite
     exclude: Ausnahme
-    children_present_html: "<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>"
+    children_present_html: '<br><br><b>Achtung!</b><p>Es gibt verknüpfte Inhalte, diese werden mitgelöscht!</p>'
     creator: Ersteller
     abo_changed_title:
       one: Ein abonnierter Inhalt wurde geändert
@@ -182,10 +182,8 @@ de:
       one: Bearbeitung eines abonnierten Inhalts abgeschlossen
       other: Bearbeitung von abonnierten Inhalten abgeschlossen
     abo_changed:
-      one:
-        'Ein abonnierter Inhalt hat sich geändert.'
-      other:
-        'Folgende abonnierte Inhalte haben sich geändert:'
+      one: 'Ein abonnierter Inhalt hat sich geändert.'
+      other: 'Folgende abonnierte Inhalte haben sich geändert:'
     abo_finalized:
       one: 'Die Bearbeitung eines geteilten Inhalts durch einen Externen wurde abgeschlossen.'
       other: 'Die Bearbeitung von geteilten Inhalten durch Externe wurde abgeschlossen.'
@@ -252,6 +250,16 @@ de:
       longitude: Längengrad, z.B. 14,30
       latitude: Breitengrad, z.B. 46,61
       distance: Radius in Metern
+    available_widgets: Verfügbare Widgets
+    widgets:
+      list: Listenansicht
+      map: Kartenansicht
+
+  upload:
+    drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
+    system_dialog: Bilder über Systemdialog auswählen
+    or: oder
+    select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -292,6 +300,7 @@ de:
     send_subject: Geteilter Link zu einem Inhalt
     update_subject: Geteilte Inhaltssammlung wurde aktualisiert
     notice: Hinweis
+    from: '%{from}'
 
   filter:
     add: Filter hinzufügen
@@ -316,7 +325,6 @@ de:
     address_street_address: Strasse
     address_address_locality: Ort
     address_address_country: Land
-    upload_date: Upload-Datum
     mandatory_license: Copyright Nennung verpflichtend
     price: Preis
     min_price: Preis (Min)
@@ -346,7 +354,8 @@ de:
       in: in
       num: Anzahl
       unit: Einheit
-
+    relation_filter:
+      contained_in: ist enthalten in
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -361,7 +370,7 @@ de:
     geo_radius: nach Umkreis filtern...
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
-    relation_filter: nach verknüpften Inhalten filtern ...
+    relation_filter: auf Basis von verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
     inactive_things: Abgelaufenen Inhalten filtern...
 
@@ -405,28 +414,28 @@ de:
     prev: Vorherge Ergebnisse
 
   actions:
-    new: erstellen
     show: anzeigen
     edit: bearbeiten
     manage: verwalten
     lock: sperren
     unlock: freischalten
     delete: löschen
-    choose_type: "Inhaltstyp wählen"
-    new: "%{data} erstellen"
-    generate: "%{data} generieren"
+    choose_type: 'Inhaltstyp wählen'
+    new: '%{data} erstellen'
+    new_asset: '%{data} speichern'
+    generate: '%{data} generieren'
     send: versenden
-    send_with_data: "%{data} versenden"
-    delete_with_data: "%{data} löschen"
-    subscribe: "abonnieren"
-    unsubscribe: "Abonnement löschen"
-    subscribed: "abonniert"
+    send_with_data: '%{data} versenden'
+    delete_with_data: '%{data} löschen'
+    subscribe: 'abonnieren'
+    unsubscribe: 'Abonnement löschen'
+    subscribed: 'abonniert'
     reset:
-      one: "Zurücksetzen"
-      other: "Suche zurücksetzen"
+      one: 'Zurücksetzen'
+      other: 'Suche zurücksetzen'
     filter: jetzt suchen
-    move_to: "In %{data} verschieben"
-    duplicate_content: "duplizieren"
+    move_to: 'In %{data} verschieben'
+    duplicate_content: 'duplizieren'
     read: lesen
     write: schreiben
     save_and_send: Senden
@@ -440,16 +449,17 @@ de:
     create_from_existing: 'Inhalt anhand dieser Vorlage erstellen'
     move_to_container: 'Inhalt verschieben'
     move: verschieben
-    geocode: "Geokoordinaten von %{title} übernehmen"
-    open_asset: "Datei öffnen"
-    download: "herunterlanden"
-    download_content: "Inhalt herunterladen"
-    download_indesign: "Inhalt für Adobe InDesign herunterladen"
-    download_zip: "Inhalte als ZIP-Archiv herunterladen"
-    download_asset: "Datei herunterladen"
-    download_asset_version: "Datei herunterladen (%{data}-Version)"
-    processing_asset: "Datei wird verarbeitet ..."
-    processing_image: "Bild wird verarbeitet ..."
+    geocode: 'Geokoordinaten von %{title} übernehmen'
+    open_asset: 'Datei öffnen'
+    download: 'herunterlanden'
+    download_content: 'Inhalt herunterladen'
+    download_indesign: 'Inhalt für Adobe InDesign herunterladen'
+    download_zip: 'Inhalte als ZIP-Archiv herunterladen'
+    download_asset: 'Datei herunterladen'
+    download_asset_version: 'Datei herunterladen (%{data}-Version)'
+    preview_content: Vorschau anzeigen
+    processing_asset: 'Datei wird verarbeitet ...'
+    processing_image: 'Bild wird verarbeitet ...'
     searching: suche
     next: Weiter
     back: Zurück
@@ -472,76 +482,79 @@ de:
     add: hinzufügen
     delete_items_in_watch_list: Alle Inhalte dieser Inhaltssammlung löschen
     save_without_redirect: Zwischenspeichern
+    set_and_next: 'übernehmen und weiter'
+    set_all_attributes: 'für alle %{data} übernehmen'
+    close_overlay: Overlay schließen
 
   validation:
     errors:
-      min: "%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang."
-      max: "%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang."
-      min_number: "%{data} zu klein, sollte %{value} sein, ist aber nur %{data}."
-      max_number: "%{data} zu hoch, sollte %{value} sein, ist aber %{data}."
-      min_datetime: "Zeitpunkt %{data} sollte nach %{min} liegen."
-      match: "%{data} stimmt nicht mit %{expression} überein."
-      format: "Format-String %{format_string} für %{data} unbekannt."
-      uuid: "Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0"
-      date_time: "%{data} ist kein gültiges Zeit/Datum Format."
-      date: "%{data} ist kein gültiges Datums Format."
-      key: "%{data} ist kein gültiges uuid Format."
+      min: '%{data} zu kurz, sollte mindestens %{min} lang sein, ist aber nur %{length} lang.'
+      max: '%{data} zu lang, sollte maximal %{max} lang sein, ist aber %{length} lang.'
+      min_number: '%{data} zu klein, sollte %{value} sein, ist aber nur %{data}.'
+      max_number: '%{data} zu hoch, sollte %{value} sein, ist aber %{data}.'
+      min_datetime: 'Zeitpunkt %{data} sollte nach %{min} liegen.'
+      match: '%{data} stimmt nicht mit %{expression} überein.'
+      format: 'Format-String %{format_string} für %{data} unbekannt.'
+      uuid: 'Erwarte uuid für %{data}. Format: 12345678-9abc-def0-1234-56789abcdef0'
+      date_time: '%{data} ist kein gültiges Zeit/Datum Format.'
+      date: '%{data} ist kein gültiges Datums Format.'
+      key: '%{data} ist kein gültiges uuid Format.'
       boolean: "%{data} ist kein gültiges Boolean Format. (Nur 'true' oder 'false' erlaubt)"
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
-      string: "%{template} ist kein String, sondern %{label}."
-      geo: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String."
+      string: '%{template} ist kein String, sondern %{label}.'
+      geo: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String.'
       schedule:
-        general: "Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash."
+        general: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash.'
         time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
-        date_time_array: "DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone"
-        rrule: "RRULE format falsch für %{template} (%{data})."
-        thing_id: "thing_id ist ein Pflichtfeld."
-        relation: "relation ist ein Pflichtfeld."
-      number: "%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data})."
-      no_data: "Keine Daten angegeben."
-      no_validation: "Keine Validierguns-Daten angegeben."
-      data_type: "Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array."
-      data_format_embedded: "Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes."
-      data_array_format: "Elemente des Daten-Arrays für %{template} haben falsches Format %{key}."
+        date_time_array: 'DateTimeArray format falsch für %{template} (%{data}), erwarte ein Array von ActiveSupport::TimeWithZone'
+        rrule: 'RRULE format falsch für %{template} (%{data}).'
+        thing_id: 'thing_id ist ein Pflichtfeld.'
+        relation: 'relation ist ein Pflichtfeld.'
+      number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
+      no_data: 'Keine Daten angegeben.'
+      no_validation: 'Keine Validierguns-Daten angegeben.'
+      data_type: 'Falschen Daten-Typ angegeben für %{template} %{data}. Erwartet wurde UUID oder UUID Array.'
+      data_format_embedded: 'Daten in falschem Fromat angegeben für %{template} %{data}. Erwartet wurde ein Hash oder ein Array von Hashes.'
+      data_array_format: 'Elemente des Daten-Arrays für %{template} haben falsches Format %{key}.'
       classification: "Keine Classification gefunden für %{key} in classification_tree mit dem Label: '%{label}' und tree_label '%{tree_label}'"
-      asset_upload: "Datei konnte nicht hochgeladen werden"
-      min_ref: "Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein."
-      max_ref: "Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein."
-      data_format: "Elemente des Link-Arrays für %{template} haben das falsche Format %{key}."
-      not_found: "Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}."
-      integer: "%{data} ist kein Integer."
-      float: "%{data} ist kein Float."
-      object_type: "Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert."
+      asset_upload: 'Datei konnte nicht hochgeladen werden'
+      min_ref: 'Zu wenig Referezen angegeben, %{data} sollte mindestens %{value} sein.'
+      max_ref: 'Zu viele Referezen angegeben, %{data} sollte maximal %{value} sein.'
+      data_format: 'Elemente des Link-Arrays für %{template} haben das falsche Format %{key}.'
+      not_found: 'Daten für %{template} mit uuid %{key} nicht gefunden in Tabelle %{table}.'
+      integer: '%{data} ist kein Integer.'
+      float: '%{data} ist kein Float.'
+      object_type: 'Falscher Datentyp für %{data}. Typ %{type} ist nicht definiert.'
       wrong_object_type: "Objekt Type %{data} ist kein embedded Datentyp und hat keine 'properties'."
-      no_template: "Kein passendes Datentyp Template gefunden für %{name}."
+      no_template: 'Kein passendes Datentyp Template gefunden für %{name}.'
       no_fields: "Keine Felder für 'from-date' und/oder 'to-date' angegeben."
-      convert_date: "Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren."
+      convert_date: 'Datum konnte nicht konvertiert werden, um die Zeitspanne zu validieren.'
       daterange: "Ungültige Zeitspanne, 'von' (%{from}) ist nach 'bis' (%{to})."
       classification_conflict: Es gibt Konflikte bei den Publikationsdaten.
-      not_deleted: "Beim Löschen von %{data} ist ein Fehler aufgetreten."
-      not_saved: "Beim Speichern von %{data} ist ein Fehler aufgetreten."
-      file_too_large: "Datei zu groß (max. %{max})."
-      wrong_content_type: "%{content_type} Dateien sind nicht erlaubt."
-      required: "ist ein Pflichtfeld und muss ausgefüllt werden."
+      not_deleted: 'Beim Löschen von %{data} ist ein Fehler aufgetreten.'
+      not_saved: 'Beim Speichern von %{data} ist ein Fehler aufgetreten.'
+      file_too_large: 'Datei zu groß (max. %{max}).'
+      wrong_content_type: '%{content_type} Dateien sind nicht erlaubt.'
+      required: 'ist ein Pflichtfeld und muss ausgefüllt werden.'
       rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
     warnings:
-      string: "%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}"
-      no_data: "Keine Daten angegeben für %{data}"
-      no_evaluate: "%{data} nicht bei den Evaluierungsdaten angegeben."
-      keyword: "%{key} ist kein gültiges Keyword für %{type}"
+      string: '%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}'
+      no_data: 'Keine Daten angegeben für %{data}'
+      no_evaluate: '%{data} nicht bei den Evaluierungsdaten angegeben.'
+      keyword: '%{key} ist kein gültiges Keyword für %{type}'
       convert: "Konvertieren von %{data} zu 'date_time' Format für die Zeitspannen-Validierung fehlgeschlagen."
-      end_date: "Kein End-Datum angegeben, setze auf 9999-12-31."
-      start_date: "Kein Start-Datum angegeben, setze auf 1970-01-01."
+      end_date: 'Kein End-Datum angegeben, setze auf 9999-12-31.'
+      start_date: 'Kein Start-Datum angegeben, setze auf 1970-01-01.'
       address_not_found: Adresse nicht gefunden
       address_ambiguous: Adresse nicht eindeutig
   controllers:
     error:
-      invalid_parent: "Ungültiges Eltern Objekt."
-      invalid_parent_attr: "Ungültige Eltern Attribute."
-      no_permission: "Keine Berechtigung."
-      invalid: "%{data} konnte nicht erstellt werden."
-      email_exists: "Für diese E-Mail existiert bereits ein Link"
-      no_source: "Keine gültige Vorlage angegeben"
+      invalid_parent: 'Ungültiges Eltern Objekt.'
+      invalid_parent_attr: 'Ungültige Eltern Attribute.'
+      no_permission: 'Keine Berechtigung.'
+      invalid: '%{data} konnte nicht erstellt werden.'
+      email_exists: 'Für diese E-Mail existiert bereits ein Link'
+      no_source: 'Keine gültige Vorlage angegeben'
       wrong_content_type: Nicht unterstützter Datei-Typ
       missing_parameter: Parameter fehlt!
       duplicate:
@@ -552,82 +565,83 @@ de:
       no_selected_attributes: Es wurden keine Attribute zum Überschreiben ausgewählt
       external_items: Mindestens ein Inhalt ist von einem externen System importiert und kann nicht gelöscht werden!
     success:
-      created: "%{data} wurde erfolgreich erstellt."
-      ready_to_send: "%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden."
-      updated: "%{data} wurde aktualisiert."
-      destroyed: "%{data} wurde gelöscht."
-      destroyed_translation: "Übersetzung %{language} von %{data} wurde gelöscht."
-      added_to: "Zu Merkliste: %{data} hinzugefügt."
-      removedFrom: "Von Merkliste: %{data} entfernt."
-      sent: "E-Mail wurde versandt."
-      saved: "%{data} wurde erstellt."
-      saved_and_sent: "%{data} wurde erstellt und verschickt."
-      updated_and_sent: "%{data} wurde aktualisiert und verschickt."
-      invalid_mail: "Keine gültige E-Mail Adresse."
-      locked: "%{data} wurde gesperrt."
-      unlocked: "%{data} wurde freigegeben."
-      invalidated: "%{data} wurde deaktiviert."
-      updated_multiple: "%{data} wurden aktualisiert."
-      moved_to: "Inhalt in %{data} verschoben"
+      created: '%{data} wurde erfolgreich erstellt.'
+      ready_to_send: '%{data} wurde erfolgreich erstellt und kann jetzt verschickt werden.'
+      updated: '%{data} wurde aktualisiert.'
+      destroyed: '%{data} wurde gelöscht.'
+      destroyed_translation: 'Übersetzung %{language} von %{data} wurde gelöscht.'
+      added_to: 'Zu Merkliste: %{data} hinzugefügt.'
+      removedFrom: 'Von Merkliste: %{data} entfernt.'
+      sent: 'E-Mail wurde versandt.'
+      saved: '%{data} wurde erstellt.'
+      saved_and_sent: '%{data} wurde erstellt und verschickt.'
+      updated_and_sent: '%{data} wurde aktualisiert und verschickt.'
+      invalid_mail: 'Keine gültige E-Mail Adresse.'
+      locked: '%{data} wurde gesperrt.'
+      unlocked: '%{data} wurde freigegeben.'
+      invalidated: '%{data} wurde deaktiviert.'
+      updated_multiple: '%{data} wurden aktualisiert.'
+      moved_to: 'Inhalt in %{data} verschoben'
       become_user: 'Eingeloggt als %{data}.'
-      duplicate_false_positive: "%{data} wurde von den möglichen Duplikaten entfernt"
+      duplicate_false_positive: '%{data} wurde von den möglichen Duplikaten entfernt'
       merged_with_duplicate: Inhalte wurden zusammengeführt
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
+      bulk_created: Inhalte wurden erstellt
     info:
-      not_modified: "%{data} wurde nicht geändert."
-      created_duplication: "%{data} wurde erfolgreich dupliziert."
+      not_modified: '%{data} wurde nicht geändert.'
+      created_duplication: '%{data} wurde erfolgreich dupliziert.'
       content_updated: 'Der Inhalt wurde geändert.<br>Bitte laden Sie die Seite neu, um sicherzustellen, dass diese Änderungen nicht überschrieben werden.'
       bulk_updated_skipped_html: '<br>Folgende Inhalte wurden nicht gespeichert, da diese in der gewählten Sprache nicht vorhanden sind: %{data}'
       bulk_deleted_external_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da diese von einem Externen System importiert wurden.'
       bulk_deleted_not_allowed_html: '<br><b>%{data}</b> Inhalte wurden nicht gelöscht, da Sie keine Berechtigung dafür haben.'
     job:
-      added: "%{data}/%{uuid} zur Job-Queue hinzugefügt."
+      added: '%{data}/%{uuid} zur Job-Queue hinzugefügt.'
       imported: "'%{data}' wurden aus YAML Datei importiert."
-      running: "Job befindet sich bereits in der Job-Queue."
+      running: 'Job befindet sich bereits in der Job-Queue.'
   activerecord:
     errors:
       messages:
-        record_invalid: "Ungültiger Eintrag"
+        record_invalid: 'Ungültiger Eintrag'
       models:
         data_cycle_core/asset:
           attributes:
             file:
-              blank: "Datei darf nicht leer sein"
+              blank: 'Datei darf nicht leer sein'
         data_cycle_core/image:
           attributes:
             file:
-              blank: "Datei darf nicht leer sein"
+              blank: 'Datei darf nicht leer sein'
         data_cycle_core/audio:
           attributes:
             file:
-              blank: "Datei darf nicht leer sein"
+              blank: 'Datei darf nicht leer sein'
         data_cycle_core/video:
           attributes:
             file:
-              blank: "Datei darf nicht leer sein"
+              blank: 'Datei darf nicht leer sein'
         data_cycle_core/pdf:
           attributes:
             file:
-              blank: "Datei darf nicht leer sein"
+              blank: 'Datei darf nicht leer sein'
         data_cycle_core/watch_list:
           attributes:
             name:
-              blank: "Name: Darf nicht leer sein."
+              blank: 'Name: Darf nicht leer sein.'
         data_cycle_core/user:
           attributes:
             password:
-              blank: "Passwort darf nicht leer sein."
-              too_short: "Passwort zu kurz."
+              blank: 'Passwort darf nicht leer sein.'
+              too_short: 'Passwort zu kurz.'
             password_confirmation:
-              confirmation: "Passwörter stimmen nicht überein."
+              confirmation: 'Passwörter stimmen nicht überein.'
             current_password:
-              blank: "Aktuelles Passwort zur Bestätigung eingeben."
-              invalid: "Falsches Passwort."
+              blank: 'Aktuelles Passwort zur Bestätigung eingeben.'
+              invalid: 'Falsches Passwort.'
             email:
-              blank: "E-Mail darf nicht leer sein."
-              taken: "Für diese E-Mail existiert schon ein Benutzer."
-              invalid: "Keine gültige E-Mail."
+              blank: 'E-Mail darf nicht leer sein.'
+              taken: 'Für diese E-Mail existiert schon ein Benutzer.'
+              invalid: 'Keine gültige E-Mail.'
         data_cycle_core/user_group:
           attributes:
             name:
@@ -639,7 +653,7 @@ de:
         one: Benutzergruppe
         other: Benutzergruppen
       data_cycle_core/subscription:
-        zero: "Keine Abos"
+        zero: 'Keine Abos'
         one: Abo
         other: Abos
       data_cycle_core/watch_list:
@@ -664,8 +678,8 @@ de:
         one: Asset
         other: Assets
       data_cycle_core/text_file:
-        one: Textdokument (Externer Link)
-        other: Textdokumente (Externer Link)
+        one: Textdokument
+        other: Textdokumente
       data_cycle_core/pdf:
         one: Pdf
         other: Pdfs
@@ -710,8 +724,8 @@ de:
         given_name: Vorname
         family_name: Familienname
         password: Passwort
-        password_confirmation: "Passwort wiederholen"
-        current_password: "Aktuelles Passwort"
+        password_confirmation: 'Passwort wiederholen'
+        current_password: 'Aktuelles Passwort'
         email: E-Mail
         role_id: Rolle
         user_group_ids: Benutzergruppen
@@ -726,7 +740,6 @@ de:
         given_name: Vorname
         family_name: Familienname
         job_title: Berufsbezeichnung
-        name: Name
         street: Straße
         country: Land
         plz: PLZ
@@ -760,8 +773,8 @@ de:
         permissions_download: herunterladen
         permissions_read: lesen
         permissions_write: bearbeiten
-        text_file: "Weitere Infos (PDF)"
-        locale: "E-Mail Sprache"
+        text_file: 'Weitere Infos (PDF)'
+        locale: 'E-Mail Sprache'
       data_cycle_core/stored_filter:
         system: Für alle Benutzer sichtbar
         api: Über API abrufbar
@@ -775,7 +788,7 @@ de:
         name: Name
   unauthorized:
     manage:
-      all: "Keine Zugriffsberechtigung!"
+      all: 'Keine Zugriffsberechtigung!'
 
   data_cycle_core:
     administration: 'Administration'
@@ -785,7 +798,7 @@ de:
     classifications: 'Klassifizierungen'
     this_classification: Dieser Klassifizierung
     this_classification_tree: Diesem Klassifizierungsbaum
-    show_contents_for_tree_label: "Inhalte in %{data} auflisten"
+    show_contents_for_tree_label: 'Inhalte in %{data} auflisten'
     settings: Einstellungen
     publication_date: Publikationsdatum
     publications_calendar: Publikationskalender
@@ -811,10 +824,10 @@ de:
       locked_by_data_link: Hinzufügen/Entfernen von Inhalten gesperrt (Aktive externe Links)
     upload: Neue Medien hochladen
     data_links:
-      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>"
-      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>"
-      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> hat %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>"
-      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>"
+      write_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihre Ergänzungen und Ihr Feedback. <br><br>Bitte nehmen Sie allfällige Änderungen an Text, Bildern und Videos direkt im Formular vor.</span>'
+      read_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt und bittet um Ihr Feedback.</span>'
+      download_link_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333"><strong>%{user}</strong> hat %{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” mit Ihnen geteilt.<br><br>%{n_type} steht nun zum Download bereit.</span>'
+      updated_watchlist_html: '<span style="font-size:12pt; font-family: ''Lato'', ''Lucida Grande'', ''Segoe'', Arial, sans-serif;color:#333333">%{a_type} “<a href="%{url}" target="_blank"><span style="color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic">%{title}</span></a>” wurde aktualisiert. Es wurden Inhalte hinzugefügt oder entfernt.</span>'
 
     documentation:
       root: Dokumentation
@@ -839,102 +852,102 @@ de:
 
   media_archive:
     allowed_html: '<h4>Einschränkungen</h4>
-                  <ul class="no-bullet">
-                    <li><b>Bild:</b>
-                      <ul>
-                        <li>Formate: %{image_types}</li>
-                        <li>Abmessungen: %{image_dimensions}</li>
-                      </ul>
-                    </li>
-                    <li><b>Video:</b>
-                      <ul>
-                        <li>Formate: %{video_types}</li>
-                        <li>Codecs: h264 (audio: mp3/aac)</li>
-                      </ul>
-                    </li>
-                  </ul>'
+      <ul class="no-bullet">
+      <li><b>Bild:</b>
+      <ul>
+      <li>Formate: %{image_types}</li>
+      <li>Abmessungen: %{image_dimensions}</li>
+      </ul>
+      </li>
+      <li><b>Video:</b>
+      <ul>
+      <li>Formate: %{video_types}</li>
+      <li>Codecs: h264 (audio: mp3/aac)</li>
+      </ul>
+      </li>
+      </ul>'
   uploader:
     restrictions: 'Einschränkungen'
     validation:
-      format: 'Erlaubte Formate: %{data}'
+      format: 'Erlaubte Formate: <span class="value">%{data}</span>'
       dimensions:
         exclude:
-          format: 'Folgende Formate sind in jeder Größe erlaubt: %{data}'
+          format: 'Folgende Formate sind in jeder Größe erlaubt: <span class="value">%{data}</span>'
         landscape:
           min:
-            width: 'Minimale Breite für Medien im Querformat: %{data}px'
-            height: 'Minimale Höhe für Medien im Querformat: %{data}px'
+            width: 'Minimale Breite für Medien im Querformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Querformat: <span class="value">%{data}px</span>'
         portrait:
           min:
-            width: 'Minimale Breite für Medien im Hochformat: %{data}px'
-            height: 'Minimale Höhe für Medien im Hochformat: %{data}px'
+            width: 'Minimale Breite für Medien im Hochformat: <span class="value">%{data}px</span>'
+            height: 'Minimale Höhe für Medien im Hochformat: <span class="value">%{data}px</span>'
         logo:
           max:
-            height: 'Maximale Höhe für Logos: %{data}px'
+            height: 'Maximale Höhe für Logos: <span class="value">%{data}px</span>'
       codec:
-        video: 'Erlaubte Video-Codecs: %{data}'
-        audio: 'Erlaubte Audio-Codecs: %{data}'
+        video: 'Erlaubte Video-Codecs: <span class="value">%{data}</span>'
+        audio: 'Erlaubte Audio-Codecs: <span class="value">%{data}</span>'
       file_size:
-        max: 'Maximale Dateigröße: %{data}'
+        max: 'Maximale Dateigröße: <span class="value">%{data}</span>'
 
     close_warning_html: '<p>Während dem Upload muss dieses Fenster geöffnet bleiben!<br>
-                          Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
+      Es kann aber parallel in einem neuen Tab weitergearbeitet werden.</p>'
     continue_in_new_tab: In neuem Tab weiterarbeiten
 
   date:
     abbr_day_names:
-    - So
-    - Mo
-    - Di
-    - Mi
-    - Do
-    - Fr
-    - Sa
+      - So
+      - Mo
+      - Di
+      - Mi
+      - Do
+      - Fr
+      - Sa
     abbr_month_names:
-    -
-    - Jan
-    - Feb
-    - Mär
-    - Apr
-    - Mai
-    - Jun
-    - Jul
-    - Aug
-    - Sep
-    - Okt
-    - Nov
-    - Dez
+      -
+      - Jan
+      - Feb
+      - Mär
+      - Apr
+      - Mai
+      - Jun
+      - Jul
+      - Aug
+      - Sep
+      - Okt
+      - Nov
+      - Dez
     day_names:
-    - Sonntag
-    - Montag
-    - Dienstag
-    - Mittwoch
-    - Donnerstag
-    - Freitag
-    - Samstag
+      - Sonntag
+      - Montag
+      - Dienstag
+      - Mittwoch
+      - Donnerstag
+      - Freitag
+      - Samstag
     formats:
-      default: "%d.%m.%Y"
-      long: "%e. %B %Y"
-      short: "%e. %b"
-      full: "%A, %e. %B %Y"
+      default: '%d.%m.%Y'
+      long: '%e. %B %Y'
+      short: '%e. %b'
+      full: '%A, %e. %B %Y'
     month_names:
-    -
-    - Januar
-    - Februar
-    - März
-    - April
-    - Mai
-    - Juni
-    - Juli
-    - August
-    - September
-    - Oktober
-    - November
-    - Dezember
+      -
+      - Januar
+      - Februar
+      - März
+      - April
+      - Mai
+      - Juni
+      - Juli
+      - August
+      - September
+      - Oktober
+      - November
+      - Dezember
     order:
-    - :day
-    - :month
-    - :year
+      - :day
+      - :month
+      - :year
   datetime:
     distance_in_words:
       about_x_hours:
@@ -961,22 +974,22 @@ de:
         other: mehr als %{count} Jahre
       x_seconds:
         one: einer Sekunde
-        other: "%{count} Sekunden"
+        other: '%{count} Sekunden'
       x_minutes:
         one: einer Minute
-        other: "%{count} Minuten"
+        other: '%{count} Minuten'
       x_hours:
         one: einer Stunde
-        other: "%{count} Stunden"
+        other: '%{count} Stunden'
       x_days:
         one: einem Tag
-        other: "%{count} Tagen"
+        other: '%{count} Tagen'
       x_months:
         one: einem Monat
-        other: "%{count} Monaten"
+        other: '%{count} Monaten'
       x_years:
         one: einem Jahr
-        other: "%{count} Jahren"
+        other: '%{count} Jahren'
     prompts:
       day: Tag
       hour: Stunden
@@ -988,22 +1001,22 @@ de:
   number:
     currency:
       format:
-        delimiter: "."
-        format: "%n %u"
+        delimiter: '.'
+        format: '%n %u'
         precision: 2
-        separator: ","
+        separator: ','
         significant: false
         strip_insignificant_zeros: false
-        unit: "€"
+        unit: '€'
     format:
-      delimiter: "."
+      delimiter: '.'
       precision: 2
-      separator: ","
+      separator: ','
       significant: false
       strip_insignificant_zeros: false
     human:
       decimal_units:
-        format: "%n %u"
+        format: '%n %u'
         units:
           billion:
             one: Milliarde
@@ -1025,7 +1038,7 @@ de:
         significant: true
         strip_insignificant_zeros: true
       storage_units:
-        format: "%n %u"
+        format: '%n %u'
         units:
           byte:
             one: Byte
@@ -1037,23 +1050,23 @@ de:
     percentage:
       format:
         delimiter: ''
-        format: "%n %"
+        format: '%n %'
     precision:
       format:
         delimiter: ''
   support:
     array:
-      last_word_connector: " und "
-      two_words_connector: " und "
-      words_connector: ", "
+      last_word_connector: ' und '
+      two_words_connector: ' und '
+      words_connector: ', '
   time:
     am: vormittags
     formats:
-      default: "%A, %d. %B %Y, %H:%M Uhr"
-      long: "%A, %d. %B %Y, %H:%M Uhr"
-      short: "%d. %B, %H:%M Uhr"
-      edit: "%d.%m.%Y - %H:%M"
-      time_only: "%H:%M"
+      default: '%A, %d. %B %Y, %H:%M Uhr'
+      long: '%A, %d. %B %Y, %H:%M Uhr'
+      short: '%d. %B, %H:%M Uhr'
+      edit: '%d.%m.%Y - %H:%M'
+      time_only: '%H:%M'
     pm: nachmittags
 
   external_sources:

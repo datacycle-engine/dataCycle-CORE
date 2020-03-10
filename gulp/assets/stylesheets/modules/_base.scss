@@ -239,6 +239,7 @@ footer {
 
   > .title {
     padding: 0 5rem 1rem 5rem;
+    word-break: break-word;
   }
 
   .button-prime {
@@ -1105,6 +1106,61 @@ body .v-select {
           color: $light-gray;
         }
       }
+
+      .copy-attribute-to-all {
+        position: relative;
+        float: right;
+        width: 2rem;
+        height: 2rem;
+        margin-top: 1.8rem;
+        padding: 0.25rem;
+        text-align: center;
+        cursor: pointer;
+
+        .loading-icon {
+          display: none;
+        }
+
+        .fa {
+          font-size: 1.2rem;
+          line-height: 1.5rem;
+        }
+        &:hover {
+          color: $dark-gray;
+        }
+        &.disabled {
+          color: $light-gray;
+          cursor: not-allowed;
+          pointer-events: none;
+
+          .loading-icon {
+            display: block;
+          }
+          .copy-icon {
+            display: none;
+          }
+        }
+      }
+
+      .copy-attribute-notice {
+        position: absolute;
+        right: 3rem;
+        display: block;
+        background: white;
+        color: $black;
+        padding: 3px 7px;
+        white-space: nowrap;
+        z-index: 13;
+        border-radius: 5px;
+        top: 0;
+        box-shadow: 0 0 3px #ccc;
+        line-height: 1.5rem;
+        font-size: 0.9rem;
+      }
+
+      .copy-attribute-to-all + .form-element {
+        margin-right: 4rem;
+      }
       .form-element {
         min-height: 3rem;
         margin-bottom: 1rem;
@@ -1175,8 +1231,10 @@ body .v-select {
           }
         }
       }
-      li {
-        list-style-type: none;
+    }
+    fieldset.no-submit ~ .buttons {
+      .submit {
+        display: none !important;
       }
     }
   }

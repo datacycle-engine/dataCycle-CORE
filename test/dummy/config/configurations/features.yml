@@ -140,3 +140,9 @@
 
 :user_api:
   :enabled: true
+
+:preview:
+  :enabled: true
+  :widgets:
+    :list: https://widgets.datacycle.cloud/list
+    :map: https://widgets.datacycle.cloud/map

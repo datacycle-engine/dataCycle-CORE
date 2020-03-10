@@ -171,3 +171,12 @@
 :translatable:
   :enabled: true
   :only_config: true
+
+:user_registration:
+  :enabled: false
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:

@@ -106,6 +106,9 @@ Gem::Specification.new do |s|
   # progress bar
   s.add_dependency 'ruby-progressbar'
 
+  # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
+  s.add_dependency 'addressable'
+
   # jb gem for APIv3
   # s.add_dependency 'jb'
 

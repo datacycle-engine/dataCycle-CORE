@@ -121,7 +121,7 @@ describe DataCycleCore::MasterData::Validators::String do
 
     it 'errors out when string does not fulfill url format restriction' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
-      cases = ['!test', 'test/franz', 'html://test/franz', 'httpx://test/franz', 'http://test.com/franz:aöslkfj', 8, :test]
+      cases = ['!test', 'test/franz', 'html://test/franz', 'httpx://test/franz', 8, :test]
       cases.each do |test_case|
         validator = subject.new(test_case, new_template)
         assert_equal(1, validator.error[:error].size)
@@ -131,7 +131,7 @@ describe DataCycleCore::MasterData::Validators::String do
 
     it 'passes when string fulfills url restriction' do
       new_template = template_hash.deep_dup.merge({ 'validations' => { 'format' => 'url' } })
-      cases = ['http://www.example.com', 'https://www.example.com', 'http://www.example.com/xxx/yyy', 'http://www.example.com/xxx?test=hallo', 'http://test.com/franz:3000']
+      cases = ['http://www.example.com', 'https://www.example.com', 'http://www.example.com/xxx/yyy', 'http://www.example.com/xxx?test=hallo', 'http://test.com/franz:3000', 'http://österreich.at']
       cases.each do |test_case|
         validator = subject.new(test_case, new_template)
         assert_equal(0, validator.error[:error].size)

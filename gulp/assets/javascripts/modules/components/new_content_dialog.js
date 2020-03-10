@@ -1,15 +1,29 @@
-// Ajax Callback Queue
+let QuillHelpers = require('./../helpers/quill_helpers');
+
+// New Content Dialog
 class NewContentDialog {
   constructor(form) {
     this.form = $(form);
-    this.next_button = this.form.find('.next');
-    this.prev_button = this.form.find('.prev');
-    this.reset_button = this.form.find('.button.reset');
+    this.nextButton = this.form.find('.next');
+    this.prevButton = this.form.find('.prev');
+    this.resetButton = this.form.find('.button.reset');
     this.crumbs = this.form.find('.form-crumbs');
+    this.contentUploader = this.form.data('content-uploader');
     this.id = this.form.closest('.new-content-form').attr('id');
-    this.locale = this.form.find(':input[name="locale"]').val();
+    this.locale = this.form.find(':input[name="locale"]').val() || 'de';
+    this.activeLocale = this.locale;
+    this.reveal = this.form.closest('.reveal.new-content-reveal');
+    this.referencedAssetField;
+    this.nextAssetButton;
+    this.prevAssetButton;
+    this.init();
     this.initEventHandlers();
     this.updateForm();
+  }
+  init() {
+    if (this.contentUploader) {
+      this.setReferencedAssetField();
+    }
   }
   initEventHandlers() {
     if (this.form.find('fieldset.active').length == 0)
@@ -17,8 +31,8 @@ class NewContentDialog {
         .find('fieldset')
         .first()
         .addClass('active');
-    this.next_button.on('click', this.next.bind(this));
-    this.prev_button.on('click', this.prev.bind(this));
+    this.nextButton.on('click', this.next.bind(this));
+    this.prevButton.on('click', this.prev.bind(this));
     this.form.on('click', '.form-crumb-link', this.goTo.bind(this));
     this.form.on('reset', this.resetForm.bind(this));
     this.form.on('change', ':input[name="locale"]', this.updateLocales.bind(this));
@@ -33,37 +47,223 @@ class NewContentDialog {
         this.next(event);
       }
     });
-    this.form.on('dc:asset:selected', '.form-element', this.checkSelectedAsset.bind(this));
-    this.form.on('dc:asset:changed', '.form-element', this.updateThumbnail.bind(this));
+    this.form.on('click', '.copy-attribute-to-all', this.copySingleToAllReferenceFields.bind(this));
+    this.form.find('.translated-attribute.active').trigger('dc:remote:render');
+
+    if (this.referencedAssetField) {
+      this.updateNavigationButtons();
+      this.addCopyAttributeButtons(this.form);
+      this.reveal.on('open.zf.reveal', event => {
+        this.form.trigger('dc:form:enable');
+        this.updateNavigationButtons(event);
+      });
+      this.referencedAssetField.on('dc:form:importAttributeValues', this.importAttributeValues.bind(this));
+      this.form.on('dc:form:submitWithoutRedirect', this.copyToReferenceField.bind(this));
+      this.form.find('.set-all-attributes').on('click', this.copyToAllReferenceFields.bind(this));
+      this.form.on('dc:html:initialized', '.translated-attribute', event => {
+        event.stopPropagation();
+        this.addCopyAttributeButtons(event.currentTarget);
+        this.triggerSyncWithContentUploader(event);
+      });
+      this.triggerSyncWithContentUploader();
+    }
+  }
+  copyToReferenceField(event, config = {}) {
+    event.preventDefault();
+
+    QuillHelpers.updateEditors(this.form);
+    let formData = this.form.serializeArray();
+
+    if (config && config.allFiles) this.reveal.foundation('close');
+    else this.nextAssetForm(event);
+
+    this.parseFormData(formData, null, config && config.allFiles);
+  }
+  copyToAllReferenceFields(event) {
+    this.form.trigger('submit', { allFiles: true });
+  }
+  copySingleToAllReferenceFields(event) {
+    $(event.currentTarget).addClass('disabled');
+    event.preventDefault();
+    event.stopImmediatePropagation();
+
+    let formElementKey = $(event.currentTarget)
+      .next('.form-element')
+      .data('key');
+    let target = $(event.currentTarget);
+    QuillHelpers.updateEditors(this.form);
+    let formData = this.form.serializeArray();
+    formData = formData.filter(f => f.name.includes(formElementKey) || !f.name.includes('thing'));
+
+    this.parseFormData(formData, target, true);
+  }
+  parseFormData(formData, target = null, allFiles = false) {
+    let requests = [];
+
+    formData.forEach((v, i) => {
+      if (v && v.value.isUuid()) {
+        requests.push(
+          $.get('/api/v4/universal/' + v.value + '?fields=name,skos:prefLabel').done(data => {
+            v.text = data && (data['skos:prefLabel'] || data.name);
+          })
+        );
+      }
+    });
+
+    Promise.all(requests)
+      .then(data => this.setUploaderFormFields(formData, target, allFiles))
+      .catch(error => this.setUploaderFormFields(formData, target, allFiles));
+  }
+  setUploaderFormFields(formData, target = null, allFiles = false) {
+    this.referencedAssetField.trigger('dc:upload:setFormFields', {
+      formData: formData,
+      allFiles: allFiles
+    });
+    if (target) {
+      target.removeClass('disabled');
+      this.showNotice(target, 'Attribut wurde übernommen!');
+    }
+  }
+  showNotice(target, text) {
+    let notice = $('<span class="copy-attribute-notice">' + text + '</span>');
+    $(notice).appendTo(target);
+    setTimeout(
+      function() {
+        notice.fadeOut('fast', function() {
+          notice.remove();
+        });
+      }.bind(this),
+      1000
+    );
+  }
+  addCopyAttributeButtons(container) {
+    let formFields = $(container)
+      .find('> fieldset > .form-element, > .form-element')
+      .addBack('.form-element');
+
+    let button = $(
+      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="copy-icon fa fa-arrow-right" aria-hidden="true"></i><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
+    );
+
+    button.insertBefore(formFields);
+  }
+  triggerSyncWithContentUploader(event = null) {
+    let key;
+
+    if (event)
+      key = $(event.currentTarget)
+        .find('> .form-element')
+        .data('key');
+
+    this.referencedAssetField.trigger('dc:upload:syncWithForm', { key: key, locale: event ? this.activeLocale : null });
+  }
+  importAttributeValues(event, data = null) {
+    event.preventDefault();
+
+    if (!data || !data.attributes) return;
+    if (!data || !data.locale) this.form.get(0).reset();
+
+    let groupedAttributes = this.groupAttributeValues(data.attributes, data.locale);
+
+    for (let key in groupedAttributes) {
+      this.form
+        .find('[data-key="' + key + '"]')
+        .find(window.EDITORSELECTORS.join(', '))
+        .trigger('dc:import:data', {
+          label: key.getKey(),
+          value: typeof groupedAttributes[key] == 'string' ? groupedAttributes[key].trim() : groupedAttributes[key],
+          locale: data.locale || 'de',
+          force: true
+        });
+    }
+  }
+  groupAttributeValues(values, locale = null) {
+    let groupedValues = {};
+
+    if (!values || !values.length) return groupedValues;
+
+    values.forEach(v => {
+      if (locale && (!v.name.includes('translations') || !v.name.includes(locale))) return;
+
+      let key = v.name.normalizeKey();
+
+      if (groupedValues[key] || v.value.isUuid()) {
+        if (!Array.isArray(groupedValues[key])) groupedValues[key] = [groupedValues[key]].filter(Boolean);
+
+        groupedValues[key].push(v.value);
+      } else groupedValues[key] = v.value;
+    });
+
+    return groupedValues;
+  }
+  setReferencedAssetField() {
+    const id = this.form
+      .closest('.reveal.new-content-reveal')
+      .find('.file-for-upload')
+      .data('id');
+    const referenceField = $('.content-upload-form > .file-for-upload[data-id="' + id + '"]');
+    if (referenceField.length) this.referencedAssetField = referenceField;
+  }
+  createNextAssetButton() {
+    this.nextAssetButton = $(
+      '<a href="#" class="next-asset-button button-prime"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+    ).insertAfter(this.reveal);
+    this.nextAssetButton.on('click', this.nextAssetForm.bind(this));
+  }
+  createPrevAssetButton() {
+    this.prevAssetButton = $(
+      '<a href="#" class="prev-asset-button button-prime"><i class="fa fa-arrow-left" aria-hidden="true"></i></a>'
+    ).insertBefore(this.reveal);
+    this.prevAssetButton.on('click', this.prevAssetForm.bind(this));
+  }
+  updateNavigationButtons(event) {
+    event && event.preventDefault();
+
+    if (this.referencedAssetField.siblings('.file-for-upload').length) {
+      if (!this.nextAssetButton) this.createNextAssetButton();
+      if (!this.prevAssetButton) this.createPrevAssetButton();
+    }
+
+    if (this.nextAssetButton && this.prevAssetButton) {
+      if (this.referencedAssetField.is(':last-of-type')) this.nextAssetButton.hide();
+      else this.nextAssetButton.show();
+
+      if (this.referencedAssetField.is(':first-of-type')) this.prevAssetButton.hide();
+      else this.prevAssetButton.show();
+    }
+  }
+  nextAssetForm(event) {
+    event.preventDefault();
+    this.reveal.foundation('close');
+    let nextAsset = this.referencedAssetField.next('.file-for-upload');
+
+    if (nextAsset && nextAsset.length)
+      $('.reveal.new-content-reveal#' + nextAsset.find('.edit-upload-button').data('open')).foundation('open');
+  }
+  prevAssetForm(event) {
+    event.preventDefault();
+    this.reveal.foundation('close');
+    let prevAsset = this.referencedAssetField.prev('.file-for-upload');
+
+    if (prevAsset && prevAsset.length)
+      $('.reveal.new-content-reveal#' + prevAsset.find('.edit-upload-button').data('open')).foundation('open');
   }
   updateForm() {
     this.updateCrumbs();
     this.updateWarningLevel();
-    let active_fieldset = this.form.find('fieldset.active');
+    let activeFieldset = this.form.find('fieldset.active');
     if (
-      (!active_fieldset.hasClass('iframe') && !active_fieldset.hasClass('no-search-warning')) ||
-      active_fieldset.hasClass('template')
+      (!activeFieldset.hasClass('iframe') && !activeFieldset.hasClass('no-search-warning')) ||
+      activeFieldset.hasClass('template')
     )
       this.form.find('.search-warning').show();
     else this.form.find('.search-warning').hide();
-    if (active_fieldset.hasClass('template')) $.rails.enableFormElements(this.form);
+    if (activeFieldset.hasClass('template') || activeFieldset.hasClass('no-search-warning'))
+      $.rails.enableFormElements(this.form);
     else if (this.form.hasClass('disabled')) $.rails.disableFormElements(this.form);
   }
-  checkSelectedAsset(event) {
-    event.stopPropagation();
-    if (!$(event.target).siblings('.form-element').length) this.next(event);
-  }
-  updateThumbnail(event, data) {
-    let form_thumbnail = this.form.find('> .form-thumbnail');
-    if (data !== undefined && data.thumb !== undefined && form_thumbnail.length) {
-      form_thumbnail.attr('src', data.thumb);
-    } else if (data !== undefined && data.thumb !== undefined) {
-      this.form.append('<img class="form-thumbnail" src="' + data.thumb + '">');
-    } else {
-      form_thumbnail.remove();
-    }
-  }
   changeTranslation(target) {
+    this.activeLocale = $(target).data('locale');
     $(target)
       .closest('.translated-attribute-locales')
       .find('.translated-attribute-locale')
@@ -77,10 +277,10 @@ class NewContentDialog {
   }
   next(event) {
     event.preventDefault();
-    let active_fieldset = this.form.find('fieldset.active');
+    let activeFieldset = this.form.find('fieldset.active');
     if (this.form.hasClass('validation-form')) {
-      active_fieldset.trigger('dc:form:validate', {
-        success_callback: () => {
+      activeFieldset.trigger('dc:form:validate', {
+        successCallback: () => {
           this.goTo(
             undefined,
             this.form.find('fieldset').index(
@@ -117,7 +317,7 @@ class NewContentDialog {
     );
   }
   goTo(event, data) {
-    if (event !== undefined) event.preventDefault();
+    if (event) event.preventDefault();
     if (
       this.form.find('fieldset.active').hasClass('template') &&
       this.form.find(':input[name="template"]').val() !== null &&
@@ -125,7 +325,7 @@ class NewContentDialog {
     ) {
       this.renderContentForm();
     }
-    let index = data !== undefined ? data : $(event.target).data('index');
+    let index = data !== undefined ? data : event && $(event.target).data('index');
     this.form.find('fieldset.active').removeClass('active');
     this.form
       .find('fieldset:eq(' + index + ')')
@@ -197,7 +397,7 @@ class NewContentDialog {
       this.updateForm();
     });
   }
-  resetForm(event) {
+  resetForm(_) {
     this.form.find(':input').blur();
     $.rails.enableFormElements(this.form);
     this.form.find('.single_error').remove();

@@ -140,24 +140,29 @@ class ObjectBrowser {
     this.element.on('dc:import:data', (event, data) => {
       let new_items = [];
       if (data.external_ids != undefined) new_items = data.external_ids;
-      else if (data.value != undefined)
+      else if (data.value && data.value.length) {
         new_items = data.value.diff(
           $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'))
         );
+      }
       if (new_items.length > 0 && this.validate('+', this.chosen.length + new_items.length)) {
         this.findObjects(new_items, data.external_ids != undefined);
       }
     });
     this.overlay.on('dc:import:complete', (event, data) => {
-      if (this.excluded.indexOf(data.id) === -1) this.excluded.push(data.id);
+      this.excluded = this.excluded.mergeUnique(data && data.ids);
       this.overlay
         .children('.items')
-        .find('[data-id=' + data.id + ']')
+        .find('[data-id=' + data.ids[0] + ']')
         .get(0)
         .scrollIntoView({
           behavior: 'smooth'
         });
-      this.addObject(data.id, this.overlay.find('[data-id=' + data.id + ']').clone(), event);
+
+      data.ids.forEach(id => {
+        this.addObject(id, this.overlay.find('[data-id=' + id + ']').clone(), event);
+      });
+
       $('#new_' + this.id + '.in-object-browser form').trigger('reset');
     });
     $(document).on(
@@ -184,8 +189,8 @@ class ObjectBrowser {
   }
   initNewFormHandlers(e) {
     $('#new_' + this.id + '.in-object-browser form')
-      .off('submit_without_redirect')
-      .on('submit_without_redirect', event => {
+      .off('dc:form:submitWithoutRedirect')
+      .on('dc:form:submitWithoutRedirect', event => {
         event.preventDefault();
         event.stopImmediatePropagation();
         var form_data = $(event.target).serializeJSON();
@@ -210,9 +215,38 @@ class ObjectBrowser {
           dataType: 'script',
           contentType: 'application/json'
         });
+      })
+      .off('dc:form:setContentIds')
+      .on('dc:form:setContentIds', (event, data) => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if (!data || !data.contentIds || !data.contentIds.length) return;
+
+        $.ajax({
+          url: this.url + '/render_in_overlay',
+          method: 'POST',
+          dataType: 'script',
+          data: JSON.stringify({
+            ids: data.contentIds,
+            type: this.type,
+            locale: this.locale,
+            overlay_id: '#object_browser_' + this.id,
+            key: this.key,
+            definition: this.definition,
+            editable: this.editable,
+            options: this.options,
+            content_id: this.content_id,
+            class: this.class,
+            prefix: this.prefix,
+            objects: this.chosen,
+            new_overlay_id: '#new_' + this.id
+          }),
+          contentType: 'application/json'
+        });
       });
   }
-  removeThumbObject(element) {
+  removeThumbObject(element, triggerChange = true) {
     let item, elem_id;
 
     if ($(element).is(':input[type="hidden"]')) {
@@ -231,7 +265,7 @@ class ObjectBrowser {
       .remove();
     item.remove();
     if (this.chosen.length == 0) this.renderHiddenField();
-    this.element.closest('.form-element').trigger('change');
+    if (triggerChange) this.element.closest('.form-element').trigger('change');
   }
   renderHiddenField() {
     this.element
@@ -397,7 +431,7 @@ class ObjectBrowser {
   }
   reset(event) {
     this.element.find('.media-thumbs li.item').each((_, element) => {
-      this.removeThumbObject(element);
+      this.removeThumbObject(element, false);
     });
   }
   setPreselected() {
@@ -448,13 +482,13 @@ class ObjectBrowser {
   // import media from media_archive reveal
   import(event) {
     if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'import') {
-      var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
+      let authToken = $('meta[name=csrf-token]').attr('content');
       $.ajax({
         type: 'POST',
         url: '/things/import',
         dataType: 'script',
         data: JSON.stringify({
-          authenticity_token: AUTH_TOKEN,
+          authenticity_token: authToken,
           type: this.type + '_object',
           data: event.originalEvent.data.data,
           locale: this.locale,

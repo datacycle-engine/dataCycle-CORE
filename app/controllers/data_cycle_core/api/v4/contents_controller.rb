@@ -65,7 +65,7 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
         end
 
         def build_search_query
@@ -136,7 +136,7 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          query.schedule_search(from_date, to_date, 'schedule')
+          query.schedule_search(from_date, to_date)
         end
 
         def apply_place_query_filters(query)

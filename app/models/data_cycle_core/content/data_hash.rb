@@ -96,9 +96,9 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil)
+      def validate(data, schema_hash = nil, strict = false)
         validator = DataCycleCore::MasterData::ValidateData.new
-        validator.validate(data, schema_hash || schema)
+        validator.validate(data, schema_hash || schema, strict)
       end
 
       def validate?(validation_hash)

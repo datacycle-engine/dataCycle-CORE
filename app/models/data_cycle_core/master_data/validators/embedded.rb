@@ -8,7 +8,7 @@ module DataCycleCore
           ['min', 'max', 'classifications']
         end
 
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           if blank?(data)
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::Array)

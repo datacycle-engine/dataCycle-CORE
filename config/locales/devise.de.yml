@@ -15,7 +15,8 @@ de:
     confirmations:
       confirmed: Ihre E-Mail Adresse wurde erfolgreich bestätigt.
       new:
-        resend_confirmation_instructions: Anleitung zur Bestätigung noch mal schicken
+        resend_confirmation_instructions: Bestätigung erneut anfordern
+        resend_confirmation_instructions_button: Anfordern
       send_instructions: Sie erhalten in wenigen Minuten eine E-Mail, mit der Sie Ihre Registrierung bestätigen können.
       send_paranoid_instructions: Falls Ihre E-Mail-Adresse in unserer Datenbank existiert, erhalten Sie in wenigen Minuten eine E-Mail, mit der Sie Ihre Registrierung bestätigen können.
     failure:
@@ -45,7 +46,7 @@ de:
         greeting: Hallo %{recipient}!
         instruction: "Jemand hat einen Link angefordert, um Ihr Passwort zu ändern. Klicken Sie auf 'Passwort ändern' um ein neues Passwort zu vergeben."
         instruction_2: Bitte ignorieren Sie dieses E-Mail, wenn Sie kein neues Passwort angefordert haben.
-        instruction_3: Das Passwort wird nicht geändert bis Sie den obenstehenden Link aufrufen und ein neues Passwort festlegen!
+        instruction_3: Das Passwort wird nicht geändert bis Sie den untenstehenden Link aufrufen und ein neues Passwort festlegen!
         subject: Anleitung für das Zurücksetzen Ihres Passworts
       unlock_instructions:
         action: Mein Konto entsperren
@@ -100,7 +101,7 @@ de:
     shared:
       links:
         back: Zurück
-        didn_t_receive_confirmation_instructions: Keine Anleitung zur Bestätigung erhalten?
+        didn_t_receive_confirmation_instructions: Bestätigungslink nicht erhalten?
         didn_t_receive_unlock_instructions: Keine Anleitung zum Entsperren erhalten?
         forgot_your_password: Passwort vergessen?
         sign_in: Anmelden

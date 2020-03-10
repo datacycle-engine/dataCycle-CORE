@@ -16,6 +16,7 @@ PATH
       activerecord-postgis-adapter
       acts_as_paranoid (~> 0.6.0)
       acts_as_tree
+      addressable
       awesome_print
       axlsx_rails
       cancancan

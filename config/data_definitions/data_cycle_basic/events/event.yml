@@ -140,10 +140,15 @@
         :type: schedule
         :api:
           :disabled: true
+          :v4:
+            :disabled: false
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
+        :api:
+          :v4:
+            :disabled: true
       :schedule:
         :label: Event-Schedule
         :type: embedded

@@ -127,18 +127,18 @@ module.exports.initialize = function() {
           }
 
           editor.on('selection-change', (range, oldRange, source) => {
-            if (range == null) quill_helpers.update_editors(editor.container);
+            if (range == null) quill_helpers.updateEditors(editor.container);
           });
 
           $(editor.container)
             .closest('form')
             .on('reset', event => {
               editor.clipboard.dangerouslyPasteHTML($(editor.container).data('default-value') || '');
-              quill_helpers.update_editors(editor.container);
+              quill_helpers.updateEditors(editor.container);
             });
 
           $(editor.container).on('dc:import:data', function(event, data) {
-            if (editor.getText().trim().length > 1) {
+            if (editor.getText().trim().length > 1 && (!data || !data.force)) {
               var confirmationModal = new ConfirmationModal({
                 text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
                 confirmationText: 'Ja',
