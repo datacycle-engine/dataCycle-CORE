@@ -16,22 +16,49 @@ module DataCycleCore
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
-          rdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.rdate) AS event_date'))
-          # occurrences = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(get_occurrences(schedules.rrule::rrule, schedules.dtstart)) AS event_date'))
-          occurrences = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new("unnest(get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : from_node.to_sql}, #{to.blank? ? 'schedules.dtend' : to_node.to_sql})) AS event_date"))
-          exdates = Arel::SelectManager.new.project('event_date').from(Arel::Nodes::SqlLiteral.new('unnest(schedules.exdate) AS event_date'))
+          sub_select = Arel::SelectManager.new(schedule).where(
+            (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
+            .and(
+              overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend]))
+            )
+            .and(
+              thing[:id]
+              .eq(schedule[:thing_id])
+            )
+          )
 
-          # binding.pry
           reflect(
             @query
-              .left_outer_joins(:scheduled_data)
-              .where(in_json(thing[:schema], 'schema_type').eq(Arel::Nodes.build_quoted('Event')))
               .where(
-                overlap(tstzrange(from_node, to_node), tstzrange(thing[:start_date], thing[:end_date]))
+                overlap(
+                  tstzrange(from_node, to_node),
+                  tstzrange(thing[:start_date], thing[:end_date])
+                )
                 .and(
-                  overlap(tstzrange(from_node, to_node), tstzrange(schedule[:dtstart], schedule[:dtend]))
-                  .and(in_range(tstzrange(from_node, to_node), any(Arel::Nodes::Except.new(Arel::Nodes::UnionAll.new(rdates, occurrences), exdates))))
-                  .and(relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
+                  Arel::Nodes::Exists.new(
+                    Arel::Nodes::Except.new(
+                      Arel::Nodes::UnionAll.new(
+                        sub_select.dup.where(
+                          in_range(
+                            tstzrange(from_node, to_node),
+                            any(schedule[:rdate])
+                          )
+                        ),
+                        sub_select.dup.where(
+                          in_range(
+                            tstzrange(from_node, to_node),
+                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : from_node.to_sql}, #{to.blank? ? 'schedules.dtend' : to_node.to_sql})"))
+                          )
+                        )
+                      ),
+                      sub_select.dup.where(
+                        in_range(
+                          tstzrange(from_node, to_node),
+                          any(schedule[:exdate])
+                        )
+                      )
+                    )
+                  )
                 )
               )
           )
