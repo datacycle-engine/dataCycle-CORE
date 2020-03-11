@@ -85,6 +85,11 @@
   - $$Subregion
   - $$Country
 
+- Externer Status | all:
+  - $$Aktiv
+  - $$Inaktiv
+  - $$Gelöscht
+
 - Feratel - Status | all:
   - $$Aktiv
   - $$Inaktiv

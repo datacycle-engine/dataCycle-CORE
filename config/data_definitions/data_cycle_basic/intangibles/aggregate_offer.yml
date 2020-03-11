@@ -231,6 +231,9 @@
       :additional_aggregate_offer_properties:
         :type: mixin
         :name: additional_aggregate_offer_properties
+      :external_source_attribtues:
+        :type: mixin
+        :name: external_source_attribtues
       :data_type:
         :label: Inhaltstype
         :type: classification
