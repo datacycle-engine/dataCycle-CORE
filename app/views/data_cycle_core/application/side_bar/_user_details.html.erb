@@ -3,8 +3,16 @@
     <h5><%= t('data_cycle_core.user_details', locale: DataCycleCore.ui_language) %></h5>
   </div>
   <div class="row columns">
-    <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
-    <span class="title"><%= current_user&.full_name %></span>
+    <% if can? :update, current_user %>
+        <%= link_to edit_user_path(current_user), class: 'edit-user-link' do %>
+          <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
+          <span class="title"><%= current_user&.full_name %></span>
+          <span class="icon icon-edit"><i class="fa fa-pencil" aria-hidden="true"></i></span>
+        <% end %>
+    <% else %>
+      <span class="icon"><i class="fa fa-smile-o" aria-hidden="true"></i></span>
+      <span class="title icon-edit"><%= current_user&.full_name %></span>
+    <% end %>
   </div>
   <% if current_user.access_token.present? %>
     <div class="row columns access-token">

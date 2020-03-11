@@ -70,8 +70,21 @@
   :creator: true
   :classification_tree_ids: true
   :date_range: all
-  :validity_period: true
-  :in_schedule: false
+  :validity_period:
+    :absolute: true
+    :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
+  :in_schedule:
+    :absolute: true
+    :relative: true
+  :geo_filter:
+    :geo_radius: false
+    :geo_within_classification: false
+      # - Administrative Einheiten
+  # :relation_filter:
+  #   :event_location: content_location
 #  :advanced_attributes:
 #    :width:
 #      :type: numeric
@@ -158,3 +171,12 @@
 :translatable:
   :enabled: true
   :only_config: true
+
+:user_registration:
+  :enabled: false
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:

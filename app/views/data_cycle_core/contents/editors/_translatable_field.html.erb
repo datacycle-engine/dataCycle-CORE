@@ -1,21 +1,24 @@
-<% if template.translatable_property_names.include?(key.attribute_name_from_key) && I18n.available_locales&.many? && template.schema.dig('properties', key.attribute_name_from_key).present? %>
+<% key = Array.wrap(key.is_a?(String) ? key.attribute_name_from_key : key) %>
+<% full_key = 'thing[datahash]' + key.map{ |k| "[#{k}]" if k != 'properties' }.join %>
+<% definition = template.schema.dig('properties', *key)&.deep_reject{ |k, v| k == 'readonly' } %>
+<% if template.translatable_property_names.include?(key.last) && I18n.available_locales&.many? && definition.present? %>
   <div class="translated-attribute-container">
     <% content_locale = local_assigns[:locale] || I18n.locale.to_s %>
     <% I18n.available_locales.each do |a_locale| %>
       <div class="translated-attribute remote-render <%= a_locale.to_s %><%= ' active' if content_locale == a_locale.to_s %>"
-        id="<%= local_assigns.dig(:options, :prefix) %>translated_attribute_<%= local_assigns[:key]&.underscore_blanks || 'default' %>_<%= a_locale.to_s %>"
+        id="<%= local_assigns.dig(:options, :prefix) %>translated_attribute_<%= full_key&.underscore_blanks || 'default' %>_<%= a_locale.to_s %>"
         data-remote-render-function="render_attribute_editor"
-        data-remote-render-params="<%= to_query_params(key: key.gsub(/\[datahash\]/, "[translations][#{a_locale.to_s}]"),
-          definition: template.schema.dig('properties', key.attribute_name_from_key).dup.tap { |h| h['label'] = "#{h['label']} (#{a_locale.to_s})" },
-          value: (content_locale == a_locale.to_s ? local_assigns[:value] : nil),
+        data-remote-render-params="<%= to_query_params(key: full_key.gsub(/\[datahash\]/, "[translations][#{a_locale.to_s}]"),
+          definition: definition.dup.tap { |h| h['label'] = "#{h['label']} (#{a_locale.to_s})" },
+          value: (content_locale == a_locale.to_s ? (local_assigns[:value]) : nil),
           content: template).to_json %>"
         data-remote-options="<%= to_query_params({ options: local_assigns[:options], disabled: true }).to_json %>">
       </div>
     <% end %>
   </div>
-<% elsif template.schema.dig('properties', key.attribute_name_from_key).present? %>
-  <%= render_attribute_editor key: key,
-                              definition: template.schema.dig('properties', key.attribute_name_from_key),
+<% elsif definition.present? %>
+  <%= render_attribute_editor key: full_key,
+                              definition: definition,
                               value: local_assigns[:value],
                               content: template,
                               parameters: {

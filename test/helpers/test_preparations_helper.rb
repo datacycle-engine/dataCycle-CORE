@@ -6,11 +6,11 @@ module DataCycleCore
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier'],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic', 'video'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status',
                 'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type',
-                'piemonte_tag', 'piemonte_scope', 'piemonte_category', 'piemonte_coverage', 'piemonte_data_source'],
+                'piemonte_tag', 'piemonte_scope', 'piemonte_category', 'piemonte_coverage', 'piemonte_data_source', 'open_destination_one_keywords'],
         organization: [],
         place: ['stars', 'source', 'regions', 'google_tags', 'xamoom_tags', 'feratel_types', 'feratel_locations',
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
@@ -153,6 +153,17 @@ module DataCycleCore
         @content.set_data_hash(data_hash: data_hash, new_content: true, current_user: (user || User.find_by(email: 'tester@datacycle.at')))
       end
       @content.reload
+    end
+
+    def self.generate_schedule(dtstart, dtend, duration)
+      schedule = DataCycleCore::Schedule.new
+      dtstart = dtstart
+      dtend = dtend
+      end_time = dtstart + duration
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+      end
+      schedule
     end
 
     def self.create_watch_list(name: nil)

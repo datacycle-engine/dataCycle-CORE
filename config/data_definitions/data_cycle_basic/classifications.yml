@@ -97,6 +97,10 @@
   - $$Preis pro Person
   - $$Preis pro Package
 
+- Lizenzen | all:
+  - Open Data
+  - Sonstiges
+
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan
   - EG | Ägypten

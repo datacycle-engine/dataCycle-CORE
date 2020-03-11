@@ -96,9 +96,9 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil)
+      def validate(data, schema_hash = nil, strict = false)
         validator = DataCycleCore::MasterData::ValidateData.new
-        validator.validate(data, schema_hash || schema)
+        validator.validate(data, schema_hash || schema, strict)
       end
 
       def validate?(validation_hash)
@@ -252,7 +252,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
         data = input_data || []
 
         data.each_index do |index|

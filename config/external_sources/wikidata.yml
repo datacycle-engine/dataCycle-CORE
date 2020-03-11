@@ -35,7 +35,7 @@ config:
       import_strategy: DataCycleCore::Generic::Wikidata::ImportClassifications
       locales: [de,en]
     image_classifications:
-      sorting: 2
+      sorting: 10
       source_type: images
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tree_label: Wikidata - Image Categories
@@ -43,6 +43,15 @@ config:
       tag_id_path: 'categories'
       tag_name_path: 'categories'
       external_id_prefix: 'Wikidata - Image Categories - '
+    image_licenses:
+      sorting: 11
+      source_type: images
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Wikidata - Lizenzen
+      tag_path: 'imageinfo'
+      tag_id_path: 'imageinfo.extmetadata.LicenseShortName.value'
+      tag_name_path: 'imageinfo.extmetadata.LicenseShortName.value'
+      external_id_prefix: 'Wikidata - Lizenz - '
     images:
       sorting: 90
       source_type: images

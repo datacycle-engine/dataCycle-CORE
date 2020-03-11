@@ -5,20 +5,25 @@ module DataCycleCore
     before_action :authenticate_user! # from devise (authenticate)
 
     def index
-      @html_target = permitted_params[:html_target]
-      @selected = permitted_params[:selected]
-      @append = permitted_params[:append] || false
-      @page = permitted_params[:page] || 1
-      @last_asset_type = permitted_params[:last_asset_type]
-      @assets = DataCycleCore::Asset.accessible_by(current_ability).order(type: :asc, updated_at: :desc)
-      @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
-      @assets = @assets.where.not(id: permitted_params[:locked_assets].compact.uniq) if permitted_params[:locked_assets].present?
-      @assets = @assets.page(@page).per(25)
-      @total = @assets.total_count
+      respond_to do |format|
+        format.js do
+          @html_target = permitted_params[:html_target]
+          @selected = permitted_params[:selected]
+          @append = permitted_params[:append] || false
+          @page = permitted_params[:page] || 1
+          @last_asset_type = permitted_params[:last_asset_type]
+          @assets = DataCycleCore::Asset.includes(:thing).accessible_by(current_ability).order(type: :asc, updated_at: :desc)
+          @assets = @assets.where(type: permitted_params[:types]) if permitted_params[:types].present?
+          @assets = @assets.page(@page).per(25)
+          @asset_details = @assets.as_json(only: [:id, :name, :file_size, :content_type, :file], methods: :duplicate_candidates)
+          @total = @assets.total_count
+        end
+        format.json { render json: DataCycleCore::Asset.where(type: permitted_params[:type]).accessible_by(current_ability).order(name: :asc).pluck(:name, :id) }
+      end
     end
 
     def create
-      return if asset_params[:file].blank? || asset_params[:type].blank?
+      render(json: { error: I18n.t(:wrong_content_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return if asset_params[:file].blank? || asset_params[:type].blank?
 
       object_type = DataCycleCore.asset_objects.find { |a| a == asset_params[:type] }
 
@@ -29,8 +34,9 @@ module DataCycleCore
       @asset = object_type.constantize.new(asset_params)
       @asset.name = asset_params[:file].original_filename if asset_params[:name].blank?
       @asset.creator_id = current_user.try(:id)
+
       if @asset.save
-        render json: @asset
+        render json: @asset.attributes.merge(duplicate: @asset.try(:duplicate_candidates).present?)
       else
         render(json: { error: @asset.errors.full_messages.join(', ') })
       end
@@ -79,7 +85,7 @@ module DataCycleCore
     end
 
     def permitted_params
-      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, :selected, locked_assets: [], types: [])
+      params.permit(:id, :append, :last_asset_type, :page, :type, :html_target, selected: [], types: [])
     end
 
     def find_params

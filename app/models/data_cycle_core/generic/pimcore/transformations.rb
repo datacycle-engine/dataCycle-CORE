@@ -140,7 +140,7 @@ module DataCycleCore
             tend = schedule.dig('timeTo').to_datetime
             dtstart = dstart + tstart.hour * 60 * 60 + tstart.minute * 60
             dtend = dend + tend.hour * 60 * 60 + tend.minute * 60
-            duration = tend - tstart
+            duration = tend.to_i - tstart.to_i
             active_days = weekdays
               .select { |day, _val| schedule.dig(day) == '1' }
               .map { |day, _val| day_nr(day) }

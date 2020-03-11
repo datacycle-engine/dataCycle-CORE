@@ -37,7 +37,7 @@ module DataCycleCore
             DataCycleCore::Thing.find_by(
               external_source_id: utility_object.external_source.id,
               external_key: raw_data.dig(*external_key_path)
-            ).try(:destroy_content, save_history: false, destroy_linked: true)
+            ).try(:destroy_content, save_history: true, destroy_linked: true)
           end
         end
       end

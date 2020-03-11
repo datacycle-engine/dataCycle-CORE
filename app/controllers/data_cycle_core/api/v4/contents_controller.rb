@@ -7,6 +7,7 @@ module DataCycleCore
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
         include DataCycleCore::ApiHelper
+        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
@@ -44,7 +45,8 @@ module DataCycleCore
               DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deletedSince)))
             )
           end
-          @contents = apply_paging(deleted_contents)
+
+          render plain: list_api_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
 
         def permitted_parameter_keys
@@ -62,35 +64,20 @@ module DataCycleCore
           false
         end
 
-        def list_api_request
-          json_context = api_plain_context(@language)
-          json_contents = @contents.map do |item|
-            Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
-              item.to_api_list
-            end
-          end
-          json_links = api_plain_links
-          list_hash = {
-            '@context' => json_context,
-            '@graph' => json_contents,
-            'links' => json_links
-          }
-          list_hash['meta'] = api_plain_meta(@contents.total_count, @contents.total_pages) unless @mode_parameters == 'strict'
-          list_hash
-        end
-
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
         end
 
         def build_search_query
           endpoint_id = permitted_params[:id]
           filter_watch_list = false
+          @linked_stored_filter = nil
           if endpoint_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
 
             if @stored_filter
               authorize! :api, @stored_filter
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
             elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
               filter_watch_list = true
             else
@@ -149,7 +136,7 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          query.schedule_search(from_date, to_date, 'schedule')
+          query.schedule_search(from_date, to_date)
         end
 
         def apply_place_query_filters(query)

@@ -6,7 +6,7 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class IncludeTest < ActionDispatch::IntegrationTest
+      class OverlayTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
         include DataCycleCore::ApiV4Helper
@@ -56,7 +56,7 @@ module DataCycleCore
           data = full_header_data(@content_overlay)
           assert_equal(header.except('name'), data.except('name'))
 
-          ['image', 'sub_event', 'location'].each do |embedded|
+          ['image', 'location'].each do |embedded|
             assert_compact_header(json_data.dig(embedded.camelize(:lower)))
           end
 

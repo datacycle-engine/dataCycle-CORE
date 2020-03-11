@@ -6,7 +6,7 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class RoutingTest < ActionDispatch::IntegrationTest
+      class WatchListTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
 

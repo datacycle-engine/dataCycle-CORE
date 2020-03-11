@@ -19,7 +19,7 @@
                 - Veranstaltungsserie
         :api:
           :v4:
-            :name: 'dc:linked_thing'
+            :name: 'dc:linkedThing'
       :is_linked_to:
         :label: Verknüpft mit
         :type: linked
@@ -28,4 +28,4 @@
         :global: true
         :api:
           :v4:
-            :name: 'dc:is_linked_to'
+            :name: 'dc:isLinkedTo'

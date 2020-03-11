@@ -2,11 +2,11 @@ FROM patrickrainer/data_cycle_base:2.6.3
 
 RUN mkdir -p /var/www/app
 
-ENV BUNDLE_PATH /gems
-ENV BUNDLE_HOME /gems
 ENV GEM_HOME /gems
-ENV GEM_PATH /gems
-ENV PATH /gems/bin:$PATH
+ENV BUNDLE_PATH=$GEM_HOME \
+  BUNDLE_APP_CONFIG=$BUNDLE_PATH \
+  BUNDLE_BIN=$BUNDLE_PATH/bin
+ENV PATH /app/bin:$BUNDLE_BIN:$PATH
 ENV DUMMY_PATH /var/www/app/test/dummy
 
 ADD Gemfile /var/www/app/Gemfile

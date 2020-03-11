@@ -1,6 +1,6 @@
 #!/bin/bash
-unset BUNDLE_PATH
-unset BUNDLE_BIN
+# unset BUNDLE_PATH
+# unset BUNDLE_BIN
 gem install bundler
 bundle install
 cd test/dummy

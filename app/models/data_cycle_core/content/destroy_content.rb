@@ -28,7 +28,7 @@ module DataCycleCore
 
       def destroy_children(current_user: nil, save_time: Time.zone.now, destroy_linked: false, destroy_locale: false)
         embedded_property_names.each do |name|
-          load_embedded_objects(name, destroy_locale).each do |item|
+          load_embedded_objects(name, nil, destroy_locale).each do |item|
             if destroy_locale && item.available_locales.many?
               item.destroy_children(current_user: current_user, save_time: save_time, destroy_linked: destroy_linked, destroy_locale: destroy_locale)
               item.destroy_translation(I18n.locale)

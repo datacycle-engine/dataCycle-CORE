@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
+                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -55,6 +55,7 @@ DataCycleCore::Engine.routes.draw do
       post :validate, on: :collection
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
+      post :bulk_create, on: :collection
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end
@@ -139,162 +140,180 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
 
-  defaults format: :json do
-    namespace :api do
-      namespace :v1 do
-        resources :stored_filters, only: [:show], path: :endpoints
+  if DataCycleCore.main_config.dig(:api, :enabled)
+    defaults format: :json do
+      namespace :api do
+        if DataCycleCore.main_config.dig(:api, :v1, :enabled)
+          namespace :v1 do
+            resources :stored_filters, only: [:show], path: :endpoints
 
-        resources :classification_trees, only: [:index, :show] do
-          get :classifications, on: :member
-        end
+            resources :classification_trees, only: [:index, :show] do
+              get :classifications, on: :member
+            end
 
-        resources :collections, only: [:index, :show], controller: :watch_lists
+            resources :collections, only: [:index, :show], controller: :watch_lists
 
-        # TODO: refactor with new API implementation
-        resources :events, only: [:index, :show]
+            # TODO: refactor with new API implementation
+            resources :events, only: [:index, :show]
 
-        # type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
-        resources :contents, path: ':type', constraints: { type: /things/ }, only: [:show] do
-          get :search, on: :collection
-          patch :update, on: :member
-        end
+            # type_regexp = Regexp.new(*DataCycleCore.content_tables.map(&:to_sym).join('|'))
+            resources :contents, path: ':type', constraints: { type: /things/ }, only: [:show] do
+              get :search, on: :collection
+              patch :update, on: :member
+            end
 
-        get 'contents/search', to: 'contents#search'
-        get 'contents/deleted', to: 'contents#deleted'
+            get 'contents/search', to: 'contents#search'
+            get 'contents/deleted', to: 'contents#deleted'
 
-        scope 'external_sources/:external_source_id' do
-          resource :things, only: [:show, :create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
-        end
-      end
-      namespace :v2 do
-        scope path: '(/:api_subversion)' do
-          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
-
-          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
-            get :gpx, on: :member
-          end
-
-          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
-
-          resources :classification_trees, only: [:index, :show] do
-            get :classifications, on: :member
-          end
-
-          resources :collections, only: [:index, :show], controller: :watch_lists
-
-          scope 'external_sources/:external_source_id' do
-            resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
-          end
-
-          resources :external_systems, only: [:show], controller: :external_systems
-        end
-      end
-      namespace :v3 do
-        scope path: '(/:api_subversion)' do
-          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
-
-          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
-            get :gpx, on: :member
-          end
-
-          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
-          get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
-
-          get 'authorize/download_token', to: 'contents#download_token'
-
-          resources :classification_trees, only: [:index, :show] do
-            # get :classifications, on: :member
-            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
-          end
-
-          resources :collections, only: [:index, :show], controller: :watch_lists
-          resources :users, only: [:index], controller: :users
-
-          scope 'external_sources/:external_source_id' do
-            resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+            scope 'external_sources/:external_source_id' do
+              resource :things, only: [:show, :create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+            end
           end
         end
-      end
+        if DataCycleCore.main_config.dig(:api, :v2, :enabled)
+          namespace :v2 do
+            scope path: '(/:api_subversion)' do
+              type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+              get 'endpoints/:id(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
 
-      namespace :v4 do
-        scope path: '(/:api_subversion)' do
-          match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+              resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show]) do
+                get :gpx, on: :member
+              end
 
-          match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
-          match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+              get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+              get 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted'
 
-          match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
+              resources :classification_trees, only: [:index, :show] do
+                get :classifications, on: :member
+              end
 
-          match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
-          match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
+              resources :collections, only: [:index, :show], controller: :watch_lists
 
-          resources :concept_schemes, only: [], controller: :classification_trees do
-            match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
+              scope 'external_sources/:external_source_id' do
+                resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+              end
+
+              resources :external_systems, only: [:show], controller: :external_systems
+            end
           end
-
-          match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
-
-          post 'collections/create', to: 'watch_lists#create'
-          resources :collections, only: [], controller: :watch_lists do
-            post :add_item, on: :member
-            post :remove_item, on: :member
-            get :download_and_reset, on: :member
-          end
-          match 'collections', to: 'watch_lists#index', via: [:get, :post]
-          match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
-
-          namespace :authentication, path: :auth do
-            post :login
-            post :renew_login
-            post :logout
-          end
-
-          post 'users/create', to: 'users#create'
-          match 'users', to: 'users#index', via: [:get, :post]
-          match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
         end
-      end
-    end
-  end
+        if DataCycleCore.main_config.dig(:api, :v3, :enabled)
+          namespace :v3 do
+            scope path: '(/:api_subversion)' do
+              type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+              match 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter', via: [:get, :post]
 
-  defaults format: :xml do
-    namespace :xml do
-      namespace :v1 do
-        scope path: '(/:api_subversion)' do
-          type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
-          get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+              resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: []) do
+                get :gpx, on: :member
+              end
 
-          resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+              (CONTENT_TABLES_FALLBACK + CONTENT_TABLE).each do |content_type|
+                match content_type, to: "#{content_type}#index", as: content_type, via: [:get, :post]
+                match "#{content_type}/:id", to: "#{content_type}#show", as: content_type.singularize, via: [:get, :post]
+              end
 
-          get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+              match 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search', via: [:get, :post]
+              match 'contents/deleted(/:type)', to: 'contents#deleted', constraints: { type: type_regexp }, as: 'contents_deleted', via: [:get, :post]
 
-          # probably kill later
-          resources :classification_trees, only: [:index, :show] do
-            get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+              get 'authorize/download_token', to: 'contents#download_token'
+
+              resources :classification_trees, only: [] do
+                match 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
+              end
+              match 'classification_trees', to: 'classification_trees#index', as: 'classification_trees', via: [:get, :post]
+              match 'classification_trees/:id', to: 'classification_trees#show', as: 'classification_tree', via: [:get, :post]
+
+              match 'collections', to: 'watch_lists#index', as: 'collections', via: [:get, :post]
+              match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+              match 'users', to: 'users#index', as: 'users', via: [:get, :post]
+
+              scope 'external_sources/:external_source_id' do
+                resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+              end
+            end
           end
+          if DataCycleCore.main_config.dig(:api, :v4, :enabled)
+            namespace :v4 do
+              scope path: '(/:api_subversion)' do
+                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
 
-          resources :collections, only: [:index, :show], controller: :watch_lists
+                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
+                match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+
+                match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
+
+                match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
+                match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
+
+                resources :concept_schemes, only: [], controller: :classification_trees do
+                  match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
+                end
+
+                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+                post 'collections/create', to: 'watch_lists#create'
+                resources :collections, only: [], controller: :watch_lists do
+                  post :add_item, on: :member
+                  post :remove_item, on: :member
+                  get :download_and_reset, on: :member
+                end
+                match 'collections', to: 'watch_lists#index', via: [:get, :post]
+                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+                namespace :authentication, path: :auth do
+                  post :login
+                  post :renew_login
+                  post :logout
+                end
+
+                post 'users/create', to: 'users#create'
+                match 'users', to: 'users#index', via: [:get, :post]
+                match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              end
+            end
+          end
         end
       end
     end
+
+    defaults format: :xml do
+      namespace :xml do
+        namespace :v1 do
+          scope path: '(/:api_subversion)' do
+            type_regexp = Regexp.new(*CONTENT_TABLES_FALLBACK.map(&:to_sym).join('|'))
+            get 'endpoints/:id(/:type)(/:content_id)', to: 'contents#index', constraints: { type: type_regexp }, as: 'stored_filter'
+
+            resources(*(CONTENT_TABLES_FALLBACK + CONTENT_TABLE).map(&:to_sym), only: [:index, :show])
+
+            get 'contents/search(/:type)', to: 'contents#index', constraints: { type: type_regexp }, as: 'contents_search'
+
+            # probably kill later
+            resources :classification_trees, only: [:index, :show] do
+              get 'classifications(/:classification_id)', on: :member, action: 'classifications', as: 'classifications'
+            end
+
+            resources :collections, only: [:index, :show], controller: :watch_lists
+          end
+        end
+      end
+    end
+
+    namespace :object_browser do
+      post :show
+      post :details
+      post :find
+      post :render_in_overlay
+    end
+
+    post 'contents/upload', to: 'contents#upload'
+    # post 'contents/new', to: 'contents#new'
+
+    resources :publications, only: :index
+
+    get :add_filter, controller: :application
+    get :add_tag_group, controller: :application
+    post :remote_render, controller: :application
+    get :reload_required, controller: :application
   end
-
-  namespace :object_browser do
-    post :show
-    post :details
-    post :find
-  end
-
-  post 'contents/upload', to: 'contents#upload'
-  # post 'contents/new', to: 'contents#new'
-
-  resources :publications, only: :index
-
-  get :add_filter, controller: :application
-  get :add_tag_group, controller: :application
-  post :remote_render, controller: :application
-  get :reload_required, controller: :application
 end

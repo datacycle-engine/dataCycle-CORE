@@ -5,7 +5,7 @@ require 'test_helper'
 module DataCycleCore
   module Api
     module V2
-      class RoutingTest < ActionDispatch::IntegrationTest
+      class CreativeWorkTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
 

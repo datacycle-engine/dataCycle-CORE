@@ -34,16 +34,16 @@
   </div>
 <% end %>
 
-<% if !template.content_type?('container') && I18n.available_locales.many? && local_assigns[:locale].blank? %>
+<% if I18n.available_locales.many? && !template.translatable? %>
   <div class="form-element">
-    <%= label_tag "#{local_assigns.dig(:options, :prefix)}locale", t('common.language', locale: DataCycleCore.ui_language) %>
+    <%= label_tag "#{local_assigns.dig(:options, :prefix)}thing_locale", t('common.language', locale: DataCycleCore.ui_language) %>
     <div class="v-select white">
-      <%= select_tag 'locale', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale), {
+      <%= select_tag 'thing[locale]', options_for_select(available_locales_with_names.except(:all).invert, current_user.default_locale || local_assigns[:locale]), {
         class: 'single-select',
         data: {
           allow_clear: false
         },
-        id: "#{local_assigns.dig(:options, :prefix)}locale"
+        id: "#{local_assigns.dig(:options, :prefix)}thing_locale"
       } %>
     </div>
   </div>

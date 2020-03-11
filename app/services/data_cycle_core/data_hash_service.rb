@@ -41,13 +41,17 @@ module DataCycleCore
 
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
       object = DataCycleCore::Thing.new(object_params.except(:translations))
+      locale = I18n.locale
+      locale = object_params[:translations].keys.first if object_params[:translations]&.keys&.present?
 
-      template = get_internal_template(template_name)
-      object.schema = template.schema
-      object.template_name = template.template_name
-      object.created_by = current_user.id
-      object.is_part_of = is_part_of if is_part_of.present?
-      object.save
+      I18n.with_locale(locale) do
+        template = get_internal_template(template_name)
+        object.schema = template.schema
+        object.template_name = template.template_name
+        object.created_by = current_user&.id
+        object.is_part_of = is_part_of if is_part_of.present?
+        object.save
+      end
 
       return if object_params[:datahash].nil? && object_params[:translations].nil?
 
@@ -57,17 +61,18 @@ module DataCycleCore
 
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
-      translations&.each do |locale, locale_hash|
-        I18n.with_locale(locale) do
-          # object.save
+      translations&.each do |l, locale_hash|
+        I18n.with_locale(l) do
           valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
-          return if valid[:error].present?
+          return OpenStruct.new(errors: valid[:error]) if valid[:error].present?
         end
       end
 
-      valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
+      I18n.with_locale(locale) do
+        valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
+        OpenStruct.new(errors: valid[:error]) if valid[:error].present?
+      end
 
-      return if valid[:error].present?
       object
     end
 
@@ -118,7 +123,7 @@ module DataCycleCore
             zone: start_time.time_zone.name
           }
 
-          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.change(hour: start_time.to_datetime.hour, min: start_time.to_datetime.minute) + s['duration'] if s.dig('rrules', 0, 'until').present?
+          s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
 
           if s.dig('rrules', 0, 'rule_type') == 'IceCube::WeeklyRule'
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)

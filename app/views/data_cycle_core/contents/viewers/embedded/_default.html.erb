@@ -3,45 +3,45 @@
 
 <% objects.presence&.each_with_index do |object, index| %>
 
-    <%= render 'data_cycle_core/contents/viewers/attribute',
-                key: key,
-                definition: definition,
-                value: value,
-                options: options.merge({
-                hide_label: true,
-                item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
-                mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id)
-                }),
-                data_attributes: {id: [object.id], editor: 'embedded_object'},
-                content: content do %>
+  <%= render 'data_cycle_core/contents/viewers/attribute',
+              key: key,
+              definition: definition,
+              value: value,
+              options: options.merge({
+              hide_label: true,
+              item_diff: changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id),
+              mode: changes_class(options.dig(:item_diff), object.try('thing_id') || object.id)
+              }),
+              data_attributes: {id: [object.id], editor: 'embedded_object'},
+              content: content do %>
 
-        <span class="detail-label">
-            <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
-        </span>
+    <span class="detail-label">
+      <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %><b><%= definition['label'].titleize %></b>
+    </span>
 
-        <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
+    <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
 
-        <% validation_properties = ordered_validation_properties(validation: object.schema) %>
-        <% validation_properties.presence&.each do |embedded_key, prop| %>
+    <% validation_properties = ordered_validation_properties(validation: object.schema) %>
+    <% validation_properties.presence&.each do |embedded_key, prop| %>
 
-            <% object_value = object.try(embedded_key.to_sym) %>
-            <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
+      <% object_value = object.try(embedded_key.to_sym) %>
+      <% object_value = object_value.presence&.page&.per(DataCycleCore.linked_objects_page_size) if object_value.is_a?(ActiveRecord::Relation) && !content.history? && ['linked', 'embedded'].include?(prop&.dig('type')) %>
 
-            <% object_options = options.merge({ item_diff: nil }) %>
-            <% object_options[:item_diff] = attribute_changes(object.diff(object.try('thing')&.get_data_hash), embedded_key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id), '~').present? %>
-            <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
-            <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
+      <% object_options = options.merge({ item_diff: nil }) %>
+      <% object_options[:item_diff] = attribute_changes(object.diff(object.try('thing')&.get_data_hash), embedded_key) if changes_by_mode(changes_by_value(options.dig(:item_diff), object.try('thing_id') || object.id), '~').present? %>
+      <% object_options[:mode] = changes_mode(object_options[:item_diff]) %>
+      <% object_options[:force_render] = true if object.template_name == 'Publikations-Plan' %>
 
-            <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]", definition: prop, value: object_value, parameters: { options: object_options, parent: object }, content: content %>
-
-        <% end %>
+      <%= render_attribute_viewer key: "#{key}[#{index}][#{embedded_key}]", definition: prop, value: object_value, parameters: { options: object_options, parent: object }, content: content %>
 
     <% end %>
 
+  <% end %>
+
 <% end %>
 
-<div class="clear-both">
-    <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+<span class="clear-both">
+  <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
       local_assigns[:parent] || content,
       key: key.attribute_name_from_key,
       complete_key: key,
@@ -59,4 +59,4 @@
     data: {
       disable_with: "<i class='fa fa-spinner fa-spin'></i> #{t('common.loading', locale: DataCycleCore.ui_language)}"
     } if value.try(:total_pages)&.positive? && !value&.last_page? %>
-</div>
+</span>

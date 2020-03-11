@@ -4,8 +4,6 @@ DataCycleCore.setup do |config|
   # general settings
   I18n.available_locales = [:de, :en].freeze
 
-  # only required for DataCycleCore dummy app
-  Rails.application.config.assets.precompile += ['logo.svg', 'logo.png', 'location.svg']
   # Configure sensitive parameters which will be filtered from the log file.
   Rails.application.config.filter_parameters += [:password]
   # Require `belongs_to` associations by default. Previous versions had false.
@@ -22,9 +20,9 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server')
@@ -34,10 +32,11 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server'),
-      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable')
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_reisen_fuer_alle')
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
     ].freeze

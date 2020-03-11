@@ -3,7 +3,7 @@
 require 'test_helper'
 
 module DataCycleCore
-  class StandardArtikelÖrtlichkeitTest < ActiveSupport::TestCase
+  class StandardArtikelContentLocationTest < ActiveSupport::TestCase
     test 'create a Örtlichkeit' do
       place_template = DataCycleCore::Thing.find_by(template: true, template_name: 'Örtlichkeit')
       data_set_place1 = DataCycleCore::Thing.new
