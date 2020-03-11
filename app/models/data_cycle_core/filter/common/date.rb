@@ -42,6 +42,8 @@ module DataCycleCore
                           in_range(
                             tstzrange(from_node, to_node),
                             any(schedule[:rdate])
+                          ).or(
+                            schedule[:rrule].eq(nil)
                           )
                         ),
                         sub_select.dup.where(
