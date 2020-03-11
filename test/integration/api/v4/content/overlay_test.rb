@@ -6,7 +6,7 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class IncludeTest < ActionDispatch::IntegrationTest
+      class OverlayTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
         include DataCycleCore::ApiV4Helper

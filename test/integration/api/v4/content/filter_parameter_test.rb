@@ -18,8 +18,8 @@ module DataCycleCore
           @content.location = RGeo::Geographic.spherical_factory(srid: 4326).point(@content.longitude, @content.latitude)
           @content.save
           @event = DataCycleCore::DummyDataHelper.create_data('event')
-          @schedule = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 8.days.from_now, 1.hour).serialize_schedule_object
-          @event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: @schedule.dtstart, end_date: @schedule.dtend } })
+          schedule = DataCycleCore::TestPreparations.generate_schedule(8.days.ago.midday, 8.days.from_now, 1.hour).serialize_schedule_object
+          @event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: schedule.dtstart, end_date: schedule.dtend }, event_schedule: [schedule.schedule_object.to_hash] })
 
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
@@ -72,9 +72,6 @@ module DataCycleCore
         end
 
         test 'parameter filter[:from, :to] for event queries' do
-          event = DataCycleCore::Thing.find_by(template: false, template_name: 'Event')
-          event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { description: 'test 1', event_schedule: [@schedule.schedule_object.to_hash], event_period: { start_date: @schedule.dtstart, end_date: @schedule.dtend } })
-
           get api_v4_things_path(filter: { from: '01-01-2000', to: '31-12-2030' })
           assert_response :success
 
@@ -87,9 +84,6 @@ module DataCycleCore
         end
 
         test 'parameter filter[:from] for event queries' do
-          event = DataCycleCore::Thing.find_by(template: false, template_name: 'Event')
-          event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { description: 'test 1', event_schedule: [@schedule.schedule_object.to_hash], event_period: { start_date: @schedule.dtstart, end_date: @schedule.dtend } })
-
           get api_v4_things_path(filter: { from: '01-01-2000' })
           assert_response :success
 
@@ -102,10 +96,7 @@ module DataCycleCore
         end
 
         test 'parameter filter[:to] for event queries' do
-          event = DataCycleCore::Thing.find_by(template: false, template_name: 'Event')
-          event.set_data_hash(partial_update: true, prevent_history: true, data_hash: { description: 'test 1', event_schedule: [@schedule.schedule_object.to_hash], event_period: { start_date: @schedule.dtstart, end_date: @schedule.dtend } })
-
-          get api_v4_things_path(filter: { to: (event.end_date - 7.days).to_s(:iso8601) })
+          get api_v4_things_path(filter: { to: (@event.end_date - 7.days).to_s(:iso8601) })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
