@@ -1,13 +1,11 @@
 ---
-name: Feratel Rheinland-Pfalz
+name: Feratel - Flachau
 credentials:
-  - pos_code:  RPTGMBH
+  - pos_code: FLACHAKTIV
     company_code: D474CYC1E
-    range_code: RG
-    range_id: 3368E361-1810-4A98-9696-0506A40EDA80
+    range_code: TO
+    range_id: A65247AF-27E4-492A-8627-D9D3D55ED389
     sales_channel_id: BB556229-E7B1-4F21-9C6A-2BEA7120BF5A
-default_options:
-  locales: [de, en]
 config:
   download_config:
     initial_locations:
@@ -28,16 +26,16 @@ config:
       source_type: locations
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
-    facilities:
+    holiday_themes:
       sorting: 4
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
-      source_type: facilities
+      source_type: holiday_themes
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
-    holiday_themes:
+    facilities:
       sorting: 5
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
-      source_type: holiday_themes
+      source_type: facilities
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
     facility_groups:
@@ -88,36 +86,40 @@ config:
       source_type: additional_service_providers
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
-    packages:
-      sorting: 14
-      endpoint: DataCycleCore::Generic::Feratel::Endpoint
-      source_type: packages
-      read_type: locations
-      download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
-    package_containers:
-      sorting: 15
-      endpoint: DataCycleCore::Generic::Feratel::Endpoint
-      source_type: package_containers
-      read_type: locations
-      download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
     infrastructure_items:
-      sorting: 16
+      sorting: 14
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: infrastructure_items
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     events:
-      sorting: 17
+      sorting: 15
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: events
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+      locales: ['de', 'en']
+    packages:
+      sorting: 16
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: packages
+      read_type: locations
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
+      locales: ['de', 'en']
+    package_containers:
+      sorting: 17
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: package_containers
+      read_type: locations
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
+      locales: ['de', 'en']
     accommodations:
       sorting: 18
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: accommodations
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
+      locales: ['de', 'en']
   import_config:
 #    content_score_asp:
 #      sorting: 1
@@ -153,7 +155,7 @@ config:
 #      external_id_hash_method: 'round'
 #      tag_name_function: 'round'
     feratel_mealcodes_accommodations:
-      sorting: 4
+      sorting: 8
       source_type: accommodations
       tree_label: Feratel - Verpflegungs Kürzel
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -163,7 +165,7 @@ config:
       external_id_prefix: 'Feratel - Verpflegungs Kürzel - '
       locales: [de]
     feratel_mealcodes_packages:
-      sorting: 5
+      sorting: 9
       source_type: packages
       tree_label: Feratel - Verpflegungs Kürzel
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -198,8 +200,17 @@ config:
       tag_name_path: 'Details.DataOwner.text'
       external_id_prefix: 'OWNER:'
       external_id_hash_method: 'MD5'
-    facilities:
+    feratel_asp_owners:
       sorting: 13
+      source_type: additional_service_providers
+      tree_label: Feratel - Inhaber
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Details.DataOwner.text'
+      tag_name_path: 'Details.DataOwner.text'
+      external_id_prefix: 'OWNER:'
+      external_id_hash_method: 'MD5'
+    facilities:
+      sorting: 20
       source_type: facilities
       tree_label: Feratel - Ausstattungsmerkmale
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -207,28 +218,25 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
     facilities_count:
-      sorting: 14
+      sorting: 21
       source_type: accommodations
       tree_label: Feratel - Ausstattungsmerkmale
       import_strategy: DataCycleCore::Generic::Feratel::ImportFacilitiesCount
+    facilities_count_events:
+      sorting: 30
+      source_type: events
+      tree_label: Feratel - Ausstattungsmerkmale
+      import_strategy: DataCycleCore::Generic::Feratel::ImportFacilitiesCount
     holiday_themes:
-      sorting: 15
+      sorting: 31
       source_type: holiday_themes
       tree_label: Feratel - Urlaubsthemen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tag_id_path: 'Id'
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
-    classifications:
-      sorting: 16
-      source_type: classifications
-      tree_label: Feratel - Unterkunftsklassifizierungen
-      import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tag_id_path: 'Id'
-      tag_name_path: 'Name.Translation.text'
-      external_id_prefix: ''
     infrastructure_types:
-      sorting: 17
+      sorting: 35
       source_type: infrastructure_types
       tree_label: Feratel - Infrastrukturtypen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
@@ -236,23 +244,76 @@ config:
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: 'Feratel - Infrastrukturtyp - '
     infrastructure_topics:
-      sorting: 18
+      sorting: 36
       source_type: infrastructure_topics
       tree_label: Feratel - Infrastrukturklassifizierungen
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tag_id_path: 'Id'
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
+    classifications:
+      sorting: 40
+      source_type: classifications
+      tree_label: Feratel - Unterkunftsklassifizierungen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
     stars:
-      sorting: 19
+      sorting: 41
       source_type: stars
       tree_label: Feratel - Sterne
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tag_id_path: 'Id'
       tag_name_path: 'Name.Translation.text'
       external_id_prefix: ''
-    infrastructure_items:
+    product_types:
       sorting: 50
+      source_type: accommodations
+      tree_label: Feratel - Produktarten
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_path: 'Services.Service.Products.Product'
+      tag_id_path: 'Services.Service.Products.Product.Details.ProductType.text'
+      tag_name_path: 'Services.Service.Products.Product.Details.ProductType.text'
+      external_id_prefix: 'Feratel - Produktart - '
+    accommodation_type:
+      sorting: 60
+      source_type: accommodations
+      tree_label: Feratel - Unterkunftstypen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_path: 'Services.Service.Products.Product'
+      tag_id_path: 'Services.Service.Products.Product.Details.AccommodationType.text'
+      tag_name_path: 'Services.Service.Products.Product.Details.AccommodationType.text'
+      external_id_prefix: 'Feratel - Unterkunftstype - '
+      locales: [de]
+    accommodation_type_additional:
+      sorting: 61
+      source_type: accommodations
+      tree_label: Feratel - Unterkunftstypen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_path: 'AdditionalServices.AdditionalService.Products.Product'
+      tag_id_path: 'AdditionalServices.AdditionalService.Products.Product.Details.AccommodationType.text'
+      tag_name_path: 'AdditionalServices.AdditionalService.Products.Product.Details.AccommodationType.text'
+      external_id_prefix: 'Feratel - Unterkunftstype - '
+      locales: [de]
+    locations:
+      sorting: 70
+      source_type: locations
+      tree_label: Feratel - Orte
+      import_strategy: DataCycleCore::Generic::Feratel::ImportLocations
+    additional_service_providers:
+      sorting: 80
+      source_type: additional_service_providers
+      import_strategy: DataCycleCore::Generic::Feratel::ImportAdditionalServiceProviders
+      transformations:
+        additional_service_providers:
+          template: LocalBusiness
+        additional_services:
+          template: Service
+        offers:
+          template: Angebot
+    infrastructures:
+      sorting: 90
       source_type: infrastructure_items
       import_strategy: DataCycleCore::Generic::Feratel::ImportInfrastructure
       transformations:
@@ -261,7 +322,7 @@ config:
         infrastructure:
           template: POI
     accommodations:
-      sorting: 51
+      sorting: 91
       source_type: accommodations
       import_strategy: DataCycleCore::Generic::Feratel::ImportAccommodations
       transformations:
@@ -270,7 +331,7 @@ config:
         place:
           template: Unterkunft
     events:
-      sorting: 52
+      sorting: 92
       source_type: events
       import_strategy: DataCycleCore::Generic::Feratel::ImportEvents
       transformations:
@@ -280,7 +341,3 @@ config:
           template: Örtlichkeit
         event:
           template: Event
-    packages:
-      sorting: 53
-      source_type: packages
-      import_strategy: DataCycleCore::Generic::Feratel::ImportPackages
