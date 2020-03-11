@@ -14,7 +14,7 @@ module DataCycleCore
 
     def from_h(hash)
       @schedule_object = nil
-      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation).present?
+      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation, :duration).present?
       self.duration = hash[:duration]
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
@@ -94,7 +94,7 @@ module DataCycleCore
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
       self.duration = ActiveSupport::Duration.build(@schedule_object.duration) if @schedule_object.duration.positive?
-      self.dtend = @schedule_object.recurrence_rules&.first&.until_time&.in_time_zone
+      self.dtend = @schedule_object.recurrence_rules&.first&.until_time&.in_time_zone || (@schedule_object.start_time + duration)
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self
