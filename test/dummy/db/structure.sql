@@ -41,7 +41,7 @@ CREATE TABLE public.activities (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -71,7 +71,7 @@ CREATE TABLE public.asset_contents (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -195,7 +195,7 @@ CREATE TABLE public.classification_contents (
     external_source_id uuid,
     relation character varying
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -277,7 +277,22 @@ CREATE TABLE public.classification_content_histories (
     external_source_id uuid,
     relation character varying
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
+
+
+--
+-- Name: classification_polygons; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.classification_polygons (
+    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
+    admin_level integer,
+    classification_alias_id uuid,
+    geom public.geometry(MultiPolygon,3035),
+    geog public.geography(MultiPolygon,4326),
+    created_at timestamp without time zone NOT NULL,
+    updated_at timestamp without time zone NOT NULL
+);
 
 
 --
@@ -356,7 +371,7 @@ CREATE TABLE public.content_content_histories (
     order_a integer,
     relation_b character varying
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -373,7 +388,7 @@ CREATE TABLE public.content_contents (
     order_a integer,
     relation_b character varying
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -478,7 +493,7 @@ CREATE TABLE public.things (
     content_type character varying,
     representation_of_id uuid
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -588,7 +603,10 @@ CREATE TABLE public.external_sources (
     config jsonb,
     last_download timestamp without time zone,
     last_import timestamp without time zone,
-    default_options jsonb
+    default_options jsonb,
+    last_successful_download timestamp without time zone,
+    last_successful_import timestamp without time zone,
+    identifier character varying
 );
 
 
@@ -620,7 +638,8 @@ CREATE TABLE public.external_systems (
     default_options jsonb,
     data jsonb,
     created_at timestamp without time zone NOT NULL,
-    updated_at timestamp without time zone NOT NULL
+    updated_at timestamp without time zone NOT NULL,
+    identifier character varying
 );
 
 
@@ -727,9 +746,10 @@ CREATE TABLE public.searches (
     boost double precision DEFAULT 1.0 NOT NULL,
     schema_type character varying DEFAULT 'Thing'::character varying NOT NULL,
     advanced_attributes jsonb,
-    classification_mapping jsonb
+    classification_aliases_mapping uuid[],
+    classification_ancestors_mapping uuid[]
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -746,9 +766,10 @@ CREATE TABLE public.stored_filters (
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    api_users text[]
+    api_users text[],
+    linked_stored_filter_id uuid
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -808,7 +829,7 @@ CREATE TABLE public.thing_histories (
     content_type character varying,
     representation_of_id uuid
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -826,7 +847,7 @@ CREATE TABLE public.thing_history_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -843,7 +864,7 @@ CREATE TABLE public.thing_translations (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL
 )
-WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='1000', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='1000');
+WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
 
 --
@@ -904,7 +925,11 @@ CREATE TABLE public.users (
     provider character varying,
     uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    confirmation_token character varying,
+    confirmed_at timestamp without time zone,
+    confirmation_sent_at timestamp without time zone,
+    unconfirmed_email character varying
 );
 
 
@@ -990,6 +1015,14 @@ ALTER TABLE ONLY public.classification_content_histories
 
 ALTER TABLE ONLY public.classification_contents
     ADD CONSTRAINT classification_contents_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: classification_polygons classification_polygons_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.classification_polygons
+    ADD CONSTRAINT classification_polygons_pkey PRIMARY KEY (id);
 
 
 --
@@ -1275,6 +1308,13 @@ CREATE INDEX classification_content_data_history_id_idx ON public.classification
 
 
 --
+-- Name: classification_polygons_geom_idx; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX classification_polygons_geom_idx ON public.classification_polygons USING gist (geom);
+
+
+--
 -- Name: classification_string_idx; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1391,6 +1431,20 @@ CREATE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btr
 --
 
 CREATE INDEX index_asset_contents_on_content_data_id ON public.asset_contents USING btree (content_data_id);
+
+
+--
+-- Name: index_assets_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id);
+
+
+--
+-- Name: index_assets_on_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
 
 
 --
@@ -1527,6 +1581,13 @@ CREATE INDEX index_classifications_on_deleted_at ON public.classifications USING
 
 
 --
+-- Name: index_classifications_on_external_key; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_classifications_on_external_key ON public.classifications USING btree (external_key);
+
+
+--
 -- Name: index_classifications_on_external_source_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1639,10 +1700,17 @@ CREATE INDEX index_searches_on_advanced_attributes ON public.searches USING gin 
 
 
 --
--- Name: index_searches_on_classification_mapping; Type: INDEX; Schema: public; Owner: -
+-- Name: index_searches_on_classification_aliases_mapping; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_searches_on_classification_mapping ON public.searches USING gin (classification_mapping);
+CREATE INDEX index_searches_on_classification_aliases_mapping ON public.searches USING gin (classification_aliases_mapping);
+
+
+--
+-- Name: index_searches_on_classification_ancestors_mapping; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_searches_on_classification_ancestors_mapping ON public.searches USING gin (classification_ancestors_mapping);
 
 
 --
@@ -1828,6 +1896,20 @@ CREATE INDEX index_things_on_is_part_of ON public.things USING btree (is_part_of
 
 
 --
+-- Name: index_things_on_location_geography_cast; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_geography_cast ON public.things USING gist (public.geography(location));
+
+
+--
+-- Name: index_things_on_location_spatial; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_things_on_location_spatial ON public.things USING gist (location);
+
+
+--
 -- Name: index_things_on_representation_of_id; Type: INDEX; Schema: public; Owner: -
 --
 
@@ -1842,10 +1924,10 @@ CREATE INDEX index_things_on_schema_type ON public.things USING btree (((schema 
 
 
 --
--- Name: index_things_on_template_content_type; Type: INDEX; Schema: public; Owner: -
+-- Name: index_things_on_template_content_type_validity_range; Type: INDEX; Schema: public; Owner: -
 --
 
-CREATE INDEX index_things_on_template_content_type ON public.things USING btree (template, content_type);
+CREATE INDEX index_things_on_template_content_type_validity_range ON public.things USING btree (id, template, content_type, validity_range, template_name);
 
 
 --
@@ -2173,6 +2255,16 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20191219123847'),
 ('20191219143016'),
 ('20200116143539'),
-('20200117095949');
+('20200117095949'),
+('20200131103229'),
+('20200205143630'),
+('20200213132354'),
+('20200217100339'),
+('20200218132801'),
+('20200218151417'),
+('20200219111406'),
+('20200221115053'),
+('20200224143507'),
+('20200226121349');
 
 

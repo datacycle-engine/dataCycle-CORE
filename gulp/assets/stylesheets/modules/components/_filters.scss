@@ -129,6 +129,7 @@ $filter-border: #aaa;
           }
           .filter-text {
             margin: 0;
+            padding: 0.2rem 0.5rem;
             height: 2.2rem;
             border-radius: 4px;
             border-color: $filter-border;
@@ -167,6 +168,14 @@ $filter-border: #aaa;
               margin-bottom: 0;
               line-height: 1.5;
             }
+          }
+        }
+      }
+      .advanced-filter.in-schedule{
+        .advanced-filter-selector{
+          > select, input{
+            margin-right: 0.5rem;
+            height: 2.4375rem;
           }
         }
       }
@@ -761,6 +770,15 @@ $filter-border: #aaa;
             a.button {
               margin: 1rem;
             }
+            .preview-widget-list{
+              text-align: right;
+              position: relative;
+              display: block;
+              a{
+                position: relative;
+                display: inline-block;
+              }
+            }
           }
         }
 
@@ -1011,7 +1029,7 @@ $filter-border: #aaa;
       }
 
       &.content-item {
-        padding: 0.8rem 7rem 0.8rem 1rem;
+        padding: 0.8rem 1rem 0.8rem 1rem;
         background-color: white;
 
         .content-title {
@@ -1044,9 +1062,17 @@ $filter-border: #aaa;
           }
 
           &.buttons {
+            max-width: inherit;
+            text-align: right;
             position: absolute;
-            top: 0.8rem;
-            right: 1rem;
+            top: 2.5rem;
+            right: 0.5rem;
+            .dropdown-pane.preview-widget-pane{
+              &:before{
+                content: "";
+              }
+              top: calc(100% + 0.5rem) !important;
+            }
           }
 
           &.content-date {

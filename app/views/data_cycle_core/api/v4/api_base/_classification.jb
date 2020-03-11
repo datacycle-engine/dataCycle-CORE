@@ -61,7 +61,7 @@ if options[:full]
   json = {
     '@id' => content.id,
     '@type' => 'skos:Concept',
-    'dc:entity_url' => uri,
+    'dc:entityUrl' => uri,
     'skos:prefLabel' => render_pref_label(content, options[:languages], render_present_language_only),
     'dct:description' => render_description(content, options[:languages], render_present_language_only),
     'skos:inScheme' => render_classification('skos:inScheme', 'classification_tree', scheme, options),

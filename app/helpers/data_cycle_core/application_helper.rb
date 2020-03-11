@@ -20,6 +20,10 @@ module DataCycleCore
       locales.sort_by { |_, v| v.to_s }.to_h
     end
 
+    def ice_cube_select_options
+      IceCube::Rule::INTERVAL_TYPES.except([:secondly, :minutely, :hourly, :monthly]).prepend(:single_occurrence).map { |r| [t("schedule.#{r}", locale: DataCycleCore.ui_language), "IceCube::#{r.to_s.classify}Rule", { 'data-type': r }] }
+    end
+
     def display_flash_messages_new(closable: true)
       capture do
         flash.each do |key, value|
@@ -164,11 +168,17 @@ module DataCycleCore
     end
 
     def feature_templates(key, definition, content)
-      [
-        definition&.dig('features').try(:keys),
-        content&.schema&.dig('features')&.select { |_, v| v.is_a?(Hash) && v['attribute_keys'].presence&.include?(key.parameterize(separator: '_')) }&.keys,
-        DataCycleCore.features.select { |_, v| v.is_a?(Hash) && v[:attribute_keys].presence&.include?(key.parameterize(separator: '_')) }.keys
-      ].reject(&:blank?).flatten
+      DataCycleCore::FeatureService.enabled_features(content&.schema || definition, key.attribute_name_from_key)
+    end
+
+    def new_dialog_config(template, except = nil, filter = nil)
+      (DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) ||
+        DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) ||
+        DataCycleCore.new_dialog.dig('default')).transform_values { |v| v&.select { |t| t.include?(filter.to_s) }&.map { |t| t.remove('**list').squish }&.except(except) }
+    end
+
+    def new_attribute_labels(template)
+      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label')] }.to_h : { k => v.slice('type', 'label') } }&.reduce({}, :merge)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
@@ -185,44 +195,34 @@ module DataCycleCore
       end
     end
 
-    def merge_uploader_white_list(asset_type: nil)
-      uploader_validations = {}.with_indifferent_access
+    def uploader_validation(asset_type:)
+      if asset_type == 'text_file'
+        return {} unless can?(:create, DataCycleCore::DataLink)
 
-      if can?(:create, DataCycleCore::DataLink)
-        uploader_validations = {
-          text_file: (DataCycleCore.uploader_validations[:text_file] || {}).merge({
-            class: 'DataCycleCore::TextFile',
-            translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-            translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
-          })
-        }.with_indifferent_access
+        return (DataCycleCore.uploader_validations[:text_file] || {}).with_indifferent_access.merge({
+          class: 'DataCycleCore::TextFile',
+          translation: DataCycleCore::TextFile.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+          translation_description: t('uploader.description.text_file', locale: DataCycleCore.ui_language, default: '')
+        })
       end
 
-      return uploader_validations if asset_type == 'text_file'
+      templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
 
-      if asset_type.present?
-        uploader_validations.delete(:text_file)
-
-        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id, asset_type) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value ->> 'asset_type' = ? OR things.template_name IN (?))", true, asset_type, DataCycleCore.features.dig(:external_media_archive, :enabled) ? DataCycleCore::Feature::ExternalMediaArchive.get_template_name(asset_type) : nil)
-      else
-        templates = DataCycleCore::Thing.includes(:translations).select("DISTINCT ON (things.id) *, property_name.value ->> 'asset_type' AS asset_type").from("things, jsonb_each(schema -> 'properties') property_name").where("things.template = ? AND (value->> 'type' = ? OR things.template_name IN(?))", true, 'asset', DataCycleCore.features.dig(:external_media_archive, :enabled) ? ['Bild', 'Video'] : nil)
-      end
-
+      creatable = false
       templates.each do |t|
-        next unless t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset')
-
-        uploader_model = "data_cycle_core/#{t.asset_type || DataCycleCore.features.dig(:external_media_archive, :template_mapping, t.template_name.underscore.to_sym)}".classify.safe_constantize
-
-        next if uploader_model.nil?
-
-        uploader_validations[uploader_model.name.demodulize.underscore.to_sym] = {
-          format: uploader_model.uploaders[:file].new&.extension_white_list || [],
-          class: uploader_model.name,
-          translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
-          translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
-        }.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
+        creatable ||= (t.content_type?('embedded') ? t.parent_templates&.any? { |pt| can?(:create, pt, 'asset') } : can?(:create, t, 'asset'))
       end
-      uploader_validations
+
+      uploader_model = "data_cycle_core/#{asset_type}".classify.safe_constantize
+
+      return {} unless creatable && uploader_model
+
+      {
+        format: uploader_model.uploaders[:file].new&.extension_white_list || [],
+        class: uploader_model.name,
+        translation: uploader_model.model_name.human(count: 1, locale: DataCycleCore.ui_language),
+        translation_description: t("uploader.description.#{uploader_model.name.demodulize.underscore}", locale: DataCycleCore.ui_language, default: '')
+      }.with_indifferent_access.merge(DataCycleCore.uploader_validations[uploader_model.name.demodulize.underscore.to_sym] || {})
     end
 
     def render_content_partial(partial, parameters)
@@ -252,18 +252,15 @@ module DataCycleCore
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
-      if definition&.dig('ui', 'edit', 'partial').present?
-        partials = [definition&.dig('ui', 'edit', 'partial')]
-      else
-        partials = [
-          key.attribute_name_from_key,
-          feature_templates(key, definition, content),
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}",
-          definition['type'].underscore_blanks.to_s
-        ]
-      end
+      partials = [
+        definition&.dig('ui', 'edit', 'partial').presence,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        *feature_templates(key, definition, content),
+        ("#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'edit', 'type')&.underscore_blanks}" if definition&.dig('ui', 'edit', 'type').present?),
+        definition['type'].underscore_blanks.to_s
+      ].compact
 
-      partials = partials.reject(&:blank?).flatten.map { |p| "data_cycle_core/contents/editors/#{p}" }
+      partials = partials.map { |p| "data_cycle_core/contents/editors/#{p}" }
 
       # TODO: check if required ? refactor readonly
       parameters[:options]['readonly'] = !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope))
@@ -277,20 +274,17 @@ module DataCycleCore
 
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
-      if definition&.dig('ui', 'show', 'partial').present?
-        partials = [definition&.dig('ui', 'show', 'partial')]
-      else
-        partials = [
-          key.attribute_name_from_key.to_s,
-          feature_templates(key, definition, content),
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('ui', 'show', 'type')&.underscore_blanks}",
-          "#{definition['type'].underscore_blanks}_#{definition&.dig('validations', 'format')&.underscore_blanks}",
-          definition.dig('compute', 'type')&.underscore_blanks&.to_s,
-          definition['type'].underscore_blanks.to_s
-        ]
-      end
+      partials = [
+        definition&.dig('ui', 'show', 'partial').presence,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        *feature_templates(key, definition, content),
+        ("#{definition['type'].underscore_blanks}_#{definition.dig('ui', 'show', 'type').underscore_blanks}" if definition&.dig('ui', 'show', 'type').present?),
+        ("#{definition['type'].underscore_blanks}_#{definition.dig('validations', 'format').underscore_blanks}" if definition&.dig('validations', 'format').present?),
+        (definition.dig('compute', 'type').underscore_blanks.to_s if definition.dig('compute', 'type').present?),
+        definition['type'].underscore_blanks.to_s
+      ].compact
 
-      partials = partials.reject(&:blank?).flatten.map { |p| "data_cycle_core/contents/viewers/#{p}" }
+      partials = partials.map { |p| "data_cycle_core/contents/viewers/#{p}" }
 
       parameters[:options] = add_attribute_options(parameters[:options], definition, scope)
 
@@ -395,9 +389,10 @@ module DataCycleCore
 
     def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
       partials = [
-        key.attribute_name_from_key,
+        "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
+        definition['type'].underscore_blanks.to_s,
         'default'
-      ].reject(&:blank?).map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
+      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
@@ -426,9 +421,9 @@ module DataCycleCore
 
     def render_first_existing_partial(partials, parameters)
       partials.each do |partial|
-        logger.debug("  Try rendering partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
+        logger.debug("  Try partial #{partial} ... [NOT FOUND]") && next unless lookup_context.exists?(partial, partial.start_with?('data_cycle_core') ? [] : lookup_context.prefixes, true)
 
-        logger.debug "  Rendered partial #{partial}"
+        logger.debug "  Rendered #{partial}"
         return render(partial, parameters)
       end
 

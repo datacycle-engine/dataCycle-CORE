@@ -21,8 +21,7 @@ module DataCycleCore
           if data_hash['longitude'].present? && data_hash['latitude'].present?
             location = RGeo::Geographic.spherical_factory(srid: 4326).point(data_hash['longitude'].to_f, data_hash['latitude'].to_f) unless data_hash['longitude'].zero? && data_hash['latitude'].zero?
           end
-          location ||= nil
-          data_hash.nil? ? { 'location' => location } : data_hash.merge({ 'location' => location })
+          data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
         end
 
         def self.compact(data_hash)

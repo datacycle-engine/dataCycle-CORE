@@ -14,8 +14,8 @@ class TourSprungEditor {
     this.editable = this.container.parent('.geographic').hasClass('editable');
     this.mapOptions = this.container.data('map-options');
     this.routeDataField = this.container
-      .closest('.geographic.form-element')
-      .siblings(':hidden[name="thing[datahash][route_data]"]')
+      .closest('.form-element')
+      .find(':hidden[name="thing[datahash][route_data]"]')
       .first();
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
     this.credentials = this.mapOptions.credentials;
@@ -76,12 +76,13 @@ class TourSprungEditor {
       .first();
 
     if (
-      form_fields.find('.form-element.elevation > input').val().length == 0 &&
-      this.container
-        .parent('.geographic')
-        .siblings('input.location-data:hidden')
-        .first()
-        .val().length == 0
+      (form_fields.find('.form-element.elevation > input').val().length == 0 &&
+        this.container
+          .parent('.geographic')
+          .siblings('input.location-data:hidden')
+          .first()
+          .val().length == 0) ||
+      (data && data.force)
     ) {
       form_fields.find('.form-element.elevation > input').val(data.value.elevation);
       form_fields
@@ -460,7 +461,7 @@ class TourSprungEditor {
       .find('.form-element')
       .find('input')
       .each((index, elem) => {
-        address[elem.name.get_key()] = elem.value;
+        address[elem.name.getKey()] = elem.value;
       });
 
     $.getJSON('/things/geocode_address/', address)

@@ -140,10 +140,15 @@
         :type: schedule
         :api:
           :disabled: true
+          :v4:
+            :disabled: false
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
+        :api:
+          :v4:
+            :disabled: true
       :schedule:
         :label: Event-Schedule
         :type: embedded
@@ -220,6 +225,9 @@
       :hrs_dd_events:
         :type: mixin
         :name: hrs_dd_events
+      :open_destination_one_events:
+        :type: mixin
+        :name: open_destination_one_events
       :marche_events:
         :type: mixin
         :name: marche_events
@@ -229,6 +237,9 @@
       :piemonte_events:
         :type: mixin
         :name: piemonte_events
+      :pimcore_events:
+        :type: mixin
+        :name: pimcore_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

@@ -18,6 +18,7 @@
   - $$Organisation
   - $$Person
   - $$Pauschalangebot
+  - $$Service
   - $$Veranstaltung
   - $$Veranstaltungsserie
   - $$Zimmer
@@ -95,6 +96,10 @@
 - Feratel - Preis - Typ | all:
   - $$Preis pro Person
   - $$Preis pro Package
+
+- Lizenzen | all:
+  - Open Data
+  - Sonstiges
 
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan

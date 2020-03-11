@@ -249,6 +249,9 @@
       :cloud_vision:
         :type: mixin
         :name: cloud_vision
+      :wikidata:
+        :type: mixin
+        :name: wikidata
       :data_type:
         :label: Inhaltstyp
         :type: classification

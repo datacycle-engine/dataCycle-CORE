@@ -85,11 +85,25 @@
         :template_name: Örtlichkeit
         :api:
           :name: location
-      :schedule:
+      :event_schedule:
         :label: Termine
-        :type: schedule      
+        :type: schedule
+        :api:
+          :disabled: true
+      :schedule:
+        :label: Event-Schedule
+        :type: embedded
+        :template_name: EventSchedule
+        :translated: true
+        :api:
+          :name: eventSchedule
+          :v4:
+            :disabled: true
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Overlay"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel

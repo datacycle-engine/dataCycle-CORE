@@ -10,6 +10,21 @@ var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
 let ActionCable = require('actioncable');
 var initializers = [];
+window.EDITORSELECTORS = [
+  '> .object-browser',
+  '> .embedded-object',
+  '> input[type=text]',
+  '> .editor-block > .quill-editor',
+  '> .v-select > select.multi-select',
+  '> .v-select > select.single-select',
+  '> .v-select > select.async-select',
+  '> ul.classification-checkbox-list',
+  '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
+  '> .geographic > .geographic-map',
+  '> :checkbox',
+  '> :input[type="number"]',
+  '> .duration-slider > div > input[type="number"]'
+];
 window.actionCable = ActionCable.createConsumer();
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -43,6 +58,8 @@ initializers.push(require('./modules/initializers/watch_list'));
 initializers.push(require('./modules/initializers/reload_required_init'));
 initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));
+initializers.push(require('./modules/initializers/schedule_editor_init'));
+initializers.push(require('./modules/initializers/password_toggle'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));

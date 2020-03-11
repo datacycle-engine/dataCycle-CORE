@@ -44,10 +44,28 @@
                                 </div>
                                 <div class="small-7 columns end">
                                     <%= f.input :password, required: false, label: false %>
+                                </div>
+                            </div>
 
+                            <div class="row">
+                                <div class="small-4 columns">&nbsp;
+                                </div>
+                                <div class="small-7 columns end">
                                     <%- if devise_mapping.recoverable? %>
                                         <%= link_to t('devise.shared.links.forgot_your_password'),
                                                     new_password_path(resource_name),
+                                                    class: 'forgotten_password_link' %>
+                                    <% end -%>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="small-4 columns">&nbsp;
+                                </div>
+                                <div class="small-7 columns end">
+                                    <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+                                        <%= link_to t('devise.shared.links.didn_t_receive_confirmation_instructions'),
+                                                    new_confirmation_path(resource_name),
                                                     class: 'forgotten_password_link' %>
                                     <% end -%>
                                 </div>
@@ -87,45 +105,50 @@
                         <div class="accordion-content" data-tab-content>
 
                             <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-                                <%= f.error_notification %>
 
                                 <div class="row">
                                     <div class="small-4 columns">
                                         <label for="user_email" class="text-right middle">E-Mail:</label>
                                     </div>
                                     <div class="small-7 columns end">
-                                        <%= f.input :email, required: true, autofocus: true, label: false, disabled: true %>
+                                        <%= f.input :email, required: true, autofocus: true, label: false %>
                                     </div>
                                 </div>
 
-                                <div class="row">
+                                <div class="row password-field">
                                     <div class="small-4 columns">
                                         <label for="user_password" class="text-right middle">Passwort:</label>
                                     </div>
                                     <div class="small-7 columns end">
-                                        <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false, disabled: true %>
+                                        <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length), label: false %>
+                                        <span class="password-visibility-toggle">
+                                            <i class="fa fa-eye toggle-show"></i>
+                                            <i class="fa fa-eye-slash toggle-hide hide"></i>
+                                        </span>
                                     </div>
                                 </div>
 
                                 <div class="row">
-                                    <div class="small-4 columns">
-                                        <label for="user_password_confirmation" class="text-right middle">Passwort wiederholen:</label>
+                                    <div class="small-4 columns">&nbsp;
                                     </div>
                                     <div class="small-7 columns end">
-                                        <%= f.input :password_confirmation, required: true, label: false, disabled: true %>
+                                        <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+                                            <%= link_to t('devise.shared.links.didn_t_receive_confirmation_instructions'),
+                                                        new_confirmation_path(resource_name),
+                                                        class: 'forgotten_password_link' %>
+                                        <% end -%>
                                     </div>
                                 </div>
 
                                 <div class="row">
                                     <div class="small-7 small-offset-4 columns end">
                                         <div class="form-actions">
-                                            <%= f.button :button, class:"button",type:"submit", disabled: true do %>
+                                            <%= f.button :button, class:"button",type:"submit" do %>
                                                 <i class="fa fa-angle-right" aria-hidden="true"></i>
                                             <% end %>
                                         </div>
                                     </div>
                                 </div>
-
                             <% end %>
 
                         </div>

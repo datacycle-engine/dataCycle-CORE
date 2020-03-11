@@ -113,7 +113,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_restore -F #{fmt} -v -c -C -U --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
+              cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_restore -F #{fmt} -v -c -C --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"
@@ -196,7 +196,7 @@ namespace :data_cycle_core do
       when 'sql' then 'p'
       when 'tar' then 't'
       when 'dir' then 'd'
-      else 'p'
+      else 'c'
       end
     end
 

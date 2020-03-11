@@ -1,7 +1,7 @@
 - :data:
     :name: Preis
     :type: object
-    :schema_type: Intengible
+    :schema_type: Intangible
     :content_type: embedded
     :api:
       :type: UnitPriceSpecification

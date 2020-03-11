@@ -1,7 +1,7 @@
 - :data:
     :name: Angebot
     :type: object
-    :schema_type: Intengible
+    :schema_type: Intangible
     :content_type: embedded
     :api:
       :type: Offer
@@ -12,7 +12,6 @@
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
       :description:
@@ -47,7 +46,6 @@
       :price:
         :label: Preis
         :type: string
-        :storage_type: string
         :storage_location: translated_value
       :price_specification:
         :label: Preis
@@ -74,10 +72,17 @@
               :aliases:
                 - Person
                 - Organisation
+                - LocalBusiness
       :item_offered:
         :label: Angebotene Leistung
         :type: linked
-        :template_name: Unterkunft
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Unterkunkt
+                - Service
       :offer_period:
         :label: Angebotszeitraum
         :type: object

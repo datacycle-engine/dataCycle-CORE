@@ -26,6 +26,7 @@ module DataCycleCore
             phase_name = utility_object.source_type.collection_name
             logging.preparing_phase("#{utility_object.external_source.name} #{phase_name}")
             item_count = 0
+            tags_attribute_name = options.dig(:import, :extract_tags, :attribute_name) || 'tags'
             begin
               logging.phase_started(phase_name.to_s)
               durations = []
@@ -45,12 +46,12 @@ module DataCycleCore
                   }
 
                   if options.dig(:import, :tags_from_folders) || options.dig(:import, :extract_tags, :mode) == 'folder'
-                    image_data['tags'] = Pathname(File.dirname(p).gsub(Regexp.union(local_dirs.map { |ld| File.expand_path(ld) }), '')).each_filename.to_a
+                    image_data[tags_attribute_name] = Pathname(File.dirname(p).gsub(Regexp.union(local_dirs.map { |ld| File.expand_path(ld) }), '')).each_filename.to_a
                   elsif options.dig(:import, :extract_tags, :mode) == 'filename' && options.dig(:import, :extract_tags, :delimiter).present?
-                    image_data['tags'] = title.split(options.dig(:import, :extract_tags, :delimiter)).slice(0..-2)
+                    image_data[tags_attribute_name] = title.split(options.dig(:import, :extract_tags, :delimiter)).slice(0..-2)
                   end
 
-                  if image_data.dig('tags').present?
+                  if image_data.dig(tags_attribute_name).present?
                     process_tags(
                       raw_data: image_data,
                       options: { import: options.dig(:import, :extract_tags)&.deep_symbolize_keys }
@@ -80,8 +81,9 @@ module DataCycleCore
         def self.process_content(utility_object:, raw_data:, options:)
           config = options.dig(:import, :transformations, :asset)
           template = config&.dig(:template) || 'Bild'
-
-          transformation = DataCycleCore::Generic::DataCycleMedia::Transformations.file_to_asset
+          tags_tree_label = options.dig(:import, :extract_tags, :tree_label) || 'Tags'
+          tags_attribute_name = options.dig(:import, :extract_tags, :attribute_name) || 'tags'
+          transformation = DataCycleCore::Generic::DataCycleMedia::Transformations.file_to_asset(tags_tree_label, tags_attribute_name)
 
           DataCycleCore::Generic::Common::ImportFunctions.create_or_update_content(
             utility_object: utility_object,
@@ -100,9 +102,10 @@ module DataCycleCore
 
         def self.process_tags(raw_data:, options:)
           tree_label = options.dig(:import, :tree_label) || 'Tags'
+          attribute_name = options.dig(:import, :attribute_name) || 'tags'
           keywords = DataCycleCore::Generic::Common::ImportTags.unwind_project_data(
             raw_data,
-            ['tags'],
+            [attribute_name],
             [],
             []
           )

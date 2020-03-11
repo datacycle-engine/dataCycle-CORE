@@ -41,7 +41,7 @@ module DataCycleCore
 
         test '/api/v4/things/deleted' do
           @test_content.destroy_content
-          get api_v4_contents_deleted_path(filter: { deleted_since: '01-01-2010' })
+          get api_v4_contents_deleted_path(filter: { deletedSince: '01-01-2010' })
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -79,7 +79,7 @@ module DataCycleCore
         end
 
         test '/api/v4/concept_schemes/id' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.first.id
+          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first.id
           get api_v4_concept_scheme_path(id: tree_id)
           assert_response :success
 
@@ -89,7 +89,7 @@ module DataCycleCore
         end
 
         test '/api/v4/concept_schemes/id/concepts' do
-          tree_id = DataCycleCore::ClassificationTreeLabel.first.id
+          tree_id = DataCycleCore::ClassificationTreeLabel.where(name: 'Geschlecht').visible('api').first
           get classifications_api_v4_concept_scheme_path(id: tree_id)
           assert_response :success
 

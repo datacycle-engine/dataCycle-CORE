@@ -23,6 +23,7 @@ module DataCycleCore
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_system = DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
+            external_system.identifier = data['identifier'] || data['name']
             external_system.credentials = data['credentials']
             external_system.config = data['config']
             external_system.default_options = data['default_options']
@@ -76,6 +77,7 @@ module DataCycleCore
           end
 
           required(:name) { str? }
+          optional(:identifier) { str? }
           required(:credentials) { hash? }
           optional(:default_options).schema do
             optional(:locales).each { str? }

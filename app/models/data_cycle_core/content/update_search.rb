@@ -24,6 +24,8 @@ module DataCycleCore
           search_data = walk_embedded_data(self)
           advanced_search_attributes = walk_advanced(self)
           classification_mapping = walk_classifications(self)
+          classification_alias_mapping = classification_mapping.dig(:classification_aliases)
+          classification_ancestors_mapping = classification_mapping.dig(:classification_ancestors)
 
           # TODO: remove hardcoded metadata
           validity_string = get_validity(metadata&.dig('validity_period'))
@@ -42,7 +44,8 @@ module DataCycleCore
             s.boost = boost
             s.schema_type = schema_type
             s.advanced_attributes = advanced_search_attributes
-            s.classification_mapping = classification_mapping
+            s.classification_aliases_mapping = classification_alias_mapping
+            s.classification_ancestors_mapping = classification_ancestors_mapping
             s.save!
           end
         end

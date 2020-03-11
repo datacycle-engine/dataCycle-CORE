@@ -35,6 +35,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
   s.add_dependency 'rgeo-geojson'
+  s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
   s.add_dependency 'mongoid'
   # REST Client
@@ -104,6 +105,9 @@ Gem::Specification.new do |s|
 
   # progress bar
   s.add_dependency 'ruby-progressbar'
+
+  # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
+  s.add_dependency 'addressable'
 
   # jb gem for APIv3
   # s.add_dependency 'jb'

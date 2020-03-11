@@ -3,7 +3,7 @@
   <fieldset class="<%= 'iframe' if external_system.present? %>">
     <legend><%= t('common.create_via_mediaarchive', data: 'Video', locale: DataCycleCore.ui_language) %></legend>
     <% if external_system.present? %>
-      <%= render 'asset_upload', key: local_assigns[:key] || 'iframe_video', asset_type: 'video' %>
+      <%#= render 'asset_upload', key: local_assigns[:key] || 'iframe_video', asset_type: 'video' %>
 
       <iframe id="import-medium" class="new-item-iframe lazyload" data-src="<%= external_system.credentials.dig('host') %>/admin/media/import_iframe?type=Video&token=<%= external_system.credentials.dig('token') %><%= '&guest=true' unless current_user.presence&.role&.rank&.positive? %><%= "&user[email]=#{current_user.presence&.email}&user[firstname]=#{current_user.presence&.given_name}&user[lastname]=#{current_user.presence&.family_name}" %>&locale=<%= @language&.first || I18n.locale.to_s %>" data-uploader-id="asset-upload-reveal-<%= local_assigns[:key] || 'iframe_video' %>">
         <p>Formular konnte nicht geladen werden</p>
@@ -16,34 +16,5 @@
     <% end %>
   </fieldset>
 <% else %>
-  <% new_dialog_config = DataCycleCore.new_dialog.dig(template&.template_name&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig(template&.schema_type&.underscore_blanks) %>
-  <% new_dialog_config ||= DataCycleCore.new_dialog.dig('default') %>
-
-  <% new_dialog_config&.each_with_index do |(field_title, attribute_keys), index| %>
-    <fieldset>
-      <% if index === 0 %>
-        <%= render 'data_cycle_core/contents/new/shared/attributes', local_assigns %>
-      <% else %>
-        <legend><%= t("new_step_title.#{field_title}", locale: DataCycleCore.ui_language) %></legend>
-      <% end %>
-
-      <% attribute_keys&.each do |attribute_key| %>
-        <%= render_attribute_editor key: "thing[datahash][#{attribute_key}]",
-                                    definition: template.schema.dig('properties', attribute_key).deep_reject{ |k, v| k == 'readonly' },
-                                    value: attribute_key == 'name' ? local_assigns[:search_param] : nil,
-                                    content: template,
-                                    parameters: {
-                                      options: local_assigns[:options]
-                                    } if template.schema.dig('properties', attribute_key).present? %>
-      <% end %>
-    </fieldset>
-  <% end %>
-
-  <% if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
-    <fieldset>
-      <legend><%= t('new_step_title.agbs', locale: DataCycleCore.ui_language) %></legend>
-      <%= render 'agbs', options: local_assigns[:options] %>
-    </fieldset>
-  <% end %>
+  <%= render 'data_cycle_core/contents/new/asset', local_assigns %>
 <% end %>

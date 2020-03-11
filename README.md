@@ -55,4 +55,4 @@ $ RAILS_ENV=test bundle exec rake app:db:drop app:db:create app:db:structure:loa
 
 ## License
 
-Copyright 2017 Pixelpoint.at
+Copyright 2017-2020 Pixelpoint.at

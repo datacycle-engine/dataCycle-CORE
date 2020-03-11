@@ -82,7 +82,6 @@ module DataCycleCore
       get thing_path(@content)
       assert_response :success
       assert_select '.detail-header > .title', @content.title
-
       get history_thing_path(@content, history_id: @content.histories&.first&.id)
       assert_response :success
       assert_select('.detail-content .type.properties .has-changes', count: 1)

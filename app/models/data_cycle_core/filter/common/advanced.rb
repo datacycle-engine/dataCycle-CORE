@@ -114,7 +114,6 @@ module DataCycleCore
         def advanced_date(value = nil, attribute_path = nil, comparision = nil)
           return self unless value.is_a?(Hash) && value.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present? && comparision.present?
           date_range = "[#{value&.dig('from')&.to_s},#{value&.dig('until')&.to_s}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           case comparision
           when :equal

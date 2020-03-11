@@ -81,6 +81,17 @@ module DataCycleCore
       respond_to(:js)
     end
 
+    def render_in_overlay
+      authorize! :show, :object_browser
+
+      return if params[:ids].blank?
+
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
+      @objects = DataCycleCore::Thing.where(id: params[:ids])
+
+      render 'data_cycle_core/contents/create', format: :js
+    end
+
     def details
       authorize! :show, :object_browser
 

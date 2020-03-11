@@ -19,9 +19,9 @@ module DataCycleCore
       DataCycleCore.features
         .select { |_, v| !v.dig(:only_config) == true }
         .each_key do |key|
-          module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
-          include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
-        end
+        module_name = ('DataCycleCore::Feature::Content::' + key.to_s.classify).constantize
+        include module_name if ('DataCycleCore::Feature::' + key.to_s.classify).constantize.enabled?
+      end
       extend  DataCycleCore::Common::ArelBuilder
       include DataCycleCore::Content::ContentRelations
       extend  DataCycleCore::Content::ContentFilters
@@ -38,11 +38,25 @@ module DataCycleCore
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
           set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
         elsif property_definition
-          raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-          get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+          if name.to_s.in?(embedded_property_names + linked_property_names)
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
+            get_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
+          else
+            raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
+            get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+          end
         else
           super
         end
+      end
+
+      def to_api_list
+        {
+          '@id' => id,
+          '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
+          'dct:modified' => updated_at,
+          'dct:created' => created_at
+        }
       end
 
       def respond_to?(method_name, include_all = false)
@@ -61,6 +75,14 @@ module DataCycleCore
         content_type == 'embedded'
       end
 
+      def synch?
+        external_system_syncs.present?
+      end
+
+      def external?
+        external_source.present?
+      end
+
       def schema_type
         schema&.dig('schema_type')
       end
@@ -73,9 +95,9 @@ module DataCycleCore
         schema.dig('content_type') != 'embedded' &&
           schema.dig('features', 'creatable', 'allowed') &&
           (
-            schema.dig('features', 'creatable', 'scope').blank? ||
+          schema.dig('features', 'creatable', 'scope').blank? ||
             schema.dig('features', 'creatable', 'scope')&.include?(scope)
-          )
+        )
       end
 
       def property_definitions
@@ -261,14 +283,10 @@ module DataCycleCore
       end
 
       def enabled_features
-        features = []
-        features << collect_properties.map { |k| schema&.dig('properties', *k, 'features')&.keys }
-        features << schema&.dig('features')&.keys
-        features << DataCycleCore.features.select { |_, v| v[:enabled] }.keys.map(&:to_s)
-        features.flatten.uniq.compact
+        @enabled_features ||= DataCycleCore::FeatureService.enabled_features(schema)
       end
 
-      def get_property_value(property_name, property_definition)
+      def get_property_value(property_name, property_definition, filter = nil)
         @get_property_value ||= Hash.new do |h, key|
           h[key] =
             if plain_property_names.include?(key[0])
@@ -278,9 +296,9 @@ module DataCycleCore
             elsif classification_property_names.include?(key[0])
               load_classifications(key[0])
             elsif linked_property_names.include?(key[0])
-              load_linked_objects(key[0])
+              load_linked_objects(key[0], key[3])
             elsif embedded_property_names.include?(key[0])
-              load_embedded_objects(key[0])
+              load_embedded_objects(key[0], key[3])
             elsif asset_property_names.include?(key[0])
               load_asset_relation(key[0])
             elsif computed_property_names.include?(key[0])
@@ -291,7 +309,7 @@ module DataCycleCore
               raise NotImplementedError
             end
         end
-        @get_property_value[[property_name, property_definition, I18n.locale]]
+        @get_property_value[[property_name, property_definition, I18n.locale, filter]]
       end
 
       def load_json_attribute(property_name, property_definition)
@@ -371,18 +389,18 @@ module DataCycleCore
       def self.shared_ordered_properties(user)
         all.includes(:primary_classification_aliases, classification_aliases: [:classification_alias_path, :classification_tree_label])
           .find_each.map { |t|
-            t.schema.dig('properties')
-              .except(*(DataCycleCore.internal_data_attributes + ['id']))
-              .select { |k, v|
-                ['computed', 'asset'].exclude?(v['type']) &&
-                  user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
-                  user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
-                  t.allowed_feature_attribute?(k.attribute_name_from_key)
-              }
-              .sort_by { |_, v| v['sorting'] }
-              .to_h
-              .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
-          }
+          t.schema.dig('properties')
+            .except(*(DataCycleCore.internal_data_attributes + ['id']))
+            .select { |k, v|
+              ['computed', 'asset'].exclude?(v['type']) &&
+                user.can?(:show, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                user.can?(:edit, DataCycleCore::DataAttribute.new(k, v, {}, t, :edit)) &&
+                t.allowed_feature_attribute?(k.attribute_name_from_key)
+            }
+            .sort_by { |_, v| v['sorting'] }
+            .to_h
+            .map { |k, v| [k, v.except('sorting', 'api').deep_reject { |p_k, p_v| p_k == 'show' || (!p_v.is_a?(FalseClass) && p_v.blank?) }] }
+        }
           .inject(:&).to_h
           .select { |_, v| (v['type'] != 'classification' || DataCycleCore::ClassificationService.visible_classification_tree?(v['tree_label'], 'edit')) }
       end
