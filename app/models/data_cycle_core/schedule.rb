@@ -94,7 +94,14 @@ module DataCycleCore
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
       self.duration = ActiveSupport::Duration.build(@schedule_object.duration) if @schedule_object.duration.positive?
-      self.dtend = @schedule_object.recurrence_rules&.first&.until_time&.in_time_zone || (@schedule_object.start_time + duration)
+      self.dtend =
+        if @schedule_object.recurrence_rules.present?
+          @schedule_object.recurrence_rules.first&.until_time&.in_time_zone
+        elsif @schedule_object.rtimes.present?
+          @schedule_object.remaining_occurrences.max + duration
+        else
+          @schedule_object.start_time + duration
+        end
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self

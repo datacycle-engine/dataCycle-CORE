@@ -28,24 +28,26 @@ module DataCycleCore
           return data_hash if data_hash.dig('event_period').blank?
           sub_event = sub_event_function.call(data_hash)
           schedule_hash = {}
-          schedule_hash['dtstart'] = data_hash.dig('event_period', 'start_date')&.to_datetime
-          schedule_hash['dtend'] = data_hash.dig('event_period', 'end_date')&.to_datetime
+          schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.to_datetime
+          schedule_hash[:dtend] = data_hash.dig('event_period', 'end_date')&.to_datetime
           if sub_event.present?
             rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.to_datetime }.compact
             estart = sub_event.first.dig('event_period', 'start_date')&.to_datetime
             eend = sub_event.first.dig('event_period', 'end_date')&.to_datetime
             duration = eend.to_i - estart.to_i if eend.present? && estart.present?
             options = { duration: duration.presence&.to_i }.compact
-            schedule_object = IceCube::Schedule.new(schedule_hash['dtstart'].presence || Time.zone.now, options) do |s|
-              rdate.each do |rd|
-                s.add_recurrence_time(rd)
+            schedule_object = IceCube::Schedule.new(schedule_hash[:dtstart].in_time_zone.presence || Time.zone.now, options) do |s|
+              rdate.sort.each do |rd|
+                s.add_recurrence_time(rd.in_time_zone)
               end
             end
+            schedule_hash[:duration] = duration if duration.present?
             schedule_hash = schedule_hash.merge(schedule_object.to_hash)
-          else
-            schedule_hash['duration'] = schedule_hash['dtend'].to_i - schedule_hash['dtstart'].to_i if schedule_hash['dtend'].present? && schedule_hash['dtstart'].present?
+            byebug
+          elsif schedule_hash[:dtend].present? && schedule_hash[:dtstart].present?
+            schedule_hash[:duration] = schedule_hash[:dtend].to_i - schedule_hash[:dtstart].to_i
           end
-          (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash) })
+          (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
         end
 
         def self.compact(data_hash)
