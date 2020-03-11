@@ -43,7 +43,6 @@ module DataCycleCore
             end
             schedule_hash[:duration] = duration if duration.present?
             schedule_hash = schedule_hash.merge(schedule_object.to_hash)
-            byebug
           elsif schedule_hash[:dtend].present? && schedule_hash[:dtstart].present?
             schedule_hash[:duration] = schedule_hash[:dtend].to_i - schedule_hash[:dtstart].to_i
           end
