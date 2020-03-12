@@ -16,7 +16,15 @@ module DataCycleCore
               setup do
                 @routes = Engine.routes
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
-                @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+                event_schedule = @content.get_data_hash
+                event_schedule['event_schedule'] = [{
+                  'start_time' => {
+                    'time' => 8.days.ago.to_s,
+                    'zone' => 'Vienna'
+                  },
+                  'duration' => 10.days.to_i
+                }]
+                @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -54,8 +62,8 @@ module DataCycleCore
                 assert_equal('de', json_data.dig('inLanguage'))
 
                 # startDate / endDate
-                assert_equal(@content.event_period.start_date.as_json, json_data.dig('startDate'))
-                assert_equal(@content.event_period.end_date.as_json, json_data.dig('endDate'))
+                assert_equal(@content.start_date.as_json, json_data.dig('startDate'))
+                assert_equal(@content.end_date.as_json, json_data.dig('endDate'))
 
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
@@ -92,6 +100,10 @@ module DataCycleCore
                 place_data_hash['name'] = 'Another Place'
                 overlay_place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
+                event_schedule = {
+                  'start_date' => '2019-11-10T00:00:00.000+01:00',
+                  'end_date' => '2019-11-20T00:00:00.000+01:00'
+                }
                 data_hash = {
                   'overlay' => [
                     {
@@ -100,10 +112,16 @@ module DataCycleCore
                       'image' => [overlay_image.id],
                       'content_location' => [overlay_place.id],
                       'url' => 'https://overlay.url.com',
-                      'event_period' => {
-                        'start_date' => '2019-11-10T00:00:00.000+01:00',
-                        'end_date' => '2019-11-20T00:00:00.000+01:00'
-                      }
+                      'event_schedule' => [
+                        {
+                          'start_time' =>
+                          {
+                            'time' => '2019-11-10T00:00:00.000+01:00'.in_time_zone.to_s,
+                            'zone' => 'Vienna'
+                          },
+                          'duration' => 10.days.to_i
+                        }
+                      ]
                     }
                   ]
                 }
@@ -119,11 +137,11 @@ module DataCycleCore
                 json_data = JSON.parse(response.body)
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'start_date'), json_data.dig('startDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'end_date'), json_data.dig('endDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
-                assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
-                assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))
+                assert_equal(event_schedule['start_date'], json_data.dig('startDate'))
+                assert_equal(event_schedule['end_date'], json_data.dig('endDate'))
+                assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
+                assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
+                assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
                 assert_equal(overlay_image.id, json_data.dig('image').first.dig('identifier'))
                 assert_equal(overlay_place.id, json_data.dig('location').first.dig('identifier'))
               end

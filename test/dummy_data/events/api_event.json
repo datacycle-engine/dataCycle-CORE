@@ -4,8 +4,10 @@
   "text": "Text",
   "url": "http://www.myurl.com",
   "same_as": "http://www.sameas.com",
-  "start_date": "2019-10-10",
-  "end_date": "2019-10-30",
+  "event_schedule": [{
+    "start_time": { "time": "2019-10-10T00:00:00.000+01:00", "zone": "Vienna" },
+    "duration": 1728000
+  }],
   "sub_event": [
     {
       "name": "Headline Sub-Event",

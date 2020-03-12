@@ -22,7 +22,7 @@ module DataCycleCore
                     'time' => 8.days.ago.to_s,
                     'zone' => 'Vienna'
                   },
-                  'duration' => 8.days.to_i
+                  'duration' => 10.days.to_i
                 }]
                 @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
@@ -134,12 +134,9 @@ module DataCycleCore
                 assert_equal('application/json', response.content_type)
                 json_data = JSON.parse(response.body)
 
-                # TODO: event_schedule not serialized now in v3
-
-                byebug
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('start_date'), json_data.dig('startDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('end_date'), json_data.dig('endDate'))
+                assert_equal(data_hash.dig('overlay').first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone, json_data.dig('startDate'))
+                assert_equal((data_hash.dig('overlay').first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone + data_hash.dig('overlay').first.dig('event_schedule', 0, 'duration').to_i), json_data.dig('endDate'))
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
                 assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))

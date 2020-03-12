@@ -35,12 +35,19 @@ module DataCycleCore
                 'image' => [overlay_image.id],
                 'content_location' => [overlay_place.id],
                 'url' => 'https://overlay.url.com',
-                'event_period' => {
-                  'start_date' => '2019-11-10T00:00:00.000+01:00',
-                  'end_date' => '2019-11-20T00:00:00.000+01:00'
-                }
+                'event_schedule' => [{
+                  'start_time' => {
+                    'time' => Time.new(2019, 11, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  },
+                  'duration' => 10.days.to_i
+                }]
               }
             ]
+          }
+          event_period = {
+            'start_date' => '2019-11-10T00:00:00.000+01:00',
+            'end_date' => '2019-11-20T00:00:00.000+01:00'
           }
           I18n.with_locale(:de) do
             @content_overlay.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
@@ -61,8 +68,8 @@ module DataCycleCore
           end
 
           # content data
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('startDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('endDate'))
+          assert_equal(event_period['start_date'], json_data.dig('startDate'))
+          assert_equal(event_period['end_date'], json_data.dig('endDate'))
           assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
           assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))
