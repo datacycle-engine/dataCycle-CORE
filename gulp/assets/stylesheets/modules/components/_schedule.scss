@@ -38,6 +38,7 @@
     flex-flow: row wrap;
     align-items: center;
 
+    .single_occurrence,
     .daily,
     .weekly,
     .monthly,
@@ -65,6 +66,12 @@
 
     &.yearly {
       .yearly {
+        display: inherit;
+      }
+    }
+
+    &.single_occurrence {
+      .single_occurrence {
         display: inherit;
       }
     }

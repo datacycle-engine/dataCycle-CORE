@@ -132,7 +132,7 @@
         <% end %>
       </div>
 
-      <div class="special-dates daterange daily weekly monthly yearly">
+      <div class="special-dates daterange single_occurrence daily weekly monthly yearly">
         <div class="form-element rdate">
           <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}" do %>
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>

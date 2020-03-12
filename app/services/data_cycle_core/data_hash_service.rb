@@ -133,7 +133,7 @@ module DataCycleCore
           when 'IceCube::WeeklyRule'
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
           when 'IceCube::SingleOccurrenceRule'
-            s.except!('rrules', 'rtimes', 'extimes')
+            s.except!('rrules')
           else
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
