@@ -45,6 +45,14 @@ module DataCycleCore
             schedule_hash = schedule_hash.merge(schedule_object.to_hash)
           elsif schedule_hash[:dtend].present? && schedule_hash[:dtstart].present?
             schedule_hash[:duration] = schedule_hash[:dtend].to_i - schedule_hash[:dtstart].to_i
+            schedule_hash[:start_time] = {
+              time: schedule_hash[:dtstart],
+              zone: Time.zone.name
+            }
+            schedule_hash[:end_time] = {
+              time: schedule_hash[:dtend],
+              zone: Time.zone.name
+            }
           end
           (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
         end

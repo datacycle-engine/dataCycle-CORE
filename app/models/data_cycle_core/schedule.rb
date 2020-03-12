@@ -3,7 +3,7 @@
 module DataCycleCore
   module ScheduleHandler
     def to_h
-      item_hash = @schedule_object.to_hash
+      item_hash = @schedule_object&.to_hash || {}
       item_hash[:duration] = duration
       item_hash[:id] = id
       item_hash[:relation] = relation

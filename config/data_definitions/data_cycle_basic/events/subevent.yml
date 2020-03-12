@@ -16,32 +16,45 @@
         :type: string
         :storage_location: column
         :search: true
-      :start_date:
-        :label: Startzeitpunkt
-        :storage_location: column
-        :type: computed
-        :compute:
-          :type: datetime
-          :module: Utility::Compute::Schedule
-          :method: start_date
-          :parameters:
-            :0: event_schedule
+      :event_period:
+        :label: Veranstaltungszeitraum
+        :type: object
+        :storage_location: value
+        :validations:
+          :daterange:
+            :from: start_date
+            :to: end_date
         :ui:
-          :show:
-            :content_area: none
-      :end_date:
-        :label: Endzeitpunkt
-        :storage_location: column
-        :type: computed
-        :compute:
-          :type: datetime
-          :module: Utility::Compute::Schedule
-          :method: end_date
-          :parameters:
-            :0: event_schedule
-        :ui:
-          :show:
-            :content_area: none
+          :edit:
+            :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
+        :properties:
+          :start_date:
+            :label: Startzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
+          :end_date:
+            :label: Endzeitpunkt
+            :type: datetime
+            :storage_location: column
+            :validations:
+              :format: date_time
+            :ui:
+              :edit:
+                :type: datetime
+                :options:
+                  :data-validate: daterange
+                  :placeholder: "tt.mm.jjjj --:--"
       :description:
         :label: Beschreibung
         :type: string
