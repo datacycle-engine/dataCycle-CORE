@@ -23,6 +23,22 @@
             :type: text_editor
             :options:
               :data-size: full
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :primary_image:
         :label: Hauptbild
         :type: linked
