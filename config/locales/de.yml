@@ -356,6 +356,7 @@ de:
       unit: Einheit
     relation_filter:
       contained_in: ist enthalten in
+    feratel_content_score: Feratel - Content Score
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
