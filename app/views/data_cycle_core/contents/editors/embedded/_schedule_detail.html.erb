@@ -103,11 +103,11 @@
           <%= t('schedule.on', locale: DataCycleCore.ui_language) %>
         <% end %>
         <% [*(1..6), 0].each do |v| %>
-        <span class="weekday-checkbox">
-          <%= hidden_field_tag "#{key}[#{index}][rrules][][validations][day][]", v if readonly && value&.dig(:rrules, 0, :validations, :day)&.include?(v) %>
-          <%= check_box_tag "#{key}[#{index}][rrules][][validations][day][]", v, value&.dig(:rrules, 0, :validations, :day)&.include?(v), id: sanitize_to_id("#{key}[#{index}][rrules][][validations][day][#{v}]"), disabled: readonly %>
-          <%= label_tag sanitize_to_id("#{key}[#{index}][rrules][][validations][day][#{v}]"), t('date.abbr_day_names', locale: DataCycleCore.ui_language)[v] %>
-        </span>
+          <span class="weekday-checkbox">
+            <%= hidden_field_tag "#{key}[#{index}][rrules][][validations][day][]", v if readonly && value&.dig(:rrules, 0, :validations, :day)&.include?(v) %>
+            <%= check_box_tag "#{key}[#{index}][rrules][][validations][day][]", v, value&.dig(:rrules, 0, :validations, :day)&.include?(v), id: sanitize_to_id("#{key}[#{index}][rrules][][validations][day][#{v}]"), disabled: readonly %>
+            <%= label_tag sanitize_to_id("#{key}[#{index}][rrules][][validations][day][#{v}]"), t('date.abbr_day_names', locale: DataCycleCore.ui_language)[v] %>
+          </span>
         <% end %>
       </div>
 
@@ -122,9 +122,64 @@
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rrules][until]")}", readonly: true %>
         <% else %>
-          <%= date_field_tag "#{key}[#{index}][rrules][][until]", value&.dig(:rrules, 0, :until)&.in_time_zone&.to_date, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rrules][until]")}", data: { type: 'datepicker' } %>
+          <%= date_field_tag "#{key}[#{index}][rrules][][until]",
+            value&.dig(:rrules, 0, :until)&.in_time_zone&.to_date,
+            id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rrules][until]")}",
+            data: {
+              type: 'datepicker' ,
+              min_date: value&.dig(:start_time, :time)&.in_time_zone
+            } %>
         <% end %>
       </div>
+
+      <div class="special-dates daterange daily weekly monthly yearly">
+        <div class="form-element rdate">
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}" do %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
+            <%= t('schedule.rdate', locale: DataCycleCore.ui_language) %>
+          <% end %>
+          <% if readonly %>
+            <%= text_field_tag "#{key}[#{index}][rtimes]",
+              value&.dig(:rtimes).blank? ? nil : value&.dig(:rtimes)&.map{ |t| l(t[:time]&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', '),
+              class: 'read-only date',
+              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}", readonly: true %>
+          <% else %>
+            <%= date_field_tag "#{key}[#{index}][rtimes]",
+              value&.dig(:rtimes)&.map { |t| t[:time]&.in_time_zone }&.join(', '),
+              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][rtimes]")}",
+              data: {
+                type: 'datepicker',
+                mode: 'multiple',
+                min_date: value&.dig(:start_time, :time)&.in_time_zone,
+                max_date: value&.dig(:rrules, 0, :until)&.in_time_zone
+              } %>
+          <% end %>
+        </div>
+
+        <div class="form-element exdate">
+          <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}" do %>
+            <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
+            <%= t('schedule.exdate', locale: DataCycleCore.ui_language) %>
+          <% end %>
+          <% if readonly %>
+            <%= text_field_tag "#{key}[#{index}][extimes]",
+              value&.dig(:extimes).blank? ? nil : value&.dig(:extimes)&.map{ |t| l(t[:time].in_time_zone, format: :edit, locale: DataCycleCore.ui_language) }&.join(', '),
+              class: 'read-only date',
+              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}", readonly: true %>
+          <% else %>
+            <%= date_field_tag "#{key}[#{index}][extimes]",
+              value&.dig(:extimes)&.map { |t| t[:time]&.in_time_zone }&.join(', '),
+              id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][extimes]")}",
+              data: {
+                type: 'datepicker',
+                mode: 'multiple' ,
+                min_date: value&.dig(:start_time, :time)&.in_time_zone,
+                max_date: value&.dig(:rrules, 0, :until)&.in_time_zone
+              } %>
+          <% end %>
+        </div>
+      </div>
     </div>
+
   </div>
 </div>

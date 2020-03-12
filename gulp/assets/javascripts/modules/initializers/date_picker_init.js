@@ -147,8 +147,16 @@ module.exports.initialize = function() {
 
     $(input).on('dc:date:destroy', e => {
       e.preventDefault();
+
+      let container = $(e.currentTarget).closest('.flatpickr-wrapper');
       cal.destroy();
       calenders = calenders.filter(c => c.element != elem);
+
+      container
+        .find(':input')
+        .detach()
+        .insertBefore(container);
+      container.remove();
     });
 
     $(input).on('dc:flatpickr:setDate', (e, value) => {
