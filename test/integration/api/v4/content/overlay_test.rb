@@ -14,7 +14,15 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
-          @content_overlay.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+          event_schedule = @content_overlay.get_data_hash
+          event_schedule['event_schedule'] = [{
+            'start_time' => {
+              'time' => 8.days.ago.to_s,
+              'zone' => 'Vienna'
+            },
+            'duration' => 10.days.to_i
+          }]
+          @content_overlay.set_data_hash(prevent_history: true, data_hash: event_schedule)
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -50,7 +58,8 @@ module DataCycleCore
             'end_date' => '2019-11-20T00:00:00.000+01:00'
           }
           I18n.with_locale(:de) do
-            @content_overlay.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+            new_data_hash = @content_overlay.get_data_hash.merge(data_hash)
+            @content_overlay.set_data_hash(data_hash: new_data_hash, current_user: User.find_by(email: 'tester@datacycle.at'))
           end
           @content_overlay.reload
 

@@ -44,8 +44,8 @@ module DataCycleCore
                 assert_equal('de', xml_data.dig('inLanguage'))
 
                 # startDate / endDate
-                assert_equal(@content.start_date.to_s, xml_data.dig('eventPeriod', 'startDate'))
-                assert_equal(@content.end_date.to_s, xml_data.dig('eventPeriod', 'endDate'))
+                assert_equal(@content.start_date.to_s, xml_data.dig('startDate'))
+                assert_equal(@content.end_date.to_s, xml_data.dig('endDate'))
 
                 # content data
                 assert_equal(@content.name, xml_data.dig('name'))
@@ -67,8 +67,8 @@ module DataCycleCore
                     'description' => sub_event.description,
                     'sameAs' => sub_event.url,
                     'eventPeriod' => {
-                      'startDate' => sub_event.event_period.start_date,
-                      'endDate' => sub_event.event_period.end_date
+                      'startDate' => sub_event.event_period.start_date.to_s,
+                      'endDate' => sub_event.event_period.end_date.to_s
                     }
                   }
                 end
@@ -84,6 +84,10 @@ module DataCycleCore
                 place_data_hash['name'] = 'Another Place'
                 overlay_place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
+                event_schedule = {
+                  'start_date' => '2019-11-10T00:00:00.000+01:00',
+                  'end_date' => '2019-11-20T00:00:00.000+01:00'
+                }
                 data_hash = {
                   'overlay' => [
                     {
@@ -92,10 +96,16 @@ module DataCycleCore
                       'image' => [overlay_image.id],
                       'content_location' => [overlay_place.id],
                       'url' => 'https://overlay.url.com',
-                      'event_period' => {
-                        'start_date' => '2019-11-10T00:00:00.000+01:00',
-                        'end_date' => '2019-11-20T00:00:00.000+01:00'
-                      }
+                      'event_schedule' => [
+                        {
+                          'start_time' =>
+                          {
+                            'time' => '2019-11-10T00:00:00.000+01:00'.in_time_zone.to_s,
+                            'zone' => 'Vienna'
+                          },
+                          'duration' => 10.days.to_i
+                        }
+                      ]
                     }
                   ]
                 }
@@ -112,8 +122,8 @@ module DataCycleCore
                 xml_data = Hash.from_xml(Nokogiri::XML(response.body).to_xml).dig('RDF', 'thing')
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'start_date').in_time_zone.to_s, xml_data.dig('eventPeriod', 'startDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'end_date').in_time_zone.to_s, xml_data.dig('eventPeriod', 'endDate'))
+                assert_equal(event_schedule.dig('start_date').in_time_zone.to_s, xml_data.dig('startDate'))
+                assert_equal(event_schedule.dig('end_date').in_time_zone.to_s, xml_data.dig('endDate'))
                 assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
                 assert_equal(data_hash.dig('overlay').first.dig('url'), xml_data.dig('sameAs'))
@@ -146,8 +156,8 @@ module DataCycleCore
                 assert_equal(data_hash.dig('overlay').first.dig('name'), xml_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), xml_data.dig('description'))
                 # not overwritten data
-                assert_equal(@content.event_period.start_date.to_s, xml_data.dig('eventPeriod', 'startDate'))
-                assert_equal(@content.event_period.end_date.to_s, xml_data.dig('eventPeriod', 'endDate'))
+                assert_equal(@content.start_date.to_s, xml_data.dig('startDate'))
+                assert_equal(@content.end_date.to_s, xml_data.dig('endDate'))
                 assert_equal(@content.url, xml_data.dig('sameAs'))
                 assert_equal(@content.image.first.id, xml_data.dig('image', 'thing', 'identifier'))
                 assert_equal(@content.content_location.first.id, xml_data.dig('contentLocation', 'thing', 'identifier'))
