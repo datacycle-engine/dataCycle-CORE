@@ -75,10 +75,7 @@ module DataCycleCore
     end
 
     def classification_tooltip(classification_alias)
-      [
-        "<b>#{classification_alias.full_path}</b>",
-        classification_alias.description
-      ].reject(&:blank?).join('<br /><br />')
+      "#{classification_alias.full_path}#{"\n\n#{strip_tags(classification_alias.description)}" if classification_alias.description.present?}"
     end
   end
 end
