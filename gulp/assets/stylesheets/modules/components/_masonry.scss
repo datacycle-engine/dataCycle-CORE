@@ -8,10 +8,11 @@
 
   .grid-loading,
   .pagination-container {
-    display: block;
+    display: flex;
     grid-column: 1/-1;
-    grid-row: span 6;
-    text-align: center;
+    grid-row: span 2;
+    align-items: center;
+    justify-content: center;
     .fa {
       font-size: 3rem;
       color: $light-gray;
