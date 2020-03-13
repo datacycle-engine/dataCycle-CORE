@@ -1,6 +1,6 @@
 <% unless contents.first_page? || local_assigns[:direction] == 'next' %>
   <li class="pagination-container text-center prev" data-page="<%= contents.prev_page %>">
-    <%= link_to t('pagination.prev', locale: DataCycleCore.ui_language), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
+    <%= link_to t('pagination.prev', locale: DataCycleCore.ui_language), path_to_prev_page(contents, params: { direction: 'prev' }), class: 'button pagination-link', remote: (contents.current_page % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
   </li>
 <% end %>
 
@@ -45,6 +45,6 @@
 
 <% unless contents.last_page? || local_assigns[:direction] == 'prev' %>
   <li class="pagination-container text-center next" data-page="<%= contents.next_page %>">
-    <%= link_to t('pagination.next', locale: DataCycleCore.ui_language), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: true, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
+    <%= link_to t('pagination.next', locale: DataCycleCore.ui_language), path_to_next_page(contents, params: { direction: 'next' }), class: 'button pagination-link', remote: (contents.next_page % 10) != 0, data: { disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin') + " #{t('common.loading', locale: DataCycleCore.ui_language)}" } %>
   </li>
 <% end %>
