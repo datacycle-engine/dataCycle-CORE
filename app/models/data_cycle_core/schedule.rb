@@ -76,6 +76,32 @@ module DataCycleCore
       }.compact
     end
 
+    def to_sub_event
+      return [] if @schedule_object.blank?
+      return [] unless @schedule_object.terminating?
+      return [] if @schedule_object.all_occurrences.size == 1
+      @schedule_object.all_occurrences.map do |occurrence|
+        {
+          '@context' => 'http://schema.org',
+          '@type' => 'Event',
+          'contentType' => 'SubEvent',
+          'identifier' => SecureRandom.uuid,
+          'inLanguage' => I18n.locale.to_s,
+          'startDate' => occurrence.start_time.to_s(:long_msec),
+          'endDate' => occurrence.end_time.to_s(:long_msec)
+        }
+      end
+    end
+
+    def to_event_dates
+      return [] if @schedule_object.blank?
+      if @schedule_object.terminating?
+        @schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_s(:long_msec) }
+      else
+        @schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_s(:long_msec) }
+      end
+    end
+
     def load_schedule_object
       options = { duration: duration.presence&.to_i }.compact
       @schedule_object = IceCube::Schedule.new(dtstart.presence || Time.zone.now, options) do |s|
@@ -94,7 +120,7 @@ module DataCycleCore
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
       self.duration = ActiveSupport::Duration.build(@schedule_object.duration) if @schedule_object.duration.positive?
-      self.dtend = @schedule_object.terminating? ? @schedule_object.last + (duration || 0) : nil
+      self.dtend = @schedule_object.terminating? ? (@schedule_object.last || @schedule_object.start_time) + (duration || 0) : nil
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self
