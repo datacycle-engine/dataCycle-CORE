@@ -13,22 +13,25 @@ body.schema {
       border-spacing: 3px;
       border-collapse: separate;
       margin: 1em 0 5em 0;
-      border: 1px solid #98A0A6;
+      border: 1px solid #98a0a6;
       line-height: 160%;
 
-      thead, tbody, tfoot {
-        th, td {
+      thead,
+      tbody,
+      tfoot {
+        th,
+        td {
           padding: 0 5px 0 5px;
         }
       }
 
       th {
         text-align: left;
-        background: #C7CBCE;
+        background: #c7cbce;
         padding-left: 5px;
 
         &:last-child {
-          width: 66%;
+          width: 60%;
         }
       }
 
@@ -38,7 +41,7 @@ body.schema {
         }
 
         td {
-          font-family: "Lucida Grande" , "Lucida Sans Unicode" , Verdana, Tahoma, Arial, sans-serif;
+          font-family: 'Lucida Grande', 'Lucida Sans Unicode', Verdana, Tahoma, Arial, sans-serif;
         }
       }
     }
