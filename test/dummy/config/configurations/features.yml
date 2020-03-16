@@ -132,7 +132,7 @@
 #      :type: date
 
 :user_registration:
-  :enabled: true
+  :enabled: false
   :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
   :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
 
