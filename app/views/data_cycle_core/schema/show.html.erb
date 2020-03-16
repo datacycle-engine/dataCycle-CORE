@@ -10,7 +10,6 @@
       <tr>
         <th>Property</th>
         <th>Expected Type</th>
-        <th>Translated</th>
         <th>Description</th>
       </tr>
     </thead>
@@ -24,11 +23,10 @@
     <tbody>
       <% @template_schema.property_definitions.each do |definition| %>
         <tr>
-          <th><%= definition[:label] %></th>
+          <th><%= definition[:label] %> <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %></th>
           <td>
             <a href="<%= definition[:range] %>"><%= definition[:range].split('/').last %></a>
           </td>
-          <td><%= definition[:translated] %></td>
           <td></td>
         </tr>
       <% end %>
