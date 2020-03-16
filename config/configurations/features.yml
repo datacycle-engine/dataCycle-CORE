@@ -151,6 +151,7 @@
     :default_locale:
     :password:
     :password_confirmation:
+    :confirmed_at:
   :issuer: datacycle.at
 
 :copy_embedded_locale:
