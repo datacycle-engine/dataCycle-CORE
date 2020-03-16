@@ -42,7 +42,7 @@
         </div>
 
         <% if DataCycleCore::Feature::UserRegistration.terms_conditions_url.present? %>
-          <div class="row">
+          <div class="row login-checkboxes">
             <div class="small-3 columns text-right">
               <%= check_box_tag "additional_attributes[terms_conditions]", 1, false, { class: '', required: true, id: "additional_attributes_terms_conditions" } %>
             </div>
@@ -53,7 +53,7 @@
         <%end %>
 
         <% if DataCycleCore::Feature::UserRegistration.privacy_policy_url.present? %>
-          <div class="row">
+          <div class="row login-checkboxes">
             <div class="small-3 columns text-right">
               <%= check_box_tag "additional_attributes[privacy_policy]", 1, false, { class: '', required: true, id: "additional_attributes_privacy_policy" } %>
             </div>

@@ -324,6 +324,12 @@ body.login-page {
       color: white;
       text-decoration: underline;
     }
+    .login-checkboxes{
+      a{
+        text-decoration: underline;
+        color: $white;
+      }
+    }
 
     button[type='submit'].button {
       padding: 0.2rem 4.5rem;
