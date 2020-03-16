@@ -59,7 +59,7 @@ module DataCycleCore
       (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
     end
 
-    def default_filter(filters = [])
+    def default_filter(filters = [], _scope = 'backend', _template_name = nil)
       filters
     end
 

@@ -18,7 +18,7 @@ module DataCycleCore
 
     def index
       set_instance_variables_by_view_mode(query: @query, user_filter: true)
-      @stored_filter = save_filter if params[:stored_filter].blank? && !request.xhr?
+      save_filter unless @stored_filter.persisted? || request.xhr?
 
       respond_to do |format|
         format.html
