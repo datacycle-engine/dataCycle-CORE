@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
+             controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -298,22 +298,21 @@ DataCycleCore::Engine.routes.draw do
         end
       end
     end
-
-    namespace :object_browser do
-      post :show
-      post :details
-      post :find
-      post :render_in_overlay
-    end
-
-    post 'contents/upload', to: 'contents#upload'
-    # post 'contents/new', to: 'contents#new'
-
-    resources :publications, only: :index
-
-    get :add_filter, controller: :application
-    get :add_tag_group, controller: :application
-    post :remote_render, controller: :application
-    get :reload_required, controller: :application
   end
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+    post :render_in_overlay
+  end
+
+  post 'contents/upload', to: 'contents#upload'
+  # post 'contents/new', to: 'contents#new'
+
+  resources :publications, only: :index
+
+  get :add_filter, controller: :application
+  get :add_tag_group, controller: :application
+  post :remote_render, controller: :application
+  get :reload_required, controller: :application
 end
