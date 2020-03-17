@@ -6,10 +6,6 @@ module DataCycleCore
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:search, :add_to_watchlist] # from cancancan (authorize)
-    before_action :set_default_filter, only: [:create, :add_to_watchlist], if: proc {
-      DataCycleCore::Feature::LifeCycle.enabled? &&
-        DataCycleCore::Feature::LifeCycle.default_filter.present?
-    }
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
@@ -32,7 +28,7 @@ module DataCycleCore
     end
 
     def create
-      @contents = get_filtered_results
+      @contents = get_filtered_results(user_filter: nil)
 
       @stored_filter = save_filter(new_filter: stored_filter_params[:id] ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : nil)
 

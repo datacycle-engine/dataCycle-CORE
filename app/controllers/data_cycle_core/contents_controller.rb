@@ -75,7 +75,7 @@ module DataCycleCore
           )
 
           @language ||= params.fetch(:language) { ['all'] }
-          set_instance_variables_by_view_mode(query: @query, user_filter: true)
+          set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'show', template_name: @content.template_name })
         end
 
         respond_to do |format|

@@ -4,7 +4,7 @@ module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
-    def get_filtered_results(query = nil, user_filter = false)
+    def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
       @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters
@@ -23,7 +23,7 @@ module DataCycleCore
         )
       end
 
-      @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters) if user_filter
+      @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
       query = @stored_filter.apply(experimental: can?(:experimental_features, :dash_board), query: query)
       @filters = @stored_filter.parameters
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
@@ -64,7 +64,7 @@ module DataCycleCore
       @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
     end
 
-    def set_instance_variables_by_view_mode(query: nil, user_filter: false)
+    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' })
       set_view_mode
 
       return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
@@ -77,7 +77,7 @@ module DataCycleCore
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
           @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
-          @contents = get_filtered_results(query, user_filter)
+          @contents = get_filtered_results(query: query, user_filter: user_filter)
             .part_of(@container.id)
           tmp_count = @contents.count_distinct
           @contents = @contents.distinct_by_content_id(@order_string)
@@ -97,7 +97,7 @@ module DataCycleCore
             .page(params[:tree_page])
 
           @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
-          @contents = get_filtered_results(query, user_filter)
+          @contents = get_filtered_results(query: query, user_filter: user_filter)
             .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
           tmp_count = @contents.count_distinct
           @contents = @contents.distinct_by_content_id(@order_string)
@@ -116,13 +116,13 @@ module DataCycleCore
             .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
             .order('classification_aliases.internal_name')
             .page(params[:tree_page])
-          get_filtered_results(query, user_filter) # set default parameters for filters
+          get_filtered_results(query: query, user_filter: user_filter) # set default parameters for filters
         end
 
         @tree_page = @classification_trees&.current_page
         @tree_total_pages = @classification_trees&.total_pages
       else
-        @contents = get_filtered_results(query, user_filter)
+        @contents = get_filtered_results(query: query, user_filter: user_filter)
         @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).without_count
       end
     end
@@ -137,11 +137,11 @@ module DataCycleCore
       end
     end
 
-    def total_count(query: nil, user_filter: nil)
+    def total_count(query: nil, user_filter: { scope: 'backend' })
       @count_only = true
       @target = count_only_params[:target]
       classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
-      total_count = get_filtered_results(query, user_filter)
+      total_count = get_filtered_results(query: query, user_filter: user_filter)
       @count_mode = count_only_params[:count_mode]
       @content_class = count_only_params[:content_class]
 
@@ -158,27 +158,6 @@ module DataCycleCore
       end
 
       total_count.count_distinct
-    end
-
-    def set_default_filter
-      @pre_filters = pre_filters.dup
-
-      if DataCycleCore::Feature::LifeCycle.tree_label.present? &&
-         DataCycleCore::Feature::LifeCycle.ordered_classifications.present? &&
-         DataCycleCore::Feature::LifeCycle.default_filter.present? &&
-         @pre_filters.none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? } &&
-         (@stored_filters || []).none? { |f| f['n'] == DataCycleCore::Feature::LifeCycle.tree_label && f['v'].present? }
-
-        @pre_filters.push(
-          {
-            'c' => 'a',
-            't' => 'classification_alias_ids',
-            'n' => DataCycleCore::Feature::LifeCycle.tree_label,
-            'm' => 'i',
-            'v' => [DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]
-          }
-        )
-      end
     end
 
     def load_stored_filter
