@@ -47,7 +47,7 @@ module DataCycleCore
       @stored_filter = DataCycleCore::StoredFilter.find(filter_id)
       raise ActiveRecord::RecordNotFound if api_only && !@stored_filter.api
 
-      @stored_filter.update_column(:updated_at, Time.zone.now)
+      @stored_filter.update_column(:updated_at, Time.zone.now) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def save_filter(new_filter: nil)
