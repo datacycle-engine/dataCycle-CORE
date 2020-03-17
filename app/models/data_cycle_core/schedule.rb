@@ -77,19 +77,18 @@ module DataCycleCore
     end
 
     def to_sub_event
-      return [] if @schedule_object.blank?
       return [] unless @schedule_object.terminating?
       return [] if @schedule_object.all_occurrences.size == 1
       @schedule_object.all_occurrences.map do |occurrence|
-        {
+        sub_event_hash = {
           '@context' => 'http://schema.org',
           '@type' => 'Event',
           'contentType' => 'SubEvent',
-          'identifier' => SecureRandom.uuid,
           'inLanguage' => I18n.locale.to_s,
           'startDate' => occurrence.start_time.to_s(:long_msec),
           'endDate' => occurrence.end_time.to_s(:long_msec)
         }
+        sub_event_hash.merge({ 'identifier' => generate_uuid(sub_event_hash) })
       end
     end
 
@@ -128,6 +127,11 @@ module DataCycleCore
 
     def occurs_between?(from = dtstart, to = dtend)
       @schedule_object.occurs_between?(from, to, spans: true) # consider also overlap of [from, to] with [starttime, starttime + duration]
+    end
+
+    def generate_uuid(data_hash)
+      uuid = Digest::MD5.hexdigest(data_hash.to_s)
+      [uuid[0..7], '-', uuid[8..11], '-', uuid[12..15], '-', uuid[16..19], '-', uuid[20..32]].join
     end
   end
 

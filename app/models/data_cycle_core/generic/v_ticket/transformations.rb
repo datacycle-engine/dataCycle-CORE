@@ -41,13 +41,30 @@ module DataCycleCore
           .>> t(:add_field, 'url', ->(s) { s&.dig('meta', 'permalink') })
           .>> t(:add_field, 'same_as', ->(s) { s&.try(:[], 'links')&.first&.try(:[], 'url') })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('images')&.map { |item| item.dig('original')&.split('/')&.fetch(-3) if item.dig('original')&.split('/')&.count == 7 } || [] })
-          .>> t(:rename_keys, { 'start' => 'start_date', 'end' => 'end_date' })
-          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+          .>> t(:add_field, 'event_period', ->(s) { event_period(s) })
+          .>> t(:reject_keys, ['start', 'end'])
+          .>> t(:event_schedule, ->(s) { s.dig('sub_event').map { |i| i.merge({ 'start_date' => i.dig('start'), 'end_date' => i.dig('end') }) } })
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('event_location', 'id') })
           .>> t(:tags_to_ids, 'v_ticket_categories', external_source_id, 'VTicket - Categories - ')
           .>> t(:tags_to_ids, 'v_ticket_tags', external_source_id, 'VTicket - Tags - ')
           .>> t(:reject_keys, ['title', 'event_location', 'sub_event', 'end', 'start'])
           .>> t(:strip_all)
+        end
+
+        def self.event_period(data_hash)
+          start_date = data_hash.dig('start')&.to_datetime
+          end_date = data_hash.dig('end')&.to_datetime
+          return { 'start_date' => start_date, 'end_date' => end_date } unless start_date.blank? || end_date.blank? || start_date == start_date.beginning_of_day || end_date == end_date.beginning_of_day
+
+          sub_events_start = data_hash.dig('sub_event').map { |s| s.dig('start')&.to_datetime }.compact
+          sub_events_end = data_hash.dig('sub_event').map { |s| s.dig('end')&.to_datetime }.compact
+          start_date = sub_events_start.min if start_date.blank? || start_date == start_date.beginning_of_day
+          if end_date.blank? || end_date == end_date.beginning_of_day || sub_events_end.max < sub_events_start.max
+            end_date = sub_events_start.max.end_of_day
+          else
+            end_date = sub_events_end.max
+          end
+          { 'start_date' => start_date, 'end_date' => end_date }
         end
 
         def self.vticket_subevent_to_subevent
