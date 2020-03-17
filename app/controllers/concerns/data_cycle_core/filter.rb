@@ -5,13 +5,17 @@ module DataCycleCore
     extend ActiveSupport::Concern
 
     def get_filtered_results(query = nil, user_filter = false)
+      @stored_filter ||= DataCycleCore::StoredFilter.new
       @filters = pre_filters.dup
-      query = query.dup if query.present?
-      @language ||= Array(params.fetch(:language) { [current_user.default_locale] })
-      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@filters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @filters.find { |f| f['t'] == 'in_schedule' }.present?)
+      @stored_filter.parameters ||= @filters
+      query = query&.dup
+      @language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
+      @stored_filter.language = @language
 
-      if @filters.none? { |f| f['t'] == 'order' }
-        @filters.push(
+      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
+
+      if @stored_filter.parameters.none? { |f| f['t'] == 'order' }
+        @stored_filter.parameters.push(
           {
             't' => 'order',
             'v' => @order_string
@@ -19,41 +23,9 @@ module DataCycleCore
         )
       end
 
-      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
-      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
-
-      # add default filters for user role if any exist
-      @filters = current_user.default_filter(@filters) if user_filter
-
-      @filters.presence&.each do |filter|
-        case filter['m']
-        when 'e'
-          t = "not_#{filter['t']}"
-        when 'g'
-          t = "greater_#{filter['t']}"
-        when 'l'
-          t = "lower_#{filter['t']}"
-        when 's'
-          t = "like_#{filter['t']}"
-        else
-          t = filter['t']
-        end
-
-        t = "#{t}_with_subtree" if can?(:experimental_features, :dash_board) && (filter['t'] == 'classification_alias_ids' || filter['t'] == 'not_classification_alias_ids') && !@language.include?('all')
-
-        next unless query.respond_to?(t)
-        if query.method(t)&.parameters&.size == 3
-          query = query.send(t, filter['v'], filter['q'].presence, filter['n'].presence)
-        elsif query.method(t)&.parameters&.size == 2
-          query = query.send(t, filter['v'], filter['q'].presence || filter['n'].presence)
-        else
-          query = query.send(t, filter['v'])
-        end
-      end
-
-      # add existing stored filter params
-      @filters.concat(@stored_filters) if @stored_filters.present?
-
+      @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters) if user_filter
+      query = @stored_filter.apply(experimental: can?(:experimental_features, :dash_board), query: query)
+      @filters = @stored_filter.parameters
       @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
       @advanced_filters = @filters.select { |f| f['c'] == 'a' }
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
@@ -72,25 +44,18 @@ module DataCycleCore
     end
 
     def apply_filter(filter_id:, api_only: false)
-      filter = DataCycleCore::StoredFilter.find(filter_id)
-      raise ActiveRecord::RecordNotFound if api_only && !filter.api
+      @stored_filter = DataCycleCore::StoredFilter.find(filter_id)
+      raise ActiveRecord::RecordNotFound if api_only && !@stored_filter.api
 
-      filter.update(updated_at: Time.zone.now)
-
-      @language = filter.language
-      @stored_filters = filter.parameters || []
-      @order_string = filter.parameters.find { |f| f['t'] == 'order' }&.dig('v')
-
-      filter.apply
+      @stored_filter.update_column(:updated_at, Time.zone.now) # rubocop:disable Rails/SkipsModelValidations
     end
 
     def save_filter(new_filter: nil)
-      new_filter ||= DataCycleCore::StoredFilter.new
+      new_filter ||= @stored_filter
       new_filter.user_id = current_user.id
-      new_filter.language = [@language].flatten
-      new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && new_filter.id.nil?
+      new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
       new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
-      new_filter.parameters = @filters if @filters.present?
+      new_filter.parameters = @stored_filter.parameters
       new_filter.save
       new_filter
     end
@@ -217,11 +182,11 @@ module DataCycleCore
     end
 
     def load_stored_filter
-      @query = apply_filter(filter_id: params[:stored_filter])
+      apply_filter(filter_id: params[:stored_filter])
     end
 
     def load_last_filter
-      params[:stored_filter] = current_user.stored_filters.order(updated_at: :desc)&.first&.id
+      apply_filter(filter_id: current_user.stored_filters.order(updated_at: :desc)&.first&.id)
     end
 
     def filter_params

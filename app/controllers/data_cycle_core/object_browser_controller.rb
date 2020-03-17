@@ -27,9 +27,11 @@ module DataCycleCore
               hash['v'] = v
             end
           end
+          stored_filter_params = current_user.default_filter(stored_filter_params, 'object_browser')
           filter.parameters = stored_filter_params
           query = filter.apply
         else
+          filter.parameters = current_user.default_filter([], 'object_browser', template_name)
           query = filter.apply
           query = query.where(template_name: template_name.to_s) if template_name
         end
