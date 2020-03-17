@@ -12,16 +12,34 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:reject_keys, ['@context', '@type', 'allDay'])
           .>> t(:underscore_keys)
-          .>> t(:rename_keys, { 'id' => 'external_key', 'tags' => 'event_tag', 'location' => 'event_location' })
-          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+          .>> t(:rename_keys, { 'id' => 'external_key', 'tags' => 'event_tag', 'location' => 'event_location', 'sub_events' => 'sub_event' })
+          .>> t(:map_value, 'sub_event', ->(s) { s.map { |i| DataCycleCore::Generic::Common::Functions.underscore_keys(i) } })
+          .>> t(:add_field, 'event_period', ->(s) { event_period(s) })
+          .>> t(:reject_keys, ['start_date', 'end_date'])
+          .>> t(:event_schedule, ->(s) { s.dig('sub_event') })
           .>> t(:tags_to_ids, 'event_tag', external_source_id, 'Veranstaltungsdatenbank - tags - ')
           .>> t(:category_key_to_ids, 'categories', ->(s) { s.dig('categories') }, 'name', external_source_id, 'CATEGORY:', 'id')
           .>> t(:rename_keys, 'categories' => 'event_category')
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { "PLACE:#{s.dig('event_location', 'id')}" })
           .>> t(:add_link, 'image', DataCycleCore::Thing, external_source_id, ->(s) { "IMAGE:#{s.dig('image', 'id')}" })
-          .>> t(:reject_keys, ['sub_events'])
           .>> t(:compact)
           .>> t(:strip_all)
+        end
+
+        def self.event_period(data_hash)
+          start_date = data_hash.dig('start_date')&.to_datetime
+          end_date = data_hash.dig('end_date')&.to_datetime
+          return { 'start_date' => start_date, 'end_date' => end_date } unless start_date.blank? || end_date.blank? || start_date == start_date.beginning_of_day || end_date == end_date.beginning_of_day
+
+          sub_events_start = data_hash.dig('sub_event').map { |s| s.dig('start_date')&.to_datetime }.compact
+          sub_events_end = data_hash.dig('sub_event').map { |s| s.dig('end_date')&.to_datetime }.compact
+          start_date = sub_events_start.min if start_date.blank? || start_date == start_date.beginning_of_day
+          if end_date.blank? || end_date == end_date.beginning_of_day || sub_events_end.max < sub_events_start.max
+            end_date = sub_events_start.max.end_of_day
+          else
+            end_date = sub_events_end.max
+          end
+          { 'start_date' => start_date, 'end_date' => end_date }
         end
 
         def self.event_database_sub_item_to_sub_event

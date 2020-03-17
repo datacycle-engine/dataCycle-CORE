@@ -31,9 +31,9 @@ module DataCycleCore
           schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.to_datetime
           schedule_hash[:dtend] = data_hash.dig('event_period', 'end_date')&.to_datetime
           if sub_event.present?
-            rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.to_datetime }.compact
-            estart = sub_event.first.dig('event_period', 'start_date')&.to_datetime
-            eend = sub_event.first.dig('event_period', 'end_date')&.to_datetime
+            rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.to_datetime || i.dig('start_date')&.to_datetime }.compact
+            estart = sub_event.first.dig('event_period', 'start_date')&.to_datetime || sub_event.first.dig('start_date')&.to_datetime
+            eend = sub_event.first.dig('event_period', 'end_date')&.to_datetime || sub_event.first.dig('end_date')&.to_datetime
             duration = eend.to_i - estart.to_i if eend.present? && estart.present?
             options = { duration: duration.presence&.to_i }.compact
             schedule_object = IceCube::Schedule.new(schedule_hash[:dtstart].in_time_zone.presence || Time.zone.now, options) do |s|

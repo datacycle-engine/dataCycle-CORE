@@ -96,6 +96,7 @@ de:
     prev: Vorherige Termine
     rdate: Zusätzliche Termine
     exdate: Ausgenommene Termine
+    ongoing: fortlaufend
 
   common:
     'true': Ja
