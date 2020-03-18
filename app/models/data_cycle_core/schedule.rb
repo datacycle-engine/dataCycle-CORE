@@ -60,7 +60,11 @@ module DataCycleCore
         by_month_day = rule_hash.dig(:validations, :day_of_month)
       end
 
-      {
+      schedule_hash = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'inLanguage' => I18n.locale.to_s,
         'startDate' => dtstart&.to_s(:only_date),
         'endDate' => dtend&.to_s(:only_date),
         'startTime' => dtstart&.to_s(:only_time),
@@ -74,11 +78,12 @@ module DataCycleCore
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i)
       }.compact
+      schedule_hash.merge({ 'identifier' => generate_uuid(schedule_hash) })
     end
 
     def to_sub_event
       return [] unless @schedule_object.terminating?
-      return [] if @schedule_object.all_occurrences.size == 1
+      # return [] if @schedule_object.all_occurrences.size == 1
       @schedule_object.all_occurrences.map do |occurrence|
         sub_event_hash = {
           '@context' => 'http://schema.org',
