@@ -123,6 +123,7 @@ class ContentLock {
     }
 
     this.button.prop('disabled', true).addClass('content-locked show-pie-text');
+    $('.delete-content-locks').addClass('show');
 
     if (isFirst) {
       this.checkLockState();
@@ -250,6 +251,7 @@ class ContentLock {
     if (Object.keys(this.locks).length === 0 && this.locks.constructor === Object) {
       clearInterval(this.lockStateInterval);
       this.button.prop('disabled', false).removeClass('content-locked show-pie-text');
+      $('.delete-content-locks').removeClass('show');
     }
   }
 }

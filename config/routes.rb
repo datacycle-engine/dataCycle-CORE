@@ -56,6 +56,7 @@ DataCycleCore::Engine.routes.draw do
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
+      delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end

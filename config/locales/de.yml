@@ -489,6 +489,7 @@ de:
     set_and_next: 'übernehmen und weiter'
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
+    remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
 
   validation:
     errors:
@@ -592,6 +593,7 @@ de:
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
       bulk_created: Inhalte wurden erstellt
+      removed_lock: Inhalt wurde freigegeben
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'

@@ -368,6 +368,17 @@ module DataCycleCore
       render json: @asset
     end
 
+    def remove_locks
+      @content = DataCycleCore::Thing.find(params[:id])
+      authorize! :remove_lock, @content
+
+      @content.lock&.destroy
+
+      flash[:success] = I18n.t :removed_lock, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+
+      redirect_back(fallback_location: root_path)
+    end
+
     private
 
     def set_watch_list
