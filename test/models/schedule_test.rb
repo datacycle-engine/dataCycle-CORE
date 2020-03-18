@@ -72,6 +72,10 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'endDate' => '2020-01-04',
         'startTime' => '09:00',
@@ -79,7 +83,7 @@ module DataCycleCore
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
     test 'handling start/end date with only starttime and duration given' do
@@ -92,6 +96,10 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'endDate' => '2020-01-03',
         'startTime' => '09:00',
@@ -99,7 +107,7 @@ module DataCycleCore
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
     test 'handling start date time given and duration' do
@@ -111,13 +119,17 @@ module DataCycleCore
       assert_nil(schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
   end
 end
