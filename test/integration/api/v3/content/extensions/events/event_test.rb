@@ -194,8 +194,8 @@ module DataCycleCore
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
                     'identifier' => sub_event.id,
-                    'startDate' => sub_event.start_date.to_s(:iso8601),
-                    'endDate' => sub_event.end_date.to_s(:iso8601)
+                    'startDate' => sub_event.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.end_date.to_s(:long_msec)
                   }
                 end
                 v2_subevents = v3_subevents.map do |sub_event|
@@ -203,17 +203,17 @@ module DataCycleCore
                 end
                 convert_api_v2_json = api_v2_json
                 convert_api_v2_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
                 end
                 convert_api_v3_json = api_v3_json
                 convert_api_v3_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
                 end
                 except_sub_event_params = excepted_params + ['identifier', 'name', 'description', 'sameAs']
 
-                assert_equal(api_v3_json.except('subEvent', *except_sub_event_params), api_v2_json.except('subEvent', *except_sub_event_params))
+                assert_equal(api_v3_json.except('subEvent', *except_sub_event_params), api_v2_json.except('subEvent', 'eventSchedule', *except_sub_event_params))
                 assert_equal(convert_api_v2_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v2_subevents.map { |item| item.except(*except_sub_event_params) })
                 assert_equal(convert_api_v3_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v3_subevents.map { |item| item.except(*except_sub_event_params) })
                 assert_equal(api_v3_json.dig('image').first.except(*except_sub_event_params), api_v2_json.dig('image').first.except(*except_sub_event_params))

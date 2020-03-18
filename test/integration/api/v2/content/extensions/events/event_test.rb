@@ -19,10 +19,17 @@ module DataCycleCore
                 event_schedule = @content.get_data_hash
                 event_schedule['event_schedule'] = [{
                   'start_time' => {
-                    'time' => 8.days.ago.to_s,
+                    'time' => Time.new(2019, 10, 10).in_time_zone,
                     'zone' => 'Vienna'
                   },
-                  'duration' => 10.days.to_i
+                  'rtimes' => [{
+                    'time' => Time.new(2019, 10, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  }, {
+                    'time' => Time.new(2019, 10, 20).in_time_zone,
+                    'zone' => 'Vienna'
+                  }],
+                  'duration' => 5.days.to_i
                 }]
                 @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
@@ -81,14 +88,13 @@ module DataCycleCore
                     '@context' => 'http://schema.org',
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
-                    'name' => sub_event.name,
-                    'description' => sub_event.description,
-                    'sameAs' => sub_event.url,
-                    'startDate' => sub_event.event_period.start_date,
-                    'endDate' => sub_event.event_period.end_date
+                    'startDate' => sub_event.event_period.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.event_period.end_date.to_s(:long_msec),
+                    'sameAs' => @content.url
                   }
                 end
-                assert_equal(sub_events, json_data.dig('subEvent'))
+                json_sub_events = json_data.dig('subEvent').map { |i| i.except('identifier', 'inLanguage') }
+                assert_equal(sub_events, json_sub_events)
               end
 
               test 'testing EventOverlay' do
@@ -159,7 +165,7 @@ module DataCycleCore
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
-                get(api_v2_events_path)
+                get(api_v2_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').first
