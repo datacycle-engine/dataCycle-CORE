@@ -31,7 +31,7 @@
             remote: true,
             data: {
               disable_with: "#{t('schedule.prev', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
-            } unless next_occurrences&.include?(object.try(:schedule_object)&.first) %>
+            } if !object.try(:schedule_object)&.terminating? || next_occurrences&.exclude?(object.try(:schedule_object)&.first) %>
 
           <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: next_occurrences, as: :date, locals: { object: object } %>
 
@@ -43,7 +43,7 @@
             remote: true,
             data: {
               disable_with: "#{t('schedule.next', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
-            } if object.try(:schedule_object)&.recurrence_rules.present? && (object.try(:schedule_object)&.recurrence_rules&.first&.until_time.blank? || (object.try(:schedule_object)&.last.present? && next_occurrences&.exclude?(object.try(:schedule_object)&.last) && object.try(:schedule_object)&.last > Time.zone.now)) %>
+            } if !object.try(:schedule_object)&.terminating? || (next_occurrences&.exclude?(object.try(:schedule_object)&.last) && object.try(:schedule_object)&.last > Time.zone.now) %>
         </span>
 
     <% end %>
