@@ -20,6 +20,7 @@ class SplitView {
     this.setupCopyAllButtons(this.availableEditors(['included-object']));
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
+    this.container.on('click', '.translate', this.handleButtonClick.bind(this));
     this.container.closest('.split-content').on('click', '.copy-all', this.triggerAllButtons.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
     this.container
@@ -150,6 +151,14 @@ class SplitView {
     if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
+
+    $(element).append(
+      '<a class="button-prime small translate' +
+        (single ? ' translate-single-button' : '') +
+        '" data-translate-attribute="' +
+        copy_attr +
+        '" title="übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
+    );
 
     $(element).append(
       '<a class="button-prime small copy' +
