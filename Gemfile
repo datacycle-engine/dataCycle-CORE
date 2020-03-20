@@ -19,7 +19,7 @@ gem 'translations', path: 'vendor/gems/translations'
 gem 'appsignal'
 
 # NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
-# gem 'rubyzip', '>= 1.2.1'
+gem 'rubyzip', '>= 1.2.1'
 # gem 'caxlsx' # , git: 'https://github.com/randym/caxlsx.git', ref: 'c8ac844'
 # gem 'caxlsx_rails'
 
