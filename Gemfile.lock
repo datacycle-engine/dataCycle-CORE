@@ -528,7 +528,6 @@ DEPENDENCIES
   pry
   rb-readline
   rubocop (~> 0.63.1)
-  rubyzip (>= 1.2.1)
   simplecov
   spring
   spring-watcher-listen
