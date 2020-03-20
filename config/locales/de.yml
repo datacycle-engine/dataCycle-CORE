@@ -254,6 +254,9 @@ de:
     widgets:
       list: Listenansicht
       map: Kartenansicht
+    user_registration:
+      terms_conditions: 'Ich aktzeptiere die <a href="%{url}" target="_blank">Allgemeinen Geschäftsbedingungen</a>.'
+      privacy_policy: 'Ich bin mit der Verarbeitung meiner Daten laut  <a href="%{url}" target="_blank">Datenschutzerklärung</a> einverstanden.'
 
   upload:
     drag_and_drop_html: '<p><b>Ein oder mehrere %{type} einfach hier ablegen!</b></p><p>oder</p><p><u><b>über Systemdialog auswählen</b></u></p>'
@@ -356,6 +359,7 @@ de:
       unit: Einheit
     relation_filter:
       contained_in: ist enthalten in
+    feratel_content_score: Feratel - Content Score
 
   filter_groups:
     classification_alias_ids: nach Klassifizierungen filtern...
@@ -485,6 +489,7 @@ de:
     set_and_next: 'übernehmen und weiter'
     set_all_attributes: 'für alle %{data} übernehmen'
     close_overlay: Overlay schließen
+    remove_locks: Inhalt zur Bearbeitung freigeben (Sperre entfernen)
 
   validation:
     errors:
@@ -588,6 +593,7 @@ de:
       bulk_updated: Inhalte wurden aktualisiert
       bulk_deleted: Inhalte wurden gelöscht
       bulk_created: Inhalte wurden erstellt
+      removed_lock: Inhalt wurde freigegeben
     info:
       not_modified: '%{data} wurde nicht geändert.'
       created_duplication: '%{data} wurde erfolgreich dupliziert.'

@@ -2408,6 +2408,14 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
+.button-prime.delete-content-locks {
+  display: none;
+
+  &.show {
+    display: inline-block;
+  }
+}
+
 .button-prime.content-lock {
   > i.fa {
     z-index: 1;

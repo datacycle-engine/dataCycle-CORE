@@ -75,7 +75,7 @@ module DataCycleCore
           )
 
           @language ||= params.fetch(:language) { ['all'] }
-          set_instance_variables_by_view_mode(query: @query, user_filter: true)
+          set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'show', template_name: @content.template_name })
         end
 
         respond_to do |format|
@@ -366,6 +366,17 @@ module DataCycleCore
       render(json: { error: JSON.parse(errors)['errors'] }) && return if errors.present? && JSON.parse(errors).key?('errors')
 
       render json: @asset
+    end
+
+    def remove_locks
+      @content = DataCycleCore::Thing.find(params[:id])
+      authorize! :remove_lock, @content
+
+      @content.lock&.destroy
+
+      flash[:success] = I18n.t :removed_lock, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+
+      redirect_back(fallback_location: root_path)
     end
 
     private

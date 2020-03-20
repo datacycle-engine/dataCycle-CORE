@@ -15,7 +15,7 @@ module DataCycleCore
         }
       )
 
-      set_instance_variables_by_view_mode(query: @query, user_filter: true)
+      set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'subscriptions' })
 
       respond_to do |format|
         format.html

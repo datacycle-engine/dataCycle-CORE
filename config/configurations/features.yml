@@ -151,6 +151,7 @@
     :default_locale:
     :password:
     :password_confirmation:
+    :confirmed_at:
   :issuer: datacycle.at
 
 :copy_embedded_locale:
@@ -174,6 +175,8 @@
 
 :user_registration:
   :enabled: false
+  :terms_condition_url:
+  :privacy_policy_url:
 
 :preview:
   :enabled: false

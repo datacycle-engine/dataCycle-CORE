@@ -6,10 +6,6 @@ module DataCycleCore
     include DataCycleCore::DownloadHandler if DataCycleCore::Feature::Download.enabled?
     before_action :authenticate_user! # from devise (authenticate)
     load_and_authorize_resource except: [:search, :add_to_watchlist] # from cancancan (authorize)
-    before_action :set_default_filter, only: [:create, :add_to_watchlist], if: proc {
-      DataCycleCore::Feature::LifeCycle.enabled? &&
-        DataCycleCore::Feature::LifeCycle.default_filter.present?
-    }
 
     def index
       @saved_stored_searches = @accessible_stored_filters.where.not(name: nil).order(:name)
@@ -32,15 +28,11 @@ module DataCycleCore
     end
 
     def create
-      @contents = get_filtered_results
+      @contents = get_filtered_results(user_filter: nil)
 
-      if stored_filter_params[:id].present?
-        @stored_filter = save_filter(new_filter: DataCycleCore::StoredFilter.find(stored_filter_params[:id]))
-        redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :updated, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
-      else
-        @stored_filter = save_filter
-        redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t :created, scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
-      end
+      @stored_filter = save_filter(new_filter: stored_filter_params[:id] ? DataCycleCore::StoredFilter.find(stored_filter_params[:id]) : nil)
+
+      redirect_to(root_path(stored_filter: @stored_filter), notice: (I18n.t (stored_filter_params[:id].present? ? :updated : :created), scope: [:controllers, :success], data: 'Filter', locale: DataCycleCore.ui_language))
     end
 
     def destroy
@@ -61,7 +53,7 @@ module DataCycleCore
     end
 
     def add_to_watchlist
-      @stored_filter = DataCycleCore::WatchList.find(params[:watch_list_id])
+      @watch_list = DataCycleCore::WatchList.find(params[:watch_list_id])
       authorize! :add_item, @watch_list
 
       content_query = get_filtered_results.distinct_by_content_id(@order_string).select("'#{@watch_list.id}', things.id, 'DataCycleCore::Thing', NOW(), NOW()")

@@ -10,7 +10,7 @@ module DataCycleCore
     belongs_to :linked_stored_filter, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :filter_uses, dependent: nil
     has_many :filter_uses, class_name: 'DataCycleCore::StoredFilter', foreign_key: :linked_stored_filter_id, inverse_of: :linked_stored_filter, dependent: :nullify
 
-    # Mögliche Filter-Parameter: c, t, v, m, n
+    # Mögliche Filter-Parameter: c, t, v, m, n, q
     #
     # c => 'd' oder 'a'         | für 'default' oder 'advanced'
     # t => String               | der Filtertyp (die Methode, die auf die Query ausgeführt wird, z.B. 'classification_alias_ids')
@@ -19,9 +19,9 @@ module DataCycleCore
     # n => String               | das Filterlabel (z.B. 'Inhaltspools')
     # q => String (Optional)    | Ein spezifischer Query-Pfad für das Attribut (z.B. metadata ->> 'width') || type
 
-    def apply(experimental: false)
+    def apply(experimental: false, query: nil)
       query_params = language.include?('all') ? [nil, DataCycleCore::Thing] : [language]
-      query = DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
+      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
 
       parameters.presence&.each do |filter|
         case filter['m']
@@ -36,6 +36,7 @@ module DataCycleCore
         else
           t = filter['t']
         end
+
         next unless query.respond_to?(t)
 
         # TODO: move to production with more options (not etc...)
@@ -50,6 +51,7 @@ module DataCycleCore
           query = query.send(t, filter['v'])
         end
       end
+
       query
     end
   end

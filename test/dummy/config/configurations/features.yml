@@ -131,6 +131,10 @@
 #    :validity_period.valid_through:
 #      :type: date
 
+:user_registration:
+  :enabled: true
+  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
+  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
 
 :duplicate_candidate:
   :enabled: true

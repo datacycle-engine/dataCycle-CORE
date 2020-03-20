@@ -56,6 +56,7 @@ DataCycleCore::Engine.routes.draw do
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
+      delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end
@@ -233,44 +234,44 @@ DataCycleCore::Engine.routes.draw do
               end
             end
           end
-          if DataCycleCore.main_config.dig(:api, :v4, :enabled)
-            namespace :v4 do
-              scope path: '(/:api_subversion)' do
-                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+        end
+        if DataCycleCore.main_config.dig(:api, :v4, :enabled)
+          namespace :v4 do
+            scope path: '(/:api_subversion)' do
+              match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
 
-                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
-                match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+              match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
+              match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
 
-                match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
+              match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
 
-                match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
-                match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
+              match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
+              match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
 
-                resources :concept_schemes, only: [], controller: :classification_trees do
-                  match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
-                end
-
-                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
-
-                post 'collections/create', to: 'watch_lists#create'
-                resources :collections, only: [], controller: :watch_lists do
-                  post :add_item, on: :member
-                  post :remove_item, on: :member
-                  get :download_and_reset, on: :member
-                end
-                match 'collections', to: 'watch_lists#index', via: [:get, :post]
-                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
-
-                namespace :authentication, path: :auth do
-                  post :login
-                  post :renew_login
-                  post :logout
-                end
-
-                post 'users/create', to: 'users#create'
-                match 'users', to: 'users#index', via: [:get, :post]
-                match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              resources :concept_schemes, only: [], controller: :classification_trees do
+                match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
               end
+
+              match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+              post 'collections/create', to: 'watch_lists#create'
+              resources :collections, only: [], controller: :watch_lists do
+                post :add_item, on: :member
+                post :remove_item, on: :member
+                get :download_and_reset, on: :member
+              end
+              match 'collections', to: 'watch_lists#index', via: [:get, :post]
+              match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+              namespace :authentication, path: :auth do
+                post :login
+                post :renew_login
+                post :logout
+              end
+
+              post 'users/create', to: 'users#create'
+              match 'users', to: 'users#index', via: [:get, :post]
+              match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
             end
           end
         end
@@ -298,22 +299,21 @@ DataCycleCore::Engine.routes.draw do
         end
       end
     end
-
-    namespace :object_browser do
-      post :show
-      post :details
-      post :find
-      post :render_in_overlay
-    end
-
-    post 'contents/upload', to: 'contents#upload'
-    # post 'contents/new', to: 'contents#new'
-
-    resources :publications, only: :index
-
-    get :add_filter, controller: :application
-    get :add_tag_group, controller: :application
-    post :remote_render, controller: :application
-    get :reload_required, controller: :application
   end
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+    post :render_in_overlay
+  end
+
+  post 'contents/upload', to: 'contents#upload'
+  # post 'contents/new', to: 'contents#new'
+
+  resources :publications, only: :index
+
+  get :add_filter, controller: :application
+  get :add_tag_group, controller: :application
+  post :remote_render, controller: :application
+  get :reload_required, controller: :application
 end

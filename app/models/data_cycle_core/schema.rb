@@ -67,7 +67,8 @@ module DataCycleCore
                 domain: schema_name,
                 label: key.camelize(:lower),
                 range: resolve_range(definition),
-                comment: nil
+                comment: nil,
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
               }
             end
           }.flatten.sort_by { |definition| [definition[:domain], definition[:label]] }
