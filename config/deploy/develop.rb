@@ -8,7 +8,14 @@
 # activate for deployment:
 server '37.61.206.122', user: 'pixelpoint', roles: ['app', 'db', 'web']
 set :branch, 'develop'
-set :rails_env, 'staging'
-set :deploy_to, '/var/www/data-cycle-core/development'
+set :rails_env, 'production'
+set :deploy_to, '/var/www/data-cycle-core/develop/production'
 set :cmd_prefix, 'app:'
 set :application_root_path, 'test/dummy/'
+set :server_name, 'feratel-demo.datacycle.at'
+set :deploy_user, 'pixelpoint'
+
+namespace :deploy do
+  before 'deploy:migrate', 'datacycle:dev:dump_db'
+  after 'deploy:cleanup', 'datacycle:dev:clean_up_dumps'
+end
