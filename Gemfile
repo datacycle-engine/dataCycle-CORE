@@ -20,8 +20,8 @@ gem 'appsignal'
 
 # NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
 gem 'rubyzip', '>= 1.2.1'
-gem 'axlsx', git: 'https://github.com/randym/axlsx.git', ref: 'c8ac844'
-gem 'axlsx_rails'
+gem 'caxlsx' # , git: 'https://github.com/randym/caxlsx.git', ref: 'c8ac844'
+gem 'caxlsx_rails'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
