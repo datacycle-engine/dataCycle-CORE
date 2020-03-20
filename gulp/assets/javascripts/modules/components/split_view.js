@@ -152,13 +152,16 @@ class SplitView {
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
 
-    $(element).append(
-      '<a class="button-prime small translate' +
-        (single ? ' translate-single-button' : '') +
-        '" data-translate-attribute="' +
-        copy_attr +
-        '" title="übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
-    );
+    if (copy_attr === 'html') {
+      $(element).append(
+        '<a class="button-prime small translate' +
+        (single ? ' translate-single-button' : '') + //??
+          '" data-copy-attribute="' +
+          copy_attr +
+          '" data-translate-attribute="true"' +
+          ' title="übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
+      );
+    }
 
     $(element).append(
       '<a class="button-prime small copy' +
@@ -209,7 +212,12 @@ class SplitView {
 
     let label = elem.parents('[data-editor]').data('label');
     let key = elem.parents('[data-editor]').data('key');
-    this.copyContents(value, label, key);
+
+    if (elem.data('translate-attribute')) {
+      this.translateText(value, label, key);
+    } else {
+      this.copyContents(value, label, key);
+    }
   }
   triggerAllButtons(event) {
     event.preventDefault();
@@ -230,6 +238,22 @@ class SplitView {
     });
 
     target.get(0).scrollIntoView({ behavior: 'smooth' });
+  }
+  translateText(value, label, key) {
+    var formData = {
+      text: value.trim(),
+      locale: this.locale
+    };
+    $.ajax({
+      url: '/things/translate_text',
+      method: 'POST',
+      data: formData,
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded'
+    }).done(data => {
+      console.log(data);
+      this.copyContents(data.text, label, key);
+    });
   }
 }
 
