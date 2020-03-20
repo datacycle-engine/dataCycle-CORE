@@ -75,8 +75,10 @@ class TourSprungEditor {
       .siblings('.map-info')
       .first();
 
+    let elevationField = form_fields.find('.form-element.elevation > input');
+
     if (
-      (form_fields.find('.form-element.elevation > input').val().length == 0 &&
+      ((!elevationField.val() || elevationField.val().length == 0) &&
         this.container
           .parent('.geographic')
           .siblings('input.location-data:hidden')
@@ -84,7 +86,7 @@ class TourSprungEditor {
           .val().length == 0) ||
       (data && data.force)
     ) {
-      form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+      elevationField.val(data.value.elevation);
       form_fields
         .find('.form-element.latitude > input')
         .val(data.value.y)
@@ -101,7 +103,7 @@ class TourSprungEditor {
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function() {
-          form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+          elevationField.val(data.value.elevation);
           form_fields
             .find('.form-element.latitude > input')
             .val(data.value.y)
