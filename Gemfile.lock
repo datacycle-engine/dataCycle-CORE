@@ -10,7 +10,6 @@ PATH
       cancancan
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
-      caxlsx
       caxlsx_rails
       daemons
       delayed_job_active_record
@@ -518,6 +517,8 @@ DEPENDENCIES
   capistrano-rvm
   capistrano3-delayed-job
   capistrano3-puma
+  caxlsx
+  caxlsx_rails
   data_cycle_core!
   dotenv-rails
   faker

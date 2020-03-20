@@ -125,7 +125,7 @@ Gem::Specification.new do |s|
 
   # Excel Generator
   # s.add_dependency 'rubyzip', '>= 1.2.1'
-  s.add_dependency 'caxlsx'
+  # s.add_dependency 'caxlsx'
   s.add_dependency 'caxlsx_rails'
 
   # Google Cloud Services
