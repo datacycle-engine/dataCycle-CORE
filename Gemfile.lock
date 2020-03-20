@@ -15,7 +15,6 @@ PATH
       daemons
       delayed_job_active_record
       devise
-      dotenv-rails
       dry-validation (~> 0.11)
       faraday
       faraday_middleware
@@ -521,6 +520,7 @@ DEPENDENCIES
   capistrano3-delayed-job
   capistrano3-puma
   data_cycle_core!
+  dotenv-rails
   faker
   fasterer
   jb
