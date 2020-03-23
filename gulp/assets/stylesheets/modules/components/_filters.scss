@@ -565,15 +565,8 @@ $filter-border: #aaa;
         padding: 1px 3px 1px 5px;
       }
 
-      i.tag-group-label {
-        color: $dark-gray;
-        white-space: nowrap;
+      .tag-group-label {
         padding: 1px 5px 1px 3px;
-        font-style: normal;
-
-        .fa {
-          font-size: 0.9rem;
-        }
       }
 
       label {
@@ -666,16 +659,44 @@ $filter-border: #aaa;
         text-align: left;
         cursor: pointer;
 
+        &.search-history-short > ul li .stored-date {
+          color: $black;
+          margin-bottom: 0.2rem;
+        }
+
         > ul {
           display: none;
+          flex-flow: row wrap;
+          justify-content: flex-start;
+          align-items: stretch;
           overflow-y: auto;
+          background: $light-gray;
+          padding: 0.2rem;
 
           li {
-            &:not(:last-child) {
-              border-bottom: 1px solid $medium-gray;
+            flex: 0;
+            flex-basis: calc(calc(100% / 3) - 0.4rem);
+            border-radius: 5px;
+            background: $white;
+            position: relative;
+            margin: 0.2rem;
+            display: flex;
+            flex-flow: column;
+            overflow: hidden;
+
+            &:last-child {
+              flex-basis: 100%;
+              align-items: flex-start;
+              background: transparent;
             }
 
             a:not(.button) {
+              color: $dark-gray;
+              padding: 1rem;
+              display: flex;
+              flex-flow: column;
+              height: 100%;
+              width: 100%;
               transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
 
               span {
@@ -686,22 +707,22 @@ $filter-border: #aaa;
                 }
               }
 
+              .stored-date {
+                padding-right: 6rem;
+              }
+
               &:hover,
               &:focus {
                 span.title {
-                  color: lighten($dark-gray, 20%);
+                  color: $black;
                 }
 
-                color: lighten($dark-gray, 20%);
-                background-color: darken($white, 2%);
+                color: $black;
               }
-
-              color: $dark-gray;
-              padding: 1rem;
-              display: block;
 
               i {
                 font-size: 0.9rem;
+                margin-right: 0.2rem;
               }
 
               span {
@@ -713,23 +734,12 @@ $filter-border: #aaa;
                   float: right;
                 }
 
-                &.stored-date {
-                  display: table-cell;
-                  width: 15rem;
-                  min-width: 15rem;
-
-                  &.right {
-                    width: auto;
-                  }
-                }
-
                 &.stored-filter-params {
                   display: table-cell;
                   color: $black;
                   font-size: 0.8rem;
 
                   .tag-group {
-                    font-style: italic;
                     color: $dark-gray;
                     display: block;
                     margin-right: 0.5rem;
@@ -757,7 +767,6 @@ $filter-border: #aaa;
                       padding: 0 0.3rem;
                       line-height: 1.2rem;
                       border-radius: 5px;
-                      white-space: nowrap;
                     }
 
                     &.search-term .tag {
@@ -772,12 +781,18 @@ $filter-border: #aaa;
               margin: 1rem;
             }
             .preview-widget-list {
-              text-align: right;
-              position: relative;
-              display: block;
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              position: absolute;
+              bottom: 0.5rem;
+              right: 0.5rem;
+              z-index: 1;
+
               a {
                 position: relative;
                 display: inline-block;
+                padding: 0.5rem;
               }
             }
           }
@@ -795,17 +810,17 @@ $filter-border: #aaa;
         }
 
         &.active {
-          background-color: white;
+          background-color: darken($white, 2%);
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
 
           > ul {
-            display: block;
+            display: flex !important;
             position: absolute;
             left: 0;
             top: calc(100% - 1px);
             width: 100%;
-            background-color: white;
+            background-color: darken($white, 2%);
             box-shadow: 0 5px 3px rgba($black, 0.3);
             z-index: 3;
           }
@@ -888,6 +903,16 @@ $filter-border: #aaa;
         top: 0.5rem;
       }
     }
+  }
+}
+
+.tag-group-label {
+  color: $dark-gray;
+  white-space: nowrap;
+
+  .fa {
+    font-size: 0.8rem;
+    line-height: 0.8rem;
   }
 }
 
@@ -982,6 +1007,10 @@ $filter-border: #aaa;
       vertical-align: middle;
       margin-left: 0.5rem;
     }
+  }
+
+  .search-history-list ul li.content-item span.buttons {
+    top: 0.7rem;
   }
 
   ul {
@@ -1095,7 +1124,6 @@ $filter-border: #aaa;
             font-size: 0.8rem;
             margin-top: 0.2rem;
             color: $dark-gray;
-            font-style: italic;
 
             i {
               font-size: 0.8rem;
@@ -1103,7 +1131,6 @@ $filter-border: #aaa;
             }
 
             .tag-group {
-              font-style: italic;
               color: $dark-gray;
               display: block;
               margin-right: 0.5rem;
@@ -1115,7 +1142,6 @@ $filter-border: #aaa;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
                 border-radius: 5px;
-                white-space: nowrap;
               }
 
               &.e {
