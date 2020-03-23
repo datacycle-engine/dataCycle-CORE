@@ -17,7 +17,6 @@ module DataCycleCore
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
             query = build_search_query
             query = apply_ordering(query)
-
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
             render 'index'
@@ -69,6 +68,7 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
+          query = query.except(:order)
           query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
           query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
         end
