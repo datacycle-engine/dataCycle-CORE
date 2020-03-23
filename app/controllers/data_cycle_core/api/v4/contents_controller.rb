@@ -66,7 +66,7 @@ module DataCycleCore
 
         def apply_ordering(query)
           if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
-            query.reorder(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
           else
             query
           end
