@@ -6,8 +6,4 @@
   <% if can?(:index, DataCycleCore::Classification) || can?(:index, DataCycleCore::User) || can?(:index, DataCycleCore::UserGroup) %>
     <%= render 'data_cycle_core/application/side_bar/administration', local_assigns %>
   <% end %>
-
-  <% if can?(:read, DataCycleCore::StoredFilter) && @accessible_stored_filters.where.not(name: nil).present? %>
-    <%= render 'data_cycle_core/application/side_bar/stored_filters', local_assigns %>
-  <% end %>
 </div>

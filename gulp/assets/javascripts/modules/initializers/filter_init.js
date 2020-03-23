@@ -90,9 +90,9 @@ module.exports.initialize = function() {
           $('.filters .filtertags .filter-groups').append(
             '<span class="tag-group tags i ' +
               tree_label +
-              '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
+              '"><span class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
               tree_label_title +
-              ':</i> <span class="tags-container"></span></span>'
+              ':</span> <span class="tags-container"></span></span>'
           );
         }
 

@@ -565,15 +565,8 @@ $filter-border: #aaa;
         padding: 1px 3px 1px 5px;
       }
 
-      i.tag-group-label {
-        color: $dark-gray;
-        white-space: nowrap;
+      .tag-group-label {
         padding: 1px 5px 1px 3px;
-        font-style: normal;
-
-        .fa {
-          font-size: 0.9rem;
-        }
       }
 
       label {
@@ -668,7 +661,7 @@ $filter-border: #aaa;
 
         &.search-history-short > ul li .stored-date {
           color: $black;
-          margin-bottom: 0.1rem;
+          margin-bottom: 0.2rem;
         }
 
         > ul {
@@ -685,10 +678,15 @@ $filter-border: #aaa;
             flex-basis: calc(calc(100% / 3) - 0.4rem);
             border-radius: 5px;
             background: $white;
+            position: relative;
             margin: 0.2rem;
+            display: flex;
+            flex-flow: column;
+            overflow: hidden;
 
             &:last-child {
               flex-basis: 100%;
+              align-items: flex-start;
               background: transparent;
             }
 
@@ -707,6 +705,10 @@ $filter-border: #aaa;
                 &.global {
                   font-weight: bold;
                 }
+              }
+
+              .stored-date {
+                padding-right: 6rem;
               }
 
               &:hover,
@@ -738,7 +740,6 @@ $filter-border: #aaa;
                   font-size: 0.8rem;
 
                   .tag-group {
-                    font-style: italic;
                     color: $dark-gray;
                     display: block;
                     margin-right: 0.5rem;
@@ -766,7 +767,6 @@ $filter-border: #aaa;
                       padding: 0 0.3rem;
                       line-height: 1.2rem;
                       border-radius: 5px;
-                      white-space: nowrap;
                     }
 
                     &.search-term .tag {
@@ -781,12 +781,18 @@ $filter-border: #aaa;
               margin: 1rem;
             }
             .preview-widget-list {
-              text-align: right;
-              position: relative;
-              display: block;
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              position: absolute;
+              bottom: 0.5rem;
+              right: 0.5rem;
+              z-index: 1;
+
               a {
                 position: relative;
                 display: inline-block;
+                padding: 0.5rem;
               }
             }
           }
@@ -900,6 +906,16 @@ $filter-border: #aaa;
   }
 }
 
+.tag-group-label {
+  color: $dark-gray;
+  white-space: nowrap;
+
+  .fa {
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+  }
+}
+
 .detail-header-wrapper .filters {
   box-shadow: none;
 }
@@ -991,6 +1007,10 @@ $filter-border: #aaa;
       vertical-align: middle;
       margin-left: 0.5rem;
     }
+  }
+
+  .search-history-list ul li.content-item span.buttons {
+    top: 0.7rem;
   }
 
   ul {
@@ -1104,7 +1124,6 @@ $filter-border: #aaa;
             font-size: 0.8rem;
             margin-top: 0.2rem;
             color: $dark-gray;
-            font-style: italic;
 
             i {
               font-size: 0.8rem;
@@ -1112,7 +1131,6 @@ $filter-border: #aaa;
             }
 
             .tag-group {
-              font-style: italic;
               color: $dark-gray;
               display: block;
               margin-right: 0.5rem;
@@ -1124,7 +1142,6 @@ $filter-border: #aaa;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
                 border-radius: 5px;
-                white-space: nowrap;
               }
 
               &.e {
