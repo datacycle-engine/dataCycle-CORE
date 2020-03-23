@@ -2,7 +2,12 @@
 class SplitView {
   constructor(container = document) {
     this.container = $(container);
-    this.locale = this.container.closest('.split-content').data('locale');
+    this.embedLocale = this.container.closest('.split-content').data('embed-locale');
+    this.leftLocale = this.container.closest('.split-content').data('locale');
+    this.rightLocale = this.container
+      .closest('form')
+      .find('input#locale:hidden')
+      .val();
     this.setup();
   }
   setup() {
@@ -234,15 +239,16 @@ class SplitView {
     target.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
-      locale: this.locale
+      locale: this.embedLocale ? this.leftLocale : ''
     });
 
     target.get(0).scrollIntoView({ behavior: 'smooth' });
   }
   translateText(value, label, key) {
-    var formData = {
+    let formData = {
       text: value.trim(),
-      locale: this.locale
+      source_locale: this.leftLocale,
+      target_locale: this.rightLocale
     };
     $.ajax({
       url: '/things/translate_text',

@@ -24,10 +24,10 @@ module DataCycleCore
           end
         end
 
-        def translate_text(text_hash, locale = I18n.locale)
-          return {} if endpoint.blank? || text_hash.blank? || text_hash.values.all?(&:blank?)
+        def translate_text(translate_hash)
+          return {} if endpoint.blank? || translate_hash.blank? || translate_hash.values.all?(&:blank?)
 
-          endpoint.translate(text_hash.to_h, locale)
+          endpoint.translate(translate_hash.to_h)
         end
       end
     end

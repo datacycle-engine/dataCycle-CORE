@@ -11,16 +11,14 @@ module DataCycleCore
           @options = options
         end
 
-        # TODO: get target and source_lang, error handling (especially resend), translate all button
-        def translate(text, locale = I18n.locale)
-          return if text.blank?
-          return unless text.is_a?(::Hash) || text.is_a?(DataCycleCore::OpenStructHash)
-          # binding.pry
-          # address_string = [address.dig('street_address'), [address.dig('postal_code'), address.dig('address_locality')].join(' '), address.dig('address_country')].join(', ')
-          data = load_data(text: text, locale: locale)['translations']
+        # TODO: error handling (especially resend), translate all button
+        def translate(translate_hash)
+          return if translate_hash.blank?
+          return unless translate_hash.is_a?(::Hash) || translate_hash.is_a?(DataCycleCore::OpenStructHash)
+
+          data = load_data(text: translate_hash.dig('text'), source_locale: translate_hash.dig('source_locale'), target_locale: translate_hash.dig('target_locale'))['translations']
           return if data.blank?
-          # binding.pry
-          # parse_translated(data.first)
+
           data.first
         end
 
@@ -29,24 +27,24 @@ module DataCycleCore
           raw_data.dig('text')
         end
 
-        def load_data(text: nil, locale: :de)
+        def load_data(text: nil, source_locale: nil, target_locale: nil)
           response = Faraday.new.post do |req|
             req.url(@host + @end_point)
             req.headers['Accept'] = '*/*'
             req.headers['User-Agent'] = 'dataCycle'
-            # req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
+            req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
             req.body = {
               auth_key: @key,
-              text: text['text'],
-              target_lang: locale.to_s.upcase,
-              source_lang: ''
+              text: text,
+              target_lang: target_locale.to_s.upcase,
+              source_lang: source_locale.to_s.upcase
             }
           end
           # TODO: https://www.deepl.com/docs-api/accessing-the-api/error-handling
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / text:#{text} / locale:#{locale}", response) unless response.success?
-          # binding.pry
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response) unless response.success?
+
           data = JSON.parse(response.body)
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point} / text:#{text} / locale:#{locale}", response) unless response.status == 200
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response) unless response.status == 200
           data
         end
       end

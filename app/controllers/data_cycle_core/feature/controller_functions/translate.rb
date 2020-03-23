@@ -14,11 +14,9 @@ module DataCycleCore
         end
 
         def translate_text
-          # binding.pry
-          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Übersetzung', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if text_params.blank? || text_params.values.all?(&:blank?)
+          render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Übersetzung', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if translate_params.blank? || translate_params.values.all?(&:blank?)
 
-          translated_text = DataCycleCore::Feature::Translate.translate_text(text_params.to_h, locale_params[:locale])
-          # binding.pry
+          translated_text = DataCycleCore::Feature::Translate.translate_text(translate_params.to_h)
 
           render(plain: { error: translated_text.error }.to_json, content_type: 'application/json') && return if translated_text.try(:error).present?
 
@@ -27,12 +25,8 @@ module DataCycleCore
 
         private
 
-        def text_params
-          params.permit(:text)
-        end
-
-        def locale_params
-          params.permit(:locale)
+        def translate_params
+          params.permit(:text, :source_locale, :target_locale)
         end
       end
     end
