@@ -77,6 +77,8 @@
         :type: schedule
         :api:
           :disabled: true
+          :v4:
+            :disabled: false
       :schedule:
         :label: Event-Schedule
         :type: embedded
