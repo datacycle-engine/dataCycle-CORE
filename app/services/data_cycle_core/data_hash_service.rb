@@ -81,7 +81,7 @@ module DataCycleCore
 
       template_hash['properties'].each do |key, value|
         if value['type'] == 'schedule'
-          key = { key.to_sym => [:id, :full_day, start_time: [:time], end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
+          key = { key.to_sym => [:id, :full_day, :rtimes, :extimes, start_time: [:time], end_time: [:time], rrules: [:rule_type, :interval, :until, validations: [day: []]]] }
         elsif value['type'] == 'embedded'
           object_properties = get_internal_template(value['template_name'])
           key = { key.to_sym => get_params_from_hash(object_properties.schema) }
@@ -125,14 +125,20 @@ module DataCycleCore
 
           s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
 
-          if s.dig('rrules', 0, 'rule_type') == 'IceCube::WeeklyRule'
+          s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+
+          s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
+
+          case s.dig('rrules', 0, 'rule_type')
+          when 'IceCube::WeeklyRule'
             s.dig('rrules', 0, 'validations', 'day')&.map!(&:to_i)
+          when 'IceCube::SingleOccurrenceRule'
+            s.except!('rrules')
           else
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          s.delete('rrules') if s.dig('rrules', 0, 'rule_type') == 'IceCube::SingleOccurrenceRule'
-          s.slice('id', 'start_time', 'duration', 'rrules')
+          s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }
         }.compact
       end
 

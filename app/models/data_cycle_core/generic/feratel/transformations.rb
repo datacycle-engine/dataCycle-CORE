@@ -240,11 +240,8 @@ module DataCycleCore
           .>> t(:add_link, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_locations')&.detect { |item| item.dig('Type') == 'Venue' }&.dig('Id') || "Location:#{s.dig('external_key')}" })
           .>> t(:add_field, 'feratel_super_events', ->(s) { s.dig('SerialEvents', 'SerialEvent').is_a?(Hash) ? [s.dig('SerialEvents', 'SerialEvent')] : s.dig('SerialEvents', 'SerialEvent') })
           .>> t(:add_links, 'super_event', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('feratel_super_events')&.map { |e| e&.dig('Id') } })
-          .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s) })
+          .>> t(:add_field, 'schedule', ->(s) { load_event_schedules(s) }) # deprecated as_of(16.3.2020)
           .>> t(:add_field, 'event_schedule', ->(s) { load_schedules(s) })
-          .>> t(:add_field, 'start_date', ->(s) { s.dig('event_schedule')&.map { |schedule| schedule.dig(:dtstart) }&.min })
-          .>> t(:add_field, 'end_date', ->(s) { s.dig('event_schedule')&.map { |schedule| schedule.dig(:dtend) }&.max })
-          .>> t(:nest, 'event_period', ['start_date', 'end_date'])
           .>> t(:add_field, 'feratel_event_tags', ->(s) { load_feratel_event_tags([s.dig('Visibility'), (s.dig('IsTopEvent') == 'true' ? 'Top-Event' : nil)]) })
           .>> t(:add_links, 'holiday_themes', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('HolidayThemes', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
@@ -258,6 +255,9 @@ module DataCycleCore
           .>> t(:reject_keys, ['Systems', '_Type', 'ChangeDate', 'Addresses', 'Documents', 'feratel_documents', 'Facilities', 'CustomAttributes', 'Location', 'Towns', 'Position', 'connected_entries', 'connected_location'])
           .>> t(:strip_all)
         end
+        # .>> t(:add_field, 'start_date', ->(s) { s.dig('event_schedule')&.map { |schedule| schedule.dig(:dtstart) }&.min })
+        # .>> t(:add_field, 'end_date', ->(s) { s.dig('event_schedule')&.map { |schedule| schedule.dig(:dtend) }&.max })
+        # .>> t(:nest, 'event_period', ['start_date', 'end_date'])
 
         def self.feratel_to_serial_event(external_source_id)
           t(:stringify_keys)
@@ -668,7 +668,11 @@ module DataCycleCore
                 res << schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
               end
             else
-              res << { dtstart: dstart, dtend: dend }
+              res << {
+                start_time: { time: dstart, zone: dstart.time_zone.name },
+                end_time: { time: dend, zone: dend.time_zone.name },
+                duration: dend.to_i - dstart.to_i
+              }
             end
           end
           res.sort_by { |item| item[:dtstart] }

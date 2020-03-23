@@ -24,3 +24,4 @@ coverage
 .env
 benchmark/
 .DS_Store
+test/fixtures/files/shp

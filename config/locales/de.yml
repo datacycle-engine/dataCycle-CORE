@@ -94,6 +94,9 @@ de:
     year: Jahr
     next: Weitere Termine
     prev: Vorherige Termine
+    rdate: Zusätzliche Termine
+    exdate: Ausgenommene Termine
+    ongoing: fortlaufend
 
   common:
     'true': Ja

@@ -107,6 +107,7 @@ module DataCycleCore
       def property_names
         property_definitions.keys
       end
+      alias properties property_names
 
       def properties_for(property_name)
         property_definitions[property_name]

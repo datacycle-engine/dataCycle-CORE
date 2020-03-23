@@ -16,7 +16,22 @@ module DataCycleCore
               setup do
                 @routes = Engine.routes
                 @content = DataCycleCore::DummyDataHelper.create_data('event')
-                @content.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+                event_schedule = @content.get_data_hash
+                event_schedule['event_schedule'] = [{
+                  'start_time' => {
+                    'time' => Time.new(2019, 10, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  },
+                  'rtimes' => [{
+                    'time' => Time.new(2019, 10, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  }, {
+                    'time' => Time.new(2019, 10, 20).in_time_zone,
+                    'zone' => 'Vienna'
+                  }],
+                  'duration' => 5.days.to_i
+                }]
+                @content.set_data_hash(prevent_history: true, data_hash: event_schedule)
                 sign_in(User.find_by(email: 'tester@datacycle.at'))
               end
 
@@ -54,8 +69,8 @@ module DataCycleCore
                 assert_equal('de', json_data.dig('inLanguage'))
 
                 # startDate / endDate
-                assert_equal(@content.event_period.start_date.as_json, json_data.dig('startDate'))
-                assert_equal(@content.event_period.end_date.as_json, json_data.dig('endDate'))
+                assert_equal(@content.start_date.as_json, json_data.dig('startDate'))
+                assert_equal(@content.end_date.as_json, json_data.dig('endDate'))
 
                 # content data
                 assert_equal(@content.name, json_data.dig('name'))
@@ -66,6 +81,13 @@ module DataCycleCore
                 # TODO: check image rendering via minimal or linked
                 assert_equal(@content.image.first.id, json_data.dig('image').first.dig('identifier'))
                 assert_equal(@content.content_location.first.id, json_data.dig('location').first.dig('identifier'))
+              end
+
+              test 'test subevents vs. generated from event_schedule' do
+                # set event_schedule with proper data
+                event_schedule = @content.event_schedule.first
+                event_schedule_hash = event_schedule.to_sub_event
+                event_schedule_hash = event_schedule_hash.map { |i| i.except('identifier') }
 
                 # sub_events
                 sub_events = @content.sub_event.map do |sub_event|
@@ -74,15 +96,11 @@ module DataCycleCore
                     '@type' => 'Event',
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
-                    'identifier' => sub_event.id,
-                    'name' => sub_event.name,
-                    'description' => sub_event.description,
-                    'sameAs' => sub_event.url,
-                    'startDate' => sub_event.event_period.start_date,
-                    'endDate' => sub_event.event_period.end_date
+                    'startDate' => sub_event.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.end_date.to_s(:long_msec)
                   }
                 end
-                assert_equal(sub_events, json_data.dig('subEvent'))
+                assert_equal(sub_events, event_schedule_hash)
               end
 
               test 'testing EventOverlay' do
@@ -102,10 +120,16 @@ module DataCycleCore
                       'image' => [overlay_image.id],
                       'content_location' => [overlay_place.id],
                       'url' => 'https://overlay.url.com',
-                      'event_period' => {
-                        'start_date' => '2019-11-10T00:00:00.000+01:00',
-                        'end_date' => '2019-11-20T00:00:00.000+01:00'
-                      }
+                      'event_schedule' => [
+                        {
+                          'start_time' =>
+                          {
+                            'time' => '2019-11-10T00:00:00.000+01:00'.in_time_zone.to_s,
+                            'zone' => 'Vienna'
+                          },
+                          'duration' => 10.days.to_i
+                        }
+                      ]
                     }
                   ]
                 }
@@ -121,8 +145,8 @@ module DataCycleCore
                 json_data = JSON.parse(response.body)
 
                 # content data
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'start_date'), json_data.dig('startDate'))
-                assert_equal(data_hash.dig('overlay').first.dig('event_period', 'end_date'), json_data.dig('endDate'))
+                assert_equal(data_hash.dig('overlay').first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone, json_data.dig('startDate'))
+                assert_equal((data_hash.dig('overlay').first.dig('event_schedule', 0, 'start_time', 'time').in_time_zone + data_hash.dig('overlay').first.dig('event_schedule', 0, 'duration').to_i), json_data.dig('endDate'))
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
                 assert_equal(data_hash.dig('overlay').first.dig('url'), json_data.dig('sameAs'))
@@ -143,7 +167,7 @@ module DataCycleCore
                 json_data = JSON.parse(response.body).dig('data').detect { |item| item.dig('@type') == 'Event' }
                 assert_equal(@content.id, json_data.dig('identifier'))
 
-                get(api_v3_events_path)
+                get(api_v3_events_path(filter: { from: '2019-10-01' }))
                 assert_response(:success)
                 assert_equal('application/json', response.content_type)
                 json_data = JSON.parse(response.body).dig('data').first
@@ -170,11 +194,8 @@ module DataCycleCore
                     'contentType' => 'SubEvent',
                     'inLanguage' => 'de',
                     'identifier' => sub_event.id,
-                    'name' => sub_event.name,
-                    'description' => sub_event.description,
-                    'sameAs' => sub_event.url,
-                    'startDate' => sub_event.event_period.start_date.to_s(:iso8601),
-                    'endDate' => sub_event.event_period.end_date.to_s(:iso8601)
+                    'startDate' => sub_event.start_date.to_s(:long_msec),
+                    'endDate' => sub_event.end_date.to_s(:long_msec)
                   }
                 end
                 v2_subevents = v3_subevents.map do |sub_event|
@@ -182,19 +203,20 @@ module DataCycleCore
                 end
                 convert_api_v2_json = api_v2_json
                 convert_api_v2_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
                 end
                 convert_api_v3_json = api_v3_json
                 convert_api_v3_json['subEvent'].map do |item|
-                  item['startDate'] = item['startDate'].in_time_zone.to_s(:iso8601)
-                  item['endDate'] = item['endDate'].in_time_zone.to_s(:iso8601)
+                  item['startDate'] = item['startDate'].in_time_zone.to_s(:long_msec)
+                  item['endDate'] = item['endDate'].in_time_zone.to_s(:long_msec)
                 end
+                except_sub_event_params = excepted_params + ['identifier', 'name', 'description', 'sameAs']
 
-                assert_equal(api_v3_json.except('subEvent', *excepted_params), api_v2_json.except('subEvent', *excepted_params))
-                assert_equal(convert_api_v2_json.dig('subEvent').map { |item| item.except(*excepted_params) }, v2_subevents.map { |item| item.except(*excepted_params) })
-                assert_equal(convert_api_v3_json.dig('subEvent').map { |item| item.except(*excepted_params) }, v3_subevents.map { |item| item.except(*excepted_params) })
-                assert_equal(api_v3_json.dig('image').first.except(*excepted_params), api_v2_json.dig('image').first.except(*excepted_params))
+                assert_equal(api_v3_json.except('subEvent', *except_sub_event_params), api_v2_json.except('subEvent', 'eventSchedule', *except_sub_event_params))
+                assert_equal(convert_api_v2_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v2_subevents.map { |item| item.except(*except_sub_event_params) })
+                assert_equal(convert_api_v3_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v3_subevents.map { |item| item.except(*except_sub_event_params) })
+                assert_equal(api_v3_json.dig('image').first.except(*except_sub_event_params), api_v2_json.dig('image').first.except(*except_sub_event_params))
               end
             end
           end

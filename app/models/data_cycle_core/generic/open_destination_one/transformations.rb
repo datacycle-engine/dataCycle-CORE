@@ -15,6 +15,7 @@ module DataCycleCore
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('image'))&.map { |i| i.dig('url') } })
           .>> t(:add_links, 'open_destination_one_keywords', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s.dig('keywords'))&.map { |i| "open.destination.one - Keyword - #{i}" } })
           .>> t(:nest, 'event_period', ['start_date', 'end_date'])
+          .>> t(:event_schedule, ->(*) { nil })
           .>> t(:rename_keys, { 'license' => 'attribution_url', 'identifier' => 'external_key' })
           .>> t(:reject_keys, ['@context', '@type', 'location', 'keywords'])
         end

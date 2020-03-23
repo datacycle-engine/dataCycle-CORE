@@ -380,7 +380,7 @@ module DataCycleCore
             else
               DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
             end
-          schedule.from_hash(item)
+          schedule.from_hash(item.with_indifferent_access)
           schedule.save!
           updated_item_keys << schedule.id
         end

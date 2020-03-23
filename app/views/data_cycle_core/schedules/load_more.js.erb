@@ -7,7 +7,7 @@
     remote: true,
     data: {
       disable_with: "#{t('schedule.prev', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
-    } if @direction == 'prev' && @occurrences&.exclude?(@schedule.try(:schedule_object)&.first) %>
+    } if @direction == 'previous' && (!@schedule.try(:schedule_object)&.terminating? || @occurrences&.exclude?(@schedule.try(:schedule_object)&.first)) %>
 
   <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: @occurrences, as: :date, locals: { object: @schedule } %>
 
@@ -19,7 +19,7 @@
     remote: true,
     data: {
       disable_with: "#{t('schedule.next', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
-    } if @direction == 'next' && (@schedule.try(:schedule_object)&.recurrence_rules&.first&.until_time.blank? || (@occurrences&.exclude?(@schedule.try(:schedule_object)&.last) && @schedule.try(:schedule_object)&.last > Time.zone.now)) %>
+    } if @direction == 'next' && (!@schedule.try(:schedule_object)&.terminating? || (@occurrences&.exclude?(@schedule.try(:schedule_object)&.last) && @schedule.try(:schedule_object)&.last > Time.zone.now)) %>
   <% end %>
 
   $('<%= j yield :rendered_items %>').replaceAll('#<%= @target %>');

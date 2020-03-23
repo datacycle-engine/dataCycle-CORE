@@ -16,45 +16,32 @@
         :type: string
         :storage_location: column
         :search: true
-      :event_period:
-        :label: Veranstaltungszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: start_date
-            :to: end_date
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: start_date
+          :parameters:
+            :0: event_schedule
         :ui:
-          :edit:
-            :type: daterange
-        :api:
-          :transformation:
-            :method: unwrap
-        :properties:
-          :start_date:
-            :label: Startzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-          :end_date:
-            :label: Endzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
+          :show:
+            :content_area: none
+      :end_date:
+        :label: Endzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: end_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
       :description:
         :label: Teasertext
         :type: string
@@ -103,7 +90,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Overlay"
+        :default_value: 'Overlay'
       :cc_rel:
         :type: mixin
         :name: cc_rel
