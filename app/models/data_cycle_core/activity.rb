@@ -4,5 +4,41 @@ module DataCycleCore
   class Activity < ApplicationRecord
     belongs_to :user
     belongs_to :activitiable, polymorphic: true
+
+    def self.activity_list
+      select(:activity_type).group(:activity_type).pluck(:activity_type)
+    end
+
+    def self.activity_stats(from = nil, to = Time.zone.now)
+      from ||= Time::LONG_AGO
+      select(:activity_type, 'count(activity_type) as data_count')
+        .where({ created_at: from..to })
+        .group(:activity_type)
+        .map { |item| { item.activity_type => item.data_count } }
+        .inject(&:merge)
+    end
+
+    def self.activities_by_user(user_id, from = nil, to = Time.zone.now)
+      raise ArgumentError if user_id.blank?
+      users = Array.wrap(user_id)
+      from ||= Time::LONG_AGO
+      select(:activity_type, 'count(activity_type) as data_count')
+        .where(user_id: users)
+        .where({ created_at: from..to })
+        .group(:activity_type)
+        &.map { |item| { item.activity_type => item.data_count } }
+        &.inject(&:merge)
+    end
+
+    def self.user_doing_activity(activity, from = nil, to = Time.zone.now)
+      raise ArgumentError if activity.blank?
+      from ||= Time::LONG_AGO
+      select(:user_id, 'count(user_id) as data_count')
+        .where(activity_type: activity)
+        .where({ created_at: from..to })
+        .group(:activity_type)
+        &.map { |item| { item.activity_type => item.data_count } }
+        &.inject(&:merge)
+    end
   end
 end
