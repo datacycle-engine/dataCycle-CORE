@@ -38,13 +38,13 @@ default: &defaults
 development:
   <<: *defaults
   active: false
-  enable_frontend_error_catching: true
+#  enable_frontend_error_catching: true
   enable_gc_instrumentation: true
 
 production:
   <<: *defaults
   active: true
-  enable_frontend_error_catching: true
+#  enable_frontend_error_catching: true
   enable_gc_instrumentation: true
 
 review:
@@ -54,5 +54,5 @@ review:
 staging:
   <<: *defaults
   active: true
-  enable_frontend_error_catching: true
+#  enable_frontend_error_catching: true
   enable_gc_instrumentation: true
