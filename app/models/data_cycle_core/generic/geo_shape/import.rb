@@ -19,7 +19,7 @@ module DataCycleCore
           srid = options.dig(:import, :srid).to_i
           db_table = options.dig(:import, :db_table)
           tree_label = options.dig(:import, :tree_label)
-          external_source_id = utility_object.external_source.id
+          external_source_id = options.dig(:external_source_id)
 
           local_dirs.each do |ld|
             raise "Directory: #{ld} does not exist" unless File.directory?(ld)

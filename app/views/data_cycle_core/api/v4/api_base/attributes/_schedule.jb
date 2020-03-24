@@ -8,10 +8,6 @@ end
 options ||= {}
 json ||= {}
 
-ap options
-ap subtree_for(attribute_key(key, definition), options[:fields])
-ap included_attribute?(attribute_key(key, definition), options[:include])
-
 if content.present?
   key_name = attribute_key(key, definition)
   new_fields = subtree_for(key_name, options[:fields])

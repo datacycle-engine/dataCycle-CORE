@@ -93,7 +93,7 @@ module DataCycleCore
 
     def receiver_params
       params.dig(:data_link, :receiver, :email)&.downcase!
-      params.require(:data_link).require(:receiver).permit(:id, :email, :given_name, :family_name)
+      params.require(:data_link).require(:receiver).permit(:id, :email, :given_name, :family_name, :confirmed_at)
     end
 
     def split_params

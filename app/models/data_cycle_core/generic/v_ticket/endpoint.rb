@@ -35,12 +35,12 @@ module DataCycleCore
         protected
 
         def get_all_event_data(id)
-          first_page = load_data(page: 1, detail_id: id)
+          first_page = load_data(page: 1, detail_id: id, retry_count: 0)
           total_items = first_page['meta']['total'].to_i
           max_pages = total_items.fdiv(@per).ceil
           result = []
           (1..max_pages).each do |page|
-            load_data(page: page, per: @per, detail_id: id)['data'].each do |event_detail|
+            load_data(page: page, per: @per, detail_id: id, retry_count: 0)['data'].each do |event_detail|
               result << event_detail
             end
           end
@@ -65,12 +65,16 @@ module DataCycleCore
 
           if response.success?
             JSON.parse(response.body)
-          elsif response.status.to_i == 429 && retry_count < 3
+          elsif response.status.to_i == 429 && retry_count <= 5
             sleep 20
             load_data(page: page, per: per, lang: lang, action: action, detail_id: detail_id, retry_count: (retry_count + 1))
           else
             raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response)
           end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(1)
+          load_data(page: page, per: per, lang: lang, action: action, detail_id: detail_id, retry_count: (retry_count + 1))
         end
       end
     end

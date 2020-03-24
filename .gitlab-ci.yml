@@ -166,7 +166,7 @@ code_validation_develop:
 #  extends: .deploy_config
 #  environment:
 #    name: development
-#    url: http://core-development.datacycle.at/
+#    url: http://core-develop.datacycle.at/
 #  when: manual
 
 ########################################################################

@@ -1,8 +1,9 @@
 #!/bin/bash
-unset BUNDLE_PATH
-unset BUNDLE_BIN
+# unset BUNDLE_PATH
+# unset BUNDLE_BIN
 gem install bundler
+# bundle update
 bundle install
 cd test/dummy
-#RUBYOPT="--jit-verbose=1" rails s -b 0.0.0.0 -p 3000
+# RUBYOPT="--jit-verbose=1" rails s -b 0.0.0.0 -p 3000
 rails s -b 0.0.0.0 -p 3000

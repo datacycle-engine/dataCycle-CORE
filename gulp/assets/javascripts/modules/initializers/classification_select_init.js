@@ -36,7 +36,7 @@ module.exports.initialize = function() {
         var that = this;
 
         $(this).on('dc:import:data', (event, data) => {
-          if (data.value !== undefined) {
+          if (data.value && data.value.length) {
             let async_select = $(event.target);
             let value = async_select.val();
             if (!Array.isArray(value)) value = [value].filter(el => el !== null);
@@ -140,7 +140,7 @@ module.exports.initialize = function() {
           .on('reset', event => {
             $(this)
               .val(null)
-              .trigger('change');
+              .trigger('change', { type: 'reset' });
           });
       });
 
@@ -152,10 +152,13 @@ module.exports.initialize = function() {
         var that = this;
 
         $(this).on('dc:import:data', (event, data) => {
-          if (data.value !== undefined) {
+          if (data.value && data.value.length) {
             let value = $(event.target).val();
-            if (!Array.isArray(value)) value = [value].filter(el => el !== null);
-            if (!Array.isArray(data.value)) data.value = [data.value].filter(el => el !== null);
+            if (!Array.isArray(value)) value = [value];
+            if (!Array.isArray(data.value)) data.value = [data.value];
+            value = value.filter(Boolean);
+            data.value = data.value.filter(Boolean);
+
             let diff = data.value.diff(value);
             if (diff.length)
               $(event.target)
@@ -254,11 +257,19 @@ module.exports.initialize = function() {
         });
 
         $(this)
+          .closest('.form-element')
+          .on('dc:upload:filesChanged', event => {
+            event.preventDefault();
+
+            reloadData(this);
+          });
+
+        $(this)
           .closest('form')
           .on('reset', event => {
             $(this)
               .val(null)
-              .trigger('change');
+              .trigger('change', { type: 'reset' });
           });
       });
   };
@@ -269,6 +280,24 @@ module.exports.initialize = function() {
       .each((_, element) => {
         $(element).select2('destroy');
       });
+  }
+
+  function reloadData(elem) {
+    let reloadPath = $(elem).data('reload-path');
+    let type = $(elem).data('type');
+
+    if (!reloadPath || !reloadPath.length || !type || !type.length) return;
+
+    $.getJSON(reloadPath, { type: type }).done(data => {
+      if (!data || !data.length) return;
+
+      data.forEach(d => {
+        if (!$(elem).find("option[value='" + d[1] + "']").length)
+          $(elem)
+            .append(new Option(d[0], d[1], false, false))
+            .trigger('change');
+      });
+    });
   }
 
   $(document).on('dc:html:changed', '*', event => {

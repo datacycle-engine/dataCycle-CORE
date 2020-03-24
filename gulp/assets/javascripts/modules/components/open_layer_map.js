@@ -198,9 +198,9 @@ class OpenLayerMap {
       this.feature.setStyle(this.defaultLineStyle);
     } else if (this.type == 'MultiLineString' && this.value[0] !== undefined && this.value[0].length) {
       var first = this.value[0];
-      var array = first.map(function(line){
+      var array = first.map(function(line) {
         return JSON.parse('[' + line + ']');
-      })
+      });
       this.feature = new ol.Feature({
         geometry: new ol.geom.MultiLineString(array)
       });
@@ -216,15 +216,18 @@ class OpenLayerMap {
       .siblings('.map-info')
       .first();
 
+    let elevationField = form_fields.find('.form-element.elevation > input');
+
     if (
-      form_fields.find('.form-element.elevation > input').val().length == 0 &&
-      $(event.target)
-        .parent('.geographic')
-        .siblings('input.location-data:hidden')
-        .first()
-        .val().length == 0
+      ((!elevationField.val() || elevationField.val().length == 0) &&
+        $(event.target)
+          .parent('.geographic')
+          .siblings('input.location-data:hidden')
+          .first()
+          .val().length == 0) ||
+      (data && data.force)
     ) {
-      form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+      elevationField.val(data.value.elevation);
       form_fields
         .find('.form-element.latitude > input')
         .val(data.value.y)
@@ -241,7 +244,7 @@ class OpenLayerMap {
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function() {
-          form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+          elevationField.val(data.value.elevation);
           form_fields
             .find('.form-element.latitude > input')
             .val(data.value.y)
@@ -390,7 +393,7 @@ class OpenLayerMap {
       .find('.form-element')
       .find('input')
       .each((index, elem) => {
-        address[elem.name.get_key()] = elem.value;
+        address[elem.name.getKey()] = elem.value;
       });
 
     $.getJSON('/things/geocode_address/', address)

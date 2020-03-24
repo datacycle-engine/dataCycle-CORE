@@ -13,3 +13,8 @@ Array.prototype.equal_to = function(a) {
     this.filter((e, i) => a[i].name === e.name && a[i].value === e.value).length === this.length
   );
 };
+Array.prototype.mergeUnique = function(toMerge) {
+  if (!toMerge || !toMerge.length) return this;
+
+  return this.concat(toMerge).filter((elem, pos, arr) => arr.indexOf(elem) == pos);
+};

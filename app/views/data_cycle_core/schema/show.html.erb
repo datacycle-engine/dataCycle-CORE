@@ -15,7 +15,7 @@
     </thead>
 
     <thead>
-      <th colspan="3">
+      <th colspan="4">
         Properties from <a href="<%= schema_path(@template_schema.schema_name) %>"><%= @template_schema.schema_name %></a>
       </th>
     </thead>
@@ -23,7 +23,7 @@
     <tbody>
       <% @template_schema.property_definitions.each do |definition| %>
         <tr>
-          <th><%= definition[:label] %></th>
+          <th><%= definition[:label] %> <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %></th>
           <td>
             <a href="<%= definition[:range] %>"><%= definition[:range].split('/').last %></a>
           </td>

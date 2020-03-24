@@ -2,6 +2,8 @@
 
 module DataCycleCore
   class Classification < ApplicationRecord
+    validates :name, presence: true
+
     belongs_to :external_source
 
     acts_as_paranoid

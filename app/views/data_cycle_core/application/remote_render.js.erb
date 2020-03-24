@@ -1,8 +1,8 @@
 $('.remote-rendering[data-remote-render-id="<%= @target %>"]').children().fadeOut('fast', function(){
   <% if @render_function.present? && respond_to?(@render_function) %>
-    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed');
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j try(@render_function, (@render_params || {}).merge(parameters: @options)) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized');
   <% else %>
-    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j render(@partial, @options) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed');
+    $('.remote-rendering[data-remote-render-id="<%= @target %>"]').html('<%= j render(@partial, @options) %>').removeClass('remote-rendering').addClass('remote-rendered').trigger('dc:html:changed').trigger('dc:html:initialized');
   <% end %>
 
   <% @content_for.presence&.each do |yield_class| %>

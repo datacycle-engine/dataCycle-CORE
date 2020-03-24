@@ -121,6 +121,8 @@ class EmbeddedObject {
     $.ajax({
       url: this.url + '/' + type + '_embedded_object',
       method: 'GET',
+      dataType: 'script',
+      contentType: 'application/json',
       data: {
         index: index,
         locale: this.locale,
@@ -131,9 +133,7 @@ class EmbeddedObject {
         content_id: this.content_id,
         content_type: this.content_type,
         object_ids: ids
-      },
-      dataType: 'script',
-      contentType: 'application/json'
+      }
     }).done(data => {
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
       this.update();

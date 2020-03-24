@@ -33,12 +33,11 @@ module.exports.initialize = function() {
     reInit(event.target, data);
   });
 
-  $('.edit-content-form .form-element.datetime input.flatpickr-input').on('dc:import:data', function(event, data) {
+  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', function(event, data) {
     event.stopImmediatePropagation();
-    if ($(event.target).val().length === 0) {
-      $(event.target)
-        .val(data.value)
-        .trigger('change');
+
+    if ($(event.target).val().length === 0 || (data && data.force)) {
+      $(event.target).trigger('dc:flatpickr:setDate', data.value);
     } else {
       var confirmationModal = new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -47,9 +46,7 @@ module.exports.initialize = function() {
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function() {
-          $(event.target)
-            .val(data.value)
-            .trigger('change');
+          $(event.target).trigger('dc:flatpickr:setDate', data.value);
         }.bind(this)
       });
     }
@@ -150,8 +147,22 @@ module.exports.initialize = function() {
 
     $(input).on('dc:date:destroy', e => {
       e.preventDefault();
+
+      let container = $(e.currentTarget).closest('.flatpickr-wrapper');
       cal.destroy();
       calenders = calenders.filter(c => c.element != elem);
+
+      container
+        .find(':input')
+        .detach()
+        .insertBefore(container);
+      container.remove();
+    });
+
+    $(input).on('dc:flatpickr:setDate', (e, value) => {
+      e.preventDefault();
+      e.stopImmediatePropagation();
+      cal.setDate(value, true);
     });
 
     return cal;

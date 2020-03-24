@@ -5,6 +5,7 @@ module DataCycleCore
     include Content::ExternalData
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
     devise :omniauthable, omniauth_providers: Devise.omniauth_configs.keys if Devise.try(:omniauth_configs).present?
 
     attr_accessor :raw_password, :skip_callbacks
@@ -58,7 +59,7 @@ module DataCycleCore
       (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
     end
 
-    def default_filter(filters = [])
+    def default_filter(filters = [], _scope = 'backend', _template_name = nil)
       filters
     end
 

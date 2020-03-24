@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         def self.load_root_classifications(mongo_item, locale, _options)
-          mongo_item.where("this.dump.#{locale}.id" == "this.dump.#{locale}.parentId")
+          mongo_item.where("dump.#{locale}.parentId": nil)
         end
 
         def self.load_child_classifications(mongo_item, parent_category_data, locale)

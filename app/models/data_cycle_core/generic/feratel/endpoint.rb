@@ -10,9 +10,10 @@ module DataCycleCore
           @primary_range_code = range_code
           @primary_range_id = range_id
           @sales_channel_id = sales_channel_id
-          @options = options
           @read_type = options[:read_type] if options[:read_type].present?
           @per = 100
+          @options = options[:options] || {}
+          @params = @options[:params] || {}
         end
 
         # basic download of data
@@ -156,11 +157,13 @@ module DataCycleCore
         def enumerate_two_stages(type, xpath, lang: :de)
           # load all relevant item_ids
           item_hash = {}
+          min_index = @params[:min_count] || 0
+          max_index = @params[:max_count] || (2**(0.size * 8 - 2) - 1)
           load_range_ids_new.map { |range_code, range_id|
             load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true).xpath(xpath).map do |xml_raw_data|
               [xml_raw_data['Id'], range_code, range_id]
             end
-          }.map { |range_array| item_hash[range_array[0][1..2]] = range_array.map { |item| item[0] }.uniq if range_array.size.positive? }
+          }.inject(:+)[min_index...max_index]&.each { |i| item_hash[i[1..2]] = (item_hash[i[1..2]] || []).push(i[0]) }
 
           # load item details
           Enumerator.new do |yielder|
@@ -195,7 +198,7 @@ module DataCycleCore
           end
         end
 
-        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false)
+        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false, retry_count: 0)
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           else
@@ -220,11 +223,20 @@ module DataCycleCore
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
-          raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
-          data
+          if data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value if retry_count > 5
+            sleep(3)
+            load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
+          else
+            data
+          end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
         end
 
-        def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:)
+        def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:, retry_count: 0)
           url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
           request_parameters = send("create_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids)
 
@@ -242,8 +254,17 @@ module DataCycleCore
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
-          raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
-          data
+          if data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value if retry_count > 5
+            sleep(3)
+            load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
+          else
+            data
+          end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
         end
 
         def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, pattern:)
@@ -383,7 +404,7 @@ module DataCycleCore
                     xml.Item(id)
                   end
                 end
-                xml.Infrastructure
+                xml.Infrastructure('Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -479,7 +500,8 @@ module DataCycleCore
             xml.BasicData do
               xml.Filters do
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
-                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
+                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
+                           'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)
@@ -504,7 +526,8 @@ module DataCycleCore
                   end
                 end
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
-                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'))
+                           'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
+                           'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
                     xml.Language('Value' => l.to_s)

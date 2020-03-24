@@ -3,7 +3,7 @@
 module DataCycleCore
   module ScheduleHandler
     def to_h
-      item_hash = @schedule_object.to_hash
+      item_hash = @schedule_object&.to_hash || {}
       item_hash[:duration] = duration
       item_hash[:id] = id
       item_hash[:relation] = relation
@@ -14,7 +14,7 @@ module DataCycleCore
 
     def from_h(hash)
       @schedule_object = nil
-      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation).present?
+      @schedule_object = IceCube::Schedule.from_hash(hash) if hash.except(:id, :thing_id, :thing_history_id, :dtstart, :dtend, :relation, :duration).present?
       self.duration = hash[:duration]
       self.dtstart = hash[:dtstart]
       self.dtend = hash[:dtend]
@@ -29,13 +29,13 @@ module DataCycleCore
 
     def dow(day)
       {
-        1 => 'http://schema.org/Monday',
-        2 => 'http://schema.org/Tuesday',
-        3 => 'http://schema.org/Wednesday',
-        4 => 'http://schema.org/Thursday',
-        5 => 'http://schema.org/Friday',
-        6 => 'http://schema.org/Saturday',
-        0 => 'http://schema.org/Sunday'
+        1 => 'https://schema.org/Monday',
+        2 => 'https://schema.org/Tuesday',
+        3 => 'https://schema.org/Wednesday',
+        4 => 'https://schema.org/Thursday',
+        5 => 'https://schema.org/Friday',
+        6 => 'https://schema.org/Saturday',
+        0 => 'https://schema.org/Sunday'
       }[day]
     end
 
@@ -60,7 +60,11 @@ module DataCycleCore
         by_month_day = rule_hash.dig(:validations, :day_of_month)
       end
 
-      {
+      schedule_hash = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'inLanguage' => I18n.locale.to_s,
         'startDate' => dtstart&.to_s(:only_date),
         'endDate' => dtend&.to_s(:only_date),
         'startTime' => dtstart&.to_s(:only_time),
@@ -74,6 +78,75 @@ module DataCycleCore
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i)
       }.compact
+      schedule_hash.merge({ 'identifier' => generate_uuid(schedule_hash) })
+    end
+
+    def to_schedule_schema_org_api_v2
+      # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
+      end_time = dtend&.to_s(:only_time)
+      end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
+      by_day = nil
+      by_month = nil
+      by_month_day = nil
+      if @schedule_object&.recurrence_rules&.first.present?
+        rule = @schedule_object&.recurrence_rules&.first
+        rule_hash = rule.to_hash
+        end_time = rule&.until_time&.in_time_zone&.to_s(:only_time) if end_time.blank? && rule&.until_time.present?
+        by_day = rule_hash.dig(:validations, :day)
+        by_month = rule_hash.dig(:validations, :month_of_year)
+        by_month_day = rule_hash.dig(:validations, :day_of_month)
+      end
+
+      {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'contentType' => 'EventSchedule',
+        'startDate' => dtstart&.beginning_of_day&.to_s(:long_msec),
+        'endDate' => dtend&.beginning_of_day&.to_s(:long_msec),
+        'startTime' => dtstart&.to_s(:only_time),
+        'endTime' => end_time,
+        'by_day' => by_day&.map { |day| dow(day) },
+        'by_month' => by_month&.map(&:to_i),
+        'by_month_day' => by_month_day&.map(&:to_i)
+      }.compact
+    end
+
+    def to_sub_event_api_v2
+      return [] unless @schedule_object.terminating?
+      @schedule_object.all_occurrences.map do |occurrence|
+        {
+          '@context' => 'http://schema.org',
+          '@type' => 'Event',
+          'contentType' => 'SubEvent',
+          'startDate' => occurrence.start_time&.to_s(:long_msec),
+          'endDate' => occurrence.end_time&.to_s(:long_msec)
+        }
+      end
+    end
+
+    def to_sub_event
+      return [] unless @schedule_object.terminating?
+      # return [] if @schedule_object.all_occurrences.size == 1
+      @schedule_object.all_occurrences.map do |occurrence|
+        sub_event_hash = {
+          '@context' => 'http://schema.org',
+          '@type' => 'Event',
+          'contentType' => 'SubEvent',
+          'inLanguage' => I18n.locale.to_s,
+          'startDate' => occurrence.start_time.to_s(:long_msec),
+          'endDate' => occurrence.end_time.to_s(:long_msec)
+        }
+        sub_event_hash.merge({ 'identifier' => generate_uuid(sub_event_hash) })
+      end
+    end
+
+    def to_event_dates
+      return [] if @schedule_object.blank?
+      if @schedule_object.terminating?
+        @schedule_object.all_occurrences.to_a.map { |o| o.start_time.to_s(:long_msec) }
+      else
+        @schedule_object.next_occurrences(10).to_a.map { |o| o.start_time.to_s(:long_msec) }
+      end
     end
 
     def load_schedule_object
@@ -94,7 +167,7 @@ module DataCycleCore
       self.rrule = @schedule_object.recurrence_rules&.first&.to_ical
       self.dtstart = @schedule_object.start_time
       self.duration = ActiveSupport::Duration.build(@schedule_object.duration) if @schedule_object.duration.positive?
-      self.dtend = @schedule_object.recurrence_rules&.first&.until_time&.in_time_zone
+      self.dtend = @schedule_object.terminating? ? (@schedule_object.last || @schedule_object.start_time) + (duration || 0) : nil
       self.rdate = @schedule_object.recurrence_times
       self.exdate = @schedule_object.extimes
       self
@@ -102,6 +175,11 @@ module DataCycleCore
 
     def occurs_between?(from = dtstart, to = dtend)
       @schedule_object.occurs_between?(from, to, spans: true) # consider also overlap of [from, to] with [starttime, starttime + duration]
+    end
+
+    def generate_uuid(data_hash)
+      uuid = Digest::MD5.hexdigest(data_hash.to_s)
+      [uuid[0..7], '-', uuid[8..11], '-', uuid[12..15], '-', uuid[16..19], '-', uuid[20..32]].join
     end
   end
 

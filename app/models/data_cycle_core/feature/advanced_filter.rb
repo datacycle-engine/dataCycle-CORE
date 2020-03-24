@@ -24,9 +24,20 @@ module DataCycleCore
           end
         end
 
+        def relation_filter(value)
+          return [] unless value.is_a?(Hash)
+          value.map do |k, v|
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_language),
+              'relation_filter',
+              data: { name: k, advancedType: v }
+            ]
+          end
+        end
+
         def geo_filter(value)
-          value_arr = []
           if value.is_a?(Hash)
+            value_arr = []
             value.each do |k, v|
               if v.is_a?(Array)
                 v.map do |c|
@@ -42,8 +53,6 @@ module DataCycleCore
                   'geo_filter',
                   data: { name: k, advancedType: k }
                 ]
-              else
-                value_arr << []
               end
             end
             value_arr

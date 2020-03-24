@@ -15,7 +15,7 @@ json ||= {}
 
 unless content.schema.nil?
   ordered_validation_properties(validation: content.schema).each do |key, prop|
-    next if prop.dig('api', 'disabled') && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
+    next if attribute_disabled?(prop) && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
     next if prop.dig('type') == 'classification'
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)

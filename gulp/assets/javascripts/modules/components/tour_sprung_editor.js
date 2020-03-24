@@ -75,15 +75,18 @@ class TourSprungEditor {
       .siblings('.map-info')
       .first();
 
+    let elevationField = form_fields.find('.form-element.elevation > input');
+
     if (
-      form_fields.find('.form-element.elevation > input').val().length == 0 &&
-      this.container
-        .parent('.geographic')
-        .siblings('input.location-data:hidden')
-        .first()
-        .val().length == 0
+      ((!elevationField.val() || elevationField.val().length == 0) &&
+        this.container
+          .parent('.geographic')
+          .siblings('input.location-data:hidden')
+          .first()
+          .val().length == 0) ||
+      (data && data.force)
     ) {
-      form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+      elevationField.val(data.value.elevation);
       form_fields
         .find('.form-element.latitude > input')
         .val(data.value.y)
@@ -100,7 +103,7 @@ class TourSprungEditor {
         confirmationClass: 'success',
         cancelable: true,
         confirmationCallback: function() {
-          form_fields.find('.form-element.elevation > input').val(data.value.elevation);
+          elevationField.val(data.value.elevation);
           form_fields
             .find('.form-element.latitude > input')
             .val(data.value.y)
@@ -460,7 +463,7 @@ class TourSprungEditor {
       .find('.form-element')
       .find('input')
       .each((index, elem) => {
-        address[elem.name.get_key()] = elem.value;
+        address[elem.name.getKey()] = elem.value;
       });
 
     $.getJSON('/things/geocode_address/', address)

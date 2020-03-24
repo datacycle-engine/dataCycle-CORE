@@ -14,6 +14,8 @@ module DataCycleCore
       end
     end
 
+    validates :name, presence: true
+
     acts_as_paranoid
 
     belongs_to :external_source

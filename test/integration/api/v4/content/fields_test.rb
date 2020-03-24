@@ -25,6 +25,10 @@ module DataCycleCore
 
           @image_id = overlay_image.id
           @place_id = overlay_place.id
+          @event_period = {
+            'start_date' => '2019-11-10T00:00:00.000+01:00',
+            'end_date' => '2019-11-20T00:00:00.000+01:00'
+          }
           @data_hash = {
             'overlay' => [
               {
@@ -33,10 +37,13 @@ module DataCycleCore
                 'image' => [overlay_image.id],
                 'content_location' => [overlay_place.id],
                 'url' => 'https://overlay.url.com',
-                'event_period' => {
-                  'start_date' => '2019-11-10T00:00:00.000+01:00',
-                  'end_date' => '2019-11-20T00:00:00.000+01:00'
-                }
+                'event_schedule' => [{
+                  'start_time' => {
+                    'time' => Time.new(2019, 11, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  },
+                  'duration' => 10.days.to_i
+                }]
               }
             ]
           }
@@ -57,7 +64,7 @@ module DataCycleCore
         end
 
         test 'testing EventOverlay with fields parameter (filtering unstructured data)' do
-          fields = ['dc:entity_url']
+          fields = ['dc:entityUrl']
           json_data = load_api_data(fields)
           assert_equal((fields + default_fields).sort, json_data.keys.sort)
         end
@@ -67,8 +74,8 @@ module DataCycleCore
           json_data = load_api_data(fields)
 
           assert_equal((fields + default_fields).sort, json_data.keys.sort)
-          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('startDate'))
-          assert_equal(@data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('endDate'))
+          assert_equal(@event_period.dig('start_date'), json_data.dig('startDate'))
+          assert_equal(@event_period.dig('end_date'), json_data.dig('endDate'))
         end
 
         test 'testing EventOverlay with fields parameter (filtering additionalProperty)' do

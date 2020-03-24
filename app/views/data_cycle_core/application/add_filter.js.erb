@@ -4,7 +4,7 @@ $('<%= j render_first_existing_partial(["data_cycle_core/application/filters/#{p
   filter_method: params['m'],
   filter_advanced_type: params['q'],
   value: nil,
-  index: params[:index] }) %>').appendTo('.filters .advanced-filters > .accordion-item > .accordion-content').trigger('dc:html:changed');
+  index: params[:index] }) %>').appendTo('.filters .advanced-filters > .accordion-item > .accordion-content').trigger('dc:html:changed').trigger('dc:html:initialized');
 
 $('.filters #add_advanced_filter').data('index', $('.filters #add_advanced_filter').data('index') + 1);
 

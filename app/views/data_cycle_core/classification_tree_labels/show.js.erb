@@ -6,7 +6,7 @@
   $('#<%= c_type.id %> > ul.children > li.load-more-link').hide();
 
   var classifications = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>');
-  classifications.appendTo('#<%= c_type.id %> > ul.children').trigger('dc:html:changed');
+  classifications.appendTo('#<%= c_type.id %> > ul.children').trigger('dc:html:changed').trigger('dc:html:initialized');
   var contents = undefined;
 <% elsif params[:page].present? && @classification_tree.present? %>
   $('#<%= @classification_tree.id %> > ul.contents > li.button-row').remove();
@@ -18,10 +18,10 @@
       $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
   <% end %>
   $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
-  contents.trigger('dc:html:changed');
+  contents.trigger('dc:html:changed').trigger('dc:html:initialized');
 <% elsif @classification_tree.present? %>
   var classifications = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/classification_trees', classification_tree_label: @classification_tree_label, classification_tree: @classification_tree, classification_trees: @classification_trees) %>');
-  classifications.appendTo('#<%= @classification_tree.id %> > ul.children').trigger('dc:html:changed');
+  classifications.appendTo('#<%= @classification_tree.id %> > ul.children').trigger('dc:html:changed').trigger('dc:html:initialized');
 
   var contents = $('<%= escape_javascript(render 'data_cycle_core/contents/tree/contents', contents: @contents, classification_tree_label: @classification_tree_label, classification_tree: @classification_tree) %>');
   contents.appendTo('#<%= @classification_tree.id %> > ul.contents');
@@ -30,7 +30,7 @@
       $('#<%= @classification_tree.id %> > ul.children').addClass('has-contents');
   <% end %>
   $('#<%= @classification_tree.id %> > ul.children, #<%= @classification_tree.id %> > ul.contents').addClass('loaded').show();
-  contents.trigger('dc:html:changed');
+  contents.trigger('dc:html:changed').trigger('dc:html:initialized');
 <% elsif @container.present? %>
   $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.contents > li.button-row').remove();
 
@@ -41,5 +41,5 @@
       $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.children').addClass('has-contents');
   <% end %>
   $('#<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.children, #<%= @container.id %>[data-parent-classification="<%= @classification_parent_tree.id %>"] > ul.contents').addClass('loaded').show();
-  contents.trigger('dc:html:changed');
+  contents.trigger('dc:html:changed').trigger('dc:html:initialized');
 <% end %>

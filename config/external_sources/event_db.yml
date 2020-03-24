@@ -4,6 +4,8 @@ credentials:
   action: /endpoints/557ea81f6d6564769e010000
   end_point: /api/v2
   host: https://veranstaltungen.kaernten.at
+default_options:
+  locales: [de]  
 config:
   download_config:
     categories:

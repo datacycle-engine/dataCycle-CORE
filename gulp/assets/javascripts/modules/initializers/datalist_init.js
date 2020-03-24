@@ -46,23 +46,27 @@ module.exports.initialize = function() {
           '">'
       );
       $(input_field)
-        .siblings('input[id$=given_name]')
+        .closest('form')
+        .find('input[id$=given_name]')
         .first()
         .val(user.data('givenname'))
         .prop('readonly', true);
       $(input_field)
-        .siblings('input[id$=family_name]')
+        .closest('form')
+        .find('input[id$=family_name]')
         .first()
         .val(user.data('familyname'))
         .prop('readonly', true);
     } else {
       form.find('input[name="data_link[receiver][id]"]').remove();
       $(input_field)
-        .siblings('input[id$=given_name]')
+        .closest('form')
+        .find('input[id$=given_name]')
         .first()
         .prop('readonly', false);
       $(input_field)
-        .siblings('input[id$=family_name]')
+        .closest('form')
+        .find('input[id$=family_name]')
         .first()
         .prop('readonly', false);
     }

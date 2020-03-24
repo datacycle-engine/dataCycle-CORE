@@ -21,6 +21,35 @@ module DataCycleCore
       redirect_back(fallback_location: root_path)
     end
 
+    def bulk_create
+      new_thing_params = params.dig('thing')
+
+      return if new_thing_params.blank?
+
+      item_count = new_thing_params.keys.size
+      index = 0
+      content_ids = []
+
+      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: 0, items: item_count
+
+      new_thing_params.each do |_key, thing_params|
+        thing_hash = content_params(params[:template], thing_params)
+
+        I18n.with_locale(create_locale(thing_params)) do
+          content = DataCycleCore::DataHashService.create_internal_object(params[:template], thing_hash, current_user)
+          content_ids << { id: content.id, field_id: thing_params[:uploader_field_id] } if content.try(:id).present?
+
+          ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", progress: index += 1, items: item_count, errors: content.try(:errors).presence
+        end
+      end
+
+      flash[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+
+      ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
+
+      head(:ok)
+    end
+
     def show
       @content = DataCycleCore::Thing.find(params[:id])
 
@@ -46,7 +75,7 @@ module DataCycleCore
           )
 
           @language ||= params.fetch(:language) { ['all'] }
-          set_instance_variables_by_view_mode(query: @query, user_filter: true)
+          set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'show', template_name: @content.template_name })
         end
 
         respond_to do |format|
@@ -71,7 +100,7 @@ module DataCycleCore
 
       @object_browser_parent = DataCycleCore::Thing.find_by(id: params[:content_id]) || DataCycleCore::Thing.new { |t| t.id = params[:content_id] } if params[:content_id].present?
 
-      I18n.with_locale(locale_params[:locale]) do
+      I18n.with_locale(create_locale) do
         object_params = content_params(params[:template])
 
         if source_params.present?
@@ -82,7 +111,7 @@ module DataCycleCore
 
         @content = DataCycleCore::DataHashService.create_internal_object(params[:template], object_params, current_user, parent_params[:parent_id], source)
 
-        redirect_back(fallback_location: root_path) && return if @content.nil?
+        redirect_back(fallback_location: root_path) && return if @content.try(:errors).present?
 
         respond_to do |format|
           if @content.present?
@@ -269,7 +298,7 @@ module DataCycleCore
       object_params = content_params(@object.template_name)
       translation_values = object_params[:translations]&.values&.first || {}
       datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translation_values), @object.schema)
-      valid = @object.validate(datahash)
+      valid = @object.validate(datahash, nil, params[:strict] == '1')
       render json: valid.to_json
     end
 
@@ -339,6 +368,17 @@ module DataCycleCore
       render json: @asset
     end
 
+    def remove_locks
+      @content = DataCycleCore::Thing.find(params[:id])
+      authorize! :remove_lock, @content
+
+      @content.lock&.destroy
+
+      flash[:success] = I18n.t :removed_lock, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+
+      redirect_back(fallback_location: root_path)
+    end
+
     private
 
     def set_watch_list
@@ -353,6 +393,11 @@ module DataCycleCore
 
     def watch_list_params
       { watch_list_id: @watch_list&.id }
+    end
+
+    def create_locale(params_hash = nil)
+      locale_param = (params_hash&.dig(:locale) || params.dig(:thing, :locale))
+      I18n.available_locales.include?(locale_param&.to_sym) ? locale_param : I18n.locale.to_s
     end
 
     def locale_params
@@ -375,10 +420,15 @@ module DataCycleCore
       params.require(:life_cycle).permit(:name, :id)
     end
 
-    def content_params(template_name)
+    def content_params(template_name, params_hash = nil)
       datahash = DataCycleCore::DataHashService.get_object_params(template_name)
       translations = I18n.available_locales.map { |l| [l, datahash] }.to_h
-      params.require(:thing).permit(datahash: datahash, translations: translations)
+
+      if params_hash.present?
+        params_hash.permit(datahash: datahash, translations: translations)
+      else
+        params.require(:thing).permit(datahash: datahash, translations: translations)
+      end
     end
 
     def new_params

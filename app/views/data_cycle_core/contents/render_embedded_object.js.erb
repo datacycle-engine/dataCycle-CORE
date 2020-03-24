@@ -28,4 +28,4 @@ else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :r
 
 $('<%= j content_for :forms %>').appendTo('body').foundation();
 
-$('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed');
+$('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized');

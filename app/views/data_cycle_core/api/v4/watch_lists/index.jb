@@ -8,7 +8,7 @@ json['@graph'] = @watch_lists.map do |item|
     '@id' => item.id,
     '@type' => 'Thing',
     'name' => item.name,
-    'dc:entity_url' => api_v4_collection_url(@api_subversion, id: item.id),
+    'dc:entityUrl' => api_v4_collection_url(@api_subversion, id: item.id),
     'dc:item_count' => item.watch_list_data_hashes.count
   }
 end

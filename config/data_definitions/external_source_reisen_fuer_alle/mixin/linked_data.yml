@@ -1,0 +1,32 @@
+---
+- :data:
+    :name: linked_data
+    :type: mixin
+    :properties:
+      :linked_thing:
+        :label: Verknüpfte Inhalte
+        :type: linked
+        :inverse_of: is_linked_to
+        :global: true
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Person
+                - Organisation
+                - Ort
+                - Veranstaltung
+                - Veranstaltungsserie
+                - Zertifikat
+        :api:
+          :v4:
+            :name: 'dc:linkedThing'
+      :is_linked_to:
+        :label: Verknüpft mit
+        :type: linked
+        :inverse_of: linked_thing
+        :link_direction: inverse
+        :global: true
+        :api:
+          :v4:
+            :name: 'dc:isLinkedTo'

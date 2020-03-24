@@ -52,6 +52,10 @@
 :advanced_filter:
   :boolean:
     - duplicate_candidates
+  :geo_filter:
+    :geo_radius: true
+    :geo_within_classification:
+      - Administrative Einheiten
   :advanced_attributes:
     # media
     :width:
@@ -127,6 +131,10 @@
 #    :validity_period.valid_through:
 #      :type: date
 
+:user_registration:
+  :enabled: true
+  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
+  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
 
 :duplicate_candidate:
   :enabled: true
@@ -136,3 +144,9 @@
 
 :user_api:
   :enabled: true
+
+:preview:
+  :enabled: true
+  :widgets:
+    :list: https://widgets.datacycle.cloud/list
+    :map: https://widgets.datacycle.cloud/map

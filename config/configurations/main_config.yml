@@ -1,5 +1,14 @@
 :api:
   :default: v3
+  :enabled: true
+  :v1:
+    :enabled: true
+  :v2:
+    :enabled: true
+  :v3:
+    :enabled: true
+  :v4:
+    :enabled: true
 #  :v2:
 #    :subversions:
 #      - 'test'

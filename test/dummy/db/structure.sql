@@ -766,7 +766,8 @@ CREATE TABLE public.stored_filters (
     api boolean DEFAULT false,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    api_users text[]
+    api_users text[],
+    linked_stored_filter_id uuid
 )
 WITH (autovacuum_vacuum_scale_factor='0.0', autovacuum_vacuum_threshold='100', autovacuum_analyze_scale_factor='0.0', autovacuum_analyze_threshold='100');
 
@@ -924,7 +925,11 @@ CREATE TABLE public.users (
     provider character varying,
     uid character varying,
     jti character varying,
-    creator_id uuid
+    creator_id uuid,
+    confirmation_token character varying,
+    confirmed_at timestamp without time zone,
+    confirmation_sent_at timestamp without time zone,
+    unconfirmed_email character varying
 );
 
 
@@ -1426,6 +1431,20 @@ CREATE INDEX index_asset_contents_on_asset_id ON public.asset_contents USING btr
 --
 
 CREATE INDEX index_asset_contents_on_content_data_id ON public.asset_contents USING btree (content_data_id);
+
+
+--
+-- Name: index_assets_on_creator_id; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_creator_id ON public.assets USING btree (creator_id);
+
+
+--
+-- Name: index_assets_on_type; Type: INDEX; Schema: public; Owner: -
+--
+
+CREATE INDEX index_assets_on_type ON public.assets USING btree (type);
 
 
 --
@@ -2238,11 +2257,14 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200116143539'),
 ('20200117095949'),
 ('20200131103229'),
+('20200205143630'),
 ('20200213132354'),
 ('20200217100339'),
 ('20200218132801'),
 ('20200218151417'),
 ('20200219111406'),
-('20200221115053');
+('20200221115053'),
+('20200224143507'),
+('20200226121349');
 
 

@@ -56,6 +56,11 @@ module DataCycleCore
       definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
     end
 
+    def attribute_disabled?(definition, api_version = @api_version)
+      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
+      definition.dig('api', 'disabled') || false
+    end
+
     def included_attribute?(name, attribute_list)
       return if attribute_list.blank?
       attribute_list.map { |item| item.first == name }.inject(&:|)
@@ -91,9 +96,9 @@ module DataCycleCore
       data_value
     end
 
-    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
+    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil)
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
       elsif item.is_a?(DataCycleCore::Thing::History)
         "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
@@ -120,24 +125,24 @@ module DataCycleCore
           'dct' => 'http://purl.org/dc/terms/',
           'cc' => 'http://creativecommons.org/ns#',
           'dc' => 'https://schema.datacycle.at/',
-          'dc:entity_url' => {
-            '@id' => 'https://schema.datacycle.at/entity_url',
+          'dc:entityUrl' => {
+            '@id' => 'https://schema.datacycle.at/entityUrl',
             '@type' => '@id'
           },
           'dc:classification' => {
             '@id' => 'https://schema.datacycle.at/classification',
             '@container' => '@set'
           },
-          'dc:has_concept' => {
-            '@id' => 'https://schema.datacycle.at/has_concept',
+          'dc:hasConcept' => {
+            '@id' => 'https://schema.datacycle.at/hasConcept',
             '@type' => '@id'
           },
-          'dc:linked_thing' => {
-            '@id' => 'https://schema.datacycle.at/linked_thing',
+          'dc:linkedThing' => {
+            '@id' => 'https://schema.datacycle.at/linkedThing',
             '@container' => '@set'
           },
-          'dc:is_linked_to' => {
-            '@id' => 'https://schema.datacycle.at/is_linked_to',
+          'dc:isLinkedTo' => {
+            '@id' => 'https://schema.datacycle.at/isLinkedTo',
             '@container' => '@set'
           }
         }.compact

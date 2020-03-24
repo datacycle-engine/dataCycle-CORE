@@ -21,6 +21,7 @@ class Validator {
       .siblings('.edit-header')
       .find('.form-element.agbs')
       .first();
+    this.contentUploader = this.form.data('content-uploader');
     this.initialFormData = [];
     this.submitFormData = [];
     this.requests = [];
@@ -49,7 +50,7 @@ class Validator {
       event.stopImmediatePropagation();
       this.form.trigger('submit');
     });
-    this.form.on('submit', this.validateForm.bind(this));
+    this.form.on('submit dc:form:validateForm', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
     }
@@ -91,21 +92,22 @@ class Validator {
       .remove();
   }
   validateSingle(event, data) {
+    if (data && data.type === 'reset') return;
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
   pageLeaveWarning() {
-    QuillHelpers.update_editors(this.form);
+    QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.form.serializeArray();
     $(window).on('beforeunload', event => {
-      QuillHelpers.update_editors(this.form);
+      QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray();
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
-        QuillHelpers.update_editors(this.form);
+        QuillHelpers.updateEditors(this.form);
         this.submitFormData = this.form.serializeArray();
         if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
@@ -267,6 +269,7 @@ class Validator {
         value: template
       });
     }
+
     return $.ajax({
       type: 'POST',
       url: url,
@@ -293,7 +296,7 @@ class Validator {
   validateForm(event, data) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    QuillHelpers.update_editors(event.target);
+    QuillHelpers.updateEditors(event.target);
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
@@ -306,7 +309,7 @@ class Validator {
     this.resolveRequests($(event.target).is(this.form), data);
   }
   submitForm(
-    confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false, saveAndClose: false }
+    confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
   ) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
@@ -357,20 +360,22 @@ class Validator {
     this.triggerFormSubmit(confirmations);
   }
   triggerFormSubmit(confirmations = {}) {
-    if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      return this.form.trigger('submit_without_redirect');
+    if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
+      return this.form.trigger('dc:form:submitWithoutRedirect', confirmations);
     } else {
       $(window).off('beforeunload');
       if (confirmations && confirmations.saveAndClose)
         this.form.append('<input type="hidden" name="save_and_close" value="1">');
-      if (confirmations && confirmations.merge)
+      if (confirmations && confirmations.mergeConfirm)
         this.form.append(
           '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
         );
       this.form.trigger('submit.rails');
     }
   }
-  resolveRequests(submit = false, eventData = undefined) {
+  resolveRequests(submit = false, eventData = {}) {
+    if (eventData.hasOwnProperty('submit')) submit = eventData.submit;
+
     this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];
@@ -385,26 +390,26 @@ class Validator {
         if (this.valid && submit) {
           this.queryCount = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          let confirmations = {
-            finalize: true,
-            confirm: true,
-            warnings: warnings.length ? warnings : undefined,
-            merge: eventData && eventData.mergeConfirm,
-            saveAndClose: eventData && eventData.saveAndClose
-          };
 
-          this.submitForm(confirmations);
+          eventData = Object.assign({}, eventData || {}, {
+            finalize: true,
+            confirm: true
+          });
+
+          if (warnings.length) Object.assign(eventData, { warnings: warnings });
+
+          this.submitForm(eventData);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
         if (!(this.valid && submit)) this.enable();
-        if (this.valid && eventData !== undefined && eventData.success_callback !== undefined) {
-          eventData.success_callback();
+        if (this.valid && eventData !== undefined && eventData.successCallback !== undefined) {
+          eventData.successCallback();
         }
-        if (!this.valid && eventData !== undefined && eventData.error_callback !== undefined) {
-          eventData.error_callback();
+        if (!this.valid && eventData !== undefined && eventData.errorCallback !== undefined) {
+          eventData.errorCallback();
         }
         // scroll to step in multi-step form
         if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {

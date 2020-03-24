@@ -1,28 +1,28 @@
-<% if !value.try(:start_date).nil? || !value.try(:end_date).nil? %>
+<% if value.try(:start_date).present? || value.try(:end_date).present? %>
 
-    <div class="event_period">
-        <i class="fa fa-calendar" aria-hidden="true"></i>
-        <% unless value.try(:start_date).nil? %>
-            <%= t('terms.from', locale: DataCycleCore.ui_language) %>
-            <span class="date">
-                <% if value.start_date.to_s(:time) == '00:00' %>
-                    <strong><%= l(value.start_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
-                <% else %>
-                    <strong><%= l(value.start_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
-                <% end %>
-            </span>
+  <div class="event_period">
+    <i class="fa fa-calendar" aria-hidden="true"></i>
+    <% unless value.try(:start_date).nil? %>
+      <%= t('terms.from', locale: DataCycleCore.ui_language) %>
+      <span class="date">
+        <% if value.start_date.to_s(:time) == '00:00' %>
+          <strong><%= l(value.start_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
+        <% else %>
+          <strong><%= l(value.start_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
         <% end %>
+      </span>
+    <% end %>
 
-        <% unless value.try(:end_date).nil? %>
-            <%= t('terms.until', locale: DataCycleCore.ui_language) %>
-            <span class="date">
-                <% if value.end_date.to_s(:time) == '00:00' %>
-                    <strong><%= l(value.end_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
-                <% else %>
-                    <strong><%= l(value.end_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
-                <% end %>
-            </span>
+    <% unless value.try(:end_date).nil? %>
+      <%= t('terms.until', locale: DataCycleCore.ui_language) %>
+      <span class="date">
+        <% if value.end_date.to_s(:time) == '00:00' %>
+          <strong><%= l(value.end_date.to_date, format: :full, locale: DataCycleCore.ui_language) %></strong>
+        <% else %>
+          <strong><%= l(value.end_date.to_datetime, locale: DataCycleCore.ui_language) %></strong>
         <% end %>
-    </div>
+      </span>
+    <% end %>
+  </div>
 
 <% end %>

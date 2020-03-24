@@ -65,17 +65,23 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          else
+            query
+          end
         end
 
         def build_search_query
           endpoint_id = permitted_params[:id]
           filter_watch_list = false
+          @linked_stored_filter = nil
           if endpoint_id.present?
             @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
 
             if @stored_filter
               authorize! :api, @stored_filter
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
             elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
               filter_watch_list = true
             else
@@ -85,6 +91,7 @@ module DataCycleCore
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
+          filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
@@ -134,7 +141,7 @@ module DataCycleCore
           from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
           to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          query.schedule_search(from_date, to_date, 'schedule')
+          query.schedule_search(from_date, to_date)
         end
 
         def apply_place_query_filters(query)
