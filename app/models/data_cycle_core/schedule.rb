@@ -63,6 +63,46 @@ module DataCycleCore
       schedule_hash = {
         '@context' => 'http://schema.org',
         '@type' => 'Schedule',
+        'inLanguage' => I18n.locale.to_s,
+        'startDate' => dtstart&.to_s(:only_date),
+        'endDate' => dtend&.to_s(:only_date),
+        'startTime' => dtstart&.to_s(:only_time),
+        'endTime' => end_time,
+        'duration' => duration&.iso8601,
+        'repeatCount' => repeat_count,
+        'exceptDate' => exdate&.map(&:to_s)&.presence,
+        'additionalDate' => rdate&.map(&:to_s)&.presence,
+        'repeatFrequency' => repeat_frequency,
+        'byDay' => by_day&.map { |day| dow(day) },
+        'byMonth' => by_month&.map(&:to_i),
+        'byMonthDay' => by_month_day&.map(&:to_i)
+      }.compact
+      schedule_hash.merge({ 'identifier' => generate_uuid(schedule_hash) })
+    end
+
+    def to_schedule_schema_org_api_v3
+      end_time = dtend&.to_s(:only_time)
+      end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
+      repeat_count = nil
+      repeat_frequency = nil
+      by_day = nil
+      by_month = nil
+      by_month_day = nil
+      if @schedule_object&.recurrence_rules&.first.present?
+        rule = @schedule_object&.recurrence_rules&.first
+        rule_ical = rule.to_ical
+        rule_hash = rule.to_hash
+        end_time = rule&.until_time&.in_time_zone&.to_s(:only_time) if end_time.blank? && rule&.until_time.present?
+        repeat_count = rule&.occurrence_count
+        repeat_frequency = /FREQ=(.+?);/.match(rule_ical).try(:send, '[]', 1)&.downcase&.presence
+        by_day = rule_hash.dig(:validations, :day)
+        by_month = rule_hash.dig(:validations, :month_of_year)
+        by_month_day = rule_hash.dig(:validations, :day_of_month)
+      end
+
+      schedule_hash = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
         'contentType' => 'EventSchedule',
         'inLanguage' => I18n.locale.to_s,
         'startDate' => dtstart&.to_s(:only_date),
@@ -82,9 +122,10 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v2
-      # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
+      repeat_count = nil
+      repeat_frequency = nil
       by_day = nil
       by_month = nil
       by_month_day = nil
@@ -105,6 +146,11 @@ module DataCycleCore
         'endDate' => dtend&.beginning_of_day&.to_s(:long_msec),
         'startTime' => dtstart&.to_s(:only_time),
         'endTime' => end_time,
+        'duration' => duration&.iso8601,
+        'repeatCount' => repeat_count,
+        'exceptDate' => exdate&.map(&:to_s)&.presence,
+        'additionalDate' => rdate&.map(&:to_s)&.presence,
+        'repeatFrequency' => repeat_frequency,
         'by_day' => by_day&.map { |day| dow(day) },
         'by_month' => by_month&.map(&:to_i),
         'by_month_day' => by_month_day&.map(&:to_i)

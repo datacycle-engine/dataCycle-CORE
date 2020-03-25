@@ -74,7 +74,6 @@ module DataCycleCore
       expected_serialization = {
         '@context' => 'http://schema.org',
         '@type' => 'Schedule',
-        'contentType' => 'EventSchedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'endDate' => '2020-01-04',
@@ -98,7 +97,6 @@ module DataCycleCore
       expected_serialization = {
         '@context' => 'http://schema.org',
         '@type' => 'Schedule',
-        'contentType' => 'EventSchedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'endDate' => '2020-01-03',
@@ -121,7 +119,6 @@ module DataCycleCore
       expected_serialization = {
         '@context' => 'http://schema.org',
         '@type' => 'Schedule',
-        'contentType' => 'EventSchedule',
         'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
