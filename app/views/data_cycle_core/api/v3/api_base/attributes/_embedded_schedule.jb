@@ -8,9 +8,9 @@ if value.present? && value.first.template_name != 'EventSchedule' # for e.g. Sch
 elsif content.event_schedule.present?
   data = content.event_schedule.to_a
   if content.translations.size > 1 && @include_parameters.include?('translations')
-    json[key_new] = content.translations.map do |trans|
+    json[key_new] = content.translations.map { |trans|
       { trans.locale => I18n.with_locale(trans.locale) { data.map(&:to_schedule_schema_org) } }
-    end
+    }.reduce(&:merge)
   else
     json[key_new] = data.map(&:to_schedule_schema_org)
   end
