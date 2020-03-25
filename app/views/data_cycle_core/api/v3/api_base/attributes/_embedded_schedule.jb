@@ -12,7 +12,7 @@ elsif content.event_schedule.present?
       { trans.locale => I18n.with_locale(trans.locale) { data.map(&:to_schedule_schema_org_api_v3) } }
     }.reduce(&:merge)
   else
-    json[key_new] = data.map(&:to_schedule_schema_org)
+    json[key_new] = data.map(&:to_schedule_schema_org_api_v3)
   end
 end
 
