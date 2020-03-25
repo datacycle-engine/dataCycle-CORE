@@ -127,6 +127,11 @@
         :api:
           :v4:
             :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :schedule:
         :label: Event-Schedule
         :type: embedded
@@ -135,6 +140,11 @@
         :api:
           :name: eventSchedule
           :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
             :disabled: true
       :super_event:
         :label: Veranstaltungsserie

@@ -213,7 +213,9 @@ module DataCycleCore
                 end
                 except_sub_event_params = excepted_params + ['identifier', 'name', 'description', 'sameAs']
 
-                assert_equal(api_v3_json.except('subEvent', *except_sub_event_params), api_v2_json.except('subEvent', 'eventSchedule', *except_sub_event_params))
+                assert_equal(api_v3_json.except('subEvent', 'eventSchedule', *except_sub_event_params), api_v2_json.except('subEvent', 'eventSchedule', *except_sub_event_params))
+                assert_equal(1, api_v3_json.dig('eventSchedule').size)
+                assert_equal(1, api_v2_json.dig('eventSchedule').size)
                 assert_equal(convert_api_v2_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v2_subevents.map { |item| item.except(*except_sub_event_params) })
                 assert_equal(convert_api_v3_json.dig('subEvent').map { |item| item.except(*except_sub_event_params) }, v3_subevents.map { |item| item.except(*except_sub_event_params) })
                 assert_equal(api_v3_json.dig('image').first.except(*except_sub_event_params), api_v2_json.dig('image').first.except(*except_sub_event_params))

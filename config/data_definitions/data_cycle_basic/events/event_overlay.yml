@@ -88,6 +88,11 @@
           :name: eventSchedule
           :v4:
             :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :data_type:
         :label: Inhaltstyp
         :type: classification
