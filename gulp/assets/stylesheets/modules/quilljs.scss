@@ -1,2 +1,91 @@
 $fa-font-path: '/assets';
 @import '../../../../node_modules/quill/dist/quill.snow';
+
+.editor-block {
+  .ql-tooltip {
+    input[type='text'] {
+      padding: 0.5rem !important;
+      box-shadow: none !important;
+    }
+
+    &.dc--contentlink-tooltip {
+      &::before {
+        content: 'Referenz:';
+      }
+    }
+
+    .dc--external-link-label {
+      position: relative;
+      top: 0;
+      left: 0;
+      display: none;
+      &::before {
+        content: 'In neuem Tab öffnen:';
+      }
+    }
+
+    &::before,
+    &[data-mode='link']::before {
+      content: 'URL:';
+    }
+
+    a.ql-action::after {
+      content: 'Bearbeiten';
+    }
+
+    a.ql-remove::before {
+      content: 'Entfernen';
+    }
+
+    &.ql-editing {
+      .dc--external-link-label {
+        display: inline-block;
+      }
+      span.ql-preview {
+        display: none;
+      }
+      a.ql-action::after {
+        content: 'Übernehmen';
+      }
+    }
+  }
+  .ql-editor {
+    .dc--contentlink {
+      cursor: pointer;
+    }
+    a {
+      border-bottom: 1px solid;
+      text-decoration: none;
+    }
+  }
+
+  .ql-toolbar {
+    .ql-contentlink {
+      path {
+        transition: fill 0.2s;
+      }
+      .st1 {
+        fill: #e6007e;
+      }
+      .st0 {
+        fill: #009fe3;
+      }
+      .st3 {
+        fill: #333;
+      }
+      &.ql-active,
+      &:hover {
+        .st0,
+        .st3 {
+          fill: #009fe3;
+        }
+      }
+    }
+  }
+}
+
+.dc--contentlink[data-href] {
+  color: #06c;
+  border-bottom: 1px dotted;
+  cursor: help;
+}
