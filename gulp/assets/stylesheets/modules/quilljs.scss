@@ -10,7 +10,7 @@ $fa-font-path: '/assets';
 
     &.dc--contentlink-tooltip {
       &::before {
-        content: 'Referenz:';
+        content: 'dataCycle-Referenz:';
       }
     }
 
@@ -85,7 +85,7 @@ $fa-font-path: '/assets';
 }
 
 .dc--contentlink[data-href] {
-  color: #06c;
+  color: #e6007e;
   border-bottom: 1px dotted;
   cursor: help;
 }
