@@ -126,7 +126,6 @@ module DataCycleCore
 
     def to_sub_event
       return [] unless @schedule_object.terminating?
-      # return [] if @schedule_object.all_occurrences.size == 1
       @schedule_object.all_occurrences.map do |occurrence|
         sub_event_hash = {
           '@context' => 'http://schema.org',

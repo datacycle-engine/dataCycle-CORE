@@ -33,11 +33,11 @@ module DataCycleCore
     def self.user_doing_activity(activity, from = nil, to = Time.zone.now)
       raise ArgumentError if activity.blank?
       from ||= Time::LONG_AGO
-      select(:user_id, 'count(user_id) as data_count')
+      select(:user_id, :activity_type, 'count(user_id) as data_count')
         .where(activity_type: activity)
         .where({ created_at: from..to })
-        .group(:activity_type)
-        &.map { |item| { item.activity_type => item.data_count } }
+        .group(:activity_type, :user_id)
+        &.map { |item| { item.user_id => item.data_count } }
         &.inject(&:merge)
     end
   end

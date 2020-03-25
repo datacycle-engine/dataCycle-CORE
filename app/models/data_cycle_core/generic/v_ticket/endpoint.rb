@@ -10,6 +10,7 @@ module DataCycleCore
           @action = action
           @token = token
           @per = 30
+          @max_retry = 5
           @conn = Faraday.new(@host)
           @conn.authorization :Bearer, @token
         end
@@ -66,13 +67,13 @@ module DataCycleCore
           if response.success?
             JSON.parse(response.body)
           elsif response.status.to_i == 429 && retry_count <= 5
-            sleep 20
+            sleep(20)
             load_data(page: page, per: per, lang: lang, action: action, detail_id: detail_id, retry_count: (retry_count + 1))
           else
             raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response)
           end
         rescue StandardError
-          raise if retry_count > 5
+          raise if retry_count > @max_retry
           sleep(1)
           load_data(page: page, per: per, lang: lang, action: action, detail_id: detail_id, retry_count: (retry_count + 1))
         end
