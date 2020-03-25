@@ -58,7 +58,7 @@ module DataCycleCore
           end
 
           if !response.success?
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response) unless response.success?
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point + action} / page:#{page} / per:#{per} / lang:#{lang}", response) if retry_count > 5
             sleep(1)
             load_data(page: page, per: per, lang: lang, retry_count: retry_count + 1)
           else

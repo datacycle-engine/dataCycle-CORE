@@ -13,6 +13,7 @@ module DataCycleCore
           @bergerlebnis = options.dig(:endpoint_bergerlebnis)
           @event = options.dig(:endpoint_event)
           @eventreihe = options.dig(:endpoint_eventreihe)
+          @max_retry = 5
         end
 
         def infrastructures(lang: :de)
@@ -50,15 +51,10 @@ module DataCycleCore
             req.params['page'] = page
           end
 
-          if !response.success?
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) if retry_count > 5
-            sleep(1)
-            load_data(page, lang, retry_count + 1)
-          else
-            JSON.parse(response.body)
-          end
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
+          JSON.parse(response.body)
         rescue StandardError
-          raise if retry_count > 5
+          raise if retry_count > @max_retry
           sleep(1)
           load_data(page, lang, retry_count + 1)
         end
@@ -91,15 +87,10 @@ module DataCycleCore
             req.params['page'] = page
           end
 
-          if !response.success?
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) if retry_count > 5
-            sleep(1)
-            load_events(end_point, page, retry_count + 1)
-          else
-            JSON.parse(response.body)
-          end
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
+          JSON.parse(response.body)
         rescue StandardError
-          raise if retry_count > 5
+          raise if retry_count > @max_retry
           sleep(1)
           load_events(end_point, page, retry_count + 1)
         end

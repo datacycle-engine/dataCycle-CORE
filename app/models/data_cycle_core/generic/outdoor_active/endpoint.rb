@@ -117,13 +117,8 @@ module DataCycleCore
             req.params['fallback'] = false
           end
 
-          if !response.success?
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
-            sleep(0.1)
-            load_data(url_path, lang, retry_count + 1)
-          else
-            JSON.parse(response.body)
-          end
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project] + url_path)} / lang:#{lang}", response) unless response.success?
+          JSON.parse(response.body)
         rescue StandardError
           raise if retry_count > @max_retry
           sleep(0.1)
