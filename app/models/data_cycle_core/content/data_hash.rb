@@ -64,7 +64,7 @@ module DataCycleCore
               search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
-            run_callbacks(:saved_data_hash) unless prevent_history
+            run_callbacks(:saved_data_hash)
             run_callbacks(:created_data_hash) if @new_content
           end
         end
