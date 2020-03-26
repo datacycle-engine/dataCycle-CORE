@@ -523,7 +523,8 @@ select {
     }
 
     .detail-type.object {
-      a.copy-all {
+      a.copy-all,
+      a.translate-all {
         width: 2rem;
         height: 2rem;
         margin-top: -2.1rem;
@@ -547,7 +548,8 @@ select {
         }
       }
 
-      .copy-all {
+      .copy-all,
+      .translate-all {
         float: right;
         margin: 0.1rem;
         z-index: 1;

@@ -26,7 +26,9 @@ class SplitView {
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
     this.container.on('click', '.translate', this.handleButtonClick.bind(this));
-    this.container.closest('.split-content').on('click', '.copy-all', this.triggerAllButtons.bind(this));
+    this.container
+      .closest('.split-content')
+      .on('click', '.copy-all, .translate-all', this.triggerAllButtons.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
     this.container
       .closest('.split-content')
@@ -125,7 +127,8 @@ class SplitView {
     elements.each((_, item) => {
       if ($(item).find('a.copy').length)
         $(item).prepend(
-          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>',
+          '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
         );
     });
   }
@@ -226,9 +229,14 @@ class SplitView {
   }
   triggerAllButtons(event) {
     event.preventDefault();
+
+    let selector = event.currentTarget.classList.contains('translate-all')
+      ? 'a.translate'
+      : 'a.copy:not(.copy-single-button)';
+
     $(event.currentTarget)
       .parent('.split-content, [data-editor="included-object"]')
-      .find('a.copy:not(.copy-single-button)')
+      .find(selector)
       .trigger('click');
   }
   copyContents(value, label, key) {
