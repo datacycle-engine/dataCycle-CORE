@@ -21,6 +21,11 @@
                 <br/><i class='fa fa-database' aria-hidden='true'></i>&nbsp;core database<br/>&nbsp;
             </h4>
         </div>
+        <% if can? :show_admin_activities, :dash_board %>
+            <div class="small-12 columns">
+                <%= link_to 'activities', admin_activities_path, class: 'button small' %>
+            </div>
+        <% end %>
     </div>
     <div class="row">
         <div class="small-3 columns">

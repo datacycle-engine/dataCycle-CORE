@@ -140,6 +140,8 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
+  get  '/admin/activities', to: 'dash_board#activities'
+  get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
 
   if DataCycleCore.main_config.dig(:api, :enabled)
     defaults format: :json do

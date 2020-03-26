@@ -60,6 +60,7 @@ initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));
 initializers.push(require('./modules/initializers/schedule_editor_init'));
 initializers.push(require('./modules/initializers/password_toggle'));
+initializers.push(require('./modules/initializers/datatables_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));
