@@ -28,6 +28,12 @@
                     <%= stored_search.name %>
                   <% end %>
                 </span>
+                <% if stored_search.linked_stored_filter_id.present? %>
+                  <span class = "content-title">
+                    <i class="fa fa-long-arrow-right" aria-hidden="true"></i>
+                    <%= stored_search.linked_stored_filter.name %>
+                  </span>
+                <% end %>
                 <span class="content-date"><i class="fa fa-clock-o" aria-hidden="true"></i><%= l(stored_search.created_at.to_datetime, locale: DataCycleCore.ui_language) %></span>
                 <span class="content-attributes">
                   <%= render 'data_cycle_core/application/filters/search_params', stored_search: stored_search %>
@@ -45,9 +51,13 @@
                     <% end %>
                   <% end %>
 
+                  <%= render 'data_cycle_core/application/downloads/download_indesign', content: stored_search if can?(:download_indesign, stored_search) %>
+
                   <%= render 'data_cycle_core/application/downloads/download_zip', content: stored_search if can?(:download_zip, stored_search) %>
 
                   <%= render 'data_cycle_core/application/downloads/download', content: stored_search if can?(:download, stored_search) %>
+
+                  <%= render 'data_cycle_core/application/preview/widget', content: stored_search if DataCycleCore::Feature::Preview.enabled? && stored_search.api %>
 
                   <% if can?(:create_api, stored_search) %>
                     <a id="update-stored-search-<%= stored_search.id %>" data-open="update-search-form-<%= stored_search.id %>" title="<%= t('common.change_api_access', locale: DataCycleCore.ui_language) %>" data-tooltip>
@@ -60,12 +70,21 @@
                           <%= f.check_box :api %>
                             <%= f.label :api %>
                         </div>
-                        <div class="form-element">
-                          <div class="v-select">
-                            <%= f.label :api_users %>
-                            <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+
+                        <% if can?(:create_api_with_users, stored_search) %>
+                          <div class="form-element">
+                            <div class="v-select">
+                              <%= f.label :api_users %>
+                              <%= f.collection_select(:api_users, DataCycleCore::User.all, :id, :email, {}, { class: 'multi-select', multiple: true, data: { placeholder: '' } }) %>
+                            </div>
                           </div>
-                        </div>
+                          <div class="form-element">
+                            <div class="v-select">
+                              <%= f.label :linked_stored_filter_id %>
+                              <%= f.collection_select(:linked_stored_filter_id, @saved_stored_searches.where.not({ stored_filters: { id: stored_search.id }}), :id, :name, { include_blank: true }, { class: 'single-select', multiple: false, data: { placeholder: '' }}) %>
+                            </div>
+                          </div>
+                        <% end %>
                         <div class="buttons">
                           <%= f.button t('actions.save', locale: DataCycleCore.ui_language),
                             data: {
@@ -85,6 +104,7 @@
                   <%= link_to stored_filter_path(stored_search), method: :delete, data: { confirm: "#{t('data_cycle_core.stored_searches.saved', count: 1, locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" } do %>
                   <i class="fa fa-trash-o alert" aria-hidden="true"></i>
                   <% end if can?(:destroy, stored_search) %>
+
                 </span>
               </li>
             <% end %>

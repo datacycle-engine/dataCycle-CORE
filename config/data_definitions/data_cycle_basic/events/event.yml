@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -36,50 +37,32 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :event_period:
-        :label: Veranstaltungszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: start_date
-            :to: end_date
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: start_date
+          :parameters:
+            :0: event_schedule
         :ui:
-          :edit:
-            :type: daterange
           :show:
-            :content_area: header
-        :properties:
-          :start_date:
-            :label: Startzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventstart
-              :type: datetime
-          :end_date:
-            :label: Endzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventend
-              :type: datetime
+            :content_area: none
+      :end_date:
+        :label: Endzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: end_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
       :description:
         :label: Beschreibung
         :type: string
@@ -89,7 +72,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :url:
         :label: Inhalt URL
         :type: string
@@ -123,18 +106,46 @@
       :content_location:
         :label: Veranstaltungsort
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          - :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :api:
           :name: location
+      :event_schedule:
+        :label: Termine
+        :type: schedule
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded
         :template_name: SubEvent
-      :event_schedule:
+        :api:
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
+      :schedule:
         :label: Event-Schedule
         :type: embedded
         :template_name: EventSchedule
         :translated: true
+        :api:
+          :name: eventSchedule
+          :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :super_event:
         :label: Veranstaltungsserie
         :type: linked
@@ -144,8 +155,7 @@
         :label: Ausführende Person/Organisation
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -154,8 +164,7 @@
         :label: Veranstalter
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -163,8 +172,9 @@
                 - LocalBusiness
       :offers:
         :label: Angebote
-        :type: linked
-        :template_name: Event-Ticket-Angebot
+        :type: embedded
+        :template_name: Angebot
+        :translated: true
       :potential_action:
         :label: Link mit weiterführenden Infos
         :type: string
@@ -172,27 +182,9 @@
         :api:
           :partial: action
           :type: ViewAction
-      :linked_thing:
-        :label: Verknüpfte Inhalte
-        :type: linked
-        :inverse_of: is_linked_to
-        :global: true
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-                - Ort
-                - Veranstaltung
-                - Veranstaltungsserie
-      :is_linked_to:
-        :label: Verknüpft mit
-        :type: linked
-        :inverse_of: linked_thing
-        :link_direction: inverse
-        :global: true
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked
@@ -203,7 +195,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltung"
+        :default_value: 'Veranstaltung'
       :meta_data:
         :type: mixin
         :name: meta_data
@@ -219,6 +211,21 @@
       :hrs_dd_events:
         :type: mixin
         :name: hrs_dd_events
+      :open_destination_one_events:
+        :type: mixin
+        :name: open_destination_one_events
+      :marche_events:
+        :type: mixin
+        :name: marche_events
+      :puglia_events:
+        :type: mixin
+        :name: puglia_events
+      :piemonte_events:
+        :type: mixin
+        :name: piemonte_events
+      :pimcore_events:
+        :type: mixin
+        :name: pimcore_events
       :additional_properties:
         :type: mixin
         :name: additional_properties

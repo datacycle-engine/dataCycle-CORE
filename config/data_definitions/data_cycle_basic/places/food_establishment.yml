@@ -22,6 +22,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -35,6 +36,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :additional_food_establishment_properties:
+        :type: mixin
+        :name: additional_food_establishment_properties          
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -69,6 +73,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :price_range:
         :label: Preis-Info
         :type: string

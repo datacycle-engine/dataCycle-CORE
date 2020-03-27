@@ -61,7 +61,7 @@ module DataCycleCore
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_event(utility_object.external_source.id),
-            default: { template: 'dataCycleEvent' },
+            default: { template: 'Event' },
             config: config
           )
         end
@@ -76,6 +76,26 @@ module DataCycleCore
           )
         end
 
+        def self.process_room(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_room(utility_object.external_source.id),
+            default: { template: 'Zimmer' },
+            config: config
+          )
+        end
+
+        def self.process_additional_service(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_additional_service(utility_object.external_source.id),
+            default: { template: 'Zimmer' },
+            config: config
+          )
+        end
+
         def self.process_accommodation(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
@@ -86,12 +106,59 @@ module DataCycleCore
           )
         end
 
+        def self.process_package(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_aggregate_offer(utility_object.external_source.id),
+            default: { template: 'Pauschalangebot' },
+            config: config
+          )
+        end
+
+        def self.process_package_place(utility_object, raw_data, config)
+          return if raw_data&.dig('Details', 'Position').blank?
+          return if raw_data&.dig('Details', 'Position', 'Latitude').blank? || raw_data&.dig('Details', 'Position', 'Latitude')&.to_f&.zero?
+          return if raw_data&.dig('Details', 'Position', 'Longitude').blank? || raw_data&.dig('Details', 'Position', 'Longitude')&.to_f&.zero?
+
+          place_data = raw_data.dig('Details', 'Position')
+          place_data['place_id'] = "PackagePlace:#{raw_data.dig('Id')}"
+
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: place_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_package_place,
+            default: { template: 'Örtlichkeit' },
+            config: config
+          )
+        end
+
         def self.process_infrastructure(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
             raw_data: raw_data,
             transformation: DataCycleCore::Generic::Feratel::Transformations.feratel_to_infrastructure(utility_object.external_source.id),
             default: { template: 'POI' },
+            config: config
+          )
+        end
+
+        def self.process_asp(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_local_business(utility_object.external_source.id),
+            default: { template: 'LocalBusiness' },
+            config: config
+          )
+        end
+
+        def self.process_as(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Feratel::Transformations.to_additional_service(utility_object.external_source.id),
+            default: { template: 'Service' },
             config: config
           )
         end

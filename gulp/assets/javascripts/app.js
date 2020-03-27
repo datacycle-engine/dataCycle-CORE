@@ -15,6 +15,21 @@ if (window.DATA_CYCLE_ENGINE_PATH == undefined){
     window.DATA_CYCLE_ENGINE_PATH = '';
 }
 
+window.EDITORSELECTORS = [
+  '> .object-browser',
+  '> .embedded-object',
+  '> input[type=text]',
+  '> .editor-block > .quill-editor',
+  '> .v-select > select.multi-select',
+  '> .v-select > select.single-select',
+  '> .v-select > select.async-select',
+  '> ul.classification-checkbox-list',
+  '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
+  '> .geographic > .geographic-map',
+  '> :checkbox',
+  '> :input[type="number"]',
+  '> .duration-slider > div > input[type="number"]'
+];
 window.actionCable = ActionCable.createConsumer();
 initializers.push(require('./modules/initializers/rails_confirmation_init'));
 initializers.push(require('./modules/initializers/masonry_init'));
@@ -48,6 +63,9 @@ initializers.push(require('./modules/initializers/watch_list'));
 initializers.push(require('./modules/initializers/reload_required_init'));
 initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));
+initializers.push(require('./modules/initializers/schedule_editor_init'));
+initializers.push(require('./modules/initializers/password_toggle'));
+initializers.push(require('./modules/initializers/datatables_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));
@@ -112,7 +130,7 @@ $(function() {
                 }
 
                 if (contents.description !== undefined) {
-                  $('[data-label="Meta-Description"] > .editor-block > .quill-editor').trigger('dc:import:data', {
+                  $('[data-label="Meta-Description"] > input[type=text]').trigger('dc:import:data', {
                     label: 'Meta-Description',
                     value: contents.description
                   });
@@ -137,11 +155,11 @@ $(function() {
 
                 if (contents.images !== undefined && contents.images.length > 0) {
                   let image_ids = contents.images.map(i => i.external_key);
-                  let label = $('.linked[data-label="Bilder"]')
+                  let label = $('.linked[data-key="thing[datahash][image]"]')
                     .first()
                     .data('label');
 
-                  $('.linked[data-label="Bilder"]')
+                  $('.linked[data-key="thing[datahash][image]"]')
                     .children('.object-browser')
                     .trigger('dc:import:data', {
                       label: label,

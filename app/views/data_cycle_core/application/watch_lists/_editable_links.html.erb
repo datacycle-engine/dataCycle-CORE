@@ -1,5 +1,5 @@
 <div class="dropdown-pane no-bullet align-right bottom watch-lists"
-  id="watch-lists-<%= content.id %>"
+  id="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"
   data-dropdown data-hover="true"
   data-hover-pane="true"
   data-content-id="<%= content&.id %>"
@@ -9,10 +9,10 @@
 
   <%= render 'data_cycle_core/application/watch_lists/filter', local_assigns %>
   <ul class="list-items remote-render"
-    id="watch-lists-for-<%= content.id %>"
+    id="watch-lists-for-<%= local_assigns[:prefix] %><%= content.id %>"
     data-remote-path="data_cycle_core/application/watch_lists/editable_link_collection"
     data-remote-options="<%= to_query_params(local_assigns).to_json %>">
   </ul>
   <%= render 'data_cycle_core/application/watch_lists/new', local_assigns %>
 </div>
-<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= content.id %>"><i class="fa <%= content.watch_lists.accessible_by(current_ability).exists? ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>
+<a id="add-to-watchlist-link" class="watch-lists-link" data-toggle="watch-lists-<%= local_assigns[:prefix] %><%= content.id %>"><i class="fa <%= content.watch_lists.accessible_by(current_ability).exists? ? 'fa-bookmark' : 'fa-bookmark-o' %>" aria-hidden="true"></i></a>

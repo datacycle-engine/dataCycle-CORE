@@ -66,8 +66,13 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
-          query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
+          if permitted_params[:q].present? || @stored_filter.nil?
+            query = query.except(:order)
+            query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
+            query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
+          else
+            query
+          end
         end
 
         def build_search_query
@@ -125,6 +130,7 @@ module DataCycleCore
           @mode_parameters = (permitted_params.dig(:mode)&.split(',') || []).select { |v| ALLOWED_MODE_PARAMETERS.include?(v) }.sort
           @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v2, :subversions)&.include?(permitted_params.dig(:api_subversion))
+          @api_version = 2
         end
 
         def content_schema_type

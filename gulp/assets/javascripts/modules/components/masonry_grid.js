@@ -12,16 +12,12 @@ class MasonryGrid {
   }
   setup() {
     this.grid.children('.grid-loading').hide();
-    this.grid
-      .children('.grid-item')
-      .get()
-      .forEach(item => {
-        item.style.display = 'block';
-        this.resizeMasonryItem(item);
-        this.observer.observe(item, this.config);
-      });
+    this.initializeItems(this.grid);
 
     $(window).on('load resize', this.resizeAllMasonryItems.bind(this));
+    this.grid.on('dc:html:changed', event => {
+      this.initializeItems(event.target);
+    });
   }
   checkSupport() {
     let el = document.createElement('div');
@@ -31,6 +27,17 @@ class MasonryGrid {
     $('body').append(
       '<div class="html-feature-missing"><h2>Verwenden Sie bitte einen aktuellen Browser um diese Anwendung korrekt darstellen zu können!</h2></div>'
     );
+  }
+  initializeItems(items) {
+    $(items)
+      .find('.grid-item')
+      .addBack('.grid-item')
+      .get()
+      .forEach(item => {
+        item.style.display = 'block';
+        this.resizeMasonryItem(item);
+        this.observer.observe(item, this.config);
+      });
   }
   callbackFunction(mutationsList, _observer) {
     for (var mutation of mutationsList) {
@@ -53,8 +60,8 @@ class MasonryGrid {
   resizeMasonryItem(item) {
     let newHeight = this.boundingHeight(item);
     $(item).data('original-height', newHeight);
-    let rowSpan = Math.round((newHeight + this.rowGap) / (this.rowHeight + this.rowGap));
-    item.style.gridRowEnd = 'span ' + rowSpan;
+    let rowSpan = Math.ceil((newHeight + this.rowGap) / (this.rowHeight + this.rowGap));
+    item.style.gridRow = 'span ' + rowSpan;
   }
   resizeAllMasonryItems(event) {
     this.grid[0].querySelectorAll('.grid-item').forEach(item => {

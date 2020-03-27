@@ -35,7 +35,8 @@ module DataCycleCore
             datahash: @content.get_data_hash.merge({
               DataCycleCore::Feature::PublicationSchedule.attribute_keys(@content)&.first => publication_schedules
             })
-          }
+          },
+          save_and_close: true
         }, headers: {
           referer: edit_thing_path(@content)
         }

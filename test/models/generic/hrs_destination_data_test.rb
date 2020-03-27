@@ -55,23 +55,28 @@ module DataCycleCore
         assert_equal(1, DataCycleCore::Thing.where(template: false, template_name: 'Bild').with_schema_type('CreativeWork').count)
         assert_equal(16, DataCycleCore::ClassificationAlias.for_tree('HRS Destination Data - Classifications').count)
 
-        # event only once --> event_period is stored in main event
+        # event only -> new_event_schedule, main item start_date, end_date are automatically set
         data = DataCycleCore::Thing.find_by(template: false, template_name: 'Event', name: 'In der Lobby')
         assert_equal(1, data.content_location.count)
         assert_equal(1, data.hrs_dd_categories.count)
         assert_equal(1, data.organizer.count)
         assert_equal(1, data.image.count)
-        assert(data.event_period&.to_h.present?)
+        assert_equal(1, data.event_schedule.count)
+        assert(data.start_date.present?)
+        assert(data.end_date.present?)
         assert_equal(0, data.sub_event.count)
 
-        # event more then once --> event_perios stored in separate SubEvents
+        # LEGACY: event more then once --> dates of subevent stored in event_schedule in array rdate
         data = DataCycleCore::Thing.find_by(template: false, template_name: 'Event', name: 'Offenes "Yoga Retreat" in Schwarzenberg')
         assert_equal(0, data.content_location.count)
         assert_equal(1, data.hrs_dd_categories.count)
         assert_equal(1, data.organizer.count)
         assert_equal(0, data.image.count)
-        assert_nil(data.event_period.start_date)
-        assert_nil(data.event_period.end_date)
+        assert(data.start_date.present?)
+        assert(data.end_date.present?)
+        assert_equal(1, data.event_schedule.count)
+        assert_equal(2, data.event_schedule.first.rdate.size)
+        # LEGACY: event more then once --> event_period stored in separate SubEvents
         assert_equal(2, data.sub_event.count)
       end
 

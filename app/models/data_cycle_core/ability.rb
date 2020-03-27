@@ -8,13 +8,12 @@ module DataCycleCore
       return unless user
       can :show, :all
 
-      [*0..5, 10, 99].select { |r| r <= user.role&.rank.to_i }.each do |rank|
+      [*0..10, 99].select { |r| r <= user.role&.rank.to_i }.each do |rank|
         merge DataCycleCore::Abilities.const_get("rank_#{rank}".classify).new(user, session)
       end
 
       DataCycleCore.features
-        .select { |_, v| !v[:only_config] == true }
-        .select { |_, v| v[:enabled] }.each_key do |key|
+        .select { |_, v| !v[:only_config] && v[:enabled] }.each_key do |key|
           merge DataCycleCore::Feature::Abilities.const_get(key.to_s.classify).new(user, session)
         end
     end

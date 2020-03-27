@@ -12,7 +12,7 @@ module DataCycleCore
           ['integer', 'float']
         end
 
-        def validate(data, template)
+        def validate(data, template, _strict = false)
           if data.is_a?(::Numeric)
             if template.key?('validations')
               template['validations'].each_key do |key|

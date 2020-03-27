@@ -64,7 +64,7 @@ module DataCycleCore
               search_languages(update_search_all) unless id.nil? || embedded?
             end
             reload
-            run_callbacks(:saved_data_hash) unless prevent_history
+            run_callbacks(:saved_data_hash)
             run_callbacks(:created_data_hash) if @new_content
           end
         end
@@ -96,9 +96,9 @@ module DataCycleCore
         Webhook::Delete.execute_all(self)
       end
 
-      def validate(data, schema_hash = nil)
+      def validate(data, schema_hash = nil, strict = false)
         validator = DataCycleCore::MasterData::ValidateData.new
-        validator.validate(data, schema_hash || schema)
+        validator.validate(data, schema_hash || schema, strict)
       end
 
       def validate?(validation_hash)
@@ -120,7 +120,7 @@ module DataCycleCore
 
       def invalidate_cache
         related_contents.ids.each do |item_id|
-          Rails.cache.delete_matched("*#{self.class.name}_#{item_id}*")
+          Rails.cache.delete_matched("*#{self.class.name.underscore}_#{item_id}*")
         end
       end
 
@@ -149,6 +149,8 @@ module DataCycleCore
           set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
+        when 'schedule'
+          set_schedule(value, key)
         when 'computed'
           save_values(key, value, properties)
         when 'key'
@@ -241,7 +243,7 @@ module DataCycleCore
       end
 
       def parse_linked_ids(a)
-        return [] if a.blank?
+        return [] if is_blank?(a)
         data = a.is_a?(::String) ? [a] : a
         data = a&.ids if data.is_a?(ActiveRecord::Relation)
         raise ArgumentError, 'expected a uuid or list of uuids' unless data.is_a?(::Array)
@@ -250,7 +252,7 @@ module DataCycleCore
 
       def set_embedded(field_name, input_data, name, translated)
         updated_item_keys = []
-        available_update_item_keys = load_embedded_objects(field_name, !translated).ids.uniq
+        available_update_item_keys = load_embedded_objects(field_name, nil, !translated).ids.uniq
         data = input_data || []
 
         data.each_index do |index|
@@ -364,6 +366,27 @@ module DataCycleCore
           .with_assets(old_id, asset_type)
           .with_relation(relation_name)
           .destroy_all
+      end
+
+      def set_schedule(input_data, relation_name)
+        updated_item_keys = []
+        available_items = load_schedule(relation_name).ids
+        data = input_data || []
+
+        data.each do |item|
+          schedule =
+            if item['id'].present?
+              DataCycleCore::Schedule.find_by(id: item['id'], thing_id: id, relation: relation_name)
+            else
+              DataCycleCore::Schedule.new(thing_id: id, relation: relation_name)
+            end
+          schedule.from_hash(item.with_indifferent_access)
+          schedule.save!
+          updated_item_keys << schedule.id
+        end
+
+        delete = available_items - updated_item_keys
+        DataCycleCore::Schedule.where(id: delete).destroy_all
       end
     end
   end

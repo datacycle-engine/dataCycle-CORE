@@ -1,0 +1,39 @@
+.master_ci_config: &master_ci
+  only:
+    - master
+  tags:
+    - data-cycle-master
+
+.development_ci_config: &development_ci
+  only:
+    - develop
+  tags:
+    - data-cycle-develop
+
+.rails_test_config:
+  extends: .job_cache_config
+  artifacts:
+    name: "$CI_JOB_NAME"
+    expire_in: 1 week
+    paths:
+      - coverage/
+  script:
+    - bundle exec rake db:drop
+    - bundle exec rake db:create
+    - bundle exec rake db:migrate
+    - bundle exec rake db:seed
+    - bundle exec rails test -b
+
+########################################################################
+######################### Master / Production - Systems
+# Enable for local rails test
+rails_test:
+  <<: *master_ci
+  extends: .rails_test_config
+
+########################################################################
+######################### Development / Staging - Systems
+# Enable for local rails test
+rails_test_develop:
+  <<: *development_ci
+  extends: .rails_test_config

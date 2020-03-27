@@ -5,6 +5,7 @@ module DataCycleCore
     include Content::ExternalData
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
+    devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
 
     attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks
 
@@ -25,6 +26,7 @@ module DataCycleCore
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
     has_many :subscriptions, dependent: :destroy
+    has_many :things_subscribed, through: :subscriptions, source: :subscribable, source_type: 'DataCycleCore::Thing'
     belongs_to :role
 
     has_many :things_created, class_name: 'DataCycleCore::Thing', foreign_key: :created_by
@@ -74,7 +76,7 @@ module DataCycleCore
       (name || "#{given_name} #{family_name}".presence || '__unnamed_user__').squish
     end
 
-    def default_filter(filters = [])
+    def default_filter(filters = [], _scope = 'backend', _template_name = nil)
       filters
     end
 

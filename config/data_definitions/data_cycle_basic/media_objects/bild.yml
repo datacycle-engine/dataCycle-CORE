@@ -106,6 +106,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -128,6 +131,7 @@
           :transformation:
             :method: nest
             :name: width
+        :advanced_search: true
       :height:
         :label: Höhe
         :storage_location: value
@@ -150,6 +154,7 @@
           :transformation:
             :method: nest
             :name: height
+        :advanced_search: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -162,6 +167,7 @@
           :method: file_size
           :parameters:
             :0: asset
+        :advanced_search: true
       :file_format:
         :label: Dateiformat
         :storage_location: value
@@ -185,6 +191,7 @@
          :show:
            :type: date
         :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :advanced_search: true
       :photographer:
         :label: Fotograf
         :type: string
@@ -203,6 +210,12 @@
       :license_fields:
         :type: mixin
         :name: license_fields
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :additional_media_properties:
         :type: mixin
         :name: additional_media_properties
@@ -218,6 +231,9 @@
       :media_archive:
         :type: mixin
         :name: media_archive
+      :wikidata:
+        :type: mixin
+        :name: wikidata
       :data_type:
         :label: Inhaltstyp
         :type: classification

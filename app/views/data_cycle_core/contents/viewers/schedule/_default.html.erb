@@ -1,0 +1,51 @@
+<% objects = value.presence %>
+<% objects = Array(objects) + new_relations(options.dig(:item_diff), 'things').to_a.concat if changes_by_mode(options.dig(:item_diff), '+').present? %>
+
+<% objects.presence&.each_with_index do |object, index| %>
+
+    <%= render 'data_cycle_core/contents/viewers/attribute',
+      key: key,
+      definition: definition,
+      value: value,
+      options: options.merge({
+        hide_label: true
+      }),
+      data_attributes: { id: [object.id], editor: 'schedule' },
+      content: content do %>
+
+        <span class="detail-label">
+            <%= render 'data_cycle_core/shared/icon', icon_type: definition.dig('label')&.downcase %><strong><%= definition['label'].titleize %> <%= content_tag(:span, (local_assigns.fetch(:page, 1).to_i - 1) * DataCycleCore.linked_objects_page_size + index + 1) if value.try(:total_count)&.>(1) || value.try(:total_pages)&.>(1) %></strong>
+            <i><%=object.try(:schedule_object)&.terminating? ? "(#{object.schedule_object.all_occurrences.size})" : "#{t('schedule.ongoing', locale: DataCycleCore.ui_language)}" %></i>
+        </span>
+
+        <%= render 'data_cycle_core/contents/viewers/shared/buttons', local_assigns.merge({ content: object }) %>
+
+        <% next_occurrences = object.try(:schedule_object)&.next_occurrences(5) %>
+
+        <span class="detail-content events-calender-view">
+          <%= link_to t('schedule.prev', locale: DataCycleCore.ui_language),
+            load_more_schedule_path(object, direction: :previous, target: "load_prev_#{object&.id}_#{sanitize_to_id(key)}", from_time: Time.zone.now, class_name: object.class.name),
+            type: 'button',
+            class: 'button load-prev',
+            id: "load_prev_#{object&.id}_#{sanitize_to_id(key)}",
+            remote: true,
+            data: {
+              disable_with: "#{t('schedule.prev', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
+            } if !object.try(:schedule_object)&.terminating? || next_occurrences&.exclude?(object.try(:schedule_object)&.first) %>
+
+          <%= render partial: 'data_cycle_core/contents/viewers/schedule/date_leaf', collection: next_occurrences, as: :date, locals: { object: object } %>
+
+          <%= link_to t('schedule.next', locale: DataCycleCore.ui_language),
+            load_more_schedule_path(object, direction: :next, target: "load_next_#{object&.id}_#{sanitize_to_id(key)}", from_time: next_occurrences.last, class_name: object.class.name),
+            type: 'button',
+            class: 'button load-next',
+            id: "load_next_#{object&.id}_#{sanitize_to_id(key)}",
+            remote: true,
+            data: {
+              disable_with: "#{t('schedule.next', locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin'></i>"
+            } if !object.try(:schedule_object)&.terminating? || (next_occurrences&.exclude?(object.try(:schedule_object)&.last) && object.try(:schedule_object)&.last > Time.zone.now) %>
+        </span>
+
+    <% end %>
+
+<% end %>

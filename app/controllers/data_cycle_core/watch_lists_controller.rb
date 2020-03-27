@@ -20,20 +20,20 @@ module DataCycleCore
       redirect_to root if @watch_list.nil?
 
       @language ||= params.fetch(:language) { ['all'] }
-      filters
-      @filters.push(
+      pre_filters
+      @pre_filters.push(
         {
           't' => 'watch_list_id',
           'v' => @watch_list.id
         }
       )
 
-      @contents = get_filtered_results.distinct_by_content_id(@order_string).content_includes.page(params[:page])
-      @total = @contents.total_count
+      set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'watch_list' })
 
       respond_to do |format|
         format.html
         format.json { redirect_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", id: @watch_list) }
+        format.js { render 'data_cycle_core/application/more_results' }
       end
     end
 
@@ -204,7 +204,7 @@ module DataCycleCore
 
       ActionCable.server.broadcast "bulk_delete_#{@watch_list.id}", progress: 0, items: delete_count
       delete_items.find_each.with_index do |content, index|
-        if can?(:destroy, content) && content.external_source_id.blank?
+        if can?(:destroy, content)
           content.destroy_content
         else
           cant_delete_count += 1
@@ -261,6 +261,25 @@ module DataCycleCore
       end
 
       download_collection(@watch_list, download_items, serialize_format, languages)
+    end
+
+    def download_indesign
+      @watch_list = DataCycleCore::WatchList.find(params[:id])
+      authorize! :download_indesign, @watch_list
+      serialize_format = [params.dig(:serialize_format)]
+      languages = params[:language]
+
+      raise DataCycleCore::Error::Download::InvalidSerializationFormatError, "invalid serialization format: #{serialize_format}" unless DataCycleCore::Feature::Download.valid_collection_format?('watch_list', serialize_format)
+
+      download_items = [@watch_list]
+      @watch_list.things.all.to_a.select do |thing|
+        items = thing.linked_contents.where(template_name: 'Bild').to_a.select do |linked_item|
+          can? :download, linked_item
+        end
+        download_items += items
+      end
+
+      download_indesign_collection(@watch_list, download_items, serialize_format, languages, :serialize_watch_list)
     end
 
     private

@@ -11,7 +11,7 @@ module DataCycleCore
           @options = options
         end
 
-        def geocode(address, locale = :de)
+        def geocode(address, locale = I18n.locale)
           return if address.blank?
           return unless address.is_a?(::Hash) || address.is_a?(DataCycleCore::OpenStructHash)
 
@@ -37,7 +37,7 @@ module DataCycleCore
         def parse_geo(raw_data)
           return if raw_data.blank?
           factory = RGeo::Geographic.simple_mercator_factory
-          factory.point(raw_data.dig('geometry', 'location', 'lng'), raw_data.dig('geometry', 'location', 'lat'))
+          factory.point(raw_data.dig('geometry', 'location', 'lng')&.to_f&.round(5), raw_data.dig('geometry', 'location', 'lat')&.to_f&.round(5))
         end
 
         def parse_address(raw_data)

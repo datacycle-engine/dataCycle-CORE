@@ -3,23 +3,6 @@ class SplitView {
   constructor(container = document) {
     this.container = $(container);
     this.locale = this.container.closest('.split-content').data('locale');
-    this.submitButton = this.container.closest('edit-form').find('.edit-header .submit-edit-form');
-    this.selectors = [
-      '> .object-browser',
-      '> .embedded-object',
-      '> input[type=text]',
-      '> .editor-block > .quill-editor',
-      '> .v-select > select.multi-select',
-      '> .v-select > select.single-select',
-      '> .v-select > select.async-select',
-      '> ul.classification-checkbox-list',
-      '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
-      '> .asset-selector-button',
-      '> .geographic > .geographic-map',
-      '> :checkbox',
-      '> :input[type="number"]',
-      '> .duration-slider > div > input[type="number"]'
-    ];
     this.setup();
   }
   setup() {
@@ -28,7 +11,6 @@ class SplitView {
     this.setupClassificationButtons();
     this.setupTextFieldButtons();
     this.setupDateTimeButtons();
-    this.setupAssetSelectorButtons();
     this.setupGeographicButtons();
     this.setupBooleanButtons();
     this.setupNumberButtons();
@@ -104,11 +86,6 @@ class SplitView {
   setupDateTimeButtons() {
     this.availableEditors(['date_picker']).each((_, elem) => {
       this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
-    });
-  }
-  setupAssetSelectorButtons() {
-    this.availableEditors(['asset_selector']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).data('id') || [], 'data-id');
     });
   }
   setupGeographicButtons() {
@@ -237,7 +214,7 @@ class SplitView {
 
     let target = $('.flex-box .edit-content [data-key="' + key + '"]');
 
-    target.find(this.selectors.join(', ')).trigger('dc:import:data', {
+    target.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
       locale: this.locale

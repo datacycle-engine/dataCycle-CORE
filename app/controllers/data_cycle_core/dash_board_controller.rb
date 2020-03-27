@@ -13,25 +13,45 @@ module DataCycleCore
     end
 
     def download
-      @uuid = params[:uuid]
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @uuid, locked_at: nil)
+      @external_source = ExternalSource.find(params[:id])
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
-        DownloadJob.perform_later(@uuid)
-        name = ExternalSource.where(id: @uuid).first.name
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+        DownloadJob.perform_later(@external_source.id)
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
       end
       redirect_to admin_path
     end
 
     def import
-      @uuid = params[:uuid]
-      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @uuid, locked_at: nil)
+      @external_source = ExternalSource.find(params[:id])
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
-        ImportJob.perform_later(@uuid)
-        name = ExternalSource.where(id: @uuid).first.name
-        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: name, uuid: @uuid, locale: DataCycleCore.ui_language
+        ImportOnlyJob.perform_later(@external_source.id)
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+      end
+      redirect_to admin_path
+    end
+
+    def import_full
+      @external_source = ExternalSource.find(params[:id])
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+      else
+        ImportFullJob.perform_later(@external_source.id)
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
+      end
+      redirect_to admin_path
+    end
+
+    def download_import
+      @external_source = ExternalSource.find(params[:id])
+      if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
+        flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
+      else
+        ImportJob.perform_later(@external_source.id)
+        flash[:notice] = I18n.t :added, scope: [:controllers, :job], data: @external_source.name, uuid: @external_source.id, locale: DataCycleCore.ui_language
       end
       redirect_to admin_path
     end
@@ -92,8 +112,36 @@ module DataCycleCore
     def classifications
     end
 
+    def activities
+    end
+
+    def activity_details
+      type = permitted_params.dig(:type)
+      case type
+      when 'summary'
+        activities = DataCycleCore::Activity.activity_stats
+      when 'user_summary'
+        activities = DataCycleCore::Activity.activities_user_overview
+      when 'details'
+        activities = DataCycleCore::Activity.activity_details
+      else
+        render(json: { error: I18n.t(:unknown_activity_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return
+      end
+      render json: { data: activities&.as_json&.map { |activity| activity.except('id') } }
+    end
+
     def logs
       @dataname = params[:dataname]
+    end
+
+    private
+
+    def permitted_params
+      @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+    end
+
+    def permitted_parameter_keys
+      [:type]
     end
   end
 end

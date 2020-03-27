@@ -1,0 +1,23 @@
+# frozen_string_literal: true
+
+json ||= {}
+json['externalIdentifier'] ||= []
+if content.external?
+  json['externalIdentifier'] <<
+    {
+      '@type' => 'PropertyValue',
+      'propertyID' => content.external_source.identifier,
+      'value' => content.external_key
+    }
+  json
+end
+if content.synch?
+  content.external_system_syncs.each do |system_data|
+    json['externalIdentifier'] << {
+      '@type' => 'PropertyValue',
+      'propertyID' => system_data.external_system.identifier,
+      'value' => system_data.data.dig(system_data.external_system.default_options&.dig('external_key_param'))
+    }
+  end
+end
+json

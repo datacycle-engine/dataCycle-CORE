@@ -11,7 +11,6 @@
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
       :description:
@@ -24,6 +23,22 @@
             :type: text_editor
             :options:
               :data-size: full
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: full
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
       :primary_image:
         :label: Hauptbild
         :type: linked
@@ -33,6 +48,8 @@
         :api:
           :name: image
           :minimal: true
+          :v4:
+            :name: photo
       :image:
         :label: Bilder
         :type: linked
@@ -40,6 +57,8 @@
         :api:
           :name: photo
           :minimal: true
+          :v4:
+            :name: image
       :logo:
         :label: Logo
         :type: linked

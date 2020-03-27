@@ -14,11 +14,12 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
+          @content_overlay.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
           image_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'api_image')
           image_data_hash['name'] = 'Another Image'
           @overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
-          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi')
+          place_data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('places', 'api_poi_de')
           place_data_hash['name'] = 'Another Place'
           @overlay_place = DataCycleCore::TestPreparations.create_content(template_name: 'POI', data_hash: place_data_hash)
 
@@ -49,12 +50,20 @@ module DataCycleCore
           JSON.parse(response.body)
         end
 
+        def add_default(array)
+          (['@context', '@id', '@type', 'name'] + array).sort
+        end
+
+        def add_header(array)
+          (['@id', '@type'] + array).sort
+        end
+
         test 'testing EventOverlay with fields and include parameter (only fields in main objext --> no incuded data)' do
           fields = ['name']
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(fields, json_data.keys)
+          assert_equal(add_default([]), json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields and include parameter (one included data)' do
@@ -62,8 +71,8 @@ module DataCycleCore
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(['image'], json_data.keys)
-          assert_equal(['name'], json_data.dig('image', 0).keys)
+          assert_equal(add_default(['image']), json_data.keys.sort)
+          assert_equal(add_header(['name']), json_data.dig('image', 0).keys.sort)
           assert_equal(@overlay_image.name, json_data.dig('image', 0, 'name'))
         end
 
@@ -72,7 +81,7 @@ module DataCycleCore
           includes = ['location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(['name'], json_data.keys)
+          assert_equal(add_default([]), json_data.keys.sort)
         end
       end
     end

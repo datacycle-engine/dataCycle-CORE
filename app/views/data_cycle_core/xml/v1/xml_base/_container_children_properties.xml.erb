@@ -3,9 +3,9 @@
     .where(is_part_of: content.id)
     .includes({ classifications: { classification_aliases: { classification_tree: [:classification_tree_label] } }, translations: [] }) %>
 
-  <schema:hasPart>
+  <hasPart>
   <% related_objects.each do |part| %>
     <%= render *content_partial('details', content: part, options: options.merge({ disable_parent: true }))%>
   <% end %>
-  </schema:hasPart>
+  </hasPart>
 <% end %>

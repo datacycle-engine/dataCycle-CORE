@@ -49,7 +49,16 @@ module DataCycleCore
             if utility_object.asset_download
               content.asset&.remove_file!
 
-              asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+              if data.dig('binary_file').present? && data.dig('binary_file_name').present?
+                tempfile = File.new(Rails.root.join('tmp', data.dig('binary_file_name')), 'w')
+                tempfile.binmode
+                tempfile.write(data.dig('binary_file'))
+                tempfile.close
+                asset = config.dig(:asset_type).constantize.new(file: Pathname.new(Rails.root.join('tmp', data.dig('binary_file_name'))).open)
+                File.delete(Rails.root.join('tmp', data.dig('binary_file_name')))
+              else
+                asset = config.dig(:asset_type).constantize.new(remote_file_url: data.dig('remote_file_url'))
+              end
               asset.save!
               global_data['asset'] = asset.id
             else
@@ -102,8 +111,11 @@ module DataCycleCore
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}
 
-                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_import }) if utility_object.mode == :incremental && utility_object.external_source.last_import.present?
-                  durations = []
+                  source_filter = source_filter.with_evaluated_values.merge({ :updated_at.gte => utility_object.external_source.last_successful_import }) if utility_object.mode == :incremental && utility_object.external_source.last_successful_import.present?
+
+                  GC.start
+
+                  times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                     if options.dig(:iterator_type) == :aggregate
@@ -112,22 +124,25 @@ module DataCycleCore
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
                     end
                     iterate.each do |content|
-                      durations << Benchmark.realtime do
-                        item_count += 1
-                        next if options[:min_count].present? && item_count < options[:min_count]
-                        data_processor.call(
-                          utility_object: utility_object,
-                          raw_data: content[:dump][locale],
-                          locale: locale,
-                          options: options
-                        )
-
-                        next unless (item_count % delta).zero?
-
-                        GC.start
-                        logging.info("Imported   #{item_count} items in #{durations.sum.round(6)} seconds", "ðt: #{durations[-(delta + 1)..-1]&.sum&.round(6)}")
-                      end
                       break if options[:max_count].present? && item_count >= options[:max_count]
+
+                      item_count += 1
+                      next if options[:min_count].present? && item_count < options[:min_count]
+
+                      data_processor.call(
+                        utility_object: utility_object,
+                        raw_data: content[:dump][locale],
+                        locale: locale,
+                        options: options
+                      )
+
+                      next unless (item_count % delta).zero?
+
+                      GC.start
+
+                      times << Time.current
+
+                      logging.info("Imported   #{item_count} items in #{(times[-1] - times[0]).round(3)} seconds", "ðt: #{(times[-1] - times[-2]).round(3)}")
                     end
                   end
                 ensure
@@ -304,39 +319,68 @@ module DataCycleCore
           end
         end
 
+        def self.import_classifications_frame(utility_object, tree_name, classification_processing, options)
+          raise ArgumentError('tree_name cannot be blank') if tree_name.blank?
+
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              each_locale(utility_object.locales) do |locale|
+                I18n.with_locale(locale) do
+                  logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
+                  utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                    classification_processing.call(mongo_item, logging, utility_object, locale, tree_name, options.merge({ importer_name: importer_name, phase_name: phase_name }))
+                  end
+                end
+              end
+            end
+          end
+        end
+
         def self.import_classification(utility_object:, classification_data:, parent_classification_alias: nil)
+          return nil if classification_data[:name].blank?
+
+          external_source_id = utility_object.external_source.id
+          external_source_id = nil if utility_object.options.dig('import', 'no_external_source_id')
+
           if classification_data[:external_key].blank?
             classification = DataCycleCore::Classification
               .find_or_initialize_by(
-                external_source_id: utility_object.external_source.id,
+                external_source_id: external_source_id,
                 name: classification_data[:name]
               )
           else
             classification = DataCycleCore::Classification
               .find_or_initialize_by(
-                external_source_id: utility_object.external_source.id,
+                external_source_id: external_source_id,
                 external_key: classification_data[:external_key]
-              )
+              ) do |c|
+                c.name = classification_data[:name]
+              end
           end
 
           if classification.new_record?
             classification_alias = DataCycleCore::ClassificationAlias.create!(
-              external_source_id: utility_object.external_source.id,
+              external_source_id: external_source_id,
               name: classification_data[:name],
-              description: classification_data[:description]
+              description: classification_data[:description],
+              uri: classification_data[:uri]
             )
 
             DataCycleCore::ClassificationGroup.create!(
               classification: classification,
               classification_alias: classification_alias,
-              external_source_id: utility_object.external_source.id
+              external_source_id: external_source_id
             )
 
             tree_label = DataCycleCore::ClassificationTreeLabel.find_or_create_by(
-              external_source_id: utility_object.external_source.id,
+              external_source_id: external_source_id,
               name: classification_data[:tree_name]
             ) do |item|
-              item.visibility = DataCycleCore.classification_visibilities.except('show_more')
+              item.visibility = DataCycleCore.default_classification_visibilities
             end
 
             DataCycleCore::ClassificationTree.create!(
@@ -359,7 +403,7 @@ module DataCycleCore
             classification_alias = primary_classification_alias
           end
 
-          classification.name = classification_alias.internal_name
+          classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
           classification.description = classification_data[:description] if classification_data[:description].present?
           classification.external_key = classification_data[:external_key]
           classification.save!

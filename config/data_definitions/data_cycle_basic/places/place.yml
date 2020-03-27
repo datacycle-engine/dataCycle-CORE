@@ -20,6 +20,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -53,6 +54,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :potential_actions:
         :type: mixin
         :name: potential_actions
@@ -74,6 +78,12 @@
       :google_business:
         :type: mixin
         :name: google_business
+      :piemonte_place:
+        :type: mixin
+        :name: piemonte_place
+      :wikidata:
+        :type: mixin
+        :name: wikidata
       :data_type:
         :label: Inhaltstyp
         :type: classification

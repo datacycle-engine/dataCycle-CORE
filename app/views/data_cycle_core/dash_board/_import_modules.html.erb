@@ -17,17 +17,39 @@
         </ul>
     </div>
     <div class="card-section">
-        last download:
+        download (last try/success):
         <ul>
-            <%= content_tag(:li, "#{locals[:import_data][:last_download]}".html_safe) %>
+            <li><%= "#{locals[:import_data][:last_download]}".html_safe %> </li>
+            <% if locals[:import_data][:last_download] == locals[:import_data][:last_successful_download] && locals[:import_data][:last_successful_download] != 'never' %>
+              <li class="success-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+            <% elsif locals[:import_data][:last_successful_download] == 'never' && locals[:import_data][:last_download] == 'never' &&%>
+              <li> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+            <% else %>
+              <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_download]}".html_safe %> </li>
+            <% end %>
         </ul>
-        last import:
+        import (last try/success):
         <ul>
-            <%= content_tag(:li, "#{locals[:import_data][:last_import]}".html_safe) %>
+            <li><%= "#{locals[:import_data][:last_import]}".html_safe %> </li>
+            <% if locals[:import_data][:last_import] == locals[:import_data][:last_successful_import] && locals[:import_data][:last_successful_import] != 'never' %>
+              <li class="success-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+            <% elsif locals[:import_data][:last_successful_import] == 'never' && locals[:import_data][:last_import] == 'never'%>
+              <li> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+            <% else %>
+              <li class="alert-color"> <%= "#{locals[:import_data][:last_successful_import]}".html_safe %> </li>
+            <% end %>
         </ul>
     </div>
+
+    <div class="card-section">
+      <span>
+        <%= link_to(t('dash_board.download_import', locale: DataCycleCore.ui_language), admin_download_import_path(id: locals[:import_data][:uuid]), class: 'button small') %>
+        <%= link_to(t('dash_board.import_full', locale: DataCycleCore.ui_language), admin_import_full_path(id: locals[:import_data][:uuid]), class: 'button small') unless locals[:import_data][:db_size] == 0 %>
+      </span>
+      <br/>
+      <span>
+        <%= link_to(t('dash_board.download', locale: DataCycleCore.ui_language), admin_download_path(id: locals[:import_data][:uuid]), class: 'button small') %>
+        <%= link_to(t('dash_board.import', locale: DataCycleCore.ui_language), admin_import_path(id: locals[:import_data][:uuid]), class: 'button small') unless locals[:import_data][:db_size] == 0 %>
+      </span>
+    </div>
 </div>
-<%= link_to('download', admin_download_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% unless locals[:import_data][:db_size] == 0%>
-    <%= link_to('import', admin_import_path(uuid: locals[:import_data][:uuid]), class: 'button small') %>
-<% end %>

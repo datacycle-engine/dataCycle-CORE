@@ -20,6 +20,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :api:
       :type: TouristAttraction
     :properties:
@@ -55,6 +56,9 @@
       :place_attributes:
         :type: mixin
         :name: place_attributes
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       # move to dataCycleProperty
       :price_range:
         :label: Preis-Info
@@ -66,6 +70,13 @@
             :type: text_editor
             :options:
               :data-size: basic
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -96,6 +107,9 @@
       :feratel:
         :type: mixin
         :name: feratel_categories
+      :external_source_attribtues:
+        :type: mixin
+        :name: external_source_attribtues
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

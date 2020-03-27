@@ -2,24 +2,30 @@
 
 default_options = {
   hidden_attributes: DataCycleCore::Feature::OverlayAttributeService.call(content),
-  combined_attributes: content.combined_property_names,
+  combined_attributes: content.combined_property_names('v4'),
   include: @include_parameters,
   fields: @fields_parameters,
-  field_filter: @field_filter
+  languages: @language,
+  field_filter: @field_filter,
+  transformation_mapping: content.attribute_transformation_mapping('v4')
 }
 options = default_options.merge(defined?(options) ? options || {} : {})
+options[:languages] = Array(I18n.locale.to_s) if options[:languages].blank?
+options[:gobal_filter] = @stored_filters&.global || false
+
 json ||= {}
+
 json.merge! render 'content_header', content: content, options: options
 
+json.merge! render 'content_classifications', content: content, options: options if options[:field_filter] == false || (included_attribute?('dc:classification', options[:include]) || included_attribute?('dc:classification', options[:fields]))
+
 json.merge! render 'content_properties', content: content, options: options
-json.merge! render 'combined_properties', content: content, options: options
+json.merge! render 'combined_properties', content: content, options: options if options[:field_filter] == false || (included_attribute?('additionalProperty', options[:include]) || included_attribute?('additionalProperty', options[:fields]))
 json.merge! render 'overlay_properties', content: content, options: options if content.content_type?('entity')
 
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 
-if options[:fields].blank?
-  json
-else
-  json.select { |key, _value| select_attributes(options[:fields]).include?(key) }
-end
+json.merge! render 'external', content: content if (included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])) && (content.external? || content.synch?)
+
+json

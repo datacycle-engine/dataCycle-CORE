@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -37,6 +38,7 @@
         :label: Seetemperatur
         :type: object
         :storage_location: value
+        :advanced_search: true
         :properties:
           :temperature:
             :label: Temperatur
@@ -51,6 +53,7 @@
               :show:
                 :options:
                   :data-unit: °C
+            :advanced_search: true
           :temp_at:
             :label: vom
             :type: datetime
@@ -63,10 +66,18 @@
                 :options:
                   :class: single_date
                   :placeholder: "tt.mm.jjjj --:--"
+            :advanced_search: true
           :quality:
             :label: Wasserqualität
             :type: string
             :storage_location: value
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :area:
         :label: Fläche
         :type: number
@@ -80,6 +91,14 @@
           :show:
             :options:
               :data-unit: km²
+        :advanced_search: true
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :depth:
         :label: Tiefe
         :type: number
@@ -93,6 +112,14 @@
           :show:
             :options:
               :data-unit: m
+        :advanced_search: true
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :geo:
         :type: mixin
         :name: geo
@@ -105,6 +132,9 @@
         :label: Link
         :type: string
         :storage_location: translated_value
+        :api:
+          :v4:
+            :name: sameAs
       :data_type:
         :label: Inhaltstyp
         :type: classification

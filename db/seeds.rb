@@ -9,6 +9,7 @@ DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
   given_name: 'Administrator',
   external: false,
   password: '3amMQf74vp7Zpfdi',
+  confirmed_at: Time.zone.now - 1.day,
   role_id: DataCycleCore::Role.order('rank DESC').first.id
 })
 
@@ -18,5 +19,6 @@ DataCycleCore::User.where(email: 'tester@datacycle.at').first_or_create({
   given_name: 'Test',
   family_name: 'User',
   password: 'w9NGXs2ZLUydJF8r',
+  confirmed_at: Time.zone.now - 1.day,
   role_id: DataCycleCore::Role.find_by(name: 'admin')&.id
 })

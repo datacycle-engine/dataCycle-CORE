@@ -36,7 +36,7 @@ module DataCycleCore
       @duplicate_candidates ||= begin
         return [] if duplicate_check&.dig('phash').blank?
 
-        DataCycleCore::Image.includes(:thing).where.not(asset_contents: { content_data_id: nil }).where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map(&:thing).flatten
+        DataCycleCore::Image.includes(thing: :translations).where.not(asset_contents: { content_data_id: nil }).where("duplicate_check IS NOT NULL AND duplicate_check ->> 'phash' IS NOT NULL AND duplicate_check ->> 'phash' != '0' AND phash_hamming(?, duplicate_check ->> 'phash') <= ? AND assets.id != ?", duplicate_check['phash']&.to_s, 6, id).map(&:thing).flatten
       end
     end
 

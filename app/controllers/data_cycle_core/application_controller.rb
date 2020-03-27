@@ -43,9 +43,10 @@ module DataCycleCore
       @partial = remote_render_params[:partial]
       @content_for = remote_render_params[:content_for]
       @render_function = remote_render_params[:render_function]
-
       @render_params = resolve_params(params[:render_params])
       @options = resolve_params(params[:options])
+
+      redirect_to(@render_params.merge(target: @target, partial: @partial)) && return if @render_params&.key?(:controller) && @render_params&.key?(:action)
 
       render(json: I18n.t(:missing_parameter, scope: [:controllers, :error], locale: DataCycleCore.ui_language), status: :bad_request) && return unless (@target.present? && @render_function.present?) || @partial.present?
 

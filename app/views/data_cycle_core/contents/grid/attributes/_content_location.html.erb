@@ -1,0 +1,13 @@
+<% I18n.with_locale(item.content_location.first.first_available_locale(@language)) do %>
+
+  <% if item.content_location.first.try(:address).present? %>
+
+    <div class="content-location">
+
+      <%= item.content_location.first.address_line %>
+
+    </div>
+
+  <% end %>
+
+<% end %>

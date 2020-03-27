@@ -18,6 +18,7 @@
           :asset: true
           :json: true
           :xml: true
+          :indesign: true
     :api:
       :type: ImageObject
     :properties:
@@ -106,6 +107,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -128,6 +132,7 @@
           :transformation:
             :method: nest
             :name: width
+        :advanced_search: true
       :height:
         :label: Höhe
         :storage_location: value
@@ -150,6 +155,7 @@
           :transformation:
             :method: nest
             :name: height
+        :advanced_search: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -162,6 +168,7 @@
           :method: file_size
           :parameters:
             :0: asset
+        :advanced_search: true
       :file_format:
         :label: Dateiformat
         :storage_location: value
@@ -177,14 +184,15 @@
         :type: datetime
         :storage_location: value
         :ui:
-         :edit:
-           :type: date
-           :options:
-             :placeholder: tt.mm.jjjj
-             :class: daterange
-         :show:
-           :type: date
+          :edit:
+            :type: date
+            :options:
+              :placeholder: tt.mm.jjjj
+              :class: daterange
+          :show:
+            :type: date
         :default_value: '{{Time.zone.now.beginning_of_day}}'
+        :advanced_search: true
       :author:
         :label: Fotograf
         :type: linked
@@ -209,6 +217,13 @@
         :label: Copyright - Jahr
         :type: number
         :storage_location: value
+        :advanced_search: true
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :keywords:
         :label: Keywords
         :storage_location: translated_value
@@ -234,6 +249,9 @@
       :cloud_vision:
         :type: mixin
         :name: cloud_vision
+      :wikidata:
+        :type: mixin
+        :name: wikidata
       :data_type:
         :label: Inhaltstyp
         :type: classification

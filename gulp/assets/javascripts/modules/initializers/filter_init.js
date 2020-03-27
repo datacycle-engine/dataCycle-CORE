@@ -90,9 +90,9 @@ module.exports.initialize = function() {
           $('.filters .filtertags .filter-groups').append(
             '<span class="tag-group tags i ' +
               tree_label +
-              '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
+              '"><span class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
               tree_label_title +
-              ':</i> <span class="tags-container"></span></span>'
+              ':</span> <span class="tags-container"></span></span>'
           );
         }
 
@@ -158,7 +158,7 @@ module.exports.initialize = function() {
 
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
       $(event.currentTarget)
-        .removeClass('i e n')
+        .removeClass('i e n q')
         .addClass(
           $(event.currentTarget)
             .find(':input[name*="[m]"]')
@@ -195,7 +195,7 @@ module.exports.initialize = function() {
           value[
             $(elem)
               .prop('name')
-              .get_key()
+              .getKey()
           ] = $(elem).val();
         });
       } else if (value_fields.length == 1) value = value_fields.val();
@@ -210,6 +210,10 @@ module.exports.initialize = function() {
             .val(),
           n: $(event.currentTarget)
             .find(':input[name*="[n]"]')
+            .first()
+            .val(),
+          q: $(event.currentTarget)
+            .find(':input[name*="[q]"]')
             .first()
             .val(),
           v: value,
@@ -235,6 +239,9 @@ module.exports.initialize = function() {
           n: $(event.target)
             .find(':selected')
             .data('name'),
+          q: $(event.target)
+            .find(':selected')
+            .data('advancedtype'),
           m: $(event.target).data('method'),
           index: $(event.target).data('index')
         },

@@ -45,6 +45,28 @@ module DataCycleCore
           end
         end
 
+        test 'read linked data, filter linked data' do
+          linked = @data_set.linked_creative_work.first
+          linked.set_data_hash(data_hash: linked.get_data_hash.merge({ 'name' => 'test' }), prevent_history: true)
+
+          linked_filter = DataCycleCore::StoredFilter.create(
+            name: 'fulltext',
+            user_id: DataCycleCore::User.find_by(email: 'admin@datacycle.at').id,
+            language: ['de'],
+            parameters: [{
+              'n' => 'Suchbegriff',
+              't' => 'fulltext_search',
+              'v' => 'test'
+            }, {
+              't' => 'order',
+              'v' => "things.boost * (8 * similarity(searches.classification_string, '%test%') + 4 * similarity(searches.headline, '%test%') + 2 * ts_rank_cd(searches.words, plainto_tsquery('simple', 'test'),16) + 1 * similarity(searches.full_text, '%test%')) DESC NULLS LAST, things.updated_at DESC"
+            }]
+          )
+
+          assert_equal(@data_set.linked_creative_work.count, @linked_objects.size)
+          assert_equal(@data_set.linked_creative_work(linked_filter).count, 1)
+        end
+
         test 'replace linked with only one item' do
           linked_objects = @linked_objects
           data_set = @data_set
@@ -54,6 +76,20 @@ module DataCycleCore
               data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
                 {
                   'linked_creative_work' => [linked_objects.first]
+                }
+              )
+            )
+          end
+        end
+
+        test 'try to add linked consisting of only an empty string' do
+          linked_objects = @linked_objects
+          data_set = @data_set
+          count_things(diff: [0, 1, -1 * linked_objects.size, linked_objects.size]) do
+            data_set.set_data_hash(
+              data_hash: DataCycleCore::TestPreparations.load_dummy_data_hash('creative_works', 'linked').merge(
+                {
+                  'linked_creative_work' => ['']
                 }
               )
             )

@@ -14,6 +14,8 @@ module DataCycleCore
       end
     end
 
+    validates :name, presence: true
+
     acts_as_paranoid
 
     belongs_to :external_source
@@ -95,6 +97,18 @@ module DataCycleCore
       []
     end
 
+    def visible?(context)
+      visibility.include?(context)
+    end
+
+    def self.visible(context)
+      where('? = ANY(visibility)', context)
+    end
+
+    def first_available_locale(_locale)
+      :de
+    end
+
     private
 
     def invalidate_things_cache
@@ -103,7 +117,7 @@ module DataCycleCore
 
     def invalidate_cache
       classification_aliases.includes(:primary_classification).map { |ca| ca&.primary_classification&.things&.ids }.flatten.uniq&.each do |item_id|
-        Rails.cache.delete_matched("*DataCycleCore::Thing_#{item_id}*")
+        Rails.cache.delete_matched("*data_cycle_core/thing_#{item_id}*")
       end
     end
   end

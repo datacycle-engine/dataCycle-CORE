@@ -30,7 +30,7 @@ module DataCycleCore
         template = YAML.safe_load(File.open(path), [Symbol])[template_index]
 
         template[:data] = DataCycleCore::MasterData::ImportTemplates.transform_schema(schema: template[:data].dup,
-                                                                                      content_table: DEFAULT_CONTENT_TABLE,
+                                                                                      content_set: DEFAULT_CONTENT_TABLE,
                                                                                       mixins: nil)
         errors = DataCycleCore::MasterData::ImportTemplates.validate(template)
 
@@ -67,7 +67,8 @@ module DataCycleCore
                 domain: schema_name,
                 label: key.camelize(:lower),
                 range: resolve_range(definition),
-                comment: nil
+                comment: nil,
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
               }
             end
           }.flatten.sort_by { |definition| [definition[:domain], definition[:label]] }

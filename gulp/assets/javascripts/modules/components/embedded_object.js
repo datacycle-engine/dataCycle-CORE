@@ -26,6 +26,7 @@ class EmbeddedObject {
     this.setup();
   }
   setup() {
+    this.setupSwappableButtons();
     this.sortable = new Sortable(this.element[0], {
       group: this.id,
       handle: '.draggable-handle',
@@ -59,6 +60,54 @@ class EmbeddedObject {
     );
     this.addEventHandlers();
   }
+  setSwapClasses(object) {
+    if ($(object).index() == 0)
+      $(object)
+        .find('> .embedded-header > .swap-button.swap-prev')
+        .addClass('disabled');
+    else
+      $(object)
+        .find('> .embedded-header > .swap-button.swap-prev')
+        .removeClass('disabled');
+
+    if ($(object).index() >= this.element.children('.content-object-item').length - 1)
+      $(object)
+        .find('> .embedded-header > .swap-button.swap-next')
+        .addClass('disabled');
+    else
+      $(object)
+        .find('> .embedded-header > .swap-button.swap-next')
+        .removeClass('disabled');
+  }
+  setupSwappableButtons() {
+    this.element.on(
+      'click',
+      '> .content-object-item.draggable_' + this.id + ' > .embedded-header > .swap-button:not(.disabled)',
+      event => {
+        event.preventDefault();
+        event.stopImmediatePropagation();
+
+        if ($(event.currentTarget).hasClass('has-tip')) $(event.currentTarget).foundation('hide');
+
+        let currentObject = $(event.currentTarget).closest('.content-object-item');
+        let switchObject;
+
+        if ($(event.currentTarget).hasClass('swap-prev')) {
+          switchObject = currentObject.prev('.content-object-item');
+          switchObject.before(currentObject);
+        } else if ($(event.currentTarget).hasClass('swap-next')) {
+          switchObject = currentObject.next('.content-object-item');
+          switchObject.after(currentObject);
+        }
+        currentObject.get(0).scrollIntoView({ behavior: 'smooth' });
+
+        this.setSwapClasses(currentObject);
+        this.setSwapClasses(switchObject);
+      }
+    );
+
+    this.element.children('.content-object-item').each((_, elem) => this.setSwapClasses(elem));
+  }
   renderEmbeddedObjects(type, ids = [], locale = null) {
     let index = this.index;
     if (type == 'render') this.index += ids.diff(this.ids).length;
@@ -72,6 +121,8 @@ class EmbeddedObject {
     $.ajax({
       url: this.url + '/' + type + '_embedded_object',
       method: 'GET',
+      dataType: 'script',
+      contentType: 'application/json',
       data: {
         index: index,
         locale: this.locale,
@@ -82,9 +133,7 @@ class EmbeddedObject {
         content_id: this.content_id,
         content_type: this.content_type,
         object_ids: ids
-      },
-      dataType: 'script',
-      contentType: 'application/json'
+      }
     }).done(data => {
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));
       this.update();
@@ -131,7 +180,6 @@ class EmbeddedObject {
     this.update();
   }
   update() {
-    var self = this;
     if (this.max != 0 && this.element.children('.content-object-item').length >= this.max) {
       this.element.find('> .buttons > #add_' + this.id).hide();
     } else if (this.write) {
@@ -153,6 +201,8 @@ class EmbeddedObject {
     } else {
       this.element.find('input[type=hidden]#' + this.id + '_default').remove();
     }
+
+    this.element.children('.content-object-item').each((_, elem) => this.setSwapClasses(elem));
   }
 }
 

@@ -21,6 +21,7 @@ module DataCycleCore
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
+            external_source.identifier = data['identifier'] || data['name']
             external_source.credentials = data['credentials']
             external_source.config = data['config']
             external_source.default_options = data['default_options']
@@ -84,6 +85,7 @@ module DataCycleCore
           end
 
           required(:name) { str? }
+          optional(:identifier) { str? }
           required(:credentials) { credentials? }
           optional(:api_strategy) { str? & class? }
           optional(:default_options).schema do

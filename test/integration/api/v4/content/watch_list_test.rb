@@ -6,7 +6,7 @@ require 'json'
 module DataCycleCore
   module Api
     module V4
-      class RoutingTest < ActionDispatch::IntegrationTest
+      class WatchListTest < ActionDispatch::IntegrationTest
         include Devise::Test::IntegrationHelpers
         include Engine.routes.url_helpers
 
@@ -30,7 +30,6 @@ module DataCycleCore
 
         test '/api/v4/collections/:id default results' do
           get api_v4_collection_path(id: @watch_list.id)
-
           assert_response :success
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
@@ -74,7 +73,7 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
 
-          assert_equal(['@graph'], json_data.keys)
+          assert_equal(['@context', '@graph'], json_data.keys)
           assert_equal(@watch_list.id, json_data.dig('@graph', 'watchLists', 0, 'id'))
           assert_equal(@watch_list.name, json_data.dig('@graph', 'watchLists', 0, 'name'))
           assert_equal([], json_data.dig('@graph', 'storedFilters'))

@@ -25,7 +25,7 @@
     <fieldset class="active template">
         <legend><%= t('common.download.available_formats', locale: DataCycleCore.ui_language) %></legend>
         <div class="form-element">
-            <% DataCycleCore::Feature::Serialize.enabled_serializers.each_key do |serializer_key| %>
+            <% DataCycleCore::Feature::Serialize.enabled_serializers.except('indesign').each_key do |serializer_key| %>
                 <div>
                     <%= check_box_tag "serialize_format[#{serializer_key}]" %>
                     <%= label_tag "serialize_format[#{serializer_key}]", "#{t("common.download.#{serializer_key}", locale: DataCycleCore.ui_language)}" %>

@@ -19,7 +19,6 @@
           :json: true
           :xml: true
     :api:
-    :api:
       :type: VideoObject
     :properties:
       :id:
@@ -95,6 +94,9 @@
           :name: sameAs
         :xml:
           :name: sameAs
+        :ui:
+          :edit:
+            :disabled: true
       :width:
         :label: Breite
         :storage_location: value
@@ -117,6 +119,7 @@
           :transformation:
             :method: nest
             :name: width
+        :advanced_search: true
       :height:
         :label: Höhe
         :storage_location: value
@@ -139,6 +142,7 @@
           :transformation:
             :method: nest
             :name: height
+        :advanced_search: true
       # schema.org: TEXT with KB/MB
       # data-cycle: Integer (Byte)
       :content_size:
@@ -151,6 +155,7 @@
           :method: file_size
           :parameters:
             :0: asset
+        :advanced_search: true
       :file_format:
         :label: Dateiformat
         :storage_location: value
@@ -180,6 +185,7 @@
           :format:
             :append: S
             :prepend: PT
+        :advanced_search: true
       :video_frame_size:
         :label: Auslösung
         :storage_location: value
@@ -206,6 +212,13 @@
         :storage_location: value
         :validations:
           :format: url
+        :api:
+          :v4:
+            :partial: property_value
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: additionalProperty
       :director:
         :label: Regie
         :type: linked
@@ -214,6 +227,12 @@
         :label: Kamera
         :type: linked
         :template_name: Person
+      :content_location:
+        :label: Ort
+        :type: linked
+        :template_name: Örtlichkeit
+        :validations:
+          :max: 1
       :license_fields:
         :type: mixin
         :name: license_fields

@@ -9,9 +9,9 @@ class Validator {
       .siblings('.edit-header')
       .find('.submit-edit-form')
       .first();
-    this.mergeDuplicateButton = this.form
+    this.saveButton = this.form
       .siblings('.edit-header')
-      .find('.merge-with-duplicate')
+      .find('.save-content-button')
       .first();
     this.languageMenu = this.form
       .siblings('.edit-header')
@@ -21,6 +21,7 @@ class Validator {
       .siblings('.edit-header')
       .find('.form-element.agbs')
       .first();
+    this.contentUploader = this.form.data('content-uploader');
     this.initialFormData = [];
     this.submitFormData = [];
     this.requests = [];
@@ -39,17 +40,17 @@ class Validator {
     this.submitButton.on('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.form.trigger('submit');
+      this.form.trigger('submit', {
+        saveAndClose: true,
+        mergeConfirm: this.submitButton.hasClass('merge-with-duplicate')
+      });
     });
-    this.mergeDuplicateButton.on('click', event => {
+    this.saveButton.on('click', event => {
       event.preventDefault();
       event.stopImmediatePropagation();
-      this.form.append(
-        '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
-      );
-      this.form.trigger('submit', { mergeConfirm: true });
+      this.form.trigger('submit');
     });
-    this.form.on('submit', this.validateForm.bind(this));
+    this.form.on('submit dc:form:validateForm', this.validateForm.bind(this));
     if (this.form.hasClass('edit-content-form')) {
       this.pageLeaveWarning();
     }
@@ -57,6 +58,7 @@ class Validator {
     this.agbsCheck.on('click', '.close-error', this.closeError.bind(this));
     this.agbsCheck.on('change', this.validateSingle.bind(this));
     this.form.on('dc:form:disable', this.disable.bind(this));
+    this.form.on('dc:form:enable', this.enable.bind(this));
 
     if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
@@ -90,21 +92,22 @@ class Validator {
       .remove();
   }
   validateSingle(event, data) {
+    if (data && data.type === 'reset') return;
     this.requests = [this.validateItem(event.currentTarget)];
     this.resolveRequests(false, data);
   }
   pageLeaveWarning() {
-    QuillHelpers.update_editors(this.form);
+    QuillHelpers.updateEditors(this.form);
     this.initialFormData = this.form.serializeArray();
     $(window).on('beforeunload', event => {
-      QuillHelpers.update_editors(this.form);
+      QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray();
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
     if (this.languageMenu.length) {
       this.languageMenu.on('click', '.list-items > li > a', event => {
-        QuillHelpers.update_editors(this.form);
+        QuillHelpers.updateEditors(this.form);
         this.submitFormData = this.form.serializeArray();
         if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData)) {
           event.preventDefault();
@@ -143,13 +146,13 @@ class Validator {
   }
   disable() {
     $.rails.disableFormElement(this.submitButton);
-    $.rails.disableFormElement(this.mergeDuplicateButton);
+    $.rails.disableFormElement(this.saveButton);
     $.rails.disableFormElements(this.form);
   }
   enable() {
     if (this.queryCount == 0 && !this.form.hasClass('disabled')) {
       $.rails.enableFormElement(this.submitButton);
-      $.rails.enableFormElement(this.mergeDuplicateButton);
+      $.rails.enableFormElement(this.saveButton);
       $.rails.enableFormElements(this.form);
       this.form.find('input#duplicate_id').remove();
     }
@@ -266,6 +269,7 @@ class Validator {
         value: template
       });
     }
+
     return $.ajax({
       type: 'POST',
       url: url,
@@ -292,7 +296,7 @@ class Validator {
   validateForm(event, data) {
     event.preventDefault();
     event.stopImmediatePropagation();
-    QuillHelpers.update_editors(event.target);
+    QuillHelpers.updateEditors(event.target);
     this.removeSubmitButtonErrors();
     this.disable();
     this.requests = [];
@@ -304,7 +308,9 @@ class Validator {
       });
     this.resolveRequests($(event.target).is(this.form), data);
   }
-  submitForm(confirmations = { finalize: true, confirm: true, warnings: undefined, merge: false }) {
+  submitForm(
+    confirmations = { finalize: true, confirm: true, warnings: undefined, mergeConfirm: false, saveAndClose: false }
+  ) {
     if (confirmations.warnings !== undefined) {
       return new ConfirmationModal({
         text:
@@ -351,30 +357,25 @@ class Validator {
       });
     }
 
-    if (confirmations.merge && this.mergeDuplicateButton.data('confirm') !== undefined) {
-      return new ConfirmationModal({
-        text: this.mergeDuplicateButton.data('confirm'),
-        confirmationClass: 'alert',
-        cancelable: true,
-        confirmationCallback: () => {
-          confirmations.merge = false;
-          this.submitForm(confirmations);
-        },
-        cancelCallback: () => this.enable()
-      });
-    }
-
-    this.triggerFormSubmit();
+    this.triggerFormSubmit(confirmations);
   }
-  triggerFormSubmit() {
-    if (this.form.closest('.reveal').hasClass('in-object-browser')) {
-      return this.form.trigger('submit_without_redirect');
+  triggerFormSubmit(confirmations = {}) {
+    if (this.form.closest('.reveal').hasClass('in-object-browser') || this.contentUploader) {
+      return this.form.trigger('dc:form:submitWithoutRedirect', confirmations);
     } else {
       $(window).off('beforeunload');
+      if (confirmations && confirmations.saveAndClose)
+        this.form.append('<input type="hidden" name="save_and_close" value="1">');
+      if (confirmations && confirmations.mergeConfirm)
+        this.form.append(
+          '<input id="duplicate_id" type="hidden" name="duplicate_id" value="' + this.form.data('duplicate-id') + '">'
+        );
       this.form.trigger('submit.rails');
     }
   }
-  resolveRequests(submit = false, eventData = undefined) {
+  resolveRequests(submit = false, eventData = {}) {
+    if (eventData.hasOwnProperty('submit')) submit = eventData.submit;
+
     this.queryCount++;
     let requests = this.requests.slice();
     this.requests = [];
@@ -389,25 +390,26 @@ class Validator {
         if (this.valid && submit) {
           this.queryCount = 0;
           let warnings = this.form.find('.form-element .warning.counter');
-          let confirmations = {
-            finalize: true,
-            confirm: true,
-            warnings: warnings.length ? warnings : undefined,
-            merge: eventData !== undefined ? eventData.mergeConfirm : undefined
-          };
 
-          this.submitForm(confirmations);
+          eventData = Object.assign({}, eventData || {}, {
+            finalize: true,
+            confirm: true
+          });
+
+          if (warnings.length) Object.assign(eventData, { warnings: warnings });
+
+          this.submitForm(eventData);
         } else if (!this.valid && submit) {
           if (this.form.hasClass('edit-content-form') && error !== undefined && error[0] !== undefined) {
             error[0].scrollIntoView({ behavior: 'smooth', block: 'center' });
           }
         }
         if (!(this.valid && submit)) this.enable();
-        if (this.valid && eventData !== undefined && eventData.success_callback !== undefined) {
-          eventData.success_callback();
+        if (this.valid && eventData !== undefined && eventData.successCallback !== undefined) {
+          eventData.successCallback();
         }
-        if (!this.valid && eventData !== undefined && eventData.error_callback !== undefined) {
-          eventData.error_callback();
+        if (!this.valid && eventData !== undefined && eventData.errorCallback !== undefined) {
+          eventData.errorCallback();
         }
         // scroll to step in multi-step form
         if (!this.valid && this.form.hasClass('multi-step') && error.is(':hidden')) {

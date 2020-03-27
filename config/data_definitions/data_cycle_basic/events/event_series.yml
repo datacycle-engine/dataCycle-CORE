@@ -19,6 +19,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -47,7 +48,7 @@
           :edit:
             :type: text_editor
             :options:
-              :data-size: basic
+              :data-size: full
       :image:
         :label: Bilder
         :type: linked

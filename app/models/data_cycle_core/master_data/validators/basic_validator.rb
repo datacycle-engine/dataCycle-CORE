@@ -6,13 +6,13 @@ module DataCycleCore
       class BasicValidator
         attr_reader :error
 
-        def initialize(data, template, template_key = '')
+        def initialize(data, template, template_key = '', strict = false)
           @error = { error: {}, warning: {} }
           @template_key = template_key
-          validate(data, template)
+          validate(data, template, strict)
         end
 
-        def validate(data, template)
+        def validate(data, template, strict = false)
         end
 
         def merge_errors(error_hash)

@@ -161,12 +161,26 @@ module DataCycleCore
         patch thing_path(@content), params: {
           thing: {
             datahash: @content.get_data_hash
-          }
+          },
+          save_and_close: true
         }, headers: {
           referer: edit_thing_path(@content)
         }
 
         assert_redirected_to thing_path(@content, locale: I18n.locale)
+        assert_nil @content.reload.lock
+      end
+
+      test 'remove lock for specific content' do
+        @content.create_lock(user: @current_user)
+
+        delete remove_locks_thing_path(@content), params: {
+          id: @content.id
+        }, headers: {
+          referer: thing_path(@content)
+        }
+
+        assert_redirected_to thing_path(@content)
         assert_nil @content.reload.lock
       end
 

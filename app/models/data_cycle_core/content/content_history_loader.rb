@@ -21,7 +21,7 @@ module DataCycleCore
         differ.diff?(a: get_data_hash(timestamp), schema_a: schema, b: data, schema_b: template)
       end
 
-      def load_linked_objects(relation_name, same_language = false)
+      def load_linked_objects(relation_name, _filter = nil, same_language = false)
         properties = properties_for(relation_name)
         relation_a = relation_name
         relation_b = properties.dig('inverse_of')
@@ -56,7 +56,7 @@ module DataCycleCore
         relation_contents.order('content_content_histories.order_a ASC')
       end
 
-      def load_embedded_objects(relation_name, same_language = true)
+      def load_embedded_objects(relation_name, _filter = nil, same_language = true)
         language_flag = same_language
         language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
         relation_contents = DataCycleCore::Thing::History
@@ -85,6 +85,10 @@ module DataCycleCore
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_content)
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
+      end
+
+      def load_schedule(relation_name)
+        DataCycleCore::Schedule::History.where(thing_history_id: id, relation: relation_name).order(created_at: :asc)
       end
 
       def as_of(timestamp)

@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :api:
       :type: SkiResort
     :properties:
@@ -162,6 +163,7 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+        :advanced_search: true
       :length_nordic_skating:
         :label: Loipenlänge Nordisch Skating
         :type: number
@@ -174,6 +176,7 @@
           :transformation:
             :method: combine
             :name: additionalProperty
+        :advanced_search: true
       :opening_hours_specification:
         :label: Öffnungszeit
         :type: embedded
@@ -195,6 +198,7 @@
         :api:
           :name: containsPlace
           :partial: to_linked
+        :advanced_search: true
       :url:
         :label: Link
         :type: string

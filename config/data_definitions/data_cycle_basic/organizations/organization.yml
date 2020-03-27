@@ -17,6 +17,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -59,27 +60,15 @@
                 - Organisation
         :inverse_of: member_of
         :link_direction: inverse
-      :linked_thing:
-        :label: Verknüpfte Inhalte
+      :content_location:
+        :label: Standort
         :type: linked
-        :inverse_of: is_linked_to
-        :global: true
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-                - Ort
-                - Veranstaltung
-                - Veranstaltungsserie
-      :is_linked_to:
-        :label: Verknüpft mit
-        :type: linked
-        :inverse_of: linked_thing
-        :link_direction: inverse
-        :global: true
+        :template_name: Örtlichkeit
+        :api:
+          :name: location
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked

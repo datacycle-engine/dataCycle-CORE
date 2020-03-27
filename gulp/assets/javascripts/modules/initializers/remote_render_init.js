@@ -1,3 +1,5 @@
+var RandomHelpers = require('./../helpers/random_number_helpers');
+
 // Reveal Blur
 module.exports.initialize = function() {
   $('.remote-render:visible').each((_, element) => {
@@ -14,17 +16,27 @@ module.exports.initialize = function() {
       });
   });
 
-  $(document).on('open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown', '*', event => {
-    event.stopPropagation();
-    $(event.target)
-      .find('.remote-render:visible')
-      .addBack('.remote-render:visible')
-      .each((_, element) => {
-        load_remote_partial(element);
-      });
-  });
+  $(document).on(
+    'open.zf.reveal dc:remote:render dc:html:changed show.zf.dropdown dc:toggler:show down.zf.accordion',
+    '*',
+    event => {
+      event.stopPropagation();
+
+      $(event.target)
+        .find('.remote-render')
+        .addBack('.remote-render')
+        .filter((_, elem) => {
+          return $(elem).css('visibility') != 'hidden' && $(elem).is(':visible');
+        })
+        .each((_, element) => {
+          load_remote_partial(element);
+        });
+    }
+  );
 
   function load_remote_partial(element) {
+    let id = RandomHelpers.generateRandomId();
+    element.setAttribute('data-remote-render-id', id);
     $(element)
       .removeClass('remote-render')
       .addClass('remote-rendering')
@@ -34,7 +46,7 @@ module.exports.initialize = function() {
       type: 'POST',
       url: window.DATA_CYCLE_ENGINE_PATH + '/remote_render',
       data: JSON.stringify({
-        target: $(element).prop('id'),
+        target: id,
         partial: $(element).data('remotePath'),
         content_for: $(element).data('remoteContentFor'),
         options: $(element).data('remoteOptions'),

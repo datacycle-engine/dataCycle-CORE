@@ -1,0 +1,19 @@
+---
+- :data:
+    :name: pimcore_categories
+    :type: mixin
+    :properties:
+      :pimcore_city:
+        :label: Pimcore - City
+        :type: classification
+        :tree_label: Pimcore - Cities
+        :ui:
+          :show:
+            :content_area: header
+      :pimcore_categories:
+        :label: Pimcore - Categories
+        :type: classification
+        :tree_label: Pimcore - Categories
+        :ui:
+          :show:
+            :content_area: header

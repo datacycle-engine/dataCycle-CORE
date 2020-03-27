@@ -27,6 +27,9 @@
         :ui:
           :edit:
             :type: daterange
+        :api:
+          :transformation:
+            :method: unwrap
         :properties:
           :start_date:
             :label: Startzeitpunkt
@@ -89,4 +92,4 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltungstermin"
+        :default_value: 'Veranstaltungstermin'

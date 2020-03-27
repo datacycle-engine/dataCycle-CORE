@@ -127,6 +127,13 @@ $filter-border: #aaa;
             border-radius: 4px;
             border-color: $filter-border;
           }
+          .filter-text {
+            margin: 0;
+            padding: 0.2rem 0.5rem;
+            height: 2.2rem;
+            border-radius: 4px;
+            border-color: $filter-border;
+          }
         }
 
         .advanced-filter-mode {
@@ -164,6 +171,15 @@ $filter-border: #aaa;
           }
         }
       }
+      .advanced-filter.in-schedule {
+        .advanced-filter-selector {
+          > select,
+          input {
+            margin-right: 0.5rem;
+            height: 2.4375rem;
+          }
+        }
+      }
     }
 
     .date-range {
@@ -180,8 +196,9 @@ $filter-border: #aaa;
       margin: 1rem 0;
     }
 
-    strong {
-      color: map-get($foundation-palette, primary);
+    strong,
+    b {
+      color: $primary-color;
     }
 
     span.title {
@@ -548,15 +565,8 @@ $filter-border: #aaa;
         padding: 1px 3px 1px 5px;
       }
 
-      i.tag-group-label {
-        color: $dark-gray;
-        white-space: nowrap;
+      .tag-group-label {
         padding: 1px 5px 1px 3px;
-        font-style: normal;
-
-        .fa {
-          font-size: 0.9rem;
-        }
       }
 
       label {
@@ -577,8 +587,18 @@ $filter-border: #aaa;
     .result-count {
       color: $dark-gray;
 
-      strong {
+      b {
         color: $dark-gray;
+      }
+
+      .count-full {
+        .loading {
+          display: inline;
+          padding: 0;
+          .fa {
+            font-size: 0.9rem;
+          }
+        }
       }
     }
   }
@@ -639,16 +659,44 @@ $filter-border: #aaa;
         text-align: left;
         cursor: pointer;
 
+        &.search-history-short > ul li .stored-date {
+          color: $black;
+          margin-bottom: 0.2rem;
+        }
+
         > ul {
           display: none;
+          flex-flow: row wrap;
+          justify-content: flex-start;
+          align-items: stretch;
           overflow-y: auto;
+          background: $light-gray;
+          padding: 0.2rem;
 
           li {
-            &:not(:last-child) {
-              border-bottom: 1px solid $medium-gray;
+            flex: 0;
+            flex-basis: calc(calc(100% / 3) - 0.4rem);
+            border-radius: 5px;
+            background: $white;
+            position: relative;
+            margin: 0.2rem;
+            display: flex;
+            flex-flow: column;
+            overflow: hidden;
+
+            &:last-child {
+              flex-basis: 100%;
+              align-items: flex-start;
+              background: transparent;
             }
 
             a:not(.button) {
+              color: $dark-gray;
+              padding: 1rem;
+              display: flex;
+              flex-flow: column;
+              height: 100%;
+              width: 100%;
               transition: background-color ease-in-out 0.25s, color ease-in-out 0.25s;
 
               span {
@@ -659,22 +707,22 @@ $filter-border: #aaa;
                 }
               }
 
+              .stored-date {
+                padding-right: 6rem;
+              }
+
               &:hover,
               &:focus {
                 span.title {
-                  color: lighten($dark-gray, 20%);
+                  color: $black;
                 }
 
-                color: lighten($dark-gray, 20%);
-                background-color: darken($white, 2%);
+                color: $black;
               }
-
-              color: $dark-gray;
-              padding: 1rem;
-              display: block;
 
               i {
                 font-size: 0.9rem;
+                margin-right: 0.2rem;
               }
 
               span {
@@ -686,23 +734,12 @@ $filter-border: #aaa;
                   float: right;
                 }
 
-                &.stored-date {
-                  display: table-cell;
-                  width: 15rem;
-                  min-width: 15rem;
-
-                  &.right {
-                    width: auto;
-                  }
-                }
-
                 &.stored-filter-params {
                   display: table-cell;
                   color: $black;
                   font-size: 0.8rem;
 
                   .tag-group {
-                    font-style: italic;
                     color: $dark-gray;
                     display: block;
                     margin-right: 0.5rem;
@@ -730,7 +767,6 @@ $filter-border: #aaa;
                       padding: 0 0.3rem;
                       line-height: 1.2rem;
                       border-radius: 5px;
-                      white-space: nowrap;
                     }
 
                     &.search-term .tag {
@@ -743,6 +779,21 @@ $filter-border: #aaa;
 
             a.button {
               margin: 1rem;
+            }
+            .preview-widget-list {
+              display: flex;
+              align-items: center;
+              justify-content: flex-end;
+              position: absolute;
+              bottom: 0.5rem;
+              right: 0.5rem;
+              z-index: 1;
+
+              a {
+                position: relative;
+                display: inline-block;
+                padding: 0.5rem;
+              }
             }
           }
         }
@@ -759,17 +810,17 @@ $filter-border: #aaa;
         }
 
         &.active {
-          background-color: white;
+          background-color: darken($white, 2%);
           box-shadow: 0 5px 3px rgba($black, 0.3);
           color: $black;
 
           > ul {
-            display: block;
+            display: flex !important;
             position: absolute;
             left: 0;
             top: calc(100% - 1px);
             width: 100%;
-            background-color: white;
+            background-color: darken($white, 2%);
             box-shadow: 0 5px 3px rgba($black, 0.3);
             z-index: 3;
           }
@@ -855,13 +906,87 @@ $filter-border: #aaa;
   }
 }
 
+.tag-group-label {
+  color: $dark-gray;
+  white-space: nowrap;
+
+  .fa {
+    font-size: 0.8rem;
+    line-height: 0.8rem;
+  }
+}
+
 .detail-header-wrapper .filters {
   box-shadow: none;
 }
 
 .search-results {
-  margin-top: 1rem;
-  min-height: 40rem;
+  .mode-container {
+    text-align: right;
+    padding: 1rem 0;
+    display: flex;
+    flex-flow: row nowrap;
+    justify-content: flex-end;
+
+    .mode-switcher {
+      position: relative;
+      display: flex;
+      flex-flow: row;
+      align-items: flex-end;
+      justify-content: center;
+      padding: 0.6rem;
+      border: 1px solid $light-gray;
+
+      .fa {
+        font-size: 1.5rem;
+        line-height: 1.5rem;
+      }
+
+      > i,
+      > a {
+        height: 1.5rem;
+        padding: 0 0.2rem;
+
+        &:not(:first-child) {
+          margin-left: 0.5rem;
+        }
+      }
+
+      > i,
+      a.selected {
+        color: $black;
+        text-shadow: 1px 1px 1px #ccc;
+      }
+
+      > a {
+        color: lighten($dark-gray, 20%);
+        transition: color 0.3s;
+
+        &:hover {
+          color: $primary-color;
+        }
+      }
+    }
+    .result-count {
+      display: flex;
+      flex-flow: row nowrap;
+      justify-content: center;
+      padding: 0.6rem;
+      margin-right: auto;
+      border: 1px solid $light-gray;
+
+      > *:not(:last-child) {
+        margin-right: 0.3rem;
+      }
+
+      .loading {
+        padding: 0;
+        .fa {
+          font-size: 1.3rem;
+        }
+      }
+    }
+  }
 }
 
 // stored_filter index page
@@ -882,6 +1007,10 @@ $filter-border: #aaa;
       vertical-align: middle;
       margin-left: 0.5rem;
     }
+  }
+
+  .search-history-list ul li.content-item span.buttons {
+    top: 0.7rem;
   }
 
   ul {
@@ -934,7 +1063,7 @@ $filter-border: #aaa;
       }
 
       &.content-item {
-        padding: 0.8rem 7rem 0.8rem 1rem;
+        padding: 0.8rem 1rem 0.8rem 1rem;
         background-color: white;
 
         .content-title {
@@ -967,9 +1096,17 @@ $filter-border: #aaa;
           }
 
           &.buttons {
+            max-width: inherit;
+            text-align: right;
             position: absolute;
-            top: 0.8rem;
-            right: 1rem;
+            top: 2.5rem;
+            right: 0.5rem;
+            .dropdown-pane.preview-widget-pane {
+              &:before {
+                content: '';
+              }
+              top: calc(100% + 0.5rem) !important;
+            }
           }
 
           &.content-date {
@@ -987,7 +1124,6 @@ $filter-border: #aaa;
             font-size: 0.8rem;
             margin-top: 0.2rem;
             color: $dark-gray;
-            font-style: italic;
 
             i {
               font-size: 0.8rem;
@@ -995,7 +1131,6 @@ $filter-border: #aaa;
             }
 
             .tag-group {
-              font-style: italic;
               color: $dark-gray;
               display: block;
               margin-right: 0.5rem;
@@ -1007,7 +1142,6 @@ $filter-border: #aaa;
                 padding: 0 0.3rem;
                 line-height: 1.2rem;
                 border-radius: 5px;
-                white-space: nowrap;
               }
 
               &.e {

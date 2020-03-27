@@ -15,6 +15,7 @@
         :serializers:
           :xml: true
           :json: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -32,6 +33,8 @@
         :ui:
           :show:
             :disabled: true
+        :api:
+          :name: headline
       :content_classifications:
         :type: mixin
         :name: content_classifications

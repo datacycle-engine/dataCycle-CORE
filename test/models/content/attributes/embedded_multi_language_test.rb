@@ -87,22 +87,22 @@ module DataCycleCore
           I18n.with_locale(:de) do
             assert_equal(1, data_set.embedded_creative_work.count) # default get data of any language
             assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count) # default get data of any language
-            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true).count)
+            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
           end
           I18n.with_locale(:en) do
             assert_equal(1, data_set.embedded_creative_work.count)
-            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true).count)
+            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
           end
           I18n.with_locale(:fr) do
             assert_equal(1, data_set.embedded_creative_work.count)
             assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count)
-            assert_equal(1, data_set.load_relation('embedded_creative_work', nil, true).count)
+            assert_equal(1, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
             assert_equal([:fr], data_set.embedded_creative_work.first.available_locales.sort)
           end
           I18n.with_locale(:xx) do
             assert_equal(1, data_set.embedded_creative_work.count)
             assert_equal(1, data_set.load_embedded_objects('embedded_creative_work').count)
-            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true).count)
+            assert_equal(0, data_set.load_relation('embedded_creative_work', nil, true, [I18n.locale]).count)
           end
 
           # check consistency of data in DB

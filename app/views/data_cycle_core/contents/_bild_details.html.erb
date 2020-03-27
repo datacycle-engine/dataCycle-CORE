@@ -48,19 +48,22 @@
                             </dd>
                         <% end %>
 
-                        <dt>
-                            <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
-                        </dt>
+                        <% if ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'restrictions', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidlines'].any?{|val| content.try(val.to_sym).present? } %>
+                            <dt>
+                                <i class="fa fa-copyright" aria-hidden="true"></i> Copyright
+                            </dt>
 
-                        <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
-                            <dd>
-                                <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: {options: {}},
-                                                            content: content %>
-                            </dd>
+                            <% ['license', 'photographer', 'author', 'copyright_holder', 'copyright_year', 'more_permissions', 'attribution_name', 'attribution_url', 'use_guidlines'].each do |property_name| %>
+                                <% next if content.try(property_name.to_sym).blank? %>
+                                <dd>
+                                    <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                                </dd>
+                            <% end %>
+
                         <% end %>
 
                         <% if !content.try(:restrictions).nil? && !content.try(:restrictions).blank? %>
@@ -74,20 +77,32 @@
                             </dd>
                         <% end %>
 
-                        <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
-                        <dd><%= content.width&.to_i %>px/<%= content.height&.to_i %>px, <%= number_to_human_size(content.content_size) %><br />
-                            <strong>Format:</strong> <%= content.file_format %>
-                        </dd>
 
-                        <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
-                            <% next if content.try(property_name.to_sym).blank? %>
+                        <% if ['width', 'height', 'content_size', 'file_format', 'date_created', 'date_modified', 'upload_date'].any?{|val| content.try(val.to_sym).present? } %>
+                            <dt><i class="fa fa-info-circle" aria-hidden="true"></i> Bildinformationen</dt>
                             <dd>
-                                <%= render_attribute_viewer key: property_name,
-                                                            definition: content.schema['properties'][property_name],
-                                                            value: content.try(property_name.to_sym),
-                                                            parameters: {options: {}},
-                                                            content: content %>
+                                <% if content.width&.to_i&.positive? ||  content.height&.to_i&.positive? %>
+                                    <%= content.width&.to_i %>px/<%= content.height&.to_i %>px
+                                <% end %>
+                                <% if content.content_size&.to_i&.positive? %>
+                                    (<%= number_to_human_size(content.content_size) %>)
+                                <% end %>
+                                <% if content.file_format.present? %>
+                                    <br />
+                                    <strong>Format:</strong> <%= content.file_format %>
+                                <% end %>
                             </dd>
+
+                            <% ['date_created', 'date_modified', 'upload_date'].each do |property_name| %>
+                                <% next if content.try(property_name.to_sym).blank? %>
+                                <dd>
+                                    <%= render_attribute_viewer key: property_name,
+                                                                definition: content.schema['properties'][property_name],
+                                                                value: content.try(property_name.to_sym),
+                                                                parameters: {options: {}},
+                                                                content: content %>
+                                </dd>
+                            <% end %>
                         <% end %>
 
                         <% if content.try(:url).present? %>

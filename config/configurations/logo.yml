@@ -1,7 +1,8 @@
 normal: 'logo.svg'
-inverted: 'logo.svg'
+inverted: 'logo_inverted.svg'
 email: 'eml-datacycle.png'
 print: 'logo.png'
 alt_text: 'dataCycle Logo'
 mail_dimensions:
   height: '65px'
+customercolor: '#009fe3'

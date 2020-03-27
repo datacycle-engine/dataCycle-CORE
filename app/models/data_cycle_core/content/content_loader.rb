@@ -28,38 +28,47 @@ module DataCycleCore
         end
       end
 
-      def load_linked_objects(relation_name, same_language = false)
+      def load_linked_objects(relation_name, filter = nil, same_language = false, languages = [I18n.locale])
         properties = properties_for(relation_name)
         relation_b = properties.dig('inverse_of')
         language_flag = same_language
         language_flag = properties.dig('linked_language') == 'same' if properties.dig('linked_language').present?
-        load_relation(relation_name, relation_b, language_flag, properties.dig('link_direction') == 'inverse')
+        load_relation(relation_name, relation_b, language_flag, languages, filter, properties.dig('link_direction') == 'inverse')
       end
 
-      def load_embedded_objects(relation_name, same_language = true)
+      def load_embedded_objects(relation_name, filter = nil, same_language = true, languages = [I18n.locale])
         language_flag = same_language
         language_flag = !properties_for(relation_name).dig('translated') if properties_for(relation_name).dig('translated').present?
         language_flag = false if same_language == false # overrules flag in template (needed for create_history and destroy)
-        load_relation(relation_name, nil, language_flag)
+        load_relation(relation_name, nil, language_flag, languages, filter)
       end
 
-      def load_relation(relation_a, relation_b, same_language, inverse = false)
+      def load_relation(relation_a, relation_b, same_language, languages, filter = nil, inverse = false)
         if inverse
           relation_name = :content_a
           relation_a_name = relation_b
           relation_b_name = relation_a
+          content_filter = :content_a_id
         else
           relation_name = :content_b
           relation_a_name = relation_a
           relation_b_name = relation_b
+          content_filter = :content_b_id
         end
 
-        relation_contents = send(relation_name).where(content_contents: {
-          relation_a: relation_a_name,
-          relation_b: relation_b_name
-        })
-
-        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: I18n.locale }) if same_language
+        if filter.present?
+          relation_contents = send(relation_name).where(content_contents: {
+            relation_a: relation_a_name,
+            relation_b: relation_b_name,
+            content_filter => filter.apply(experimental: true).select(:id).except(:order)
+          })
+        else
+          relation_contents = send(relation_name).where(content_contents: {
+            relation_a: relation_a_name,
+            relation_b: relation_b_name
+          })
+        end
+        relation_contents = relation_contents.joins(:translations).where(thing_translations: { locale: languages }) if same_language
         relation_contents
       end
 
@@ -80,6 +89,10 @@ module DataCycleCore
       def load_asset_relation(relation_name)
         DataCycleCore::Asset.joins(:asset_content)
           .find_by(asset_contents: { content_data_id: id, relation: relation_name })
+      end
+
+      def load_schedule(relation_name)
+        DataCycleCore::Schedule.where(thing_id: id, relation: relation_name).order(created_at: :asc)
       end
 
       def as_of(timestamp)

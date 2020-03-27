@@ -16,6 +16,7 @@
           :xml: true
           :json: true
           :gpx: true
+          :indesign: true
     :properties:
       :id:
         :label: id
@@ -60,6 +61,8 @@
           :max: 1
         :api:
           :minimal: true
+          :v4:
+            :name: photo
       :image:
         :label: Bilder
         :type: linked
@@ -179,27 +182,9 @@
       :potential_actions:
         :type: mixin
         :name: potential_actions
-      :linked_thing:
-        :label: Verknüpfte Inhalte
-        :type: linked
-        :inverse_of: is_linked_to
-        :global: true
-        :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
-              :treeLabel: Inhaltstypen
-              :aliases:
-                - Person
-                - Organisation
-                - Ort
-                - Veranstaltung
-                - Veranstaltungsserie
-      :is_linked_to:
-        :label: Verknüpft mit
-        :type: linked
-        :inverse_of: linked_thing
-        :link_direction: inverse
-        :global: true
+      :linked_data:
+        :type: mixin
+        :name: linked_data
       :subject_of:
         :label: Thema von
         :type: linked

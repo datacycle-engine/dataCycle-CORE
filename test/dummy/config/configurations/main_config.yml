@@ -8,6 +8,20 @@
       :features:
         :creatable:
           :allowed: true
+  :intangibles:
+    :Pauschalangebot:
+      :features:
+        :creatable:
+          :allowed: true
+  :events:
+    :Eventserie:
+      :features:
+        :creatable:
+          :allowed: true
+    :Event:
+      :features:
+        :creatable:
+          :allowed: true
 
 :api:
   :default: v4

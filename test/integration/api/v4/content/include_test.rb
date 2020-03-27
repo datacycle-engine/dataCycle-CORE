@@ -29,10 +29,10 @@ module DataCycleCore
           header = json_data.slice(*full_header_attributes)
           data = full_header_data(@content_tour)
           assert_equal(header, data)
-
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
+            assert_compact_header(json_data.dig(json_key))
           end
         end
 
@@ -50,13 +50,14 @@ module DataCycleCore
 
           # all embedded/linked have at least a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'schedule', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
+            assert_compact_header(json_data.dig(json_key))
           end
 
           # schedule has a full header
           header_schedule = json_data.dig('schedule', 0).slice(*full_header_attributes)
           data_schedule = full_header_data(@content_tour.schedule.first)
-          assert_equal(header_schedule, data_schedule.except('inLanguage'))
+          assert_equal(header_schedule, data_schedule)
         end
 
         test 'tour with included linked poi' do
@@ -73,7 +74,8 @@ module DataCycleCore
 
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
+            assert_compact_header(json_data.dig(json_key))
           end
 
           # poi has a full header
@@ -96,7 +98,8 @@ module DataCycleCore
 
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
+            assert_compact_header(json_data.dig(json_key))
           end
 
           # poi has a full header
@@ -124,7 +127,8 @@ module DataCycleCore
 
           # all embedded/linked have a compact header
           (@content_tour.embedded_property_names + @content_tour.linked_property_names - ['overlay', 'poi', 'image', 'subject_of', 'is_linked_to', 'linked_thing']).each do |embedded|
-            assert_compact_header(json_data.dig(embedded.camelize(:lower)))
+            json_key = @content_tour.schema.dig('properties', embedded, 'api', 'v4', 'name') || @content_tour.schema.dig('properties', embedded, 'api', 'name') || embedded.camelize(:lower)
+            assert_compact_header(json_data.dig(json_key))
           end
 
           # poi has a full header

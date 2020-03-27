@@ -27,9 +27,11 @@ module DataCycleCore
               hash['v'] = v
             end
           end
+          stored_filter_params = current_user.default_filter(stored_filter_params, { scope: 'object_browser' })
           filter.parameters = stored_filter_params
           query = filter.apply
         else
+          filter.parameters = current_user.default_filter([], { scope: 'object_browser', template_name: template_name })
           query = filter.apply
           query = query.where(template_name: template_name.to_s) if template_name
         end
@@ -40,11 +42,6 @@ module DataCycleCore
         query = query.fulltext_search(permitted_params[:search]) if permitted_params[:search].present?
         query = query.where('things.id NOT IN (?)', permitted_params[:excluded]) if permitted_params[:excluded].present?
         query = query.where(id: permitted_params[:filter_ids]) if permitted_params[:filter_ids].present?
-
-        unless template_name == 'contentLocation'
-          query = query.classification_alias_ids([DataCycleCore::Feature::LifeCycle.ordered_classifications.dig(DataCycleCore::Feature::LifeCycle.default_filter, :alias_id)]) if DataCycleCore::Feature::LifeCycle.allowed?(@template) && DataCycleCore::Feature::LifeCycle.default_filter.present?
-        end
-
         query = query.order(order_string)
 
         @per = permitted_params[:per] if permitted_params[:per].present?
@@ -79,6 +76,17 @@ module DataCycleCore
       end
 
       respond_to(:js)
+    end
+
+    def render_in_overlay
+      authorize! :show, :object_browser
+
+      return if params[:ids].blank?
+
+      @content = DataCycleCore::Thing.find(permitted_params[:content_id]) if permitted_params[:content_id].present?
+      @objects = DataCycleCore::Thing.where(id: params[:ids])
+
+      render 'data_cycle_core/contents/create', format: :js
     end
 
     def details

@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: marche_events
+    :type: mixin
+    :properties:
+      :marche_classifications:
+        :label: EventsMarche - Classifications
+        :type: classification
+        :tree_label: EventsMarche - Classifications
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

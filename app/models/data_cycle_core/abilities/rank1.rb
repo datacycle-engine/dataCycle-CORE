@@ -8,7 +8,7 @@ module DataCycleCore
 
         can [:read, :settings], :backend
         can :advanced_filter, :backend do |_t, _k, v|
-          v != 'classification_tree_ids'
+          (v != 'classification_tree_ids' && v != 'advanced_attributes')
         end
         can :update, DataCycleCore::User, id: user.id
         can [:read, :create, :update, :destroy, :show_history], DataCycleCore::StoredFilter, user_id: user.id

@@ -10,11 +10,11 @@ module.exports.initialize = function() {
   }
 
   // add eventhandlers for editor fields
-  $('.edit-content-form .form-element.string:not(.text_editor) > input[type="text"]').on('dc:import:data', function(
+  $(document).on('dc:import:data', '.form-element.string:not(.text_editor) > input[type="text"]', function(
     event,
     data
   ) {
-    if ($(event.target).val().length === 0) {
+    if ($(event.target).val().length === 0 || (data && data.force)) {
       $(event.target)
         .val(data.value)
         .trigger('input');
@@ -34,8 +34,8 @@ module.exports.initialize = function() {
     }
   });
 
-  $('.edit-content-form .form-element.number > input[type="number"]').on('dc:import:data', function(event, data) {
-    if ($(event.target).val().length === 0) {
+  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', function(event, data) {
+    if ($(event.target).val().length === 0 || (data && data.force)) {
       $(event.target)
         .val(data.value)
         .trigger('input');
@@ -55,17 +55,21 @@ module.exports.initialize = function() {
     }
   });
 
-  $('.edit-content-form .form-element.boolean :checkbox').on('dc:import:data', function(event, data) {
-    new ConfirmationModal({
-      text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
-      confirmationText: 'Ja',
-      cancelText: 'Nein',
-      confirmationClass: 'success',
-      cancelable: true,
-      confirmationCallback: function() {
-        $(event.target).prop('checked', data.value);
-      }
-    });
+  $(document).on('dc:import:data', '.form-element.boolean :checkbox', function(event, data) {
+    if (data && data.force) {
+      $(event.target).prop('checked', data.value);
+    } else {
+      new ConfirmationModal({
+        text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
+        confirmationText: 'Ja',
+        cancelText: 'Nein',
+        confirmationClass: 'success',
+        cancelable: true,
+        confirmationCallback: function() {
+          $(event.target).prop('checked', data.value);
+        }
+      });
+    }
   });
 
   // SPLIT CONTENT

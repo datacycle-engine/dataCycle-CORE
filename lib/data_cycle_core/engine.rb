@@ -9,7 +9,11 @@ require 'activerecord-postgis-adapter'
 require 'acts_as_tree'
 require 'rgeo'
 require 'rgeo-geojson'
+require 'rgeo-shapefile'
 require 'mongoid'
+
+# event scheduling
+require 'ice_cube'
 
 # authentication
 require 'devise'
@@ -29,9 +33,6 @@ require 'delayed_job_active_record'
 # REST-client
 require 'faraday'
 require 'faraday_middleware'
-
-# simple logger
-require 'logging'
 
 # Breadcrumbs
 require 'gretel'
@@ -85,7 +86,7 @@ module DataCycleCore
     self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource', 'DataCycleCore::Api::FeratelIdentityServerExternalSource']
 
     mattr_accessor :excluded_filter_classifications
-    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot']
+    self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']
 
     mattr_accessor :ui_language
     self.ui_language = :de
@@ -145,19 +146,32 @@ module DataCycleCore
     self.content_warnings = {}
 
     mattr_accessor :classification_visibilities
-    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'tile', 'filter', 'list']
+    self.classification_visibilities = ['show', 'show_more', 'edit', 'api', 'xml', 'filter', 'tile', 'list', 'tree_view']
   end
 
   def self.setup
     yield self
   end
 
+  def self.default_classification_visibilities
+    classification_visibilities.except(['show_more', 'tree_view'])
+  end
+
   class Engine < ::Rails::Engine
     isolate_namespace DataCycleCore
 
     config.assets.version = '1.0'
-    config.assets.precompile += ['data_cycle_core/*', 'location.svg', 'eml-datacycle.png', 'eml-datacycle-border.png', 'eml-logo.png', 'eml-user.jpg']
-
+    config.assets.precompile += [
+      'data_cycle_core/*',
+      'eml-datacycle-border.png',
+      'eml-datacycle.png',
+      'location_after.svg',
+      'location_before.svg',
+      'location.svg',
+      'logo_inverted.svg',
+      'logo.svg',
+      'logo.png'
+    ]
     config.action_dispatch.cookies_serializer = :json
     # TODO: check: raise_on_unfiltered_parameters never worked in main application
     # config.action_controller.raise_on_unfiltered_parameters = true

@@ -3,10 +3,17 @@
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
-    task :computed_attributes, [:dry_run] => [:environment] do |_, args|
+    task :computed_attributes, [:template_name, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
+      template_name = args.fetch(:template_name, false)
 
-      DataCycleCore::Thing.where(template: true).find_each.select { |template| template.computed_property_names.present? }.each do |template|
+      if template_name.present?
+        selected_things = DataCycleCore::Thing.where(template: true, template_name: template_name)
+      else
+        selected_things = DataCycleCore::Thing.where(template: true)
+      end
+
+      selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
 

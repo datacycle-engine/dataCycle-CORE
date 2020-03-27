@@ -5,6 +5,7 @@
   xmlns:schema="http://schema.org/Thing/">
 
   <% @contents&.each do |item| %>
+    <% @thing_ids = [] %>
     <% I18n.with_locale(item.first_available_locale(@language)) do %>
       <%= render *content_partial('details', content: item) %>
     <% end %>

@@ -12,12 +12,14 @@
         :asset: false
         :json: false
         :xml: false
+        :indesign: false
     :stored_filter:
       :enabled: false
       :serializers:
         :asset: false
         :json: false
         :xml: false
+        :indesign: false
   :dependencies:
     - serialize
 
@@ -58,7 +60,7 @@
   :enabled: true
   :classification_alias_ids:
     - Inhaltstypen
-  :autoload_last_filter: false
+  :autoload_last_filter: true
 
 :advanced_filter:
   :enabled: true
@@ -68,7 +70,30 @@
   :creator: true
   :classification_tree_ids: true
   :date_range: all
-  :validity_period: true
+  :validity_period:
+    :absolute: true
+    :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
+  :in_schedule:
+    :absolute: true
+    :relative: true
+  :geo_filter:
+    :geo_radius: false
+    :geo_within_classification: false
+      # - Administrative Einheiten
+  # :relation_filter:
+  #   :event_location: content_location
+#  :advanced_attributes:
+#    :width:
+#      :type: numeric
+#    :contact_info.email:
+#      :type: string
+#    :upload_date:
+#      :type: date
+#    :mandatory_license:
+#      :type: boolean
 
 :geocode:
   :enabled: false
@@ -126,8 +151,35 @@
     :default_locale:
     :password:
     :password_confirmation:
+    :confirmed_at:
   :issuer: datacycle.at
 
 :copy_embedded_locale:
   :enabled: false
   :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid
+    - list
+    - tree
+
+:translated_data_link_mails:
+  :enabled: false
+  :only_config: true
+
+:translatable:
+  :enabled: true
+  :only_config: true
+
+:user_registration:
+  :enabled: false
+  :terms_condition_url:
+  :privacy_policy_url:
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:

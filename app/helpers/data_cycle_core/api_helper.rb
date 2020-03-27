@@ -4,25 +4,40 @@ module DataCycleCore
   module ApiHelper
     include DataHashHelper
 
+    def api_default_attributes
+      ['@id', '@type', '@language', 'name']
+    end
+
     def render_api_attribute(key:, definition:, value:, parameters: {}, content: nil, scope: :api)
       return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], scope.to_s)
 
+      api_property_definition = api_definition(definition)
       api_version = @api_version || 2
-      partials = [
-        key.underscore.to_s,
-        "#{definition['type'].underscore}_#{definition&.dig('api', 'partial')&.underscore}",
-        "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
-        "#{definition&.dig('compute', 'type')&.underscore}_#{definition.dig('api', 'partial')&.underscore}",
-        definition&.dig('compute', 'type')&.underscore,
-        definition['type'].underscore,
-        'default'
-      ].reject(&:blank?)
+      if api_version == 4
+        partials = [
+          "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{key.underscore}",
+          (api_property_definition&.dig('partial')&.present? ? "#{(definition&.dig('compute', 'type') || definition&.dig('type')).underscore}_#{api_property_definition&.dig('partial')&.underscore}" : ''),
+          definition['type'].underscore,
+          'default'
+        ].reject(&:blank?)
+      else
+        partials = [
+          "#{definition['type'].underscore}_#{key.underscore}",
+          "#{definition['type'].underscore}_#{api_property_definition&.dig('partial')&.underscore}",
+          "#{definition['type'].underscore}_#{definition.dig('validations', 'format')&.underscore}",
+          "#{definition&.dig('compute', 'type')&.underscore}_#{api_property_definition.dig('partial')&.underscore}",
+          definition&.dig('compute', 'type')&.underscore,
+          definition['type'].underscore,
+          'default'
+        ].reject(&:blank?)
+      end
 
       api_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/api_base/attributes/#{p}" }
       if @api_subversion.present?
         subversion_partials = partials.dup.map { |p| "data_cycle_core/api/v#{api_version}/#{@api_subversion}/api_base/attributes/#{p}" }
         api_partials = subversion_partials + api_partials
       end
+
       return first_existing_partial(api_partials), parameters.merge({ key: key, definition: definition, value: value, content: content })
     end
 
@@ -31,6 +46,19 @@ module DataCycleCore
         next unless lookup_context.exists?(partial, [], true)
         return partial
       end
+    end
+
+    def attribute_key(key, definition)
+      definition.dig('api', 'v4', 'name') || definition.dig('api', 'name') || key.camelize(:lower)
+    end
+
+    def api_definition(definition, api_version = @api_version)
+      definition.dig('api', "v#{api_version}") || definition.dig('api') || {}
+    end
+
+    def attribute_disabled?(definition, api_version = @api_version)
+      return definition.dig('api', "v#{api_version}", 'disabled') if definition.dig('api', "v#{api_version}")&.key?('disabled')
+      definition.dig('api', 'disabled') || false
     end
 
     def included_attribute?(name, attribute_list)
@@ -46,16 +74,102 @@ module DataCycleCore
       Array(attribute_list).map(&:first).compact
     end
 
-    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil)
+    def serialize_language(language_array)
+      language_array.join(',')
+    end
+
+    def load_value_object(content, key, value, languages)
+      data_value = nil
+      single_value = !content.translatable_property_names.include?(key) || (languages.size == 1 && content.available_locales.map(&:to_s).include?(languages.first))
+      if single_value
+        data_value = value
+      else
+        data_value = []
+
+        content.translations.each do |translation|
+          next unless languages.include?(translation.locale)
+          I18n.with_locale(translation.locale) do
+            data_value << { '@language' => I18n.locale, '@value' => content.send(key) } if content.send(key).present?
+          end
+        end
+      end
+      data_value
+    end
+
+    def api_cache_key(item, language, include_parameters, mode_parameters, api_subversion = nil, full = nil, linked_filter_id = nil)
       if item.is_a?(DataCycleCore::Thing)
-        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{item.template_updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{linked_filter_id}"
+      elsif item.is_a?(DataCycleCore::Thing::History)
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{item.template_updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}"
       elsif item.is_a?(DataCycleCore::ClassificationAlias)
-        "#{item.class}_#{item.id}_#{item.first_available_locale(language)}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
-      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel)
-        "#{item.class}_#{item.id}_#{language}_#{@api_version}_#{api_subversion}_#{item.updated_at}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters&.sort&.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
+      elsif item.is_a?(DataCycleCore::ClassificationTreeLabel) || item.is_a?(DataCycleCore::Schedule)
+        "#{item.class.name.underscore}_#{item.id}_#{Array(language).join('_')}_#{@api_version}_#{api_subversion}_#{item.updated_at.to_i}_#{include_parameters.sort.join('_')}_#{mode_parameters&.sort&.join('_')}_#{full}"
       else
         raise NotImplementedError
       end
+    end
+
+    def api_plain_context(languages)
+      display_language = nil
+      display_language = languages if languages.is_a?(::String)
+      display_language = languages.first if languages.is_a?(::Array) && languages.size == 1 && languages.first.is_a?(::String)
+      display_language = I18n.default_locale if languages.blank?
+
+      [
+        'http://schema.org',
+        {
+          '@base' => api_v4_universal_url(id: nil),
+          '@language' => display_language,
+          'skos' => 'https://www.w3.org/2009/08/skos-reference/skos.html#',
+          'dct' => 'http://purl.org/dc/terms/',
+          'cc' => 'http://creativecommons.org/ns#',
+          'dc' => 'https://schema.datacycle.at/',
+          'dc:entityUrl' => {
+            '@id' => 'https://schema.datacycle.at/entityUrl',
+            '@type' => '@id'
+          },
+          'dc:classification' => {
+            '@id' => 'https://schema.datacycle.at/classification',
+            '@container' => '@set'
+          },
+          'dc:hasConcept' => {
+            '@id' => 'https://schema.datacycle.at/hasConcept',
+            '@type' => '@id'
+          },
+          'dc:linkedThing' => {
+            '@id' => 'https://schema.datacycle.at/linkedThing',
+            '@container' => '@set'
+          },
+          'dc:isLinkedTo' => {
+            '@id' => 'https://schema.datacycle.at/isLinkedTo',
+            '@container' => '@set'
+          }
+        }.compact
+      ]
+    end
+
+    def api_plain_meta(count, pages)
+      {
+        total: count,
+        pages: pages
+      }
+    end
+
+    def api_plain_links(contents = nil)
+      contents ||= @contents
+      object_url = (lambda do |params|
+        File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+      end)
+      if request.request_method == 'POST'
+        common_params = {}
+      else
+        common_params = @permitted_params.to_h.reject { |k, _| ['id', 'format', 'page', 'api_subversion'].include?(k) }
+      end
+      links = {}
+      links[:prev] = object_url.call(common_params.merge(page: { number: contents.prev_page, size: contents.limit_value })) if contents.prev_page
+      links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page
+      links
     end
   end
 end

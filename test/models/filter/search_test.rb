@@ -22,6 +22,9 @@ module DataCycleCore
         multiling.set_data_hash(data_hash: { name: 'XYZ en', validity_period: validity_period }.stringify_keys)
         multiling.save!
       end
+
+      create_content('Artikel', { name: 'inactive article', validity_period: { valid_from: (DateTime.current - 2.weeks).beginning_of_day.to_s, valid_until: (DateTime.current - 1.week).end_of_day.to_s } })
+      create_content('Artikel', { name: 'future inactive article', validity_period: { valid_from: (DateTime.current + 1.week).beginning_of_day.to_s, valid_until: (DateTime.current + 2.weeks).end_of_day.to_s } })
     end
 
     def upload_image(file_name)
@@ -89,7 +92,7 @@ module DataCycleCore
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_classification_alias_ids(find_alias_ids('Tags', 'Tag 2'))
-      assert_equal(5, items.count)
+      assert_equal(7, items.count)
     end
 
     # test 'test method only_frontend_valid (excludes places)' do
@@ -110,7 +113,15 @@ module DataCycleCore
       assert_equal(1, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_external_source(external_source_id)
-      assert_equal(6, items.count)
+      assert_equal(8, items.count)
+    end
+
+    test 'test query for subscriptions' do
+      user = DataCycleCore::User.find_by(email: 'tester@datacycle.at')
+      user.things_subscribed << DataCycleCore::Thing.where(template: false, template_name: 'Artikel').first
+
+      items = DataCycleCore::Filter::Search.new(:de).subscribed_user_id(user.id)
+      assert_equal(1, items.count)
     end
 
     test 'test query for creator' do
@@ -122,7 +133,7 @@ module DataCycleCore
     test 'test query for date_range (created_at)' do
       items = DataCycleCore::Filter::Search.new(:de)
         .date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
-      assert_equal(7, items.count)
+      assert_equal(9, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de)
         .not_date_range({ from: Date.current - 1.day, until: Date.current + 1.day }, 'created_at')
@@ -134,7 +145,18 @@ module DataCycleCore
       assert_equal(7, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_validity_period({ from: Date.current, until: Date.current })
-      assert_equal(0, items.count)
+      assert_equal(2, items.count)
+    end
+
+    test 'test query for inactive items' do
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: Date.current.end_of_day })
+      assert_equal(2, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: (Date.current + 3.weeks).end_of_day })
+      assert_equal(3, items.count)
+
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: Date.current.beginning_of_day, until: (Date.current + 3.weeks).end_of_day })
+      assert_equal(2, items.count)
     end
 
     test 'test query for boolean -> duplicate_candidates' do
@@ -158,7 +180,7 @@ module DataCycleCore
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).boolean('false', 'duplicate_candidates')
-      assert_equal(8, items.count)
+      assert_equal(10, items.count)
       DataCycleCore::ImageUploader.enable_processing = false
     end
 
@@ -168,7 +190,7 @@ module DataCycleCore
       assert_equal(3, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).not_classification_tree_ids(tree_label_id)
-      assert_equal(4, items.count)
+      assert_equal(6, items.count)
     end
 
     test 'has method to include joined tables' do
@@ -188,6 +210,30 @@ module DataCycleCore
 
     test 'supports geo queries' do
       assert_equal(1, DataCycleCore::Filter::Search.new(:de).within_box(1, 1, 20, 20).count)
+    end
+
+    test 'supports geo radius' do
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_radius({ 'lon' => '10', 'lat' => '10', 'distance' => '10' }).count)
+    end
+
+    test 'supports geo search within polygon' do
+      alias_id = find_alias_ids('Tags', 'Tag 3')
+
+      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(9 9, 11 9, 11 11, 9 11, 9 9)'::geometry, 4326)),3035) as poly;
+      # MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4439065.355760346 -1448504.9553259471, 4437568.345904839 -1241795.1900585638, 4204431.654095161 -1241795.1900585638, 4202934.644239654 -1448504.9553259471)))
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((4202934.644239654 -1448504.9553259471, 4439065.355760346 -1448504.9553259471, 4437568.345904839 -1241795.1900585638, 4204431.654095161 -1241795.1900585638, 4202934.644239654 -1448504.9553259471)))'), classification_alias_id: alias_id[0], id: 1)
+
+      assert_equal(1, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
+    end
+
+    test 'supports geo search not within polygon' do
+      alias_id = find_alias_ids('Tags', 'Tag 2')
+
+      # SELECT ST_Transform(st_Multi(ST_Polygon('LINESTRING(19 19, 21 19, 21 21, 19 21, 19 19)'::geometry, 4326)),3035) as poly;
+      # MULTIPOLYGON (((5306514.722896763 -348639.8906273227, 5524232.402444027 -322040.9900201331, 5503178.7795628775 -109815.77694823965, 5289291.622551791 -136167.21943095466, 5306514.722896763 -348639.8906273227)))
+      DataCycleCore::ClassificationPolygon.create(admin_level: 2, geom: RGeo::Cartesian.factory(srid: 3035).parse_wkt('MULTIPOLYGON (((5306514.722896763 -348639.8906273227, 5524232.402444027 -322040.9900201331, 5503178.7795628775 -109815.77694823965, 5289291.622551791 -136167.21943095466, 5306514.722896763 -348639.8906273227)))'), classification_alias_id: alias_id[0], id: 2)
+
+      assert_equal(0, DataCycleCore::Filter::Search.new(:de).geo_within_classification(alias_id).count)
     end
 
     private

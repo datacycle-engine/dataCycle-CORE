@@ -5,5 +5,5 @@
 
   <div id="data-link-form-<%= data_link.id || "new" %>" class="remote-render"
     data-remote-path="data_cycle_core/data_links/form"
-    data-remote-options="<%= to_query_params(local_assigns).to_json %>"></div>
+    data-remote-options="<%= to_query_params(local_assigns.merge({ split_source: @split_source })).to_json %>"></div>
 </div>

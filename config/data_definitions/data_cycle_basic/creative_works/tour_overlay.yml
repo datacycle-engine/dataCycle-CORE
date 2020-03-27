@@ -11,7 +11,6 @@
       :name:
         :label: Titel
         :type: string
-        :storage_type: string
         :storage_location: column
         :search: true
       :description:
@@ -33,6 +32,8 @@
         :api:
           :name: image
           :minimal: true
+          :v4:
+            :name: photo
       :image:
         :label: Bilder
         :type: linked
@@ -40,6 +41,8 @@
         :api:
           :name: photo
           :minimal: true
+          :v4:
+            :name: image
       :logo:
         :label: Logo
         :type: linked
@@ -56,3 +59,6 @@
         :type: classification
         :tree_label: Inhaltstypen
         :default_value: "Overlay"
+      :cc_rel:
+        :type: mixin
+        :name: cc_rel

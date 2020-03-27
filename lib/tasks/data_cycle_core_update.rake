@@ -132,7 +132,7 @@ namespace :data_cycle_core do
     desc 'replace the data-definitions of all data-types in the Database with the templates in the Database'
     task :update_all_templates_sql, [:history] => [:environment] do |_, args|
       temp = Time.zone.now
-      puts "#{'table_name'.ljust(15)} | #{'template_name'.ljust(25)} | #updated|of total | process time/s \r"
+      puts "#{'template_name'.ljust(41)} | #updated | of total | process time/s \r"
       puts '-' * 80 + " \r"
       DataCycleCore::Thing.where(template: true).each do |template_object|
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_template_sql"].invoke(template_object.template_name, args.fetch(:history, false))
@@ -167,7 +167,7 @@ namespace :data_cycle_core do
 
       affected_items = ActiveRecord::Base.connection.update(ActiveRecord::Base.send(:sanitize_sql_for_conditions, update_sql))
 
-      puts "#{'things'.ljust(15)} | #{args[:template_name].ljust(25)} | #{(affected_items || 0).to_s.rjust(7)} | #{(total_items || 0).to_s.rjust(7)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
+      puts "#{args[:template_name].ljust(41)} | #{(affected_items || 0).to_s.rjust(8)} | #{(total_items || 0).to_s.rjust(8)} | #{format_time(Time.zone.now - temp, 5, 6, 's')} \r"
 
       next unless args.fetch(:history, false).to_s == 'true'
 

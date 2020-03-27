@@ -18,6 +18,7 @@ module DataCycleCore
 
           @user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
             email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
+            confirmed_at: Time.zone.now - 1.day,
             role_id: DataCycleCore::Role.find_by(rank: 5)&.id
           })
           @new_user = DataCycleCore::User.create(@user_data)
@@ -149,10 +150,11 @@ module DataCycleCore
 
         test '/api/v4/users - create new user' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
-            email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at"
+            email: "tester_2_#{Time.now.getutc.to_i}@datacycle.at",
+            confirmed_at: Time.zone.now - 1.day
           })
 
-          post api_v4_users_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
+          post api_v4_users_create_path, params: user_data.merge(token: @current_user.access_token).deep_transform_keys { |k| k.to_s.camelize(:lower) }, headers: {}
 
           assert_response :created
           assert_equal response.content_type, 'application/json'
@@ -172,7 +174,7 @@ module DataCycleCore
 
           user_data['email'] = "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
 
-          post api_v4_users_path, headers: {
+          post api_v4_users_create_path, headers: {
             Authorization: "Bearer #{new_token}"
           }, params: user_data.deep_transform_keys { |k| k.to_s.camelize(:lower) }
 
@@ -181,7 +183,8 @@ module DataCycleCore
 
         test '/api/v4/users - login or create user on authenticate' do
           user_data = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
-            email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at"
+            email: "tester_3_#{Time.now.getutc.to_i}@datacycle.at",
+            confirmed_at: Time.zone.now - 1.day
           })
           rsa_private = OpenSSL::PKey::RSA.generate 2048
           rsa_public = rsa_private.public_key

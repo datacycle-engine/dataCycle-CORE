@@ -8,9 +8,9 @@ module DataCycleCore
           DataCycleCore::Generic::Common::Functions[*args]
         end
 
-        def self.file_to_asset
+        def self.file_to_asset(tree_label, attribute_name)
           t(:stringify_keys)
-          .>> t(:tags_to_ids_by_name, 'tags', 'Tags')
+          .>> t(:tags_to_ids_by_name, attribute_name, tree_label)
           .>> t(:strip_all)
         end
       end

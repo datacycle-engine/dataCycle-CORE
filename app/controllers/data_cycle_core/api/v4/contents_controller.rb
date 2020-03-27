@@ -6,23 +6,32 @@ module DataCycleCore
       class ContentsController < ::DataCycleCore::Api::V4::ApiBaseController
         PUMA_MAX_TIMEOUT = 60
         include DataCycleCore::Filter
+        include DataCycleCore::ApiHelper
+        include DataCycleCore::ApiService
         before_action :prepare_url_parameters
+        rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
-            query = build_search_query.includes(:translations)
+            query = build_search_query
+            # query = build_search_query.includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             query = apply_ordering(query)
 
             @pagination_contents = apply_paging(query)
             @contents = @pagination_contents
-            render 'index'
+
+            if list_api_request?
+              render plain: list_api_request.to_json, content_type: 'application/json'
+            else
+              render 'index'
+            end
           end
         end
 
         def show
           @content = DataCycleCore::Thing
-            .includes({ classifications: [], translations: [] })
+            .includes(:translations, :scheduled_data, classifications: [classification_aliases: [:classification_tree_label]])
             .find(permitted_params[:id])
         end
 
@@ -31,73 +40,108 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params.dig(:filter, :deleted_since)
+          if permitted_params.dig(:filter, :deletedSince)
             deleted_contents = deleted_contents.where(
-              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
+              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deletedSince)))
             )
           end
-          @contents = apply_paging(deleted_contents)
+
+          render plain: list_api_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
 
         def permitted_parameter_keys
           # json-api: sort
           super + [
-            :id, :language, :q, :include, :fields, :format,
-            { filter: [:box, :modified_since, :created_since, :deleted_since, :from, :to, { concepts: [] }] }
+            :id, :language, :include, :fields, :format,
+            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree': [], 'classifications.without_subtree': [] }] }
           ]
         end
 
         private
 
+        def list_api_request?
+          return true if @include_parameters.blank? && select_attributes(@fields_parameters).include?('dct:modified') && select_attributes(@fields_parameters).size == 1
+          false
+        end
+
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))
+          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          else
+            query
+          end
         end
 
         def build_search_query
-          stored_filter_id = permitted_params[:id] || nil
-          if stored_filter_id.present?
-            @stored_filter = DataCycleCore::StoredFilter.find(stored_filter_id)
-            authorize! :api, @stored_filter
+          endpoint_id = permitted_params[:id]
+          filter_watch_list = false
+          @linked_stored_filter = nil
+          if endpoint_id.present?
+            @stored_filter = DataCycleCore::StoredFilter.find_by(id: endpoint_id)
+
+            if @stored_filter
+              authorize! :api, @stored_filter
+              @linked_stored_filter = @stored_filter.linked_stored_filter if @stored_filter.linked_stored_filter_id.present?
+            elsif DataCycleCore::WatchList.exists?(id: endpoint_id)
+              filter_watch_list = true
+            else
+              raise ActiveRecord::RecordNotFound
+            end
           end
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
-          filter.language = @language.split(',')
-          query = filter.apply
-
+          filter.language = @language
+          filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
+          query = filter.apply(experimental: true)
+          query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
-          query = query.modified_since(permitted_params.dig(:filter, :modified_since)) if permitted_params.dig(:filter, :modified_since)
-          query = query.created_since(permitted_params.dig(:filter, :created_since)) if permitted_params.dig(:filter, :created_since)
-          query = query.fulltext_search(permitted_params[:q]) if permitted_params[:q]
+          query = query.modifiedSince(permitted_params.dig(:filter, :modifiedSince)) if permitted_params.dig(:filter, :modifiedSince)
+          query = query.createdSince(permitted_params.dig(:filter, :createdSince)) if permitted_params.dig(:filter, :createdSince)
+          query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
-          if permitted_params&.dig(:filter, :concepts)
-            permitted_params.dig(:filter, :concepts).map { |classifications|
+          query = apply_classification_filters(query)
+
+          query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+          query = query.distinct_by_content_id
+          query
+        end
+
+        def apply_classification_filters(query)
+          return query if permitted_params&.dig(:filter, 'classifications.with_subtree').blank? && permitted_params&.dig(:filter, 'classifications.without_subtree').blank?
+          with_subtree = permitted_params&.dig(:filter, 'classifications.with_subtree')
+          without_subtree = permitted_params&.dig(:filter, 'classifications.without_subtree')
+
+          if with_subtree.present?
+            with_subtree.map { |classifications|
               classifications.split(',').map(&:strip).reject(&:blank?)
             }.reject(&:empty?).each do |classifications|
-              # if @mode_parameters&.include?('strict')
-              #   query = query.with_classification_alias_ids_without_recursion(classifications)
-              # else
-              query = query.classification_alias_ids(classifications)
-              # end
+              query = query.classification_alias_ids_with_subtree(classifications)
             end
           end
-          query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
+
+          if without_subtree.present?
+            without_subtree.map { |classifications|
+              classifications.split(',').map(&:strip).reject(&:blank?)
+            }.reject(&:empty?).each do |classifications|
+              query = query.classification_alias_ids_without_subtree(classifications)
+            end
+          end
+
           query
         end
 
         def apply_event_query_filters(query)
           return query unless permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-          if permitted_params&.dig(:filter, :from).present?
-            query = query.event_from_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)))
-          else
-            query = query.event_from_time(Time.zone.now)
-          end
+          from_date = nil
+          to_date = nil
+          from_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :from)) if permitted_params&.dig(:filter, :from).present?
+          to_date = DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to)) if permitted_params&.dig(:filter, :to).present?
 
-          query = query.event_end_time(DataCycleCore::MasterData::DataConverter.string_to_datetime(permitted_params&.dig(:filter, :to))) if permitted_params&.dig(:filter, :to).present?
-          query
+          query.schedule_search(from_date, to_date)
         end
 
         def apply_place_query_filters(query)
@@ -109,8 +153,9 @@ module DataCycleCore
           @url_parameters = permitted_params.reject { |k, _| k == 'format' }
           @include_parameters = parse_tree_params(permitted_params.dig(:include))
           @fields_parameters = parse_tree_params(permitted_params.dig(:fields))
+          @mode_parameters = permitted_params.dig(:mode)
           @field_filter = @fields_parameters.present?
-          @language = permitted_params.dig(:language) || I18n.available_locales.first.to_s
+          @language = parse_language(permitted_params.dig(:language)).presence || Array(I18n.available_locales.first.to_s)
           @api_subversion = permitted_params.dig(:api_subversion) if DataCycleCore.main_config.dig(:api, :v4, :subversions)&.include?(permitted_params.dig(:api_subversion))
           @api_version = 4
         end

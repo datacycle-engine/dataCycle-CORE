@@ -1,0 +1,127 @@
+image: patrickrainer/data_cycle_base:2.6.3
+
+variables:
+  POSTGRES_USER: postgres
+  POSTGRES_PASSWORD: ""
+  POSTGRES_HOST: postgres
+  POSTGRES_DB: data-cycle-base_test
+  POSTGRES_PORT: "5432"
+  MONGODB_HOST: mongodb
+  RAILS_ENV: test
+  TZ: Europe/Vienna
+  PRODUCTION_URL: ''
+
+stages:
+  - build
+  - test
+  - check
+  - deploy
+
+before_script:
+# uncomment for local testing
+  - 'which ssh-agent || ( apt-get update -y && apt-get install openssh-client -y )'
+  - eval $(ssh-agent -s)
+  - echo "$SSH_PRIVATE_KEY" | tr -d '\r' | ssh-add - > /dev/null
+# uncomment for local testing END
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan git.pixelpoint.biz >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+
+  - rm -Rf vendor/gems/data-cycle-core
+  - git submodule sync --recursive
+  - git submodule update --init --recursive --force
+
+  - bundle install --path=cache/bundler
+
+  - dpkg-reconfigure -f noninteractive tzdata
+  - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+
+cache:
+  key: application-cache
+  untracked: false
+  paths:
+    - cache/bundler
+    - node_modules
+    - lib/assets
+# Enable for local rails test
+    - vendor/gems/data-cycle-core/node_modules
+    - vendor/gems/data-cycle-core/lib/assets
+
+services:
+  - name: patrickrainer/data_cycle_postgis:latest
+    alias: postgres
+  - name: mvertes/alpine-mongo:3.6.5-0
+    alias: mongodb
+
+########################################################################
+######################### Job Configuration HiddenFields
+.job_cache_config:
+  cache:
+    key: application-cache
+    paths:
+      - cache/bundler
+      - node_modules
+      - lib/assets
+# Enable for local rails test
+      - vendor/gems/data-cycle-core/node_modules
+      - vendor/gems/data-cycle-core/lib/assets
+    policy: pull
+
+.build_caches_config:
+  stage: build
+  script:
+    - bundle install --path=cache/bundler
+# Enable for local rails test
+    - cd vendor/gems/data-cycle-core && yarn && npx gulp production
+    - cd $CI_PROJECT_DIR
+    - yarn
+    - npx gulp production
+
+.code_validation_config:
+  extends: .job_cache_config
+  stage: check
+  script:
+    - bundle exec bundle-audit update
+    - bundle exec bundle audit check
+    - bundle exec brakeman
+    - bundle exec rubocop --format fuubar
+    - bundle exec fasterer
+
+.deploy_config:
+  extends: .job_cache_config
+  stage: deploy
+  cache:
+    policy: pull-push
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap $CI_COMMIT_REF_NAME deploy
+  allow_failure: false
+
+########################################################################
+######################### Branch Configuration
+.master_ci_config: &master_ci
+  only:
+    - master
+  tags:
+    - data-cycle-master
+
+########################################################################
+######################### Master / Production - Systems
+build_caches:
+  <<: *master_ci
+  extends: .build_caches_config
+
+code_validation:
+  <<: *master_ci
+  extends: .code_validation_config
+
+deploy:
+  <<: *master_ci
+  extends: .deploy_config
+  tags:
+    - data-cycle-deploy
+  environment:
+    name: production
+    url: $PRODUCTION_URL
+  when: manual

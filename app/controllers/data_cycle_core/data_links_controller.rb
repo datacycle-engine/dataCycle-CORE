@@ -88,12 +88,12 @@ module DataCycleCore
 
     def create_link_params
       params[:data_link][:valid_until] = params.dig(:data_link, :valid_until)&.to_datetime&.end_of_day.to_s
-      params.require(:data_link).permit(:item_id, :item_type, :creator_id, :permissions, :comment, :valid_from, :valid_until, :asset_id)
+      params.require(:data_link).permit(:item_id, :item_type, :creator_id, :permissions, :comment, :valid_from, :valid_until, :asset_id, :locale)
     end
 
     def receiver_params
       params.dig(:data_link, :receiver, :email)&.downcase!
-      params.require(:data_link).require(:receiver).permit(:id, :email, :given_name, :family_name)
+      params.require(:data_link).require(:receiver).permit(:id, :email, :given_name, :family_name, :confirmed_at)
     end
 
     def split_params
