@@ -60,7 +60,7 @@ module DataCycleCore
           sub_events_end = data_hash.dig('sub_event').map { |s| s.dig('end')&.in_time_zone }.compact
           start_date = sub_events_start.min if start_date.blank? || start_date == start_date.beginning_of_day
           if end_date.blank? || end_date == end_date.beginning_of_day || sub_events_end.max < sub_events_start.max
-            end_date = sub_events_start.max.end_of_day
+            end_date = sub_events_start.max&.end_of_day
           else
             end_date = sub_events_end.max
           end

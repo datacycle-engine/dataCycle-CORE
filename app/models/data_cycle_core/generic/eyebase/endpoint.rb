@@ -51,6 +51,7 @@ module DataCycleCore
         def load(**parameters)
           conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
             f.request :retry, @retry_options
+            f.response :logger
             f.adapter Faraday.default_adapter
           end
 
@@ -68,6 +69,7 @@ module DataCycleCore
         def load_file(dest, source)
           conn = Faraday.new(source) do |f|
             f.request :retry, @retry_options
+            f.response :logger
             f.adapter Faraday.default_adapter
           end
           response = conn.get
