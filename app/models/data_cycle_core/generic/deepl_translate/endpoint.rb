@@ -9,9 +9,20 @@ module DataCycleCore
           @end_point = end_point
           @key = key
           @options = options
+          @headers = {
+            'Accept' => '*/*',
+            'User-Agent' => 'dataCycle'
+          }
+          @retry_options = {
+            max: 3,
+            interval: 1,
+            interval_randomness: 0.5,
+            backoff_factor: 1,
+            retry_statuses: [429],
+            methods: [:post]
+          }
         end
 
-        # TODO: error handling (especially resend), translate all button
         def translate(translate_hash)
           return if translate_hash.blank?
           return unless translate_hash.is_a?(::Hash) || translate_hash.is_a?(DataCycleCore::OpenStructHash)
@@ -28,67 +39,32 @@ module DataCycleCore
         end
 
         def load_data(text: nil, source_locale: nil, target_locale: nil)
-          # connection = Faraday.new(
-          #   url: @host + @end_point,
-          #   headers: { 'Accept' => '*/*', 'User-Agent' => 'dataCycle', 'Content-Type' => 'application/x-www-form-urlencoded' }
-          # )
-          # connection = Faraday.new do |conn|
-          #   conn.url(@host + @end_point)
-          #   conn.headers['Accept'] = '*/*'
-          #   conn.headers['User-Agent'] = 'dataCycle'
-          #   conn.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-          # end
-
-          # Using almost standard values from the example, increased max https://www.rubydoc.info/github/lostisland/faraday/Faraday/Request/Retry
-          # connection = Faraday.new do |conn|
           connection = Faraday.new(
             url: @host + @end_point,
-            headers: { 'Accept' => '*/*', 'User-Agent' => 'dataCycle' }
+            headers: @headers
           ) do |conn|
-            conn.request :retry, max: 3, interval: 0.05,
-                                 interval_randomness: 0.5, backoff_factor: 2,
-                                 exceptions: [DataCycleCore::Generic::Common::Error::TooManyRequestsError, 'Timeout::Error']
-            # conn.request :url_encode
+            conn.request :retry, @retry_options
+            conn.request :url_encoded
             conn.response :logger
             conn.adapter Faraday.default_adapter
           end
-          # connection = Faraday.new
-          # body = {
-          body = URI.encode_www_form(
-            auth_key: @key,
-            text: text,
-            target_lang: target_locale.to_s.upcase,
-            source_lang: source_locale.to_s.upcase
-          )
-          # }
-          binding.pry
-          response = connection.post do |req|
-            # req.url(@host + @end_point)
-            # req.headers['Accept'] = '*/*'
-            # req.headers['User-Agent'] = 'dataCycle'
-            # req.headers['Content-Type'] = 'application/x-www-form-urlencoded'
-            req.body = body
-          end
-          binding.pry
 
-          if response.success? && response.status == 200
-            binding.pry
-            raise DataCycleCore::Generic::Common::Error::TooManyRequestsError.new("#{response.status}, retrying loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response)
-            # JSON.parse(response.body)
-          elsif response.status == 429
-            binding.pry
-            raise DataCycleCore::Generic::Common::Error::TooManyRequestsError.new("#{response.status}, retrying loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response)
+          response = connection.post do |req|
+            req.body = {
+              auth_key: @key,
+              text: text,
+              target_lang: target_locale.to_s.upcase,
+              source_lang: source_locale.to_s.upcase
+            }
+          end
+
+          if response.success?
+            JSON.parse(response.body)
+          elsif response.status == 456
+            raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, Quota exceeded for #{@host + @end_point} / key:#{@key}", response)
           else
-            binding.pry
             raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{response.status}, error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response)
           end
-
-          # raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response) unless response.success?
-          # binding.pry
-
-          # data = JSON.parse(response.body)
-          # raise DataCycleCore::Generic::Common::Error::EndpointError.new("#{data['status']}, error loading data from #{@host + @end_point} / text:#{text} / source_locale:#{source_locale} / target_locale:#{target_locale}", response) unless response.status == 200
-          # data
         end
       end
     end
