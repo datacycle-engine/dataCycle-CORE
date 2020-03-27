@@ -11,10 +11,7 @@ var string_helpers = require('./modules/helpers/string_helpers');
 let ActionCable = require('actioncable');
 var initializers = [];
 
-if (window.DATA_CYCLE_ENGINE_PATH == undefined){
-    window.DATA_CYCLE_ENGINE_PATH = '';
-}
-
+window.DATA_CYCLE_ENGINE_PATH = window.DATA_CYCLE_ENGINE_PATH || '';
 window.EDITORSELECTORS = [
   '> .object-browser',
   '> .embedded-object',
