@@ -5,7 +5,7 @@ key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
 if value.present? && value.first.template_name != 'EventSchedule' # for e.g. Schedule in Tours (= Season)
   json = render('data_cycle_core/api/v3/api_base/attributes/embedded.jb', { key: key, definition: content.properties_for(key), value: value, options: options, content: content })
-elsif content.event_schedule.present?
+elsif content.try(:event_schedule).present?
   data = content.event_schedule.to_a
   if content.translations.size > 1 && @include_parameters.include?('translations')
     json[key_new] = content.translations.map { |trans|
