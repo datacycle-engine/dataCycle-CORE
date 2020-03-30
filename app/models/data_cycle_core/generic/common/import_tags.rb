@@ -109,7 +109,7 @@ module DataCycleCore
         end
 
         def self.unwind_project_data(raw_data, common_path, id_path, name_path, desc_path = nil)
-          default_values = [{ 'id' => raw_data.dig(*id_path), 'tag' => raw_data.dig(*name_path) }]
+          default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
           default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
 
           return default_values if common_path.blank?

@@ -78,7 +78,7 @@ module DataCycleCore
     end
 
     def authorized_root_path(user = nil)
-      if (user || current_user).can?(:index, :backend)
+      if (user || current_user)&.can?(:index, :backend)
         root_path
       else
         info_path

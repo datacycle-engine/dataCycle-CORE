@@ -93,10 +93,6 @@ module DataCycleCore
           enumerate_default_items(:global_link_types, '//LinkType', lang: lang)
         end
 
-        def locations(lang: :de)
-          enumerate_items(:locations, '//Location', lang: lang)
-        end
-
         def marketing_groups(lang: :de)
           enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
         end
