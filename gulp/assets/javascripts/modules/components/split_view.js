@@ -253,7 +253,7 @@ class SplitView {
       locale: this.embedLocale ? this.leftLocale : ''
     });
 
-    target.get(0).scrollIntoView({ behavior: 'smooth' });
+    target.get(0).scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
   translateText(elem, value, label, key) {
     $.rails.disableElement(elem);
