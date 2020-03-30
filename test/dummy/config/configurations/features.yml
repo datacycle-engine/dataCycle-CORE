@@ -150,3 +150,10 @@
   :widgets:
     :list: https://widgets.datacycle.cloud/list
     :map: https://widgets.datacycle.cloud/map
+
+:translate: 
+  :enabled: true
+  :allowed: true
+  :external_source: 'DeeplTranslate'
+  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::Endpoint'
+  :attribute_keys: ['text']
