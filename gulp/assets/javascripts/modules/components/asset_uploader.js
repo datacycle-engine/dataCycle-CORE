@@ -170,7 +170,7 @@ class AssetUploader {
     });
 
     $.ajax({
-      url: '/things/bulk_create',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/things/bulk_create',
       method: 'POST',
       data: formData,
       dataType: 'json',
@@ -186,7 +186,7 @@ class AssetUploader {
     formData = formData.concat(file.attributeFieldValues || []);
 
     $.ajax({
-      url: '/things/validate',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/things/validate',
       method: 'POST',
       data: formData,
       dataType: 'json',

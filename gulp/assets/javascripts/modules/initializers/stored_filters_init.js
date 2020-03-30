@@ -27,7 +27,7 @@ module.exports.initialize = () => {
       let spinner = new Spinner($('.search-history-list'));
       spinner.show();
       $.ajax({
-        url: '',
+        url: window.DATA_CYCLE_ENGINE_PATH + '',
         method: 'GET',
         data: form_data,
         dataType: 'script'

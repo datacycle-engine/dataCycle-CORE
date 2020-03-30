@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module DownloadTranslatedCategories
+      module DownloadCodes
         def self.download_content(utility_object:, options:)
           DataCycleCore::Generic::Common::DownloadFunctions.download_data(
             download_object: utility_object,
@@ -14,11 +14,11 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data['Id'] || data['Order']
+          data['Code']
         end
 
         def self.data_name(data)
-          Array.wrap(data.dig('Names', 'Translation')).first.try(:[], 'text')
+          data['Name']
         end
       end
     end
