@@ -142,7 +142,7 @@ module DataCycleCore
 
                       times << Time.current
 
-                      logging.info("Imported   #{item_count} items in #{(times[-1] - times[0]).round(3)} seconds", "ðt: #{(times[-1] - times[-2]).round(3)}")
+                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
                     end
                   end
                 ensure
