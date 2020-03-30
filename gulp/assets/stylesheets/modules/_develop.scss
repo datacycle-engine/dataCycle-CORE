@@ -527,8 +527,8 @@ select {
       a.translate-all {
         width: 2rem;
         height: 2rem;
-        margin-top: -2.1rem;
-        margin-right: -0.9rem;
+        top: -2.1rem;
+        right: -0.9rem;
         .fa {
           font-size: 1.2rem;
           line-height: 2rem;
@@ -573,7 +573,7 @@ select {
       }
 
       .translate {
-        margin-right: 0.5rem;
+        margin-right: 0.1rem;
       }
     }
 
@@ -2654,10 +2654,10 @@ button.button-prime.small.bulk-delete-button {
     }
   }
 }
-.overflow-x-auto{
+.overflow-x-auto {
   overflow-x: auto;
 }
-.activities-wrapper{
+.activities-wrapper {
   border: 1px solid $light-gray;
   margin-bottom: 2rem;
 }

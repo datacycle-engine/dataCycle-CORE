@@ -6,6 +6,7 @@ class SplitView {
     this.container = $(container);
     this.embedLocale = this.container.closest('.split-content').data('embed-locale');
     this.leftLocale = this.container.closest('.split-content').data('locale');
+    this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
     this.rightLocale = this.container
       .closest('form')
       .find('input#locale:hidden')
@@ -129,9 +130,13 @@ class SplitView {
     elements.each((_, item) => {
       if ($(item).find('a.copy').length)
         $(item).prepend(
-          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>',
+          '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
+        );
+      if (this.enableTranslateButtons) {
+        $(item).prepend(
           '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
         );
+      }
     });
   }
   addButtons(element, key, value, copy_attr, single = false) {
@@ -162,7 +167,7 @@ class SplitView {
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
 
-    if (copy_attr === 'html') {
+    if (this.enableTranslateButtons && copy_attr === 'html') {
       $(element).append(
         '<a class="button-prime small translate' +
         (single ? ' translate-single-button' : '') + //??
