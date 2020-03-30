@@ -20,7 +20,7 @@ module.exports.initialize = function() {
           .on('focus.dc_edit_page', event => {
             $.ajax({
               type: 'GET',
-              url: '/reload_required',
+              url: window.DATA_CYCLE_ENGINE_PATH + '/reload_required',
               data: {
                 id: id,
                 table: table,

@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
+                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -11,13 +11,13 @@ DataCycleCore::Engine.routes.draw do
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
-  root to: redirect('/users/sign_in')
+  root to: redirect('users/sign_in')
 
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
   get '/docs', to: 'documentation#show'
 
-  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
+  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
@@ -26,7 +26,7 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
 
-  get  '/info', to: 'frontend#info'
+  get  '/info', to: 'frontend#info', as: :info
   get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member

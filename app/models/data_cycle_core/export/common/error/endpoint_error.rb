@@ -5,8 +5,11 @@ module DataCycleCore
     module Common
       module Error
         class EndpointError < GenericError
+          attr_reader :response
+
           def initialize(msg, response)
             super(msg + "| #{response.status}: #{response.reason_phrase} | #{response.body}")
+            @response = response
           end
         end
       end
