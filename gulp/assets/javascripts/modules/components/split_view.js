@@ -1,3 +1,5 @@
+let calloutHelpers = require('./../helpers/callout_helpers');
+
 // Split View
 class SplitView {
   constructor(container = document) {
@@ -128,7 +130,7 @@ class SplitView {
       if ($(item).find('a.copy').length)
         $(item).prepend(
           '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>',
-          '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
+          '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
         );
     });
   }
@@ -167,7 +169,8 @@ class SplitView {
           '" data-copy-attribute="' +
           copy_attr +
           '" data-translate-attribute="true"' +
-          ' title="übersetzen"><i class="fa fa-globe" aria-hidden="true"></i></a>'
+          ' data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>"' +
+          ' title="übersetzen"><i class="fa fa-language aria-hidden="true"></i></a>'
       );
     }
 
@@ -222,7 +225,7 @@ class SplitView {
     let key = elem.parents('[data-editor]').data('key');
 
     if (elem.data('translate-attribute')) {
-      this.translateText(value, label, key);
+      this.translateText(elem, value, label, key);
     } else {
       this.copyContents(value, label, key);
     }
@@ -252,7 +255,9 @@ class SplitView {
 
     target.get(0).scrollIntoView({ behavior: 'smooth' });
   }
-  translateText(value, label, key) {
+  translateText(elem, value, label, key) {
+    $.rails.disableElement(elem);
+
     let formData = {
       text: value.trim(),
       source_locale: this.leftLocale,
@@ -264,10 +269,16 @@ class SplitView {
       data: formData,
       dataType: 'json',
       contentType: 'application/x-www-form-urlencoded'
-    }).done(data => {
-      console.log(data);
-      this.copyContents(data.text, label, key);
-    });
+    })
+      .done(data => {
+        this.copyContents(data.text, label, key);
+      })
+      .fail(data => {
+        calloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
+      })
+      .always(() => {
+        $.rails.enableElement(elem);
+      });
   }
 }
 
