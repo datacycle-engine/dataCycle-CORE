@@ -14,7 +14,15 @@ module DataCycleCore
         setup do
           @routes = Engine.routes
           @content_overlay = DataCycleCore::DummyDataHelper.create_data('event')
-          @content_overlay.set_data_hash(partial_update: true, prevent_history: true, data_hash: { event_period: { start_date: 8.days.ago, end_date: 8.days.from_now } })
+          event_schedule = @content_overlay.get_data_hash
+          event_schedule['event_schedule'] = [{
+            'start_time' => {
+              'time' => 8.days.ago.to_s,
+              'zone' => 'Vienna'
+            },
+            'duration' => 10.days.to_i
+          }]
+          @content_overlay.set_data_hash(prevent_history: true, data_hash: event_schedule)
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
@@ -35,15 +43,23 @@ module DataCycleCore
                 'image' => [overlay_image.id],
                 'content_location' => [overlay_place.id],
                 'url' => 'https://overlay.url.com',
-                'event_period' => {
-                  'start_date' => '2019-11-10T00:00:00.000+01:00',
-                  'end_date' => '2019-11-20T00:00:00.000+01:00'
-                }
+                'event_schedule' => [{
+                  'start_time' => {
+                    'time' => Time.new(2019, 11, 10).in_time_zone,
+                    'zone' => 'Vienna'
+                  },
+                  'duration' => 10.days.to_i
+                }]
               }
             ]
           }
+          event_period = {
+            'start_date' => '2019-11-10T00:00:00.000+01:00',
+            'end_date' => '2019-11-20T00:00:00.000+01:00'
+          }
           I18n.with_locale(:de) do
-            @content_overlay.set_data_hash(data_hash: data_hash, partial_update: true, current_user: User.find_by(email: 'tester@datacycle.at'))
+            new_data_hash = @content_overlay.get_data_hash.merge(data_hash)
+            @content_overlay.set_data_hash(data_hash: new_data_hash, current_user: User.find_by(email: 'tester@datacycle.at'))
           end
           @content_overlay.reload
 
@@ -61,8 +77,8 @@ module DataCycleCore
           end
 
           # content data
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'start_date'), json_data.dig('startDate'))
-          assert_equal(data_hash.dig('overlay', 0, 'event_period', 'end_date'), json_data.dig('endDate'))
+          assert_equal(event_period['start_date'], json_data.dig('startDate'))
+          assert_equal(event_period['end_date'], json_data.dig('endDate'))
           assert_equal(data_hash.dig('overlay', 0, 'name'), json_data.dig('name'))
           assert_equal(data_hash.dig('overlay', 0, 'description'), json_data.dig('description'))
           assert_equal(data_hash.dig('overlay', 0, 'url'), json_data.dig('sameAs'))

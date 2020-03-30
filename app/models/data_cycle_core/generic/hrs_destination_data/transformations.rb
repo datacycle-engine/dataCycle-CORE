@@ -19,6 +19,7 @@ module DataCycleCore
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'image', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Image: #{item}" } })
           .>> t(:add_field, 'event_period', ->(s) { parse_event_period(s.dig('dates'), s.dig('event')) })
           .>> t(:add_field, 'sub_event', ->(s) { parse_sub_event(s.dig('dates'), s.dig('event')) })
+          .>> t(:event_schedule, ->(s) { s.dig('sub_event') })
           .>> t(:strip_all)
         end
         # .>> t(:add_field, 'valid_from', ->(s) { s.dig('event', 'firstDate') })

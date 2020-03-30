@@ -4,50 +4,6 @@ require 'test_helper'
 
 module DataCycleCore
   class ObjectWithDifferentStorageLocationsTest < ActiveSupport::TestCase
-    test 'events template with daterange' do
-      data_set = DataCycleCore::TestPreparations.data_set_object('Event')
-      data_set.save!
-
-      data_hash = {
-        'url' => 'http://www.wtf.at',
-        'event_period' => {
-          'start_date' => '2017-07-18 12:00',
-          'end_date' => '2017-10-29 12:00'
-        }
-      }
-
-      error = data_set.set_data_hash(data_hash: data_hash)
-      data_set.save
-      returned_data_hash = data_set.get_data_hash.compact
-      expected_hash = {
-        'url' => 'http://www.wtf.at',
-        'image' => [],
-        'content_location' => [],
-        'sub_event' => [],
-        'output_channel' => [],
-        'tags' => [],
-        # 'topic' => [],
-        'overlay' => [],
-        'event_period' => {
-          'start_date' => '2017-07-18 12:00'.to_datetime.to_s(:db),
-          'end_date' => '2017-10-29 12:00'.to_datetime.to_s(:db)
-        },
-        'holiday_themes' => [],
-        'feratel_event_tags' => [],
-        'event_schedule' => [],
-        'organizer' => [],
-        'performer' => [],
-        'super_event' => [],
-        'offers' => []
-      }
-      returned_data_hash['event_period'].each do |key, value|
-        returned_data_hash['event_period'][key] = value.to_datetime.to_s(:db)
-      end
-
-      assert_equal(expected_hash, returned_data_hash.except(*DataCycleCore::TestPreparations.excepted_attributes(:event)))
-      assert_equal(0, error[:error].count)
-    end
-
     test 'save Object in metadata and data within object to column' do
       data_set = DataCycleCore::TestPreparations.data_set_object('Included-Object-Creative-Work')
       data_set.save!

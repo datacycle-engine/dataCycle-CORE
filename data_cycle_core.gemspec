@@ -120,7 +120,8 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'web-console'
 
   # s.add_dependency 'dotenv-rails'
-  s.add_dependency 'puma', '~> 3.12.1'
+  s.add_dependency 'puma' # , '~> 3.12.1'
+  s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
   # Excel Generator

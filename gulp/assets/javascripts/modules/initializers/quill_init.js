@@ -1,5 +1,8 @@
 var Quill = require('quill');
 var Counter = require('./../components/quill_counter');
+var QuillLinkFormat = require('../components/quill_custom_link');
+var { QuillContentlinkModule, ContentlinkBlot } = require('./../components/quill_content_link');
+var { QuillLinkFormat, QuillLinkModule } = require('../components/quill_custom_link');
 var ConfirmationModal = require('./../components/confirmation_modal');
 var quill_helpers = require('./../helpers/quill_helpers');
 
@@ -25,7 +28,12 @@ Break.prototype.length = function() {
 Break.prototype.value = function() {
   return '\n';
 };
+// Quill.debug('error');
 Quill.register(Break);
+Quill.register('modules/contentlink', QuillContentlinkModule);
+Quill.register('formats/contentlink', ContentlinkBlot);
+Quill.register('modules/customlink', QuillLinkModule);
+Quill.register('formats/customlink', QuillLinkFormat);
 
 // Quill Config
 module.exports.initialize = function() {
@@ -33,7 +41,7 @@ module.exports.initialize = function() {
     none: ['break'],
     minimal: ['bold', 'italic', 'underline', 'break'],
     basic: ['bold', 'italic', 'header', 'underline', 'break', 'script'],
-    full: ['bold', 'italic', 'header', 'underline', 'link', 'list', 'align', 'break', 'script']
+    full: ['bold', 'italic', 'header', 'underline', 'customlink', 'list', 'align', 'break', 'script', 'contentlink']
   };
 
   var toolbar = {
@@ -69,13 +77,15 @@ module.exports.initialize = function() {
       ],
       [{ script: 'sub' }, { script: 'super' }],
       ['bold', 'italic', 'underline'],
-      ['link']
+      ['customlink', 'contentlink']
     ]
   };
 
   var default_options = {
     modules: {
       counter: true,
+      contentlink: {},
+      customlink: {},
       toolbar: toolbar['none'],
       clipboard: {
         matchers: [['BR', lineBreakMatcher]]
@@ -117,7 +127,6 @@ module.exports.initialize = function() {
 
         try {
           let editor = new Quill(node, options);
-
           let length = editor.getLength();
           let text = editor.getText(length - 2, 2);
 

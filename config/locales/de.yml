@@ -94,6 +94,9 @@ de:
     year: Jahr
     next: Weitere Termine
     prev: Vorherige Termine
+    rdate: Zusätzliche Termine
+    exdate: Ausgenommene Termine
+    ongoing: fortlaufend
 
   common:
     'true': Ja
@@ -542,6 +545,7 @@ de:
       wrong_content_type: '%{content_type} Dateien sind nicht erlaubt.'
       required: 'ist ein Pflichtfeld und muss ausgefüllt werden.'
       rank_not_allowed: Der angegebene Rang ist nicht erlaubt.
+      unknown_activity_type: 'Unbekannter Typ für Activity'
     warnings:
       string: '%{key} ist kein gültiges Keyword für String. Gefunden für %{data} in %{template}'
       no_data: 'Keine Daten angegeben für %{data}'

@@ -8,6 +8,13 @@ module DataCycleCore
           @host = host
           @end_point = end_point
           @token = token
+          @retry_options = {
+            max: 5,
+            interval: 1,
+            interval_randomness: 0.5,
+            backoff_factor: 2,
+            exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed, Net::OpenTimeout]
+          }
         end
 
         def media_assets(lang: :de)
@@ -42,22 +49,30 @@ module DataCycleCore
         end
 
         def load(**parameters)
-          response = Faraday.new.get do |req|
-            req.url File.join([@host, @end_point])
+          conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
+            f.request :retry, @retry_options
+            f.response :logger
+            f.adapter Faraday.default_adapter
+          end
+
+          response = conn.get do |req|
             req.params['fx'] = 'api'
             req.params['token'] = @token
             req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
             req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
           end
 
-          raise DataCycleCore::Generic::RecoverableError, "error loading data from #{File.join([@host, @end_point])} with params: 'fx': api, 'token': #{@token}, 'qt': #{parameters.dig(:qt)}, 'keyfolder': #{parameters.dig(:keyfolder)}" unless response.success?
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
           Nokogiri::XML(response.body)
         end
 
         def load_file(dest, source)
-          response = Faraday.new.get do |req|
-            req.url source
+          conn = Faraday.new(source) do |f|
+            f.request :retry, @retry_options
+            f.response :logger
+            f.adapter Faraday.default_adapter
           end
+          response = conn.get
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{source}", response) unless response.success?
 

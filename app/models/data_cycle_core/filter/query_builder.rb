@@ -8,7 +8,7 @@ module DataCycleCore
       include DataCycleCore::Common::ArelBuilder
 
       attr_reader :query
-      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map
+      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :pluck,
                           :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS

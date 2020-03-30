@@ -7,9 +7,10 @@ module DataCycleCore
     def setup
       @schedule = DataCycleCore::Schedule.new
       @dtstart = Time.parse('2019-11-20T9:00').in_time_zone
+      duration = 7.hours
       @dtend = Time.parse('2020-01-04T16:00').in_time_zone
-      @schedule.schedule_object = IceCube::Schedule.new(@dtstart, end_time: @dtend) do |s|
-        s.duration = 7.hours
+      end_time = @dtstart + duration
+      @schedule.schedule_object = IceCube::Schedule.new(@dtstart, end_time: end_time) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(@dtend))
       end
       @schedule.serialize_schedule_object
@@ -19,8 +20,7 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       dtstart = dtstart
       dtend = dtend
-      end_time = dtstart + duration
-      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: end_time, duration: duration.to_i }) do |s|
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: duration.to_i }) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
       end
       schedule
@@ -45,7 +45,7 @@ module DataCycleCore
       schedule = DataCycleCore::Schedule.new
       dtstart = Time.parse('2019-11-20T9:00').in_time_zone
       dtend = Time.parse('2020-01-04T16:00').in_time_zone
-      schedule.schedule_object = IceCube::Schedule.new(dtstart, { end_time: dtend, duration: 7.hours.to_i }) do |s|
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: 7.hours.to_i }) do |s|
         s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).until(dtend))
       end
 
@@ -72,6 +72,9 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'endDate' => '2020-01-04',
         'startTime' => '09:00',
@@ -79,12 +82,12 @@ module DataCycleCore
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
     test 'handling start/end date with only starttime and duration given' do
       dtstart = Time.parse('2019-11-20T9:00').in_time_zone
-      dtend = Time.parse('2020-01-04').in_time_zone
+      dtend = Time.parse('2020-01-03T16:00').in_time_zone
       duration = 7.hours
       schedule = create_schedule(dtstart, dtend, duration)
       schedule.save
@@ -92,14 +95,17 @@ module DataCycleCore
       assert_equal(dtend, schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
-        'endDate' => '2020-01-04',
+        'endDate' => '2020-01-03',
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
 
     test 'handling start date time given and duration' do
@@ -111,13 +117,16 @@ module DataCycleCore
       assert_nil(schedule.dtend)
       assert_equal(duration, schedule.duration)
       expected_serialization = {
+        '@context' => 'http://schema.org',
+        '@type' => 'Schedule',
+        'inLanguage' => 'de',
         'startDate' => '2019-11-20',
         'startTime' => '09:00',
         'endTime' => '16:00',
         'duration' => 'PT7H',
         'repeatFrequency' => 'daily'
       }
-      assert_equal(expected_serialization, schedule.to_schedule_schema_org)
+      assert_equal(expected_serialization, schedule.to_schedule_schema_org.except('identifier'))
     end
   end
 end

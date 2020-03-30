@@ -6,11 +6,13 @@
           <i class="fa fa-list" aria-hidden="true"></i>
         <% when 'map' %>
           <i class="fa fa-map" aria-hidden="true"></i>
+        <% when 'event' %>
+          <i class="fa fa-calendar" aria-hidden="true"></i>
         <% else %>
           <i class="fa fa-columns" aria-hidden="true"></i>
         <% end %>
       </a>
-  <% end %>
+  <% end if DataCycleCore::Feature::Preview.enabled? %>
     <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_path", id: content), title: t('data_cycle_core.documentation.api.root', locale: DataCycleCore.ui_language), class: 'copy-to-clipboard left', data: { value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_stored_filter_url", id: content) } do %>
       <i class="fa fa-clipboard" aria-hidden="true"></i>
     <% end %>

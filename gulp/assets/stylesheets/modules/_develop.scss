@@ -1224,6 +1224,8 @@ ul.translated-locales {
       border: 0;
       margin: 0.1rem;
       position: relative;
+      word-break: break-word;
+      white-space: normal;
 
       span {
         color: white;
@@ -2651,4 +2653,11 @@ button.button-prime.small.bulk-delete-button {
       cursor: pointer;
     }
   }
+}
+.overflow-x-auto{
+  overflow-x: auto;
+}
+.activities-wrapper{
+  border: 1px solid $light-gray;
+  margin-bottom: 2rem;
 }

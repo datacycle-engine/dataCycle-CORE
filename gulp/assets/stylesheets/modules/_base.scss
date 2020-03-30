@@ -903,6 +903,8 @@ span.single_error:before,
 
 .select2-selection__choice {
   font-size: 0.9rem;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .select2-selection {
@@ -923,6 +925,8 @@ body .v-select {
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     font-weight: normal;
+    word-break: break-word;
+    white-space: normal;
 
     i {
       font-size: 0.8rem;

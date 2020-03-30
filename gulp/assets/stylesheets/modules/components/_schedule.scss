@@ -1,5 +1,10 @@
 .detail-header.editor .schedule-editor .daterange .form-element {
   display: flex;
+  flex: auto;
+
+  .flatpickr-wrapper {
+    flex: auto;
+  }
 }
 
 .schedule-editor {
@@ -19,6 +24,7 @@
 
     .fullday {
       position: relative;
+      flex: auto;
 
       label {
         position: absolute;
@@ -32,6 +38,7 @@
     flex-flow: row wrap;
     align-items: center;
 
+    .single_occurrence,
     .daily,
     .weekly,
     .monthly,
@@ -63,6 +70,15 @@
       }
     }
 
+    &.single_occurrence {
+      .single_occurrence {
+        display: inherit;
+      }
+    }
+
+    .special-dates {
+      flex-basis: 100%;
+    }
     input,
     input:hover {
       background: none;
@@ -70,6 +86,10 @@
       border: none;
       min-width: 100px;
       width: auto;
+
+      &.flatpickr-input {
+        width: 100%;
+      }
 
       &[type='number'] {
         min-width: 4rem;
@@ -122,7 +142,7 @@
     background: $light-gray;
     padding: 0.5rem 1rem;
 
-    &:not(:last-of-type) {
+    &:not(:last-of-type):not(.until) {
       margin-right: 1rem;
     }
 
@@ -151,6 +171,7 @@
     }
 
     .flatpickr-input {
+      width: 100%;
       background: transparent;
     }
   }

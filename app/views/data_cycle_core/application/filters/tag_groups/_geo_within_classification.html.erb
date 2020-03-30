@@ -1,8 +1,8 @@
 <span class="tag-group tags <%= key %> <%= local_assigns[:filter_method] || 'i' %> <%= local_assigns[:container_classes] %>" data-id="<%= target %>">
-  <i class="tag-group-label">
+  <span class="tag-group-label">
     <i class="fa fa-globe" aria-hidden="true"></i>
-      <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
-  </i>
+    <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
+  </span>
 
   <% classification_aliases ||= DataCycleCore::ClassificationAlias.includes(:classification_alias_path)
     .where(id: value)
@@ -10,19 +10,19 @@
 
   <span class="tags-container">
     <% if buttons == 'd' %>
-        <% value.each do |ca_id| %>
-          <label for="<%= ca_id %>">
-            <a class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>">
-              <%= classification_aliases[ca_id].try(:internal_name) %><i class="fa fa-times" aria-hidden="true"></i>
-            </a>
-          </label>
-        <% end %>
+      <% value.each do |ca_id| %>
+        <label for="<%= ca_id %>">
+          <a class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>">
+            <%= classification_aliases[ca_id].try(:internal_name) %><i class="fa fa-times" aria-hidden="true"></i>
+          </a>
+        </label>
+      <% end %>
     <% else %>
-        <% value.each do |ca_id| %>
-          <span class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>"><%= classification_aliases[ca_id].try(:internal_name) %></span>
-        <% end %>
+      <% value.each do |ca_id| %>
+        <span class="tag" title="<%= classification_aliases[ca_id].try(:full_path) %>"><%= classification_aliases[ca_id].try(:internal_name) %></span>
+      <% end %>
     <% end %>
   </span>
 
-    <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
+  <%= render 'data_cycle_core/application/filters/tag_groups/advanced_buttons', target: target if buttons == 'a' %>
 </span>

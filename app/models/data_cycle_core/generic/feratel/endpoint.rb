@@ -224,21 +224,16 @@ module DataCycleCore
           data.remove_namespaces!
 
           if data.xpath('//@Status').first.value != '0'
-            if retry_count <= 5 # rubocop:disable Style/GuardClause
-              sleep(3)
-              load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
-            else
-              raise data.xpath('//@Message').first.value
-            end
-          end
-          data
-        rescue StandardError
-          if retry_count <= 5 # rubocop:disable Style/GuardClause
+            raise data.xpath('//@Message').first.value if retry_count > 5
             sleep(3)
             load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
           else
-            raise
+            data
           end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_data(type, lang: lang, range_code: range_code, range_ids: range_ids, index: index, retry_count: retry_count + 1)
         end
 
         def load_data_item(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, item_ids:, retry_count: 0)
@@ -260,21 +255,16 @@ module DataCycleCore
           data.remove_namespaces!
 
           if data.xpath('//@Status').first.value != '0'
-            if retry_count <= 5 # rubocop:disable Style/GuardClause
-              sleep(3)
-              load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
-            else
-              raise data.xpath('//@Message').first.value
-            end
-          end
-          data
-        rescue StandardError
-          if retry_count <= 5 # rubocop:disable Style/GuardClause
+            raise data.xpath('//@Message').first.value if retry_count > 5
             sleep(3)
             load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
           else
-            raise
+            data
           end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_data_item(type, lang: lang, range_code: range_code, range_ids: range_ids, item_ids: item_ids, retry_count: retry_count + 1)
         end
 
         def load_data_large(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, pattern:)
