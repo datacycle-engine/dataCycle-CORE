@@ -128,13 +128,14 @@ class SplitView {
   }
   setupCopyAllButtons(elements) {
     elements.each((_, item) => {
-      if ($(item).find('a.copy').length)
+      if ($(item).find('a.copy').length) {
+        if (this.enableTranslateButtons) {
+          $(item).prepend(
+            '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
+          );
+        }
         $(item).prepend(
           '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
-        );
-      if (this.enableTranslateButtons) {
-        $(item).prepend(
-          '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
         );
       }
     });
