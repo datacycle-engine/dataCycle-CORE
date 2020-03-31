@@ -135,6 +135,91 @@ config:
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
       locales: ['de', 'en']
+    hot_spots:
+      sorting: 21
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: hot_spots
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    marketing_groups:
+      sorting: 22
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: marketing_groups
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    rating_visitors:
+      sorting: 23
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: rating_visitors
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    service_codes:
+      sorting: 24
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: service_codes
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedServiceCodes
+    shop_item_groups:
+      sorting: 25
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: shop_item_groups
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    fallback_languages:
+      sorting: 28
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: fallback_languages
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadLanguages
+    link_types:
+      sorting: 29
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: link_types
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    handicap_groups:
+      sorting: 30
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: handicap_groups
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    handicap_types:
+      sorting: 31
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: handicap_types
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    handicap_facility_groups:
+      sorting: 32
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: handicap_facility_groups
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    handicap_facilities:
+      sorting: 33
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: handicap_facilities
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
+    visitor_tax:
+      sorting: 34
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: visitor_tax
+      read_type: locations
+      location_range_codes: ['RG']
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadCodes
+      locales: [de]
   import_config:
 #    content_score_asp:
 #      sorting: 1

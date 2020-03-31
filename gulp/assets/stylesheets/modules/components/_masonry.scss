@@ -13,10 +13,11 @@
     grid-row: span 2;
     align-items: center;
     justify-content: center;
-    .fa {
-      font-size: 3rem;
-      color: $light-gray;
-    }
+  }
+
+  .grid-loading .fa {
+    font-size: 3rem;
+    color: $light-gray;
   }
 
   .grid-item {

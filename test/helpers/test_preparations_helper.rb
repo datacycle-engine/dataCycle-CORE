@@ -90,7 +90,7 @@ module DataCycleCore
           file_names = Dir[files]
           file_names.each do |file_name|
             file_base_name = File.basename(file_name, '.json')
-            json_data = JSON.parse(File.read(file_name))
+            json_data = JSON.parse(ERB.new(File.read(file_name)).result)
             @dummy_data_hash[content_table_name.to_sym][file_base_name.to_sym] = json_data
           end
         end

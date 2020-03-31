@@ -10,6 +10,8 @@ var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
 let ActionCable = require('actioncable');
 var initializers = [];
+
+window.DATA_CYCLE_ENGINE_PATH = window.DATA_CYCLE_ENGINE_PATH || '';
 window.EDITORSELECTORS = [
   '> .object-browser',
   '> .embedded-object',

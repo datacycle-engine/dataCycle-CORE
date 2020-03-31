@@ -45,6 +45,10 @@ module DataCycleCore
           download_data(path: '/Claims', lang: lang)
         end
 
+        def realms(lang: nil)
+          download_data(path: '/Realms', lang: lang)
+        end
+
         def clients(lang: nil)
           download_data(path: '/Clients', lang: lang)
         end

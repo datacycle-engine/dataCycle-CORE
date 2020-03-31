@@ -201,7 +201,7 @@ module.exports.initialize = function() {
       } else if (value_fields.length == 1) value = value_fields.val();
 
       $.ajax({
-        url: '/add_tag_group',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/add_tag_group',
         method: 'GET',
         data: {
           t: $(event.currentTarget)

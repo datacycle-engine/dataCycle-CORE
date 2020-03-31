@@ -6,9 +6,22 @@ module DataCycleCore
 
     devise :database_authenticatable, :recoverable, :rememberable, :trackable, :validatable, :lockable
     devise :registerable, :confirmable if DataCycleCore::Feature::UserRegistration.enabled?
-    devise :omniauthable, omniauth_providers: Devise.omniauth_configs.keys if Devise.try(:omniauth_configs).present?
 
-    attr_accessor :raw_password, :skip_callbacks
+    attr_accessor :raw_password, :skip_callbacks, :synchronous_webhooks
+
+    WEBHOOKS_ATTRIBUTES = [
+      'access_token',
+      'email',
+      'encrypted_password',
+      'external',
+      'family_name',
+      'given_name',
+      'name',
+      'notification_frequency',
+      'provider',
+      'role_id',
+      'default_locale'
+    ].freeze
 
     has_many :stored_filters, dependent: :destroy
     has_many :watch_lists, dependent: :destroy
@@ -48,11 +61,15 @@ module DataCycleCore
     delegate :can?, :cannot?, to: :ability
 
     after_create :execute_create_webhooks, unless: :skip_callbacks
-    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & ['access_token', 'email', 'encrypted_password', 'external', 'family_name', 'given_name', 'name', 'notification_frequency', 'provider', 'role_id']).present? }
+    after_update_commit :execute_update_webhooks, if: proc { |u| !u.skip_callbacks && (u.saved_changes.keys & u.allowed_webhook_attributes).present? }
     after_destroy :execute_delete_webhooks, unless: :skip_callbacks
 
     def recoverable?
       !(external? || is_rank?(0))
+    end
+
+    def allowed_webhook_attributes
+      WEBHOOKS_ATTRIBUTES
     end
 
     def full_name
@@ -85,20 +102,6 @@ module DataCycleCore
       SubscriptionMailer.notify(self, contents).deliver_later
     end
 
-    def self.from_omniauth(auth)
-      return if auth&.info&.email.blank?
-
-      new_user = find_or_initialize_by(email: auth.info.email) do |user|
-        user.password = Devise.friendly_token
-      end
-      new_user.provider = auth.provider
-      new_user.uid = auth.uid
-      new_user.external = true
-      new_user.skip_callbacks = true
-      new_user.save
-      new_user
-    end
-
     def update_with_token(token)
       if token.dig(:user, :rank).present?
         rank = DataCycleCore.features.dig(:user_api, :allowed_ranks)&.include?(token.dig(:user, :rank).to_i) ? token.dig(:user, :rank).to_i : DataCycleCore.features.dig(:user_api, :default_rank).to_i
@@ -120,9 +123,22 @@ module DataCycleCore
         User.find_by(access_token: token[:token])
       elsif token[:user_id].present?
         User.find_by(id: token[:user_id])
+      elsif token[:external_user_id].present?
+        User.find_by(uid: token[:external_user_id])
       elsif token[:user].present? && token.dig(:user, :email).present? && DataCycleCore.features.dig(:user_api, :enabled)
         User.find_or_initialize_by(email: token.dig(:user, :email)).update_with_token(token)
       end
+    end
+
+    def as_user_api_json
+      as_json(
+        only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
+        include: {
+          role: {
+            only: [:name, :rank]
+          }
+        }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
+      )
     end
 
     private

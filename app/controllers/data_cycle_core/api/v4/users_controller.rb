@@ -17,14 +17,7 @@ module DataCycleCore
           @user = DataCycleCore::User.find(params[:id])
           authorize! :show, @user
 
-          render json: @user.as_json(
-            only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
-            include: {
-              role: {
-                only: [:name, :rank]
-              }
-            }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
-          ).deep_transform_keys { |k| k.camelize(:lower) }
+          render json: @user.as_user_api_json.deep_transform_keys { |k| k.camelize(:lower) }
         end
 
         def create
@@ -43,14 +36,7 @@ module DataCycleCore
           @user.jti = SecureRandom.uuid
 
           if @user.save
-            render json: @user.as_json(
-              only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
-              include: {
-                role: {
-                  only: [:name, :rank]
-                }
-              }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
-            ).merge({
+            render json: @user.as_user_api_json.merge({
               token: DataCycleCore::JsonWebToken.encode(payload: { user_id: @user.id, jti: @user.jti })
             }).deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :created
           else
