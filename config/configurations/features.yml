@@ -99,6 +99,9 @@
   :enabled: false
   :attribute_keys:
 
+:translate:
+  :enabled: false
+
 :external_media_archive:
   :enabled: false
   :template_mapping:

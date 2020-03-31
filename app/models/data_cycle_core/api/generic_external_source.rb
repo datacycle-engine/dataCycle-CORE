@@ -19,7 +19,7 @@ module DataCycleCore
         return if download_config.blank? || data_name.blank? || data.blank?
 
         full_options = (external_source.default_options || {}).symbolize_keys.merge({ download: download_config.dig(data_name).symbolize_keys.except(:sorting) })
-        locales = full_options[:locales] || full_options[:download][:locales] || I18n.available_locales
+        locales = full_options.dig(:locales) || full_options.dig(:download, :locales) || I18n.available_locales
         download_object = DataCycleCore::Generic::DownloadObject.new(full_options.merge(external_source: external_source, locales: locales))
         id_function = full_options.dig(:download, :download_strategy).constantize.method(:data_id).to_proc
         name_function = full_options.dig(:download, :download_strategy).constantize.method(:data_name).to_proc

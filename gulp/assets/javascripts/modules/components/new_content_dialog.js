@@ -387,7 +387,7 @@ class NewContentDialog {
     params['template'] = template;
     params['key'] = this.id;
     $.ajax({
-      url: '/things/new',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/things/new',
       method: 'GET',
       data: params,
       dataType: 'script',

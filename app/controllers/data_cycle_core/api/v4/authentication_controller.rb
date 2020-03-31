@@ -18,14 +18,7 @@ module DataCycleCore
           render json: {
             token: token,
             exp: valid_until,
-            user: @user.as_json(
-              only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
-              include: {
-                role: {
-                  only: [:name, :rank]
-                }
-              }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
-            )
+            user: @user.as_user_api_json
           }.deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :ok
         end
 
@@ -38,14 +31,7 @@ module DataCycleCore
           render json: {
             token: token,
             exp: valid_until,
-            user: current_user.as_json(
-              only: Array(DataCycleCore.features.dig(:user_api, :user_params).select { |_, v| v.nil? }.keys) + [:id],
-              include: {
-                role: {
-                  only: [:name, :rank]
-                }
-              }.merge(DataCycleCore.features.dig(:user_api, :user_params)&.compact&.map { |k, v| [k.pluralize, v.is_a?(Array) ? { only: v } : {}] }.to_h)
-            )
+            user: current_user.as_user_api_json
           }.deep_transform_keys { |k| k.to_s.camelize(:lower) }, status: :ok
         end
 

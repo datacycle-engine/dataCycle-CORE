@@ -2,6 +2,7 @@
 
 module DataCycleCore
   class CommonUploader < CarrierWave::Uploader::Base
+    include DataCycleCore::Engine.routes.url_helpers
     # Include RMagick or MiniMagick support:
     # include CarrierWave::RMagick
     include ::CarrierWave::Backgrounder::Delay
@@ -17,7 +18,7 @@ module DataCycleCore
     end
 
     def url
-      "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
+      local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}")
     end
 
     def file_name
