@@ -18,3 +18,14 @@
         :label: Gelöschtdatum
         :type: datetime
         :storage_location: value
+      :external_key:
+        :label: external_key
+        :type: string
+        :storage_location: column
+        :ui:
+          :show:
+            :disabled: true
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: true

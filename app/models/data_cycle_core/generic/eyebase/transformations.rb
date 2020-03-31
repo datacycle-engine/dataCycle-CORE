@@ -16,8 +16,10 @@ module DataCycleCore
           .>> t(:add_field, 'description', ->(s) { s.dig('beschreibung', '#cdata-section') })
           .>> t(:add_field, 'name', ->(s) { s.dig('titel', '#cdata-section') })
           .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
-          .>> t(:add_field, 'attribution_name', ->(s) { s.dig('field_202', '#cdata-section') })
-          .>> t(:add_field, 'license', ->(s) { s.dig('copyright', '#cdata-section') })
+          .>> t(:add_field, 'attribution_name', ->(*) { nil })
+          .>> t(:add_field, 'license', ->(*) { nil })
+          .>> t(:add_field, 'author', ->(s) { get_author(s.dig('field_202', '#cdata-section'), external_source_id) })
+          .>> t(:add_field, 'copyright_holder', ->(s) { get_organisation(s.dig('copyright', '#cdata-section'), external_source_id) })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'use_guidelines', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
@@ -26,22 +28,8 @@ module DataCycleCore
           .>> t(:add_field, 'height', ->(s) { s.dig('resolution_y', 'text')&.to_i })
           .>> t(:add_field, 'content_size', ->(s) { s.dig('size_mb', 'text')&.gsub(',', '.')&.to_f&.*(1024)&.*(1024).to_i })
           .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
-          .>> t(
-            :add_field, 'content_url',
-            lambda do |s|
-              File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_1', 'filename', 'text'))
-            rescue StandardError
-              nil
-            end
-          )
-          .>> t(
-            :add_field, 'thumbnail_url',
-            lambda do |s|
-              File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', s.dig('quality_512', 'filename', 'text'))
-            rescue StandardError
-              nil
-            end
-          )
+          .>> t(:add_field, 'content_url', ->(s) { s.dig('main_permalink', '#cdata-section') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'filename', 'text') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
@@ -55,6 +43,33 @@ module DataCycleCore
 
         def self.parse_keywords(s)
           [s.dig('field_204', '#cdata-section')&.split(','), s.dig('field_215', '#cdata-section')&.split(',')].flatten.reject(&:nil?).map(&:strip).uniq || []
+        end
+
+        def self.get_url(data)
+          return nil if data.blank?
+          File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', data)
+        end
+
+        def self.get_author(data, external_source_id)
+          return [] if data.blank?
+          external_key = Digest::MD5.hexdigest(data.to_s)
+          item = DataCycleCore::Thing.find_by(external_key: external_key, external_source_id: external_source_id)
+          if item.present?
+            [{ 'id' => item.id }]
+          else
+            [{ 'given_name' => data.to_s, 'external_key' => external_key }]
+          end
+        end
+
+        def self.get_organisation(data, external_source_id)
+          return [] if data.blank?
+          external_key = Digest::MD5.hexdigest(data.to_s)
+          item = DataCycleCore::Thing.find_by(external_key: external_key, external_source_id: external_source_id)
+          if item.present?
+            [{ 'id' => item.id }]
+          else
+            [{ 'name' => data.to_s, 'external_key' => external_key }]
+          end
         end
       end
     end
