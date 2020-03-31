@@ -126,6 +126,7 @@ module DataCycleCore
       end
 
       def translatable_property?(property_name, property_definition = nil)
+        property_definition ||= property_definitions[property_name]
         property_definition['storage_location'] == 'translated_value' ||
           (property_definition['storage_location'] == 'column' && translated_columns.include?(property_name))
       end
