@@ -178,11 +178,17 @@ class AssetUploader {
     });
   }
   validateAttributes(file) {
+    if (this.showNewForm && (!file.attributeFieldValues || !file.attributeFieldValues.length)) {
+      this.updateFileValidated(file, { error: 'Fehlende Metadaten!' });
+      return;
+    }
+
     let formData = [
       { name: 'template', value: this.templateName },
       { name: 'strict', value: '1' },
       { name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id }
     ];
+
     formData = formData.concat(file.attributeFieldValues || []);
 
     $.ajax({
@@ -446,6 +452,7 @@ class AssetUploader {
         .html('hochgeladen, OK');
       file.asset = Object.assign({}, file.asset, data);
       if (!this.showNewForm) this.updateFileValidated(file, {});
+      else this.validateAttributes(file);
     }
     this.updateCreateButton(error);
   }
