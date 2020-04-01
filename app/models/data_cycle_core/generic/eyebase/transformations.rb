@@ -19,7 +19,7 @@ module DataCycleCore
           .>> t(:add_field, 'license', ->(*) { nil })
           .>> t(:add_field, 'author', ->(s) { get_thing_id(s.dig('field_202', '#cdata-section'), 'Organization', external_source_id) })
           .>> t(:add_field, 'copyright_holder', ->(s) { get_thing_id(s.dig('copyright', '#cdata-section'), 'Organization', external_source_id) })
-          .>> t(:add_field, 'content_location', ->(s) { get_thing_id(s.dig('field_214', '#cdata-section'), 'Place', external_source_id) })
+          .>> t(:add_field, 'content_location', ->(s) { get_thing_id(s.dig('field_214', '#cdata-section'), 'Örtlichkeit', external_source_id) })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'use_guidelines', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
@@ -54,7 +54,8 @@ module DataCycleCore
 
         def self.get_thing_id(data, template, external_source_id)
           return [] if data.blank?
-          item = DataCycleCore::Thing.find_by(template_name: template, external_key: data, external_source_id: external_source_id)
+          clean_data = DataCycleCore::MasterData::DataConverter.string_to_string(data)
+          item = DataCycleCore::Thing.find_by(template_name: template, external_key: clean_data, external_source_id: external_source_id)
           item.present? ? [item.id] : []
         end
 
