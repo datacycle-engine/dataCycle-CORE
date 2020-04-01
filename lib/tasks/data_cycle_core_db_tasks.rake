@@ -158,13 +158,13 @@ namespace :data_cycle_core do
 
       sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
       sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
-      sh "mv tmp/dev_db.sql db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.sql"
+      sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
 
       ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.sql')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
 
       if ENV.fetch('RAILS_ENV', 'development') != 'development'
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke
