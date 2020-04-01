@@ -38,7 +38,7 @@ module DataCycleCore
       rescue StandardError => exception
         Appsignal.send_error(e, nil, "download import job failed - #{external_source.id}")
         external_source.config['last_download_import_failed'] = true
-        external_source.config['last_download_import_exception'] = exception
+        external_source.config['last_download_import_exception'] = "#{exception} (#{Time.zone.now})"
         external_source.save!
       end
       Process.waitpid(pid)

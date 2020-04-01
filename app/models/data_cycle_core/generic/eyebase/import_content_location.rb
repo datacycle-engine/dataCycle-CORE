@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Eyebase
-      module Import
+      module ImportContentLocation
         def self.import_data(utility_object:, options:)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
@@ -14,27 +14,29 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where(
-            source_filter.with_evaluated_values.merge(
+          aggregation = mongo_item.where(
+            source_filter.with_evaluated_values.merge({
               "dump.#{locale}.mediaassettype.text": '501',
-              "dump.#{locale}.color.#cdata-section": { '$ne': 'rot' }
-            )
+              "dump.#{locale}.field_214.#cdata-section": { '$exists': true }
+            })
           )
+          aggregation = aggregation.project(
+            'name' => "$dump.#{locale}.field_214.#cdata-section",
+            "dump.#{locale}.name" => "$dump.#{locale}.field_214.#cdata-section"
+          )
+          aggregation = aggregation.group(
+            _id: '$name',
+            :dump.first => '$dump'
+          ).pipeline
+          mongo_item.collection.aggregate(aggregation)
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            DataCycleCore::Generic::Eyebase::ImportKeywords.process_content(
-              utility_object: utility_object,
-              raw_data: raw_data,
-              locale: locale,
-              options: utility_object.external_source.config.dig('import_config', 'keywords')
-            )
-
-            DataCycleCore::Generic::Eyebase::Processing.process_media_asset(
+            DataCycleCore::Generic::Eyebase::Processing.process_content_location(
               utility_object,
               raw_data,
-              options.dig(:import, :transformations, :media_asset)
+              options.dig(:import, :transformations, :content_location)
             )
           end
         end

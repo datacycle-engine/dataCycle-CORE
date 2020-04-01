@@ -22,15 +22,9 @@ module DataCycleCore
             load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse_each do |folder_id|
               doc = load_assets(folder_id)
               doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
-                next if raw_asset_data['mediaassettype']['text'] != '501'
-
-                raise 'Missing image file' if raw_asset_data.dig('quality_1').blank?
-                full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_1', 'filename', 'text'))
-                load_file(full_image_path, raw_asset_data.dig('quality_1', 'url', '#cdata-section')) unless File.file?(full_image_path)
-
-                raise 'Missing thumbnail file' if raw_asset_data.dig('quality_512').blank?
-                thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data.dig('quality_512', 'filename', 'text'))
-                load_file(thumbnail_path, raw_asset_data.dig('quality_512', 'url', '#cdata-section')) unless File.file?(thumbnail_path)
+                next if raw_asset_data.dig('mediaassettype', 'text') != '501'
+                next if raw_asset_data.dig('main_permalink', '#cdata-section').blank?
+                next if raw_asset_data.dig('quality_512', 'permalink', '#cdata-section').blank?
 
                 yielder << raw_asset_data
               end
@@ -64,22 +58,6 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
           Nokogiri::XML(response.body)
-        end
-
-        def load_file(dest, source)
-          conn = Faraday.new(source) do |f|
-            f.request :retry, @retry_options
-            f.response :logger
-            f.adapter Faraday.default_adapter
-          end
-          response = conn.get
-
-          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{source}", response) unless response.success?
-
-          FileUtils.mkdir_p(File.dirname(dest))
-          File.open(dest, 'wb') do |local_file|
-            local_file.write(response.body)
-          end
         end
       end
     end

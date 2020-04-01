@@ -19,6 +19,14 @@
         :ui:
           :show:
             :content_area: header
+      :status_eyebase:
+        :label: Eyebase - Status
+        :type: classification
+        :tree_label: Eyebase - Status
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :keywords_celum:
         :label: Celum - Keywords
         :type: classification

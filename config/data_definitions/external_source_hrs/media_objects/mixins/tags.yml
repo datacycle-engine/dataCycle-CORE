@@ -15,6 +15,14 @@
         :ui:
           :show:
             :content_area: header
+      :status_eyebase:
+        :label: Eyebase - Status
+        :type: classification
+        :tree_label: Eyebase - Status
+        :external: true
+        :ui:
+          :show:
+            :content_area: header            
       :hrs_image_categories:
         :label: HRS - Image-Categories
         :type: classification

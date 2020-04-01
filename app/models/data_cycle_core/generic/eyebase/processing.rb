@@ -13,6 +13,26 @@ module DataCycleCore
             config: config
           )
         end
+
+        def self.process_organization(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Eyebase::Transformations.to_organization,
+            default: { template: 'Organization' },
+            config: config
+          )
+        end
+
+        def self.process_content_location(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Eyebase::Transformations.to_place,
+            default: { template: 'Örtlichkeit' },
+            config: config
+          )
+        end
       end
     end
   end

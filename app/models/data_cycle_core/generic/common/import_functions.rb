@@ -118,7 +118,7 @@ module DataCycleCore
                   times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    if options.dig(:iterator_type) == :aggregate
+                    if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
                       iterate = iterator.call(mongo_item, locale, source_filter)
                     else
                       iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)

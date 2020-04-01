@@ -15,11 +15,11 @@ module DataCycleCore
           .>> t(:add_field, 'external_key', ->(s) { s.dig('item_id', 'text') })
           .>> t(:add_field, 'description', ->(s) { s.dig('beschreibung', '#cdata-section') })
           .>> t(:add_field, 'name', ->(s) { s.dig('titel', '#cdata-section') })
-          .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
           .>> t(:add_field, 'attribution_name', ->(*) { nil })
           .>> t(:add_field, 'license', ->(*) { nil })
-          .>> t(:add_field, 'author', ->(s) { get_author(s.dig('field_202', '#cdata-section'), external_source_id) })
-          .>> t(:add_field, 'copyright_holder', ->(s) { get_organisation(s.dig('copyright', '#cdata-section'), external_source_id) })
+          .>> t(:add_field, 'author', ->(s) { get_thing_id(s.dig('field_202', '#cdata-section'), 'Organization', external_source_id) })
+          .>> t(:add_field, 'copyright_holder', ->(s) { get_thing_id(s.dig('copyright', '#cdata-section'), 'Organization', external_source_id) })
+          .>> t(:add_field, 'content_location', ->(s) { get_thing_id(s.dig('field_214', '#cdata-section'), 'Place', external_source_id) })
           .>> t(:add_field, 'restrictions', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'use_guidelines', ->(s) { s.dig('field_216', '#cdata-section') })
           .>> t(:add_field, 'date_created', ->(s) { s.dig('erstellt', '#cdata-section') })
@@ -29,13 +29,15 @@ module DataCycleCore
           .>> t(:add_field, 'content_size', ->(s) { s.dig('size_mb', 'text')&.gsub(',', '.')&.to_f&.*(1024)&.*(1024).to_i })
           .>> t(:reject_keys, ['item_id', 'titel', 'field_202', 'copyright', 'field_216', 'resolution_x', 'resolution_y', 'size_mb'])
           .>> t(:add_field, 'content_url', ->(s) { s.dig('main_permalink', '#cdata-section') })
-          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'filename', 'text') })
+          .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'permalink', '#cdata-section') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
+          .>> t(:add_link, 'status_eyebase', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Status - #{s.dig('color', '#cdata-section')}" if s.dig('color', '#cdata-section').present? })
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
           .>> t(:compact)
           .>> t(:strip_all)
         end
+        # .>> t(:add_field, 'photographer', ->(s) { s.dig('field_202', '#cdata-section') })
 
         def self.eyebase_get_keywords
           t(:add_field, 'keywords', ->(s) { parse_keywords(s) })
@@ -50,26 +52,20 @@ module DataCycleCore
           File.join("#{(ActionMailer::Base.default_url_options[:protocol] + '://') if ActionMailer::Base.default_url_options[:protocol].present?}#{ActionMailer::Base.default_url_options[:host]}", 'eyebase', 'media_assets', 'files', data)
         end
 
-        def self.get_author(data, external_source_id)
+        def self.get_thing_id(data, template, external_source_id)
           return [] if data.blank?
-          external_key = Digest::MD5.hexdigest(data.to_s)
-          item = DataCycleCore::Thing.find_by(external_key: external_key, external_source_id: external_source_id)
-          if item.present?
-            [{ 'id' => item.id }]
-          else
-            [{ 'given_name' => data.to_s, 'external_key' => external_key }]
-          end
+          item = DataCycleCore::Thing.find_by(template_name: template, external_key: data, external_source_id: external_source_id)
+          item.present? ? [item.id] : []
         end
 
-        def self.get_organisation(data, external_source_id)
-          return [] if data.blank?
-          external_key = Digest::MD5.hexdigest(data.to_s)
-          item = DataCycleCore::Thing.find_by(external_key: external_key, external_source_id: external_source_id)
-          if item.present?
-            [{ 'id' => item.id }]
-          else
-            [{ 'name' => data.to_s, 'external_key' => external_key }]
-          end
+        def self.to_organization
+          t(:strip_all)
+          .>> t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string(s.dig('name')) })
+        end
+
+        def self.to_place
+          t(:strip_all)
+          .>> t(:add_field, 'external_key', ->(s) { DataCycleCore::MasterData::DataConverter.string_to_string(s.dig('name')) })
         end
       end
     end
