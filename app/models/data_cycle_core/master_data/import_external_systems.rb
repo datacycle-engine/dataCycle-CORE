@@ -32,12 +32,12 @@ module DataCycleCore
           else
             errors[data['name']] = error
           end
+        rescue StandardError => e
+          puts "could not access the YML File #{file_name}"
+          puts e.message
+          puts e.backtrace
         end
         errors
-      rescue StandardError => e
-        puts "could not access the YML File #{file_name}"
-        puts e.message
-        puts e.backtrace
       end
 
       def self.validate(data_hash)

@@ -54,7 +54,8 @@ module DataCycleCore
               auth_key: @key,
               text: text,
               target_lang: target_locale.to_s.upcase,
-              source_lang: source_locale.to_s.upcase
+              source_lang: source_locale.to_s.upcase,
+              tag_handling: 'xml'
             }
           end
 

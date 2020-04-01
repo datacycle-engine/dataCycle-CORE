@@ -15,7 +15,7 @@ function dump_database {
     fi
     dir=$(pwd)
     cd $1/../current
-    RAILS_ENV=$3 /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec rake data_cycle_core:db:dump[$2_$3_backup,sql]
+    RAILS_ENV=$3 /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec rake data_cycle_core:db:dump[$2_$3_backup]
     cd $dir
 }
 function dump_mongo_database {
