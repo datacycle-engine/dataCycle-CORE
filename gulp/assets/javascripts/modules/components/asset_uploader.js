@@ -132,7 +132,7 @@ class AssetUploader {
             if (
               !this.files.length &&
               data.created &&
-              this.reveal.hasClass('in-object-browser') &&
+              this.contentUploaderField.closest('.reveal.new-content-reveal').hasClass('in-object-browser') &&
               this.contentUploaderField.length
             ) {
               this.contentUploaderField
