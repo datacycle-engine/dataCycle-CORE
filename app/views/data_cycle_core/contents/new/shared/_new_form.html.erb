@@ -45,9 +45,11 @@
   <% end %>
 
   <div class="buttons">
-    <button class="button reset" data-disable type="reset">
-      <%= t('actions.reset', count: 1, locale: DataCycleCore.ui_language) %>
-    </button>
+    <% unless local_assigns[:content_uploader] %>
+      <button class="button reset" data-disable type="reset">
+        <%= t('actions.reset', count: 1, locale: DataCycleCore.ui_language) %>
+      </button>
+    <% end %>
     <button class="button prev" type="button">
       <%= t('actions.back', locale: DataCycleCore.ui_language) %>
     </button>
@@ -57,7 +59,10 @@
     <% if local_assigns[:content_uploader] %>
       <button class="button submit set-all-attributes" data-disable type="button">
         <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language) , locale: DataCycleCore.ui_language) %>
-        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+        <span class="copy-icon fa-stack">
+          <i class="fa fa-clone"></i>
+          <i class="fa fa-arrow-right fa-stack-1x"></i>
+        </span>
       </button>
     <% end %>
     <%= button_tag t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language),

@@ -99,6 +99,9 @@
   .button-text {
     position: relative;
   }
+  .fa-check {
+    font-size: 1.4rem;
+  }
   &[disabled] {
     background: rgba($primary-color, 0.7);
     color: $white;

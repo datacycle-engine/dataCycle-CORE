@@ -142,7 +142,7 @@ class NewContentDialog {
       .addBack('.form-element');
 
     let button = $(
-      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="copy-icon fa fa-arrow-right" aria-hidden="true"></i><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
+      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
     );
 
     button.insertBefore(formFields);
