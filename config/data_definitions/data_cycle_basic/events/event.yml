@@ -113,6 +113,32 @@
                 - Ort
         :api:
           :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        # :api: # -> Patrick fragen, wie mehrere Attribute über API zusammen ausgegeben werden können, eventuell transformation:method:combine
+        #   :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification # als checkbox (in Flachau-Verwendungsart)
+        :tree_label: Veranstaltungsteilnahmemodus
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: check_box # radio??
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification # als checkbox (in Flachau-Verwendungsart)
+        :tree_label: Veranstaltungsstatus
+        :global: true
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: check_box # radio??
       :event_schedule:
         :label: Termine
         :type: schedule
