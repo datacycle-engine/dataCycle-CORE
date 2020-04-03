@@ -1,5 +1,5 @@
 <div data-id="<%= filter_name%>_<%= index %>" data-index="<%= index %>" class="advanced-filter <%= filter_method || 'i' %>" data-label="<%= filter_name %>">
-  <%= hidden_field_tag "f[#{index}][t]", 'inverse_relation_filter' %>
+  <%= hidden_field_tag "f[#{index}][t]", 'related_to' %>
   <%= hidden_field_tag "f[#{index}][n]", filter_title %>
   <%= hidden_field_tag "f[#{index}][q]", filter_advanced_type %>
   <%= hidden_field_tag "f[#{index}][c]", 'a' %>
@@ -9,7 +9,7 @@
     <span><%= t("filter.#{filter_name}", default: filter_title, locale: DataCycleCore.ui_language) %></span>
   </div>
   <div class="advanced-filter-mode">
-    <%= t("filter.inverse_relation_filter.contained_in", locale: DataCycleCore.ui_language) %>
+    <%#= t("filter.related_to.contained_in", locale: DataCycleCore.ui_language) %>
     <%= hidden_field_tag "f[#{index}][m]", 'i' %>
   </div>
   <div class="advanced-filter-selector">

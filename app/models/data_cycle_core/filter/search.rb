@@ -104,14 +104,12 @@ module DataCycleCore
         )
       end
 
-      def inverse_relation_filter(filter_id = nil, name = nil)
-        return self if name.blank?
+      def related_to(filter_id = nil)
         return self if filter_id.blank?
         filter = DataCycleCore::StoredFilter.find(filter_id)
         return self if filter.blank?
 
         thing_id = :content_b_id
-        relation = :relation_a
         filtered_id = :content_a_id
 
         filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
@@ -119,7 +117,6 @@ module DataCycleCore
           .from(content_content)
           .where(
             content_content[thing_id].eq(thing[:id])
-              .and(content_content[relation].eq(name))
               .and(content_content[filtered_id].in(Arel.sql(filter_query)))
           )
 

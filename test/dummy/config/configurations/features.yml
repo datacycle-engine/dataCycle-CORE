@@ -59,9 +59,7 @@
   :relation_filter:
     :linked_image: image
     :linked_location: content_location
-  :inverse_relation_filter:
-    :linked_image: image
-    :linked_location: content_location
+  :related_to: true
   :advanced_attributes:
     # media
     :width:
