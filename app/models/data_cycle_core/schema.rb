@@ -93,9 +93,18 @@ module DataCycleCore
               .compact
               &.map { |i| DataCycleCore::Thing.find_by(template_name: i, template: true).present? ? "/schema/#{i}" : "//schema.org/#{i}" }
           elsif definition['stored_filter'].present?
-            raise 'Cannot resolve linked templates without schema' if definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases').blank?
+            raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
-              .map { |i| DataCycleCore::Thing.find_by(template_name: i, template: true).present? ? "/schema/#{i}" : "//schema.org/#{i}" }
+              .map { |i|
+                if DataCycleCore::Thing.find_by(template_name: i, template: true).present?
+                  "/schema/#{i}"
+                else
+                  Array.wrap(@schema.template_by_template_name(i)&.schema_name)
+                    .compact
+                    &.map { |item| DataCycleCore::Thing.find_by(template_name: item, template: true).present? ? "/schema/#{item}" : "//schema.org/#{item}" }
+                    .presence
+                end
+              }.compact
           else
             '//schema.org/Thing'
           end
