@@ -45,8 +45,12 @@ class AssetUploader {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
-    this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
-    this.reveal.on('click', '.file-for-upload .retry-upload-button', this.retryUpload.bind(this));
+    this.reveal.on(
+      'click',
+      '.file-for-upload:not(.uploading) .cancel-upload-button',
+      this.removeFileHandler.bind(this)
+    );
+    this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
 
     if (this.contentUploader) {
       this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
@@ -58,6 +62,7 @@ class AssetUploader {
   removeFileHandler(event) {
     event.preventDefault();
     event.stopPropagation();
+
     let target = $(event.currentTarget)
       .closest('.file-for-upload')
       .remove();
