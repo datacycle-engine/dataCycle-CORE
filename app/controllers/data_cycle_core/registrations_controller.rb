@@ -8,7 +8,7 @@ module DataCycleCore
     # POST /resource
     def create
       build_resource(sign_up_params)
-      resource.save if valid_additional_attribtues?(params.dig('additional_attributes'))
+      resource.save if valid_additional_attributes?(params.dig('additional_attributes'))
 
       yield resource if block_given?
       if resource.persisted?
@@ -30,9 +30,10 @@ module DataCycleCore
 
     private
 
-    def valid_additional_attribtues?(additional_attribtues)
-      return true if additional_attribtues.dig('terms_conditions')&.to_i == 1 && additional_attribtues.dig('privacy_policy')&.to_i == 1
-      false
+    def valid_additional_attributes?(additional_attributes)
+      additional_attributes
+        .select { |k, _| I18n.t('user_registration.consents').keys.map(&:to_s).include?(k) }
+        .as_json.values.all? { |v| v == '1' }
     end
   end
 end
