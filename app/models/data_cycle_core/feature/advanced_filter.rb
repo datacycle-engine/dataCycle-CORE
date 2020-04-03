@@ -35,6 +35,17 @@ module DataCycleCore
           end
         end
 
+        def inverse_relation_filter(value)
+          return [] unless value.is_a?(Hash)
+          value.map do |k, v|
+            [
+              I18n.t("filter.#{k.parameterize(separator: '_')}", default: k.capitalize, locale: DataCycleCore.ui_language),
+              'inverse_relation_filter',
+              data: { name: k, advancedType: v }
+            ]
+          end
+        end
+
         def geo_filter(value)
           if value.is_a?(Hash)
             value_arr = []
