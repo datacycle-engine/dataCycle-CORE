@@ -121,24 +121,22 @@
         #   :name: location
       :event_attendance_mode:
         :label: Veranstaltungsteilnahmemodus
-        :type: classification # als checkbox (in Flachau-Verwendungsart)
+        :type: classification
         :tree_label: Veranstaltungsteilnahmemodus
-        :global: true
         :ui:
           :show:
             :content_area: header
           :edit:
-            :type: check_box # radio??
+            :type: radio_button
       :event_status:
         :label: Veranstaltungsstatus
-        :type: classification # als checkbox (in Flachau-Verwendungsart)
+        :type: classification
         :tree_label: Veranstaltungsstatus
-        :global: true
         :ui:
           :show:
             :content_area: header
           :edit:
-            :type: check_box # radio??
+            :type: radio_button
       :event_schedule:
         :label: Termine
         :type: schedule
