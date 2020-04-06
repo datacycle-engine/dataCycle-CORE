@@ -41,27 +41,17 @@
           </div>
         </div>
 
-        <% if DataCycleCore::Feature::UserRegistration.terms_conditions_url.present? %>
+        <% t('user_registration.consents', locale: DataCycleCore.ui_language).each do |consent_key, consent_value| %>
           <div class="row login-checkboxes">
-            <div class="small-3 columns text-right">
-              <%= check_box_tag "additional_attributes[terms_conditions]", 1, false, { class: '', required: true, id: "additional_attributes_terms_conditions" } %>
+            <div class="small-4 columns text-right">
+              <%= check_box_tag "additional_attributes[#{consent_key}]", 1, false, { class: '', required: true, id: "additional_attributes_#{consent_key}" } %>
             </div>
-            <div class="small-8 columns end">
-              <label><%= t('common.user_registration.terms_conditions', url: DataCycleCore::Feature::UserRegistration.terms_conditions_url, locale: DataCycleCore.ui_language).html_safe %></label>
-            </div>
-          </div>
-        <%end %>
-
-        <% if DataCycleCore::Feature::UserRegistration.privacy_policy_url.present? %>
-          <div class="row login-checkboxes">
-            <div class="small-3 columns text-right">
-              <%= check_box_tag "additional_attributes[privacy_policy]", 1, false, { class: '', required: true, id: "additional_attributes_privacy_policy" } %>
-            </div>
-            <div class="small-8 columns end">
-              <label><%= t('common.user_registration.privacy_policy', url: DataCycleCore::Feature::UserRegistration.privacy_policy_url, locale: DataCycleCore.ui_language).html_safe %> </label>
+            <div class="small-7 columns end">
+              <label><%= consent_value.html_safe %></label>
             </div>
           </div>
         <% end %>
+
         <div class="row">
           <div class="small-12">&nbsp;</div>
         </div>
@@ -94,4 +84,3 @@
     </main>
   </div>
 </div>
-

@@ -56,6 +56,10 @@
     :geo_radius: true
     :geo_within_classification:
       - Administrative Einheiten
+  :relation_filter:
+    :linked_image: image
+    :linked_location: content_location
+  :related_to: true
   :advanced_attributes:
     # media
     :width:

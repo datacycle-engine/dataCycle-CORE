@@ -104,6 +104,27 @@ module DataCycleCore
         )
       end
 
+      def related_to(filter_id = nil)
+        return self if filter_id.blank?
+        filter = DataCycleCore::StoredFilter.find(filter_id)
+        return self if filter.blank?
+
+        thing_id = :content_b_id
+        filtered_id = :content_a_id
+
+        filter_query = filter.apply(experimental: true).select(:id).except(:order).to_sql
+        subquery = Arel::SelectManager.new
+          .from(content_content)
+          .where(
+            content_content[thing_id].eq(thing[:id])
+              .and(content_content[filtered_id].in(Arel.sql(filter_query)))
+          )
+
+        reflect(
+          @query.where(subquery.exists)
+        )
+      end
+
       def modified_since(date = Time.zone.now)
         reflect(
           @query.where(search[:updated_at].gteq(Time.zone.parse(date)))
