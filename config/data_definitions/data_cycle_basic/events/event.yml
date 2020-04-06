@@ -113,12 +113,26 @@
                 - Ort
         :api:
           :name: location
+          :v4:
+            :partial: virtual_location
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: location
       :virtual_location:
         :label: Virtueller Veranstaltungsort
         :type: embedded
         :template_name: VirtualLocation
-        # :api: # -> Patrick fragen, wie mehrere Attribute über API zusammen ausgegeben werden können, eventuell transformation:method:combine
-        #   :name: location
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :name: location
+            :partial: virtual_location
+            :type: PropertyValue
+            :transformation:
+              :method: combine
+              :name: location
       :event_attendance_mode:
         :label: Veranstaltungsteilnahmemodus
         :type: classification
