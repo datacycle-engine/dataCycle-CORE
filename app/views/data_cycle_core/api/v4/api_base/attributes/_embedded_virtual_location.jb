@@ -5,7 +5,6 @@ json ||= {}
 # data = content.send(key).includes(:translations, :classifications)
 data = content.load_embedded_objects(key, nil, true, options[:languages]).includes(:translations, :classifications)
 
-# binding.pry
 if data.present?
   key_new = attribute_key(key, definition)
   new_fields = subtree_for(key_new, options[:fields])
@@ -39,6 +38,4 @@ if data.present?
   json.delete(key_new) if json[key_new].blank?
   json[key_new] = json[key_new].presence&.map { |o| o.dig(api_property_definition.dig('transformation', 'key')) }&.compact.presence if api_property_definition.dig('transformation', 'method') == 'map' && api_property_definition.dig('transformation', 'key').present?
 end
-# binding.pry
-json = json[key_new][0]
 json.compact

@@ -142,6 +142,10 @@
             :content_area: header
           :edit:
             :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
       :event_status:
         :label: Veranstaltungsstatus
         :type: classification
@@ -151,6 +155,10 @@
             :content_area: header
           :edit:
             :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
       :event_schedule:
         :label: Termine
         :type: schedule
