@@ -15,12 +15,13 @@ json ||= {}
 
 unless content.schema.nil?
   ordered_validation_properties(validation: content.schema).each do |key, prop|
+    api_property_definition = api_definition(prop)
+
     next if attribute_disabled?(prop) && prop.dig('type') != 'linked' # ignore linked disabled (legacy of bidirectional links)
-    next if prop.dig('type') == 'classification'
+    next if prop.dig('type') == 'classification' && api_property_definition.dig('partial').blank?
     next if options[:hidden_attributes].include?(key)
     next if options[:combined_attributes].include?(key)
 
-    api_property_definition = api_definition(prop)
     property_name = api_property_definition.dig('transformation', 'name')
 
     if options[:field_filter].present?
@@ -29,6 +30,8 @@ unless content.schema.nil?
 
       validation_keys = [attribute_key(key, prop)]
       validation_keys += options.dig(:transformation_mapping, key) if options.dig(:transformation_mapping, key).present?
+      validation_keys += [api_property_definition.dig('transformation', 'name')] if api_property_definition.dig('transformation', 'method') == 'append'
+
       is_valid_key = true if include_valid_key?(validation_keys, options)
 
       next unless is_valid_key
@@ -56,6 +59,11 @@ unless content.schema.nil?
           api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key)
         end
       end
+    elsif api_property_definition.dig('transformation', 'method') == 'append'
+      # TODO: add more types for append transformation
+      next unless ['embedded', 'linked'].include?(prop.dig('type'))
+      json[property_name] ||= []
+      json[property_name] += (render(*partial_params)&.dig(property_name) || []) unless partial_params.nil?
     else
       json.merge! render(*partial_params) unless partial_params.nil?
     end

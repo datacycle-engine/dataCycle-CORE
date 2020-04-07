@@ -113,12 +113,6 @@
                 - Ort
         :api:
           :name: location
-          :v4:
-            :partial: virtual_location
-            :type: PropertyValue
-            :transformation:
-              :method: combine
-              :name: location
       :virtual_location:
         :label: Virtueller Veranstaltungsort
         :type: embedded
@@ -127,11 +121,8 @@
           :disabled: true
           :v4:
             :disabled: false
-            :name: location
-            :partial: virtual_location
-            :type: PropertyValue
             :transformation:
-              :method: combine
+              :method: append
               :name: location
       :event_attendance_mode:
         :label: Veranstaltungsteilnahmemodus
@@ -146,6 +137,10 @@
           :disabled: true
           :v4:
             :disabled: false
+            :partial: string
+#        :api:
+#          :partial: enumeration
+#          :type: EventStatusType
       :event_status:
         :label: Veranstaltungsstatus
         :type: classification
@@ -159,6 +154,10 @@
           :disabled: true
           :v4:
             :disabled: false
+            :partial: string
+#        :api:
+#          :partial: enumeration
+#          :type: EventStatusType
       :event_schedule:
         :label: Termine
         :type: schedule
