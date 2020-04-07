@@ -109,10 +109,12 @@ module DataCycleCore
         end
 
         def self.unwind_project_data(raw_data, common_path, id_path, name_path, desc_path = nil)
-          default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
-          default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+          if common_path.blank?
+            default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
+            default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+            return default_values
+          end
 
-          return default_values if common_path.blank?
           return nil if raw_data&.dig(*common_path).blank?
           if raw_data&.dig(*common_path).is_a?(::Array)
             raw_data.dig(*common_path).map do |item|
@@ -126,7 +128,9 @@ module DataCycleCore
               c_hash
             end
           else
-            default_values
+            default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
+            default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+            return default_values
           end
         end
       end
