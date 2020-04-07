@@ -74,8 +74,8 @@ module DataCycleCore
           string_hash[:classification_string] = ''
         else
           string_hash[:classification_string] = [
-            object.display_classification_aliases('tile').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
-            object.display_classification_aliases('tile').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
+            object.display_classification_aliases('show').pluck(:name).try(:join, ' ').try(:gsub, /[']/, "''"),
+            object.display_classification_aliases('show').pluck(:internal_name).try(:join, ' ').try(:gsub, /[']/, "''")
           ].compact.join(' ')
         end
         string_hash[:all_text] = [string_hash[:headline].squish, string_hash[:classification_string].squish, string_hash[:full_text].squish].join(' ')
