@@ -25,6 +25,4 @@ if data.present?
     end
   }.compact.presence
 end
-# binding.pry
-json = json[key_new][0]
 json.compact
