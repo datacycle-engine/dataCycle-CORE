@@ -138,9 +138,6 @@
           :v4:
             :disabled: false
             :partial: string
-#        :api:
-#          :partial: enumeration
-#          :type: EventStatusType
       :event_status:
         :label: Veranstaltungsstatus
         :type: classification
@@ -155,9 +152,6 @@
           :v4:
             :disabled: false
             :partial: string
-#        :api:
-#          :partial: enumeration
-#          :type: EventStatusType
       :event_schedule:
         :label: Termine
         :type: schedule
