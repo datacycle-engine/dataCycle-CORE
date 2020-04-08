@@ -169,6 +169,14 @@ module DataCycleCore
           enumerate_items(:stars, '//Stars/Star', lang: lang)
         end
 
+        def guest_cards(lang: :de)
+          enumerate_items(:guest_cards, '//GuestCards/GuestCard', lang: lang)
+        end
+
+        def additional_service_types(lang: :de)
+          enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
+        end
+
         # download of large data with temporary file
         def packages(lang: :de)
           enumerate_items_large(:packages, '&lt\;Package Id', lang: lang)
@@ -389,6 +397,10 @@ module DataCycleCore
           envelop = Nokogiri::XML(response.body)
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
+
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
 
           if data.xpath('//@Status').first.value != '0'
             raise data.xpath('//@Message').first.value if retry_count > 5
@@ -684,6 +696,18 @@ module DataCycleCore
         def create_stars_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Stars('Show' => true)
+          end
+        end
+
+        def create_guest_cards_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.GuestCards('Show' => true)
+          end
+        end
+
+        def create_additional_service_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.AdditionalServiceTypes('Show' => true)
           end
         end
 
