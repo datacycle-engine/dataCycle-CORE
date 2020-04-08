@@ -262,8 +262,6 @@ class SplitView {
     target.get(0).scrollIntoView({ behavior: 'smooth', block: 'end' });
   }
   translateText(elem, value, label, key) {
-    $.rails.disableElement(elem);
-
     let formData = {
       text: value.trim(),
       source_locale: this.leftLocale,
