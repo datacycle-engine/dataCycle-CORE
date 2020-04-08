@@ -95,7 +95,8 @@
 .prev-asset-button ~ .reveal {
   max-width: 80%;
 }
-.content-create-button {
+.content-create-button.button.success {
+  margin: 0;
   padding: 1.25rem;
   font-size: 1.5rem;
   font-weight: bold;
@@ -107,16 +108,16 @@
     font-size: 1.4rem;
   }
   &[disabled] {
-    background: rgba($primary-color, 0.7);
+    background: rgba($success-color, 0.7);
     color: $white;
-    border: 1px solid $primary-color;
+    border: 1px solid $success-color;
     opacity: 1;
     position: relative;
 
     &:hover,
     &:focus,
     &:active {
-      background: rgba($primary-color, 0.7);
+      background: rgba($success-color, 0.7);
     }
 
     .progress-bar,
@@ -131,7 +132,7 @@
     .progress-filled {
       transition: all 0.1s;
       width: 0;
-      background: rgba($primary-color, 1);
+      background: rgba($success-color, 1);
     }
   }
 }
