@@ -30,7 +30,7 @@
   :enabled: true
 
 :container:
-  :enabled: true
+  :enabled: false
 
 :external_media_archive:
   :enabled: false

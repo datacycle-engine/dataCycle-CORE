@@ -55,7 +55,8 @@
       left: 2.5rem;
     }
 
-    input[type='checkbox'] {
+    input[type='checkbox'],
+    input[type='radio'] {
       min-width: 0;
       margin: 0 0 0 1rem;
     }
@@ -72,6 +73,26 @@
           margin: 0;
         }
         .checkbox-wrap {
+          label {
+            position: relative;
+            top: 0;
+            left: 0;
+            font-weight: normal;
+            color: $black;
+          }
+        }
+      }
+      &.radio_button {
+        background-color: $light-gray;
+        padding: 2.5rem 0.5rem 1rem 0.5rem;
+        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+        &:hover {
+          box-shadow: 0 0 7px $primary-color;
+        }
+        ul {
+          margin: 0;
+        }
+        .radiobutton-wrap {
           label {
             position: relative;
             top: 0;

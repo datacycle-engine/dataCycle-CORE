@@ -368,3 +368,15 @@
       - CC BY-NC-ND:
         - CC BY-NC-ND 4.0 **https://creativecommons.org/licenses/by-nc-nd/4.0/
   - Sonstiges
+
+- Veranstaltungsteilnahmemodus | all:
+  - Teilnahme Online **https://pending.schema.org/OnlineEventAttendanceMode
+  - Teilnahme Offline **https://pending.schema.org/OfflineEventAttendanceMode
+  - Gemischte Teilnahme **https://pending.schema.org/MixedEventAttendanceMode
+
+- Veranstaltungsstatus | all:
+  - Veranstaltung abgesagt **https://schema.org/EventCancelled
+  - zu Online-Veranstaltung umgewandelt **https://schema.org/EventMovedOnline
+  - Veranstaltung auf unbekannten Zeitpunkt vertagt **https://schema.org/EventPostponed
+  - Veranstaltung verschoben **https://schema.org/EventRescheduled
+  - Veranstaltung geplant **https://schema.org/EventScheduled
