@@ -17,8 +17,8 @@ module DataCycleCore
 
           init_logging do |logger|
             logger.info("DataCycleCore::Api::V2.show for external_system: #{external_system.try(:name)}", nil)
-            logger.info('delete_items', deleted_content_ids.join(', ')) if deleted_content_ids.size.positive?
-            logger.info('update_items', content.map(&:id).join(', ')) if content.map(&:id).size.positive?
+            logger.info('controller show --> delete_items', deleted_content_ids.join(', ')) if deleted_content_ids.size.positive?
+            logger.info('controller show --> update_items', content.map(&:id).join(', ')) if content.map(&:id).size.positive?
           end
 
           xml_content = DataCycleCore::Export::OutdoorActive::Transformations.to_xml(external_system, content, deleted_content_ids)
