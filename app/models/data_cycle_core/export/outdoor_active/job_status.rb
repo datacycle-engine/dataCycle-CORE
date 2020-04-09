@@ -16,7 +16,7 @@ module DataCycleCore
           end
 
           init_logging do |logger|
-            logger.info("DataCycleCore::Export::OutdoorActive::JobStatus#process: items -> #{items.pluck(:id)} | job_id=#{options.dig(:job_id)} |", nil)
+            logger.info("DataCycleCore::Export::OutdoorActive::JobStatus#process: items(#{items.size}) -> #{items.pluck(:id)} | job_id=#{options.dig(:job_id)} |", nil)
           end
 
           items.each do |data|
@@ -24,7 +24,7 @@ module DataCycleCore
           end
         end
 
-        def init_logging
+        def self.init_logging
           logging = DataCycleCore::Generic::Logger::LogFile.new(:export)
           yield(logging)
         ensure
