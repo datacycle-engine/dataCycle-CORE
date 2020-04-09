@@ -21,10 +21,10 @@
         :ui:
           :show:
             :content_area: header
-      :feratel_guest_card:
-        :label: Feratel - GuestCards
+      :feratel_guest_card_classifications:
+        :label: Feratel - GuestCardClassifications
         :type: classification
-        :tree_label: Feratel - GuestCards
+        :tree_label: Feratel - GuestCardClassifications
         :external: true
         :not_translated: true
         :ui:
