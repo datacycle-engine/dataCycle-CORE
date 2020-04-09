@@ -198,7 +198,7 @@ class OpenLayerMap {
       this.feature.setStyle(this.defaultLineStyle);
     } else if (this.type == 'MultiLineString' && this.value[0] !== undefined && this.value[0].length) {
       var first = this.value[0];
-      var array = first.map(function(line) {
+      var array = first.map(function (line) {
         return JSON.parse('[' + line + ']');
       });
       this.feature = new ol.Feature({
@@ -211,31 +211,18 @@ class OpenLayerMap {
     this.container.on('dc:import:data', this.importData.bind(this));
   }
   importData(event, data) {
-    let form_fields = $(event.target)
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first();
+    let form_fields = $(event.target).parent('.geographic').siblings('.map-info').first();
 
     let elevationField = form_fields.find('.form-element.elevation > input');
 
     if (
       ((!elevationField.val() || elevationField.val().length == 0) &&
-        $(event.target)
-          .parent('.geographic')
-          .siblings('input.location-data:hidden')
-          .first()
-          .val().length == 0) ||
+        $(event.target).parent('.geographic').siblings('input.location-data:hidden').first().val().length == 0) ||
       (data && data.force)
     ) {
       elevationField.val(data.value.elevation);
-      form_fields
-        .find('.form-element.latitude > input')
-        .val(data.value.y)
-        .trigger('change');
-      form_fields
-        .find('.form-element.longitude > input')
-        .val(data.value.x)
-        .trigger('change');
+      form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+      form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
     } else {
       var confirmationModal = new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -243,16 +230,10 @@ class OpenLayerMap {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
+        confirmationCallback: function () {
           elevationField.val(data.value.elevation);
-          form_fields
-            .find('.form-element.latitude > input')
-            .val(data.value.y)
-            .trigger('change');
-          form_fields
-            .find('.form-element.longitude > input')
-            .val(data.value.x)
-            .trigger('change');
+          form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+          form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
         }.bind(this)
       });
     }
@@ -262,7 +243,7 @@ class OpenLayerMap {
     if (this.featureOld !== undefined) this.features.push(this.featureOld);
 
     if (this.features.length > 0) {
-      this.features.forEach(item => {
+      this.features.forEach((item) => {
         item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
       });
       this.options = {
@@ -299,7 +280,7 @@ class OpenLayerMap {
     let oldFn = this.mouseWheelZoom.handleEvent;
     let self = this;
 
-    this.mouseWheelZoom.handleEvent = function(e) {
+    this.mouseWheelZoom.handleEvent = function (e) {
       let type = e.type;
       if (type !== 'wheel') {
         return true;
@@ -313,22 +294,16 @@ class OpenLayerMap {
               '<div class="scroll-overlay" style="display: none;"><div class="scroll-overlay-text">Verwende Strg+Scrollen zum Zoomen der Karte</div></div>'
             );
         } else {
-          $(e.map.getTargetElement().firstElementChild)
-            .find('.scroll-overlay')
-            .fadeIn(100);
+          $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeIn(100);
         }
 
         window.clearTimeout(self.mouseZoomTimeout);
         self.mouseZoomTimeout = window.setTimeout(() => {
-          $(e.map.getTargetElement().firstElementChild)
-            .find('.scroll-overlay')
-            .fadeOut(100);
+          $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
         }, 1000);
         return true;
       } else {
-        $(e.map.getTargetElement().firstElementChild)
-          .find('.scroll-overlay')
-          .fadeOut(100);
+        $(e.map.getTargetElement().firstElementChild).find('.scroll-overlay').fadeOut(100);
       }
 
       oldFn.call(this, e);
@@ -355,7 +330,7 @@ class OpenLayerMap {
     });
   }
   initMapActions() {
-    this.map.on('pointermove', evt => {
+    this.map.on('pointermove', (evt) => {
       let hit = evt.map.hasFeatureAtPixel(evt.pixel);
       evt.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? 'grabbing' : hit ? 'pointer' : '';
     });
@@ -369,7 +344,7 @@ class OpenLayerMap {
     });
     this.map.addInteraction(this.draw);
 
-    this.draw.on('drawend', event => {
+    this.draw.on('drawend', (event) => {
       this.drawable = false;
       this.feature = event.feature;
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
@@ -397,7 +372,7 @@ class OpenLayerMap {
       });
 
     $.getJSON('/things/geocode_address/', address)
-      .done(data => {
+      .done((data) => {
         if (data.error !== undefined) {
           new ConfirmationModal({
             text: data.error
@@ -419,15 +394,13 @@ class OpenLayerMap {
         console.log(textStatus + ', ' + error);
       })
       .always(() => {
-        $(event.currentTarget)
-          .find('i.fa')
-          .remove();
+        $(event.currentTarget).find('i.fa').remove();
       });
   }
   updateMapMarker(event) {
     let valid = true;
     let coords = this.getCoordinates();
-    coords.forEach(element => {
+    coords.forEach((element) => {
       valid = valid && !isNaN(element);
     });
 
@@ -467,7 +440,7 @@ class OpenLayerMap {
       }
     });
 
-    this.map.on('pointerdrag', event => {
+    this.map.on('pointerdrag', (event) => {
       if (this.modifying && this.feature !== undefined) {
         this.setCoordinates();
       }
@@ -495,37 +468,13 @@ class OpenLayerMap {
     let latlon = this.getLatLon(coords);
     latlon[0] = Number(latlon[0].toFixed(5));
     latlon[1] = Number(latlon[1].toFixed(5));
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.longitude input')
-      .val(latlon[0]);
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.latitude input')
-      .val(latlon[1]);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val(latlon[0]);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val(latlon[1]);
   }
   getCoordinates() {
     return [
-      parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.longitude input')
-          .val()
-      ),
-      parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.latitude input')
-          .val()
-      )
+      parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val()),
+      parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
     ];
   }
   setHiddenFieldValue() {
