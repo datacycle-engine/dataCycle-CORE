@@ -67,7 +67,7 @@ module DataCycleCore
                 template_type: schema_name,
                 label: key.camelize(:lower),
                 data_type: resolve_data_type(definition),
-                comment: nil,
+                comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
                 translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
               }
             end

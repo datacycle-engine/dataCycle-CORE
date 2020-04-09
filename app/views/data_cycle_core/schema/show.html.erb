@@ -40,7 +40,9 @@
               <% end %>
             <% end %>
           </td>
-          <td></td>
+          <td>
+              <%= definition.dig(:comment).presence %>
+          </td>
         </tr>
       <% end %>
     </tbody>
