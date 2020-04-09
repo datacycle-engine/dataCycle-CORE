@@ -19,7 +19,7 @@ server {
   #listen 443 ssl; # managed by Certbot
   #listen [::]:443 ssl;
   #ssl_certificate /etc/letsencrypt/live/<%= fetch(:server_name) %>/fullchain.pem; # managed by Certbot
-  #ssl_certificate_key /etc/letsencrypt/<%= fetch(:server_name) %>/privkey.pem; # managed by Certbot
+  #ssl_certificate_key /etc/letsencrypt/live/<%= fetch(:server_name) %>/privkey.pem; # managed by Certbot
 
   server_name <%= fetch(:server_name) %>;
   root <%= File.join(fetch(:deploy_to), 'current/public') %>;
