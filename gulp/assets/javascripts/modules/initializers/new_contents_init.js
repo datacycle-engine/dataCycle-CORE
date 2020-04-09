@@ -2,8 +2,9 @@
 var NewContentDialog = require('./../components/new_content_dialog');
 var DragAndDropField = require('../components/drag_and_drop_field');
 
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.target);
   });
 
@@ -17,10 +18,7 @@ module.exports.initialize = function() {
   });
 
   $(document).on('ajax:error', '.new-content-reveal [data-remote]', (response, status, xhr) => {
-    $(xhr.target)
-      .closest('.new-content-reveal')
-      .find('.new-content-form')
-      .html('Fehler beim Laden des Inhalts.');
+    $(xhr.target).closest('.new-content-reveal').find('.new-content-form').html('Fehler beim Laden des Inhalts.');
   });
 
   function init(container = document) {

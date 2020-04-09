@@ -2,7 +2,7 @@ var Validator = require('./../components/validator');
 var DataCycleNormalizer = require('./../components/normalizer');
 
 // Add Validation to Form Elements
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   // multi-edit
   $(document).on('change', '.bulk-edit-form .editor > .form-element', event => {
     let updateCheckbox = $(event.currentTarget)
@@ -31,6 +31,7 @@ module.exports.initialize = function() {
   init();
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.currentTarget);
   });
 

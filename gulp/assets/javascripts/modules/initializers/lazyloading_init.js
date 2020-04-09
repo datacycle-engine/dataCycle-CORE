@@ -1,5 +1,5 @@
 // Add Lazyloading + fixes
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   // reposition reveal after it is loaded
   $(document).on('dc:html:changed lazyloaded', '*', event => {
     event.stopPropagation();
@@ -15,16 +15,11 @@ module.exports.initialize = function() {
 
   $(document).on('lazyloaded', 'iframe', event => {
     event.stopPropagation();
-    $(event.target)
-      .siblings('.loading-iframe')
-      .remove();
+    $(event.target).siblings('.loading-iframe').remove();
   });
 
   $(document).on('closed.zf.reveal', event => {
     event.stopPropagation();
-    $(event.target)
-      .find('iframe')
-      .removeClass('lazyloaded lazyloading')
-      .addClass('lazyload');
+    $(event.target).find('iframe').removeClass('lazyloaded lazyloading').addClass('lazyload');
   });
 };

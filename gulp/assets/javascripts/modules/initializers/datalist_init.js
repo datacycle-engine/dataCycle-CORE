@@ -1,10 +1,10 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Datalist
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var field_requests = {};
 
-  let default_success = function(input_field, list, data) {
+  let default_success = function (input_field, list, data) {
     $(list).html('');
 
     data.forEach(element => {
@@ -14,7 +14,7 @@ module.exports.initialize = function() {
     });
   };
 
-  let users = function(input_field, list, data) {
+  let users = function (input_field, list, data) {
     $(list).html('');
     data.forEach(element => {
       if (element != undefined && element.email != undefined) {
@@ -38,9 +38,7 @@ module.exports.initialize = function() {
       form.find('input[name="data_link[receiver][id]"]').remove();
       form.append(
         '<input type="hidden" id="' +
-          $(input_field)
-            .prop('id')
-            .replace('email', 'id') +
+          $(input_field).prop('id').replace('email', 'id') +
           '" name="data_link[receiver][id]" value="' +
           user.data('id') +
           '">'
@@ -59,20 +57,12 @@ module.exports.initialize = function() {
         .prop('readonly', true);
     } else {
       form.find('input[name="data_link[receiver][id]"]').remove();
-      $(input_field)
-        .closest('form')
-        .find('input[id$=given_name]')
-        .first()
-        .prop('readonly', false);
-      $(input_field)
-        .closest('form')
-        .find('input[id$=family_name]')
-        .first()
-        .prop('readonly', false);
+      $(input_field).closest('form').find('input[id$=given_name]').first().prop('readonly', false);
+      $(input_field).closest('form').find('input[id$=family_name]').first().prop('readonly', false);
     }
   };
 
-  let search_history = function(input_field, list, data) {
+  let search_history = function (input_field, list, data) {
     default_success(input_field, list, data);
     let form = $(input_field).closest('form');
 
@@ -91,18 +81,13 @@ module.exports.initialize = function() {
     }
   };
 
-  let filter_ci = function(list, value) {
+  let filter_ci = function (list, value) {
     return $(list)
       .find('option')
-      .filter(
-        (idx, elem) =>
-          $(elem)
-            .val()
-            .toLowerCase() == value.toLowerCase()
-      );
+      .filter((idx, elem) => $(elem).val().toLowerCase() == value.toLowerCase());
   };
 
-  let show_confirmation = function(event) {
+  let show_confirmation = function (event) {
     event.preventDefault();
     let confirmationModal = new ConfirmationModal({
       text: 'Filterparameter aktualisieren?',
@@ -115,39 +100,29 @@ module.exports.initialize = function() {
     });
   };
 
-  let append_stored_filter_data = function(event) {
+  let append_stored_filter_data = function (event) {
     event.preventDefault();
 
     let form = $('#search-form');
     $(form).prop('action', $(event.currentTarget).prop('action'));
     $(form).prop('method', $(event.currentTarget).prop('method'));
-    $(form).append(
-      $(event.currentTarget)
-        .find('input[type=hidden]')
-        .clone()
-    );
+    $(form).append($(event.currentTarget).find('input[type=hidden]').clone());
     if ($(event.currentTarget).find('#stored_filter_name').length)
       $(form).append(
         '<input type="hidden" name="stored_filter[name]" value="' +
-          $(event.currentTarget)
-            .find('#stored_filter_name')
-            .val() +
+          $(event.currentTarget).find('#stored_filter_name').val() +
           '">'
       );
     if ($(event.currentTarget).find('#stored_filter_system').length)
       $(form).append(
         '<input type="hidden" name="stored_filter[system]" value="' +
-          $(event.currentTarget)
-            .find('#stored_filter_system')
-            .is(':checked') +
+          $(event.currentTarget).find('#stored_filter_system').is(':checked') +
           '">'
       );
     if ($(event.currentTarget).find('#add-items-to-watch-list-select').length)
       $(form).append(
         '<input type="hidden" name="watch_list_id" value="' +
-          $(event.currentTarget)
-            .find('#add-items-to-watch-list-select')
-            .val() +
+          $(event.currentTarget).find('#add-items-to-watch-list-select').val() +
           '">'
       );
     form.submit();
