@@ -39,11 +39,17 @@ module DataCycleCore
 
           init_logging do |logger|
             logger.info("DataCycleCore::Api::V2.check_job_status for external_system: #{external_system.try(:name)}", nil)
+            logger.info("--> #{ids}")
           end
 
           items.each do |item|
             utility_object = DataCycleCore::Export::RefreshObject.new(external_system: external_system)
             job_id = item.external_system_data(external_system)&.dig('job_id')
+
+            init_logging do |logger|
+              logger.info("inspecting item id:#{item.id} --> job_id:#{job_id}", nil)
+            end
+
             next if job_id.blank?
             DataCycleCore::Export::OutdoorActive::JobStatus.process(utility_object: utility_object, options: { job_id: job_id })
           end

@@ -14,9 +14,21 @@ module DataCycleCore
               item.external_system_data(utility_object.external_system).dig('job_id').present?
             end
           end
+
+          init_logging do |logger|
+            logger.info("DataCycleCore::Export::OutdoorActive::JobStatus#process: items -> #{items.pluck(:id)} | job_id=#{options.dig(:job_id)} |", nil)
+          end
+
           items.each do |data|
             Functions.update_job_status(utility_object: utility_object, data: data)
           end
+        end
+
+        def init_logging
+          logging = DataCycleCore::Generic::Logger::LogFile.new(:export)
+          yield(logging)
+        ensure
+          logging.close if logging.respond_to?(:close)
         end
       end
     end
