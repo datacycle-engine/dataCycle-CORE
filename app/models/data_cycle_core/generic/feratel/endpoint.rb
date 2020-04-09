@@ -17,6 +17,10 @@ module DataCycleCore
         end
 
         # basic download of data
+        def additional_service_types(lang: :de)
+          enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
+        end
+
         def categories(lang: :de)
           enumerate_items(:categories, '//Categories/Category', lang: lang)
         end
@@ -35,6 +39,10 @@ module DataCycleCore
 
         def facility_groups(lang: :de)
           enumerate_items(:facility_groups, '//FacilityGroups/FacilityGroup', lang: lang)
+        end
+
+        def fallback_languages(lang: :de)
+          enumerate_language_items(:fallback_languages, '//Language', lang: lang)
         end
 
         def global_categories(lang: :de)
@@ -93,28 +101,16 @@ module DataCycleCore
           enumerate_default_items(:global_link_types, '//LinkType', lang: lang)
         end
 
-        def marketing_groups(lang: :de)
-          enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
+        def guest_cards(lang: :de)
+          enumerate_items(:guest_cards, '//GuestCards/GuestCard', lang: lang)
         end
 
-        def shop_item_groups(lang: :de)
-          enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
-        end
-
-        def fallback_languages(lang: :de)
-          enumerate_language_items(:fallback_languages, '//Language', lang: lang)
+        def guest_card_classifications(lang: :de)
+          enumerate_items(:guest_card_classifications, '//GuestCardClassifications/GuestCardClassification', lang: lang)
         end
 
         def hot_spots(lang: :de)
           enumerate_items(:hot_spots, '//HotSpot', lang: lang)
-        end
-
-        def rating_visitors(lang: :de)
-          enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
-        end
-
-        def link_types(lang: :de)
-          enumerate_items(:link_types, '//LinkType', lang: lang)
         end
 
         def handicap_groups(lang: :de)
@@ -133,10 +129,6 @@ module DataCycleCore
           enumerate_items(:handicap_facilities, '//HandicapFacility', lang: lang)
         end
 
-        def visitor_tax(lang: :de)
-          enumerate_code_items(:visitor_tax, '//VisitorTax', lang: lang)
-        end
-
         def holiday_themes(lang: :de)
           enumerate_items(:holiday_themes, '//HolidayThemes/HolidayTheme', lang: lang)
         end
@@ -149,12 +141,32 @@ module DataCycleCore
           enumerate_items(:infrastructure_types, '//InfrastructureTypes/InfrastructureType', lang: lang)
         end
 
+        def link_types(lang: :de)
+          enumerate_items(:link_types, '//LinkType', lang: lang)
+        end
+
         def locations(lang: :de)
           enumerate_items(:locations, '//Location', lang: lang)
         end
 
+        def marketing_groups(lang: :de)
+          enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
+        end
+
         def rating_questions(lang: :de)
           enumerate_items(:rating_questions, '//RatingQuestions/RatingQuestion', lang: lang)
+        end
+
+        def rating_visitors(lang: :de)
+          enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
+        end
+
+        def shop_item_groups(lang: :de)
+          enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
+        end
+
+        def visitor_tax(lang: :de)
+          enumerate_code_items(:visitor_tax, '//VisitorTax', lang: lang)
         end
 
         def serial_events(lang: :de)
@@ -167,14 +179,6 @@ module DataCycleCore
 
         def stars(lang: :de)
           enumerate_items(:stars, '//Stars/Star', lang: lang)
-        end
-
-        def guest_cards(lang: :de)
-          enumerate_items(:guest_cards, '//GuestCards/GuestCard', lang: lang)
-        end
-
-        def additional_service_types(lang: :de)
-          enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
         end
 
         # download of large data with temporary file
@@ -702,6 +706,12 @@ module DataCycleCore
         def create_guest_cards_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.GuestCards('Show' => true)
+          end
+        end
+
+        def create_guest_card_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.GuestCardClassifications('Show' => true)
           end
         end
 

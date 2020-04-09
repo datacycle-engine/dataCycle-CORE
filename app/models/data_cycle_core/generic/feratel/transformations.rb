@@ -68,7 +68,7 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_additional_service_type', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'AdditionalServiceTypes', 'Item'))&.map { |type| type.dig('Id')&.downcase }&.compact.presence || [] })
-          .>> t(:add_links, 'feratel_guest_card', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'GuestCardClassificationId')&.downcase)&.compact.presence || [] })
+          .>> t(:add_links, 'feratel_guest_card_classifications', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'GuestCardClassificationId')&.downcase)&.compact.presence || [] })
           .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
           .>> t(:compact)
