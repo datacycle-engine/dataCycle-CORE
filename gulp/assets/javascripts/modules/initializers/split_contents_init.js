@@ -2,7 +2,7 @@ var ConfirmationModal = require('./../components/confirmation_modal');
 var SplitView = require('./../components/split_view');
 
 // Split View Inhalte kopieren
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   init('.flex-box .detail-content .properties');
 
   function init(container) {
@@ -10,14 +10,12 @@ module.exports.initialize = function() {
   }
 
   // add eventhandlers for editor fields
-  $(document).on('dc:import:data', '.form-element.string:not(.text_editor) > input[type="text"]', function(
+  $(document).on('dc:import:data', '.form-element.string:not(.text_editor) > input[type="text"]', function (
     event,
     data
   ) {
     if ($(event.target).val().length === 0 || (data && data.force)) {
-      $(event.target)
-        .val(data.value)
-        .trigger('input');
+      $(event.target).val(data.value).trigger('input');
     } else {
       new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -25,20 +23,16 @@ module.exports.initialize = function() {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
-          $(event.target)
-            .val(data.value)
-            .trigger('input');
+        confirmationCallback: function () {
+          $(event.target).val(data.value).trigger('input');
         }
       });
     }
   });
 
-  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', function(event, data) {
+  $(document).on('dc:import:data', '.form-element.number > input[type="number"]', function (event, data) {
     if ($(event.target).val().length === 0 || (data && data.force)) {
-      $(event.target)
-        .val(data.value)
-        .trigger('input');
+      $(event.target).val(data.value).trigger('input');
     } else {
       new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -46,16 +40,14 @@ module.exports.initialize = function() {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
-          $(event.target)
-            .val(data.value)
-            .trigger('input');
+        confirmationCallback: function () {
+          $(event.target).val(data.value).trigger('input');
         }
       });
     }
   });
 
-  $(document).on('dc:import:data', '.form-element.boolean :checkbox', function(event, data) {
+  $(document).on('dc:import:data', '.form-element.boolean :checkbox', function (event, data) {
     if (data && data.force) {
       $(event.target).prop('checked', data.value);
     } else {
@@ -65,7 +57,7 @@ module.exports.initialize = function() {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
+        confirmationCallback: function () {
           $(event.target).prop('checked', data.value);
         }
       });
@@ -74,11 +66,11 @@ module.exports.initialize = function() {
 
   // SPLIT CONTENT
   if ($('.split-content').length) {
-    $('.split-content').on('mouseover', function() {
+    $('.split-content').on('mouseover', function () {
       $('.split-content').addClass('nothover');
       $(this).removeClass('nothover');
     });
-    $('.has-changes').on('click', function() {
+    $('.has-changes').on('click', function () {
       $('.split-content .properties .selected').removeClass('selected');
       current = $(this).data('label');
       newelem = $('.split-content')
@@ -91,12 +83,8 @@ module.exports.initialize = function() {
           {
             scrollTop:
               newelem.offset().top -
-              $('.split-content')
-                .last()
-                .offset().top +
-              $('.split-content')
-                .last()
-                .scrollTop() -
+              $('.split-content').last().offset().top +
+              $('.split-content').last().scrollTop() -
               150
           },
           500
@@ -107,12 +95,8 @@ module.exports.initialize = function() {
           {
             scrollTop:
               $(this).offset().top -
-              $('.split-content')
-                .first()
-                .offset().top +
-              $('.split-content')
-                .first()
-                .scrollTop() -
+              $('.split-content').first().offset().top +
+              $('.split-content').first().scrollTop() -
               150
           },
           500

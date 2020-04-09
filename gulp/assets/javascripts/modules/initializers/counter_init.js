@@ -1,12 +1,13 @@
 var Counter = require('./../components/word_counter');
 
 // Word Counter
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var CounterArray = {};
 
   init_counters($('#edit-form'));
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init_counters(event.target);
   });
 

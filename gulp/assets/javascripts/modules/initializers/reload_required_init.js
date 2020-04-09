@@ -1,15 +1,11 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Check if user is still logged in
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   if ($('.edit-content-form').length) {
     let today = new Date();
-    let id = $('.edit-content-form')
-      .find(':input[name="uuid"]')
-      .val();
-    let table = $('.edit-content-form')
-      .find(':input[name="table"]')
-      .val();
+    let id = $('.edit-content-form').find(':input[name="uuid"]').val();
+    let table = $('.edit-content-form').find(':input[name="table"]').val();
 
     addReloadTimeout();
 

@@ -1,7 +1,7 @@
 var EmbeddedObject = require('./../components/embedded_object');
 
 // Word Counter
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var embedded_objects = [];
 
   $('.edit-content-form .embedded-object').each((index, element) => {
