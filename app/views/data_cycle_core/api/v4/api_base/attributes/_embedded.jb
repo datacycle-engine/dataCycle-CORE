@@ -1,14 +1,14 @@
 # frozen_string_literal: true
 
 json ||= {}
-# data = content.send(key).includes(:translations, :classifications)
 data = content.load_embedded_objects(key, nil, true, options[:languages]).includes(:translations, :classifications)
 
 if data.present?
-  key_new = attribute_key(key, definition)
-  new_fields = subtree_for(key_new, options[:fields])
-
   api_property_definition = api_definition(definition)
+
+  key_new = attribute_key(key, definition)
+  key_new = api_property_definition.dig('transformation', 'name') if api_property_definition.dig('transformation', 'method') == 'append'
+  new_fields = subtree_for(key_new, options[:fields])
 
   json[key_new] = []
   data.each do |item|

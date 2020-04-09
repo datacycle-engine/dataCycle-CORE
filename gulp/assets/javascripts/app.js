@@ -21,9 +21,11 @@ window.EDITORSELECTORS = [
   '> .v-select > select.single-select',
   '> .v-select > select.async-select',
   '> ul.classification-checkbox-list',
+  '> ul.classification-radiobutton-list',
   '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
   '> .geographic > .geographic-map',
   '> :checkbox',
+  '> :radio',
   '> :input[type="number"]',
   '> .duration-slider > div > input[type="number"]'
 ];

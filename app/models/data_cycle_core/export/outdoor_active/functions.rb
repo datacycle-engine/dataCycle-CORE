@@ -13,6 +13,8 @@ module DataCycleCore
           external_system_data = data.external_system_data(external_system)
           data.add_external_system_data(external_system, nil, 'pending')
 
+          utility_object.logging.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
               data: OpenStruct.new(id: data.id, template_name: data.template_name),
@@ -28,6 +30,8 @@ module DataCycleCore
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system)
 
+          utility_object.logging.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
               data: OpenStruct.new(id: data.id, template_name: data.template_name),
@@ -39,15 +43,22 @@ module DataCycleCore
           )
         end
 
-        def self.delete(_utility_object:, _data:)
-          # body = transformations.json_api_v2(utility_object, data)
-          # webhook = DataCycleCore::Export::TextFile::Webhook.new(
-          #   data: data,
-          #   method: 'Delete',
-          #   body: body,
-          #   endpoint: utility_object.endpoint
-          # )
-          # webhook.perform
+        def self.delete(utility_object:, data:)
+          external_system = utility_object.external_system
+          external_system_data = data.external_system_data(external_system)
+          data.add_external_system_data(external_system, nil, 'deleting')
+
+          utility_object.logging.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+
+          Delayed::Job.enqueue(
+            DataCycleCore::Export::OutdoorActive::Webhook.new(
+              data: OpenStruct.new(id: data.id, template_name: data.template_name),
+              external_system: external_system,
+              external_system_data: external_system_data,
+              endpoint: utility_object.endpoint,
+              request: :update_request
+            )
+          )
         end
 
         def self.outdoor_active_system_categories(data, external_system)

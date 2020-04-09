@@ -63,9 +63,7 @@ class AssetUploader {
     event.preventDefault();
     event.stopPropagation();
 
-    let target = $(event.currentTarget)
-      .closest('.file-for-upload')
-      .remove();
+    let target = $(event.currentTarget).closest('.file-for-upload').remove();
 
     this.files = this.files.filter(f => f.id != target.data('id'));
     this.updateCreateButton();
@@ -145,7 +143,14 @@ class AssetUploader {
                 .trigger('dc:form:setContentIds', { contentIds: data.content_ids.map(i => i.id) });
               this.reveal.foundation('close');
             } else if (!this.files.length && data.redirect_path) {
-              window.location.href = data.redirect_path;
+              let redirect_path = data.redirect_path;
+              if (data && data.flash) {
+                Object.keys(data.flash).forEach((item, index) => {
+                  redirect_path += index == 0 ? '?' : '&';
+                  redirect_path += 'flash[' + item + ']=' + encodeURI(data.flash[item]);
+                });
+              }
+              window.location.href = redirect_path;
             }
           }
         }
@@ -211,10 +216,7 @@ class AssetUploader {
       file.attributeFieldsValidated = false;
     } else {
       file.attributeFieldsValidated = true;
-      file.fileField
-        .add(file.fileFormField)
-        .addClass('validated')
-        .removeAttr('title');
+      file.fileField.add(file.fileFormField).addClass('validated').removeAttr('title');
     }
     this.updateCreateButton();
   }
@@ -345,12 +347,7 @@ class AssetUploader {
     return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
   }
   prepareFileForUpload(file) {
-    file.fileField
-      .add(file.fileFormField)
-      .removeClass('error finished')
-      .addClass('uploading')
-      .find('.error')
-      .remove();
+    file.fileField.add(file.fileFormField).removeClass('error finished').addClass('uploading').find('.error').remove();
   }
   uploadFile(file) {
     if (file.uploaded) {
@@ -378,12 +375,12 @@ class AssetUploader {
         processData: false,
         contentType: false,
         cache: false,
-        xhr: function() {
+        xhr: function () {
           var myXhr = $.ajaxSettings.xhr();
           if (myXhr.upload) {
             myXhr.upload.addEventListener(
               'progress',
-              function(e) {
+              function (e) {
                 if (e.lengthComputable) {
                   var elapsedtime = (new Date().getTime() - startTime) / 1000;
                   var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
@@ -401,10 +398,7 @@ class AssetUploader {
                         '</span>'
                     );
                   if (e.loaded == e.total) {
-                    file.fileField
-                      .add(file.fileFormField)
-                      .find('.upload-number')
-                      .html('wird verarbeitet...');
+                    file.fileField.add(file.fileFormField).find('.upload-number').html('wird verarbeitet...');
                   }
                 }
               },
@@ -432,10 +426,7 @@ class AssetUploader {
     file.retryUpload = false;
     let error = null;
 
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-progress-bar')
-      .css('width', '100%');
+    file.fileField.add(file.fileFormField).find('.upload-progress-bar').css('width', '100%');
 
     if (data.error) {
       this.resetFileField(file);
@@ -494,11 +485,7 @@ class AssetUploader {
     else fileInfoFields.append('<span class="' + cssClass + '">' + message + '</span>');
   }
   renderError(file, error) {
-    file.fileField
-      .add(file.fileFormField)
-      .addClass('error')
-      .find('.upload-number')
-      .html('Uploadfehler');
+    file.fileField.add(file.fileFormField).addClass('error').find('.upload-number').html('Uploadfehler');
 
     this.renderErrorHtml(file, 'error', error);
     this.updateOverlayButtons(file);
@@ -610,7 +597,7 @@ class AssetUploader {
         '"><i class="fa fa-picture-o" aria-hidden="true"></i></object>'
     );
     var theImage = new Image();
-    theImage.onload = function() {
+    theImage.onload = function () {
       fileOptions.mediaHtml = that.fileMediaHTML(
         fileOptions,
         ', ' + theImage.naturalWidth + 'x' + theImage.naturalHeight + 'px'
@@ -621,7 +608,7 @@ class AssetUploader {
       };
       that.validateAndRender(fileOptions);
     };
-    theImage.onerror = function() {
+    theImage.onerror = function () {
       that.validateAndRender(fileOptions);
     };
     theImage.src = fileOptions.fileUrl;
@@ -630,7 +617,7 @@ class AssetUploader {
     var that = this;
     fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-video-camera" aria-hidden="true"></i>');
     var theVideo = document.createElement('video');
-    theVideo.onloadedmetadata = function() {
+    theVideo.onloadedmetadata = function () {
       window.URL.revokeObjectURL(this.src);
       fileOptions.mediaHtml = that.fileMediaHTML(
         fileOptions,
@@ -647,7 +634,7 @@ class AssetUploader {
       };
       that.validateAndRender(fileOptions);
     };
-    theVideo.onerror = function() {
+    theVideo.onerror = function () {
       that.validateAndRender(fileOptions);
     };
     theVideo.setAttribute('src', fileOptions.fileUrl);
@@ -718,9 +705,7 @@ class AssetUploader {
         '_new_form" data-remote-path="data_cycle_core/contents/new/shared/new_form"></div></div>'
     );
 
-    $(html)
-      .find('.new-content-form')
-      .attr('data-remote-options', JSON.stringify(this.remoteOptions));
+    $(html).find('.new-content-form').attr('data-remote-options', JSON.stringify(this.remoteOptions));
 
     fileOptions.fileFormField = $(fileOptions.fileField.clone().removeAttr('data-open')).prependTo(html);
     fileOptions.fileField.find('.file-buttons .edit-upload-button').attr('data-open', fileOptions.id + '_edit_overlay');
@@ -749,14 +734,8 @@ class AssetUploader {
   }
   resetFileField(file) {
     file.fileField.add(file.fileFormField).removeClass('uploading error');
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-number')
-      .html('');
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-progress-bar')
-      .css('width', '0');
+    file.fileField.add(file.fileFormField).find('.upload-number').html('');
+    file.fileField.add(file.fileFormField).find('.upload-progress-bar').css('width', '0');
   }
 }
 

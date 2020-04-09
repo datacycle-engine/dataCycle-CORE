@@ -93,13 +93,13 @@ services:
     - bundle exec rubocop --format fuubar
     - bundle exec fasterer
 
-#.deploy_config:
-#  extends: .job_cache_config
-#  stage: deploy
-#  script:
-#    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
-#    - bundle exec cap $CI_COMMIT_REF_NAME deploy
-#  allow_failure: false
+.deploy_config:
+  extends: .job_cache_config
+  stage: deploy
+  script:
+    - echo "$DEPLOY_KEY" | tr -d '\r' | ssh-add - > /dev/null
+    - bundle exec cap $CI_COMMIT_REF_NAME deploy
+  allow_failure: false
 
 ########################################################################
 ######################### Branch Configuration HidenFields
@@ -159,15 +159,15 @@ code_validation_develop:
   extends: .code_validation_config
 
 ####################### Deploy Development
-#deploy_develop:
-#  <<: *master_ci
-#  only:
-#    - develop
-#  extends: .deploy_config
-#  environment:
-#    name: development
-#    url: http://core-develop.datacycle.at/
-#  when: manual
+deploy_develop:
+  <<: *master_ci
+  only:
+    - develop
+  extends: .deploy_config
+  environment:
+    name: development
+    url: http://core-develop.datacycle.at/
+  when: manual
 
 ########################################################################
 ######################### Review Apps

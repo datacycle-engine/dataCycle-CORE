@@ -18,6 +18,17 @@ module.exports.initialize = function ($) {
       }
     );
 
+    $('.edit-content-form .form-element.classification.radio_button > ul.classification-radiobutton-list').on(
+      'dc:import:data',
+      function(event, data) {
+        $(event.target)
+          .find('> li > :radio')
+          .each((_, item) => {
+            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
+          });
+      }
+    );
+
     $('.auto-tagging-button').on('click', event => {
       $(event.target).closest('.form-element').find('> .v-select > select').val(null).trigger('change');
     });
