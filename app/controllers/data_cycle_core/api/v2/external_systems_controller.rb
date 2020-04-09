@@ -39,7 +39,7 @@ module DataCycleCore
 
           init_logging do |logger|
             logger.info("DataCycleCore::Api::V2.check_job_status for external_system: #{external_system.try(:name)}", nil)
-            logger.info("--> #{ids}")
+            logger.info("--> #{ids}", nil)
           end
 
           items.each do |item|
