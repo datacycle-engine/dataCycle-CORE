@@ -13,7 +13,11 @@ module DataCycleCore
           external_system_data = data.external_system_data(external_system)
           data.add_external_system_data(external_system, nil, 'pending')
 
-          utility_object.logging.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          init_logging do |logger|
+            logger.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          end
+
+          # utility_object.logging.info("update -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -30,7 +34,11 @@ module DataCycleCore
           external_system = utility_object.external_system
           external_system_data = data.external_system_data(external_system)
 
-          utility_object.logging.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          init_logging do |logger|
+            logger.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          end
+
+          # utility_object.logging.info("update_job_status -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -48,7 +56,11 @@ module DataCycleCore
           external_system_data = data.external_system_data(external_system)
           data.add_external_system_data(external_system, nil, 'deleting')
 
-          utility_object.logging.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          init_logging do |logger|
+            logger.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
+          end
+
+          # utility_object.logging.info("delete -> Export | OutdoorActive | #{utility_object.external_system.id}", data&.id)
 
           Delayed::Job.enqueue(
             DataCycleCore::Export::OutdoorActive::Webhook.new(
@@ -92,6 +104,13 @@ module DataCycleCore
             &.select do |c|
             c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
           end&.map(&:primary_classification)
+        end
+
+        def self.init_logging
+          logging = DataCycleCore::Generic::Logger::LogFile.new(:export)
+          yield(logging)
+        ensure
+          logging.close if logging.respond_to?(:close)
         end
       end
     end
