@@ -67,6 +67,7 @@ class OpenLayerMap {
     this.draw;
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
+    this.importButton = $('.upload-line-button');
     this.mapOptions = this.container.data('map-options');
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
 
@@ -243,7 +244,7 @@ class OpenLayerMap {
     if (this.featureOld !== undefined) this.features.push(this.featureOld);
 
     if (this.features.length > 0) {
-      this.features.forEach((item) => {
+      this.features.forEach(item => {
         item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
       });
       this.options = {
@@ -330,7 +331,7 @@ class OpenLayerMap {
     });
   }
   initMapActions() {
-    this.map.on('pointermove', (evt) => {
+    this.map.on('pointermove', evt => {
       let hit = evt.map.hasFeatureAtPixel(evt.pixel);
       evt.map.getTargetElement().firstElementChild.style.cursor = evt.dragging ? 'grabbing' : hit ? 'pointer' : '';
     });
@@ -344,7 +345,7 @@ class OpenLayerMap {
     });
     this.map.addInteraction(this.draw);
 
-    this.draw.on('drawend', (event) => {
+    this.draw.on('drawend', event => {
       this.drawable = false;
       this.feature = event.feature;
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
@@ -372,7 +373,7 @@ class OpenLayerMap {
       });
 
     $.getJSON('/things/geocode_address/', address)
-      .done((data) => {
+      .done(data => {
         if (data.error !== undefined) {
           new ConfirmationModal({
             text: data.error
@@ -400,7 +401,7 @@ class OpenLayerMap {
   updateMapMarker(event) {
     let valid = true;
     let coords = this.getCoordinates();
-    coords.forEach((element) => {
+    coords.forEach(element => {
       valid = valid && !isNaN(element);
     });
 
@@ -440,7 +441,7 @@ class OpenLayerMap {
       }
     });
 
-    this.map.on('pointerdrag', (event) => {
+    this.map.on('pointerdrag', event => {
       if (this.modifying && this.feature !== undefined) {
         this.setCoordinates();
       }
