@@ -1,5 +1,7 @@
 var ConfirmationModal = require('./confirmation_modal');
 var ObjectHelpers = require('./../helpers/object_helpers');
+var togeojson = require('@tmcw/togeojson');
+var wellknown = require('wellknown');
 
 var ol = {
   Map: require('ol/map').default,
@@ -68,6 +70,7 @@ class OpenLayerMap {
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
     this.importButton = $('.upload-line-button');
+    this.importInput = $('#upload-gpx-input');
     this.mapOptions = this.container.data('map-options');
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
 
@@ -398,6 +401,38 @@ class OpenLayerMap {
         $(event.currentTarget).find('i.fa').remove();
       });
   }
+  initImportActions(event) {
+    event.preventDefault();
+
+    // show file-upload-overlay
+    if (this.importInput) {
+      this.importInput.click();
+    }
+  }
+  handleFile(evt) {
+    let file = evt.target.files[0] || null;
+    if (!file) {
+      alert('No files selected!');
+    } else {
+      const reader = new FileReader();
+      reader.onload = (function (gpxFile) {
+        return function (e) {
+          // gpx to WKT
+          let xmlString = e.target.result;
+          let parser = new DOMParser();
+          let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
+
+          let geojson = togeojson.gpx(xmlDoc);
+
+          let linestring = wellknown.stringify(geojson.features[0]);
+
+          // WKT to correct input field?
+          console.log(linestring);
+        };
+      })(file);
+      reader.readAsText(file);
+    }
+  }
   updateMapMarker(event) {
     let valid = true;
     let coords = this.getCoordinates();
@@ -448,6 +483,8 @@ class OpenLayerMap {
     });
 
     if (this.geoCodeButton !== undefined) this.geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
+    if (this.importButton !== undefined) this.importButton.on('click', this.initImportActions.bind(this));
+    if (this.importInput !== undefined) this.importInput.on('change', this.handleFile.bind(this));
 
     this.container
       .parent('.geographic')

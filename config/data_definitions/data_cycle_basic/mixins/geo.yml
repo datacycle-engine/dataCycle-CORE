@@ -66,3 +66,18 @@
         :storage_location: column
         :api:
           :disabled: true
+      :line:
+        :label: Linie
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :type: LineString
+            :options:
+              - data_upload
+            #   :marker_path:
+            #     - marker
+            #     - content_location
+        # :storage_location: column
+        :api:
+          :disabled: false

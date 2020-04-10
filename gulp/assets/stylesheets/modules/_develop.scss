@@ -1663,6 +1663,10 @@ select {
       margin: 0;
       width: calc(100% - 2rem);
     }
+    .upload-line-button {
+      position: absolute;
+      top: 1rem;
+    }
   }
 }
 

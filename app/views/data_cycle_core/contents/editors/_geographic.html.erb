@@ -5,6 +5,15 @@
 
   <% if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>
       <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>">
+
+        <input type="file" id="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
+        <%= link_to t('actions.import_gpx', locale: DataCycleCore.ui_language), '#',
+        class: 'button upload-line-button',
+        title: t('actions.import_gpx', locale: DataCycleCore.ui_language),
+        data: {
+          locale: I18n.locale.to_s,
+        } %>
+
           <div id="map_<%= SecureRandom.hex(16) %>"
             class="geographic-map linestring"
             data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
