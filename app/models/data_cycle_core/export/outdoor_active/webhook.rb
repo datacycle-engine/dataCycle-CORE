@@ -36,7 +36,7 @@ module DataCycleCore
           when 'jobnotfound', 'failed'
             data.add_external_system_data(@external_system, job_result, 'failure')
           when 'done'
-            data.add_external_system_data(@external_system, nil, 'success')
+            data.add_external_system_data(@external_system, job_result, 'success')
           else
             raise DataCycleCore::Generic::Common::Error::GenericError, "Unkown job status: #{job_result.dig('job_status')}"
           end
