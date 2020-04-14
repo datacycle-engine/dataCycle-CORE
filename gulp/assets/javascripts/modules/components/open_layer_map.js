@@ -10,6 +10,10 @@ var ol = {
     Vector: require('ol/layer/vector').default
   },
   Feature: require('ol/feature').default,
+  format: {
+    WKT: require('ol/format/WKT').default,
+    GeoJSON: require('ol/format/geojson').default
+  },
   geom: {
     Point: require('ol/geom/point').default,
     LineString: require('ol/geom/linestring').default,
@@ -69,6 +73,7 @@ class OpenLayerMap {
     this.draw;
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
+    // TODO: Consistent naming
     this.importButton = $('.upload-line-button');
     this.importInput = $('#upload-gpx-input');
     this.mapOptions = this.container.data('map-options');
@@ -354,7 +359,7 @@ class OpenLayerMap {
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
       this.map.removeInteraction(this.draw);
       this.setCoordinates();
-      this.setHiddenFieldValue();
+      this.setHiddenFieldValue(this.getPointWkt());
     });
   }
   initGeoCodingActions(event) {
@@ -409,14 +414,15 @@ class OpenLayerMap {
       this.importInput.click();
     }
   }
+  // TODO: Rename
   handleFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
       alert('No files selected!');
     } else {
       const reader = new FileReader();
-      reader.onload = (function (gpxFile) {
-        return function (e) {
+      reader.onload = (gpxFile => {
+        return e => {
           // gpx to WKT
           let xmlString = e.target.result;
           let parser = new DOMParser();
@@ -427,7 +433,18 @@ class OpenLayerMap {
           let linestring = wellknown.stringify(geojson.features[0]);
 
           // WKT to correct input field?
+          this.setHiddenFieldValue(linestring);
           console.log(linestring);
+          // draw line on map
+          let format = new ol.format.GeoJSON();
+          this.feature = format.readFeatures(geojson)[0];
+          // let format = new ol.format.WKT();
+          // this.feature = format.readFeature(linestring, {
+          //   dataProjection: 'EPSG:4326',
+          //   featureProjection: 'EPSG:3857'
+          // });
+          // this.feature.setStyle(this.defaultLineStyle);
+          this.source.addFeature(this.feature);
         };
       })(file);
       reader.readAsText(file);
@@ -472,7 +489,7 @@ class OpenLayerMap {
     this.modify.on('modifyend', () => {
       this.modifying = false;
       if (this.feature !== undefined) {
-        this.setHiddenFieldValue();
+        this.setHiddenFieldValue(this.getPointWkt());
       }
     });
 
@@ -498,7 +515,7 @@ class OpenLayerMap {
   }
   setNewCoordinates() {
     this.setCoordinates();
-    this.setHiddenFieldValue();
+    this.setHiddenFieldValue(this.getPointWkt());
     this.map.getView().setCenter(this.feature.getGeometry().getCoordinates());
   }
   setCoordinates() {
@@ -515,16 +532,16 @@ class OpenLayerMap {
       parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
     ];
   }
-  setHiddenFieldValue() {
-    let coords = this.feature.getGeometry().getCoordinates();
-    let latlon = this.getLatLon(coords);
-    latlon[0] = Number(latlon[0].toFixed(5));
-    latlon[1] = Number(latlon[1].toFixed(5));
-    this.container
-      .parent('.geographic')
-      .siblings('.location-data')
-      .first()
-      .val('POINT (' + latlon[0] + ' ' + latlon[1] + ')');
+  getPointWkt() {
+    let latlon = this.getCoordinates();
+    return 'POINT (' + latlon[0] + ' ' + latlon[1] + ')';
+  }
+  setHiddenFieldValue(wkt) {
+    // let coords = this.feature.getGeometry().getCoordinates();
+    // let latlon = this.getLatLon(coords);
+    // latlon[0] = Number(latlon[0].toFixed(5));
+    // latlon[1] = Number(latlon[1].toFixed(5));
+    this.container.parent('.geographic').siblings('.location-data').first().val(wkt);
   }
   setDefaultPosition() {
     if (

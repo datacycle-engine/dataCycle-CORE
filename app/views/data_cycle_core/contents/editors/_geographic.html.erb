@@ -1,10 +1,11 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
   <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <%# binding.pry %>
   <%= hidden_field_tag key.gsub(key.attribute_name_from_key, 'route_data'), content.try(:route_data) if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
 
   <% if value.try(:geometry_type) == RGeo::Feature::LineString || definition.dig('ui', 'edit', 'type') == 'LineString' %>
-      <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) && DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>">
+      <div class="edit-type geographic <%= 'editable' if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>">
 
         <input type="file" id="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
         <%= link_to t('actions.import_gpx', locale: DataCycleCore.ui_language), '#',
