@@ -40,15 +40,10 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error sending data to #{File.join([@host, job_id])} ", response) unless response.success?
 
-          parse_job_status_response_body(raw_response_body: response.body).merge(
-            {
-              'job_id' => job_id,
-              'external_source_id' => data.external_source.id
-            }
-          )
+          parse_job_status_response_body(raw_response_body: response.body, job_id: job_id).merge({ 'external_source_id' => data.external_source.id })
         end
 
-        def parse_job_status_response_body(raw_response_body:)
+        def parse_job_status_response_body(raw_response_body:, job_id:)
           response_body = Nokogiri::XML(raw_response_body)
 
           raise DataCycleCore::Generic::Common::Error::EndpointError, 'Cannot process job status with multiple items' if response_body.xpath('//details//content[@type!="imagemeta"]').count > 1
@@ -58,12 +53,17 @@ module DataCycleCore
           case job_status
           when 'running', 'jobnotfound'
             {
-              'job_status' => job_status
+              'job_id' => job_id,
+              'job_status' => job_status,
+              'seen_at' => Time.zone.now
             }
           when 'failed'
             error_msg = response_body.children.first.content
 
             {
+              'job_id' => nil,
+              'last_job_id' => job_id,
+              'seen_at' => Time.zone.now,
               'job_status' => job_status,
               'job_message' => error_msg
             }
@@ -73,6 +73,9 @@ module DataCycleCore
             warnings = response_body.children.first.xpath('//details//content[@type!="imagemeta"]//warning//text()').map(&:to_s)
 
             {
+              'job_id' => nil,
+              'last_job_id' => job_id,
+              'seen_at' => Time.zone.now,
               'outdoor_active_id' => errors.empty? ? outdoor_active_id : nil,
               'job_status' => errors.empty? ? 'done' : 'failed',
               'errors' => errors,

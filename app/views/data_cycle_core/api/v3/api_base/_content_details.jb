@@ -18,6 +18,8 @@ end
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')
 json.merge! render 'content_properties', content: content, options: options
 
+json.merge! render 'combined_properties', content: content, options: options
+
 json_overlay = {}
 json_overlay.merge! render 'overlay_properties', content: content, options: options if content.content_type?('entity')
 
@@ -27,8 +29,6 @@ if json_overlay.dig('dataCycleProperty').present?
 end
 
 json.merge! json_overlay
-
-json.merge! render 'combined_properties', content: content, options: options
 
 json.merge! render 'external', content: content if content.content_type == 'entity' && (content.external? || content.synch?)
 

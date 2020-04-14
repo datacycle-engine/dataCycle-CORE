@@ -318,7 +318,7 @@ module DataCycleCore
               str? & included_in?(
                 ['string', 'text', 'number', 'boolean',
                  'datetime', 'geographic',
-                 'object', 'classification', 'asset']
+                 'object', 'classification', 'asset', 'schedule']
               )
             end
           end

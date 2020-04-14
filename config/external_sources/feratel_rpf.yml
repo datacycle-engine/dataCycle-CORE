@@ -119,39 +119,39 @@ config:
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
   import_config:
-    content_score_asp:
-      sorting: 1
-      source_type: additional_service_providers
-      tree_label: Feratel - ContentScore
-      import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tag_path: 'QualityDetails.ContentScore'
-      tag_id_path: 'QualityDetails.ContentScore.text'
-      tag_name_path: 'QualityDetails.ContentScore.text'
-      external_id_prefix: 'Feratel - ContentScore - '
-      external_id_hash_method: 'round'
-      tag_name_function: 'round'
-    content_score_ii:
-      sorting: 2
-      source_type: infrastructure_items
-      tree_label: Feratel - ContentScore
-      import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tag_path: 'QualityDetails.ContentScore'
-      tag_id_path: 'QualityDetails.ContentScore.text'
-      tag_name_path: 'QualityDetails.ContentScore.text'
-      external_id_prefix: 'Feratel - ContentScore - '
-      external_id_hash_method: 'round'
-      tag_name_function: 'round'
-    content_score_a:
-      sorting: 3
-      source_type: accommodations
-      tree_label: Feratel - ContentScore
-      import_strategy: DataCycleCore::Generic::Common::ImportTags
-      tag_path: 'QualityDetails.ContentScore'
-      tag_id_path: 'QualityDetails.ContentScore.text'
-      tag_name_path: 'QualityDetails.ContentScore.text'
-      external_id_prefix: 'Feratel - ContentScore - '
-      external_id_hash_method: 'round'
-      tag_name_function: 'round'
+#    content_score_asp:
+#      sorting: 1
+#      source_type: additional_service_providers
+#      tree_label: Feratel - ContentScore
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tag_path: 'QualityDetails.ContentScore'
+#      tag_id_path: 'QualityDetails.ContentScore.text'
+#      tag_name_path: 'QualityDetails.ContentScore.text'
+#      external_id_prefix: 'Feratel - ContentScore - '
+#      external_id_hash_method: 'round'
+#      tag_name_function: 'round'
+#    content_score_ii:
+#      sorting: 2
+#      source_type: infrastructure_items
+#      tree_label: Feratel - ContentScore
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tag_path: 'QualityDetails.ContentScore'
+#      tag_id_path: 'QualityDetails.ContentScore.text'
+#      tag_name_path: 'QualityDetails.ContentScore.text'
+#      external_id_prefix: 'Feratel - ContentScore - '
+#      external_id_hash_method: 'round'
+#      tag_name_function: 'round'
+#    content_score_a:
+#      sorting: 3
+#      source_type: accommodations
+#      tree_label: Feratel - ContentScore
+#      import_strategy: DataCycleCore::Generic::Common::ImportTags
+#      tag_path: 'QualityDetails.ContentScore'
+#      tag_id_path: 'QualityDetails.ContentScore.text'
+#      tag_name_path: 'QualityDetails.ContentScore.text'
+#      external_id_prefix: 'Feratel - ContentScore - '
+#      external_id_hash_method: 'round'
+#      tag_name_function: 'round'
     feratel_mealcodes_accommodations:
       sorting: 4
       source_type: accommodations

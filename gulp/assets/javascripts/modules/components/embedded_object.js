@@ -37,6 +37,11 @@ class EmbeddedObject {
         .find('> .buttons > #add_' + this.id)
         .show();
     this.element.off('reinit-event-handlers').on('reinit-event-handlers', this.addEventHandlers.bind(this));
+
+    this.element.on('dc:html:changed', '> .content-object-item:not(.hidden)', event =>
+      this.setSwapClasses(event.currentTarget)
+    );
+
     this.element.off('dc:import:data').on(
       'dc:import:data',
       function(event, data) {

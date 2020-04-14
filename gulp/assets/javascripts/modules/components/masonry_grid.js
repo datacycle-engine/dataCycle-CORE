@@ -60,8 +60,8 @@ class MasonryGrid {
   resizeMasonryItem(item) {
     let newHeight = this.boundingHeight(item);
     $(item).data('original-height', newHeight);
-    let rowSpan = Math.round((newHeight + this.rowGap) / (this.rowHeight + this.rowGap));
-    item.style.gridRowEnd = 'span ' + rowSpan;
+    let rowSpan = Math.ceil((newHeight + this.rowGap) / (this.rowHeight + this.rowGap));
+    item.style.gridRow = 'span ' + rowSpan;
   }
   resizeAllMasonryItems(event) {
     this.grid[0].querySelectorAll('.grid-item').forEach(item => {

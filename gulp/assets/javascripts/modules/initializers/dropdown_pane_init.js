@@ -1,6 +1,7 @@
 // Dropdown Pane Overflow Fix
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     let dropdownParent = $(event.target).closest('.dropdown-pane.bottom');
     if (dropdownParent.length) resizeDropdown(dropdownParent);
   });
@@ -21,10 +22,7 @@ module.exports.initialize = function() {
       $(element).addClass('align-top');
 
       if ($(element).children('.list-items').length) {
-        $(element)
-          .children('.list-items')
-          .first()
-          .css('max-height', '');
+        $(element).children('.list-items').first().css('max-height', '');
 
         if (
           $(document).scrollTop() < $('header').outerHeight() + 5 &&
@@ -35,10 +33,7 @@ module.exports.initialize = function() {
             .first()
             .css(
               'max-height',
-              $(element)
-                .children('.list-items')
-                .first()
-                .outerHeight() -
+              $(element).children('.list-items').first().outerHeight() -
                 40 +
                 (linked_item.offset().top -
                   $(document).scrollTop() -
@@ -51,10 +46,7 @@ module.exports.initialize = function() {
             .first()
             .css(
               'max-height',
-              $(element)
-                .children('.list-items')
-                .first()
-                .outerHeight() -
+              $(element).children('.list-items').first().outerHeight() -
                 30 +
                 (linked_item.offset().top - $(document).scrollTop() - $(element).outerHeight())
             );
@@ -63,10 +55,7 @@ module.exports.initialize = function() {
     } else {
       $(element).removeClass('align-top');
       if ($(element).children('.list-items').length) {
-        $(element)
-          .children('.list-items')
-          .first()
-          .css('max-height', '');
+        $(element).children('.list-items').first().css('max-height', '');
 
         if (
           $(window).height() -
@@ -81,10 +70,7 @@ module.exports.initialize = function() {
             .first()
             .css(
               'max-height',
-              $(element)
-                .children('.list-items')
-                .first()
-                .outerHeight() +
+              $(element).children('.list-items').first().outerHeight() +
                 ($(window).height() -
                   20 -
                   (linked_item.offset().top +

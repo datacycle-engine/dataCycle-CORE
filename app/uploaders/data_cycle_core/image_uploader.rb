@@ -50,7 +50,7 @@ module DataCycleCore
     def url
       content = model&.thing
 
-      return "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}" if content.nil?
+      return super if content.nil?
 
       copyright_holder = content.try(:copyright_holder)&.first
       copyright_year = content.try(:copyright_year)&.to_i
@@ -64,7 +64,7 @@ module DataCycleCore
           (author.nil? ? nil : I18n.with_locale(author.first_available_locale) { author.title })
         ].compact.join('_').underscore_blanks
 
-        "#{asset_host}/assets/#{model.class.to_s.demodulize.underscore}/#{model.id}/#{version_name || 'original'}/#{file_name}.#{file&.extension || File.extname(model.name.to_s).delete('.')}"
+        local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{file_name}.#{file&.extension || File.extname(model.name.to_s).delete('.')}")
       end
     end
 

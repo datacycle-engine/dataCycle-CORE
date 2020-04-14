@@ -36,7 +36,7 @@ module DataCycleCore
           @log.error error.full_message if error.respond_to?(:full_message)
         end
 
-        def info(title, id)
+        def info(title, id = nil)
           id.blank? ? @log.info(title) : @log.info("#{title} | #{id}")
         end
 

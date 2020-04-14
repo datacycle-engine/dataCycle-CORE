@@ -13,14 +13,15 @@ module DataCycleCore
           @bergerlebnis = options.dig(:endpoint_bergerlebnis)
           @event = options.dig(:endpoint_event)
           @eventreihe = options.dig(:endpoint_eventreihe)
+          @max_retry = 5
         end
 
         def infrastructures(lang: :de)
-          first_page = load_data(1, lang)
+          first_page = load_data(1, lang, 0)
           max_pages = first_page['totalPages'].to_i
           Enumerator.new do |yielder|
             (1..max_pages).each do |page|
-              load_data(page - 1, lang)['items'].each do |infrastructure_record|
+              load_data(page - 1, lang, 0)['items'].each do |infrastructure_record|
                 yielder << infrastructure_record
               end
             end
@@ -41,7 +42,7 @@ module DataCycleCore
 
         protected
 
-        def load_data(page = 1, lang = :de)
+        def load_data(page = 1, lang = :de, retry_count = 0)
           sleep 2 # rate limit requests
 
           response = Faraday.new.get do |req|
@@ -52,6 +53,10 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
+        rescue StandardError
+          raise if retry_count > @max_retry
+          sleep(1)
+          load_data(page, lang, retry_count + 1)
         end
 
         def page_event(end_point, type, lang)
@@ -76,7 +81,7 @@ module DataCycleCore
           end
         end
 
-        def load_events(end_point, page = 1)
+        def load_events(end_point, page = 1, retry_count = 0)
           response = Faraday.new.get do |req|
             req.url File.join([@host, end_point])
             req.params['page'] = page
@@ -84,6 +89,10 @@ module DataCycleCore
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           JSON.parse(response.body)
+        rescue StandardError
+          raise if retry_count > @max_retry
+          sleep(1)
+          load_events(end_point, page, retry_count + 1)
         end
 
         def load_bergerlebnis_ids(lang)

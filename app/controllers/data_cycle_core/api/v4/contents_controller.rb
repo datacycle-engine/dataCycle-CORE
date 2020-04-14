@@ -65,7 +65,11 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          else
+            query
+          end
         end
 
         def build_search_query
@@ -87,6 +91,7 @@ module DataCycleCore
 
           filter = @stored_filter || DataCycleCore::StoredFilter.new
           filter.language = @language
+          filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
           query = apply_event_query_filters(query)

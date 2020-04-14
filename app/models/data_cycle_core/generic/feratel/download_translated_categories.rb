@@ -14,7 +14,7 @@ module DataCycleCore
         end
 
         def self.data_id(data)
-          data['Id']
+          data['Id'] || data['Order']
         end
 
         def self.data_name(data)

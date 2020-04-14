@@ -1,0 +1,25 @@
+<%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
+
+  <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" do %>
+    <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if options['readonly'].to_s == 'true' %>
+    <%= definition['label'] %>
+    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+  <% end %>
+
+  <% classification_items = DataCycleCore::ClassificationAlias.includes(:classification_tree_label, :primary_classification).where(classification_trees: { parent_classification_alias_id: nil }, classification_tree_labels: { name: definition['tree_label'] }) %>
+
+  <ul class="no-bullet classification-radiobutton-list">
+    <%= collection_radio_buttons(nil, key + '[]', classification_items, :primary_classification_id, :internal_name, {}, { namespace: local_assigns.dig(:options, :prefix) }) do |rb| %>
+      <li class="radiobutton-wrap">
+        <%= rb.radio_button value: rb.value, checked: (value&.ids&.include?(rb.value) || (value.blank? && classification_items.to_a.select { |c| c.name.in?(definition&.dig('ui', 'edit', 'default_value') || []) }.map(&:primary_classification_id).include?(rb.value))) %>
+        <% if rb.object.try(:description).present? %>
+          <%= rb.label title: rb.object.try(:description), data: { tooltip: true, allow_html: true } do %>
+            <%= rb.text %> <i class="fa fa-info-circle" aria-hidden="true"></i>
+          <% end %>
+        <% else %>
+          <%= rb.label %>
+        <% end %>
+      </li>
+    <% end %>
+  </ul>
+<% end if classification_tree_label_has_children?(definition['tree_label']) %>

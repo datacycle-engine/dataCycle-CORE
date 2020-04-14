@@ -125,14 +125,20 @@
         :template_name: Preis
         :translated: true
         :advanced_search: true
-      # schema.org: correct name: eligible_region
+      # schema.org: correct name: eligible_region vs areaServed
       :eligable_region:
-        :label: Ort
+        :label: Anbieter
         :type: linked
-        :template_name: Örtlichkeit
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
         :api:
           :v4:
             :name: eligibleRegion
+#            :name: areaServed
       :url:
         :label: Angebots URL
         :type: string
@@ -231,6 +237,9 @@
       :additional_aggregate_offer_properties:
         :type: mixin
         :name: additional_aggregate_offer_properties
+      :external_source_attribtues:
+        :type: mixin
+        :name: external_source_attribtues
       :data_type:
         :label: Inhaltstype
         :type: classification

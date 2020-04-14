@@ -2,7 +2,7 @@
 
 DataCycleCore::Engine.routes.draw do
   devise_for :users, class_name: 'DataCycleCore::User', module: :devise,
-                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }.merge(Devise.try(:omniauth_configs).present? ? { omniauth_callbacks: 'data_cycle_core/omniauth_callbacks' } : {})
+                     controllers: { passwords: 'data_cycle_core/passwords', sessions: 'data_cycle_core/sessions', registrations: 'data_cycle_core/registrations', confirmations: 'data_cycle_core/confirmations' }
 
   authenticated :user do
     root 'backend#index', as: :authenticated_root
@@ -11,13 +11,13 @@ DataCycleCore::Engine.routes.draw do
   CONTENT_TABLES_FALLBACK ||= ['organizations', 'persons', 'events', 'places', 'products', 'media_objects', 'creative_works'].freeze
   CONTENT_TABLE ||= ['things'].freeze
 
-  root to: redirect('/users/sign_in')
+  root to: redirect('users/sign_in')
 
   get '/docs/*path/:file', to: 'documentation#image', constraints: ->(request) { request.path.match?(/\.(gif|jpg|png|svg)$/) }
   get '/docs/*path', to: 'documentation#show'
   get '/docs', to: 'documentation#show'
 
-  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', constraints: {
+  get '/assets/:klass/:id/:version(/:file)', to: 'missing_asset#show', as: 'local_asset', constraints: {
     klass: /(image|audio|video|pdf|text_file|data_cycle_file)/,
     id: /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/,
     file: /.*/
@@ -26,7 +26,7 @@ DataCycleCore::Engine.routes.draw do
   get '/schema', to: 'schema#index'
   get '/schema/:id', to: 'schema#show', as: :schema_details
 
-  get  '/info', to: 'frontend#info'
+  get  '/info', to: 'frontend#info', as: :info
   get  '/settings', to: 'backend#settings'
   resources :users, only: [:index, :edit, :update, :destroy] do
     post :unlock, on: :member
@@ -56,6 +56,7 @@ DataCycleCore::Engine.routes.draw do
       get :new_embedded_object, on: :member
       get :render_embedded_object, on: :member
       post :bulk_create, on: :collection
+      delete :remove_locks, on: :member
       get 'split_view/:source_id', on: :member, action: :split_view, as: 'split_view'
     end
   end
@@ -139,6 +140,8 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
+  get  '/admin/activities', to: 'dash_board#activities'
+  get  '/admin/activity_details/:type', to: 'dash_board#activity_details', format: :json
 
   if DataCycleCore.main_config.dig(:api, :enabled)
     defaults format: :json do
@@ -233,44 +236,44 @@ DataCycleCore::Engine.routes.draw do
               end
             end
           end
-          if DataCycleCore.main_config.dig(:api, :v4, :enabled)
-            namespace :v4 do
-              scope path: '(/:api_subversion)' do
-                match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
+        end
+        if DataCycleCore.main_config.dig(:api, :v4, :enabled)
+          namespace :v4 do
+            scope path: '(/:api_subversion)' do
+              match 'things/deleted', to: 'contents#deleted', as: 'contents_deleted', via: [:get, :post]
 
-                match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
-                match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
+              match 'things', to: 'things#index', via: [:get, :post] if Rails.env.test? || Rails.env.development?
+              match 'things/:id', to: 'things#show', as: 'thing', via: [:get, :post]
 
-                match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
+              match 'universal(/:id)', to: 'universal#show', as: 'universal', via: [:get, :post]
 
-                match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
-                match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
+              match 'concept_schemes', to: 'classification_trees#index', via: [:get, :post]
+              match 'concept_schemes/:id', to: 'classification_trees#show', as: 'concept_scheme', via: [:get, :post]
 
-                resources :concept_schemes, only: [], controller: :classification_trees do
-                  match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
-                end
-
-                match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
-
-                post 'collections/create', to: 'watch_lists#create'
-                resources :collections, only: [], controller: :watch_lists do
-                  post :add_item, on: :member
-                  post :remove_item, on: :member
-                  get :download_and_reset, on: :member
-                end
-                match 'collections', to: 'watch_lists#index', via: [:get, :post]
-                match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
-
-                namespace :authentication, path: :auth do
-                  post :login
-                  post :renew_login
-                  post :logout
-                end
-
-                post 'users/create', to: 'users#create'
-                match 'users', to: 'users#index', via: [:get, :post]
-                match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
+              resources :concept_schemes, only: [], controller: :classification_trees do
+                match 'concepts(/:classification_id)', on: :member, action: 'classifications', as: 'classifications', via: [:get, :post]
               end
+
+              match 'endpoints/:id(/:content_id)', to: 'contents#index', as: 'stored_filter', via: [:get, :post]
+
+              post 'collections/create', to: 'watch_lists#create'
+              resources :collections, only: [], controller: :watch_lists do
+                post :add_item, on: :member
+                post :remove_item, on: :member
+                get :download_and_reset, on: :member
+              end
+              match 'collections', to: 'watch_lists#index', via: [:get, :post]
+              match 'collections/:id', to: 'watch_lists#show', as: 'collection', via: [:get, :post]
+
+              namespace :authentication, path: :auth do
+                post :login
+                post :renew_login
+                post :logout
+              end
+
+              post 'users/create', to: 'users#create'
+              match 'users', to: 'users#index', via: [:get, :post]
+              match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
             end
           end
         end
@@ -298,22 +301,21 @@ DataCycleCore::Engine.routes.draw do
         end
       end
     end
-
-    namespace :object_browser do
-      post :show
-      post :details
-      post :find
-      post :render_in_overlay
-    end
-
-    post 'contents/upload', to: 'contents#upload'
-    # post 'contents/new', to: 'contents#new'
-
-    resources :publications, only: :index
-
-    get :add_filter, controller: :application
-    get :add_tag_group, controller: :application
-    post :remote_render, controller: :application
-    get :reload_required, controller: :application
   end
+  namespace :object_browser do
+    post :show
+    post :details
+    post :find
+    post :render_in_overlay
+  end
+
+  post 'contents/upload', to: 'contents#upload'
+  # post 'contents/new', to: 'contents#new'
+
+  resources :publications, only: :index
+
+  get :add_filter, controller: :application
+  get :add_tag_group, controller: :application
+  post :remote_render, controller: :application
+  get :reload_required, controller: :application
 end

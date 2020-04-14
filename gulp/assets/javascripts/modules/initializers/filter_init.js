@@ -1,19 +1,19 @@
 // Filter
-module.exports.initialize = function() {
-  let remove_filter = function(elem) {
+module.exports.initialize = function ($) {
+  let remove_filter = function (elem) {
     if (elem.siblings('label:visible').length == 0) {
       elem.parents('.tag-group').hide();
     }
     elem.hide();
   };
 
-  let split_setup = function() {
+  let split_setup = function () {
     // Configure Split List
     var num_cols = 4,
       container = $('.split-list'),
       listItem = 'li',
       listClass = 'sub-list';
-    container.each(function() {
+    container.each(function () {
       var items_per_col = new Array(),
         items = $(this).find(listItem),
         min_items_per_col = Math.floor(items.length / num_cols),
@@ -43,28 +43,13 @@ module.exports.initialize = function() {
 
   function language_handler(item, checked) {
     if ($(item).val() == 'all' && checked) {
-      $(item)
-        .parents('.filter')
-        .find(':checkbox')
-        .not(item)
-        .prop('checked', false)
-        .trigger('change');
-    } else if (
-      checked &&
-      $(item)
-        .parents('.filter')
-        .find(':checkbox#all')
-        .is(':checked')
-    ) {
-      $(item)
-        .parents('.filter')
-        .find(':checkbox#all')
-        .prop('checked', false)
-        .trigger('change');
+      $(item).parents('.filter').find(':checkbox').not(item).prop('checked', false).trigger('change');
+    } else if (checked && $(item).parents('.filter').find(':checkbox#all').is(':checked')) {
+      $(item).parents('.filter').find(':checkbox#all').prop('checked', false).trigger('change');
     }
   }
 
-  let setup = function() {
+  let setup = function () {
     $(document).on('change', '.filters .filter ul :checkbox', event => {
       var id = $(event.currentTarget).attr('id');
       var title = $(event.currentTarget)
@@ -73,13 +58,8 @@ module.exports.initialize = function() {
         .find('span.inner-title')
         .first()
         .html();
-      var tree_label = $(event.currentTarget)
-        .parents('.filter')
-        .data('tree-label');
-      var tree_label_title = $(event.currentTarget)
-        .parents('.filter')
-        .find('>.title')
-        .text();
+      var tree_label = $(event.currentTarget).parents('.filter').data('tree-label');
+      var tree_label_title = $(event.currentTarget).parents('.filter').find('>.title').text();
 
       var selected_label = $('.filters .filtertags .filter-groups .tag-group.tags.' + tree_label).find(
         '[for=' + id + ']'
@@ -90,9 +70,9 @@ module.exports.initialize = function() {
           $('.filters .filtertags .filter-groups').append(
             '<span class="tag-group tags i ' +
               tree_label +
-              '"><i class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
+              '"><span class="tag-group-label"><i class="fa fa-tags" aria-hidden="true"></i> ' +
               tree_label_title +
-              ':</i> <span class="tags-container"></span></span>'
+              ':</span> <span class="tags-container"></span></span>'
           );
         }
 
@@ -121,9 +101,7 @@ module.exports.initialize = function() {
 
     var category_filter_heights = [];
     $('#primary_nav_wrap .clickable-menu').on('mouseenter', 'li.active, li.active li', event => {
-      var child_list = $(event.currentTarget)
-        .find('ul')
-        .first();
+      var child_list = $(event.currentTarget).find('ul').first();
       if (
         child_list.length &&
         Math.round($('.off-canvas-wrapper').outerHeight()) <
@@ -132,11 +110,7 @@ module.exports.initialize = function() {
         $('.off-canvas-wrapper').css('height', child_list.outerHeight() + child_list.offset().top + 150);
       }
 
-      category_filter_heights.push(
-        $(event.currentTarget)
-          .find('ul')
-          .height() || 0
-      );
+      category_filter_heights.push($(event.currentTarget).find('ul').height() || 0);
       var height = Math.max.apply(null, category_filter_heights);
       $(event.currentTarget)
         .parentsUntil('#primary_nav_wrap')
@@ -159,68 +133,32 @@ module.exports.initialize = function() {
     $('.filters .advanced-filters').on('change', ' .advanced-filter', event => {
       $(event.currentTarget)
         .removeClass('i e n q')
-        .addClass(
-          $(event.currentTarget)
-            .find(':input[name*="[m]"]')
-            .first()
-            .val()
-        );
+        .addClass($(event.currentTarget).find(':input[name*="[m]"]').first().val());
 
       let value;
       let value_fields = $(event.currentTarget).find(':input[name*="[v]"]');
       if (value_fields.is(':checkbox')) {
-        if (
-          value_fields
-            .filter(':checkbox')
-            .first()
-            .prop('checked')
-        )
-          value = value_fields
-            .filter(':checkbox')
-            .first()
-            .val();
-        else
-          value = value_fields
-            .filter(':hidden')
-            .first()
-            .val();
+        if (value_fields.filter(':checkbox').first().prop('checked'))
+          value = value_fields.filter(':checkbox').first().val();
+        else value = value_fields.filter(':hidden').first().val();
       } else if (value_fields.is(':radio')) {
-        value = value_fields
-          .filter(':checked')
-          .first()
-          .val();
+        value = value_fields.filter(':checked').first().val();
       } else if (value_fields.length > 1) {
         value = {};
         value_fields.each((index, elem) => {
-          value[
-            $(elem)
-              .prop('name')
-              .getKey()
-          ] = $(elem).val();
+          value[$(elem).prop('name').getKey()] = $(elem).val();
         });
       } else if (value_fields.length == 1) value = value_fields.val();
 
       $.ajax({
-        url: '/add_tag_group',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/add_tag_group',
         method: 'GET',
         data: {
-          t: $(event.currentTarget)
-            .find(':input[name*="[t]"]')
-            .first()
-            .val(),
-          n: $(event.currentTarget)
-            .find(':input[name*="[n]"]')
-            .first()
-            .val(),
-          q: $(event.currentTarget)
-            .find(':input[name*="[q]"]')
-            .first()
-            .val(),
+          t: $(event.currentTarget).find(':input[name*="[t]"]').first().val(),
+          n: $(event.currentTarget).find(':input[name*="[n]"]').first().val(),
+          q: $(event.currentTarget).find(':input[name*="[q]"]').first().val(),
           v: value,
-          m: $(event.currentTarget)
-            .find(':input[name*="[m]"]')
-            .first()
-            .val(),
+          m: $(event.currentTarget).find(':input[name*="[m]"]').first().val(),
           index: $(event.currentTarget).data('index')
         },
         dataType: 'script',
@@ -236,12 +174,8 @@ module.exports.initialize = function() {
         method: 'GET',
         data: {
           t: $(event.target).val(),
-          n: $(event.target)
-            .find(':selected')
-            .data('name'),
-          q: $(event.target)
-            .find(':selected')
-            .data('advancedtype'),
+          n: $(event.target).find(':selected').data('name'),
+          q: $(event.target).find(':selected').data('advancedtype'),
           m: $(event.target).data('method'),
           index: $(event.target).data('index')
         },
@@ -280,10 +214,8 @@ module.exports.initialize = function() {
 
   // submit searchform on blur
   if ($('#search-form').length > 0) {
-    $('#search-form input.fulltext-search-field').change(function() {
-      $(this)
-        .closest('#search-form')
-        .submit();
+    $('#search-form input.fulltext-search-field').change(function () {
+      $(this).closest('#search-form').submit();
     });
   }
 
@@ -297,25 +229,17 @@ module.exports.initialize = function() {
     $('.clickable-menu').on('click', '>li', event => {
       if (
         $(event.currentTarget).hasClass('active') &&
-        !$(event.target)
-          .parentsUntil('.clickable-menu')
-          .filter('ul').length
+        !$(event.target).parentsUntil('.clickable-menu').filter('ul').length
       ) {
         $(event.currentTarget).trigger('mouseleave');
       } else if (!$(event.currentTarget).hasClass('active')) {
         $('.clickable-menu .active').removeClass('active');
-        $(event.currentTarget)
-          .addClass('active')
-          .trigger('mouseenter');
+        $(event.currentTarget).addClass('active').trigger('mouseenter');
         let list = $(event.currentTarget).find('> ul');
         if (!list.length) return;
 
         let available_height =
-          $(window).height() +
-          $(window).scrollTop() -
-          $(event.currentTarget)
-            .find('> ul')
-            .offset().top;
+          $(window).height() + $(window).scrollTop() - $(event.currentTarget).find('> ul').offset().top;
         if (available_height < list.get(0).scrollHeight && available_height > 20)
           list.css('height', available_height - 20);
         else list.css('height', '');

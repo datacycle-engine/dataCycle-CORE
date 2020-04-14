@@ -7,7 +7,7 @@ module DataCycleCore
         def in_schedule(value = nil, mode = nil)
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
-          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'schedule')
+          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'event_schedule')
         end
 
         def schedule_search(from, to, relation = nil)

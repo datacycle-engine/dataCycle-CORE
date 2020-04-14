@@ -1,7 +1,7 @@
 var ScheduleEditor = require('../components/schedule_editor');
 
 // Word Counter
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var schedule_editors = [];
 
   $('.schedule-editor').each((i, elem) => {

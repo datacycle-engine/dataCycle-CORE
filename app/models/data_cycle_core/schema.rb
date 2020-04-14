@@ -57,20 +57,21 @@ module DataCycleCore
 
       def property_definitions
         @template_schema['properties']
-          .reject { |_, definition| definition['type'] == 'classification' || definition['type'] == 'key' }
+          .reject { |_, definition| definition['type'] == 'key' } # definition['type'] == 'classification' ||
           .reject { |_, definition| definition.dig('api', 'disabled') }
           .map { |key, definition|
             if definition['type'] == 'object'
-              Template.new(definition).property_definitions.map { |d| d.merge({ domain: schema_name }) }
+              Template.new(definition).property_definitions.map { |d| d.merge({ template_type: schema_name }) }
             else
               {
-                domain: schema_name,
+                template_type: schema_name,
                 label: key.camelize(:lower),
-                range: resolve_range(definition),
-                comment: nil
+                data_type: resolve_data_type(definition),
+                comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
               }
             end
-          }.flatten.sort_by { |definition| [definition[:domain], definition[:label]] }
+          }.flatten.sort_by { |definition| Array.wrap(definition[:template_type]) + [definition[:label]] }
       end
 
       protected
@@ -79,19 +80,36 @@ module DataCycleCore
 
       private
 
-      def resolve_range(definition)
+      def resolve_data_type(definition)
         if definition.dig('api', 'type')
-          definition.dig('api', 'type')
+          "//schema.org/#{definition.dig('api', 'type')}"
         elsif definition['type'] == 'embedded'
           raise 'Cannot resolve embedded templates without schema' if @schema.nil?
-
-          "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
-        elsif definition['type'] == 'linked' && definition['template_name'].present?
-          raise 'Cannot resolve embedded templates without schema' if @schema.nil?
-
           "/schema/#{@schema.template_by_template_name(definition['template_name']).schema_name}"
         elsif definition['type'] == 'linked'
-          '//schema.org/Thing'
+          if definition['template_name'].present?
+            raise 'Cannot resolve linked templates without schema' if @schema.nil?
+            Array.wrap(@schema.template_by_template_name(definition['template_name']).schema_name)
+              .compact
+              &.map { |i| DataCycleCore::Thing.find_by(template_name: i, template: true).present? ? "/schema/#{i}" : "//schema.org/#{i}" }
+          elsif definition['stored_filter'].present?
+            raise 'Cannot resolve linked templates without schema' if @schema.nil?
+            @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
+              .map { |i|
+                if DataCycleCore::Thing.find_by(template_name: i, template: true).present?
+                  "/schema/#{i}"
+                else
+                  Array.wrap(@schema.template_by_template_name(i)&.schema_name)
+                    .compact
+                    &.map { |item| DataCycleCore::Thing.find_by(template_name: item, template: true).present? ? "/schema/#{item}" : "//schema.org/#{item}" }
+                    .presence
+                end
+              }.compact
+          else
+            '//schema.org/Thing'
+          end
+        elsif definition['type'] == 'classification'
+          'classification'
         else
           case definition.dig('compute', 'type') || definition['type']
           when 'string'
@@ -149,6 +167,15 @@ module DataCycleCore
 
     def template_by_schema_name(schema_name)
       @templates.find { |t| t.schema_name == schema_name }&.clone_with_schema(self)
+    end
+
+    def template_by_classification(names)
+      tree_name = 'Inhaltstypen'
+      aliases = DataCycleCore::ClassificationAlias.for_tree(tree_name).with_internal_name(names).with_descendants
+
+      aliases.map { |i|
+        i.classifications.first.things.first&.template_name || i.internal_name
+      }.compact.to_a.uniq
     end
 
     private

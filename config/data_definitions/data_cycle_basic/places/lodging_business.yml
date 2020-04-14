@@ -95,6 +95,9 @@
       :feratel_categories:
         :type: mixin
         :name: feratel_categories
+      :external_source_attribtues:
+        :type: mixin
+        :name: external_source_attribtues
       :xamoom:
         :type: mixin
         :name: xamoom

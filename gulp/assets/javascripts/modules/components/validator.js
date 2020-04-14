@@ -261,7 +261,7 @@ class Validator {
     }
     let uuid = this.form.find(':input[name="uuid"]').val();
     let table = this.form.find(':input[name="table"]').val() || 'things';
-    let url = '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
+    let url = window.DATA_CYCLE_ENGINE_PATH + '/' + table + (uuid != undefined ? '/' + uuid : '') + '/validate';
     let template = this.form.find(':input[name="template"]').val();
     if (template != undefined) {
       form_data.push({

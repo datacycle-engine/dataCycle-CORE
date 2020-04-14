@@ -55,7 +55,8 @@
       left: 2.5rem;
     }
 
-    input[type='checkbox'] {
+    input[type='checkbox'],
+    input[type='radio'] {
       min-width: 0;
       margin: 0 0 0 1rem;
     }
@@ -72,6 +73,26 @@
           margin: 0;
         }
         .checkbox-wrap {
+          label {
+            position: relative;
+            top: 0;
+            left: 0;
+            font-weight: normal;
+            color: $black;
+          }
+        }
+      }
+      &.radio_button {
+        background-color: $light-gray;
+        padding: 2.5rem 0.5rem 1rem 0.5rem;
+        transition: box-shadow 0.1s, border-color 0.25s ease-in-out;
+        &:hover {
+          box-shadow: 0 0 7px $primary-color;
+        }
+        ul {
+          margin: 0;
+        }
+        .radiobutton-wrap {
           label {
             position: relative;
             top: 0;
@@ -523,11 +544,12 @@ select {
     }
 
     .detail-type.object {
-      a.copy-all {
+      a.copy-all,
+      a.translate-all {
         width: 2rem;
         height: 2rem;
-        margin-top: -2.1rem;
-        margin-right: -0.9rem;
+        top: -2.1rem;
+        right: -0.9rem;
         .fa {
           font-size: 1.2rem;
           line-height: 2rem;
@@ -547,7 +569,8 @@ select {
         }
       }
 
-      .copy-all {
+      .copy-all,
+      .translate-all {
         float: right;
         margin: 0.1rem;
         z-index: 1;
@@ -568,6 +591,10 @@ select {
             display: block;
           }
         }
+      }
+
+      .translate {
+        margin-right: 0.1rem;
       }
     }
 
@@ -1218,6 +1245,8 @@ ul.translated-locales {
       border: 0;
       margin: 0.1rem;
       position: relative;
+      word-break: break-word;
+      white-space: normal;
 
       span {
         color: white;
@@ -1768,7 +1797,7 @@ select {
   }
 }
 
-[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button)
+[data-disable-with]:not(.submit-edit-form, .normalize-content-button, .add-to-watchlist-link, .remove-from-watchlist-link, .bulk-delete-button, .save-content-button, .button-prime.small.translate)
   > .fa {
   font-size: inherit;
   line-height: inherit;
@@ -2408,6 +2437,14 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 
+.button-prime.delete-content-locks {
+  display: none;
+
+  &.show {
+    display: inline-block;
+  }
+}
+
 .button-prime.content-lock {
   > i.fa {
     z-index: 1;
@@ -2607,17 +2644,6 @@ button.button-prime.small.bulk-delete-button {
     padding-top: 0.5rem;
   }
 }
-#settings-off-canvas {
-  .settings-row {
-    .edit-user-link {
-      display: block;
-      .icon.icon-edit {
-        float: right;
-        width: auto;
-      }
-    }
-  }
-}
 .password-field {
   position: relative;
   .columns.end {
@@ -2637,4 +2663,11 @@ button.button-prime.small.bulk-delete-button {
       cursor: pointer;
     }
   }
+}
+.overflow-x-auto {
+  overflow-x: auto;
+}
+.activities-wrapper {
+  border: 1px solid $light-gray;
+  margin-bottom: 2rem;
 }

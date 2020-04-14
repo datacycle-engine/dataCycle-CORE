@@ -23,4 +23,6 @@ rdoc/
 coverage
 .env
 benchmark/
+test/fixtures/files/shp
+
 .DS_Store

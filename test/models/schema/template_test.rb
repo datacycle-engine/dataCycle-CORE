@@ -24,22 +24,22 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for "stringProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'stringProperty' }
 
-      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:range], '//schema.org/Text')
+      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:data_type], '//schema.org/Text')
     end
 
     it 'should contain correct property definition for "datetimeProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'datetimeProperty' }
 
-      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:range], '//schema.org/DateTime')
+      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:data_type], '//schema.org/DateTime')
     end
 
     it 'should contain correct property definition for "numberProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'numberProperty' }
 
-      assert(string_property[:domain], 'Thing_WithAllSimplePropertyTypes')
-      assert(string_property[:range], '//schema.org/Number')
+      assert(string_property[:template_type], 'Thing_WithAllSimplePropertyTypes')
+      assert(string_property[:data_type], '//schema.org/Number')
     end
   end
 
@@ -53,8 +53,8 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for "embedded"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'embedded' }
 
-      assert(string_property[:domain], 'Thing_ActingAsEmbeddedContainer')
-      assert(string_property[:range], '/schema/Thing_SimpleEmbedded')
+      assert(string_property[:template_type], 'Thing_ActingAsEmbeddedContainer')
+      assert(string_property[:data_type], '/schema/Thing_SimpleEmbedded')
     end
   end
 
@@ -68,15 +68,15 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithTemplate' }
 
-      assert(string_property[:domain], 'Thing_SimpleEntityLinkedOne')
-      assert(string_property[:range], '/schema/Thing_SimpleEntityLinkedTwo')
+      assert(string_property[:template_type], 'Thing_SimpleEntityLinkedOne')
+      assert(string_property[:data_type], '/schema/Thing_SimpleEntityLinkedTwo')
     end
 
     it 'should contain correct property definition for linked properties based on templates' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'linkedWithStoredFilter' }
 
-      assert(string_property[:domain], 'Thing_SimpleEntityLinkedOne')
-      assert(string_property[:range], '//schema.org/Thing')
+      assert(string_property[:template_type], 'Thing_SimpleEntityLinkedOne')
+      assert(string_property[:data_type], '//schema.org/Thing')
     end
   end
 
@@ -95,15 +95,15 @@ describe DataCycleCore::Schema::Template do
     it 'should contain correct property definition for "someProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'someProperty' }
 
-      assert(string_property[:domain], 'Thing_Container')
-      assert(string_property[:range], '//schema.org/Text')
+      assert(string_property[:template_type], 'Thing_Container')
+      assert(string_property[:data_type], '//schema.org/Text')
     end
 
     it 'should contain correct property definition for "anotherProperty"' do
       string_property = subject.property_definitions.find { |d| d[:label] == 'anotherProperty' }
 
-      assert(string_property[:domain], 'Thing_Container')
-      assert(string_property[:range], '//schema.org/Number')
+      assert(string_property[:template_type], 'Thing_Container')
+      assert(string_property[:data_type], '//schema.org/Number')
     end
   end
 end

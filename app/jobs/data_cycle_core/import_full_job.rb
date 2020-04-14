@@ -35,8 +35,9 @@ module DataCycleCore
         external_source = ExternalSource.find(uuid)
         external_source.import({ mode: 'full' })
       rescue StandardError => exception
+        Appsignal.send_error(e, nil, "import full job failed - #{external_source.id}")
         external_source.config['last_import_full_failed'] = true
-        external_source.config['last_import_full_exception'] = exception
+        external_source.config['last_import_full_exception'] = "#{exception} (#{Time.zone.now})"
         external_source.save!
       end
       Process.waitpid(pid)
