@@ -76,7 +76,7 @@
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('schedule.rrule', locale: DataCycleCore.ui_language) %>
         <% end %>
-        <%= hidden_field_tag "#{key}[#{index}][rrules][][rule_type]", value.dig(:rrules, 0, :rule_type) if readonly  %>
+        <%= hidden_field_tag "#{key}[#{index}][rrules][][rule_type]", value.dig(:rrules, 0, :rule_type) || 'IceCube::SingleOccurrenceRule' if readonly %>
         <%= select_tag "#{key}[#{index}][rrules][][rule_type]", options_for_select(ice_cube_select_options, value.dig(:rrules, 0, :rule_type)), class: 'rrule-type-selector', disabled: readonly %>
       </div>
 
