@@ -1,5 +1,5 @@
 // Configure Iframe Events
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   $(window).on('message onmessage', event => {
     if (
       $('.new-content-reveal:not(.in-object-browser):visible iframe').length &&
@@ -9,7 +9,7 @@ module.exports.initialize = function() {
       var AUTH_TOKEN = $('meta[name=csrf-token]').attr('content');
       $.ajax({
         type: 'POST',
-        url: '/things/import',
+        url: window.DATA_CYCLE_ENGINE_PATH + '/things/import',
         data: JSON.stringify({
           authenticity_token: AUTH_TOKEN,
           data: event.originalEvent.data.data,
@@ -17,9 +17,7 @@ module.exports.initialize = function() {
         }),
         contentType: 'application/json'
       }).always(() => {
-        $('iframe:visible')
-          .closest('.reveal')
-          .foundation('close');
+        $('iframe:visible').closest('.reveal').foundation('close');
       });
     } else if (
       $('#' + $('.new-content-reveal:visible iframe').data('uploader-id')).length &&
@@ -30,9 +28,7 @@ module.exports.initialize = function() {
       $('#' + $('.new-content-reveal:visible iframe').data('uploader-id')).foundation('open');
     } else if (event.originalEvent.data.action !== undefined && event.originalEvent.data.action == 'close_iframe') {
       // close reveal
-      $('iframe:visible')
-        .closest('.reveal')
-        .foundation('close');
+      $('iframe:visible').closest('.reveal').foundation('close');
     }
   });
 };

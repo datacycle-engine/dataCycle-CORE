@@ -16,8 +16,8 @@ module DataCycleCore
         can [:bulk_edit, :bulk_delete], DataCycleCore::WatchList
         can :api, DataCycleCore::StoredFilter
         can :experimental_features, :dash_board
-
         can :advanced_filter, :backend
+        can :show_admin_activities, :dash_board
       end
     end
   end

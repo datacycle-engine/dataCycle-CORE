@@ -5,7 +5,7 @@ var AssetSelector = require('./../components/asset_selector');
 var AssetUploader = require('./../components/asset_uploader');
 
 // Word Counter
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   // Asset Selector
 
   var assetSelectors = [];
@@ -53,6 +53,7 @@ module.exports.initialize = function() {
   init();
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.target);
   });
 

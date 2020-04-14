@@ -5,11 +5,11 @@ require('select2/i18n/de');
 $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 var select2_helpers = require('./../helpers/select2_helpers');
 
-module.exports.initialize = function() {
-  let init = function(element) {
+module.exports.initialize = function ($) {
+  let init = function (element) {
     $('.edit-content-form .form-element.classification.check_box > ul.classification-checkbox-list').on(
       'dc:import:data',
-      function(event, data) {
+      function (event, data) {
         $(event.target)
           .find('> li > :checkbox')
           .each((_, item) => {
@@ -18,17 +18,24 @@ module.exports.initialize = function() {
       }
     );
 
+    $('.edit-content-form .form-element.classification.radio_button > ul.classification-radiobutton-list').on(
+      'dc:import:data',
+      function(event, data) {
+        $(event.target)
+          .find('> li > :radio')
+          .each((_, item) => {
+            if (data.value !== undefined && data.value.includes($(item).val())) $(item).prop('checked', true);
+          });
+      }
+    );
+
     $('.auto-tagging-button').on('click', event => {
-      $(event.target)
-        .closest('.form-element')
-        .find('> .v-select > select')
-        .val(null)
-        .trigger('change');
+      $(event.target).closest('.form-element').find('> .v-select > select').val(null).trigger('change');
     });
 
     $(element)
       .find('.async-select')
-      .each(function() {
+      .each(function () {
         var query = {};
         var tree_label = $(this).data('tree-label');
         var alias_ids = $(this).data('alias-ids') || false;
@@ -45,7 +52,7 @@ module.exports.initialize = function() {
             if (diff.length) {
               $.ajax({
                 type: 'GET',
-                url: '/classifications/find',
+                url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/find',
                 data: {
                   ids: diff
                 },
@@ -80,10 +87,10 @@ module.exports.initialize = function() {
           allowClear: true,
           minimumInputLength: 2,
           dropdownParent: $(that).parent(),
-          escapeMarkup: function(m) {
+          escapeMarkup: function (m) {
             return m;
           },
-          templateResult: function(data) {
+          templateResult: function (data) {
             if (data.loading) {
               return data.title;
             }
@@ -100,19 +107,17 @@ module.exports.initialize = function() {
 
             return result;
           },
-          templateSelection: function(data) {
+          templateSelection: function (data) {
             data.selected = true;
             data.text = data.name || data.text;
             $(data.element).text(data.text);
             return data.text;
           },
           ajax: {
-            url: '/classifications/search',
+            url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
             delay: 250,
-            data: function(params) {
-              $(that)
-                .data('select2')
-                .$container.addClass('select2-loading');
+            data: function (params) {
+              $(that).data('select2').$container.addClass('select2-loading');
               query = params;
               return {
                 q: params.term,
@@ -120,10 +125,8 @@ module.exports.initialize = function() {
                 max: max
               };
             },
-            processResults: function(data) {
-              $(that)
-                .data('select2')
-                .$container.removeClass('select2-loading');
+            processResults: function (data) {
+              $(that).data('select2').$container.removeClass('select2-loading');
               return {
                 results: data.map(value => {
                   if (alias_ids && value.classification_alias_id != undefined) value.id = value.classification_alias_id;
@@ -138,15 +141,13 @@ module.exports.initialize = function() {
         $(this)
           .closest('form')
           .on('reset', event => {
-            $(this)
-              .val(null)
-              .trigger('change', { type: 'reset' });
+            $(this).val(null).trigger('change', { type: 'reset' });
           });
       });
 
     $(element)
       .find('.single-select, .multi-select')
-      .each(function() {
+      .each(function () {
         var query = {};
         var tree_label = $(this).data('tree-label');
         var that = this;
@@ -160,25 +161,20 @@ module.exports.initialize = function() {
             data.value = data.value.filter(Boolean);
 
             let diff = data.value.diff(value);
-            if (diff.length)
-              $(event.target)
-                .val(value.concat(diff))
-                .trigger('change');
+            if (diff.length) $(event.target).val(value.concat(diff)).trigger('change');
           }
         });
 
         $(this).on('dc:create:option', (event, data) => {
           let newOption = new Option(data.text, data.id, false, false);
-          $(event.currentTarget)
-            .append(newOption)
-            .trigger('change');
+          $(event.currentTarget).append(newOption).trigger('change');
         });
 
         $(this).select2({
           allowClear: true,
           width: '100%',
           dropdownParent: $(that).parent(),
-          templateResult: function(data) {
+          templateResult: function (data) {
             var title = $(data.element).data('title');
 
             if (data.loading) {
@@ -195,16 +191,16 @@ module.exports.initialize = function() {
             return result;
           },
           language: {
-            searching: function(params) {
+            searching: function (params) {
               query = params;
 
               return '';
             }
           },
-          templateSelection: function(data) {
+          templateSelection: function (data) {
             return select2_helpers.removeTreeLabelFromSelection(data.text, tree_label);
           },
-          matcher: function(params, data) {
+          matcher: function (params, data) {
             // If there are no search terms, return all of the data
             if (params.term === undefined || params.term.trim() === '') {
               return data;
@@ -222,7 +218,7 @@ module.exports.initialize = function() {
 
             // `data.children` contains the actual options that we are matching against
             var filteredChildren = [];
-            $.each(data.children, function(idx, child) {
+            $.each(data.children, function (idx, child) {
               if (
                 child.text.toLowerCase().indexOf(params.term.toLowerCase()) > -1 ||
                 (child.title !== undefined && child.title.toLowerCase().indexOf(params.term.toLowerCase()) > -1)
@@ -267,9 +263,7 @@ module.exports.initialize = function() {
         $(this)
           .closest('form')
           .on('reset', event => {
-            $(this)
-              .val(null)
-              .trigger('change', { type: 'reset' });
+            $(this).val(null).trigger('change', { type: 'reset' });
           });
       });
   };
@@ -293,14 +287,13 @@ module.exports.initialize = function() {
 
       data.forEach(d => {
         if (!$(elem).find("option[value='" + d[1] + "']").length)
-          $(elem)
-            .append(new Option(d[0], d[1], false, false))
-            .trigger('change');
+          $(elem).append(new Option(d[0], d[1], false, false)).trigger('change');
       });
     });
   }
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.target);
   });
 

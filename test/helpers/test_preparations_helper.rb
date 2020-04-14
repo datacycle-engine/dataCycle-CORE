@@ -90,7 +90,7 @@ module DataCycleCore
           file_names = Dir[files]
           file_names.each do |file_name|
             file_base_name = File.basename(file_name, '.json')
-            json_data = JSON.parse(File.read(file_name))
+            json_data = JSON.parse(ERB.new(File.read(file_name)).result)
             @dummy_data_hash[content_table_name.to_sym][file_base_name.to_sym] = json_data
           end
         end
@@ -112,13 +112,15 @@ module DataCycleCore
       @admin = DataCycleCore::User.where(email: 'admin@datacycle.at').first_or_create({
         given_name: 'Administrator',
         password: '3amMQf74vp7Zpfdi',
-        role_id: DataCycleCore::Role.order('rank DESC').first.id
+        role_id: DataCycleCore::Role.order('rank DESC').first.id,
+        confirmed_at: Time.zone.now - 1.day
       })
       @guest = DataCycleCore::User.where(email: 'guest@datacycle.at').first_or_create({
         given_name: 'Guest',
         family_name: 'User',
         password: 'PdebUfWF9aab2KG6',
-        role_id: DataCycleCore::Role.find_by(name: 'guest')&.id
+        role_id: DataCycleCore::Role.find_by(name: 'guest')&.id,
+        confirmed_at: Time.zone.now - 1.day
       })
     end
 

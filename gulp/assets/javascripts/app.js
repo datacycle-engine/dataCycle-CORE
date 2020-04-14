@@ -10,6 +10,8 @@ var number_helpers = require('./modules/helpers/number_helpers');
 var string_helpers = require('./modules/helpers/string_helpers');
 let ActionCable = require('actioncable');
 var initializers = [];
+
+window.DATA_CYCLE_ENGINE_PATH = window.DATA_CYCLE_ENGINE_PATH || '';
 window.EDITORSELECTORS = [
   '> .object-browser',
   '> .embedded-object',
@@ -19,9 +21,11 @@ window.EDITORSELECTORS = [
   '> .v-select > select.single-select',
   '> .v-select > select.async-select',
   '> ul.classification-checkbox-list',
+  '> ul.classification-radiobutton-list',
   '> .form-element > .flatpickr-wrapper > input[type=text].flatpickr-input',
   '> .geographic > .geographic-map',
   '> :checkbox',
+  '> :radio',
   '> :input[type="number"]',
   '> .duration-slider > div > input[type="number"]'
 ];
@@ -60,15 +64,16 @@ initializers.push(require('./modules/initializers/bulk_delete_init'));
 initializers.push(require('./modules/initializers/content_lock_init'));
 initializers.push(require('./modules/initializers/schedule_editor_init'));
 initializers.push(require('./modules/initializers/password_toggle'));
+initializers.push(require('./modules/initializers/datatables_init'));
 
 // keep validations and foundation last to ensure everything is intialized before saving form values
 initializers.push(require('./modules/initializers/foundation_init'));
 initializers.push(require('./modules/initializers/validation_init'));
 
-$(function() {
+$(function () {
   initializers.forEach(element => {
     try {
-      element.initialize();
+      element.initialize($);
     } catch (err) {
       console.log(err);
     }
@@ -77,7 +82,7 @@ $(function() {
   // HOME RANDOMIZED IMAGES AND GLASSHACK!
   if ($('.home-container').length) {
     $('.home-container').appendTo('body');
-    setTimeout(function() {
+    setTimeout(function () {
       $('.home-container').addClass('show');
     }, 500);
     $('body').addClass('login-page');
@@ -88,32 +93,19 @@ $(function() {
     $('#import-content-form form').on('submit', event => {
       event.preventDefault();
 
-      let url = $(event.currentTarget)
-        .find('input#cms_url')
-        .val();
+      let url = $(event.currentTarget).find('input#cms_url').val();
 
       if (url != undefined && url.length > 0) {
-        $(event.currentTarget)
-          .siblings('.loading')
-          .fadeIn(100);
+        $(event.currentTarget).siblings('.loading').fadeIn(100);
         $.ajax({
           url: url,
           dataType: 'html'
         })
           .done(data => {
-            $(event.currentTarget)
-              .siblings('.loading')
-              .fadeOut(100);
+            $(event.currentTarget).siblings('.loading').fadeOut(100);
             if ($(data).filter('#cdb-item-definition').length > 0) {
-              $(event.currentTarget)
-                .find('input#cms_url')
-                .val('');
-              let contents = JSON.parse(
-                $(data)
-                  .filter('#cdb-item-definition')
-                  .first()
-                  .html()
-              );
+              $(event.currentTarget).find('input#cms_url').val('');
+              let contents = JSON.parse($(data).filter('#cdb-item-definition').first().html());
 
               if (contents !== undefined) {
                 if (contents.title !== undefined) {
@@ -149,9 +141,7 @@ $(function() {
 
                 if (contents.images !== undefined && contents.images.length > 0) {
                   let image_ids = contents.images.map(i => i.external_key);
-                  let label = $('.linked[data-key="thing[datahash][image]"]')
-                    .first()
-                    .data('label');
+                  let label = $('.linked[data-key="thing[datahash][image]"]').first().data('label');
 
                   $('.linked[data-key="thing[datahash][image]"]')
                     .children('.object-browser')
@@ -171,9 +161,7 @@ $(function() {
             }
           })
           .fail(() => {
-            $(event.currentTarget)
-              .siblings('.loading')
-              .fadeOut(100);
+            $(event.currentTarget).siblings('.loading').fadeOut(100);
             callout_helpers.show('Fehler beim Importieren von URL: ' + url, 'alert');
           });
       }

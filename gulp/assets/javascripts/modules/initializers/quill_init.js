@@ -1,5 +1,8 @@
 var Quill = require('quill');
 var Counter = require('./../components/quill_counter');
+var QuillLinkFormat = require('../components/quill_custom_link');
+var { QuillContentlinkModule, ContentlinkBlot } = require('./../components/quill_content_link');
+var { QuillLinkFormat, QuillLinkModule } = require('../components/quill_custom_link');
 var ConfirmationModal = require('./../components/confirmation_modal');
 var quill_helpers = require('./../helpers/quill_helpers');
 
@@ -16,24 +19,29 @@ function lineBreakMatcher() {
   return newDelta;
 }
 
-Break.prototype.insertInto = function(parent, ref) {
+Break.prototype.insertInto = function (parent, ref) {
   Embed.prototype.insertInto.call(this, parent, ref);
 };
-Break.prototype.length = function() {
+Break.prototype.length = function () {
   return 1;
 };
-Break.prototype.value = function() {
+Break.prototype.value = function () {
   return '\n';
 };
+// Quill.debug('error');
 Quill.register(Break);
+Quill.register('modules/contentlink', QuillContentlinkModule);
+Quill.register('formats/contentlink', ContentlinkBlot);
+Quill.register('modules/customlink', QuillLinkModule);
+Quill.register('formats/customlink', QuillLinkFormat);
 
 // Quill Config
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var formats = {
     none: ['break'],
     minimal: ['bold', 'italic', 'underline', 'break'],
     basic: ['bold', 'italic', 'header', 'underline', 'break', 'script'],
-    full: ['bold', 'italic', 'header', 'underline', 'link', 'list', 'align', 'break', 'script']
+    full: ['bold', 'italic', 'header', 'underline', 'customlink', 'list', 'align', 'break', 'script', 'contentlink']
   };
 
   var toolbar = {
@@ -69,13 +77,15 @@ module.exports.initialize = function() {
       ],
       [{ script: 'sub' }, { script: 'super' }],
       ['bold', 'italic', 'underline'],
-      ['link']
+      ['customlink', 'contentlink']
     ]
   };
 
   var default_options = {
     modules: {
       counter: true,
+      contentlink: {},
+      customlink: {},
       toolbar: toolbar['none'],
       clipboard: {
         matchers: [['BR', lineBreakMatcher]]
@@ -117,7 +127,6 @@ module.exports.initialize = function() {
 
         try {
           let editor = new Quill(node, options);
-
           let length = editor.getLength();
           let text = editor.getText(length - 2, 2);
 
@@ -137,7 +146,7 @@ module.exports.initialize = function() {
               quill_helpers.updateEditors(editor.container);
             });
 
-          $(editor.container).on('dc:import:data', function(event, data) {
+          $(editor.container).on('dc:import:data', function (event, data) {
             if (editor.getText().trim().length > 1 && (!data || !data.force)) {
               var confirmationModal = new ConfirmationModal({
                 text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -145,7 +154,7 @@ module.exports.initialize = function() {
                 cancelText: 'Nein',
                 confirmationClass: 'success',
                 cancelable: true,
-                confirmationCallback: function() {
+                confirmationCallback: function () {
                   editor.clipboard.dangerouslyPasteHTML(data.value);
                 }
               });
@@ -163,7 +172,7 @@ module.exports.initialize = function() {
     if (range.length > 0) {
       this.quill.scroll.deleteAt(range.index, range.length); // So we do not trigger text-change
     }
-    let lineFormats = Object.keys(context.format).reduce(function(lineFormats, format) {
+    let lineFormats = Object.keys(context.format).reduce(function (lineFormats, format) {
       if (Parchment.query(format, Parchment.Scope.BLOCK) && !Array.isArray(context.format[format])) {
         lineFormats[format] = context.format[format];
       }
@@ -223,12 +232,8 @@ module.exports.initialize = function() {
       $(element)
         .siblings('label')
         .css('left', $(element).offset().left + 10);
-    $(element)
-      .find('.ql-toolbar')
-      .addClass(fixed_class);
-    $(element)
-      .siblings('label, .translated')
-      .addClass(fixed_class);
+    $(element).find('.ql-toolbar').addClass(fixed_class);
+    $(element).siblings('label, .translated').addClass(fixed_class);
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
         .parents('.content-object-item.textblock')
@@ -236,11 +241,7 @@ module.exports.initialize = function() {
         .addClass(fixed_class)
         .css('left', $(element).offset().left + 10);
 
-    if (
-      $(element)
-        .parents('.content-object-item.textblock')
-        .find('> .embedded-header > .translated').length
-    )
+    if ($(element).parents('.content-object-item.textblock').find('> .embedded-header > .translated').length)
       $(element)
         .parents('.content-object-item.textblock')
         .find('> .embedded-header > .translated')
@@ -252,15 +253,9 @@ module.exports.initialize = function() {
       .css('left', $(element).offset().left + 30);
   }
 
-  let reset_editor_toolbar = function(element, fixed_class = '') {
-    $(element)
-      .find('.ql-toolbar')
-      .removeClass(fixed_class)
-      .removeAttr('style');
-    $(element)
-      .siblings('label, .translated')
-      .removeClass(fixed_class)
-      .removeAttr('style');
+  let reset_editor_toolbar = function (element, fixed_class = '') {
+    $(element).find('.ql-toolbar').removeClass(fixed_class).removeAttr('style');
+    $(element).siblings('label, .translated').removeClass(fixed_class).removeAttr('style');
     if ($(element).siblings('label[for*="textblock"]').length)
       $(element)
         .parents('.content-object-item.textblock')
@@ -271,8 +266,8 @@ module.exports.initialize = function() {
 
   if ($('.editor-block').length > 0) {
     if ($('.split-content').length > 0) {
-      $('.split-content.edit-content').on('scroll', function(ev) {
-        $('.editor-block').each(function() {
+      $('.split-content.edit-content').on('scroll', function (ev) {
+        $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 182 && pos > -$(this).height() + 230) {
             position_editor_toolbar(this, 'fixed-split-toolbar');
@@ -282,8 +277,8 @@ module.exports.initialize = function() {
         });
       });
     } else {
-      $(window).on('scroll', function(ev) {
-        $('.editor-block').each(function() {
+      $(window).on('scroll', function (ev) {
+        $('.editor-block').each(function () {
           var pos = $(this).offset().top - $(window).scrollTop();
           if (pos < 55 && pos > -$(this).height() + 130) {
             position_editor_toolbar(this, 'fixed-toolbar');
@@ -298,6 +293,7 @@ module.exports.initialize = function() {
   Quill.register('modules/counter', Counter);
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     init(event.target);
   });
 

@@ -30,7 +30,7 @@
   :enabled: true
 
 :container:
-  :enabled: true
+  :enabled: false
 
 :external_media_archive:
   :enabled: false
@@ -56,6 +56,10 @@
     :geo_radius: true
     :geo_within_classification:
       - Administrative Einheiten
+  :relation_filter:
+    :linked_image: image
+    :linked_location: content_location
+  :related_to: true
   :advanced_attributes:
     # media
     :width:
@@ -131,6 +135,10 @@
 #    :validity_period.valid_through:
 #      :type: date
 
+:user_registration:
+  :enabled: true
+  :terms_condition_url: 'https://datacycle.info/de/allgemeine-geschaeftsbedingungen/'
+  :privacy_policy_url: 'https://open.datacycle.cloud/de/datenschutzerklaerung/'
 
 :duplicate_candidate:
   :enabled: true
@@ -146,3 +154,10 @@
   :widgets:
     :list: https://widgets.datacycle.cloud/list
     :map: https://widgets.datacycle.cloud/map
+
+:translate: 
+  :enabled: true
+  :allowed: true
+  :external_source: 'DeeplTranslate'
+  :endpoint: 'DataCycleCore::Generic::DeeplTranslate::Endpoint'
+  :attribute_keys: ['text']

@@ -21,8 +21,31 @@ config:
       transformations:
         keyword:
           tree_label: Eyebase - Tags
-    images:
+    status:
       sorting: 2
+      source_type: media_assets
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Eyebase - Status
+      tag_id_path: 'color.#cdata-section'
+      tag_name_path: 'color.#cdata-section'
+      external_id_prefix: 'Eyebase - Status - '
+    photographer:
+      sorting: 10
+      source_type: media_assets
+      iterator_type: aggregate
+      import_strategy: DataCycleCore::Generic::Eyebase::ImportPhotographer
+    copyright_holder:
+      sorting: 20
+      source_type: media_assets
+      iterator_type: aggregate
+      import_strategy: DataCycleCore::Generic::Eyebase::ImportCopyrightHolder
+    content_location:
+      sorting: 30
+      source_type: media_assets
+      iterator_type: aggregate
+      import_strategy: DataCycleCore::Generic::Eyebase::ImportContentLocation
+    images:
+      sorting: 40
       source_type: media_assets
       import_strategy: DataCycleCore::Generic::Eyebase::Import
       transformations:

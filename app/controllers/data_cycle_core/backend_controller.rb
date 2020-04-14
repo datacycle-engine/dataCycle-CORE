@@ -11,14 +11,10 @@ module DataCycleCore
         current_user.stored_filters.exists?
     }
     before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
-    before_action :set_default_filter, only: :index, if: proc {
-      DataCycleCore::Feature::LifeCycle.enabled? &&
-        DataCycleCore::Feature::LifeCycle.default_filter.present?
-    }
 
     def index
-      set_instance_variables_by_view_mode(query: @query, user_filter: true)
-      @stored_filter = save_filter if params[:stored_filter].blank? && !request.xhr?
+      set_instance_variables_by_view_mode(query: @query)
+      save_filter unless @stored_filter.persisted? || request.xhr?
 
       respond_to do |format|
         format.html

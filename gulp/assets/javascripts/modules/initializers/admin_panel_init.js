@@ -1,10 +1,8 @@
 // Reveal Blur
-module.exports.initialize = function() {
-  $('.copy-to-admin-clipboard').on('click', function(event) {
+module.exports.initialize = function ($) {
+  $('.copy-to-admin-clipboard').on('click', function (event) {
     event.preventDefault();
-    var text = $(this)
-      .closest('section.tabs-panel')
-      .find('pre code');
+    var text = $(this).closest('section.tabs-panel').find('pre code');
 
     if ($(text).data('json')) text = JSON.stringify($(text).data('json'));
     else text = $(text).html();
@@ -20,10 +18,10 @@ module.exports.initialize = function() {
 
     $(this).before('<span class="admin-clipboard-notice">In Zwischenablage kopiert.</span>');
     setTimeout(
-      function() {
+      function () {
         $(this)
           .siblings('.admin-clipboard-notice')
-          .fadeOut('fast', function() {
+          .fadeOut('fast', function () {
             $(this).remove();
           });
       }.bind(this),

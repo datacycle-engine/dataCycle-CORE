@@ -37,53 +37,32 @@
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :event_period:
-        :label: Veranstaltungszeitraum
-        :type: object
-        :storage_location: value
-        :validations:
-          :daterange:
-            :from: start_date
-            :to: end_date
+      :start_date:
+        :label: Startzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: start_date
+          :parameters:
+            :0: event_schedule
         :ui:
-          :edit:
-            :type: daterange
           :show:
-            :content_area: header
-        :api:
-          :transformation:
-            :method: unwrap
-        :properties:
-          :start_date:
-            :label: Startzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventstart
-              :type: datetime
-          :end_date:
-            :label: Endzeitpunkt
-            :type: datetime
-            :storage_location: column
-            :validations:
-              :format: date_time
-            :ui:
-              :edit:
-                :type: datetime
-                :options:
-                  :data-validate: daterange
-                  :placeholder: "tt.mm.jjjj --:--"
-            :normalize:
-              :id: eventend
-              :type: datetime
+            :content_area: none
+      :end_date:
+        :label: Endzeitpunkt
+        :storage_location: column
+        :type: computed
+        :compute:
+          :type: datetime
+          :module: Utility::Compute::Schedule
+          :method: end_date
+          :parameters:
+            :0: event_schedule
+        :ui:
+          :show:
+            :content_area: none
       :description:
         :label: Beschreibung
         :type: string
@@ -128,13 +107,51 @@
         :label: Veranstaltungsort
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Ort
         :api:
           :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
       :event_schedule:
         :label: Termine
         :type: schedule
@@ -149,6 +166,11 @@
         :api:
           :v4:
             :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
+            :disabled: true
       :schedule:
         :label: Event-Schedule
         :type: embedded
@@ -157,6 +179,11 @@
         :api:
           :name: eventSchedule
           :v4:
+            :disabled: true
+        :ui:
+          :edit:
+            :disabled: true
+          :show:
             :disabled: true
       :super_event:
         :label: Veranstaltungsserie
@@ -167,8 +194,7 @@
         :label: Ausführende Person/Organisation
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -177,8 +203,7 @@
         :label: Veranstalter
         :type: linked
         :stored_filter:
-          -
-            :with_classification_aliases_and_treename:
+          - :with_classification_aliases_and_treename:
               :treeLabel: Inhaltstypen
               :aliases:
                 - Person
@@ -209,7 +234,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Veranstaltung"
+        :default_value: 'Veranstaltung'
       :meta_data:
         :type: mixin
         :name: meta_data

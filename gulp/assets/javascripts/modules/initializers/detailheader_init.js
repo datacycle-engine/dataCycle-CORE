@@ -1,6 +1,6 @@
 // Reveal Blur
-module.exports.initialize = function() {
-  $('.copy-to-clipboard').on('click', function(event) {
+module.exports.initialize = function ($) {
+  $('.copy-to-clipboard').on('click', function (event) {
     event.preventDefault();
     var text = $(this).data('value');
     var inp = document.createElement('input');
@@ -12,10 +12,10 @@ module.exports.initialize = function() {
 
     $(this).before('<span class="clipboard-notice">In Zwischenablage kopiert.</span>');
     setTimeout(
-      function() {
+      function () {
         $(this)
           .siblings('.clipboard-notice')
-          .fadeOut('fast', function() {
+          .fadeOut('fast', function () {
             $(this).remove();
           });
       }.bind(this),

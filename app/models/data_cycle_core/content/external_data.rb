@@ -13,6 +13,10 @@ module DataCycleCore
         external_data.update(data: nil)
       end
 
+      def external_system_sync_by_system(external_system)
+        external_system_syncs.find_or_create_by(external_system_id: external_system.id)
+      end
+
       def external_system_data(external_system)
         external_system_syncs.find_by(external_system_id: external_system.id)&.data
       end

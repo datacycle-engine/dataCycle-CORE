@@ -16,6 +16,7 @@ module DataCycleCore
     has_many :schedules
 
     def download(options = {}, &block)
+      raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
       download_config.sort { |d1, d2|
@@ -57,6 +58,7 @@ module DataCycleCore
     end
 
     def import(options = {}, &block)
+      raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
       ts_start = Time.zone.now
       self.last_import = ts_start
       save

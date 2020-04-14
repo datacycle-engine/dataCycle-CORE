@@ -1,15 +1,11 @@
 var ConfirmationModal = require('./../components/confirmation_modal');
 
 // Check if user is still logged in
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   if ($('.edit-content-form').length) {
     let today = new Date();
-    let id = $('.edit-content-form')
-      .find(':input[name="uuid"]')
-      .val();
-    let table = $('.edit-content-form')
-      .find(':input[name="table"]')
-      .val();
+    let id = $('.edit-content-form').find(':input[name="uuid"]').val();
+    let table = $('.edit-content-form').find(':input[name="table"]').val();
 
     addReloadTimeout();
 
@@ -20,7 +16,7 @@ module.exports.initialize = function() {
           .on('focus.dc_edit_page', event => {
             $.ajax({
               type: 'GET',
-              url: '/reload_required',
+              url: window.DATA_CYCLE_ENGINE_PATH + '/reload_required',
               data: {
                 id: id,
                 table: table,

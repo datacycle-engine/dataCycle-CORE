@@ -1,8 +1,16 @@
+let calloutHelpers = require('./../helpers/callout_helpers');
+
 // Split View
 class SplitView {
   constructor(container = document) {
     this.container = $(container);
-    this.locale = this.container.closest('.split-content').data('locale');
+    this.embedLocale = this.container.closest('.split-content').data('embed-locale');
+    this.leftLocale = this.container.closest('.split-content').data('locale');
+    this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
+    this.rightLocale = this.container
+      .closest('form')
+      .find('input#locale:hidden')
+      .val();
     this.setup();
   }
   setup() {
@@ -20,7 +28,10 @@ class SplitView {
     this.setupCopyAllButtons(this.availableEditors(['included-object']));
 
     this.container.on('click', '.copy', this.handleButtonClick.bind(this));
-    this.container.closest('.split-content').on('click', '.copy-all', this.triggerAllButtons.bind(this));
+    this.container.on('click', '.translate', this.handleButtonClick.bind(this));
+    this.container
+      .closest('.split-content')
+      .on('click', '.copy-all, .translate-all', this.triggerAllButtons.bind(this));
     this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
     this.container
       .closest('.split-content')
@@ -117,10 +128,16 @@ class SplitView {
   }
   setupCopyAllButtons(elements) {
     elements.each((_, item) => {
-      if ($(item).find('a.copy').length)
+      if ($(item).find('a.copy').length) {
+        if (this.enableTranslateButtons) {
+          $(item).prepend(
+            '<a class="button-prime small translate-all" title="Alle übersetzen"><i class="fa fa-language" aria-hidden="true"></i></a>'
+          );
+        }
         $(item).prepend(
           '<a class="button-prime small copy-all" title="Alle übernehmen"><i class="fa fa-arrow-right" aria-hidden="true"></i></a>'
         );
+      }
     });
   }
   addButtons(element, key, value, copy_attr, single = false) {
@@ -150,6 +167,18 @@ class SplitView {
     if (!single && !$(element).children('.buttons').length) $(element).append('<div class="buttons"></div');
     if ($(element).find('> .content-link > .buttons').length) element = $(element).find('> .content-link > .buttons');
     if ($(element).children('.buttons').length) element = $(element).children('.buttons');
+
+    if (this.enableTranslateButtons && copy_attr === 'html') {
+      $(element).append(
+        '<a class="button-prime small translate' +
+        (single ? ' translate-single-button' : '') + //??
+          '" data-copy-attribute="' +
+          copy_attr +
+          '" data-translate-attribute="true"' +
+          ' data-disable-with="<i class=\'fa fa-circle-o-notch fa-spin\'></i>"' +
+          ' title="übersetzen"><i class="fa fa-language aria-hidden="true"></i></a>'
+      );
+    }
 
     $(element).append(
       '<a class="button-prime small copy' +
@@ -200,13 +229,23 @@ class SplitView {
 
     let label = elem.parents('[data-editor]').data('label');
     let key = elem.parents('[data-editor]').data('key');
-    this.copyContents(value, label, key);
+
+    if (elem.data('translate-attribute')) {
+      this.translateText(elem, value, label, key);
+    } else {
+      this.copyContents(value, label, key);
+    }
   }
   triggerAllButtons(event) {
     event.preventDefault();
+
+    let selector = event.currentTarget.classList.contains('translate-all')
+      ? 'a.translate'
+      : 'a.copy:not(.copy-single-button)';
+
     $(event.currentTarget)
       .parent('.split-content, [data-editor="included-object"]')
-      .find('a.copy:not(.copy-single-button)')
+      .find(selector)
       .trigger('click');
   }
   copyContents(value, label, key) {
@@ -217,10 +256,33 @@ class SplitView {
     target.find(window.EDITORSELECTORS.join(', ')).trigger('dc:import:data', {
       label: label,
       value: typeof value == 'string' ? value.trim() : value,
-      locale: this.locale
+      locale: this.embedLocale ? this.leftLocale : ''
     });
 
-    target.get(0).scrollIntoView({ behavior: 'smooth' });
+    target.get(0).scrollIntoView({ behavior: 'smooth', block: 'end' });
+  }
+  translateText(elem, value, label, key) {
+    let formData = {
+      text: value.trim(),
+      source_locale: this.leftLocale,
+      target_locale: this.rightLocale
+    };
+    $.ajax({
+      url: '/things/translate_text',
+      method: 'POST',
+      data: formData,
+      dataType: 'json',
+      contentType: 'application/x-www-form-urlencoded'
+    })
+      .done(data => {
+        this.copyContents(data.text, label, key);
+      })
+      .fail(data => {
+        calloutHelpers.show('Fehler beim Laden der Übersetzung', 'alert');
+      })
+      .always(() => {
+        $.rails.enableElement(elem);
+      });
   }
 }
 

@@ -10,6 +10,9 @@ namespace :data_cycle_core do
       full_path  = nil
       cmd        = nil
 
+      pgclusters = ''
+      pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
+
       with_config do |host, port, db, user, password|
         if args[:backup_name].nil?
           full_path = "#{backup_dir}/#{Time.zone.now.strftime('%Y%m%d%H%M%S')}_#{db}.#{dump_sfx}"
@@ -19,11 +22,11 @@ namespace :data_cycle_core do
 
         case args[:mode]
         when 'review'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions' --exclude-table-data='*histories'"
         when 'full'
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}' --exclude-table-data='delayed_jobs' --exclude-table-data='subscriptions'"
         else
-          cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
+          cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{full_path}'"
         end
       end
 
@@ -38,6 +41,8 @@ namespace :data_cycle_core do
       desc 'Dumps a specific table to backups'
       task :table, [:table, :backup_name, :format] => [:environment] do |_, args|
         table_name = args[:table]
+        pgclusters = ''
+        pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
         if table_name.present?
           dump_fmt   = ensure_format(args[:format])
@@ -52,7 +57,7 @@ namespace :data_cycle_core do
             else
               full_path = "#{backup_dir}/#{args[:backup_name]}.#{dump_sfx}"
             end
-            cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
+            cmd = "#{pgclusters}pg_dump -F #{dump_fmt} -v -o -O --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -t '#{table_name}' -f '#{full_path}'"
           end
 
           puts cmd
@@ -70,7 +75,7 @@ namespace :data_cycle_core do
     task clean_up_dumps: :environment do
       max_files = 5
       backup_dir = backup_directory(Rails.env)
-      files = Dir.glob("#{backup_dir}/[0-9]*.sql").sort_by { |f| File.mtime(f) }.reverse
+      files = Dir.glob("#{backup_dir}/[0-9]*.*").sort_by { |f| File.mtime(f) }.reverse
       puts "checking directory: #{backup_dir}"
 
       if files.size > max_files
@@ -86,12 +91,14 @@ namespace :data_cycle_core do
     task dumps: :environment do
       backup_dir = backup_directory(Rails.env)
       puts backup_dir.to_s
-      system "/bin/ls -lt #{backup_dir}"
+      system "/bin/ls -lth #{backup_dir}"
     end
 
     desc 'Restores the database from a backup using PATTERN'
     task :restore, [:pattern] => [:environment] do |_, args|
       pattern = args[:pattern]
+      pgclusters = ''
+      pgclusters = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main " unless ENV.fetch('PGCLUSTER_DISABLED', false)
 
       if pattern.present?
         file = nil
@@ -113,7 +120,7 @@ namespace :data_cycle_core do
             when 'p'
               cmd = "psql --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' -f '#{file}'"
             else
-              cmd = "PGCLUSTER=#{ENV.fetch('POSTGRES_VERSION', '11')}/main pg_restore -F #{fmt} -v -c -C --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
+              cmd = "#{pgclusters}pg_restore -F #{fmt} -O -v --dbname='postgresql://#{user}:#{password}@#{host}:#{port}/#{db}' '#{file}'"
             end
           else
             puts "Too many files match the pattern '#{pattern}':"
@@ -151,13 +158,13 @@ namespace :data_cycle_core do
 
       sh "cap #{args.fetch(:cap_environment, 'pre_release')} review:download_dev_db[true]"
       sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
-      sh "mv tmp/dev_db.sql db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.sql"
+      sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
 
       ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
 
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.sql')
+      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
 
       if ENV.fetch('RAILS_ENV', 'development') != 'development'
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}db:migrate"].invoke

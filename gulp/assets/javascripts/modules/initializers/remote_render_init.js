@@ -1,7 +1,7 @@
 var RandomHelpers = require('./../helpers/random_number_helpers');
 
 // Reveal Blur
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   $('.remote-render:visible').each((_, element) => {
     if (!$(element).closest('.dropdown-pane').length) load_remote_partial(element);
   });
@@ -44,7 +44,7 @@ module.exports.initialize = function() {
 
     $.ajax({
       type: 'POST',
-      url: '/remote_render',
+      url: window.DATA_CYCLE_ENGINE_PATH + '/remote_render',
       data: JSON.stringify({
         target: id,
         partial: $(element).data('remotePath'),

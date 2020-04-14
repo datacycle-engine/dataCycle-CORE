@@ -1,19 +1,12 @@
 // Reveal Blur
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   if ($('.edit-header').length > 0) {
     var edit_header_offset = $('.edit-header').offset().top;
 
-    $(window).on('scroll', function(e) {
+    $(window).on('scroll', function (e) {
       if ($(this).scrollTop() > edit_header_offset)
-        $('.edit-header')
-          .addClass('fix-edit-bar')
-          .next()
-          .addClass('no-edit-bar');
-      else
-        $('.edit-header')
-          .removeClass('fix-edit-bar')
-          .next()
-          .removeClass('no-edit-bar');
+        $('.edit-header').addClass('fix-edit-bar').next().addClass('no-edit-bar');
+      else $('.edit-header').removeClass('fix-edit-bar').next().removeClass('no-edit-bar');
     });
   }
 

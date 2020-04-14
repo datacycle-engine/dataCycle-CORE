@@ -51,7 +51,8 @@ module DataCycleCore
     test 'create new user' do
       user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'user').with_indifferent_access.merge({
         email: "tester_#{Time.now.getutc.to_i}@datacycle.at",
-        role_id: DataCycleCore::Role.find_by(rank: 5)&.id
+        role_id: DataCycleCore::Role.find_by(rank: 5)&.id,
+        confirmed_at: Time.zone.now - 1.day
       })
 
       post create_user_users_path, params: {

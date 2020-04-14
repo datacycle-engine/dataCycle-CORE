@@ -2,7 +2,7 @@ var OpenLayerMap = require('./../components/open_layer_map');
 var TourSprungEditor = require('./../components/tour_sprung_editor');
 
 // Map Configuration
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   if ($('.geographic-map').length) {
     $('.geographic-map').each((index, item) => {
       initMap(item);

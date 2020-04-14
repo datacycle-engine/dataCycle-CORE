@@ -4,8 +4,8 @@ $.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'
 var select2_helpers = require('./../helpers/select2_helpers');
 var quill_helpers = require('./../helpers/quill_helpers');
 
-module.exports.initialize = function() {
-  let load_sub_classifications = function(location_array, index) {
+module.exports.initialize = function ($) {
+  let load_sub_classifications = function (location_array, index) {
     if (location_array != undefined && index < location_array.length) {
       let id = location_array[index];
       let link = $('#' + id + ' > .inner-item > .tree-link');
@@ -13,9 +13,7 @@ module.exports.initialize = function() {
       if (!link.length) {
         let prev_id = '';
         if (index == 0) {
-          prev_id = $('ul.backend-treeview-list > li')
-            .first()
-            .prop('id');
+          prev_id = $('ul.backend-treeview-list > li').first().prop('id');
         } else {
           prev_id = location_array[index - 1];
         }
@@ -58,10 +56,8 @@ module.exports.initialize = function() {
   };
 
   if ($('#classification-administration').length) {
-    $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function(event, xhr, options) {
-      var childrenContainer = $(event.target)
-        .closest('li')
-        .children('ul:not(.classifications)');
+    $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event, xhr, options) {
+      var childrenContainer = $(event.target).closest('li').children('ul:not(.classifications)');
 
       if (childrenContainer.children().length > 0 && options.type != 'POST') {
         childrenContainer.toggle();
@@ -78,21 +74,14 @@ module.exports.initialize = function() {
       }
     );
 
-    $('#classification-administration').on('click', 'a.create, a.edit', function(event) {
+    $('#classification-administration').on('click', 'a.create, a.edit', function (event) {
       $('#classification-administration li.active').removeClass('active');
 
-      $(event.target)
-        .closest('li')
-        .addClass('active');
+      $(event.target).closest('li').addClass('active');
 
-      var classificationAliasId = $(event.target)
-        .closest('li')
-        .find('input[name="classification_alias[id]"]')
-        .val();
+      var classificationAliasId = $(event.target).closest('li').find('input[name="classification_alias[id]"]').val();
 
-      var select = $(event.target)
-        .closest('li')
-        .find('select[name="classification_alias[classification_ids][]"]');
+      var select = $(event.target).closest('li').find('select[name="classification_alias[classification_ids][]"]');
 
       var query = {};
 
@@ -105,10 +94,10 @@ module.exports.initialize = function() {
       select.select2({
         tags: true,
         minimumInputLength: 1,
-        escapeMarkup: function(m) {
+        escapeMarkup: function (m) {
           return m;
         },
-        templateResult: function(data) {
+        templateResult: function (data) {
           if (data.loading) {
             return data.title;
           }
@@ -121,20 +110,20 @@ module.exports.initialize = function() {
 
           return result;
         },
-        templateSelection: function(data, container) {
+        templateSelection: function (data, container) {
           return data.name || data.text;
         },
         ajax: {
-          url: '/classifications/search',
+          url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
           delay: 250,
-          data: function(params) {
+          data: function (params) {
             select.data('select2').$container.addClass('select2-loading');
             query = params;
             return {
               q: params.term
             };
           },
-          processResults: function(data) {
+          processResults: function (data) {
             select.data('select2').$container.removeClass('select2-loading');
 
             return {
@@ -151,14 +140,9 @@ module.exports.initialize = function() {
 
       return false;
     });
-    $('#classification-administration').on('click', '.discard', function(event) {
-      $(this)
-        .parents('form')
-        .get(0)
-        .reset();
-      $(this)
-        .closest('li.active')
-        .removeClass('active');
+    $('#classification-administration').on('click', '.discard', function (event) {
+      $(this).parents('form').get(0).reset();
+      $(this).closest('li.active').removeClass('active');
       return false;
     });
     $('#classification-administration').on('click', '.ca-translation-link', event => {
@@ -180,10 +164,8 @@ module.exports.initialize = function() {
   // Themenbaum
 
   if ($('#classification-tree-label-list, #search-results > .tree').length) {
-    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function(event, xhr, options) {
-      var childrenContainer = $(event.target)
-        .closest('li')
-        .children('ul.children, ul.contents');
+    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function (event, xhr, options) {
+      var childrenContainer = $(event.target).closest('li').children('ul.children, ul.contents');
 
       childrenContainer.siblings('.inner-item').toggleClass('open');
 
@@ -194,19 +176,13 @@ module.exports.initialize = function() {
       }
     });
 
-    let location_array = location.hash
-      .substr(1)
-      .split('+')
-      .filter(Boolean);
+    let location_array = location.hash.substr(1).split('+').filter(Boolean);
     load_sub_classifications(location_array, 0);
   }
 
   $(document).on('click', '.toggle-details', event => {
     event.preventDefault();
 
-    $(event.currentTarget)
-      .closest('.inner-item')
-      .toggleClass('open')
-      .trigger('dc:remote:render');
+    $(event.currentTarget).closest('.inner-item').toggleClass('open').trigger('dc:remote:render');
   });
 };

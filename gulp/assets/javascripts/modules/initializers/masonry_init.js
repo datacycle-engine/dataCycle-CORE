@@ -2,7 +2,7 @@
 var MasonryGrid = require('./../components/masonry_grid');
 
 // Masonry Config
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   init();
 
   function init(element = document) {

@@ -903,6 +903,8 @@ span.single_error:before,
 
 .select2-selection__choice {
   font-size: 0.9rem;
+  word-break: break-word;
+  white-space: normal;
 }
 
 .select2-selection {
@@ -923,6 +925,8 @@ body .v-select {
     line-height: 1.2rem;
     border-radius: $object-border-radius;
     font-weight: normal;
+    word-break: break-word;
+    white-space: normal;
 
     i {
       font-size: 0.8rem;
@@ -1056,6 +1060,12 @@ body .v-select {
         }
       }
     }
+    .set-all-attributes {
+      .copy-icon {
+        display: inline-block;
+        margin: -0.5rem -0.5rem -0.5rem 0.5rem;
+      }
+    }
     fieldset:not(.active) {
       display: none;
     }
@@ -1110,21 +1120,19 @@ body .v-select {
       .copy-attribute-to-all {
         position: relative;
         float: right;
-        width: 2rem;
-        height: 2rem;
-        margin-top: 1.8rem;
-        padding: 0.25rem;
+        width: 2.3rem;
+        height: 2.3rem;
+        margin-top: 1.6rem;
+        padding: 0.4rem;
         text-align: center;
         cursor: pointer;
 
         .loading-icon {
           display: none;
-        }
-
-        .fa {
-          font-size: 1.2rem;
+          font-size: 1.4rem;
           line-height: 1.5rem;
         }
+
         &:hover {
           color: $dark-gray;
         }
@@ -1518,4 +1526,30 @@ ul.no-format {
 
 label.has-tip {
   font-weight: normal;
+}
+
+.copy-icon.fa-stack {
+  display: block;
+  width: 1.5rem;
+  height: 1.5rem;
+  font-size: 1.2rem;
+  line-height: 1.5rem;
+  .fa {
+    display: inline-block;
+    position: absolute;
+
+    &.fa-clone {
+      display: block;
+      font-size: 1.3rem;
+      line-height: 1.5rem;
+    }
+    &.fa-arrow-right {
+      font-size: 0.6rem;
+      top: 3px;
+      left: 2px;
+      line-height: 1.3rem;
+      display: block;
+      position: absolute;
+    }
+  }
 }

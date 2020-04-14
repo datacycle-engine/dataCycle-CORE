@@ -1,10 +1,10 @@
 <div class="watch-lists-filter">
-    <div class="form-element">
-        <%= text_field_tag :q, nil, class: 'form-control watch-list-filter-param', placeholder: "#{DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language)} filtern...", autocomplete: 'off' %>
-        <%= button_tag(type: :reset, class: "reset-watch-list-filter", data: {
+  <div class="form-element">
+    <%= text_field_tag :q, nil, class: 'form-control watch-list-filter-param', placeholder: "#{DataCycleCore::WatchList.model_name.human(count: 2, locale: DataCycleCore.ui_language)} filtern...", autocomplete: 'off', id: nil %>
+    <%= button_tag(type: :reset, class: "reset-watch-list-filter", data: {
           disable_with: tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
         }) do %>
-            <i class="fa fa-times" aria-hidden="true"></i>
-        <% end %>
-    </div>
+      <i class="fa fa-times" aria-hidden="true"></i>
+    <% end %>
+  </div>
 </div>

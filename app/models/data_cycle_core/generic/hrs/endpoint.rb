@@ -9,6 +9,7 @@ module DataCycleCore
           @end_point = end_point
           @interface_id = interface_id
           @region_name = region_name
+          @max_retry = 5
         end
 
         def rooms(lang: :de)
@@ -53,7 +54,7 @@ module DataCycleCore
 
         protected
 
-        def load_data(location, _lang)
+        def load_data(location, lang, retry_count = 0)
           response = Faraday.new.post do |req|
             req.url File.join([@host, @end_point, location])
             req.headers['Content-Type'] = 'application/json'
@@ -61,6 +62,10 @@ module DataCycleCore
           end
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point])}", response) unless response.success?
           Nokogiri::XML(response.body).xpath('//rooms/content').first.to_hash
+        rescue StandardError
+          raise if retry_count > @max_retry
+          sleep(1)
+          load_data(location, lang, retry_count + 1)
         end
 
         def load_file(file_name, _lang)

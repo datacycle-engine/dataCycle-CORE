@@ -7,11 +7,15 @@ module DataCycleCore
         include DataCycleCore::Filter
 
         def show
-          @stored_filter = DataCycleCore::StoredFilter.find(permitted_params[:id])
+          apply_filter(filter_id: permitted_params[:id], api_only: true)
 
           raise ActiveRecord::RecordNotFound unless (@stored_filter.api_users.to_a + [@stored_filter.user_id]).include?(current_user.id)
 
-          query = apply_filter(filter_id: permitted_params[:id], api_only: true).page(permitted_params[:page])
+          @language = @stored_filter.language
+
+          query = @stored_filter.apply
+          query = query.page(permitted_params[:page])
+
           @contents = query.includes(:classifications, :translations, :watch_lists)
           @total = @contents.total_count
         end

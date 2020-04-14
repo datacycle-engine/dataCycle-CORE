@@ -21,7 +21,8 @@ module DataCycleCore
     end
 
     test 'create new external link for content' do
-      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user')
+      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: Time.zone.now - 1.day })
+
       readonly_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel not editable' })
 
       post data_links_path, params: {
@@ -93,7 +94,7 @@ module DataCycleCore
     end
 
     test 'create new external link for watch_list' do
-      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user')
+      user = DataCycleCore::TestPreparations.load_dummy_data_hash('users', 'data_link_user').merge({ confirmed_at: Time.zone.now - 1.day })
       watch_list = DataCycleCore::TestPreparations.create_watch_list(name: 'TestWatchList')
       watch_list_content = DataCycleCore::TestPreparations.create_content(template_name: 'Artikel', data_hash: { name: 'TestArtikel in WatchList' })
       DataCycleCore::WatchListDataHash.find_or_create_by({

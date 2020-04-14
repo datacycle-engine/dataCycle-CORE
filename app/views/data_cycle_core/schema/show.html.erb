@@ -15,19 +15,34 @@
     </thead>
 
     <thead>
-      <th colspan="3">
-        Properties from <a href="<%= schema_path(@template_schema.schema_name) %>"><%= @template_schema.schema_name %></a>
+      <th colspan="4">
+        Properties from
+        <% Array.wrap(@template_schema.schema_name).each do |schema_name| %>
+          <a href="//schema.org/<%= schema_name %>"><%= schema_name %></a>
+        <% end %>
       </th>
     </thead>
 
     <tbody>
       <% @template_schema.property_definitions.each do |definition| %>
         <tr>
-          <th><%= definition[:label] %></th>
+          <th>
+            <%= definition[:label] %>
+            <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %>
+            <%= tag.i(class: 'fa fa-tag has-tip', aria_hidden: true, title: 'Classification') if definition[:data_type] == 'classification' %>
+          </th>
           <td>
-            <a href="<%= definition[:range] %>"><%= definition[:range].split('/').last %></a>
+            <% Array.wrap(definition[:data_type]).each do |data_type| %>
+              <% if data_type == 'classification' %>
+                <a href="https://www.w3.org/2009/08/skos-reference/skos.html#"><%= 'skos' %></a><br/>
+              <% else %>
+                <a href="<%= data_type %>"><%= data_type.split('/').last %></a><br/>
+              <% end %>
+            <% end %>
           </td>
-          <td></td>
+          <td>
+              <%= definition.dig(:comment).presence %>
+          </td>
         </tr>
       <% end %>
     </tbody>

@@ -11,13 +11,14 @@ module DataCycleCore
           relation_name = DataCycleCore.features.dig(:auto_tagging, :relation_name) || 'cloud_vision_tags'
           external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
           file_path = thumbnail_url || content_url
+          file_path = asset.file.thumb_preview.file.file if asset.present?
 
           require 'google/cloud/vision'
           require 'google/cloud/translate'
 
           external_source = DataCycleCore::ExternalSource.find_by(name: external_source_name)
           image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
-          translation_service = Google::Cloud::Translate.new(credentials: external_source.credentials)
+          translation_service = Google::Cloud::Translate.new(version: :v2, credentials: external_source.credentials)
 
           response = image_annotator.label_detection(
             image: file_path,
@@ -48,6 +49,7 @@ module DataCycleCore
           tags = tag_records&.map { |item| item.dig(:name) }
           utility_object = OpenStruct.new
           utility_object.external_source = external_source
+          utility_object.options = {}
 
           tag_records.each do |item|
             external_key = item.dig(:name)

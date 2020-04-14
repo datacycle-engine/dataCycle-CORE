@@ -2,7 +2,7 @@
 let ActionCable = require('actioncable');
 let CalloutHelpers = require('./../helpers/callout_helpers');
 
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   if ($('.bulk-delete-button').length) {
     let deleteButton = $('.bulk-delete-button');
     let actionCable = ActionCable.createConsumer();

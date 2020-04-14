@@ -112,8 +112,36 @@ module DataCycleCore
     def classifications
     end
 
+    def activities
+    end
+
+    def activity_details
+      type = permitted_params.dig(:type)
+      case type
+      when 'summary'
+        activities = DataCycleCore::Activity.activity_stats
+      when 'user_summary'
+        activities = DataCycleCore::Activity.activities_user_overview
+      when 'details'
+        activities = DataCycleCore::Activity.activity_details
+      else
+        render(json: { error: I18n.t(:unknown_activity_type, scope: [:controllers, :error], locale: DataCycleCore.ui_language) }) && return
+      end
+      render json: { data: activities&.as_json&.map { |activity| activity.except('id') } }
+    end
+
     def logs
       @dataname = params[:dataname]
+    end
+
+    private
+
+    def permitted_params
+      @permitted_params ||= params.permit(*permitted_parameter_keys).reject { |_, v| v.blank? }
+    end
+
+    def permitted_parameter_keys
+      [:type]
     end
   end
 end

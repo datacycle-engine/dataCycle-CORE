@@ -107,6 +107,9 @@
       :feratel:
         :type: mixin
         :name: feratel_categories
+      :external_source_attribtues:
+        :type: mixin
+        :name: external_source_attribtues
       :feratel_cps:
         :type: mixin
         :name: feratel_cps

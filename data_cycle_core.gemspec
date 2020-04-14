@@ -26,7 +26,7 @@ Gem::Specification.new do |s|
   s.required_ruby_version = '~> 2.6.3'
 
   # rails
-  s.add_dependency 'rails', '~> 5.2.3'
+  s.add_dependency 'rails', '~> 5.2.4'
   s.add_dependency 'rake'
   s.add_dependency 'sprockets', '4.0.0'
   # database
@@ -37,7 +37,7 @@ Gem::Specification.new do |s|
   s.add_dependency 'rgeo-geojson'
   s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid'
+  s.add_dependency 'mongoid', '~> 7.0.6'
   # REST Client
   s.add_dependency 'faraday'
   s.add_dependency 'faraday_middleware'
@@ -119,12 +119,15 @@ Gem::Specification.new do |s|
   # s.add_development_dependency 'spring'
   s.add_development_dependency 'web-console'
 
-  s.add_dependency 'dotenv-rails'
-  s.add_dependency 'puma', '~> 3.12.1'
+  # s.add_dependency 'dotenv-rails'
+  s.add_dependency 'puma' # , '~> 3.12.1'
+  s.add_dependency 'puma-status'
   s.add_dependency 'puma_worker_killer'
 
   # Excel Generator
-  s.add_dependency 'axlsx_rails'
+  # s.add_dependency 'rubyzip', '>= 1.2.1'
+  # s.add_dependency 'caxlsx'
+  s.add_dependency 'caxlsx_rails'
 
   # Google Cloud Services
   s.add_dependency 'google-cloud-translate'

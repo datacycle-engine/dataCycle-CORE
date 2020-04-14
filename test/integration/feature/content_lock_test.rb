@@ -171,6 +171,19 @@ module DataCycleCore
         assert_nil @content.reload.lock
       end
 
+      test 'remove lock for specific content' do
+        @content.create_lock(user: @current_user)
+
+        delete remove_locks_thing_path(@content), params: {
+          id: @content.id
+        }, headers: {
+          referer: thing_path(@content)
+        }
+
+        assert_redirected_to thing_path(@content)
+        assert_nil @content.reload.lock
+      end
+
       test 'save content while locked (wrong user)' do
         @content.create_lock(user: @current_user)
 

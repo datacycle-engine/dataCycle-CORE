@@ -5,6 +5,7 @@ classifications = classification_aliases&.map do |item|
     id: item.id,
     name: item.name(locale: @language) || item.internal_name,
     description: item.description(locale: @language),
+    uri: item.uri,
     createdAt: item.created_at,
     updatedAt: item.updated_at,
     deletedAt: item.deleted_at,

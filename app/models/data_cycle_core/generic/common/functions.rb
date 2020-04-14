@@ -24,6 +24,39 @@ module DataCycleCore
           data_hash.nil? ? { 'location' => location.presence } : data_hash.merge({ 'location' => location.presence })
         end
 
+        def self.event_schedule(data_hash, sub_event_function)
+          return data_hash if data_hash.dig('event_period').blank?
+          sub_event = sub_event_function.call(data_hash)
+          schedule_hash = {}
+          schedule_hash[:dtstart] = data_hash.dig('event_period', 'start_date')&.in_time_zone
+          schedule_hash[:dtend] = data_hash.dig('event_period', 'end_date')&.in_time_zone
+          if sub_event.present?
+            rdate = sub_event.map { |i| i.dig('event_period', 'start_date')&.in_time_zone || i.dig('start_date')&.in_time_zone }.compact
+            estart = sub_event.first.dig('event_period', 'start_date')&.in_time_zone || sub_event.first.dig('start_date')&.in_time_zone
+            eend = sub_event.first.dig('event_period', 'end_date')&.in_time_zone || sub_event.first.dig('end_date')&.in_time_zone
+            duration = eend.to_i - estart.to_i if eend.present? && estart.present?
+            options = { duration: duration.presence&.to_i }.compact
+            schedule_object = IceCube::Schedule.new(schedule_hash[:dtstart].in_time_zone.presence || Time.zone.now, options) do |s|
+              rdate.sort.each do |rd|
+                s.add_recurrence_time(rd.in_time_zone)
+              end
+            end
+            schedule_hash[:duration] = duration if duration.present?
+            schedule_hash = schedule_hash.merge(schedule_object.to_hash)
+          elsif schedule_hash[:dtend].present? && schedule_hash[:dtstart].present?
+            schedule_hash[:duration] = schedule_hash[:dtend].to_i - schedule_hash[:dtstart].to_i
+            schedule_hash[:start_time] = {
+              time: schedule_hash[:dtstart],
+              zone: Time.zone.name
+            }
+            schedule_hash[:end_time] = {
+              time: schedule_hash[:dtend],
+              zone: Time.zone.name
+            }
+          end
+          (data_hash || {}).merge({ 'event_schedule' => Array.wrap(schedule_hash.with_indifferent_access) })
+        end
+
         def self.compact(data_hash)
           data_hash.compact
         end
@@ -44,7 +77,7 @@ module DataCycleCore
             data_hash[attribute] = data_hash[attribute].map { |keyword|
               DataCycleCore::Classification.where(
                 external_source_id: external_source_id,
-                external_key: external_prefix + keyword
+                external_key: external_prefix.to_s + keyword.to_s
               )&.first&.id
             }.reject(&:nil?) || []
           end
