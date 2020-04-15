@@ -90,6 +90,13 @@ describe DataCycleCore::MasterData::DataConverter do
         assert(implies(test_case.class == converted_data.class, test_case == converted_data))
         assert(implies(test_case.class != converted_data.class, test_case == converted_data.to_s))
       end
+
+      # special case for WKT following Simple Features Specification 1.2
+      wkt12_string3d = 'POINT Z (10.0 47.0 200.0)'
+      converted_data = subject.string_to_geographic(wkt12_string3d)
+      assert(converted_data.methods.include?(:geometry_type))
+      assert(implies(wkt12_string3d.class == converted_data.class, wkt12_string3d == converted_data))
+      assert(implies(wkt12_string3d.class != converted_data.class, wkt_string3d == converted_data.to_s))
     end
 
     it 'converts geographic data to strings' do
