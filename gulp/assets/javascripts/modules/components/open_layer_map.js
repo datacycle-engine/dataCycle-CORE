@@ -1,7 +1,8 @@
 var ConfirmationModal = require('./confirmation_modal');
 var ObjectHelpers = require('./../helpers/object_helpers');
 var togeojson = require('@tmcw/togeojson');
-var wellknown = require('wellknown');
+var wkx = require('wkx');
+// var wellknown = require('wellknown');
 
 var ol = {
   Map: require('ol/map').default,
@@ -90,6 +91,7 @@ class OpenLayerMap {
     this.initMouseWheelZoom();
     this.initMap();
     this.initMapActions();
+    this.initImportActions();
     this.setDefaultPosition();
   }
   initIconStyles() {
@@ -406,7 +408,7 @@ class OpenLayerMap {
         $(event.currentTarget).find('i.fa').remove();
       });
   }
-  initImportActions(event) {
+  relayImportClick(event) {
     event.preventDefault();
 
     // show file-upload-overlay
@@ -414,8 +416,8 @@ class OpenLayerMap {
       this.importInput.click();
     }
   }
-  // TODO: Rename
-  handleFile(evt) {
+  // TODO: Rename, zoom to line, edit-alte-vs-neue-linie, place button
+  handleImportFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
       alert('No files selected!');
@@ -427,23 +429,18 @@ class OpenLayerMap {
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
-
           let geojson = togeojson.gpx(xmlDoc);
+          let linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
 
-          let linestring = wellknown.stringify(geojson.features[0]);
-
-          // WKT to correct input field?
+          // WKT to correct input field
           this.setHiddenFieldValue(linestring);
-          console.log(linestring);
           // draw line on map
-          let format = new ol.format.GeoJSON();
-          this.feature = format.readFeatures(geojson)[0];
-          // let format = new ol.format.WKT();
-          // this.feature = format.readFeature(linestring, {
-          //   dataProjection: 'EPSG:4326',
-          //   featureProjection: 'EPSG:3857'
-          // });
-          // this.feature.setStyle(this.defaultLineStyle);
+          let format = new ol.format.WKT();
+          this.feature = format.readFeature(linestring, {
+            dataProjection: 'EPSG:4326',
+            featureProjection: 'EPSG:3857'
+          });
+          this.feature.setStyle(this.defaultLineStyle);
           this.source.addFeature(this.feature);
         };
       })(file);
@@ -500,8 +497,6 @@ class OpenLayerMap {
     });
 
     if (this.geoCodeButton !== undefined) this.geoCodeButton.on('click', this.initGeoCodingActions.bind(this));
-    if (this.importButton !== undefined) this.importButton.on('click', this.initImportActions.bind(this));
-    if (this.importInput !== undefined) this.importInput.on('change', this.handleFile.bind(this));
 
     this.container
       .parent('.geographic')
@@ -509,6 +504,10 @@ class OpenLayerMap {
       .first()
       .find('.longitude input, .latitude  input')
       .on('change', this.updateMapMarker.bind(this));
+  }
+  initImportActions() {
+    if (this.importButton !== undefined) this.importButton.on('click', this.relayImportClick.bind(this));
+    if (this.importInput !== undefined) this.importInput.on('change', this.handleImportFile.bind(this));
   }
   getLatLon(coords) {
     return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
@@ -537,10 +536,6 @@ class OpenLayerMap {
     return 'POINT (' + latlon[0] + ' ' + latlon[1] + ')';
   }
   setHiddenFieldValue(wkt) {
-    // let coords = this.feature.getGeometry().getCoordinates();
-    // let latlon = this.getLatLon(coords);
-    // latlon[0] = Number(latlon[0].toFixed(5));
-    // latlon[1] = Number(latlon[1].toFixed(5));
     this.container.parent('.geographic').siblings('.location-data').first().val(wkt);
   }
   setDefaultPosition() {
