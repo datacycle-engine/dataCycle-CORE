@@ -88,7 +88,8 @@ end
 
 DataCycleCore::TestPreparations.load_dummy_data(
   [
-    Rails.root.join('..', 'dummy_data')
+    Rails.root.join('..', 'dummy_data'),
+    Rails.root.join('..', 'v4', 'dummy_data')
   ]
 )
 

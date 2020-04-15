@@ -195,6 +195,10 @@ module DataCycleCore
         name_property_selector { |definition| definition['type'] == 'schedule' }
       end
 
+      def external_property_names
+        name_property_selector { |definition| definition.dig('external') }
+      end
+
       def searchable_embedded_property_names
         property_definitions.select { |_, definition|
           definition['type'] == 'embedded' && definition['advanced_search'] == true

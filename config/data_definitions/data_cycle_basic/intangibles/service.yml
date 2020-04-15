@@ -3,6 +3,9 @@
     :type: object
     :schema_type: Intangible
     :content_type: entity
+    :features:
+      :translatable:
+        :allowed: true
     :properties:
       :id:
         :label: id

@@ -13,6 +13,10 @@
       :features:
         :creatable:
           :allowed: true
+    :Service:
+      :features:
+        :creatable:
+          :allowed: true
   :events:
     :Eventserie:
       :features:
