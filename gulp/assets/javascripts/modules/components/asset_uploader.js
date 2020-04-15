@@ -290,28 +290,32 @@ class AssetUploader {
           f.name.includes(key) &&
           (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
+      let attribute = file.attributeValues[key];
 
-      if (file.attributeValues[key].type == 'boolean') {
+      if (attribute.type == 'boolean') {
         let value = values && values.length && values.filter(v => v.value.includes('true')).length ? 'ja' : 'nein';
-        Object.assign(file.attributeValues[key], {
+        if (attribute.ui && attribute.ui.create && attribute.ui.create.transform_value == 'invert')
+          value = value == 'ja' ? 'nein' : 'ja';
+
+        Object.assign(attribute, {
           name: key,
-          value: this.renderAttributeHtml(file.attributeValues[key], value)
+          value: this.renderAttributeHtml(attribute, value)
         });
       } else if (values && values.length) {
-        Object.assign(file.attributeValues[key], {
+        Object.assign(attribute, {
           name: key,
           value: this.renderAttributeHtml(
-            file.attributeValues[key],
+            attribute,
             values
               .map(v => v.text || v.value)
               .filter(Boolean)
               .join(', ')
           )
         });
-      } else if (!file.attributeValues[key].value) {
-        Object.assign(file.attributeValues[key], {
+      } else if (!attribute.value) {
+        Object.assign(attribute, {
           name: key,
-          value: this.renderAttributeHtml(file.attributeValues[key])
+          value: this.renderAttributeHtml(attribute)
         });
       }
     });
@@ -322,11 +326,14 @@ class AssetUploader {
       value = new Date(value).toLocaleDateString();
     }
 
+    let label = attribute.label;
+    if (attribute.ui && attribute.ui.create && attribute.ui.create.label) label = attribute.ui.create.label;
+
     return (
       '<span class="file-label" title="' +
-      attribute.label +
+      label +
       '">' +
-      attribute.label +
+      label +
       '</span><span class="file-attribute-value" title="' +
       $('<span>' + value + '</span>').text() +
       '">' +
