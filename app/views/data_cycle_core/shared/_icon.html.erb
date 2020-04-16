@@ -100,7 +100,15 @@
 <% when "termine" %>
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
 <% when "geo_radius", "geo_within_classification", "administrative_einheiten" %>
-    <span class="icon"><i class="fa fa-globe " aria-hidden="true"></i></span>
+    <span class="icon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+<% when "hotel", "wintours - hotel", "wintours_-_hotel", "hotel - zimmer", "hotel_-_zimmer", "win_tours_hotel" %>
+    <span class="icon"><i class="fa fa-bed " aria-hidden="true"></i></span>
+<% when "fahrrad"%>
+    <span class="icon"><i class="fa fa-bicycle" aria-hidden="true"></i></span>
+<% when "schiff"%>
+    <span class="icon"><i class="fa fa-boat" aria-hidden="true"></i></span>
+<% when "reise", "reisedetails"%>
+    <span class="icon"><i class="fa fa-suitcase" aria-hidden="true"></i></span>
 <% else %>
     <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
 <% end %>

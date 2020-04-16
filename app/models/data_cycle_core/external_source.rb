@@ -30,9 +30,25 @@ module DataCycleCore
       success
     end
 
-    def download_single(name, options = {})
+    def download_range(options = {}, &block)
+      raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
+      max_sorting = download_config.map { |_name, data| data.dig('sorting') }.max
+      min = options.dig(:min) || 0
+      max = options.dig(:max) || max_sorting + 1
+      download_config.select { |_key, hash|
+        hash.dig('sorting').in?((min..max))
+      }.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _data)|
+        success &&= download_single(name, options, &block)
+      end
+      success
+    end
+
+    def download_single(name, options = {})
       raise "unknown downloader name: #{name}" if download_config.dig(name).blank?
+      success = true
       full_options = (default_options || {}).deep_symbolize_keys.deep_merge({ download: download_config.dig(name).deep_symbolize_keys.except(:sorting) }).deep_merge(options.deep_symbolize_keys)
       locales = full_options.dig(:download, :locales) || full_options.dig(:locales) || I18n.available_locales
       raise "Missing download_strategy for #{name}, options given: #{options}" if full_options.dig(:download, :download_strategy).blank?
@@ -54,7 +70,11 @@ module DataCycleCore
     end
 
     def download_list
-      download_config&.symbolize_keys&.keys
+      download_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+    end
+
+    def download_list_ranked
+      download_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def import(options = {}, &block)
@@ -69,6 +89,20 @@ module DataCycleCore
       end
       self.last_successful_import = ts_start
       save
+    end
+
+    def import_range(options = {}, &block)
+      raise 'First parameter has to be an options Hash!' unless options.is_a?(::Hash)
+      max_sorting = import_config.map { |_name, data| data.dig('sorting') }.max
+      min = options.dig(:min) || 0
+      max = options.dig(:max) || max_sorting + 1
+      import_config.select { |_key, hash|
+        hash.dig('sorting').in?((min..max))
+      }.sort { |d1, d2|
+        d1.second['sorting'] <=> d2.second['sorting']
+      }.each do |(name, _)|
+        import_single(name, options, &block)
+      end
     end
 
     def import_single(name, options = {})
@@ -92,7 +126,11 @@ module DataCycleCore
     end
 
     def import_list
-      import_config&.symbolize_keys&.keys
+      import_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+    end
+
+    def import_list_ranked
+      import_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def collections
