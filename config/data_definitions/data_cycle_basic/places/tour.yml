@@ -95,15 +95,30 @@
             :disabled: true
         :api:
           :minimal: true
+      # :tour:
+      #   :label: Route
+      #   :type: geographic
+      #   :storage_location: value
+      #   :ui:
+      #     :edit:
+      #       :disabled: true
+      #   :api:
+      #     :minimal: true
       :tour:
-        :label: Route
+        :label: Tour
         :type: geographic
         :storage_location: value
         :ui:
           :edit:
-            :disabled: true
+            :type: LineString
+            :options:
+               :data_upload: true
         :api:
-          :minimal: true
+          :disabled: true
+          # :wkt12: true
+          :v4:
+            :wkt12: true
+            :disabled: false
       :poi:
         :label: POIS
         :type: linked
