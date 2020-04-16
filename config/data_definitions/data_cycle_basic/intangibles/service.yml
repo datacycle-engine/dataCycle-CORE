@@ -146,6 +146,8 @@
         :type: schedule
         :api:
           :disabled: true
+          :v4:
+            :disabled: false
       :provider:
         :label: Dienstleister
         :type: linked
@@ -160,7 +162,7 @@
       :offers:
         :label: Angebote
         :type: linked
-        :template_name: Offer
+        :template_name: Angebot
       # :potentialAction:
       #   :label: Buchungs-Url
       #   :type: object
