@@ -120,6 +120,9 @@
       :meta_data:
         :type: mixin
         :name: meta_data
+      :additional_person_properties:
+        :type: mixin
+        :name: additional_person_properties
       :additional_properties:
         :type: mixin
         :name: additional_properties
