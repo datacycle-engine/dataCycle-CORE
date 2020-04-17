@@ -70,11 +70,11 @@ module DataCycleCore
     end
 
     def download_list
-      download_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+      download_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def download_list_ranked
-      download_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      download_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def import(options = {}, &block)
@@ -126,11 +126,11 @@ module DataCycleCore
     end
 
     def import_list
-      import_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+      import_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def import_list_ranked
-      import_config.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      import_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def collections
