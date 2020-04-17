@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.6.3'
+  s.required_ruby_version = '~> 2.7.1'
 
   # rails
   s.add_dependency 'rails', '~> 5.2.4'

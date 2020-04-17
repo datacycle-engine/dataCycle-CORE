@@ -10,7 +10,7 @@ Gem::Specification.new do |spec|
   spec.authors       = ['Martin Oehzelt']
   spec.email         = ['oehzelt@datacycle.at']
 
-  spec.required_ruby_version = '~> 2.6.3'
+  spec.required_ruby_version = '~> 2.7.1'
 
   spec.summary       = 'Ruby translation framework'
   spec.description   = 'Stores and retrieves localized data through attributes on a Ruby class, with support for storing data in jsonb fields or a translation table.'
