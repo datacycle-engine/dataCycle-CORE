@@ -104,21 +104,45 @@
       #       :disabled: true
       #   :api:
       #     :minimal: true
-      :tour:
-        :label: Tour
-        :type: geographic
-        :storage_location: value
-        :ui:
-          :edit:
-            :type: LineString
-            :options:
-               :data_upload: true
-        :api:
-          :disabled: true
-          # :wkt12: true
-          :v4:
-            :wkt12: true
-            :disabled: false
+      # :tour:
+      #   :label: Route
+      #   :type: geographic
+      #   :storage_location: value
+      #   :ui:
+      #     :edit:
+      #       :type: LineString
+      #       :options:
+      #          :data_upload: true
+      #   :api:
+      #     :disabled: false
+      #     :v4:
+      #       :disabled: true
+      # :geo:
+      #   :name: geo
+      #   :properties:
+      #     :tour:
+      #       :label: Route
+      #       :type: geographic
+      #       :storage_location: value
+      #       # :storage_location: column
+      #       :ui:
+      #         :edit:
+      #           :type: LineString
+      #           :options:
+      #             :data_upload: true
+      #       :api:
+      #         :disabled: false
+      #         # :name: tour
+      #         :v4:
+      #           :disabled: false
+      #           :name: line
+      #           :transformation:
+      #             :method: nest
+      #             :name: geo
+      #             :type: GeoShape
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
       :poi:
         :label: POIS
         :type: linked
