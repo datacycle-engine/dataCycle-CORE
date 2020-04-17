@@ -434,19 +434,40 @@ class OpenLayerMap {
 
           // WKT to correct input field
           this.setHiddenFieldValue(linestring);
+
+          this.updateFeature(linestring);
+
           // draw line on map
-          let format = new ol.format.WKT();
-          this.feature = format.readFeature(linestring, {
-            dataProjection: 'EPSG:4326',
-            featureProjection: 'EPSG:3857'
-          });
-          this.feature.setStyle(this.defaultLineStyle);
-          this.source.addFeature(this.feature);
+          // let format = new ol.format.WKT();
+          // this.feature = format.readFeature(linestring, {
+          //   dataProjection: 'EPSG:4326',
+          //   featureProjection: 'EPSG:3857'
+          // });
+          // this.feature.setStyle(this.defaultLineStyle);
+          // this.source.addFeature(this.feature);
+
+          // // zoom to feature
+          // this.map.getView().fit(this.feature.getGeometry());
         };
       })(file);
       reader.readAsText(file);
     }
   }
+  updateFeature(newFeature) {
+    // draw line on map
+    let format = new ol.format.WKT();
+    this.feature = format.readFeature(newFeature, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    });
+    this.feature.setStyle(this.defaultLineStyle);
+    this.source.clear();
+    this.source.addFeature(this.feature);
+
+    // zoom to feature
+    this.map.getView().fit(this.feature.getGeometry());
+  }
+
   updateMapMarker(event) {
     let valid = true;
     let coords = this.getCoordinates();
