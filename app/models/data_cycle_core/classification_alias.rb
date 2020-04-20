@@ -171,7 +171,7 @@ module DataCycleCore
       if template.blank? && ancestors&.first.is_a?(DataCycleCore::ClassificationAlias)
         ancestors.first.find_content_template(templates)
       elsif template.blank?
-        return nil
+        nil
       else
         template.first
       end

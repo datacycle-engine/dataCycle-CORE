@@ -167,9 +167,9 @@ module DataCycleCore
             asset = DataCycleCore::Image.new(remote_file_url: data_hash[attribute])
             asset.save!
             data_hash[attribute] = asset.try(:id)
-          rescue StandardError => error
+          rescue StandardError => e
             logger = DataCycleCore::Generic::Logger::LogFile.new('carrierwave')
-            logger.info(error, data_hash[attribute])
+            logger.info(e, data_hash[attribute])
             logger.close
           end
           data_hash

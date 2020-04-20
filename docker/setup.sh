@@ -2,6 +2,7 @@
 #unset BUNDLE_PATH
 #unset BUNDLE_BIN
 gem install bundler
+bundle update
 bundle install
 
 cd test/dummy

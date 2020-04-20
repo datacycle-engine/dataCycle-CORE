@@ -1,6 +1,10 @@
 # author: rainer@pixelpoint.at
 inherit_from: .rubocop_todo.yml
 
+require:
+#  - rubocop-performance
+  - rubocop-rails
+
 AllCops:
   TargetRubyVersion: 2.7.1
 #  TargetRailsVersion: 5.2.3
@@ -144,8 +148,11 @@ Naming/MethodParameterName:
 #######################################################
 ########## Rails
 
-#Rails/CreateTableWithTimestamps:
-#  Enabled: false
+Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+Rails/FilePath:
+  EnforcedStyle: arguments
 
 #######################################################
 ########## Security
