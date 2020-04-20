@@ -28,9 +28,9 @@ module DataCycleCore
           template = config&.dig(:template) || 'Örtlichkeit'
           place_hash = {}
 
-          address = raw_data.dig('Addresses', 'Address')&.select do |d|
+          address = raw_data.dig('Addresses', 'Address')&.select { |d|
             d['Type'] == 'Venue'
-          end&.first
+          }&.first
 
           return if address.blank? && (!raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? || !raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?)
 

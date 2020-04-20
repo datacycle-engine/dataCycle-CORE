@@ -126,70 +126,22 @@ Style/MissingRespondToMissing:
 #######################################################
 ######### latest
 
+## Offense count: 22
+## Cop supports --auto-correct.
+## Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
+## SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
+## ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
+## FunctionalMethods: let, let!, subject, watch
+## IgnoredMethods: lambda, proc, it
+#Style/BlockDelimiters:
+#  Enabled: false
 
-## Offense count: 3
-## Cop supports --auto-correct.
-## Configuration parameters: AllowMultipleReturnValues.
-#Style/RedundantReturn:
-#  Exclude:
-#    - 'app/models/data_cycle_core/classification_alias.rb'
-#    - 'app/models/data_cycle_core/generic/common/import_tags.rb'
-#    - 'app/models/data_cycle_core/master_data/differs/geographic.rb'
-#
-## Offense count: 2
-## Cop supports --auto-correct.
-#Style/RedundantParentheses:
-#  Exclude:
-#    - 'app/views/data_cycle_core/api/v2/api_base/attributes/_classification_by_month.json.jbuilder'
-#    - 'app/views/data_cycle_core/api/v3/api_base/attributes/_classification_by_month.jb'
-#
-## Offense count: 2
-## Cop supports --auto-correct.
-#Lint/RedundantStringCoercion:
-#  Exclude:
-#    - 'app/models/data_cycle_core/generic/eyebase/import_copyright_holder.rb'
-#    - 'app/models/data_cycle_core/generic/eyebase/import_keywords.rb'
-
-## Offense count: 1
-## Cop supports --auto-correct.
-#Lint/SendWithMixinArgument:
-#  Exclude:
-#    - 'config/initializers/monkey/patch_active_record_interval.rb'
-#
-## Offense count: 1
-## Configuration parameters: AllowComments.
-#Lint/SuppressedException:
-#  Exclude:
-#    - 'vendor/gems/translations/spec/support/helpers.rb'
-#
-## Offense count: 6
-## Cop supports --auto-correct.
-## Configuration parameters: PreferredName.
-#Naming/RescuedExceptionsVariableName:
-#  Exclude:
-#    - 'app/jobs/data_cycle_core/download_job.rb'
-#    - 'app/jobs/data_cycle_core/import_full_job.rb'
-#    - 'app/jobs/data_cycle_core/import_job.rb'
-#    - 'app/jobs/data_cycle_core/import_only_job.rb'
-#    - 'app/models/data_cycle_core/generic/common/functions.rb'
-#    - 'app/models/data_cycle_core/webhook/base.rb'
-
-# Offense count: 22
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
-# SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
-# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-# FunctionalMethods: let, let!, subject, watch
-# IgnoredMethods: lambda, proc, it
-Style/BlockDelimiters:
-  Enabled: false
-
-## Offense count: 2
-## Configuration parameters: MinBodyLength.
-#Style/GuardClause:
-#  Exclude:
-#    - 'app/controllers/data_cycle_core/contents_controller.rb'
-#    - 'app/controllers/data_cycle_core/feature/controller_functions/content_lock.rb'
+# Offense count: 2
+# Configuration parameters: MinBodyLength.
+Style/GuardClause:
+  Exclude:
+    - 'app/controllers/data_cycle_core/contents_controller.rb'
+    - 'app/controllers/data_cycle_core/feature/controller_functions/content_lock.rb'
 
 
 ################################################################

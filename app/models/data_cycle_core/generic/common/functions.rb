@@ -99,13 +99,13 @@ module DataCycleCore
           data_hash.merge(
             {
               attribute =>
-                data_list.call(data_hash)&.map do |item_data|
+                data_list.call(data_hash)&.map { |item_data|
                   search_params = {
                     external_source_id: external_source_id,
                     external_key: external_prefix + item_data.dig(key)
                   }
                   DataCycleCore::Classification.find_by(search_params)&.id
-                end&.reject(&:nil?) || []
+                }&.reject(&:nil?) || []
             }
           )
         end

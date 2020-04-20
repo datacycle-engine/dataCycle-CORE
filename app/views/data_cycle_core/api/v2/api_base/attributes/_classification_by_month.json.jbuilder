@@ -5,7 +5,7 @@ classification_aliases = content.send(key)&.includes(:classification_aliases)&.m
 key_new = definition.dig('api', 'name') || key.camelize(:lower)
 
 if classification_aliases.present?
-  json.set! key_new, classification_aliases.map do |classification_alias|
+  json.set! key_new, classification_aliases.map { |classification_alias|
     case classification_alias.internal_name
     when 'Januar'
       1
@@ -34,5 +34,5 @@ if classification_aliases.present?
     else
       classification_alias.name
     end
-  end&.sort
+  }&.sort
 end

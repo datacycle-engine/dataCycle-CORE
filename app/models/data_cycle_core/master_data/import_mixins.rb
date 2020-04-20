@@ -63,13 +63,13 @@ module DataCycleCore
 
       def self.transform_properties(mixin_schema, content_set, mixin_list)
         return if mixin_schema.blank?
-        mixin_schema.map do |property_name, property_definitions|
+        mixin_schema.map { |property_name, property_definitions|
           if property_definitions.dig(:type) == 'mixin'
             transform_properties(get_mixin(property_definitions[:name], content_set, mixin_list), content_set, mixin_list)
           else
             { property_name => property_definitions }
           end
-        end&.inject(&:merge!)
+        }&.inject(&:merge!)
       end
 
       def self.get_mixin(name, set, list)

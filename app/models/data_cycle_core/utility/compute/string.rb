@@ -6,9 +6,9 @@ module DataCycleCore
       module String
         class << self
           def concat(**args)
-            args.dig(:computed_definition)&.dig('compute', 'parameters')&.values&.map do |item|
+            args.dig(:computed_definition)&.dig('compute', 'parameters')&.values&.map { |item|
               item.is_a?(Hash) ? transform_string(item, args) : item
-            end&.join
+            }&.join
           end
 
           def transform_string(definition, args)
