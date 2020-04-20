@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:2.6.3
+image: patrickrainer/data_cycle_base:2.7.1
 
 variables:
   POSTGRES_USER: postgres
@@ -36,6 +36,7 @@ before_script:
   - cd $CI_PROJECT_DIR
   - mkdir -p log
   - mkdir -p test/dummy/public/downloads
+  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 cache:
   key: application-cache

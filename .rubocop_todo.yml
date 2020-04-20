@@ -45,71 +45,71 @@ Naming/AccessorMethodName:
 #######################################################
 ########## Rails
 
-Rails/OutputSafety:
-  Exclude:
-    - 'app/helpers/data_cycle_core/application_helper.rb'
-    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
+#Rails/OutputSafety:
+#  Exclude:
+#    - 'app/helpers/data_cycle_core/application_helper.rb'
+#    - 'app/helpers/data_cycle_core/data_hash_helper.rb'
 
-Rails/HasManyOrHasOneDependent:
-  Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/content/content_relations.rb'
-    - 'app/models/data_cycle_core/external_source.rb'
-    - 'app/models/data_cycle_core/place.rb'
-    - 'app/models/data_cycle_core/role.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'app/models/data_cycle_core/watch_list.rb'
-    - 'app/models/data_cycle_core/search.rb'
-
-Rails/InverseOf:
-  Exclude:
-    - 'app/models/data_cycle_core/classification.rb'
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/classification_tree.rb'
-    - 'app/models/data_cycle_core/content/content_relations.rb'
-    - 'app/models/data_cycle_core/creative_work.rb'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/models/data_cycle_core/event.rb'
-    - 'app/models/data_cycle_core/person.rb'
-    - 'app/models/data_cycle_core/organization.rb'
-    - 'app/models/data_cycle_core/place.rb'
-    - 'app/models/data_cycle_core/subscribable.rb'
-    - 'app/models/data_cycle_core/user.rb'
-    - 'app/models/data_cycle_core/watch_list.rb'
-    - 'app/models/data_cycle_core/search.rb'
-
-Rails/Output:
-  Exclude:
-    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
-    - 'app/models/data_cycle_core/content/data_hash.rb'
-    - 'app/models/data_cycle_core/generic/logger/console.rb'
-    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
-    - 'app/models/data_cycle_core/generic/media_archive_v2/import.rb'
-    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
-    - 'app/models/data_cycle_core/master_data/import_templates.rb'
-    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
-    - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
-    - 'app/models/data_cycle_core/master_data/validate_data.rb'
-    - 'app/models/data_cycle_core/update/base.rb'
-    - 'app/services/data_cycle_core/progress_bar_service.rb'
-
-Rails/SkipsModelValidations:
-  Exclude:
-    - 'app/controllers/data_cycle_core/data_links_controller.rb'
-    - 'lib/tasks/data_cycle_core_tasks.rake'
-    - 'lib/tasks/data_cycle_core_refactor_tasks.rake'
-    - 'app/models/data_cycle_core/data_link.rb'
-    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
-    - 'db/migrate/*'
-
-Rails/TimeZone:
-  Exclude:
-    - 'data_cycle_core.gemspec'
-
-Rails/AssertNot:
-  Exclude:
-    - 'test/models/master_data/data_definition_test.rb'
-    - 'test/models/master_data/import_external_sources_test.rb'
+#Rails/HasManyOrHasOneDependent:
+#  Exclude:
+#    - 'app/models/data_cycle_core/classification.rb'
+#    - 'app/models/data_cycle_core/content/content_relations.rb'
+#    - 'app/models/data_cycle_core/external_source.rb'
+#    - 'app/models/data_cycle_core/place.rb'
+#    - 'app/models/data_cycle_core/role.rb'
+#    - 'app/models/data_cycle_core/user.rb'
+#    - 'app/models/data_cycle_core/watch_list.rb'
+#    - 'app/models/data_cycle_core/search.rb'
+#
+#Rails/InverseOf:
+#  Exclude:
+#    - 'app/models/data_cycle_core/classification.rb'
+#    - 'app/models/data_cycle_core/classification_alias.rb'
+#    - 'app/models/data_cycle_core/classification_tree.rb'
+#    - 'app/models/data_cycle_core/content/content_relations.rb'
+#    - 'app/models/data_cycle_core/creative_work.rb'
+#    - 'app/models/data_cycle_core/data_link.rb'
+#    - 'app/models/data_cycle_core/event.rb'
+#    - 'app/models/data_cycle_core/person.rb'
+#    - 'app/models/data_cycle_core/organization.rb'
+#    - 'app/models/data_cycle_core/place.rb'
+#    - 'app/models/data_cycle_core/subscribable.rb'
+#    - 'app/models/data_cycle_core/user.rb'
+#    - 'app/models/data_cycle_core/watch_list.rb'
+#    - 'app/models/data_cycle_core/search.rb'
+#
+#Rails/Output:
+#  Exclude:
+#    - 'app/controllers/data_cycle_core/dash_board_controller.rb'
+#    - 'app/models/data_cycle_core/content/data_hash.rb'
+#    - 'app/models/data_cycle_core/generic/logger/console.rb'
+#    - 'app/models/data_cycle_core/generic/media_archive/import.rb'
+#    - 'app/models/data_cycle_core/generic/media_archive_v2/import.rb'
+#    - 'app/models/data_cycle_core/master_data/import_classifications.rb'
+#    - 'app/models/data_cycle_core/master_data/import_templates.rb'
+#    - 'app/models/data_cycle_core/master_data/import_external_sources.rb'
+#    - 'app/models/data_cycle_core/master_data/import_external_systems.rb'
+#    - 'app/models/data_cycle_core/master_data/validate_data.rb'
+#    - 'app/models/data_cycle_core/update/base.rb'
+#    - 'app/services/data_cycle_core/progress_bar_service.rb'
+#
+#Rails/SkipsModelValidations:
+#  Exclude:
+#    - 'app/controllers/data_cycle_core/data_links_controller.rb'
+#    - 'lib/tasks/data_cycle_core_tasks.rake'
+#    - 'lib/tasks/data_cycle_core_refactor_tasks.rake'
+#    - 'app/models/data_cycle_core/data_link.rb'
+#    - 'app/controllers/data_cycle_core/creative_works_controller.rb'
+#    - 'db/migrate/*'
+#
+#Rails/TimeZone:
+#  Exclude:
+#    - 'data_cycle_core.gemspec'
+#
+#Rails/AssertNot:
+#  Exclude:
+#    - 'test/models/master_data/data_definition_test.rb'
+#    - 'test/models/master_data/import_external_sources_test.rb'
 
 #######################################################
 ########## Style
@@ -118,3 +118,111 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
     - 'app/models/data_cycle_core/content/content.rb'
+
+
+#######################################################
+######### latest
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, IndentationWidth.
+# SupportedStyles: consistent, consistent_relative_to_receiver, special_for_inner_method_call, special_for_inner_method_call_in_parentheses
+Layout/FirstArgumentIndentation:
+  Exclude:
+    - 'app/models/data_cycle_core/export/toursprung/transformations.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator.
+# SupportedStylesForExponentOperator: space, no_space
+Layout/SpaceAroundOperators:
+  Exclude:
+    - 'vendor/gems/translations/lib/translations/backends/active_record/table.rb'
+
+# Offense count: 1
+Lint/Debugger:
+  Exclude:
+    - 'test/integration/api/v4/content/thing_test_.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+Lint/NonDeterministicRequireOrder:
+  Exclude:
+    - 'vendor/gems/translations/spec/spec_helper.rb'
+
+# Offense count: 23
+# Cop supports --auto-correct.
+Lint/RedundantCopDisableDirective:
+  Enabled: false
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Lint/RedundantStringCoercion:
+  Exclude:
+    - 'app/models/data_cycle_core/generic/eyebase/import_copyright_holder.rb'
+    - 'app/models/data_cycle_core/generic/eyebase/import_keywords.rb'
+
+# Offense count: 1
+# Cop supports --auto-correct.
+Lint/SendWithMixinArgument:
+  Exclude:
+    - 'config/initializers/monkey/patch_active_record_interval.rb'
+
+# Offense count: 1
+# Configuration parameters: AllowComments.
+Lint/SuppressedException:
+  Exclude:
+    - 'vendor/gems/translations/spec/support/helpers.rb'
+
+# Offense count: 6
+# Cop supports --auto-correct.
+# Configuration parameters: PreferredName.
+Naming/RescuedExceptionsVariableName:
+  Exclude:
+    - 'app/jobs/data_cycle_core/download_job.rb'
+    - 'app/jobs/data_cycle_core/import_full_job.rb'
+    - 'app/jobs/data_cycle_core/import_job.rb'
+    - 'app/jobs/data_cycle_core/import_only_job.rb'
+    - 'app/models/data_cycle_core/generic/common/functions.rb'
+    - 'app/models/data_cycle_core/webhook/base.rb'
+
+# Offense count: 22
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
+# SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
+# ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
+# FunctionalMethods: let, let!, subject, watch
+# IgnoredMethods: lambda, proc, it
+Style/BlockDelimiters:
+  Enabled: false
+
+# Offense count: 1
+# Cop supports --auto-correct.
+# Configuration parameters: EnforcedStyle.
+# SupportedStyles: always, always_true, never
+Style/FrozenStringLiteralComment:
+  Exclude:
+    - 'app/models/data_cycle_core/filter/query_builder.rb'
+
+# Offense count: 2
+# Configuration parameters: MinBodyLength.
+Style/GuardClause:
+  Exclude:
+    - 'app/controllers/data_cycle_core/contents_controller.rb'
+    - 'app/controllers/data_cycle_core/feature/controller_functions/content_lock.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/RedundantParentheses:
+  Exclude:
+    - 'app/views/data_cycle_core/api/v2/api_base/attributes/_classification_by_month.json.jbuilder'
+    - 'app/views/data_cycle_core/api/v3/api_base/attributes/_classification_by_month.jb'
+
+# Offense count: 3
+# Cop supports --auto-correct.
+# Configuration parameters: AllowMultipleReturnValues.
+Style/RedundantReturn:
+  Exclude:
+    - 'app/models/data_cycle_core/classification_alias.rb'
+    - 'app/models/data_cycle_core/generic/common/import_tags.rb'
+    - 'app/models/data_cycle_core/master_data/differs/geographic.rb'

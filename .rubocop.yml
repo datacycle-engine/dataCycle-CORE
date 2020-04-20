@@ -2,8 +2,8 @@
 inherit_from: .rubocop_todo.yml
 
 AllCops:
-  TargetRubyVersion: 2.6.3
-  TargetRailsVersion: 5.2.3
+  TargetRubyVersion: 2.7.1
+#  TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   Exclude:
     - 'node_modules/**/*'
@@ -11,8 +11,8 @@ AllCops:
     - 'cache/**/*'
     - 'bash/**/*'
 
-Rails:
-  Enabled: true
+#Rails:
+#  Enabled: true
 
 #######################################################
 ########## Bundler
@@ -27,11 +27,23 @@ Layout/MultilineMethodCallIndentation:
 #Lint/SplatKeywordArguments:
 #  Enabled: false
 
-Layout/IndentHash:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
+
+Layout/LineLength:
+  Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
 
 #######################################################
 ########## Style
@@ -41,9 +53,6 @@ Style/AsciiComments:
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
-
-Style/BracesAroundHashParameters:
-  Enabled: false
 
 Style/ConditionalAssignment:
   Enabled: false
@@ -80,6 +89,18 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+Style/HashTransformKeys:
+  Enabled: true
+
+Style/HashTransformValues:
+  Enabled: true
+
 #######################################################
 ########## Metrics
 Metrics/AbcSize:
@@ -95,9 +116,6 @@ Metrics/ClassLength:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
-  Enabled: false
-
-Metrics/LineLength:
   Enabled: false
 
 Metrics/MethodLength:
@@ -118,14 +136,14 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   MinNameLength: 1
 
 #######################################################
 ########## Rails
 
-Rails/CreateTableWithTimestamps:
-  Enabled: false
+#Rails/CreateTableWithTimestamps:
+#  Enabled: false
 
 #######################################################
 ########## Security
