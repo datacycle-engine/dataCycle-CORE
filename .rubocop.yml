@@ -2,7 +2,7 @@
 inherit_from: .rubocop_todo.yml
 
 require:
-#  - rubocop-performance
+  - rubocop-performance
   - rubocop-rails
 
 AllCops:
@@ -155,6 +155,16 @@ Rails/FilePath:
   EnforcedStyle: arguments
 
 Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/ReflectionClassName:
+  Enabled: false
+
+Rails/ApplicationController:
+  Exclude:
+    - 'app/controllers/data_cycle_core/missing_asset_controller.rb'
+
+Rails/RakeEnvironment:
   Enabled: false
 
 #######################################################
