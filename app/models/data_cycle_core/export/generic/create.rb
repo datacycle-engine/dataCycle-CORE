@@ -3,7 +3,7 @@
 module DataCycleCore
   module Export
     module Generic
-      module Delete
+      module Create
         include Functions
 
         def self.process(utility_object:, data:)
@@ -13,7 +13,10 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          data.template_name.in?(Array.wrap(external_system.config.dig('push_config', name.demodulize.underscore, 'template_names') || external_system.config.dig('push_config', 'template_names')))
+          template_names = Array.wrap(external_system.config.dig('push_config', name.demodulize.underscore, 'filter', 'template_names') || external_system.config.dig('push_config', 'filter', 'template_names'))
+          classification_ids = Array.wrap(external_system.config.dig('push_config', name.demodulize.underscore, 'filter', 'classifications') || external_system.config.dig('push_config', 'filter', 'classifications')).map { |f| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(f['tree_label'], f['aliases']) }
+
+          (template_names.present? ? data.template_name.in?(template_names) : true) && (classification_ids.present? ? classification_ids.all? { |c| data.classifications.map(&:id).include?(c) } : true)
         end
       end
     end

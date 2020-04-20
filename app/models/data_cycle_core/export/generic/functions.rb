@@ -17,7 +17,7 @@ module DataCycleCore
             type: :create,
             method: external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :post,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/create',
+            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/create', id: data&.id),
             utility_object: utility_object,
             locale: I18n.locale
           )
@@ -35,7 +35,7 @@ module DataCycleCore
             type: :update,
             method: external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :post,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/update',
+            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/update', id: data&.id),
             utility_object: utility_object,
             locale: I18n.locale
           )
@@ -53,7 +53,7 @@ module DataCycleCore
             type: :delete,
             method: external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :delete,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/delete',
+            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/delete', id: data&.id),
             utility_object: utility_object,
             locale: I18n.locale
           )
