@@ -74,9 +74,8 @@ class OpenLayerMap {
     this.draw;
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
-    // TODO: Consistent naming
-    this.importButton = $('.upload-line-button');
-    this.importInput = $('#upload-gpx-input');
+    this.uploadButton = $('.upload-gpx-button');
+    this.uploadInput = $('#upload-gpx-input');
     this.mapOptions = this.container.data('map-options');
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
 
@@ -91,7 +90,7 @@ class OpenLayerMap {
     this.initMouseWheelZoom();
     this.initMap();
     this.initMapActions();
-    this.initImportActions();
+    this.initUploadActions();
     this.setDefaultPosition();
   }
   initIconStyles() {
@@ -159,62 +158,40 @@ class OpenLayerMap {
   initFeatures() {
     if (
       this.type == 'Point' &&
-      ((this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
-        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined))
+      ((this.afterValue !== undefined && this.afterValue.length) ||
+        (this.beforeValue !== undefined && this.beforeValue.length))
     ) {
       this.drawable = false;
-      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
-        this.feature = new ol.Feature({
-          geometry: new ol.geom.Point(this.afterValue[0])
-        });
+      if (this.afterValue !== undefined && this.afterValue.length > 0) {
+        this.feature = this.createFeaturefromWkt(this.afterValue);
         this.feature.setStyle(this.greenIconStyle);
       }
-
-      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
-        this.featureOld = new ol.Feature({
-          geometry: new ol.geom.Point(this.beforeValue[0])
-        });
+      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
+        this.featureOld = this.createFeaturefromWkt(this.beforeValue);
         this.featureOld.setStyle(this.redIconStyle);
       }
-    } else if (this.type == 'Point' && this.value[0].length > 0) {
+    } else if (this.type == 'Point' && this.value.length > 0) {
       this.drawable = false;
-      this.feature = new ol.Feature({
-        geometry: new ol.geom.Point(this.value[0])
-      });
+      this.feature = this.createFeaturefromWkt(this.value);
       if (this.iconStyle !== undefined) this.feature.setStyle(this.iconStyle);
     } else if (
       this.type == 'LineString' &&
-      ((this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length) ||
-        (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length))
+      ((this.afterValue !== undefined && this.afterValue.length) ||
+        (this.beforeValue !== undefined && this.beforeValue.length))
     ) {
-      let points = [];
-      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
-        points.push(this.afterValue);
-        this.feature = new ol.Feature({
-          geometry: new ol.geom.LineString(this.afterValue)
-        });
+      if (this.afterValue !== undefined && this.afterValue.length > 0) {
+        this.feature = this.createFeaturefromWkt(this.afterValue);
         this.feature.setStyle(this.greenLineStyle);
       }
-      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
-        points.push(this.beforeValue);
-        this.featureOld = new ol.Feature({
-          geometry: new ol.geom.LineString(this.beforeValue)
-        });
+      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
+        this.featureOld = this.createFeaturefromWkt(this.beforeValue);
         this.featureOld.setStyle(this.redLineStyle);
       }
-    } else if (this.type == 'LineString' && this.value[0] !== undefined && this.value[0].length) {
-      this.feature = new ol.Feature({
-        geometry: new ol.geom.LineString(this.value)
-      });
+    } else if (this.type == 'LineString' && this.value !== undefined && this.value.length) {
+      this.feature = this.createFeaturefromWkt(this.value);
       this.feature.setStyle(this.defaultLineStyle);
-    } else if (this.type == 'MultiLineString' && this.value[0] !== undefined && this.value[0].length) {
-      var first = this.value[0];
-      var array = first.map(function (line) {
-        return JSON.parse('[' + line + ']');
-      });
-      this.feature = new ol.Feature({
-        geometry: new ol.geom.MultiLineString(array)
-      });
+    } else if (this.type == 'MultiLineString' && this.value !== undefined && this.value.length) {
+      this.feature = this.createFeaturefromWkt(this.value);
       this.feature.setStyle(this.defaultLineStyle);
     }
   }
@@ -249,14 +226,19 @@ class OpenLayerMap {
       });
     }
   }
+  createFeaturefromWkt(wkt) {
+    let format = new ol.format.WKT();
+
+    return format.readFeature(wkt, {
+      dataProjection: 'EPSG:4326',
+      featureProjection: 'EPSG:3857'
+    });
+  }
   configureFeatures() {
     if (this.feature !== undefined) this.features.push(this.feature);
     if (this.featureOld !== undefined) this.features.push(this.featureOld);
 
     if (this.features.length > 0) {
-      this.features.forEach(item => {
-        item.getGeometry().transform('EPSG:4326', 'EPSG:3857');
-      });
       this.options = {
         features: this.features
       };
@@ -408,46 +390,31 @@ class OpenLayerMap {
         $(event.currentTarget).find('i.fa').remove();
       });
   }
-  relayImportClick(event) {
+  relayUploadClick(event) {
     event.preventDefault();
-
-    // show file-upload-overlay
-    if (this.importInput) {
-      this.importInput.click();
+    if (this.uploadInput) {
+      this.uploadInput.click();
     }
   }
-  // TODO: Rename, zoom to line, edit-alte-vs-neue-linie, place button
-  handleImportFile(evt) {
+  handleUploadFile(evt) {
     let file = evt.target.files[0] || null;
     if (!file) {
-      alert('No files selected!');
+      new ConfirmationModal({
+        text: 'Datei nicht gefunden!'
+      });
     } else {
       const reader = new FileReader();
       reader.onload = (gpxFile => {
         return e => {
-          // gpx to WKT
           let xmlString = e.target.result;
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
           let geojson = togeojson.gpx(xmlDoc);
           let linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
 
-          // WKT to correct input field
           this.setHiddenFieldValue(linestring);
-
           this.updateFeature(linestring);
-
-          // draw line on map
-          // let format = new ol.format.WKT();
-          // this.feature = format.readFeature(linestring, {
-          //   dataProjection: 'EPSG:4326',
-          //   featureProjection: 'EPSG:3857'
-          // });
-          // this.feature.setStyle(this.defaultLineStyle);
-          // this.source.addFeature(this.feature);
-
-          // // zoom to feature
-          // this.map.getView().fit(this.feature.getGeometry());
+          $.rails.enableElement(this.uploadButton);
         };
       })(file);
       reader.readAsText(file);
@@ -460,12 +427,17 @@ class OpenLayerMap {
       dataProjection: 'EPSG:4326',
       featureProjection: 'EPSG:3857'
     });
-    this.feature.setStyle(this.defaultLineStyle);
+
+    if (this.type == 'LineString' || this.type == 'MultiLineString') {
+      this.feature.setStyle(this.defaultLineStyle);
+    } else {
+      this.feature.setStyle(this.iconStyle);
+    }
+
     this.source.clear();
     this.source.addFeature(this.feature);
 
-    // zoom to feature
-    this.map.getView().fit(this.feature.getGeometry());
+    this.map.getView().fit(this.feature.getGeometry(), { padding: [50, 50, 50, 50] });
   }
 
   updateMapMarker(event) {
@@ -526,9 +498,9 @@ class OpenLayerMap {
       .find('.longitude input, .latitude  input')
       .on('change', this.updateMapMarker.bind(this));
   }
-  initImportActions() {
-    if (this.importButton !== undefined) this.importButton.on('click', this.relayImportClick.bind(this));
-    if (this.importInput !== undefined) this.importInput.on('change', this.handleImportFile.bind(this));
+  initUploadActions() {
+    if (this.uploadButton !== undefined) this.uploadButton.on('click', this.relayUploadClick.bind(this));
+    if (this.uploadInput !== undefined) this.uploadInput.on('change', this.handleUploadFile.bind(this));
   }
   getLatLon(coords) {
     return ol.proj.transform(coords, 'EPSG:3857', 'EPSG:4326');
