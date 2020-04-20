@@ -68,7 +68,7 @@
             <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) unless can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
             <%= DataCycleCore::Thing.human_attribute_name(:latitude, locale: DataCycleCore.ui_language) %>
           <% end %>
-          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'longitude'))}", placeholder: 'z.B. 47,515785' %>
+          <%= number_field_tag key.gsub(key.attribute_name_from_key, 'latitude'), value.presence&.y, class: 'form-control', step: :any, readonly: !can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)), id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key.gsub(key.attribute_name_from_key, 'latitude'))}", placeholder: 'z.B. 47,515785' %>
         </div>
 
         <%= render_attribute_editor key: key.gsub(key.attribute_name_from_key, 'elevation'), definition: content&.schema&.dig(*schema_path_from_key(key.gsub(key.attribute_name_from_key, 'elevation'))), value: (content.elevation.blank? || content.elevation.zero?) ? nil : content.elevation, parameters: { options: { force_render: true, prefix: local_assigns.dig(:options, :prefix) } }, content: content if content.collect_properties.flatten.include?('elevation') %>
