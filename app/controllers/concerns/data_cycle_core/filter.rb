@@ -38,7 +38,7 @@ module DataCycleCore
             .compact
             .uniq
         )
-        .map { |c| [c.id, c] }.to_h
+        .index_by(&:id)
 
       query
     end

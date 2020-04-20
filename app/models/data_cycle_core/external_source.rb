@@ -103,7 +103,7 @@ module DataCycleCore
         'hosts' => Mongoid.default_client.cluster.servers.map(&:address).map { |adr| "#{adr.host}:#{adr.port}" },
         'options' => nil
       }
-      OpenStruct.new(Hash[Mongoid.client(id).collections.map { |item| [item.name, item] }])
+      OpenStruct.new(Mongoid.client(id).collections.index_by(&:name))
     end
 
     def reset

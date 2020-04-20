@@ -126,16 +126,6 @@ Style/MissingRespondToMissing:
 #######################################################
 ######### latest
 
-## Offense count: 22
-## Cop supports --auto-correct.
-## Configuration parameters: EnforcedStyle, ProceduralMethods, FunctionalMethods, IgnoredMethods, AllowBracesOnProceduralOneLiners, BracesRequiredMethods.
-## SupportedStyles: line_count_based, semantic, braces_for_chaining, always_braces
-## ProceduralMethods: benchmark, bm, bmbm, create, each_with_object, measure, new, realtime, tap, with_object
-## FunctionalMethods: let, let!, subject, watch
-## IgnoredMethods: lambda, proc, it
-#Style/BlockDelimiters:
-#  Enabled: false
-
 # Offense count: 2
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:
@@ -147,20 +137,23 @@ Style/GuardClause:
 ################################################################
 ############# Rails
 
+Rails/RakeEnvironment:
+  Exclude:
+    - 'vendor/gems/translations/Rakefile'
+
 Lint/RedundantCopDisableDirective:
   Enabled: false
 
-Rails/ReflectionClassName:
-  Enabled: false
+#Rails/ReflectionClassName:
+#  Enabled: false
+#
+#Rails/RakeEnvironment:
+#  Enabled: false
+#
+#Rails/IndexBy:
+#  Enabled: false
+#
 
-Rails/RakeEnvironment:
-  Enabled: false
-
-Rails/IndexBy:
-  Enabled: false
-
-Rails/HelperInstanceVariable:
-  Enabled: false
-
-Rails/ApplicationController:
-  Enabled: false
+#
+#Rails/ApplicationController:
+#  Enabled: false

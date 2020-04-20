@@ -12,8 +12,8 @@ module DataCycleCore
           return
         end
 
-        default_file_names = Dir[external_source_path + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
-        specific_file_names = Dir[external_source_path + Rails.env + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
+        default_file_names = Dir[external_source_path + '*.yml']&.index_by { |f| File.basename(f) } || {}
+        specific_file_names = Dir[external_source_path + Rails.env + '*.yml']&.index_by { |f| File.basename(f) } || {}
 
         file_names = default_file_names.merge(specific_file_names).values
         file_names.each do |file_name|
