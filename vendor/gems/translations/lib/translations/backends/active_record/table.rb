@@ -14,7 +14,7 @@ module Translations
         class << self
           def configure(options)
             table_name = options[:model_class].table_name
-            options[:table_name]  ||= "#{table_name.singularize}_translations"
+            options[:table_name] ||= "#{table_name.singularize}_translations"
             options[:foreign_key] ||= table_name.downcase.singularize.camelize.foreign_key
             if (association_name = options[:association_name]).present?
               options[:subclass_name] ||= association_name.to_s.singularize.camelize.freeze

@@ -27,6 +27,9 @@ Lint/UnusedMethodArgument:
     - 'app/models/data_cycle_core/generic/xamoom/import_spots.rb'
     - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
 
+Lint/NonDeterministicRequireOrder:
+  Exclude:
+    - 'vendor/gems/translations/spec/spec_helper.rb'
 #######################################################
 ########## Naming
 
@@ -123,37 +126,36 @@ Style/MissingRespondToMissing:
 #######################################################
 ######### latest
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle, IndentationWidth.
-# SupportedStyles: consistent, consistent_relative_to_receiver, special_for_inner_method_call, special_for_inner_method_call_in_parentheses
-Layout/FirstArgumentIndentation:
-  Exclude:
-    - 'app/models/data_cycle_core/export/toursprung/transformations.rb'
+## Offense count: 23
+## Cop supports --auto-correct.
+#Lint/RedundantCopDisableDirective:
+#  Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: AllowForAlignment, EnforcedStyleForExponentOperator.
-# SupportedStylesForExponentOperator: space, no_space
-Layout/SpaceAroundOperators:
-  Exclude:
-    - 'vendor/gems/translations/lib/translations/backends/active_record/table.rb'
 
-# Offense count: 1
-Lint/Debugger:
-  Exclude:
-    - 'test/integration/api/v4/content/thing_test_.rb'
+## Offense count: 1
+## Cop supports --auto-correct.
+## Configuration parameters: EnforcedStyle.
+## SupportedStyles: always, always_true, never
+#Style/FrozenStringLiteralComment:
+#  Exclude:
+#    - 'app/models/data_cycle_core/filter/query_builder.rb'
 
-# Offense count: 1
-# Cop supports --auto-correct.
-Lint/NonDeterministicRequireOrder:
-  Exclude:
-    - 'vendor/gems/translations/spec/spec_helper.rb'
 
-# Offense count: 23
+# Offense count: 3
 # Cop supports --auto-correct.
-Lint/RedundantCopDisableDirective:
-  Enabled: false
+# Configuration parameters: AllowMultipleReturnValues.
+Style/RedundantReturn:
+  Exclude:
+    - 'app/models/data_cycle_core/classification_alias.rb'
+    - 'app/models/data_cycle_core/generic/common/import_tags.rb'
+    - 'app/models/data_cycle_core/master_data/differs/geographic.rb'
+
+# Offense count: 2
+# Cop supports --auto-correct.
+Style/RedundantParentheses:
+  Exclude:
+    - 'app/views/data_cycle_core/api/v2/api_base/attributes/_classification_by_month.json.jbuilder'
+    - 'app/views/data_cycle_core/api/v3/api_base/attributes/_classification_by_month.jb'
 
 # Offense count: 2
 # Cop supports --auto-correct.
@@ -196,33 +198,9 @@ Naming/RescuedExceptionsVariableName:
 Style/BlockDelimiters:
   Enabled: false
 
-# Offense count: 1
-# Cop supports --auto-correct.
-# Configuration parameters: EnforcedStyle.
-# SupportedStyles: always, always_true, never
-Style/FrozenStringLiteralComment:
-  Exclude:
-    - 'app/models/data_cycle_core/filter/query_builder.rb'
-
 # Offense count: 2
 # Configuration parameters: MinBodyLength.
 Style/GuardClause:
   Exclude:
     - 'app/controllers/data_cycle_core/contents_controller.rb'
     - 'app/controllers/data_cycle_core/feature/controller_functions/content_lock.rb'
-
-# Offense count: 2
-# Cop supports --auto-correct.
-Style/RedundantParentheses:
-  Exclude:
-    - 'app/views/data_cycle_core/api/v2/api_base/attributes/_classification_by_month.json.jbuilder'
-    - 'app/views/data_cycle_core/api/v3/api_base/attributes/_classification_by_month.jb'
-
-# Offense count: 3
-# Cop supports --auto-correct.
-# Configuration parameters: AllowMultipleReturnValues.
-Style/RedundantReturn:
-  Exclude:
-    - 'app/models/data_cycle_core/classification_alias.rb'
-    - 'app/models/data_cycle_core/generic/common/import_tags.rb'
-    - 'app/models/data_cycle_core/master_data/differs/geographic.rb'

@@ -10,10 +10,10 @@ module DataCycleCore
           content_json =
             if data.is_a?(DataCycleCore::Thing)
               "DataCycleCore::Api::#{api_version.classify}::ContentsController".safe_constantize&.render(
-              assigns: try("common_data_#{api_version}", utility_object, data),
-              template: "data_cycle_core/api/#{api_version}/contents/show",
-              layout: false
-            )
+                assigns: try("common_data_#{api_version}", utility_object, data),
+                template: "data_cycle_core/api/#{api_version}/contents/show",
+                layout: false
+              )
             else
               {}
             end

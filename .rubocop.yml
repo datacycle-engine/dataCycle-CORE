@@ -95,11 +95,13 @@ Style/ExponentialNotation:
 Style/HashEachMethods:
   Enabled: true
 
+# test
 Style/HashTransformKeys:
-  Enabled: true
+  Enabled: false
 
+# test
 Style/HashTransformValues:
-  Enabled: true
+  Enabled: false
 
 #######################################################
 ########## Metrics
