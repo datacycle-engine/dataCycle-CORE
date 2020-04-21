@@ -9,6 +9,7 @@ module DataCycleCore
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
+          # TODO: refactor
           if permitted_params.dig(:filter, :modified_since)
             @classification_tree_labels = @classification_tree_labels.where(
               ClassificationTreeLabel.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
@@ -46,6 +47,7 @@ module DataCycleCore
               @classification_aliases = @classification_tree_label.classification_aliases
             end
 
+            # TODO: refactor
             if permitted_params.dig(:filter, :modified_since)
               @classification_aliases = @classification_aliases.where(
                 ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
@@ -64,6 +66,7 @@ module DataCycleCore
               ).order(:deleted_at)
             end
 
+            # TODO: refactor ordering
             @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
           else
             @classification_tree_label = nil
