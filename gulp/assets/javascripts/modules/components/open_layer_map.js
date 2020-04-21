@@ -2,7 +2,6 @@ var ConfirmationModal = require('./confirmation_modal');
 var ObjectHelpers = require('./../helpers/object_helpers');
 var togeojson = require('@tmcw/togeojson');
 var wkx = require('wkx');
-// var wellknown = require('wellknown');
 
 var ol = {
   Map: require('ol/map').default,
