@@ -13,7 +13,7 @@ module DataCycleCore
           data_set_history.send("#{key}=", value)
         end
 
-        lower_bound = histories.includes(:translations).where(thing_history_translations: { locale: I18n.locale }).first&.history_valid&.last || created_at
+        lower_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last || created_at
         data_set_history.history_valid = (lower_bound...save_time)
         data_set_history.deleted_at = save_time if delete
         data_set_history.created_at = save_time
