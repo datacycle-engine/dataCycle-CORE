@@ -1017,34 +1017,50 @@ a.link {
 
 #show-history {
   min-width: 300px;
-  width: auto;
+  max-width: 90vw;
+  width: auto !important;
 
   li {
     position: relative;
     text-align: left;
     font-size: 0.8rem;
     line-height: 1.2rem;
-    padding-right: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    flex-flow: row nowrap;
+
+    .history-time {
+      flex: auto;
+      text-align: right;
+      color: $dark-gray;
+    }
 
     &.active {
-      i:not(.fa) {
-        color: $light-gray;
+      .email-link {
+        color: $black;
+        font-weight: bold;
+      }
+      .history-time {
+        color: $black;
+        font-weight: bold;
       }
 
-      color: $light-gray;
-
-      a {
-        color: $dark-gray;
-      }
+      color: $medium-gray;
+    }
+    .email-link {
+      max-width: 15rem;
+      margin-right: 0.5rem;
     }
 
     .history-link {
-      position: absolute;
-      right: 0.2rem;
-      top: 0.2rem;
+      flex: 0;
+      margin-left: 0.5rem;
+      min-width: 1rem;
+      .fa {
+        line-height: 1.2rem;
+      }
     }
   }
 }
@@ -1055,6 +1071,7 @@ a.email-link {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  max-width: 15rem;
 }
 
 .row {

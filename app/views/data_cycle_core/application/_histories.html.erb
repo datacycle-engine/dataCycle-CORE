@@ -2,34 +2,34 @@
   <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
   <ul class="list-items">
     <% content.histories.includes(:translations).each do |item|%>
-        <li class="<%= item == @diff_source ? 'active' : '' %>">
-            <% if item.try(:updated_by_user).present? %>
-                <% person = item.updated_by_user %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
-            <% elsif item == content.histories.last && item.try(:created_by_user).present? %>
-                <% person = item.created_by_user %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.full_name}</a>".html_safe %>
-            <% else %>
-                System
-            <% end %>
+      <li class="<%= item == @diff_source ? 'active' : '' %>">
+        <% if item.try(:updated_by_user).present? %>
+          <% person = item.updated_by_user %>
+          <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
+        <% elsif item == content.histories.last && item.try(:created_by_user).present? %>
+          <% person = item.created_by_user %>
+          <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
+        <% else %>
+          <span class="email-link">System</span>
+        <% end %>
 
-            <% I18n.with_locale(item.first_available_locale) do %>
-              <% if item.history_valid&.first.present? %>
-                <i title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>">
-                  <%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>
-                </i>
-              <% end %>
-            <% end %>
+        <% I18n.with_locale(item.first_available_locale) do %>
+          <% if item.history_valid&.first.present? %>
+            <span class="history-time" title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>">
+              <%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language, format: :history) %>
+            </span>
+          <% end %>
+        <% end %>
 
-            <% if can?(:history, content) && item != @diff_source %>
-                <span class="history-link">
-                  <%= link_to history_thing_path(content, history_id: item.id, watch_list_id: @watch_list) do %>
-                    <i class="fa fa-history" aria-hidden="true"></i>
-                  <% end %>
-                </span>
+        <span class="history-link">
+          <% if can?(:history, content) && item != @diff_source %>
+            <%= link_to history_thing_path(content, history_id: item.id, watch_list_id: @watch_list) do %>
+              <i class="fa fa-history" aria-hidden="true"></i>
             <% end %>
+          <% end %>
+        </span>
 
-        </li>
+      </li>
     <% end %>
   </ul>
 </div>
