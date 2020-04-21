@@ -2,6 +2,7 @@
 
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
+Warning[:deprecated] = false
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'

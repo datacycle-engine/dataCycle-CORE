@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+Warning[:deprecated] = false
 begin
   require 'bundler/setup'
 rescue LoadError
