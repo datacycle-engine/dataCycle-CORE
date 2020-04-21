@@ -68,7 +68,7 @@ services:
   script:
     - bundle install --path=cache/bundler
     - yarn
-    - npx gulp production
+    - gulp production
 
 .rails_test_config:
   extends: .job_cache_config
