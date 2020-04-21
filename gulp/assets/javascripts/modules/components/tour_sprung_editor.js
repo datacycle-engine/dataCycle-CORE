@@ -70,31 +70,18 @@ class TourSprungEditor {
       .on('change', this.updateMapMarker.bind(this));
   }
   importData(event, data) {
-    let form_fields = this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first();
+    let form_fields = this.container.parent('.geographic').siblings('.map-info').first();
 
     let elevationField = form_fields.find('.form-element.elevation > input');
 
     if (
       ((!elevationField.val() || elevationField.val().length == 0) &&
-        this.container
-          .parent('.geographic')
-          .siblings('input.location-data:hidden')
-          .first()
-          .val().length == 0) ||
+        this.container.parent('.geographic').siblings('input.location-data:hidden').first().val().length == 0) ||
       (data && data.force)
     ) {
       elevationField.val(data.value.elevation);
-      form_fields
-        .find('.form-element.latitude > input')
-        .val(data.value.y)
-        .trigger('change');
-      form_fields
-        .find('.form-element.longitude > input')
-        .val(data.value.x)
-        .trigger('change');
+      form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+      form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
     } else {
       var confirmationModal = new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -102,16 +89,10 @@ class TourSprungEditor {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
+        confirmationCallback: function () {
           elevationField.val(data.value.elevation);
-          form_fields
-            .find('.form-element.latitude > input')
-            .val(data.value.y)
-            .trigger('change');
-          form_fields
-            .find('.form-element.longitude > input')
-            .val(data.value.x)
-            .trigger('change');
+          form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+          form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
         }.bind(this)
       });
     }
@@ -119,21 +100,9 @@ class TourSprungEditor {
   getCoordinates() {
     return {
       lng: parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.longitude input')
-          .val()
+        this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val()
       ),
-      lat: parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.latitude input')
-          .val()
-      )
+      lat: parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
     };
   }
   updateMapMarker(event) {
@@ -390,27 +359,13 @@ class TourSprungEditor {
   setCoordinates(coords) {
     coords.lat = Number(coords.lat.toFixed(5));
     coords.lng = Number(coords.lng.toFixed(5));
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.longitude input')
-      .val(coords.lng);
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.latitude input')
-      .val(coords.lat);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val(coords.lng);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val(coords.lat);
     this.setHiddenFieldValue(coords);
   }
   setHiddenFieldValue(coords) {
     if (coords === undefined) {
-      this.container
-        .parent('.geographic')
-        .siblings('.location-data')
-        .first()
-        .removeAttr('value');
+      this.container.parent('.geographic').siblings('.location-data').first().removeAttr('value');
       this.value = undefined;
     } else {
       let parsedCoords = coords;
@@ -432,11 +387,7 @@ class TourSprungEditor {
     if (length === undefined) length = 0;
     else length = Number(length.toFixed(0));
 
-    this.container
-      .closest('.geographic.form-element')
-      .siblings('.form-element.length')
-      .find(':input')
-      .val(length);
+    this.container.closest('.geographic.form-element').siblings('.form-element.length').find(':input').val(length);
   }
   setRouteDataFieldValue(data) {
     if (data === undefined) data = {};
@@ -486,9 +437,7 @@ class TourSprungEditor {
         console.log(textStatus + ', ' + error);
       })
       .always(() => {
-        $(event.currentTarget)
-          .find('i.fa')
-          .remove();
+        $(event.currentTarget).find('i.fa').remove();
       });
   }
 }
