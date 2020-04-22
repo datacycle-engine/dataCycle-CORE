@@ -169,6 +169,8 @@ class AssetUploader {
       formData.push({ name: 'template', value: this.templateName });
 
     this.files.forEach((file, i) => {
+      file.fileField.addClass('creating');
+
       let attributeValues = ObjectHelpers.deepCopy(file.attributeFieldValues) || [];
       attributeValues.push({ name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id });
       attributeValues.push({ name: 'thing[uploader_field_id]', value: file.id });

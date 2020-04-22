@@ -1016,7 +1016,7 @@ a.link {
 }
 
 #show-history {
-  min-width: 300px;
+  min-width: 350px;
   max-width: 90vw;
   width: auto !important;
 
@@ -1521,8 +1521,28 @@ select:-moz-focusring {
   }
 }
 
+label[for='user_access_token'] {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
 .copy-to-clipboard {
   cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  align-items: center;
+
+  .fa-key {
+    margin-right: 0.1rem;
+  }
+  .external-source-icon {
+    margin-right: 0.2rem;
+  }
+  .external-system-icon {
+    margin-right: 0.4rem;
+  }
 }
 
 // textblocks
@@ -2291,22 +2311,20 @@ section.duplicate-candidates {
 //.object-browser-overlay
 .object-thumbs,
 .object_browser.media.linked {
+  .external-sources-tiles {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
   .external-source-icon {
-    line-height: 1.5;
-    height: 1.5rem;
     position: relative;
     &.default-view {
       display: block;
-      float: right;
     }
   }
   .external-source-title {
     display: none;
-  }
-}
-.object_browser.media.linked {
-  .external-source-icon {
-    float: right;
   }
 }
 .object-browser-overlay {
@@ -2318,8 +2336,6 @@ section.duplicate-candidates {
     padding-bottom: 1rem;
   }
   .external-source-icon {
-    line-height: 1.5;
-    height: 1.5rem;
     position: relative;
     float: right;
   }
@@ -2336,8 +2352,11 @@ section.duplicate-candidates {
     position: absolute;
     bottom: 0;
     width: 100%;
-    display: block;
+    display: flex;
     padding-right: 1rem;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
     .external-source-icon {
       position: relative;
       color: $dark-gray;
@@ -2585,6 +2604,8 @@ button.button-prime.small.bulk-delete-button {
 .stored-searches-list ul li.content-item span.buttons {
   max-width: inherit;
   text-align: right;
+  display: flex;
+  flex-flow: row nowrap;
 }
 
 .download-content-reveal {
