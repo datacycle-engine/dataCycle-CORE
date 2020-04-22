@@ -413,11 +413,11 @@ class OpenLayerMap {
 
           this.setHiddenFieldValue(linestring);
           this.updateFeature(linestring);
-          $.rails.enableElement(this.uploadButton);
         };
       })(file);
       reader.readAsText(file);
     }
+    $.rails.enableElement(this.uploadButton);
   }
   updateFeature(newFeature) {
     // draw line on map
