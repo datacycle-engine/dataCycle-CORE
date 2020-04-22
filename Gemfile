@@ -37,6 +37,7 @@ group :development, :test, :review do
 
   gem 'byebug'
   gem 'pry'
+  gem 'pry-byebug'
   gem 'rb-readline'
 
   gem 'capistrano-rails'
