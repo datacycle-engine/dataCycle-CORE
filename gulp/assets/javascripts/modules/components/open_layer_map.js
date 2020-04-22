@@ -409,10 +409,32 @@ class OpenLayerMap {
           let parser = new DOMParser();
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
           let geojson = togeojson.gpx(xmlDoc);
-          let linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
 
-          this.setHiddenFieldValue(linestring);
-          this.updateFeature(linestring);
+          let linestring = '';
+          if (geojson.features.length > 1) {
+            var confirmationModal = new ConfirmationModal({
+              text: 'Die GPX-Datei beinhaltet mehr als einen Track. Nur der erste kann importiert werden.',
+              confirmationText: 'Importieren',
+              cancelText: 'Abbrechen',
+              confirmationClass: 'success',
+              cancelable: true,
+              confirmationCallback: function () {
+                linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
+
+                this.setHiddenFieldValue(linestring);
+                this.updateFeature(linestring);
+              }.bind(this)
+            });
+          } else {
+            linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
+
+            this.setHiddenFieldValue(linestring);
+            this.updateFeature(linestring);
+          }
+          // linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
+
+          // this.setHiddenFieldValue(linestring);
+          // this.updateFeature(linestring);
         };
       })(file);
       reader.readAsText(file);
