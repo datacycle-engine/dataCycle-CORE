@@ -1,7 +1,5 @@
 <%= render 'data_cycle_core/contents/editors/attribute', key: key, definition: definition, value: value, options: options, content: content do %>
 
-<%# binding.pry%>
-
   <%= hidden_field_tag key, value, class: 'location-data', id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
   <%= hidden_field_tag key.gsub(key.attribute_name_from_key, 'route_data'), content.try(:route_data) if DataCycleCore.default_map_position.dig('editor') == 'TourSprung' %>
 
