@@ -35,8 +35,9 @@ group :development, :test, :review do
   gem 'spring'
   gem 'spring-watcher-listen'
 
-  gem 'byebug'
+  # gem 'byebug'
   gem 'pry'
+  gem 'pry-byebug'
   gem 'rb-readline'
 
   gem 'capistrano-rails'
