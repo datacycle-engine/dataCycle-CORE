@@ -1,0 +1,10 @@
+# frozen_string_literal: true
+
+json = {}
+json['@id'] = @content.id
+json.merge! render 'data_cycle_core/api/v4/contents/show' if @content.is_a?(DataCycleCore::Thing)
+
+json['token'] = @token if @token.present?
+json['webhookSource'] = @webhook_source if @webhook_source.present?
+
+json
