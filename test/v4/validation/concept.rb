@@ -34,8 +34,9 @@ module DataCycleCore
           DEFAULT_CONCEPT_SCHEME_ATTRIBUTES
         end
 
-        def self.build_concept_validation(fields, _include)
+        def self.build_concept_validation(fields, include)
           return fields if fields.present?
+          return DEFAULT_CONCEPT_ATTRIBUTES.merge(include) if include.present?
           DEFAULT_CONCEPT_ATTRIBUTES
         end
 
@@ -59,10 +60,6 @@ module DataCycleCore
             json(DEFAULT_HEADER, attributes)
           end
           validator
-        end
-
-        class ConceptValidator < Dry::Validation::Contract
-          config.validate_keys = true
         end
       end
     end

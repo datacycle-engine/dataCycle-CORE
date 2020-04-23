@@ -139,6 +139,7 @@ module DataCycleCore
           end
         end
 
+        # test with fields / linked not working for concept_schemes
         test 'api/v4/concept_schemes with fields=dct:modified' do
           post api_v4_concept_schemes_path(fields: 'dc:entityUrl')
 
@@ -253,57 +254,307 @@ module DataCycleCore
           end
         end
 
-        #################  TODO: validate
-        # http://localhost:3010/api/v4/things/11eafb48-1629-4484-8e46-e3a5647abaf2?include=offers&fields=offers.name
-        # localhost:3010/api/v4/concept_schemes/6aa5415c-4771-4dec-a180-ff3e7364ca54/concepts?fields=skos:inScheme
-        # http://localhost:3010/api/v4/things/11eafb48-1629-4484-8e46-e3a5647abaf2?fields=dc:classification.skos:inScheme
-        #
-        # INCLUDE
-        # test 'concepts at /api/v4/things/:id with include dc:classification,dc:classification.skos:inScheme' do
-        #   get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
-        #   assert_response :success
-        #
-        #   assert_equal(response.content_type, 'application/json')
-        #   json_data = JSON.parse response.body
-        #
-        #   header = json_data.slice(*full_header_attributes)
-        #   data = full_header_data(@content)
-        #   assert_equal(header, data)
-        #
-        #   assert_concept_attributes(json_data.dig('dc:classification', 0))
-        #   json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-        #     assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
-        #   end
-        #
-        #   assert_concept_attributes(json_data.dig('dc:classification', 0, 'skos:inScheme'))
-        # end
-        #
-        # test 'include dc:classification,dc:classification.skos:inScheme is equal to include dc:classification.skos:inScheme' do
-        #   get api_v4_thing_path(id: @content.id, include: 'dc:classification,dc:classification.skos:inScheme')
-        #   assert_response :success
-        #   assert_equal(response.content_type, 'application/json')
-        #   json_data = JSON.parse response.body
-        #
-        #   get api_v4_thing_path(id: @content.id, include: 'dc:classification.skos:inScheme')
-        #   assert_response :success
-        #   assert_equal(response.content_type, 'application/json')
-        #   json_data2 = JSON.parse response.body
-        #   assert_equal(json_data, json_data2)
-        # end
+        # TODO: fields for relation without relation attirbute name MUST return minimal header
+        test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            fields: 'skos:inScheme'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
 
-        # test 'combo of fields, include' do
-        #   get api_v4_thing_path(id: @content.id, fields: 'dc:classification.skos:inScheme.skos:prefLabel', include: 'dc:classification')
-        #   assert_response :success
-        #   assert_equal(response.content_type, 'application/json')
-        #   json_data = JSON.parse response.body
-        #
-        #   assert_equal(1, json_data.dig('dc:classification').size)
-        #   assert_concept_attributes(json_data.dig('dc:classification', 0))
-        #   json_data.dig('dc:classification', 0).slice(*embedded_concept_attributes).each do |embedded_attribute|
-        #     assert_compact_header(Array(json_data.dig('dc:classification', 0, embedded_attribute)))
-        #   end
-        #   assert_equal(['@id', '@type', 'skos:prefLabel'], json_data.dig('dc:classification', 0, 'skos:inScheme').keys)
-        # end
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:inScheme').hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute
+        test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme,skos:inScheme.skos:prefLabel' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            fields: 'skos:inScheme,skos:inScheme.skos:prefLabel'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:inScheme').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                Dry::Schema.JSON do
+                  required(:'skos:prefLabel').value(:string)
+                end
+              )
+            )
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute
+        test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme.skos:prefLabel' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            fields: 'skos:inScheme.skos:prefLabel'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:inScheme').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                Dry::Schema.JSON do
+                  required(:'skos:prefLabel').value(:string)
+                end
+              )
+            )
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: nested fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute for main + nested
+        test 'api/v4/concept_schemes/(:id)/concepts fields skos:broader.skos:inScheme.skos:prefLabel' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            fields: 'skos:broader.skos:inScheme.skos:prefLabel'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            optional(:'skos:broader').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                Dry::Schema.JSON do
+                  optional(:'skos:inScheme').hash(
+                    DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                      Dry::Schema.JSON do
+                        required(:'skos:prefLabel').value(:string)
+                      end
+                    )
+                  )
+                end
+              )
+            )
+          end
+
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES
+        test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            include: 'skos:inScheme'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          include = Dry::Schema.JSON do
+            required(:'skos:inScheme').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_SCHEME_ATTRIBUTES
+              )
+            )
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { include: include })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: nested include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES for entry + nested
+        test 'api/v4/concept_schemes/(:id)/concepts include skos:broader.skos:inScheme' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            include: 'skos:broader.skos:inScheme'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          include = Dry::Schema.JSON do
+            optional(:'skos:broader').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_ATTRIBUTES.merge(
+                  Dry::Schema.JSON do
+                    optional(:'skos:inScheme').hash(
+                      DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                        DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_SCHEME_ATTRIBUTES
+                      )
+                    )
+                  end
+                )
+              )
+            )
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { include: include })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES
+        test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            include: 'skos:ancestors'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          include = Dry::Schema.JSON do
+            optional(:'skos:ancestors').value(:array).each do
+              hash(
+                DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                  DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_ATTRIBUTES
+                )
+              )
+            end
+          end
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { include: include })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: MUST FAIL
+        # TODO: include MUST NOT return anything if fields are use
+        test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors fields skos:prefLabel' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            include: 'skos:ancestors',
+            fields: 'skos:prefLabel'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:prefLabel').value(:string)
+          end
+
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
+
+        # TODO: MUST FAIL
+        # TODO: include MUST NOT return anything if fields are use
+        test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme fields skos:inScheme.skos:prefLabel' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+          classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
+          params = {
+            id: tree_id,
+            include: 'skos:inScheme',
+            fields: 'skos:inScheme.skos:prefLabel'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+          assert_equal(classifications, json_data['@graph'].size)
+          assert_equal(classifications, json_data['meta']['total'].to_i)
+          assert_equal(true, json_data.key?('links'))
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:inScheme').hash(
+              DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                Dry::Schema.JSON do
+                  required(:'skos:prefLabel').value(:string)
+                end
+              )
+            )
+          end
+
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          json_data['@graph'].each do |item|
+            assert_equal({}, validator.call(item).errors.to_h)
+          end
+        end
       end
     end
   end
