@@ -409,36 +409,33 @@ class OpenLayerMap {
           let xmlDoc = parser.parseFromString(xmlString, 'text/xml');
           let geojson = togeojson.gpx(xmlDoc);
 
-          let linestring = '';
           if (geojson.features.length > 1) {
             var confirmationModal = new ConfirmationModal({
               text: 'Die GPX-Datei beinhaltet mehr als einen Track. Nur der erste kann importiert werden.',
-              confirmationText: 'Importieren',
+              confirmationText: 'Ersten importieren',
               cancelText: 'Abbrechen',
               confirmationClass: 'success',
               cancelable: true,
               confirmationCallback: function () {
-                linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
-
-                this.setHiddenFieldValue(linestring);
-                this.updateFeature(linestring);
+                this.setUploadedFeature(this.geoJsonGeometryToWkt(geojson.features[0].geometry));
               }.bind(this)
             });
           } else {
-            linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
-
-            this.setHiddenFieldValue(linestring);
-            this.updateFeature(linestring);
+            this.setUploadedFeature(this.geoJsonGeometryToWkt(geojson.features[0].geometry));
           }
-          // linestring = wkx.Geometry.parseGeoJSON(geojson.features[0].geometry).toWkt();
-
-          // this.setHiddenFieldValue(linestring);
-          // this.updateFeature(linestring);
+          this.uploadInput.val('');
         };
       })(file);
       reader.readAsText(file);
     }
     $.rails.enableElement(this.uploadButton);
+  }
+  geoJsonGeometryToWkt(geometry) {
+    return wkx.Geometry.parseGeoJSON(geometry).toWkt();
+  }
+  setUploadedFeature(wkt) {
+    this.setHiddenFieldValue(wkt);
+    this.updateFeature(wkt);
   }
   updateFeature(newFeature) {
     // draw line on map
@@ -457,7 +454,7 @@ class OpenLayerMap {
     this.source.clear();
     this.source.addFeature(this.feature);
 
-    this.map.getView().fit(this.feature.getGeometry(), { padding: [50, 50, 50, 50] });
+    this.map.getView().fit(this.feature.getGeometry().getExtent(), { padding: [50, 50, 50, 50] });
   }
 
   updateMapMarker(event) {
