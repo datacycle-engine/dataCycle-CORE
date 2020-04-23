@@ -21,10 +21,10 @@ module DataCycleCore
           external_system = utility_object.external_system
           webhook = (external_system.config.dig('push_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
             data: OpenStruct.new(id: data.id, template_name: data.template_name),
-            type: :create,
+            type: 'create',
             method: (external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :post).to_sym,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/create', id: data&.id),
+            path: utility_object.endpoint.path_transformation(data, external_system, 'create'),
             utility_object: utility_object,
             locale: I18n.locale
           )
@@ -39,10 +39,10 @@ module DataCycleCore
           external_system = utility_object.external_system
           webhook = (external_system.config.dig('push_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
             data: OpenStruct.new(id: data.id, template_name: data.template_name),
-            type: :update,
+            type: 'update',
             method: (external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :put).to_sym,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/update', id: data&.id),
+            path: utility_object.endpoint.path_transformation(data, external_system, 'update'),
             utility_object: utility_object,
             locale: I18n.locale
           )
@@ -57,10 +57,10 @@ module DataCycleCore
           external_system = utility_object.external_system
           webhook = (external_system.config.dig('push_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
             data: OpenStruct.new(id: data.id, template_name: data.template_name),
-            type: :delete,
+            type: 'delete',
             method: (external_system.config.dig('push_config', __method__.to_s, 'method') || external_system.config.dig('push_config', 'method') || :delete).to_sym,
             transformation: external_system.config.dig('push_config', __method__.to_s, 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
-            path: format(external_system.config.dig('push_config', __method__.to_s, 'path') || external_system.config.dig('push_config', 'path') || '/delete', id: data&.id),
+            path: utility_object.endpoint.path_transformation(data, external_system, 'delete'),
             utility_object: utility_object,
             locale: I18n.locale
           )

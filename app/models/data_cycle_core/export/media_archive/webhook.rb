@@ -10,7 +10,7 @@ module DataCycleCore
           @transformation = transformation
           @utility_object = utility_object
           @path = path
-          @type = type
+          @type = type.to_s
           @locale = locale || I18n.locale
         end
 
@@ -29,7 +29,7 @@ module DataCycleCore
           system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
           system_sync&.update(last_push_at: Time.zone.now)
 
-          if data || @type.to_s == 'delete'
+          if data || @type == 'delete'
             @response = @utility_object.endpoint.content_request(
               transformation: @transformation,
               method: @method,
@@ -50,17 +50,17 @@ module DataCycleCore
             nil
           end
 
-          data&.author&.each do |author|
+          data.try(:author)&.each do |author|
             author&.add_external_system_data(@utility_object.external_system, nil, 'success')
           end
 
-          data&.copyright_holder&.each do |copyright_holder|
+          data.try(:copyright_holder)&.each do |copyright_holder|
             copyright_holder&.add_external_system_data(@utility_object.external_system, nil, 'success')
           end
         end
 
         def reference_type
-          @utility_object.external_system.name.underscore_blanks
+          "#{@utility_object.external_system.name.underscore_blanks}_#{@type}"
         end
       end
     end

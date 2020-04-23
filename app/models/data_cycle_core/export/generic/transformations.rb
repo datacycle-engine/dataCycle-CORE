@@ -9,7 +9,7 @@ module DataCycleCore
 
           "DataCycleCore::Api::#{api_version.classify}::ContentsController".safe_constantize&.render(
             assigns: try("common_data_#{api_version}", utility_object, data),
-            template: "data_cycle_core/api/#{api_version}/contents/webhook",
+            template: "data_cycle_core/api/#{api_version}/webhooks/default",
             layout: false
           )
         end

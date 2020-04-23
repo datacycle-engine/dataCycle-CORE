@@ -5,7 +5,7 @@ module DataCycleCore
     module MediaArchive
       class Endpoint
         def initialize(host: nil, end_point: nil, token: nil, **options)
-          @host = host
+          @host = format(host, dockerhost: `ip route show`[/default.*/][/\d+\.\d+\.\d+\.\d+/].prepend('http://'))
           @end_point = options&.dig(:options, :end_point) || end_point
           @token = token
           @per = 100

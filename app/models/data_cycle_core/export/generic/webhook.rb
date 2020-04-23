@@ -10,7 +10,7 @@ module DataCycleCore
           @transformation = transformation
           @utility_object = utility_object
           @path = path
-          @type = type
+          @type = type.to_s
           @locale = locale || I18n.locale
         end
 
@@ -29,7 +29,7 @@ module DataCycleCore
           system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
           system_sync&.update(last_push_at: Time.zone.now)
 
-          if data || @type.to_s == 'delete'
+          if data || @type == 'delete'
             @response = @utility_object.endpoint.content_request(
               transformation: @transformation,
               method: @method,
