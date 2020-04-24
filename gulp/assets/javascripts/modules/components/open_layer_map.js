@@ -11,7 +11,7 @@ var ol = {
   },
   Feature: require('ol/feature').default,
   format: {
-    WKT: require('ol/format/WKT').default
+    WKT: require('ol/format/wkt').default
   },
   geom: {
     Point: require('ol/geom/point').default,
