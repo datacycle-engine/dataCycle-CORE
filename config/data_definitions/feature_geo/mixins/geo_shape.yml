@@ -7,9 +7,12 @@
         :label: Route
         :type: geographic
         :storage_location: value
+        # :storage_location: column
         :ui:
           :edit:
-            :disabled: true
+            :type: LineString
+            :options:
+              :data_upload: true
         :api:
           :disabled: false
           :v4:
