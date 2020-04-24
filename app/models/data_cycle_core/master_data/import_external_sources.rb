@@ -3,6 +3,7 @@
 module DataCycleCore
   module MasterData
     module ImportExternalSources
+
       def self.import_all(validation: true, external_source_path: nil)
         errors = {}
         external_source_path ||= DataCycleCore.external_sources_path
@@ -15,9 +16,14 @@ module DataCycleCore
         default_file_names = Dir[external_source_path + '*.yml']&.index_by { |f| File.basename(f) } || {}
         specific_file_names = Dir[external_source_path + Rails.env + '*.yml']&.index_by { |f| File.basename(f) } || {}
 
+        header_validator = ExternalSourceHeaderContract.new
+        # import_validator = ExternalSourceImportContract.new
+        # download_validator = ExternalSourceDownloadContract.new
+
         file_names = default_file_names.merge(specific_file_names).values
         file_names.each do |file_name|
           data = YAML.safe_load(File.open(file_name), [Symbol])
+
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_source = DataCycleCore::ExternalSource.find_or_initialize_by(name: data['name'])
@@ -25,163 +31,113 @@ module DataCycleCore
             external_source.credentials = data['credentials']
             external_source.config = data['config']
             external_source.default_options = data['default_options']
-            external_source.save
+            # external_source.save
           else
             errors[data['name']] = error
           end
-        rescue StandardError => e
-          puts "could not access the YML File #{file_name}"
-          puts e.message
-          puts e.backtrace
+          # rescue StandardError => e
+          #   puts "could not access the YML File #{file_name}"
+          #   puts e.message
+          #   puts e.backtrace
         end
         errors
       end
 
       def self.validate(data_hash)
-        errors = validate_header.call(data_hash.deep_symbolize_keys).errors || {}
+        validate_header = ExternalSourceHeaderContract.new
+        errors = validate_header.call(data_hash).errors.to_h || {}
         errors[:import_config] = {}
         errors[:download_config] = {}
 
+        validate_import = ExternalSourceImportContract.new
         import_config = data_hash.dig(:config, :import_config) || {}
         import_config.each do |key, value|
-          error = validate_import_item.call(value.deep_symbolize_keys).errors
+          error = validate_import.call(value).errors
           errors[:import_config][key] = error if error.present?
         end
 
+        validate_download = ExternalSourceDownloadContract.new
         download_config = data_hash.dig(:config, :download_config) || {}
         download_config.each do |key, value|
-          error = validate_download_item.call(value.deep_symbolize_keys).errors
+          error = validate_download.call(value).errors.to_h
           errors[:download_config][key] = error if error.present?
         end
 
         errors.reject { |_, v| v.blank? }
       end
 
-      def self.validate_header
-        Dry::Validation.Schema do
-          configure do
-            def class?(value)
-              if value.safe_constantize.nil?
-                false
-              else
-                value.safe_constantize.class == Class
-              end
-            end
-
-            def credentials?(value)
-              value.is_a?(Array) || value.is_a?(Hash)
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    class?: 'the string given does not specify a valid ruby class.',
-                    credentials?: 'must be either an Array or Hash.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSourceHeaderContract < Dry::Validation::Contract
+        schema do
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { credentials? }
-          optional(:api_strategy) { str? & class? }
-          optional(:default_options).schema do
+          required(:credentials) { array? | hash? }
+          optional(:default_options).hash do
             optional(:locales).each { str? }
           end
-          optional(:config).schema do
+          optional(:config).hash do
             required(:download_config) { hash? }
             required(:import_config) { hash? }
+            optional(:api_strategy) { str? }
           end
+        end
+
+        rule(config: :api_strategy) do
+          key.failure('the string given does not specify a valid ruby class.') if value&.safe_constantize&.class != Class && key?
         end
       end
 
-      def self.validate_download_item
-        Dry::Validation.Schema do
-          configure do
-            def module?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
-            end
-
-            def class?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
-            end
-
-            def logger?(value)
-              temp = begin
-                       Class.new.instance_eval(value)
-                     rescue StandardError
-                       false
-                     end
-              temp == false ? temp : true
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    module?: 'the string given does not specify a valid ruby module.',
-                    class?: 'the string given does not specify a valid ruby class.',
-                    logger?: 'the string given can not be evaluated.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSourceDownloadContract < Dry::Validation::Contract
+        schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
-          required(:endpoint) { str? & class? }
-          required(:download_strategy) { str? & module? }
-          optional(:logging_strategy) { str? & logger? }
+          required(:endpoint) { str? }
+          required(:download_strategy) { str? }
+          optional(:logging_strategy) { str? }
+        end
+
+        rule(:endpoint) do
+          key.failure('the string given does not specify a valid ruby class.') unless value&.safe_constantize&.class == Class
+        end
+
+        rule(:download_strategy) do
+          key.failure('the string given does not specify a valid ruby module.') unless value&.safe_constantize&.class == Module
+        end
+
+        rule(:logging_strategy) do
+          temp = begin
+            Class.new.instance_eval(value)
+          rescue StandardError
+            false
+          end
+          key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
       end
 
-      def self.validate_import_item
-        Dry::Validation.Schema do
-          configure do
-            def module?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
-            end
-
-            def class?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
-            end
-
-            def logger?(value)
-              temp = begin
-                       Class.new.instance_eval(value)
-                     rescue StandardError
-                       false
-                     end
-              temp == false ? temp : true
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    module?: 'the string given does not specify a valid ruby module.',
-                    class?: 'the string given does not specify a valid ruby class.',
-                    logger?: 'the string given can not be evaluated.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSourceImportContract < Dry::Validation::Contract
+        schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           optional(:read_type) { str? }
-          required(:import_strategy) { str? & module? }
+          required(:import_strategy) { str? }
           optional(:tree_label) { str? }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix) { str? }
-          optional(:logging_strategy) { str? & logger? }
+          optional(:logging_strategy) { str?  }
           optional(:transformations) { hash? }
+        end
+
+        rule(:import_strategy) do
+          key.failure('the string given does not specify a valid ruby module.') unless value&.safe_constantize&.class == Module
+        end
+
+        rule(:logging_strategy) do
+          temp = begin
+            Class.new.instance_eval(value)
+          rescue StandardError
+            false
+          end
+          key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
       end
     end
