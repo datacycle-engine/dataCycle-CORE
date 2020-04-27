@@ -38,7 +38,6 @@ module DataCycleCore
         errors
       end
 
-      # TODO: cast to symbols
       def self.validate(data_hash)
         validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSourceHeaderContract.new
@@ -63,7 +62,7 @@ module DataCycleCore
         errors.reject { |_, v| v.blank? }
       end
 
-      class ExternalSourceHeaderContract < Dry::Validation::Contract
+      class ExternalSourceHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
@@ -78,12 +77,10 @@ module DataCycleCore
           end
         end
 
-        rule(config: :api_strategy) do
-          key.failure('the string given does not specify a valid ruby class.') if value&.safe_constantize&.class != Class && key?
-        end
+        rule(config: :api_strategy).validate(:dc_class)
       end
 
-      class ExternalSourceDownloadContract < Dry::Validation::Contract
+      class ExternalSourceDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
@@ -92,25 +89,12 @@ module DataCycleCore
           optional(:logging_strategy) { str? }
         end
 
-        rule(:endpoint) do
-          key.failure('the string given does not specify a valid ruby class.') unless value&.safe_constantize&.class == Class
-        end
-
-        rule(:download_strategy) do
-          key.failure('the string given does not specify a valid ruby module.') unless value&.safe_constantize&.class == Module
-        end
-
-        rule(:logging_strategy) do
-          temp = begin
-            Class.new.instance_eval(value)
-                 rescue StandardError
-                   false
-          end
-          key.failure('the string given does not specify a valid logging class.') if temp == false && key?
-        end
+        rule(:endpoint).validate(:dc_class)
+        rule(:download_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
       end
 
-      class ExternalSourceImportContract < Dry::Validation::Contract
+      class ExternalSourceImportContract < DataCycleCore::MasterData::Contracts::GeneralContract
         schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
@@ -124,18 +108,8 @@ module DataCycleCore
           optional(:transformations) { hash? }
         end
 
-        rule(:import_strategy) do
-          key.failure('the string given does not specify a valid ruby module.') unless value&.safe_constantize&.class == Module
-        end
-
-        rule(:logging_strategy) do
-          temp = begin
-            Class.new.instance_eval(value)
-                 rescue StandardError
-                   false
-          end
-          key.failure('the string given does not specify a valid logging class.') if temp == false && key?
-        end
+        rule(:import_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
       end
     end
   end

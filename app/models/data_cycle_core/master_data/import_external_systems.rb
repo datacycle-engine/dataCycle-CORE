@@ -41,66 +41,47 @@ module DataCycleCore
       end
 
       def self.validate(data_hash)
-        errors = validate_header.call(data_hash.deep_symbolize_keys).errors || {}
+        validate_header = ExternalSystemHeaderContract.new
+        errors = validate_header.call(data_hash.deep_symbolize_keys).errors.to_h || {}
         errors.reject { |_, v| v.blank? }
       end
 
-      def self.validate_header
-        Dry::Validation.Schema do
-          configure do
-            def class?(value)
-              if value.safe_constantize.nil?
-                false
-              else
-                value.safe_constantize.class == Class
-              end
-            end
-
-            def module?(value)
-              if value.safe_constantize.nil?
-                false
-              else
-                value.safe_constantize.class == Module
-              end
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    class?: 'the string given does not specify a valid ruby class.',
-                    module?: 'the string given does not specify a valid ruby module.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSystemHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { hash? }
-          optional(:default_options).schema do
+          required(:credentials) { array? | hash? }
+          optional(:default_options).hash do
             optional(:locales).each { str? }
           end
-          required(:config).schema do
-            optional(:push_config).schema do
-              optional(:endpoint) { class? }
-              optional(:create).schema do
-                required(:strategy) { module? }
+          required(:config).hash do
+            optional(:push_config).hash do
+              optional(:endpoint) { str? }
+              optional(:create).hash do
+                required(:strategy) { str? }
               end
-              optional(:update).schema do
-                required(:strategy) { module? }
+              optional(:update).hash do
+                required(:strategy) { str? }
               end
-              optional(:delete).schema do
-                required(:strategy) { module? }
+              optional(:delete).hash do
+                required(:strategy) { str? }
               end
             end
-            optional(:refresh_config).schema do
-              optional(:endpoint) { class? }
-              required(:strategy) { module? }
+            optional(:refresh_config).hash do
+              optional(:endpoint) { str? }
+              required(:strategy) { str? }
             end
           end
         end
+
+        rule('config.push_config.endpoint').validate(:dc_class)
+        rule('config.refresh_config.endpoint').validate(:dc_class)
+
+        rule('config.push_config.create.strategy').validate(:dc_module)
+        rule('config.push_config.update.strategy').validate(:dc_module)
+        rule('config.push_config.delete.strategy').validate(:dc_module)
+
+        rule('config.refresh_config.strategy').validate(:dc_module)
       end
     end
   end
