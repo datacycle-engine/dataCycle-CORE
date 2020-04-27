@@ -4,6 +4,9 @@ module DataCycleCore
   module MasterData
     module Contracts
       class GeneralContract < Dry::Validation::Contract
+        config.messages.default_locale = :en
+        config.messages.backend = :i18n
+
         register_macro(:dc_class) do
           key.failure('the string given does not specify a valid ruby class.') if value&.safe_constantize&.class != Class && key?
         end
