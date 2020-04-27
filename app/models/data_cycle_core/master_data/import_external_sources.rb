@@ -48,7 +48,7 @@ module DataCycleCore
         validate_import = ExternalSourceImportContract.new
         import_config = validation_hash.dig(:config, :import_config) || {}
         import_config.each do |key, value|
-          error = validate_import.call(value).errors
+          error = validate_import.call(value).errors.to_h
           errors[:import_config][key] = error if error.present?
         end
 
