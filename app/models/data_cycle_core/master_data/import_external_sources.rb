@@ -3,7 +3,6 @@
 module DataCycleCore
   module MasterData
     module ImportExternalSources
-
       def self.import_all(validation: true, external_source_path: nil)
         errors = {}
         external_source_path ||= DataCycleCore.external_sources_path
@@ -16,10 +15,6 @@ module DataCycleCore
         default_file_names = Dir[external_source_path + '*.yml']&.index_by { |f| File.basename(f) } || {}
         specific_file_names = Dir[external_source_path + Rails.env + '*.yml']&.index_by { |f| File.basename(f) } || {}
 
-        header_validator = ExternalSourceHeaderContract.new
-        # import_validator = ExternalSourceImportContract.new
-        # download_validator = ExternalSourceDownloadContract.new
-
         file_names = default_file_names.merge(specific_file_names).values
         file_names.each do |file_name|
           data = YAML.safe_load(File.open(file_name), [Symbol])
@@ -31,33 +26,35 @@ module DataCycleCore
             external_source.credentials = data['credentials']
             external_source.config = data['config']
             external_source.default_options = data['default_options']
-            # external_source.save
+            external_source.save
           else
             errors[data['name']] = error
           end
-          # rescue StandardError => e
-          #   puts "could not access the YML File #{file_name}"
-          #   puts e.message
-          #   puts e.backtrace
+        rescue StandardError => e
+          puts "could not access the YML File #{file_name}"
+          puts e.message
+          puts e.backtrace
         end
         errors
       end
 
+      # TODO: cast to symbols
       def self.validate(data_hash)
+        validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSourceHeaderContract.new
-        errors = validate_header.call(data_hash).errors.to_h || {}
+        errors = validate_header.call(validation_hash).errors.to_h || {}
         errors[:import_config] = {}
         errors[:download_config] = {}
 
         validate_import = ExternalSourceImportContract.new
-        import_config = data_hash.dig(:config, :import_config) || {}
+        import_config = validation_hash.dig(:config, :import_config) || {}
         import_config.each do |key, value|
           error = validate_import.call(value).errors
           errors[:import_config][key] = error if error.present?
         end
 
         validate_download = ExternalSourceDownloadContract.new
-        download_config = data_hash.dig(:config, :download_config) || {}
+        download_config = validation_hash.dig(:config, :download_config) || {}
         download_config.each do |key, value|
           error = validate_download.call(value).errors.to_h
           errors[:download_config][key] = error if error.present?
@@ -106,8 +103,8 @@ module DataCycleCore
         rule(:logging_strategy) do
           temp = begin
             Class.new.instance_eval(value)
-          rescue StandardError
-            false
+                 rescue StandardError
+                   false
           end
           key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
@@ -123,7 +120,7 @@ module DataCycleCore
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix) { str? }
-          optional(:logging_strategy) { str?  }
+          optional(:logging_strategy) { str? }
           optional(:transformations) { hash? }
         end
 
@@ -134,8 +131,8 @@ module DataCycleCore
         rule(:logging_strategy) do
           temp = begin
             Class.new.instance_eval(value)
-          rescue StandardError
-            false
+                 rescue StandardError
+                   false
           end
           key.failure('the string given does not specify a valid logging class.') if temp == false && key?
         end
