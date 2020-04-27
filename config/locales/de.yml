@@ -460,6 +460,7 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: 'Geokoordinaten von %{title} übernehmen'
+    upload_gpx: 'GPX-Datei hochladen'
     open_asset: 'Datei öffnen'
     download: 'herunterlanden'
     download_content: 'Inhalt herunterladen'
@@ -1079,6 +1080,7 @@ de:
       long: '%A, %d. %B %Y, %H:%M Uhr'
       short: '%d. %B, %H:%M Uhr'
       edit: '%d.%m.%Y - %H:%M'
+      history: '%d.%m.%Y, %H:%M Uhr'
       time_only: '%H:%M'
     pm: nachmittags
 

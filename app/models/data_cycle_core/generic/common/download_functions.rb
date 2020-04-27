@@ -79,6 +79,7 @@ module DataCycleCore
 
                         item = mongo_item.find_or_initialize_by('external_id': item_id)
                         item.dump ||= {}
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base))
                         item.dump[locale] = item_data
                         item.save!

@@ -4,6 +4,10 @@
       :features:
         :creatable:
           :allowed: true
+    :Tour:
+      :features:
+        :creatable:
+          :allowed: true
     :Gastronomischer Betrieb:
       :features:
         :creatable:
