@@ -27,7 +27,7 @@ module DataCycleCore
                 next if raw_asset_data.dig('quality_512', 'permalink', '#cdata-section').blank?
                 if raw_asset_data.dig('ordnerstruktur', '#cdata-section').present?
                   path = raw_asset_data.dig('ordnerstruktur', '#cdata-section').split(',')&.map(&:squish)
-                  path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder. present? }.compact
+                  path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder.present? }.compact
                   path_nodes = path_nodes.zip(0..path.size).map { |data, i| data.merge({ path: path[0..i].join(', '), parent_path: path[0...i].join(', ').presence }) }
                   raw_asset_data['folder'] = path_nodes
                 end
