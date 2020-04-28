@@ -56,3 +56,8 @@
         :ui:
           :show:
             :content_area: header
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
