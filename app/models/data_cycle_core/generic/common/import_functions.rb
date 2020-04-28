@@ -118,31 +118,34 @@ module DataCycleCore
                   times = [Time.current]
 
                   utility_object.source_object.with(utility_object.source_type) do |mongo_item|
-                    if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
-                      iterate = iterator.call(mongo_item, locale, source_filter)
-                    else
-                      iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
-                    end
-                    iterate.each do |content|
-                      break if options[:max_count].present? && item_count >= options[:max_count]
+                    mongo_item.with_session do |session|
+                      if options.dig(:iterator_type) == :aggregate || options.dig(:import, :iterator_type) == 'aggregate'
+                        iterate = iterator.call(mongo_item, locale, source_filter)
+                      else
+                        iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
+                      end
+                      iterate.each do |content|
+                        break if options[:max_count].present? && item_count >= options[:max_count]
+                        item_count += 1
+                        next if options[:min_count].present? && item_count < options[:min_count]
 
-                      item_count += 1
-                      next if options[:min_count].present? && item_count < options[:min_count]
+                        session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
 
-                      data_processor.call(
-                        utility_object: utility_object,
-                        raw_data: content[:dump][locale],
-                        locale: locale,
-                        options: options
-                      )
+                        data_processor.call(
+                          utility_object: utility_object,
+                          raw_data: content[:dump][locale],
+                          locale: locale,
+                          options: options
+                        )
 
-                      next unless (item_count % delta).zero?
+                        next unless (item_count % delta).zero?
 
-                      GC.start
+                        GC.start
 
-                      times << Time.current
+                        times << Time.current
 
-                      logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                        logging.info("Imported   #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                      end
                     end
                   end
                 ensure
