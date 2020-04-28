@@ -72,8 +72,8 @@ class OpenLayerMap {
     this.draw;
     this.modifying = false;
     this.geoCodeButton = $('.geocode-address-button');
-    this.uploadButton = $('.upload-gpx-button');
-    this.uploadInput = $('#upload-gpx-input');
+    this.uploadButton = this.container.parent('.geographic').siblings('.map-edit').children('.upload-gpx-button');
+    this.uploadInput = this.container.parent('.geographic').siblings('.map-edit').children('.upload-gpx-input');
     this.mapOptions = this.container.data('map-options');
     this.defaultPosition = ObjectHelpers.select(this.mapOptions, ['latitude', 'longitude', 'zoom']);
 
