@@ -147,10 +147,10 @@ namespace :data_cycle_core do
 
     desc 'remove all active database connections'
     task clear_connections: :environment do
-      dbs = [ActiveRecord::Base.configurations.dig(Rails.env)]
-      dbs.push(ActiveRecord::Base.configurations.dig('test')) if Rails.env.development?
+      environments = [Rails.env]
+      environments << 'test' if Rails.env.development?
 
-      dbs.each do |db|
+      ActiveRecord::Base.configurations.slice(*environments).each_value do |db|
         ActiveRecord::Base.establish_connection(db)
         ActiveRecord::Base.connection.select_all "SELECT pg_terminate_backend(pg_stat_activity.pid) FROM pg_stat_activity WHERE datname='#{db['database']}' AND pid <> pg_backend_pid();"
       rescue ActiveRecord::NoDatabaseError => e
