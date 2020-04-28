@@ -26,7 +26,9 @@ module DataCycleCore
           else
             content = DataCycleCore::Thing.find_or_initialize_by(
               external_source_id: utility_object.external_source.id,
-              external_key: data['external_key']
+              external_key: data['external_key'],
+              template_name: template.template_name, # external_keys are sometime not uniq across datatypes!
+              template: false
             )
           end
           content.metadata ||= {}
