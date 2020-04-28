@@ -68,7 +68,8 @@ module DataCycleCore
                 label: key.camelize(:lower),
                 data_type: resolve_data_type(definition),
                 comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
-                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false,
+                embedded: definition['type'] == 'embedded'
               }
             end
           }.flatten.sort_by { |definition| Array.wrap(definition[:template_type]) + [definition[:label]] }
