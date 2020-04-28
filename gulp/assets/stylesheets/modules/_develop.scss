@@ -1747,6 +1747,20 @@ select {
       }
     }
   }
+  .map-edit {
+    position: absolute;
+    z-index: 999;
+    top: 6rem;
+    left: 1.2rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+    pointer-events: all;
+    background: transparent;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
+  }
 }
 
 .accept-agbs {

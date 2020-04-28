@@ -49,7 +49,7 @@ describe DataCycleCore::MasterData::Validators::Geographic do
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
-      wkt_string3d = 'POINT (10.0 47.0 2000)'
+      wkt_string3d = 'POINT Z (10.0 47.0 2000)'
 
       test_cases = [point, line, line3d, wkt_string, wkt_string3d]
       test_cases.each do |test_case|
