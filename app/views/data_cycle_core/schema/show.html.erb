@@ -2,7 +2,7 @@
 
 <main>
   <h1 typeof="rdfs:Class" resource="<%= schema_url(@template_schema.schema_name) %>">
-    <%= @template_schema.schema_name %> (<em><%= @template_schema.template_name %></em>)
+    <%= Array.wrap(@template_schema.schema_name).join(' / ') %> (<em><%= @template_schema.template_name %></em>)
   </h1>
 
   <table>
