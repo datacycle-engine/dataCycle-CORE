@@ -24,7 +24,7 @@ else
   }).compact
 end
 
-if options[:fields].blank?
+if options[:fields].blank? && options[:field_filter] == false
   json
 else
   json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
