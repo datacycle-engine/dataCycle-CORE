@@ -490,7 +490,6 @@ module DataCycleCore
           end
         end
 
-        # TODO: MUST FAIL
         # TODO: include MUST NOT return anything if fields are use
         test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors fields skos:prefLabel' do
           tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
@@ -520,7 +519,6 @@ module DataCycleCore
           end
         end
 
-        # TODO: MUST FAIL
         # TODO: include MUST NOT return anything if fields are use
         test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme fields skos:inScheme.skos:prefLabel' do
           tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
