@@ -28,7 +28,7 @@
 
   <% if definition&.dig('ui', 'edit', 'options', 'data_upload') && DataCycleCore.default_map_position.dig('editor') != 'TourSprung' %>
     <div class="map-edit">
-      <input type="file" id="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
+      <input type="file" class="upload-gpx-input" accept=".gpx,.GPX,application/gpx+xml,application/octet-stream" style="display:none">
       <%= link_to '#',
       class: 'button upload-gpx-button',
       title: t('actions.upload_gpx', locale: DataCycleCore.ui_language),

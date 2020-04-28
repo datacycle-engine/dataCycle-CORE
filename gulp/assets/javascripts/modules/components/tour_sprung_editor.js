@@ -160,7 +160,7 @@ class TourSprungEditor {
   drawInitialRoute() {
     if (this.routeDataField !== undefined) {
       let routeData = this.routeDataField.val();
-      if (routeData !== undefined) routeData = JSON.parse(routeData);
+      if (routeData !== undefined && routeData.length > 0) routeData = JSON.parse(routeData);
       else routeData = {};
       this.map.editor.setSerializedData(routeData);
     } else {
