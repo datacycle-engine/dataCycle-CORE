@@ -24,18 +24,37 @@ module DataCycleCore
         end
 
         test 'api/v4/concept_schemes parameter filter[:created_since]' do
-          get api_v4_concept_schemes_path(filter: { created_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          params = {
+            filter: {
+              createdAt: {
+                in: {
+                  min: (Time.zone.now - 20.years).to_s(:iso8601)
+                }
+              }
+            }
+          }
+          post api_v4_concept_schemes_path(params)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
           json_data = JSON.parse(response.body)
+
           assert_equal(@trees, json_data['@graph'].size)
           assert_equal(@trees, json_data['meta']['total'].to_i)
           assert_equal(true, json_data.key?('links'))
         end
 
         test 'api/v4/concept_schemes parameter filter[:modified_since]' do
-          get api_v4_concept_schemes_path(filter: { modified_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          params = {
+            filter: {
+              modifiedAt: {
+                in: {
+                  min: (Time.zone.now - 20.years).to_s(:iso8601)
+                }
+              }
+            }
+          }
+          post api_v4_concept_schemes_path(params)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -46,7 +65,16 @@ module DataCycleCore
         end
 
         test 'api/v4/concept_schemes parameter filter[:deleted_since]' do
-          get api_v4_concept_schemes_path(filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          params = {
+            filter: {
+              deletedAt: {
+                in: {
+                  min: (Time.zone.now - 20.years).to_s(:iso8601)
+                }
+              }
+            }
+          }
+          post api_v4_concept_schemes_path(params)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')
@@ -58,7 +86,7 @@ module DataCycleCore
           DataCycleCore::MasterData::ImportClassifications.import_all(classification_paths: [Rails.root.join('..', 'dummy_data', 'classifications')])
           DataCycleCore::ClassificationTreeLabel.find_by(name: 'Test').destroy
 
-          get api_v4_concept_schemes_path(filter: { deleted_since: (Time.zone.now - 20.years).to_s(:iso8601) })
+          post api_v4_concept_schemes_path(params)
           assert_response :success
 
           assert_equal(response.content_type, 'application/json')

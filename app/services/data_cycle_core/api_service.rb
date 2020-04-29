@@ -35,6 +35,25 @@ module DataCycleCore
       query
     end
 
+    def attribute_filter_operations
+      {
+        in: [
+          :max,
+          :min,
+          :equals,
+          :like,
+          :bool
+        ],
+        notIn: [
+          :max,
+          :min,
+          :equals,
+          :like,
+          :bool
+        ]
+      }
+    end
+
     private
 
     # TODO: add error handling
