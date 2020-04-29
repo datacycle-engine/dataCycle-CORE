@@ -13,6 +13,9 @@ module DataCycleCore
           required(:'dc:entityUrl').value(:string)
           required(:'skos:prefLabel').value(:string)
           required(:'dc:hasConcept').value(:string)
+          required(:'dct:created').value(:date_time)
+          required(:'dct:modified').value(:date_time)
+          optional(:'dct:deleted').value(:date_time)
         end
 
         DEFAULT_CONCEPT_ATTRIBUTES = Dry::Schema.JSON do
@@ -20,6 +23,7 @@ module DataCycleCore
           required(:'skos:prefLabel').value(:string)
           required(:'dct:created').value(:date_time)
           required(:'dct:modified').value(:date_time)
+          optional(:'dct:deleted').value(:date_time)
           optional(:'dct:description').value(:string)
           optional(:'skos:inScheme').hash(DEFAULT_HEADER)
           optional(:'skos:topConceptOf').hash(DEFAULT_HEADER)
