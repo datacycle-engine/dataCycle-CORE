@@ -16,7 +16,7 @@
       <% @schema.templates_with_content_type(content_type).sort_by { |item| item.schema_name.is_a?(::Array) ? item.schema_name.first : item.schema_name }.each do |template| %>
         <li>
           <a href="/schema/<%= template.template_name %>">
-            <%= template.schema_name %> (<em><%= template.template_name %></em>)
+            <%= Array.wrap(template.schema_name).join(' / ') %> (<em><%= template.template_name %></em>)
           </a>
         </li>
       <% end %>
