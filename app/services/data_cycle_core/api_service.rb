@@ -19,5 +19,30 @@ module DataCycleCore
       list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
       list_hash
     end
+
+    def apply_classification_filters(query)
+      return query if permitted_params&.dig(:filter, :classifications).blank?
+      classification_params = permitted_params[:filter][:classifications].to_h.deep_symbolize_keys
+
+      classification_params.each do |operator, filter|
+        filter_prefix = operator == :notIn ? 'not_' : ''
+        filter&.each do |k, v|
+          param_to_classifications(v).each do |classifications|
+            query = query.send("#{filter_prefix}classification_alias_ids_#{k.to_s.underscore}", classifications)
+          end
+        end
+      end
+      query
+    end
+
+    private
+
+    # TODO: add error handling
+    # https://jsonapi.org/format/#errors
+    def param_to_classifications(classification_string)
+      classification_string.map { |classifications|
+        classifications.split(',').map(&:strip).reject(&:blank?)
+      }.reject(&:empty?)
+    end
   end
 end
