@@ -19,10 +19,6 @@ module DataCycleCore
         # 2 poi's: licenses: (CC BY 4.0, CC BY-SA 4.0) | CC BY (only for without subTree test)
         # 2 food_establishment CC BY 4.0 | CC BY-SA 4.0
         # 4 images CC0 | CC0 | CC0 | CC0
-        # CC BY-SA 4.0: 3cc3851f-d8ad-432c-96aa-69a228a76f9f
-        # CC BY 4.0: 00e1f67a-8e52-4690-bd65-c9c3c6e2d474
-        # CC BY: aaaee365-b0c8-44d3-851c-21d249ef85ee
-        # CC0: 238a596d-f52e-44e3-ae20-d6866eed16aa
         setup do
           DataCycleCore::Thing.where(template: false).delete_all
           @routes = Engine.routes
@@ -56,7 +52,7 @@ module DataCycleCore
         end
 
         test 'api/v4/things with filter[classifications][in]' do
-          # all items
+          # all items (8)
           post_params = {}
           post api_v4_things_path(post_params)
           assert_api_count_result(8)
@@ -268,7 +264,7 @@ module DataCycleCore
           post api_v4_things_path(post_params)
           assert_api_count_result(2)
 
-          # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (2)
+          # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (1)
           post_params = {
             filter: {
               classifications: {
@@ -288,7 +284,7 @@ module DataCycleCore
         end
 
         test 'api/v4/things with filter[classifications][notIn]' do
-          # all items
+          # all items (8)
           post_params = {}
           post api_v4_things_path(post_params)
           assert_api_count_result(8)
@@ -370,7 +366,7 @@ module DataCycleCore
           assert_api_count_result(4)
 
           ### Logical AND
-          # withSubtree CC0 AND CC BY(8)
+          # withSubtree CC0 AND CC BY(1)
           post_params = {
             filter: {
               classifications: {
@@ -384,9 +380,9 @@ module DataCycleCore
             }
           }
           post api_v4_things_path(post_params)
-          assert_api_count_result(8)
+          assert_api_count_result(1)
 
-          # withSubtree food establisment AND CC BY(7)
+          # withSubtree food establisment AND CC BY(4)
           food_establishment = DataCycleCore::ClassificationAlias.for_tree('Inhaltstypen').with_name('Gastronomischer Betrieb').first
           post_params = {
             filter: {
@@ -401,7 +397,7 @@ module DataCycleCore
             }
           }
           post api_v4_things_path(post_params)
-          assert_api_count_result(7)
+          assert_api_count_result(4)
 
           ### Logical OR
           # withSubtree CC0 OR CC BY(1)
@@ -482,7 +478,7 @@ module DataCycleCore
           assert_api_count_result(7)
 
           # combine withSubtree and withoutSubtree
-          # combine withSubtree (place) and withoutSubtree CC BY-SA 4.0 (6)
+          # combine withSubtree (place) and withoutSubtree CC BY-SA 4.0 (4)
           post_params = {
             filter: {
               classifications: {
@@ -498,9 +494,9 @@ module DataCycleCore
             }
           }
           post api_v4_things_path(post_params)
-          assert_api_count_result(6)
+          assert_api_count_result(4)
 
-          # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (7)
+          # combine withSubtree (CC BY) and withoutSubtree CC BY-SA 4.0 (4)
           post_params = {
             filter: {
               classifications: {
@@ -516,7 +512,7 @@ module DataCycleCore
             }
           }
           post api_v4_things_path(post_params)
-          assert_api_count_result(7)
+          assert_api_count_result(4)
         end
       end
     end
