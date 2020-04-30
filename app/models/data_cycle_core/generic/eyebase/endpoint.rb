@@ -24,21 +24,18 @@ module DataCycleCore
                 folder.search('./id/text()').text.to_i =>
                 ([folder] + folder.ancestors('folder')).map { |n| n.search('./name/text()').text }.reverse
               }
-            }.reduce({}, :merge).each do |folder_id, full_path|
+            }.reduce({}, :merge).each do |folder_id, path|
               doc = load_assets(folder_id)
               doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
                 next if raw_asset_data.dig('mediaassettype', 'text') != '501'
                 next if raw_asset_data.dig('main_permalink', '#cdata-section').blank?
                 next if raw_asset_data.dig('quality_512', 'permalink', '#cdata-section').blank?
 
-                raw_asset_data['full_path'] = full_path
+                raw_asset_data['full_path'] = path
 
-                if raw_asset_data.dig('ordnerstruktur', '#cdata-section').present?
-                  path = raw_asset_data.dig('ordnerstruktur', '#cdata-section').split(',')&.map(&:squish)
-                  path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder. present? }.compact
-                  path_nodes = path_nodes.zip(0..path.size).map { |data, i| data.merge({ path: path[0..i].join(', '), parent_path: path[0...i].join(', ').presence }) }
-                  raw_asset_data['folder'] = path_nodes
-                end
+                path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder. present? }.compact
+                path_nodes = path_nodes.zip(0..path.size).map { |data, i| data.merge({ path: path[0..i].join(', '), parent_path: path[0...i].join(', ').presence }) }
+                raw_asset_data['folder'] = path_nodes
 
                 yielder << raw_asset_data
               end
