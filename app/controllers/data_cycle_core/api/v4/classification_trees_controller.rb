@@ -7,74 +7,15 @@ module DataCycleCore
         include DataCycleCore::ApiService
         before_action :prepare_url_parameters
 
+        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :deletedAt].freeze
+
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
-          # TODO: refactor
-          if permitted_params.dig(:filter, :modifiedAt)
-            if permitted_params.dig(:filter, :modifiedAt, :in)
-              min = permitted_params.dig(:filter, :modifiedAt, :in, :min) if permitted_params.dig(:filter, :modifiedAt, :in, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :modifiedAt, :in, :max)) if permitted_params.dig(:filter, :modifiedAt, :in, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.updated_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels
-                .where(query_string)
-            # .order(:updated_at)
-            elsif permitted_params.dig(:filter, :modifiedAt, :notIn)
-              min = permitted_params.dig(:filter, :modifiedAt, :notIn, :min) if permitted_params.dig(:filter, :modifiedAt, :notIn, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :modifiedAt, :notIn, :max)) if permitted_params.dig(:filter, :modifiedAt, :notIn, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.updated_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels
-                .where.not(query_string)
-              # .order(:updated_at)
-            end
-          end
-
-          if permitted_params.dig(:filter, :createdAt)
-            if permitted_params.dig(:filter, :createdAt, :in)
-              min = permitted_params.dig(:filter, :createdAt, :in, :min) if permitted_params.dig(:filter, :createdAt, :in, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :createdAt, :in, :max)) if permitted_params.dig(:filter, :createdAt, :in, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.created_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels
-                .where(query_string)
-            # .order(:created_at)
-            elsif permitted_params.dig(:filter, :createdAt, :notIn)
-              min = permitted_params.dig(:filter, :createdAt, :notIn, :min) if permitted_params.dig(:filter, :createdAt, :notIn, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :createdAt, :notIn, :max)) if permitted_params.dig(:filter, :createdAt, :notIn, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.created_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels
-                .where.not(query_string)
-              # .order(:created_at)
-            end
-          end
-
-          if permitted_params.dig(:filter, :deletedAt)
-            if permitted_params.dig(:filter, :deletedAt, :in)
-              min = permitted_params.dig(:filter, :deletedAt, :in, :min) if permitted_params.dig(:filter, :deletedAt, :in, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :deletedAt, :in, :max)) if permitted_params.dig(:filter, :deletedAt, :in, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.deleted_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels.with_deleted
-                .where(query_string)
-            # .order(:deleted_at)
-            elsif permitted_params.dig(:filter, :deletedAt, :notIn)
-              min = permitted_params.dig(:filter, :deletedAt, :notIn, :min) if permitted_params.dig(:filter, :deletedAt, :notIn, :min).present?
-              max = Time.zone.parse(permitted_params.dig(:filter, :deletedAt, :notIn, :max)) if permitted_params.dig(:filter, :deletedAt, :notIn, :max).present?
-
-              date_range = "[#{min&.to_s},#{max&.to_s}]"
-              query_string = ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ['?::daterange @> (classification_tree_labels.deleted_at)::date', date_range])
-              @classification_tree_labels = @classification_tree_labels.with_deleted
-                .where.not(query_string)
-              # .order(:deleted_at)
-            end
+          if permitted_params.dig(:filter).present?
+            filter = permitted_params[:filter].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:deletedAt)
+            @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
 
           @classification_tree_labels = apply_paging(@classification_tree_labels)
@@ -95,26 +36,12 @@ module DataCycleCore
               @classification_aliases = @classification_tree_label.classification_aliases
             end
 
-            # TODO: refactor
-            if permitted_params.dig(:filter, :modified_since)
-              @classification_aliases = @classification_aliases.where(
-                ClassificationAlias.arel_attribute(:updated_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :modified_since)))
-              ).order(:updated_at)
+            if permitted_params.dig(:filter).present?
+              filter = permitted_params[:filter].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+              @classification_aliases = @classification_aliases.with_deleted if filter.key?(:deletedAt)
+              @classification_aliases = apply_filters(@classification_aliases, filter)
             end
 
-            if permitted_params.dig(:filter, :created_since)
-              @classification_aliases = @classification_aliases.where(
-                ClassificationAlias.arel_attribute(:created_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :created_since)))
-              ).order(:created_at)
-            end
-
-            if permitted_params.dig(:filter, :deleted_since)
-              @classification_aliases = @classification_aliases.with_deleted.where(
-                ClassificationAlias.arel_attribute(:deleted_at).gteq(Time.zone.parse(permitted_params.dig(:filter, :deleted_since)))
-              ).order(:deleted_at)
-            end
-
-            # TODO: refactor ordering
             @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
           else
             @classification_tree_label = nil
@@ -145,6 +72,43 @@ module DataCycleCore
               }
             ]
           }
+        end
+
+        private
+
+        def apply_filters(c, f)
+          f.each do |attribute_key, operator|
+            attribute_path = case attribute_key
+                             when :modifiedAt
+                               'updated_at'
+                             when :createdAt
+                               'created_at'
+                             when :deletedAt
+                               'deleted_at'
+                             else
+                               next
+                             end
+            operator.each do |k, v|
+              query_string = apply_query_string(v, "#{c.table.name}.#{attribute_path}")
+              if k == :in
+                c = c.where(query_string)
+              elsif k == :notIn
+                c = c.where.not(query_string)
+              end
+            end
+          end
+          c
+        end
+
+        def apply_query_string(values, attribute_path)
+          date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
+          ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
+        end
+
+        def date_from_single_value(value)
+          return if value.blank?
+          return value if value.is_a?(::Date)
+          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
       end
     end
