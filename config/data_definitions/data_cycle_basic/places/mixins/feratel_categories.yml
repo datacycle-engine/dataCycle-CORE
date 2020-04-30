@@ -86,6 +86,14 @@
         :ui:
           :show:
             :content_area: header
+      :marketing_groups:
+        :label: Feratel - Marketinggruppen
+        :type: classification
+        :tree_label: Feratel - Marketinggruppen
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
 #      :feratel_content_score:
 #        :label: Feratel - ContentScore
 #        :type: classification

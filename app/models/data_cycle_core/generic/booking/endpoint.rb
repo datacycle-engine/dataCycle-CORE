@@ -32,12 +32,30 @@ module DataCycleCore
           end
         end
 
+        def facility_types(lang: :de)
+          end_point = '/facilityTypes'
+          Enumerator.new do |yielder|
+            load_data(end_point, lang, nil, nil, nil, nil, 0).each do |facility_type|
+              yielder << facility_type
+            end
+          end
+        end
+
+        def hotel_facility_types(lang: :de)
+          end_point = '/hotelFacilityTypes'
+          Enumerator.new do |yielder|
+            load_data(end_point, lang, nil, nil, nil, nil, 0).each do |facility_type|
+              yielder << facility_type
+            end
+          end
+        end
+
         def hotels(lang: :de)
           end_point = '/hotels'
           offset = 0
           Enumerator.new do |yielder|
             loop do
-              data = load_data(end_point, lang, @region_id, ['hotel_info', 'hotel_facilities', 'hotel_description', 'hotel_photos'], offset, nil, 0)
+              data = load_data(end_point, lang, @region_id, ['hotel_info', 'hotel_facilities', 'hotel_description', 'hotel_photos', 'room_info'], offset, nil, 0)
               data.each do |hotel|
                 yielder << hotel
               end
