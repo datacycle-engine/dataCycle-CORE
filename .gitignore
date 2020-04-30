@@ -9,7 +9,8 @@ pkg/
 **/public/downloads/*
 **/public/uploads
 **/public/assets
-**/log/
+**/log/**
+!/log/.keep
 *.log
 .byebug_history
 .irb-history
