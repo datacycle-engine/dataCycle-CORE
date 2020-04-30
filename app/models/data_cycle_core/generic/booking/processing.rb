@@ -21,6 +21,16 @@ module DataCycleCore
           end
         end
 
+        def self.process_article(utility_object, raw_data, config)
+          DataCycleCore::Generic::Common::ImportFunctions.process_step(
+            utility_object: utility_object,
+            raw_data: raw_data,
+            transformation: DataCycleCore::Generic::Booking::Transformations.booking_to_article(utility_object.external_source.id),
+            default: { template: 'Artikel' },
+            config: config
+          )
+        end
+
         def self.process_hotel(utility_object, raw_data, config)
           DataCycleCore::Generic::Common::ImportFunctions.process_step(
             utility_object: utility_object,
