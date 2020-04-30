@@ -9,6 +9,12 @@ module DataCycleCore
           required(:@type).value(:string)
         end
 
+        IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
+          required(:'@type').value(:string)
+          required(:propertyID).value(:string)
+          required(:value).value(:string)
+        end
+
         DEFAULT_CONCEPT_SCHEME_ATTRIBUTES = Dry::Schema.JSON do
           required(:'dc:entityUrl').value(:string)
           required(:'skos:prefLabel').value(:string)
@@ -30,6 +36,9 @@ module DataCycleCore
           optional(:'skos:broader').hash(DEFAULT_HEADER)
           optional(:'skos:ancestors').value(:array).each do
             hash(DEFAULT_HEADER)
+          end
+          optional(:identifier).value(:array).each do
+            hash(IDENTIFIER_ATTRIBUTES)
           end
         end
 

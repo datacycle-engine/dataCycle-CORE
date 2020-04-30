@@ -1,5 +1,18 @@
 # frozen_string_literal: true
 
+def external_identifier(content)
+  return {} if content.external_source.blank?
+  {
+    'identifier' => [
+      {
+        '@type' => 'PropertyValue',
+        'propertyID' => content.external_source&.identifier,
+        'value' => content.primary_classification&.external_key
+      }
+    ]
+  }
+end
+
 def render_classification(attribute, partial, content, options)
   new_options = options.dup
   new_include = subtree_for(attribute, options[:include])
@@ -78,6 +91,8 @@ else
     '@type' => 'skos:Concept'
   }.compact
 end
+
+json.merge!(external_identifier(content)) if included_attribute?('identifier', options[:include]) || included_attribute?('identifier', options[:fields])
 
 if options[:fields].blank? && options[:field_filter] == false
   json

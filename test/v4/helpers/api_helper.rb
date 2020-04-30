@@ -9,6 +9,7 @@ module DataCycleCore
         json_data = JSON.parse(response.body)
         assert_equal(count, json_data['@graph'].size)
         assert_equal(count, json_data['meta']['total'].to_i)
+        assert_equal(true, json_data.key?('links'))
       end
     end
   end

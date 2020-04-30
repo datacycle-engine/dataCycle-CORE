@@ -23,14 +23,8 @@ module DataCycleCore
         test 'api/v4/concept_schemes' do
           post api_v4_concept_schemes_path
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(@trees)
           json_data = JSON.parse(response.body)
-          assert_equal(@trees, json_data['@graph'].size)
-          assert(json_data['@graph'].size.positive?)
-          assert_equal(@trees, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           validator = DataCycleCore::V4::Validation::Concept.concept_scheme
           json_data['@graph'].each do |item|
@@ -42,14 +36,8 @@ module DataCycleCore
         test 'api/v4/concept_schemes with fields=dct:modified' do
           post api_v4_concept_schemes_path(fields: 'dc:entityUrl')
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(@trees)
           json_data = JSON.parse(response.body)
-          assert_equal(@trees, json_data['@graph'].size)
-          assert(json_data['@graph'].size.positive?)
-          assert_equal(@trees, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'dc:entityUrl').value(:string)
@@ -69,12 +57,9 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
 
           json_data = JSON.parse(response.body)
-          assert_equal(1, json_data['@graph'].size)
 
           validator = DataCycleCore::V4::Validation::Concept.concept_scheme
-          json_data['@graph'].each do |item|
-            assert_equal({}, validator.call(item).errors.to_h)
-          end
+          assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
         end
 
         test 'api/v4/concept_schemes/(:id) with fields=dc:entityUrl,dc:hasConcept' do
@@ -89,7 +74,6 @@ module DataCycleCore
           assert_equal(response.content_type, 'application/json')
 
           json_data = JSON.parse(response.body)
-          assert_equal(1, json_data['@graph'].size)
 
           fields = Dry::Schema.JSON do
             required(:'dc:entityUrl').value(:string)
@@ -97,9 +81,7 @@ module DataCycleCore
           end
 
           validator = DataCycleCore::V4::Validation::Concept.concept_scheme(params: { fields: fields })
-          json_data['@graph'].each do |item|
-            assert_equal({}, validator.call(item).errors.to_h)
-          end
+          assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
         end
 
         test 'api/v4/concept_schemes/(:id)/concepts' do
@@ -110,13 +92,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           validator = DataCycleCore::V4::Validation::Concept.concept
           json_data['@graph'].each do |item|
@@ -133,13 +110,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:prefLabel').value(:string)
@@ -153,6 +125,45 @@ module DataCycleCore
           end
         end
 
+        test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) fields identifier for external concepts' do
+          tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
+
+          update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 3').first
+          external_source_id = DataCycleCore::ExternalSource.first.id
+          update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
+          update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
+          update_tag.primary_classification.update_column(:external_key, 'test-identifier') # rubocop:disable Rails/SkipsModelValidations
+
+          params = {
+            id: tree_id,
+            classification_id: update_tag.id,
+            fields: 'skos:prefLabel,dct:description,dct:modified,identifier'
+          }
+          post classifications_api_v4_concept_scheme_path(params)
+
+          assert_response :success
+          assert_equal(response.content_type, 'application/json')
+
+          json_data = JSON.parse(response.body)
+
+          fields = Dry::Schema.JSON do
+            required(:'skos:prefLabel').value(:string)
+            optional(:'dct:description').value(:string)
+            required(:'dct:modified').value(:date_time)
+            required(:identifier).value(:array).each do
+              hash(DataCycleCore::V4::Validation::Concept::IDENTIFIER_ATTRIBUTES)
+            end
+          end
+
+          validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
+          assert_equal({}, validator.call(json_data.except('@context')).errors.to_h)
+          assert_equal('test-identifier', json_data.dig('identifier').first.dig('value'))
+
+          update_tag.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations
+          update_tag.primary_classification.update_column(:external_source_id, nil) # rubocop:disable Rails/SkipsModelValidations
+          update_tag.primary_classification.update_column(:external_key, nil) # rubocop:disable Rails/SkipsModelValidations
+        end
+
         # TODO: fields for relation without relation attirbute name MUST return minimal header
         test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme' do
           tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
@@ -163,13 +174,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:inScheme').hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
@@ -190,13 +196,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:inScheme').hash(
@@ -223,13 +224,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:inScheme').hash(
@@ -256,13 +252,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             optional(:'skos:broader').hash(
@@ -296,13 +287,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           include = Dry::Schema.JSON do
             required(:'skos:inScheme').hash(
@@ -327,13 +313,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           include = Dry::Schema.JSON do
             optional(:'skos:broader').hash(
@@ -366,13 +347,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           include = Dry::Schema.JSON do
             optional(:'skos:ancestors').value(:array).each do
@@ -400,13 +376,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:prefLabel').value(:string)
@@ -429,13 +400,8 @@ module DataCycleCore
           }
           post classifications_api_v4_concept_scheme_path(params)
 
-          assert_response :success
-          assert_equal(response.content_type, 'application/json')
-
+          assert_api_count_result(classifications)
           json_data = JSON.parse(response.body)
-          assert_equal(classifications, json_data['@graph'].size)
-          assert_equal(classifications, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
 
           fields = Dry::Schema.JSON do
             required(:'skos:inScheme').hash(
