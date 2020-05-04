@@ -39,6 +39,14 @@ module DataCycleCore
               raw_data,
               options.dig(:import, :transformations, :hotel)
             )
+
+            if raw_data.dig('hotel_data', 'hotel_important_information')&.squish.present?
+              DataCycleCore::Generic::Booking::Processing.process_article(
+                utility_object,
+                raw_data,
+                options.dig(:import, :transformations, :article)
+              )
+            end
           end
         end
       end

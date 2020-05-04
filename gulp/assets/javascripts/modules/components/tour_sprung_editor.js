@@ -1,5 +1,6 @@
 var ConfirmationModal = require('./confirmation_modal');
 var ObjectHelpers = require('./../helpers/object_helpers');
+var wkx = require('wkx');
 
 class TourSprungEditor {
   constructor(container) {
@@ -70,31 +71,18 @@ class TourSprungEditor {
       .on('change', this.updateMapMarker.bind(this));
   }
   importData(event, data) {
-    let form_fields = this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first();
+    let form_fields = this.container.parent('.geographic').siblings('.map-info').first();
 
     let elevationField = form_fields.find('.form-element.elevation > input');
 
     if (
       ((!elevationField.val() || elevationField.val().length == 0) &&
-        this.container
-          .parent('.geographic')
-          .siblings('input.location-data:hidden')
-          .first()
-          .val().length == 0) ||
+        this.container.parent('.geographic').siblings('input.location-data:hidden').first().val().length == 0) ||
       (data && data.force)
     ) {
       elevationField.val(data.value.elevation);
-      form_fields
-        .find('.form-element.latitude > input')
-        .val(data.value.y)
-        .trigger('change');
-      form_fields
-        .find('.form-element.longitude > input')
-        .val(data.value.x)
-        .trigger('change');
+      form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+      form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
     } else {
       var confirmationModal = new ConfirmationModal({
         text: 'Soll das Feld "' + data.label + '" überschrieben werden?',
@@ -102,16 +90,10 @@ class TourSprungEditor {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
+        confirmationCallback: function () {
           elevationField.val(data.value.elevation);
-          form_fields
-            .find('.form-element.latitude > input')
-            .val(data.value.y)
-            .trigger('change');
-          form_fields
-            .find('.form-element.longitude > input')
-            .val(data.value.x)
-            .trigger('change');
+          form_fields.find('.form-element.latitude > input').val(data.value.y).trigger('change');
+          form_fields.find('.form-element.longitude > input').val(data.value.x).trigger('change');
         }.bind(this)
       });
     }
@@ -119,21 +101,9 @@ class TourSprungEditor {
   getCoordinates() {
     return {
       lng: parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.longitude input')
-          .val()
+        this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val()
       ),
-      lat: parseFloat(
-        this.container
-          .parent('.geographic')
-          .siblings('.map-info')
-          .first()
-          .find('.latitude input')
-          .val()
-      )
+      lat: parseFloat(this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val())
     };
   }
   updateMapMarker(event) {
@@ -156,10 +126,10 @@ class TourSprungEditor {
   configureMap(map) {
     this.map = map;
 
-    if (this.type == 'Point' && this.value[0].length > 0) this.drawInitialMarker();
+    if (this.type == 'Point' && this.value.length > 0) this.drawInitialMarker();
     else if (this.type == 'Point') this.drawableMarker();
     else if (this.type == 'LineString' && this.editable) {
-      if (this.value[0].length > 0) this.drawInitialRoute();
+      if (this.value.length > 0) this.drawInitialRoute();
 
       if (this.markerPath !== undefined && this.markerPath.length) {
         this.addRouteMarkerEvents();
@@ -170,7 +140,7 @@ class TourSprungEditor {
         this.setRouteDataFieldValue(data);
         this.setHiddenFieldValue(data.routeVertices[0]);
       });
-    } else if (this.type == 'LineString' && this.value[0].length > 0) {
+    } else if (this.type == 'LineString' && this.value.length > 0) {
       this.drawInitialLineString();
 
       if (this.markerPath !== undefined && this.markerPath.length) this.drawRouteMarkers(undefined, 'content-tiles');
@@ -190,7 +160,7 @@ class TourSprungEditor {
   drawInitialRoute() {
     if (this.routeDataField !== undefined) {
       let routeData = this.routeDataField.val();
-      if (routeData !== undefined) routeData = JSON.parse(routeData);
+      if (routeData !== undefined && routeData.length > 0) routeData = JSON.parse(routeData);
       else routeData = {};
       this.map.editor.setSerializedData(routeData);
     } else {
@@ -201,33 +171,31 @@ class TourSprungEditor {
   }
   drawInitialLineString() {
     if (
-      (this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
-      (this.beforeValue !== undefined && this.beforeValue[0] !== undefined)
+      (this.afterValue !== undefined && this.afterValue.length) ||
+      (this.beforeValue !== undefined && this.beforeValue.length)
     ) {
-      let points = [];
-      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
-        let afterPoints = this.afterValue.map(item => $P(item[1], item[0]));
-        points.push(afterPoints);
-        this.drawLineString(afterPoints, { color: '#90c062', weight: 6 });
+      let lines = [];
+      if (this.afterValue !== undefined && this.afterValue.length > 0) {
+        lines.push(this.drawLineString(this.afterValue, { color: '#90c062', weight: 6 }));
       }
-      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
-        let beforePoints = this.beforeValue.map(item => $P(item[1], item[0]));
-        points.push(beforePoints);
-        this.drawLineString(beforePoints, { color: '#cc4b37' });
+      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
+        lines.push(this.drawLineString(this.beforeValue, { color: '#cc4b37' }));
       }
-      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+      let group = new L.featureGroup(lines);
+      this.map.leaflet.fitBounds(group.getBounds(), { padding: [50, 50] });
     } else {
-      let points = this.value.map(item => $P(item[1], item[0]));
-      this.drawLineString(points);
-      this.map.leaflet.fitBounds(points, { padding: [50, 50] });
+      let line = this.drawLineString(this.value);
+      this.map.leaflet.fitBounds(line.getBounds(), { padding: [50, 50] });
     }
   }
-  drawLineString(points, options = { color: '#1779ba' }) {
-    let lineString = new L.Polyline(points, options).addTo(this.map.leaflet);
-    let startPoint = points.shift();
-    let endPoint = points.pop();
+  drawLineString(wkt, options = { color: '#1779ba' }) {
+    let geojson = this.wktToGeoJson(wkt);
+    let line = new L.geoJSON(geojson, options);
+    line.addTo(this.map.leaflet);
+    let startPoint = geojson.coordinates.shift();
+    let endPoint = geojson.coordinates.pop();
 
-    new L.Marker(startPoint, {
+    new L.Marker([startPoint[1], startPoint[0]], {
       draggable: false,
       icon: L.icon({
         iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/start.png',
@@ -236,7 +204,7 @@ class TourSprungEditor {
       })
     }).addTo(this.map.leaflet);
     if (endPoint !== startPoint)
-      new L.Marker(endPoint, {
+      new L.Marker([endPoint[1], endPoint[0]], {
         draggable: false,
         icon: L.icon({
           iconUrl: '//static.maptoolkit.net/images/editor/v8/marker/end.png',
@@ -244,6 +212,7 @@ class TourSprungEditor {
           iconAnchor: [15, 40]
         })
       }).addTo(this.map.leaflet);
+    return line;
   }
   addRouteMarkerEvents() {
     let identifier =
@@ -289,7 +258,10 @@ class TourSprungEditor {
 
     let points = [];
 
-    if (this.value[0].length) points = this.value.map(item => [item[1], item[0]]);
+    if (this.value.length) {
+      let geoJsonCoords = this.wktToGeoJson(this.value).coordinates;
+      points = geoJsonCoords.map(item => [item[1], item[0]]);
+    }
 
     if (markers.length) {
       markers.each((_, v) => {
@@ -352,23 +324,26 @@ class TourSprungEditor {
   }
   drawInitialMarker() {
     if (
-      (this.afterValue !== undefined && this.afterValue[0] !== undefined) ||
-      (this.beforeValue !== undefined && this.beforeValue[0] !== undefined)
+      (this.afterValue !== undefined && this.afterValue.length) ||
+      (this.beforeValue !== undefined && this.beforeValue.length)
     ) {
       let points = [];
-      if (this.afterValue !== undefined && this.afterValue[0] !== undefined && this.afterValue[0].length > 0) {
-        let afterPoints = { lat: this.afterValue[0][1], lng: this.afterValue[0][0] };
+      if (this.afterValue !== undefined && this.afterValue.length > 0) {
+        let coords = this.wktToGeoJson(this.afterValue).coordinates;
+        let afterPoints = { lat: coords[1], lng: coords[0] };
         points.push(afterPoints);
         this.drawMarker(afterPoints, this.iconPaths.after);
       }
-      if (this.beforeValue !== undefined && this.beforeValue[0] !== undefined && this.beforeValue[0].length > 0) {
-        let beforePoints = { lat: this.beforeValue[0][1], lng: this.beforeValue[0][0] };
+      if (this.beforeValue !== undefined && this.beforeValue.length > 0) {
+        let coords = this.wktToGeoJson(this.beforeValue).coordinates;
+        let beforePoints = { lat: coords[1], lng: coords[0] };
         points.push(beforePoints);
         this.drawMarker(beforePoints, this.iconPaths.before);
       }
       this.map.leaflet.fitBounds(points, { padding: [50, 50] });
     } else {
-      let point = { lat: this.value[0][1], lng: this.value[0][0] };
+      let coords = this.wktToGeoJson(this.value).coordinates;
+      let point = { lat: coords[1], lng: coords[0] };
       this.drawMarker(point);
       this.map.leaflet.setView(point);
     }
@@ -390,27 +365,13 @@ class TourSprungEditor {
   setCoordinates(coords) {
     coords.lat = Number(coords.lat.toFixed(5));
     coords.lng = Number(coords.lng.toFixed(5));
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.longitude input')
-      .val(coords.lng);
-    this.container
-      .parent('.geographic')
-      .siblings('.map-info')
-      .first()
-      .find('.latitude input')
-      .val(coords.lat);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.longitude input').val(coords.lng);
+    this.container.parent('.geographic').siblings('.map-info').first().find('.latitude input').val(coords.lat);
     this.setHiddenFieldValue(coords);
   }
   setHiddenFieldValue(coords) {
     if (coords === undefined) {
-      this.container
-        .parent('.geographic')
-        .siblings('.location-data')
-        .first()
-        .removeAttr('value');
+      this.container.parent('.geographic').siblings('.location-data').first().removeAttr('value');
       this.value = undefined;
     } else {
       let parsedCoords = coords;
@@ -432,11 +393,7 @@ class TourSprungEditor {
     if (length === undefined) length = 0;
     else length = Number(length.toFixed(0));
 
-    this.container
-      .closest('.geographic.form-element')
-      .siblings('.form-element.length')
-      .find(':input')
-      .val(length);
+    this.container.closest('.geographic.form-element').siblings('.form-element.length').find(':input').val(length);
   }
   setRouteDataFieldValue(data) {
     if (data === undefined) data = {};
@@ -447,6 +404,9 @@ class TourSprungEditor {
     }
 
     this.routeDataField.val(JSON.stringify(data));
+  }
+  wktToGeoJson(wkt) {
+    return wkx.Geometry.parse(wkt).toGeoJSON();
   }
   initGeoCodingActions(event) {
     event.preventDefault();
@@ -486,9 +446,7 @@ class TourSprungEditor {
         console.log(textStatus + ', ' + error);
       })
       .always(() => {
-        $(event.currentTarget)
-          .find('i.fa')
-          .remove();
+        $(event.currentTarget).find('i.fa').remove();
       });
   }
 }

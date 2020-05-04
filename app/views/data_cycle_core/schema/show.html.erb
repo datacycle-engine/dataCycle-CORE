@@ -2,7 +2,7 @@
 
 <main>
   <h1 typeof="rdfs:Class" resource="<%= schema_url(@template_schema.schema_name) %>">
-    <%= @template_schema.schema_name %> (<em><%= @template_schema.template_name %></em>)
+    <%= Array.wrap(@template_schema.schema_name).join(' / ') %> (<em><%= @template_schema.template_name %></em>)
   </h1>
 
   <table>
@@ -30,6 +30,7 @@
             <%= definition[:label] %>
             <%= tag.i(class: 'fa fa-language has-tip', aria_hidden: true, title: 'Translated') if definition[:translated] %>
             <%= tag.i(class: 'fa fa-tag has-tip', aria_hidden: true, title: 'Classification') if definition[:data_type] == 'classification' %>
+            <%= tag.i(class: 'fa fa-share-alt has-tip', aria_hidden: true, title: 'embedded') if definition[:embedded] %>
           </th>
           <td>
             <% Array.wrap(definition[:data_type]).each do |data_type| %>

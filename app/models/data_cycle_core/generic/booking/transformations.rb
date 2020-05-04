@@ -11,9 +11,9 @@ module DataCycleCore
         def self.booking_to_unterkunft(external_source_id)
           t(:stringify_keys)
           .>> t(:reject_keys, ['region'])
-          .>> t(:rename_keys, { 'hotel_id' => 'external_key' })
-          .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description', 'hotel_important_information'])
-          .>> t(:rename_keys, { 'hotel_description' => 'description', 'hotel_important_information' => 'text' })
+          .>> t(:add_field, 'external_key', ->(s) { s.dig('hotel_id').to_s })
+          .>> t(:unwrap, 'hotel_data', ['name', 'hotel_description'])
+          .>> t(:rename_keys, { 'hotel_description' => 'description' })
           .>> t(:unwrap, 'hotel_data', ['url'])
           .>> t(:rename_keys, { 'url' => 'booking_url' })
           .>> t(:unwrap, 'hotel_data', ['address', 'city', 'zip', 'country'])
@@ -23,6 +23,8 @@ module DataCycleCore
           .>> t(:add_field, 'longitude', ->(s) { s.dig('hotel_data', 'location', 'longitude')&.to_f })
           .>> t(:add_field, 'latitude', ->(s) { s.dig('hotel_data', 'location', 'latitude')&.to_f })
           .>> t(:location)
+          .>> t(:add_field, 'price_range', ->(s) { parse_min_price(s.dig('room_data')) })
+          .>> t(:add_field, 'aggregate_rating', ->(s) { parse_rating(s) })
           .>> t(:load_category, 'booking_hotel_types', external_source_id, ->(s) { 'Booking.com - HotelTypes - ' + s&.dig('hotel_data', 'hotel_type_id').to_s })
           .>> t(:add_field, 'booking_hotel_facility_types', ->(s) { load_hotel_facilities(s&.dig('hotel_data', 'hotel_facilities'), external_source_id) })
           .>> t(:add_links, 'image', DataCycleCore::Thing, external_source_id, ->(s) { s&.dig('hotel_data', 'hotel_photos')&.map { |item| item.dig('url_original').split('/').last } || [] })
@@ -40,12 +42,36 @@ module DataCycleCore
           .>> t(:strip_all)
         end
 
+        def self.booking_to_article(external_source_id)
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { "hotel_important_information:#{s.dig('hotel_id')}" })
+          .>> t(:add_field, 'name', ->(*) { 'Wichtige Informationen' })
+          .>> t(:add_field, 'text', ->(s) { s.dig('hotel_data', 'hotel_important_information') })
+          .>> t(:add_link, 'about', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s.dig('hotel_id')) })
+          .>> t(:strip_all)
+        end
+
         def self.load_hotel_facilities(facilities, external_source_id)
           return if facilities.blank?
           DataCycleCore::Classification.where(
             external_source_id: external_source_id,
             external_key: facilities.map { |data| 'Booking.com - HotelFacilityTypes - ' + data['hotel_facility_type_id'].to_s }
           ).ids
+        end
+
+        def self.parse_rating(s)
+          return [] if s.dig('hotel_data', 'number_of_reviews').blank? || s.dig('hotel_data', 'review_score').blank?
+          [{ 'rating_count' => s.dig('hotel_data', 'number_of_reviews')&.to_i,
+             'rating_value' => s.dig('hotel_data', 'review_score')&.to_f }]
+        end
+
+        def self.parse_min_price(s)
+          return if s.blank?
+          price = s.map { |room_data| room_data.dig('room_info', 'min_price')&.to_f }
+            .compact
+            .select(&:positive?)
+            .min
+          "ab € #{price}" if price.present?
         end
       end
     end

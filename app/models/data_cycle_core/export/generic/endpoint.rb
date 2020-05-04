@@ -9,7 +9,7 @@ module DataCycleCore
         end
 
         def initialize(**options)
-          @host = format(options.dig(:host), dockerhost: `ip route show`[/default.*/][/\d+\.\d+\.\d+\.\d+/].prepend('http://'))
+          @host = options.dig(:host)
           @token = options.dig(:token)
         end
 
