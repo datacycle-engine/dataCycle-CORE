@@ -26,7 +26,7 @@ module DataCycleCore
           end
 
           def thumbnail_url(**args)
-            DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url || args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key))
+            args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key)) || DataCycleCore::Video.find_by(id: args.dig(:computed_parameters)&.first)&.file&.thumb_preview&.url
           end
 
           def meta_value(video_id, path)
