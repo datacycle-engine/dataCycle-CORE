@@ -32,9 +32,15 @@ module DataCycleCore
           .>> t(:add_field, 'thumbnail_url', ->(s) { s.dig('quality_512', 'permalink', '#cdata-section') })
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
-          .>> t(:add_link, 'eyebase_lizenz', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Lizenz - #{s.dig('field_227', '#cdata-section')}" if s.dig('field_227', '#cdata-section').present? })
-          .>> t(:add_link, 'eyebase_folder', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Ordner - #{s.dig('folder').last['path']}" if s.dig('folder').last['path'].present? })
-          .>> t(:add_link, 'status_eyebase', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Status - #{s.dig('color', '#cdata-section')}" if s.dig('color', '#cdata-section').present? })
+          .>> t(:add_link, 'eyebase_lizenz', DataCycleCore::Classification, external_source_id, lambda { |s|
+            s.dig('field_227', '#cdata-section').then { |v| v.nil? ? nil : "Eyebase - Lizenz - #{v}" }
+          })
+          .>> t(:add_link, 'eyebase_folder', DataCycleCore::Classification, external_source_id, lambda { |s|
+            s.dig('folder', -1, 'path').then { |v| v.nil? ? nil : "Eyebase - Ordner - #{v}" }
+          })
+          .>> t(:add_link, 'status_eyebase', DataCycleCore::Classification, external_source_id, lambda { |s|
+            s.dig('color', '#cdata-section').then { |v| v.nil? ? nil : "Eyebase - Status - #{v}" }
+          })
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
           .>> t(:compact)
           .>> t(:strip_all)
