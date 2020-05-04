@@ -31,6 +31,7 @@ module DataCycleCore
           required(:'dct:modified').value(:date_time)
           optional(:'dct:deleted').value(:date_time)
           optional(:'dct:description').value(:string)
+          optional(:url).value(:string)
           optional(:'skos:inScheme').hash(DEFAULT_HEADER)
           optional(:'skos:topConceptOf').hash(DEFAULT_HEADER)
           optional(:'skos:broader').hash(DEFAULT_HEADER)

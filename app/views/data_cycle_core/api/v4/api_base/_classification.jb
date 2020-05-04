@@ -77,6 +77,7 @@ if options[:full]
     'dc:entityUrl' => uri,
     'skos:prefLabel' => render_pref_label(content, options[:languages], render_present_language_only),
     'dct:description' => render_description(content, options[:languages], render_present_language_only),
+    'url' => content.uri,
     'skos:inScheme' => render_classification('skos:inScheme', 'classification_tree', scheme, options),
     'skos:topConceptOf' => concept_ancestors.size.positive? ? nil : render_classification('skos:topConceptOf', 'classification_tree', scheme, options),
     'skos:broader' => concept_ancestors.size.positive? ? render_classification('skos:broader', 'classification', concept_ancestors&.first, options) : nil,
