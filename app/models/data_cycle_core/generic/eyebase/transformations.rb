@@ -33,7 +33,7 @@ module DataCycleCore
           .>> t(:add_field, 'keywords_eyebase', ->(s) { parse_keywords(s) })
           .>> t(:tags_to_ids, 'keywords_eyebase', external_source_id, 'Eyebase - Tag - ')
           .>> t(:add_link, 'eyebase_lizenz', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Lizenz - #{s.dig('field_227', '#cdata-section')}" if s.dig('field_227', '#cdata-section').present? })
-          .>> t(:add_link, 'eyebase_folder', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Ordner - #{s.dig('ordnerstruktur', '#cdata-section')}" if s.dig('ordnerstruktur', '#cdata-section').present? })
+          .>> t(:add_link, 'eyebase_folder', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Ordner - #{s.dig('folder').last['path']}" if s.dig('folder').last['path'].present? })
           .>> t(:add_link, 'status_eyebase', DataCycleCore::Classification, external_source_id, ->(s) { "Eyebase - Status - #{s.dig('color', '#cdata-section')}" if s.dig('color', '#cdata-section').present? })
           .>> t(:reject_keys, ['quality_1', 'quality_512'])
           .>> t(:compact)
