@@ -9,7 +9,7 @@ module DataCycleCore
 
           "DataCycleCore::Api::#{api_version.classify}::ContentsController".safe_constantize&.render(
             assigns: try("common_data_#{api_version}", utility_object, data),
-            template: "data_cycle_core/api/#{api_version}/contents/show",
+            template: "data_cycle_core/api/#{api_version}/webhooks/default",
             layout: false
           )
         end
@@ -19,7 +19,7 @@ module DataCycleCore
             content: data,
             id: data.id,
             api_version: '4',
-            language: data.try(:translated_locales)&.map(&:to_s) || [I18n.locale.to_s],
+            language: I18n.available_locales.map(&:to_s),
             include_parameters: utility_object.external_system.config.dig('push_config', name.demodulize.underscore, 'include_parameters') || utility_object.external_system.config.dig('push_config', 'include_parameters') || [],
             fields_parameters: utility_object.external_system.config.dig('push_config', name.demodulize.underscore, 'fields_parameters') || utility_object.external_system.config.dig('push_config', 'fields_parameters') || [],
             token: utility_object.external_system.credentials.dig('token')

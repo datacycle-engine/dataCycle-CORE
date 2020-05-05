@@ -224,12 +224,19 @@ footer {
     border-bottom: 0px;
     margin-top: 1rem;
     font-size: 0.9rem;
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: center;
     .external-connection {
       position: relative;
-      display: inline-block;
       margin: 0 1rem;
-      > * {
-        vertical-align: middle;
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+      justify-content: center;
+      .external-link {
+        margin-left: 0.5rem;
       }
       .external-link-icon {
         vertical-align: middle;
