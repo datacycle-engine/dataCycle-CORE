@@ -944,6 +944,7 @@ de:
       long: '%e. %B %Y'
       short: '%e. %b'
       full: '%A, %e. %B %Y'
+      edit: '%d.%m.%Y'
     month_names:
       -
       - Januar
