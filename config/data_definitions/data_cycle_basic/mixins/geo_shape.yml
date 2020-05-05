@@ -2,4 +2,19 @@
 - :data:
     :name: geo_shape
     :type: mixin
-    :properties: ~
+    :properties:
+      :tour:
+        :label: Route
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :disabled: false
+          :v4:
+            :name: line
+            :transformation:
+              :method: nest
+              :name: geo
+              :type: GeoShape

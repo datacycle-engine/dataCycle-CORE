@@ -21,9 +21,9 @@ module DataCycleCore
           {
             resource: utility_object.external_system.credentials.dig('resource'),
             id: data.id,
-            lat: data.tour&.points&.first&.y,
-            lng: data.tour&.points&.first&.x,
-            points: data.tour&.points&.map { |p| [p.y, p.x] }&.to_json,
+            lat: data.try(:tour)&.points&.first&.y,
+            lng: data.try(:tour)&.points&.first&.x,
+            points: data.try(:tour)&.points&.map { |p| [p.y, p.x] }&.to_json,
             data: content_json
           }
         end

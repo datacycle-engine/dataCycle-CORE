@@ -55,7 +55,7 @@ module DataCycleCore
         def self.extract_data(_options, raw_data)
           {
             external_key: "Eyebase - Ordner - #{raw_data.dig('path')}",
-            name: raw_data.dig('path')
+            name: raw_data.dig('name')
           }
         end
       end

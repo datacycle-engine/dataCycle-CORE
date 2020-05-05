@@ -8,6 +8,12 @@
     margin: 0 0.1rem;
     color: $black;
     border-bottom: 1px solid $medium-gray;
+    .edit-user-link {
+      width: 100%;
+    }
+    .copy-to-clipboard {
+      font-size: 0.9rem;
+    }
     a {
       color: $black;
       outline-width: 0;
@@ -16,6 +22,10 @@
       align-items: center;
     }
     .row {
+      display: flex;
+      flex-flow: row nowrap;
+      align-items: center;
+
       &:not(:first-child) {
         padding-left: 2rem;
       }
