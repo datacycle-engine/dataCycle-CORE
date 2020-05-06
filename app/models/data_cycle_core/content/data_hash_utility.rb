@@ -27,7 +27,7 @@ module DataCycleCore
 
       def get_validity_range(validity_hash)
         from, to = get_validity_values(validity_hash)
-        ((from.try(:in_time_zone) || Time::LONG_AGO)..(to.try(:in_time_zone) || Float::INFINITY))
+        ((from || Time::LONG_AGO)..(to || Float::INFINITY))
       end
 
       def get_validity_values(validity_hash)
@@ -37,9 +37,9 @@ module DataCycleCore
         from = validity_hash['valid_from'] if validity_hash && validity_hash['valid_from']
         to = validity_hash['valid_until'] if validity_hash && validity_hash['valid_until']
 
-        from = from.blank? ? nil : from.to_datetime
+        from = from.blank? ? nil : from.to_datetime&.in_time_zone&.beginning_of_day
         from = nil if from.present? && from < Time.zone.local(1980, 1, 1, 0, 0)
-        to = to.blank? ? nil : to.to_datetime
+        to = to.blank? ? nil : to.to_datetime&.in_time_zone&.end_of_day
         to = nil if to.present? && to > Time.zone.local(9999, 1, 1, 0, 0)
 
         [from, to]
