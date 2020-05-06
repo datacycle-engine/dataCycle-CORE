@@ -33,17 +33,19 @@
   <div class="schedule-editor">
     <div class="daterange schedule-range">
       <div class="form-element start">
+        <% full_day = value&.dig(:duration).to_i.positive? && value&.dig(:duration) % 1.day == 0 %>
+
         <%= label_tag "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}" do %>
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('schedule.dtstart', locale: DataCycleCore.ui_language) %>
         <% end %>
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][start_time][time]",
-            value&.dig(:start_time, :time).blank? ? nil : l(value&.dig(:start_time, :time)&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language),
+            value&.dig(:start_time, :time).blank? ? nil : l(value&.dig(:start_time, :time)&.in_time_zone.try(full_day ? :to_date : :to_datetime), format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", readonly: true %>
         <% else %>
-          <%= datetime_field_tag "#{key}[#{index}][start_time][time]", value&.dig(:start_time, :time)&.in_time_zone, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", data: { type: 'datepicker', disable_time: value&.dig(:duration) == 1.day } %>
+          <%= datetime_field_tag "#{key}[#{index}][start_time][time]", value&.dig(:start_time, :time)&.in_time_zone, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][start_time][time]")}", data: { type: 'datepicker', disable_time: full_day } %>
         <% end %>
       </div>
 
@@ -52,19 +54,22 @@
           <%= content_tag(:i, nil, class: 'fa fa-ban', aria_hidden: true) if readonly %>
           <%= t('schedule.dtend', locale: DataCycleCore.ui_language) %>
         <% end %>
+
+        <% end_time = full_day ? value&.dig(:start_time, :time)&.in_time_zone&.+(value&.dig(:duration).to_i)&.beginning_of_day&.-(1.second)&.to_date : value&.dig(:start_time, :time)&.in_time_zone&.+(value&.dig(:duration).to_i) %>
+
         <% if readonly %>
           <%= text_field_tag "#{key}[#{index}][end_time][time]",
-            value&.dig(:end_time, :time).blank? ? (value&.dig(:rrules, 0, :until).blank? ? nil : l(value&.dig(:rrules, 0, :until).in_time_zone, format: :edit, locale: DataCycleCore.ui_language)) : l(value&.dig(:end_time, :time)&.in_time_zone, format: :edit, locale: DataCycleCore.ui_language),
+            end_time.blank? ? nil : l(end_time, format: :edit, locale: DataCycleCore.ui_language),
             class: 'read-only date',
             id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", readonly: true %>
         <% else %>
-          <%= datetime_field_tag "#{key}[#{index}][end_time][time]", value&.dig(:end_time, :time)&.in_time_zone || value&.dig(:rrules, 0, :until)&.in_time_zone, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", data: { type: 'datepicker', disable_time: value&.dig(:duration) == 1.day } %>
+          <%= datetime_field_tag "#{key}[#{index}][end_time][time]", end_time, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][end_time][time]")}", data: { type: 'datepicker', disable_time: full_day } %>
         <% end %>
       </div>
 
       <div class="fullday">
-        <%= hidden_field_tag "#{key}[#{index}][full_day]", value&.dig(:duration) == 1.day ? '1' : nil if readonly %>
-        <%= check_box_tag "#{key}[#{index}][full_day]", '1', value&.dig(:duration) == 1.day, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][full_day]")}", disabled: readonly %>
+        <%= hidden_field_tag "#{key}[#{index}][full_day]", full_day ? '1' : nil if readonly %>
+        <%= check_box_tag "#{key}[#{index}][full_day]", '1', full_day, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id("#{key}[#{index}][full_day]")}", disabled: readonly %>
         <%= label_tag "#{key}[#{index}][full_day]", t('schedule.full_day', locale: DataCycleCore.ui_language) %>
       </div>
     </div>

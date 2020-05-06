@@ -131,6 +131,7 @@ namespace :data_cycle_core do
           end
         end
         unless cmd.nil?
+          ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
           Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
           Rake::Task['db:drop'].invoke
           Rake::Task['db:create'].invoke
@@ -148,7 +149,7 @@ namespace :data_cycle_core do
     desc 'remove all active database connections'
     task clear_connections: :environment do
       environments = [Rails.env]
-      environments << 'test' if Rails.env.development?
+      environments.unshift('test') if Rails.env.development?
 
       ActiveRecord::Base.configurations.slice(*environments).each_value do |db|
         ActiveRecord::Base.establish_connection(db)
@@ -167,10 +168,7 @@ namespace :data_cycle_core do
       sh "mkdir -p db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/"
       sh "mv tmp/dev_db.dump db/backups/#{ENV.fetch('RAILS_ENV', 'development')}/dev_db.dump"
 
-      ENV['DISABLE_DATABASE_ENVIRONMENT_CHECK'] = '1'
-
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:dump"].invoke
-      Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:clear_connections"].invoke
       Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:db:restore"].invoke('dev_db.dump')
 
       if ENV.fetch('RAILS_ENV', 'development') != 'development'
