@@ -34,6 +34,16 @@ module DataCycleCore
       image
     end
 
+    def create_schedule(dtstart, dtend, duration)
+      schedule = DataCycleCore::Schedule.new
+      dtstart = dtstart
+      dtend = dtend
+      schedule.schedule_object = IceCube::Schedule.new(dtstart, { duration: duration.to_i }) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(dtstart.hour).until(dtend))
+      end
+      schedule
+    end
+
     test 'small helper functions' do
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').limit(1).count)
       assert_equal(1, DataCycleCore::Filter::Search.new([:de, :en]).fulltext_search('XYZ').take(1).count)
@@ -148,8 +158,23 @@ module DataCycleCore
       assert_equal(2, items.count)
     end
 
+    test 'test query for event_schedule' do
+      event = create_content('Event', { name: 'DDD2' })
+      event.set_data_hash(data_hash: { event_schedule: [{
+        'start_time' => {
+          'time' => DateTime.current,
+          'zone' => 'Vienna'
+        },
+        'rtimes' => [],
+        'duration' => 1.hour.to_i
+      }] }, partial_update: true)
+
+      items = DataCycleCore::Filter::Search.new(:de).schedule_search(Date.current, Date.current)
+      assert_equal(1, items.count)
+    end
+
     test 'test query for inactive items' do
-      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: Date.current.end_of_day })
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: DateTime.current.end_of_day })
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: (Date.current + 3.weeks).end_of_day })

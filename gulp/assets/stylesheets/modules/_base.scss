@@ -1376,7 +1376,10 @@ a[data-toggle] {
         top: 0;
         right: 0;
         float: right;
-        vertical-align: middle;
+        display: flex;
+        flex-flow: row nowrap;
+        align-items: center;
+        justify-content: flex-end;
 
         > * {
           margin-left: 0.3rem;
