@@ -13,8 +13,6 @@
         :type: string
         :storage_location: column
         :search: true
-        :validations:
-          :required: true
         :normalize:
           :id: forename
           :type: forename
@@ -23,8 +21,6 @@
         :type: string
         :storage_location: column
         :search: true
-        :validations:
-          :required: true
         :normalize:
           :id: surname
           :type: surname
