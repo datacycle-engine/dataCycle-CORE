@@ -7,15 +7,15 @@ module DataCycleCore
         def in_schedule(value = nil, mode = nil)
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
-          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'event_schedule')
+          schedule_search(from_date, to_date, 'event_schedule')
         end
 
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
           @joined_schedule = true
 
-          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
-          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
+          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
+          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
           sub_select = Arel::SelectManager.new(schedule).where(
             (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
             .and(
@@ -88,7 +88,8 @@ module DataCycleCore
           from_date, to_date = date_from_filter_object(value, mode)
 
           date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND upper(things.validity_range) <@ ?::tstzrange', date_range])
+          # "interval 1 second" is required because upper(RANGE) 01-01-2000 23:59:59 in Ruby is 02-01-2000 00:00:00 in Postgresql
+          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND (upper(things.validity_range) - interval \'1 second\') <@ ?::tstzrange', date_range])
 
           reflect(
             @query.where(query_string)
