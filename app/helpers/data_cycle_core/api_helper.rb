@@ -182,7 +182,7 @@ module DataCycleCore
         else
           { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }
         end
-      }.reject(&:blank?).inject(&:merge)
+      }.reject(&:blank?).inject(&:merge) || {}
     end
   end
 end
