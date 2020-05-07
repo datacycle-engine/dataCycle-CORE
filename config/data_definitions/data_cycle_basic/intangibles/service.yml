@@ -156,8 +156,8 @@
                 - Organisation
       :offers:
         :label: Angebote
-        :type: linked
-        :template_name: Offer
+        :type: embedded
+        :template_name: Angebot
       # :potentialAction:
       #   :label: Buchungs-Url
       #   :type: object
