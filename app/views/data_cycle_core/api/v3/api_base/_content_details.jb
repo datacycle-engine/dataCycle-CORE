@@ -20,20 +20,8 @@ json.merge! render 'content_properties', content: content, options: options
 
 json.merge! render 'combined_properties', content: content, options: options
 
-json_overlay = {}
-json_overlay.merge! render 'overlay_properties', content: content, options: options if content.content_type?('entity')
-
-if json_overlay.key?('dataCycleProperty')
-  json['dataCycleProperty'].merge! json_overlay['dataCycleProperty'] if json_overlay.dig('dataCycleProperty').present?
-  json_overlay.delete('dataCycleProperty')
-end
-
-if json_overlay.key?('additionalProperty')
-  json['additionalProperty'] += json_overlay['additionalProperty'] if json_overlay.dig('additionalProperty').present?
-  json_overlay.delete('additionalProperty')
-end
-
-json.merge! json_overlay
+json_overlay = render 'overlay_properties', content: content, options: options if content.content_type?('entity')
+json.merge! merge_overlay(json, json_overlay) if json_overlay.present?
 
 json.merge! render 'external', content: content if content.content_type == 'entity' && (content.external? || content.synch?)
 
