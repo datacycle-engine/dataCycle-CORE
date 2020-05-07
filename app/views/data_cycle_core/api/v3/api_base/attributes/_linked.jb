@@ -8,8 +8,9 @@ if data.present?
   key_new = definition.dig('api', 'name') || key.camelize(:lower)
   # v1
   json[key_new] = data.map do |item|
+    @linked_depth += 1
     linked_json = {}
-    if @include_parameters.include?('linked')
+    if @include_parameters.include?('linked') && @linked_depth < 3
       @duplicate_linked_in_path ||= []
       next if @duplicate_linked_in_path.include?(item.id)
       @duplicate_linked_in_path << item.id
@@ -22,6 +23,7 @@ if data.present?
     else
       linked_json.merge! render 'content_header', content: item, options: options.merge({ header_type: :linked })
     end
+    @linked_depth -= 1
     linked_json
   end
 
