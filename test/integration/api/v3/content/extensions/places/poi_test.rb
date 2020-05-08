@@ -96,9 +96,13 @@ module DataCycleCore
                 overlay_image = DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: image_data_hash)
 
                 data_hash = {
+                  'name' => 'original_name',
+                  'description' => 'original_description',
+                  'text' => 'original_text',
                   'overlay' => [{
                     'name' => 'overlay_name',
                     'description' => '<p>overlay_description</p>',
+                    'text' => 'overlay_text',
                     'image' => [overlay_image.id]
                   }]
                 }
@@ -116,6 +120,8 @@ module DataCycleCore
                 # content data
                 assert_equal(data_hash.dig('overlay').first.dig('name'), json_data.dig('name'))
                 assert_equal(data_hash.dig('overlay').first.dig('description'), json_data.dig('description'))
+                assert_equal(1, json_data.dig('additionalProperty').size)
+                assert_equal(data_hash.dig('overlay').first.dig('text'), json_data.dig('additionalProperty').first.dig('value'))
                 assert_equal(overlay_image.id, json_data.dig('photo').first.dig('identifier'))
               end
 

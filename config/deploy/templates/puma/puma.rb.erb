@@ -33,7 +33,7 @@ before_fork do
 
   PumaWorkerKiller.config do |config|
     config.ram = <%= Integer(fetch(:puma_max_memory, 4096)) %> # mb
-    config.frequency = 3600 # seconds
+    config.frequency = <%= Integer(fetch(:puma_worker_frequency, 3600)) %> # seconds
     config.percent_usage = 0.9
     config.rolling_restart_frequency = <%= fetch(:puma_rolling_restart_frequency, false) %>
   end

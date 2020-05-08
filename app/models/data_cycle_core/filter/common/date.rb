@@ -16,6 +16,9 @@ module DataCycleCore
 
           from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
           to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
+          occurrence_from = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(from&.to_date)
+          occurrence_to = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(to&.to_date)
+
           sub_select = Arel::SelectManager.new(schedule).where(
             (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
             .and(
@@ -49,7 +52,7 @@ module DataCycleCore
                         sub_select.dup.where(
                           in_range(
                             tstzrange(from_node, to_node),
-                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : from_node.to_sql}, #{to.blank? ? 'schedules.dtend' : to_node.to_sql})"))
+                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : occurrence_from.to_sql}, #{to.blank? ? 'schedules.dtend' : occurrence_to.to_sql})"))
                           )
                         )
                       ),

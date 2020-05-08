@@ -173,5 +173,16 @@ module DataCycleCore
       links[:next] = object_url.call(common_params.merge(page: { number: contents.next_page, size: contents.limit_value })) if contents.next_page
       links
     end
+
+    def merge_overlay(data, overlay)
+      overlay.map { |key, value|
+        next if value.blank?
+        if data[key].blank? || !key.in?(['dataCycleProperty', 'additionalProperty'])
+          { key => value }
+        else
+          { key => data[key].reject { |item| item.dig('identifier').in?(value.map { |i| i.dig('identifier') }) } + overlay[key] }
+        end
+      }.reject(&:blank?).inject(&:merge) || {}
+    end
   end
 end

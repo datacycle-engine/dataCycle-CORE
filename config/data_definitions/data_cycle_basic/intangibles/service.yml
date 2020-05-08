@@ -161,7 +161,7 @@
                 - Organisation
       :offers:
         :label: Angebote
-        :type: linked
+        :type: embedded
         :template_name: Angebot
       # :potentialAction:
       #   :label: Buchungs-Url
