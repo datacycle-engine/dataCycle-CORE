@@ -32,7 +32,7 @@ namespace :dc do
               I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash) }
             end
           else
-            item.set_data_hash(data_hash: item.get_data_hash)
+            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash) }
           end
 
           progressbar.increment
