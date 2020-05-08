@@ -127,6 +127,17 @@ module DataCycleCore
         )
       end
 
+      def cast_date(date)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(date),
+              Arel::Nodes::SqlLiteral.new('date')
+            )
+          ]
+        )
+      end
+
       def cast_geography(geom)
         Arel::Nodes::NamedFunction.new(
           'CAST', [
