@@ -35,6 +35,30 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_facilities_accommodations:
+        :label: Feratel - Merkmale - Unterkünfte
+        :type: classification
+        :tree_label: Feratel - Merkmale - Unterkünfte
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_facilities_additional_services:
+        :label: Feratel - Merkmale - Services
+        :type: classification
+        :tree_label: Feratel - Merkmale - Services
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
+      :feratel_facilities_events:
+        :label: Feratel - Merkmale - Events
+        :type: classification
+        :tree_label: Feratel - Merkmale - Events
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :feratel_types:
         :label: Feratel - Infrastrukturtypen
         :type: classification

@@ -9,6 +9,10 @@ module DataCycleCore
         end
 
         def self.to_local_business(external_source_id)
+          # .>> t(:add_links, 'facility_groups_additional_service', DataCycleCore::Classification, external_source_id, lambda { |s|
+          #                                                                                                              binding.pry
+          #                                                                                                              [s&.dig('Details', 'MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || []
+          #                                                                                                            })
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
@@ -32,6 +36,13 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'DataOwner')).hexdigest}"] : [] })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
+          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, lambda { |s|
+                                                                                                                           # binding.pry
+                                                                                                                           [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
+                                                                                                                             binding.pry
+                                                                                                                             "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
+                                                                                                                           end || []
+                                                                                                                         })
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Details', 'MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'makes_offer', ->(s) { load_offers(s, external_source_id) })
           .>> t(:reject_keys, ['Link', 'Details', 'CustomAttributes', 'QualityDetails'])
@@ -70,6 +81,13 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_additional_service_type', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'AdditionalServiceTypes', 'Item'))&.map { |type| type.dig('Id')&.downcase }&.compact.presence || [] })
           .>> t(:add_links, 'feratel_guest_card_classifications', DataCycleCore::Classification, external_source_id, ->(s) { Array.wrap(s&.dig('Details', 'GuestCardClassificationId')&.downcase)&.compact.presence || [] })
+          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, lambda { |sii|
+                                                                                                                           # binding.pry
+                                                                                                                           [sii&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
+                                                                                                                             # binding.pry
+                                                                                                                             "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
+                                                                                                                           end || []
+                                                                                                                         })
           .>> t(:add_field, 'hours_available', ->(s) { load_schedules(s.dig('Details')) }) # .>> t(:add_field, 'hours_available', ->(s) { load_event_schedules(s.dig('Details')) })
           .>> t(:strip_all)
           .>> t(:compact)
@@ -133,6 +151,7 @@ module DataCycleCore
           .>> t(:add_links, 'stars', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Stars')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('DataOwner')).hexdigest}"] : [] })
           .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
+          .>> t(:add_links, 'feratel_facilities_accomodations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
@@ -252,7 +271,13 @@ module DataCycleCore
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Towns', 'Item', 'Id')].reject(&:blank?) })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Active')) })
           .>> t(:add_field, 'connected_entries', ->(s) { s.dig('ConnectedEntries', 'ConnectedEntry').is_a?(Hash) ? [s.dig('ConnectedEntries', 'ConnectedEntry')] : s.dig('ConnectedEntries', 'ConnectedEntry') })
-          .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}" } || [] })
+          .>> t(:add_links, 'feratel_facilities', DataCycleCore::Classification, external_source_id, lambda { |s|
+                                                                                                       # binding.pry
+                                                                                                       [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
+                                                                                                         binding.pry
+                                                                                                         "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
+                                                                                                       end || []
+                                                                                                     })
           .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventServiceProvider' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:add_links, 'connected_location', DataCycleCore::Thing, external_source_id, ->(s) { s.dig('connected_entries').select { |c| c['Type'] == 'EventInfrastructure' }.map { |c| c['Id'] } }, ->(s) { s.dig('connected_entries').present? })
           .>> t(:merge_array_values, 'content_location', 'connected_location')
@@ -338,6 +363,13 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_product_type', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Type').present? ? ["Feratel - Produktart - #{s&.dig('Details', 'Type')}"] : [] })
+          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, lambda { |s|
+                                                                                                                           binding.pry
+                                                                                                                           [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
+                                                                                                                             binding.pry
+                                                                                                                             "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
+                                                                                                                           end || []
+                                                                                                                         })
           .>> t(:strip_all)
         end
 
