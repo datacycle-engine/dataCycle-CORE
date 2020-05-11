@@ -8,6 +8,7 @@ module DataCycleCore
         before_action :prepare_url_parameters
 
         ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :deletedAt].freeze
+        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
 
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
@@ -17,7 +18,7 @@ module DataCycleCore
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:deletedAt)
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
-
+          @classification_tree_labels = apply_ordering(@classification_tree_labels)
           @classification_tree_labels = apply_paging(@classification_tree_labels)
         end
 
@@ -42,7 +43,8 @@ module DataCycleCore
               @classification_aliases = apply_filters(@classification_aliases, filter)
             end
 
-            @classification_aliases = apply_paging(@classification_aliases.order(:internal_name))
+            @classification_aliases = apply_ordering(@classification_aliases)
+            @classification_aliases = apply_paging(@classification_aliases)
           else
             @classification_tree_label = nil
           end
@@ -59,7 +61,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          super + [:id, :include, :fields, :format, :language, :classification_id] + [permitted_filter_parameters]
+          super + [:id, :include, :fields, :format, :language, :classification_id, :sort] + [permitted_filter_parameters]
         end
 
         def permitted_filter_parameters
@@ -76,8 +78,8 @@ module DataCycleCore
 
         private
 
-        def apply_filters(c, f)
-          f.each do |attribute_key, operator|
+        def apply_filters(query, filter)
+          filter.each do |attribute_key, operator|
             attribute_path = case attribute_key
                              when :modifiedAt
                                'updated_at'
@@ -89,15 +91,34 @@ module DataCycleCore
                                next
                              end
             operator.each do |k, v|
-              query_string = apply_query_string(v, "#{c.table.name}.#{attribute_path}")
+              query_string = apply_query_string(v, "#{query.table.name}.#{attribute_path}")
               if k == :in
-                c = c.where(query_string)
+                query = query.where(query_string)
               elsif k == :notIn
-                c = c.where.not(query_string)
+                query = query.where.not(query_string)
               end
             end
           end
-          c
+          query
+        end
+
+        def apply_ordering(query)
+          order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
+            if sort.starts_with?('-')
+              transform_sort_param(sort[1..-1], 'DESC')
+            elsif sort.starts_with?('+')
+              transform_sort_param(sort[1..-1], 'ASC')
+            else
+              transform_sort_param(sort, 'ASC')
+            end
+          }&.reject(&:blank?)
+          order_query = ['updated_at ASC'] if order_query.blank?
+          query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+        end
+
+        def transform_sort_param(key, order)
+          return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
+          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
         end
 
         def apply_query_string(values, attribute_path)
