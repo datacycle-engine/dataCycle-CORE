@@ -701,7 +701,7 @@ module DataCycleCore
                 schedule_object = IceCube::Schedule.new(dtstart, options) do |s|
                   s.add_recurrence_rule(rrule)
                 end
-                res << schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact
+                res << schedule_object.to_hash.merge(dtstart: dtstart, dtend: dtend).compact if schedule_object.all_occurrences.size.positive?
               end
             else
               res << {

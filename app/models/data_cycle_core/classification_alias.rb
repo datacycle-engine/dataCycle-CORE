@@ -63,7 +63,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
-    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'description_i18n', 'assignable', 'internal']).present? }
+    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal']).present? || classification_groups.map(&:changed?).inject(&:|) }
 
     delegate :visible?, to: :classification_tree_label
 
@@ -213,8 +213,10 @@ module DataCycleCore
     end
 
     def invalidate_cache
-      primary_classification&.things&.ids&.uniq&.each do |item_id|
-        Rails.cache.delete_matched("*data_cycle_core/thing_#{item_id}*")
+      linked_contents.map(&:content_data).each do |item|
+        item.search_languages(true)
+        # TODO: move to cache warmup feature
+        Rails.cache.delete_matched("*data_cycle_core/thing_#{item.id}*")
       end
     end
   end

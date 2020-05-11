@@ -41,6 +41,8 @@
         :type: embedded
         :template_name: Ergänzende Information
         :translated: true
+        :api:
+          :name: subject_of
       :content_classifications:
         :type: mixin
         :name: content_classifications
