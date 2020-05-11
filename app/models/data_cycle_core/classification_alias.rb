@@ -188,6 +188,10 @@ module DataCycleCore
       (Array(locale).map(&:to_sym).sort_by { |t| I18n.available_locales.index t }.push(I18n.locale) & translated_locales).first || translated_locales.min_by { |t| I18n.available_locales.index t }
     end
 
+    def external_keys
+      classifications.pluck(:external_key)&.join(', ')
+    end
+
     private
 
     def set_internal_data

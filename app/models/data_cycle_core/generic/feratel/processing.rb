@@ -15,9 +15,7 @@ module DataCycleCore
               template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
               data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
-                DataCycleCore::Generic::Feratel::Transformations
-                .feratel_to_image
-                .call(image_hash)
+                DataCycleCore::Generic::Feratel::Transformations.feratel_to_image(utility_object.external_source.id).call(image_hash)
               ).with_indifferent_access
             )
           end

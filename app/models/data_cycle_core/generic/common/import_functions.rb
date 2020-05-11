@@ -399,6 +399,7 @@ module DataCycleCore
             primary_classification_alias = classification.primary_classification_alias
             primary_classification_alias.name = classification_data[:name]
             primary_classification_alias.description = classification_data[:description] if classification_data[:description].present?
+            primary_classification_alias.uri = classification_data[:uri] if classification_data[:uri].present?
             primary_classification_alias.save!
 
             classification_tree = primary_classification_alias.classification_tree
@@ -410,6 +411,7 @@ module DataCycleCore
 
           classification.name = classification_alias.internal_name # have a readable classification_name (esp. for multilanguage classification_aliases)
           classification.description = classification_data[:description] if classification_data[:description].present?
+          classification.uri = classification_data[:uri] if classification_data[:uri].present?
           classification.external_key = classification_data[:external_key]
           classification.save!
           classification_alias

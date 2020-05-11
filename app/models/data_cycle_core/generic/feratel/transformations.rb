@@ -12,6 +12,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_cc, external_source_id)
           .>> t(:rename_keys, 'Id' => 'external_key')
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Names') || s.dig('Details', 'Name') })
           .>> t(:reject_keys, ['Names', 'Name'])
@@ -109,6 +110,7 @@ module DataCycleCore
           t(:recursion, t(:is, ::Hash, t(:stringify_keys)))
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_cc, external_source_id)
           .>> t(:add_links, 'feratel_locations', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Town')&.yield_self { |town| town.is_a?(String) ? town : town['text'] } })
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
@@ -184,8 +186,9 @@ module DataCycleCore
           .>> t(:location)
         end
 
-        def self.feratel_to_image
+        def self.feratel_to_image(external_source_id)
           t(:stringify_keys)
+          .>> t(:add_cc, external_source_id)
           .>> t(:add_field, 'name', lambda { |s|
             s.dig('Names', 'Translation', 'text') || ">> NO NAME << (\##{s.dig('Id')})"
           })
@@ -234,6 +237,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:flatten_translations)
           .>> t(:flatten_texts)
+          .>> t(:add_cc, external_source_id)
           .>> t(:unwrap, 'Details')
           .>> t(:rename_keys, 'Id' => 'external_key', 'Names' => 'name')
           .>> t(:unwrap_description, ['EventHeader'])
