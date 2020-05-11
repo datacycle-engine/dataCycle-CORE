@@ -54,3 +54,11 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_facilities_events:
+        :label: Feratel - Merkmale - Events
+        :type: classification
+        :tree_label: Feratel - Merkmale - Events
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
