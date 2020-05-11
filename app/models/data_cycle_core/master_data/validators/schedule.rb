@@ -4,10 +4,24 @@ module DataCycleCore
   module MasterData
     module Validators
       class Schedule < BasicValidator
+        def keywords
+          ['valid_dates']
+        end
+
         def validate(data, template, _strict = false)
           if data.blank?
             (@error[:warning][@template_key] ||= []) << I18n.t(:no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language)
           elsif data.is_a?(::Array)
+            if template.key?('validations')
+              template['validations'].each_key do |key|
+                if keywords.include?(key)
+                  method(key).call(data, template['validations'][key])
+                else
+                  (@error[:error][@template_key] ||= []) << I18n.t(:keyword, scope: [:validation, :warnings], key: key, type: 'ScheduleArray', locale: DataCycleCore.ui_language)
+                end
+              end
+            end
+
             check_data_array(data, template)
           else
             (@error[:error][@template_key] ||= []) << I18n.t(:general, scope: [:validation, :errors, :schedule], data: data, template: template['label'], locale: DataCycleCore.ui_language)
@@ -40,6 +54,22 @@ module DataCycleCore
           return false unless date_time?(data[:time])
           return false if Time.find_zone(data[:zone]).blank?
           true
+        end
+
+        def check_valid_dates(schedule_hash)
+          schedule = DataCycleCore::Schedule.new.from_hash(schedule_hash)&.schedule_object
+
+          return if schedule.nil?
+
+          (@error[:error][@template_key] ||= []) << I18n.t(:invalid, scope: [:validation, :errors, :schedule], data: I18n.l(schedule&.start_time, locale: DataCycleCore.ui_language, format: :short), locale: DataCycleCore.ui_language) if schedule.terminating? && schedule.all_occurrences.blank?
+        end
+
+        def valid_dates(data, value)
+          return unless value
+
+          data.each do |data_item|
+            check_valid_dates(data_item)
+          end
         end
 
         def date_time_array?(data)
