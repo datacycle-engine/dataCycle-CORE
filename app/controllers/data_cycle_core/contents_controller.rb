@@ -238,11 +238,8 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash
-      end
-
       I18n.with_locale(@diff_source.first_available_locale) do
+        @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
       end
     end

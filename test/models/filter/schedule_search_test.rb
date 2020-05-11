@@ -5,6 +5,7 @@ require 'test_helper'
 module DataCycleCore
   class ScheduleSearchTest < ActiveSupport::TestCase
     def schedule_hash(start_time, rule_type = nil, until_date = nil, validations = nil)
+      rrule_values = [{ 'rule_type' => "IceCube::#{rule_type.classify}Rule", 'interval' => '1', 'until' => until_date, 'validations' => validations }] if rule_type.present?
       [{
         'start_time' => {
           'time' => start_time,
@@ -12,9 +13,7 @@ module DataCycleCore
         },
         'rtimes' => [],
         'duration' => 1.hour.to_i,
-        'rrules' => rule_type.present? ? [{
-          'rule_type' => "IceCube::#{rule_type.classify}Rule", 'interval' => '1', 'until' => until_date, 'validations' => validations
-        }] : nil
+        'rrules' => rrule_values
       }]
     end
 

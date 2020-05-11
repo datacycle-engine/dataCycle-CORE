@@ -63,7 +63,7 @@ module DataCycleCore
     has_one :statistics, class_name: 'Statistics', foreign_key: 'id' # rubocop:disable Rails/HasManyOrHasOneDependent
 
     after_update :update_primary_classification
-    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'description_i18n', 'assignable', 'internal']).present? }
+    after_update :invalidate_things_cache, if: -> { saved_changes.keys.except(['seen_at', 'updated_at', 'assignable', 'internal', 'description_i18n']).present? || classification_groups.map(&:changed?).inject(&:|) || saved_changes&.dig('description_i18n')&.uniq&.many? }
 
     delegate :visible?, to: :classification_tree_label
 
@@ -99,6 +99,10 @@ module DataCycleCore
         .flatten
         .map(&:id)
         .first
+    end
+
+    def self.classifications
+      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all&.pluck(:id) })
     end
 
     def self.with_descendants
@@ -137,9 +141,7 @@ module DataCycleCore
     end
 
     def linked_contents
-      classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
-        c.classifications.includes(:classification_contents).map(&:classification_contents)
-      }.flatten
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.ids }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.ids })).distinct
     end
 
     def ancestors
@@ -217,8 +219,10 @@ module DataCycleCore
     end
 
     def invalidate_cache
-      primary_classification&.things&.ids&.uniq&.each do |item_id|
-        Rails.cache.delete_matched("*data_cycle_core/thing_#{item_id}*")
+      linked_contents.find_each do |item|
+        item&.search_languages(true)
+        # TODO: move to cache warmup feature
+        Rails.cache.delete_matched("*data_cycle_core/thing_#{item.id}*")
       end
     end
   end
