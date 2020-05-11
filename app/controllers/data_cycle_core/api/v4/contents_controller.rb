@@ -11,6 +11,8 @@ module DataCycleCore
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
+        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
+
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
@@ -89,11 +91,26 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
+          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
             query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
           else
-            query
+            order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
+              if sort.starts_with?('-')
+                transform_sort_param(sort[1..-1], 'DESC')
+              elsif sort.starts_with?('+')
+                transform_sort_param(sort[1..-1], 'ASC')
+              else
+                transform_sort_param(sort, 'ASC')
+              end
+            }&.reject(&:blank?)
+            order_query = ['updated_at ASC'] if order_query.blank?
+            query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
           end
+        end
+
+        def transform_sort_param(key, order)
+          return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
+          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
         end
 
         def build_search_query
