@@ -101,6 +101,10 @@ module DataCycleCore
         .first
     end
 
+    def self.classifications
+      DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all&.pluck(:id) })
+    end
+
     def self.with_descendants
       query = is_a?(ActiveRecord::Relation) ? self : all
 
@@ -137,9 +141,7 @@ module DataCycleCore
     end
 
     def linked_contents
-      classifications.includes(:classification_contents).map(&:classification_contents).flatten + sub_classification_alias.includes(classifications: :classification_contents).with_descendants.map { |c|
-        c.classifications.includes(:classification_contents).map(&:classification_contents)
-      }.flatten
+      DataCycleCore::Thing.includes(:classifications).where(classifications: { id: classifications.ids }).or(DataCycleCore::Thing.includes(:classifications).where(classifications: { id: sub_classification_alias.with_descendants.classifications.ids })).distinct
     end
 
     def ancestors
@@ -213,8 +215,8 @@ module DataCycleCore
     end
 
     def invalidate_cache
-      linked_contents.map(&:content_data).each do |item|
-        item.search_languages(true)
+      linked_contents.find_each do |item|
+        item&.search_languages(true)
         # TODO: move to cache warmup feature
         Rails.cache.delete_matched("*data_cycle_core/thing_#{item.id}*")
       end
