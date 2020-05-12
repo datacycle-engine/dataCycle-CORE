@@ -2,7 +2,6 @@
 
 require 'test_helper'
 require 'json'
-# require 'v4/validation/concept'
 require 'v4/helpers/dummy_data_helper'
 require 'v4/helpers/api_helper'
 

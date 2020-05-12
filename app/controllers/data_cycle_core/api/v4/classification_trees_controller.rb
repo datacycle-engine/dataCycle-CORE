@@ -13,8 +13,8 @@ module DataCycleCore
         def index
           @classification_tree_labels = ClassificationTreeLabel.where(internal: false).visible('api')
 
-          if permitted_params.dig(:filter).present?
-            filter = permitted_params[:filter].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+          if permitted_params.dig(:filter, :attribute).present?
+            filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
             @classification_tree_labels = @classification_tree_labels.with_deleted if filter.key?(:deletedAt)
             @classification_tree_labels = apply_filters(@classification_tree_labels, filter)
           end
@@ -37,8 +37,8 @@ module DataCycleCore
               @classification_aliases = @classification_tree_label.classification_aliases
             end
 
-            if permitted_params.dig(:filter).present?
-              filter = permitted_params[:filter].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
+            if permitted_params.dig(:filter, :attribute).present?
+              filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys.select { |k, _v| ALLOWED_FILTER_ATTRIBUTES.include?(k) }
               @classification_aliases = @classification_aliases.with_deleted if filter.key?(:deletedAt)
               @classification_aliases = apply_filters(@classification_aliases, filter)
             end
@@ -68,9 +68,11 @@ module DataCycleCore
           {
             filter: [
               {
-                modifiedAt: attribute_filter_operations,
-                createdAt: attribute_filter_operations,
-                deletedAt: attribute_filter_operations
+                attribute: {
+                  modifiedAt: attribute_filter_operations,
+                  createdAt: attribute_filter_operations,
+                  deletedAt: attribute_filter_operations
+                }
               }
             ]
           }

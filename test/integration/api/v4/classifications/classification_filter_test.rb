@@ -21,6 +21,8 @@ module DataCycleCore
             sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
+          # TDOD: add tests to combine created / modified
+
           test 'api/v4/concept_schemes parameter filter[:createdAt]' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
@@ -28,9 +30,11 @@ module DataCycleCore
             tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                createdAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -40,10 +44,12 @@ module DataCycleCore
 
             params = {
               filter: {
-                createdAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -54,9 +60,11 @@ module DataCycleCore
             tree_tags.update_column(:created_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                createdAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -67,9 +75,11 @@ module DataCycleCore
             tree_tags.update_column(:created_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                createdAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -79,10 +89,12 @@ module DataCycleCore
 
             params = {
               filter: {
-                createdAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -93,9 +105,11 @@ module DataCycleCore
             tree_tags.update_column(:created_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                createdAt: {
-                  notIn: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -105,12 +119,14 @@ module DataCycleCore
 
             params = {
               filter: {
-                createdAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
-                  },
-                  notIn: {
-                    max: (Time.zone.now - 15.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    },
+                    notIn: {
+                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -127,9 +143,11 @@ module DataCycleCore
             tree_tags.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                modifiedAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -139,10 +157,12 @@ module DataCycleCore
 
             params = {
               filter: {
-                modifiedAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -153,9 +173,11 @@ module DataCycleCore
             tree_tags.update_column(:updated_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                modifiedAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -166,9 +188,11 @@ module DataCycleCore
             tree_tags.update_column(:updated_at, (Time.zone.now + 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -178,10 +202,12 @@ module DataCycleCore
 
             params = {
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -192,9 +218,11 @@ module DataCycleCore
             tree_tags.update_column(:updated_at, (Time.zone.now - 10.days)) # rubocop:disable Rails/SkipsModelValidations
             params = {
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -204,12 +232,14 @@ module DataCycleCore
 
             params = {
               filter: {
-                modifiedAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
-                  },
-                  notIn: {
-                    max: (Time.zone.now - 15.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    },
+                    notIn: {
+                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -223,9 +253,11 @@ module DataCycleCore
           test 'api/v4/concept_schemes parameter filter[:deletedAt]' do
             params = {
               filter: {
-                deletedAt: {
-                  in: {
-                    min: (Time.zone.now - 20.years).to_s(:iso8601)
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: (Time.zone.now - 20.years).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -241,9 +273,11 @@ module DataCycleCore
 
             params = {
               filter: {
-                deletedAt: {
-                  in: {
-                    max: (Time.zone.now + 20.years).to_s(:iso8601)
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      max: (Time.zone.now + 20.years).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -263,9 +297,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -276,10 +312,12 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -291,9 +329,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -305,9 +345,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -318,10 +360,12 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -333,9 +377,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                createdAt: {
-                  notIn: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    notIn: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -345,12 +391,14 @@ module DataCycleCore
 
             params = {
               filter: {
-                createdAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
-                  },
-                  notIn: {
-                    max: (Time.zone.now - 15.days).to_s(:iso8601)
+                attribute: {
+                  createdAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    },
+                    notIn: {
+                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -372,9 +420,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -385,10 +435,12 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  in: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -400,9 +452,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -414,9 +468,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -427,10 +483,12 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    min: (Time.zone.now + 5.days).to_s(:iso8601),
-                    max: (Time.zone.now + 12.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      min: (Time.zone.now + 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 12.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -442,9 +500,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                modifiedAt: {
-                  notIn: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    notIn: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -454,12 +514,14 @@ module DataCycleCore
 
             params = {
               filter: {
-                modifiedAt: {
-                  in: {
-                    max: (Time.zone.now - 5.days).to_s(:iso8601)
-                  },
-                  notIn: {
-                    max: (Time.zone.now - 15.days).to_s(:iso8601)
+                attribute: {
+                  modifiedAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    },
+                    notIn: {
+                      max: (Time.zone.now - 15.days).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -477,9 +539,11 @@ module DataCycleCore
             params = {
               id: tree_id,
               filter: {
-                deletedAt: {
-                  in: {
-                    min: (Time.zone.now - 20.years).to_s(:iso8601)
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: (Time.zone.now - 20.years).to_s(:iso8601)
+                    }
                   }
                 }
               }
@@ -494,9 +558,11 @@ module DataCycleCore
 
             params = {
               filter: {
-                deletedAt: {
-                  in: {
-                    max: (Time.zone.now + 20.years).to_s(:iso8601)
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      max: (Time.zone.now + 20.years).to_s(:iso8601)
+                    }
                   }
                 }
               }
