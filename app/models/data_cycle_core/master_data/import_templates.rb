@@ -111,20 +111,8 @@ module DataCycleCore
         schema[:properties].each do |property_name, property_value|
           # TODO: refactor: add errors + warnings
           if property_value[:type] == 'mixin'
-            if !content_set.nil? && mixins.dig(content_set.to_sym, property_value[:name].to_sym).present?
-              mixin_set = content_set.to_sym
-            elsif mixins.dig(:default, property_value[:name].to_sym).present?
-              mixin_set = :default
-            else
-              raise "mixin for #{property_value[:name]} not found".inspect
-            end
-
-            next if mixins.dig(mixin_set, property_value[:name].to_sym, :properties).blank?
-
-            mixins.dig(mixin_set, property_value[:name].to_sym, :properties).each do |key, prop|
-              new_properties[key.to_sym], sorting = add_sorting(prop, sorting)
-            end
-
+            mixin_properties, sorting = add_mixin_properties(content_set, property_value[:name].to_sym, sorting, mixins)
+            new_properties.merge!(mixin_properties)
           else
             new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
           end
@@ -133,16 +121,35 @@ module DataCycleCore
         new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_set, schema.dig(:name), :properties) || {})
       end
 
-      def self.add_sorting(hash, sorting)
-        hash[:properties] = transform_properties(schema: hash) if hash[:type] == 'object' && hash.key?(:properties).present?
-        return apply_sorting(hash, sorting), sorting + 1
+      # add mixins recursively
+      def self.add_mixin_properties(content_set, property_name, sorting, mixins)
+        mixin_properties = {}
+        if !content_set.nil? && mixins.dig(content_set.to_sym, property_name).present?
+          mixin_set = content_set.to_sym
+        elsif mixins.dig(:default, property_name).present?
+          mixin_set = :default
+        else
+          raise "mixin for #{property_name} not found".inspect
+        end
+
+        return {}, sorting if mixins.dig(mixin_set, property_name, :properties).blank?
+
+        mixins.dig(mixin_set, property_name, :properties).each do |key, prop|
+          if prop[:type] == 'mixin'
+            further_mixin_properties, sorting = add_mixin_properties(content_set, prop[:name].to_sym, sorting, mixins)
+            mixin_properties.merge!(further_mixin_properties)
+          else
+            mixin_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+          end
+        end
+
+        return mixin_properties, sorting
       end
 
-      def self.apply_sorting(hash, sorting)
-        # ignore sorting, if no editor is set
-        # hash[:sorting] = sorting unless hash.dig(:ui, :edit, :disabled).present?
+      def self.add_sorting(hash, sorting)
+        hash[:properties] = transform_properties(schema: hash) if hash[:type] == 'object' && hash.key?(:properties).present?
         hash[:sorting] = sorting
-        hash
+        return hash, sorting + 1
       end
 
       def self.validate(template)
