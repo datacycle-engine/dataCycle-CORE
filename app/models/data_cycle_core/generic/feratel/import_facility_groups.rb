@@ -16,8 +16,8 @@ module DataCycleCore
           )
         end
 
-        def self.load_root_classifications(mongo_item, locale, _options)
-          source_filter = _options.dig(:import, :source_filter)
+        def self.load_root_classifications(mongo_item, locale, options)
+          source_filter = options.dig(:import, :source_filter)
 
           aggregation_array = [
             { '$match': source_filter },
