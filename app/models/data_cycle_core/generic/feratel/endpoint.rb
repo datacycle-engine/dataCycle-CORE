@@ -983,7 +983,7 @@ module DataCycleCore
                   # xml.Documents('DateFrom' => '1980-01-01')
                   xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                   # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.Facilities('DateFrom' => '1980-01-01')
                   # xml.HandicapFacilities('DateFrom' => '1980-01-01')
                   xml.Products do
                     xml.Details('DateFrom' => '1980-01-01')
@@ -1001,7 +1001,7 @@ module DataCycleCore
                   xml.Details('DateFrom' => '1980-01-01')
                   # xml.Documents('DateFrom' => '1980-01-01')
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.Facilities('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
                     # xml.Documents('DateFrom' => '1980-01-01')
