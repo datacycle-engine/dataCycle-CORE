@@ -68,6 +68,7 @@ module DataCycleCore
                 label: key.camelize(:lower),
                 data_type: resolve_data_type(definition),
                 comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
+                comment_link: definition['tree_label'].present? ? DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.id : nil,
                 translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false,
                 embedded: definition['type'] == 'embedded'
               }

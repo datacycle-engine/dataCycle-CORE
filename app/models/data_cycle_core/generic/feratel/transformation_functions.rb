@@ -80,6 +80,16 @@ module DataCycleCore
           }.reduce(data.reject { |k, _| k == 'ContentDescriptions' }, &:merge)
         end
 
+        def self.add_cc(data, external_source_id)
+          if data.dig('CCId').present?
+            classification = DataCycleCore::Classification.where(external_source_id: external_source_id, external_key: data.dig('CCId'))
+            data = data.merge(feratel_creative_commons: classification&.ids)
+          end
+          data = data.merge(attribution_name: data.dig('CCAuthor')) if data.dig('CCAuthor').present?
+          data = data.merge(license: data.dig('CCCopyright')) if data.dig('CCCopyright').present?
+          data
+        end
+
         def self.add_service_description(data, attribute_name, description_name)
           raise ArgumentError unless data.is_a?(Hash)
 

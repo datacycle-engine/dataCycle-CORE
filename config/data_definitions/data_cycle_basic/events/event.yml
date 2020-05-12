@@ -159,6 +159,8 @@
           :disabled: true
           :v4:
             :disabled: false
+        :validations:
+          valid_dates: true
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded

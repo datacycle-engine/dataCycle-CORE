@@ -19,15 +19,15 @@
       <% value.presence&.ids&.reject {|v| objects.presence&.ids&.include?(v)}&.each_with_index do |id, index| %>
         <%= hidden_field_tag "#{key}[#{index + objects.size}][id]", id %>
       <% end %>
-      <% else %>
-        <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
+    <% else %>
+      <%= hidden_field_tag key + '[]', nil, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_default" %>
     <% end %>
 
     <div class="buttons">
       <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)) %>
-      <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button"
+        <button id="add_<%= "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>" type="button"
         class="button addContentObject" style="display: none;"><%= definition['label'] %>
-        hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
+          hinzufügen<i class="fa fa-circle-o-notch fa-spin fa-3x fa-fw"></i></button>
       <% end %>
     </div>
   </div>

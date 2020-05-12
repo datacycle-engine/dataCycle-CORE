@@ -522,6 +522,7 @@ de:
         rrule: 'RRULE format falsch für %{template} (%{data}).'
         thing_id: 'thing_id ist ein Pflichtfeld.'
         relation: 'relation ist ein Pflichtfeld.'
+        invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
       no_validation: 'Keine Validierguns-Daten angegeben.'
