@@ -32,13 +32,7 @@ module DataCycleCore
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_owners', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'DataOwner').present? ? ["OWNER:#{Digest::MD5.new.update(s&.dig('Details', 'DataOwner')).hexdigest}"] : [] })
           .>> t(:add_field, 'feratel_content_score', ->(v) { v&.dig('QualityDetails', 'ContentScore').present? ? v&.dig('QualityDetails', 'ContentScore')&.to_f : 0 })
-          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, lambda { |s|
-                                                                                                                           # binding.pry
-                                                                                                                           [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
-                                                                                                                             binding.pry
-                                                                                                                             "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
-                                                                                                                           end || []
-                                                                                                                         })
+          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_links, 'marketing_groups', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('Details', 'MarketingGroups', 'Item')]&.flatten&.reject(&:nil?)&.map { |item| item&.dig('Id')&.downcase } || [] })
           .>> t(:add_field, 'makes_offer', ->(s) { load_offers(s, external_source_id) })
           .>> t(:reject_keys, ['Link', 'Details', 'CustomAttributes', 'QualityDetails'])
