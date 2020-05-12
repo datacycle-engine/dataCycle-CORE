@@ -342,13 +342,6 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Details', 'Name') })
           .>> t(:add_field, 'feratel_status', ->(s) { load_active(s.dig('Details', 'Active')) })
           .>> t(:add_links, 'feratel_product_type', DataCycleCore::Classification, external_source_id, ->(s) { s&.dig('Details', 'Type').present? ? ["Feratel - Produktart - #{s&.dig('Details', 'Type')}"] : [] })
-          .>> t(:add_links, 'feratel_facilities_additional_services', DataCycleCore::Classification, external_source_id, lambda { |s|
-                                                                                                                           binding.pry
-                                                                                                                           [s&.dig('Facilities', 'Facility')]&.flatten&.reject(&:nil?)&.map do |item|
-                                                                                                                             binding.pry
-                                                                                                                             "#{item&.dig('Id')&.downcase} - #{item&.dig('Value')}"
-                                                                                                                           end || []
-                                                                                                                         })
           .>> t(:strip_all)
         end
 
