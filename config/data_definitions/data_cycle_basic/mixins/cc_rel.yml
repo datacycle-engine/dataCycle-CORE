@@ -59,5 +59,6 @@
         :api:
           :disabled: true
           :v4:
+            :name: 'cc:license'
             :disabled: false
             :partial: string

@@ -44,7 +44,34 @@ module DataCycleCore
         data_hash['event_schedule'] = [schedule]
         data_hash['validity_period'] = validity_period
         data_hash['offers'] = [offer]
+        data_hash['image'] = [image.id]
+        data_hash['organizer'] = [person.id]
+        data_hash['performer'] = [organization.id]
+        data_hash['content_location'] = [poi.id]
+        # TODO: add more generic way
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_attendance_mode').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
+          data_hash['event_attendance_mode'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_status').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
+          data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
+      end
+
+      def person
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
+        DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
+      end
+
+      def organization
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'v4_organization')
+        DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: data_hash, user: @user)
       end
 
       def offer
