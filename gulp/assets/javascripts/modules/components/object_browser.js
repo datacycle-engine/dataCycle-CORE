@@ -56,7 +56,7 @@ class ObjectBrowser {
     this.overlay.on('closed.zf.reveal', this.closeOverlay.bind(this));
     this.overlay.children('.items').on(
       'scroll',
-      function(event) {
+      function (event) {
         var elem = $(event.currentTarget);
         if (
           elem[0].scrollHeight - elem.scrollTop() - 200 <= elem.outerHeight() &&
@@ -68,20 +68,20 @@ class ObjectBrowser {
         }
       }.bind(this)
     );
-    this.overlay.find('.object-browser-search').on('change', function(event) {
+    this.overlay.find('.object-browser-search').on('change', function (event) {
       event.preventDefault();
       self.search = $(this).val();
       self.page = 1;
       self.loadObjects(false);
     });
-    this.overlay.find('.chosen-items-container').on('click', 'li.item', function(event) {
+    this.overlay.find('.chosen-items-container').on('click', 'li.item', function (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (self.selected != $(this).data('id')) {
         self.loadDetails($(this).data('id'));
       }
     });
-    this.overlay.children('.items').on('click', 'li.item', function(event) {
+    this.overlay.children('.items').on('click', 'li.item', function (event) {
       event.preventDefault();
       event.stopImmediatePropagation();
       if (self.selected != $(this).data('id')) {
@@ -101,15 +101,10 @@ class ObjectBrowser {
         this.removeThumbObject(event.target);
       }
     });
-    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function(event) {
+    this.overlay.find('.chosen-items-container').on('click', '.delete-thumbnail', function (event) {
       event.preventDefault();
       event.stopPropagation();
-      self.removeObject(
-        $(this)
-          .closest('li.item')
-          .data('id'),
-        event
-      );
+      self.removeObject($(this).closest('li.item').data('id'), event);
     });
     this.overlay.find('.buttons .save-object-browser').on('click', event => {
       event.preventDefault();
@@ -125,13 +120,8 @@ class ObjectBrowser {
         $(elem).remove()
       );
       this.updateChosenCounter();
-      this.overlay.find('.items li.item .reveal.media-preview').each(function() {
-        if (
-          $(this)
-            .prop('id')
-            .indexOf('overlay_') == -1
-        )
-          $(this).prop('id', 'overlay_' + $(this).prop('id'));
+      this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+        if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
       this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
         $(element).foundation();
@@ -181,6 +171,7 @@ class ObjectBrowser {
       this.limitedBy = filterItem;
 
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
+      this.removeDeletedItem();
     } else this.limitedBy = undefined;
   }
   updateLocale(e) {
@@ -314,18 +305,9 @@ class ObjectBrowser {
         .html(this.overlay.find('.chosen-items-container li.item').clone())
         .children('li.item')
         .find('.reveal.media-preview')
-        .each(function() {
-          if (
-            $(this)
-              .prop('id')
-              .indexOf('overlay_') != -1
-          )
-            $(this).prop(
-              'id',
-              $(this)
-                .prop('id')
-                .replace('overlay_', '')
-            );
+        .each(function () {
+          if ($(this).prop('id').indexOf('overlay_') != -1)
+            $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
           $(this).foundation();
         });
       this.element
@@ -333,10 +315,8 @@ class ObjectBrowser {
         .children('.object-thumbs')
         .children('li.item')
         .find('[data-tooltip]')
-        .each(function() {
-          $(this)
-            .attr('title', $(this).data('title'))
-            .foundation();
+        .each(function () {
+          $(this).attr('title', $(this).data('title')).foundation();
         });
     }
   }
@@ -346,10 +326,8 @@ class ObjectBrowser {
       this.overlay.find('.chosen-items-container').append(element);
       $(element)
         .find('[data-tooltip]')
-        .each(function() {
-          $(this)
-            .attr('title', $(this).data('title'))
-            .foundation();
+        .each(function () {
+          $(this).attr('title', $(this).data('title')).foundation();
         });
       this.overlay
         .children('.items')
@@ -377,7 +355,8 @@ class ObjectBrowser {
   }
   loadMore(loaded_ids) {
     $.ajax({
-      url: window.DATA_CYCLE_ENGINE_PATH + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
+      url:
+        window.DATA_CYCLE_ENGINE_PATH + '/' + this.content_type + '/' + this.content_id + '/load_more_linked_objects',
       method: 'GET',
       dataType: 'script',
       data: {
@@ -439,10 +418,8 @@ class ObjectBrowser {
       .find('.chosen-items-container')
       .html(this.element.find('> .media-thumbs > .object-thumbs > li.item').clone())
       .find('[data-tooltip]')
-      .each(function() {
-        $(this)
-          .attr('title', $(this).data('title'))
-          .foundation();
+      .each(function () {
+        $(this).attr('title', $(this).data('title')).foundation();
       });
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }
@@ -503,14 +480,9 @@ class ObjectBrowser {
         contentType: 'application/json'
       })
         .done(
-          function(data) {
-            this.overlay.find('.items li.item .reveal.media-preview').each(function() {
-              if (
-                $(this)
-                  .prop('id')
-                  .indexOf('overlay_') == -1
-              )
-                $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          function (data) {
+            this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+              if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
             });
           }.bind(this)
         )
@@ -560,27 +532,15 @@ class ObjectBrowser {
       })
         .done(data => {
           this.total = this.overlay.data('total');
-          this.overlay.find('.items li.item .reveal.media-preview').each(function() {
-            if (
-              $(this)
-                .prop('id')
-                .indexOf('overlay_') == -1
-            )
-              $(this).prop('id', 'overlay_' + $(this).prop('id'));
+          this.overlay.find('.items li.item .reveal.media-preview').each(function () {
+            if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
           });
           this.loading = false;
           if (
             this.overlay.children('.items').children('li.item').length < this.total &&
-            this.overlay
-              .children('.items')
-              .children('li.item')
-              .last()
-              .offset().top -
+            this.overlay.children('.items').children('li.item').last().offset().top -
               this.overlay.children('.items').offset().top <
-              this.overlay
-                .children('.items')
-                .first()
-                .outerHeight()
+              this.overlay.children('.items').first().outerHeight()
           ) {
             this.page += 1;
             this.loadObjects();
@@ -595,6 +555,7 @@ class ObjectBrowser {
     if (!this.chosen.length) return;
 
     let toRemove = this.chosen.diff(this.filteredIds());
+    console.log(toRemove);
     if (toRemove.length) {
       toRemove.forEach(item => {
         this.removeThumbObject(

@@ -19,7 +19,7 @@
         :global: true
         :ui:
           :show:
-            :content_area: header               
+            :content_area: header
       :geo:
         :type: mixin
         :name: geo
@@ -141,13 +141,13 @@
         :storage_location: value
         :validations:
           :format: float
-          :ui:
-            :edit:
-              :options:
-                :data-unit: °C
-            :show:
-              :options:
-                :data-unit: °C
+        :ui:
+          :edit:
+            :options:
+              :data-unit: °C
+          :show:
+            :options:
+              :data-unit: °C
 
 
 - :data:

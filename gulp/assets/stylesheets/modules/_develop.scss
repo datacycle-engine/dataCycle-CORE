@@ -2723,3 +2723,17 @@ button.button-prime.small.bulk-delete-button {
   border: 1px solid $light-gray;
   margin-bottom: 2rem;
 }
+
+.flatpickr-wrapper {
+  .flatpickr-current-month {
+    padding: 0;
+
+    input.cur-year {
+      box-shadow: none !important;
+      border: 0 !important;
+      display: inline-block;
+      margin-right: 0 !important;
+      height: auto !important;
+    }
+  }
+}
