@@ -21,7 +21,9 @@ module DataCycleCore
         'image' => [],
         'overlay' => [],
         'primary_image' => [],
-        'marketing_groups' => []
+        'marketing_groups' => [],
+        'feratel_facilities_accommodations' => [],
+        'feratel_facilities_additional_services' => []
       }
       assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours'))
       assert_nil(data_set.desc)
@@ -52,7 +54,9 @@ module DataCycleCore
         'image' => [],
         'overlay' => [],
         'primary_image' => [],
-        'marketing_groups' => []
+        'marketing_groups' => [],
+        'feratel_facilities_accommodations' => [],
+        'feratel_facilities_additional_services' => []
       }
       resulted_hash = data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place'))
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
