@@ -12,6 +12,7 @@ module DataCycleCore
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
+        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt].freeze
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
@@ -62,8 +63,6 @@ module DataCycleCore
               [
                 :search,
                 :box,
-                :modifiedSince,
-                :createdSince,
                 :deletedSince,
                 :from,
                 :to,
@@ -77,6 +76,12 @@ module DataCycleCore
                       withSubtree: [],
                       withoutSubtree: []
                     }
+                  }
+                },
+                {
+                  attribute: {
+                    modifiedAt: attribute_filter_operations,
+                    createdAt: attribute_filter_operations
                   }
                 }
               ]
@@ -138,13 +143,12 @@ module DataCycleCore
           query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
-          query = query.modifiedSince(permitted_params.dig(:filter, :modifiedSince)) if permitted_params.dig(:filter, :modifiedSince)
-          query = query.createdSince(permitted_params.dig(:filter, :createdSince)) if permitted_params.dig(:filter, :createdSince)
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
           query = apply_classification_filters(query)
+          query = apply_attribute_filters(query)
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

@@ -35,6 +35,39 @@ module DataCycleCore
       query
     end
 
+    def apply_attribute_filters(query)
+      return query if permitted_params&.dig(:filter, :attribute).blank?
+      attribute_filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys
+
+      attribute_filter.each do |attribute_key, operator|
+        attribute_path = attribute_path_mapping(attribute_key)
+        query_method = query_method_mapping(attribute_key)
+        operator.each do |k, v|
+          query_method = 'not_' + query_method if k == :notIn
+          next unless query.respond_to?(query_method)
+          query = query.send(query_method, v, attribute_path)
+        end
+      end
+      query
+    end
+
+    def query_method_mapping(key)
+      date_range = [:modifiedAt, :createdAt]
+      return 'date_range' if date_range.include?(key)
+      key.to_s
+    end
+
+    def attribute_path_mapping(attribute_key)
+      case attribute_key
+      when :modifiedAt
+        'updated_at'
+      when :createdAt
+        'created_at'
+      else
+        attribute_key.to_s
+      end
+    end
+
     def attribute_filter_operations
       {
         in: [
