@@ -9,7 +9,7 @@ module DataCycleCore
       @filters = pre_filters.dup
       @stored_filter.parameters ||= @filters
       query = query&.dup
-      @language = Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
+      @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
       @stored_filter.language = @language
 
       @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)

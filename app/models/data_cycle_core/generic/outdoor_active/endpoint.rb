@@ -79,7 +79,7 @@ module DataCycleCore
         def places(lang: :de)
           Enumerator.new do |yielder|
             pois = load_data(['pois'], lang, 0)
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project, 'pois'])} / lang:#{lang}", pois) if pois['data'].blank?
+            raise "error loading data from #{File.join([@host, @end_point, @project, 'pois'])} / lang:#{lang}" if pois['data'].blank?
             pois['data'].each do |poi_id_container|
               raw_data_item = load_data(['oois', poi_id_container['id']], lang, 0)
               next if raw_data_item.blank?
@@ -93,7 +93,7 @@ module DataCycleCore
         def tours(lang: :de)
           Enumerator.new do |yielder|
             tours = load_data(['tours'], lang, 0)
-            raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from #{File.join([@host, @end_point, @project, 'tours'])} / lang:#{lang}", tours) if tours['data'].blank?
+            raise "error loading data from #{File.join([@host, @end_point, @project, 'tours'])} / lang:#{lang}" if tours['data'].blank?
             tours['data'].each do |tour_id_container|
               raw_data_item = load_data(['oois', tour_id_container['id']], lang, 0)
               next if raw_data_item.blank?

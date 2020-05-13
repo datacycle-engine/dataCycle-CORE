@@ -80,6 +80,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v3
+      return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -117,10 +118,12 @@ module DataCycleCore
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i)
       }.compact
+
       schedule_hash.merge({ 'identifier' => generate_uuid(schedule_hash) })
     end
 
     def to_schedule_schema_org_api_v2
+      return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil

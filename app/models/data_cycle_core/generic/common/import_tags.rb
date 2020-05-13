@@ -21,22 +21,18 @@ module DataCycleCore
         end
 
         def self.load_root_classifications(mongo_item, locale, options)
-          aggregation = mongo_item.where(:_id.ne => nil)
+          attribute_name = ['dump', locale, options.dig(:import, :tag_id_path)].join('.')
+          aggregation = mongo_item.where(attribute_name => { '$ne' => nil })
             .unwind(
               ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.')
             )
-          if options.dig(:import, :tag_description_path).present?
-            aggregation = aggregation.project(
-              "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
-              "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}",
-              "dump.#{locale}.desc": "$dump.#{locale}.#{options.dig(:import, :tag_description_path)}"
-            )
-          else
-            aggregation = aggregation.project(
-              "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
-              "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
-            )
-          end
+          project_hash = {
+            "dump.#{locale}.id": "$dump.#{locale}.#{options.dig(:import, :tag_id_path)}",
+            "dump.#{locale}.tag": "$dump.#{locale}.#{options.dig(:import, :tag_name_path)}"
+          }
+          project_hash["dump.#{locale}.desc"] = "$dump.#{locale}.#{options.dig(:import, :tag_description_path)}" if options.dig(:import, :tag_description_path).present?
+          project_hash["dump.#{locale}.uri"] = "$dump.#{locale}.#{options.dig(:import, :tag_uri_path)}" if options.dig(:import, :tag_uri_path).present?
+          aggregation = aggregation.project(project_hash)
 
           aggregation = aggregation.group(
             _id: "$dump.#{locale}.id",
@@ -65,11 +61,13 @@ module DataCycleCore
             end
           name ||= 'unknown'
           description = raw_data['desc']&.to_s
+          uri = raw_data['uri']&.to_s
           value_hash = {
             external_key: "#{options.dig(:import, :external_id_prefix)}#{external_id}",
             name: name
           }
           value_hash[:description] = description if description.present?
+          value_hash[:uri] = uri if uri.present?
           value_hash
         end
 
@@ -85,7 +83,8 @@ module DataCycleCore
               parse_common_tag_path(options),
               options.dig(:import, :tag_id_path).split('.'),
               options.dig(:import, :tag_name_path).split('.'),
-              options.dig(:import, :tag_description_path)&.split('.')
+              options.dig(:import, :tag_description_path)&.split('.'),
+              options.dig(:import, :tag_uri_path)&.split('.')
             )
             return if keywords&.compact.blank?
 
@@ -108,11 +107,14 @@ module DataCycleCore
             .map(&:first)
         end
 
-        def self.unwind_project_data(raw_data, common_path, id_path, name_path, desc_path = nil)
-          default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
-          default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+        def self.unwind_project_data(raw_data, common_path, id_path, name_path, desc_path = nil, uri_path = nil)
+          if common_path.blank?
+            default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
+            default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+            default_values[0]['uri'] = raw_data.dig(*uri_path) if uri_path.present?
+            return default_values
+          end
 
-          return default_values if common_path.blank?
           return nil if raw_data&.dig(*common_path).blank?
           if raw_data&.dig(*common_path).is_a?(::Array)
             raw_data.dig(*common_path).map do |item|
@@ -123,10 +125,17 @@ module DataCycleCore
                 desc_value = (id_path - common_path).blank? ? item : item.dig(*(desc_path - common_path))
                 c_hash['desc'] = desc_value
               end
+              if uri_path.present?
+                uri_value = (id_path - common_path).blank? ? item : item.dig(*(uri_path - common_path))
+                c_hash['uri'] = uri_value
+              end
               c_hash
             end
           else
-            default_values
+            default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
+            default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
+            default_values[0]['uri'] = raw_data.dig(*uri_path) if uri_path.present?
+            return default_values
           end
         end
       end

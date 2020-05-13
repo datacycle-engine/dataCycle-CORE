@@ -1,0 +1,21 @@
+- :data:
+    :name: Durchschittswertung
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type: AggregateRating
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :rating_count:
+        :label: Anzahl Wertungen
+        :type: number
+        :storage_location: value
+      :rating_value:
+        :label: Wertung
+        :type: number
+        :storage_location: value
+        :validations:
+          :format: float

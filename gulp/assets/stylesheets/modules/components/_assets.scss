@@ -568,7 +568,8 @@ ul.asset-list {
 
     .file-buttons {
       .cancel-upload-button {
-        display: none;
+        opacity: 0.25;
+        cursor: not-allowed;
       }
     }
   }
@@ -613,6 +614,14 @@ ul.asset-list {
     }
   }
 
+  &.creating {
+    .file-buttons .button {
+      pointer-events: none;
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+  }
+
   &.retry:not(.uploading) {
     .file-buttons .button.retry-upload-button {
       display: block;
@@ -624,7 +633,6 @@ ul.asset-list {
     align-items: center;
     justify-content: center;
     background: rgba($white, 0.8);
-    transition: all 0.3s;
     padding: 1rem;
 
     .button {
@@ -633,6 +641,7 @@ ul.asset-list {
       width: 3rem;
       display: flex;
       padding: 0;
+      transition: all 0.3s;
       align-items: center;
       justify-content: center;
       &:not(:last-of-type) {

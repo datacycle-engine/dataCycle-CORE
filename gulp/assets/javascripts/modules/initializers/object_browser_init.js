@@ -1,7 +1,7 @@
 var ObjectBrowser = require('./../components/object_browser');
 
 // Word Counter
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   var object_browsers = [];
 
   $('.edit-content-form .object-browser').each((i, elem) => {

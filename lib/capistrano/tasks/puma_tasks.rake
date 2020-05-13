@@ -14,6 +14,7 @@ namespace :datacycle do
           set :puma_max_threads, secrets.dig(fetch(:rails_env).to_s, 'puma_max_threads') || 5
           set :puma_max_workers, secrets.dig(fetch(:rails_env).to_s, 'puma_max_workers') || 3
           set :puma_max_memory, secrets.dig(fetch(:rails_env).to_s, 'puma_max_memory') || 4096
+          set :puma_worker_frequency, secrets.dig(fetch(:rails_env).to_s, 'puma_worker_frequency') || 3600
           set :puma_rolling_restart_frequency, secrets.dig(fetch(:rails_env).to_s, 'puma_rolling_restart_frequency') || false
 
           template_name = 'puma.rb'

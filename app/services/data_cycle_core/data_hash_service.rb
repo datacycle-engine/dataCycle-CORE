@@ -42,7 +42,8 @@ module DataCycleCore
     def self.create_internal_object(template_name, object_params, current_user, is_part_of = nil, source = nil)
       object = DataCycleCore::Thing.new(object_params.except(:translations))
       locale = I18n.locale
-      locale = object_params[:translations].keys.first if object_params[:translations]&.keys&.present?
+      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? && !v.is_a?(FalseClass) }
+      locale = translations.keys.first if translations&.keys&.present?
 
       I18n.with_locale(locale) do
         template = get_internal_template(template_name)
@@ -53,24 +54,27 @@ module DataCycleCore
         object.save
       end
 
-      return if object_params[:datahash].nil? && object_params[:translations].nil?
+      return object if object_params[:datahash].nil? && translations.nil?
 
-      translations = object_params[:translations]&.to_h&.deep_reject { |_, v| v.blank? }
-
-      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(I18n.locale.to_s) || {}), object.schema)
-
+      datahash = DataCycleCore::DataHashService.flatten_datahash_value((object_params[:datahash] || {}).merge(translations&.delete(locale.to_s) || {}), object.schema)
       datahash['permitted_creator'] = current_user.try(:role).try(:rank) == 3 ? [DataCycleCore::Classification.find_by(name: 'Markt Office').try(:id)] : [DataCycleCore::Classification.find_by(name: 'Team CM').try(:id)]
 
       translations&.each do |l, locale_hash|
         I18n.with_locale(l) do
           valid = object.set_data_hash(data_hash: locale_hash, current_user: current_user, prevent_history: true, update_search_all: false, partial_update: true)
-          return OpenStruct.new(errors: valid[:error]) if valid[:error].present?
+          if valid[:error].present?
+            valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
+            return object
+          end
         end
       end
 
       I18n.with_locale(locale) do
         valid = object.set_data_hash(data_hash: datahash, current_user: current_user, prevent_history: true, source: source, new_content: true)
-        OpenStruct.new(errors: valid[:error]) if valid[:error].present?
+        if valid[:error].present?
+          valid[:error].each { |k, v| v.each { |e| object.errors.add(k, e) } }
+          return object
+        end
       end
 
       object
@@ -124,9 +128,10 @@ module DataCycleCore
           }
 
           s['rrules'][0]['until'] = s.dig('rrules', 0, 'until').in_time_zone.end_of_day if s.dig('rrules', 0, 'until').present?
-
+          s['rrules'][0]['validations'] ||= {}
+          s['rrules'][0]['validations']['hour_of_day'] = [start_time.to_datetime.hour] if s.dig('rrules', 0).present?
+          s['rrules'][0]['validations']['minute_of_hour'] = [start_time.to_datetime.minute] if s.dig('rrules', 0).present? && start_time.to_datetime.minute.positive?
           s['rtimes'] = s['rtimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
-
           s['extimes'] = s['extimes'].presence&.split(',')&.map { |t| { time: "#{t.strip} #{start_time.to_s(:time)}".in_time_zone, zone: start_time.time_zone.name } }
 
           case s.dig('rrules', 0, 'rule_type')
@@ -138,7 +143,7 @@ module DataCycleCore
             s.dig('rrules', 0, 'validations')&.delete('day')
           end
 
-          s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }
+          DataCycleCore::Schedule.new.from_hash(s.slice('id', 'start_time', 'duration', 'rrules', 'rtimes', 'extimes').deep_reject { |_, v| v.blank? }).to_hash.except(:relation, :thing_id).merge(id: s['id']).deep_stringify_keys.compact
         }.compact
       end
 

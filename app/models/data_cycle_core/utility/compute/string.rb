@@ -32,13 +32,13 @@ module DataCycleCore
             args.dig(:computed_definition, 'compute', 'parameters')&.sort&.each do |definition|
               case args[:content]&.properties_for(definition[1])&.dig('type')
               when 'linked'
-                attribution_name.push((args[:data_hash]&.key?(definition[1]) ? DataCycleCore::Thing.where(id: args.dig(:computed_parameters, definition[0]&.to_i)) : args[:content].try(definition[1])).map { |c| I18n.with_locale(c.first_available_locale) { c.title } }.join(', ').presence)
+                attribution_name.push((args[:data_hash]&.key?(definition[1]) ? DataCycleCore::Thing.where(id: args.dig(:computed_parameters, definition[0]&.to_i)) : args[:content].try(definition[1])).map { |c| I18n.with_locale(c.first_available_locale) { c.title.presence } }.compact.join(', ').presence)
               else
                 attribution_name.push(args[:data_hash]&.key?(definition[1]) ? args.dig(:computed_parameters, definition[0]&.to_i).presence : args[:content].try(definition[1]).presence)
               end
             end
 
-            attribution_name.compact.blank? ? nil : attribution_name.compact.join(' / ').prepend('© ')
+            attribution_name.compact.blank? ? nil : attribution_name.compact.join(' / ').prepend('(c) ')
           end
         end
       end

@@ -2,7 +2,7 @@ var flatpickr = require('flatpickr');
 var Deutsch = require('flatpickr/dist/l10n/de.js').default.de;
 var ConfirmationModal = require('./../components/confirmation_modal');
 
-module.exports.initialize = function() {
+module.exports.initialize = function () {
   var calenders = [];
 
   let flatPickrOptions = {
@@ -33,7 +33,7 @@ module.exports.initialize = function() {
     reInit(event.target, data);
   });
 
-  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', function(event, data) {
+  $(document).on('dc:import:data', '.form-element.datetime input.flatpickr-input', function (event, data) {
     event.stopImmediatePropagation();
 
     if ($(event.target).val().length === 0 || (data && data.force)) {
@@ -45,7 +45,7 @@ module.exports.initialize = function() {
         cancelText: 'Nein',
         confirmationClass: 'success',
         cancelable: true,
-        confirmationCallback: function() {
+        confirmationCallback: function () {
           $(event.target).trigger('dc:flatpickr:setDate', data.value);
         }.bind(this)
       });
@@ -64,37 +64,29 @@ module.exports.initialize = function() {
 
   function setSibling(selectedDates, dateStr, instance) {
     if (calenders.indexOf(instance) >= 0) {
-      var siblings = calenders.filter(function(val) {
+      var siblings = calenders.filter(function (val) {
         return getIdFromCalender(val) == getIdFromCalender(instance);
       });
       if (siblings.length == 2) {
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .on('change', removeEventHandlers);
+        $(siblings[0].input).add(siblings[1].input).on('change', removeEventHandlers);
         if (instance == siblings[0]) siblings[1].set('minDate', dateStr);
         if (instance == siblings[1]) siblings[0].set('maxDate', dateStr);
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .off('change', removeEventHandlers);
+        $(siblings[0].input).add(siblings[1].input).off('change', removeEventHandlers);
       }
     }
   }
 
   function setup(cals) {
     for (var i = 0; i < cals.length; i++) {
-      var siblings = cals.filter(function(val) {
+      var siblings = cals.filter(function (val) {
         return getIdFromCalender(val) == getIdFromCalender(cals[i]);
       });
 
       if (siblings.length == 2) {
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .on('change', removeEventHandlers);
+        $(siblings[0].input).add(siblings[1].input).on('change', removeEventHandlers);
         siblings[0].set('maxDate', siblings[1].input.value);
         siblings[1].set('minDate', siblings[0].input.value);
-        $(siblings[0].input)
-          .add(siblings[1].input)
-          .off('change', removeEventHandlers);
+        $(siblings[0].input).add(siblings[1].input).off('change', removeEventHandlers);
       }
       i++;
     }
@@ -137,11 +129,10 @@ module.exports.initialize = function() {
     var cal = $(elem).flatpickr(Object.assign({}, flatPickrOptions, options));
 
     var input = $(elem).next('input');
-    $(input).on('change', function(e) {
+    $(input).on('change', e => {
       e.preventDefault();
-      e.stopPropagation();
       e.stopImmediatePropagation();
-      cal.setDate($(elem).val(), true, cal.config.altFormat);
+      cal.setDate($(e.currentTarget).val(), true, cal.config.altFormat);
       cal.close();
     });
 
@@ -152,10 +143,7 @@ module.exports.initialize = function() {
       cal.destroy();
       calenders = calenders.filter(c => c.element != elem);
 
-      container
-        .find(':input')
-        .detach()
-        .insertBefore(container);
+      container.find(':input').detach().insertBefore(container);
       container.remove();
     });
 

@@ -17,6 +17,8 @@ namespace :datacycle do
           target_file_name = fetch(:application)
           upload! StringIO.new(template), "/tmp/#{target_file_name}"
           execute "sudo mv /tmp/#{target_file_name} /etc/logrotate.d/#{target_file_name}"
+          execute "sudo chown root:root /etc/logrotate.d/#{target_file_name}"
+          execute "sudo chmod o+r /etc/logrotate.d/#{target_file_name}"
         end
       end
     end

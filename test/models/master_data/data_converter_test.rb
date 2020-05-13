@@ -83,7 +83,7 @@ describe DataCycleCore::MasterData::DataConverter do
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
-      wkt_string3d = 'POINT (10.0 47.0 200.0)'
+      wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.string_to_geographic(test_case)
         assert(converted_data.methods.include?(:geometry_type))
@@ -99,12 +99,14 @@ describe DataCycleCore::MasterData::DataConverter do
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
-      wkt_string3d = 'POINT (10.0 47.0 200.0)'
+      wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         converted_data = subject.geographic_to_string(test_case)
         assert_equal(test_case.to_s, converted_data)
       end
     end
+
+    # TODO: test for wkt11
 
     it 'handles nil correctly when converting a string to a geographic object' do
       assert_nil(subject.string_to_geographic(nil))
@@ -115,14 +117,14 @@ describe DataCycleCore::MasterData::DataConverter do
     end
 
     it 'throws an exception when wkt_string can not be converted to a geographic object' do
-      test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 5]
+      test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 'POINT Z (10.0)', 'POINT (10.0, 10.0, 200.0)', 5]
       test_cases.each do |test_case|
         assert_raises(RGeo::Error::ParseError) { subject.string_to_geographic(test_case) }
       end
     end
 
     it 'throws an exception when geographic object is not valid' do
-      test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 6]
+      test_cases = ['POINT (10.0 47.0', 'POINT (10.0 47.X0', 'POINT (10.0)', 'POINT Z (10.0)', 'POINT (10.0, 10.0, 200.0)', 6]
       test_cases.each do |test_case|
         assert_raises(RGeo::Error::ParseError) { subject.geographic_to_string(test_case) }
       end
@@ -135,7 +137,7 @@ describe DataCycleCore::MasterData::DataConverter do
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
-      wkt_string3d = 'POINT (10.0 47.0 200.0)'
+      wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         assert_equal(subject.string_to_geographic(test_case), subject.string_to_geographic(subject.string_to_geographic(test_case)))
       end
@@ -148,7 +150,7 @@ describe DataCycleCore::MasterData::DataConverter do
       factory3d = RGeo::Geographic.spherical_factory(srid: 4326, has_z_coordinate: true)
       line3d = factory3d.line_string([factory3d.point(1.0, 1.0, 1.0), factory3d.point(1.5, 1.5, 1.5)])
       wkt_string = 'POINT (10.0 47.0)'
-      wkt_string3d = 'POINT (10.0 47.0 200.0)'
+      wkt_string3d = 'POINT Z (10.0 47.0 200.0)'
       [point, line, line3d, wkt_string, wkt_string3d].each do |test_case|
         assert_equal(subject.geographic_to_string(test_case), subject.geographic_to_string(subject.geographic_to_string(test_case)))
       end

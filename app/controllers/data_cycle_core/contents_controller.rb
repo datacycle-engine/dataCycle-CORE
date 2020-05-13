@@ -43,7 +43,7 @@ module DataCycleCore
         end
       end
 
-      flash[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
+      flash.now[:success] = I18n.t :bulk_created, scope: [:controllers, :success], locale: DataCycleCore.ui_language
 
       ActionCable.server.broadcast "bulk_create_#{params[:overlay_id]}_#{current_user.id}", redirect_path: root_path, flash: flash.to_hash, created: true, content_ids: content_ids
 
@@ -238,11 +238,8 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash
-      end
-
       I18n.with_locale(@diff_source.first_available_locale) do
+        @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
       end
     end

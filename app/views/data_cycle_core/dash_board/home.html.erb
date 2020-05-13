@@ -27,17 +27,12 @@
             </div>
         <% end %>
     </div>
-    <div class="row">
-        <div class="small-3 columns">
-            <%= render 'pg_total_stats' %>
-        </div>
-        <div class="small-9 columns">
-            <%= render 'job_queue_stats' unless @stat_job_queue.count == 0 %>
-            <%= 'Duplicates:' unless @duplicates.blank? %>
-            <%= ap(@duplicates).html_safe unless @duplicates.blank? %>
-            <%= 'Errors:' unless @errors.blank? %>
-            <%= ap(@errors).html_safe unless @errors.blank? %>
-        </div>
+
+    <div class="grid-external-modules">
+      <div class="grid-parent-few">
+        <%= render 'pg_total_stats' %>
+        <%= render 'job_queue_stats' %>
+      </div>
     </div>
 
     <div class="row">
@@ -48,12 +43,14 @@
             </h4>
         </div>
     </div>
-    <div class="row dashboard-cards">
+
+    <div class="grid-external-modules">
+      <% grid_class = @stat_outdoor_active.import_modules.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+      <div class="<%=grid_class%>">
         <% @stat_outdoor_active.import_modules.each do |import_modules| %>
-            <div class="columns small-3">
-                <%= render 'import_modules', locals: {import_data: import_modules} %>
-            </div>
+          <%= render 'import_modules', locals: {import_data: import_modules} %>
         <% end %>
+      </div>
     </div>
 
     <div class="row">
@@ -64,9 +61,12 @@
             </h4>
         </div>
     </div>
-    <div class="row dashboard-cards">
+    <div class="grid-external-modules">
         <% external_systems = DataCycleCore::ExternalSystem.all %>
-        <%= render partial: 'export_modules', collection: external_systems, as: 'external_system' %>
+        <% grid_class = external_systems.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+        <div class="<%=grid_class%>">
+          <%= render partial: 'export_modules', collection: external_systems, as: 'external_system' %>
+        </div>
     </div>
 
 </section>

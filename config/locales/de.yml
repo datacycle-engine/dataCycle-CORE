@@ -266,6 +266,7 @@ de:
     system_dialog: Bilder über Systemdialog auswählen
     or: oder
     select_from_datacycle: 'Bereits hochgeladene %{data} verwenden'
+    copy_all_title: 'alle Attribute von diesem %{single} für alle %{multiple} übernehmen'
 
   external_connection_states:
     success: Erfolgreich synchronisiert
@@ -362,6 +363,7 @@ de:
       unit: Einheit
     relation_filter:
       contained_in: ist enthalten in
+    related_to: ist verküpft mit
     feratel_content_score: Feratel - Content Score
 
   filter_groups:
@@ -378,6 +380,7 @@ de:
     geo_within_classification: nach geografischer Lage filtern...
     geo_filter: nach geografischer Lage filtern...
     relation_filter: auf Basis von verknüpften Inhalten filtern ...
+    related_to: nach verknüpften Inhalten filtern ...
     in_schedule: nach Termin filtern...
     inactive_things: Abgelaufenen Inhalten filtern...
 
@@ -457,6 +460,7 @@ de:
     move_to_container: 'Inhalt verschieben'
     move: verschieben
     geocode: 'Geokoordinaten von %{title} übernehmen'
+    upload_gpx: 'GPX-Datei hochladen'
     open_asset: 'Datei öffnen'
     download: 'herunterlanden'
     download_content: 'Inhalt herunterladen'
@@ -518,6 +522,7 @@ de:
         rrule: 'RRULE format falsch für %{template} (%{data}).'
         thing_id: 'thing_id ist ein Pflichtfeld.'
         relation: 'relation ist ein Pflichtfeld.'
+        invalid: 'Der Eintrag mit Startzeitpunkt %{data} enthält keine gültigen Termine'
       number: '%{template} ist kein numerischer Wert, sondern %{class} (Wert: %{data}).'
       no_data: 'Keine Daten angegeben.'
       no_validation: 'Keine Validierguns-Daten angegeben.'
@@ -940,6 +945,7 @@ de:
       long: '%e. %B %Y'
       short: '%e. %b'
       full: '%A, %e. %B %Y'
+      edit: '%d.%m.%Y'
     month_names:
       -
       - Januar
@@ -1076,6 +1082,7 @@ de:
       long: '%A, %d. %B %Y, %H:%M Uhr'
       short: '%d. %B, %H:%M Uhr'
       edit: '%d.%m.%Y - %H:%M'
+      history: '%d.%m.%Y, %H:%M Uhr'
       time_only: '%H:%M'
     pm: nachmittags
 

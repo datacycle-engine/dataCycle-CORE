@@ -17,12 +17,20 @@ module DataCycleCore
         end
 
         # basic download of data
+        def additional_service_types(lang: :de)
+          enumerate_items(:additional_service_types, '//AdditionalServiceTypes/AdditionalServiceType', lang: lang)
+        end
+
         def categories(lang: :de)
           enumerate_items(:categories, '//Categories/Category', lang: lang)
         end
 
         def classifications(lang: :de)
           enumerate_items(:classifications, '//Classifications/Classification', lang: lang)
+        end
+
+        def creative_commons(lang: :de)
+          enumerate_items(:creative_commons, '//CreativeCommons/CreativeCommon', lang: lang)
         end
 
         def custom_attributes(lang: :de)
@@ -35,6 +43,10 @@ module DataCycleCore
 
         def facility_groups(lang: :de)
           enumerate_items(:facility_groups, '//FacilityGroups/FacilityGroup', lang: lang)
+        end
+
+        def fallback_languages(lang: :de)
+          enumerate_language_items(:fallback_languages, '//Language', lang: lang)
         end
 
         def global_categories(lang: :de)
@@ -93,28 +105,16 @@ module DataCycleCore
           enumerate_default_items(:global_link_types, '//LinkType', lang: lang)
         end
 
-        def marketing_groups(lang: :de)
-          enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
+        def guest_cards(lang: :de)
+          enumerate_items(:guest_cards, '//GuestCards/GuestCard', lang: lang)
         end
 
-        def shop_item_groups(lang: :de)
-          enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
-        end
-
-        def fallback_languages(lang: :de)
-          enumerate_language_items(:fallback_languages, '//Language', lang: lang)
+        def guest_card_classifications(lang: :de)
+          enumerate_items(:guest_card_classifications, '//GuestCardClassifications/GuestCardClassification', lang: lang)
         end
 
         def hot_spots(lang: :de)
           enumerate_items(:hot_spots, '//HotSpot', lang: lang)
-        end
-
-        def rating_visitors(lang: :de)
-          enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
-        end
-
-        def link_types(lang: :de)
-          enumerate_items(:link_types, '//LinkType', lang: lang)
         end
 
         def handicap_groups(lang: :de)
@@ -133,10 +133,6 @@ module DataCycleCore
           enumerate_items(:handicap_facilities, '//HandicapFacility', lang: lang)
         end
 
-        def visitor_tax(lang: :de)
-          enumerate_code_items(:visitor_tax, '//VisitorTax', lang: lang)
-        end
-
         def holiday_themes(lang: :de)
           enumerate_items(:holiday_themes, '//HolidayThemes/HolidayTheme', lang: lang)
         end
@@ -149,12 +145,32 @@ module DataCycleCore
           enumerate_items(:infrastructure_types, '//InfrastructureTypes/InfrastructureType', lang: lang)
         end
 
+        def link_types(lang: :de)
+          enumerate_items(:link_types, '//LinkType', lang: lang)
+        end
+
         def locations(lang: :de)
           enumerate_items(:locations, '//Location', lang: lang)
         end
 
+        def marketing_groups(lang: :de)
+          enumerate_items(:marketing_groups, '//MarketingGroup', lang: lang)
+        end
+
         def rating_questions(lang: :de)
           enumerate_items(:rating_questions, '//RatingQuestions/RatingQuestion', lang: lang)
+        end
+
+        def rating_visitors(lang: :de)
+          enumerate_items(:rating_visitors, '//RatingVisitor', lang: lang)
+        end
+
+        def shop_item_groups(lang: :de)
+          enumerate_items(:shop_item_groups, '//ShopItemGroup', lang: lang)
+        end
+
+        def visitor_tax(lang: :de)
+          enumerate_code_items(:visitor_tax, '//VisitorTax', lang: lang)
         end
 
         def serial_events(lang: :de)
@@ -390,6 +406,10 @@ module DataCycleCore
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
 
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
           if data.xpath('//@Status').first.value != '0'
             raise data.xpath('//@Message').first.value if retry_count > 5
             sleep(3)
@@ -420,6 +440,10 @@ module DataCycleCore
           envelop = Nokogiri::XML(response.body)
           data = Nokogiri::XML(envelop.children.first.content)
           data.remove_namespaces!
+
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
 
           if data.xpath('//@Status').first.value != '0'
             raise data.xpath('//@Message').first.value if retry_count > 5
@@ -513,6 +537,12 @@ module DataCycleCore
         def create_global_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Classifications('Show' => true)
+          end
+        end
+
+        def create_global_creative_commons_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_global_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.CreativeCommons('Show' => true)
           end
         end
 
@@ -687,9 +717,33 @@ module DataCycleCore
           end
         end
 
+        def create_guest_cards_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.GuestCards('Show' => true)
+          end
+        end
+
+        def create_guest_card_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.GuestCardClassifications('Show' => true)
+          end
+        end
+
+        def create_additional_service_types_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.AdditionalServiceTypes('Show' => true)
+          end
+        end
+
         def create_classifications_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.Classifications('Show' => true)
+          end
+        end
+
+        def create_creative_commons_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
+          create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
+            xml.CreativeCommons('Show' => true)
           end
         end
 
@@ -702,7 +756,7 @@ module DataCycleCore
         def create_infrastructure_items_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.Infrastructure('Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
@@ -721,7 +775,7 @@ module DataCycleCore
         def create_infrastructure_items_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.PreSelectedInfrastructureIDs do
                   Array.wrap(item_ids).each do |id|
                     xml.Item(id)
@@ -754,7 +808,7 @@ module DataCycleCore
         def create_additional_service_providers_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.ServiceProvider('Type' => 'AdditionalService', 'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
@@ -775,7 +829,7 @@ module DataCycleCore
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.PreSelectedServiceProviderIDs do
                   Array.wrap(item_ids).each do |id|
                     xml.Item(id)
@@ -821,7 +875,7 @@ module DataCycleCore
         def create_events_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.Events('Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
                            'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d'),
                            'Status' => 'All')
@@ -842,7 +896,7 @@ module DataCycleCore
         def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.PreSelectedEventIDs do
                   Array.wrap(item_ids).each do |id|
                     xml.Item(id)
@@ -876,7 +930,7 @@ module DataCycleCore
         def create_accommodations_index_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.ServiceProvider('Type' => 'Accommodation', 'Status' => 'All')
                 xml.Languages do
                   Array(lang).each do |l|
@@ -897,7 +951,7 @@ module DataCycleCore
           end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.PreSelectedServiceProviderIDs do
                   Array.wrap(item_ids).each do |id|
                     xml.Item(id)
@@ -929,7 +983,7 @@ module DataCycleCore
                   # xml.Documents('DateFrom' => '1980-01-01')
                   xml.Descriptions('DateFrom' => '1980-01-01', 'Markup' => true)
                   # xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.Facilities('DateFrom' => '1980-01-01')
                   # xml.HandicapFacilities('DateFrom' => '1980-01-01')
                   xml.Products do
                     xml.Details('DateFrom' => '1980-01-01')
@@ -947,7 +1001,7 @@ module DataCycleCore
                   xml.Details('DateFrom' => '1980-01-01')
                   # xml.Documents('DateFrom' => '1980-01-01')
                   xml.Links('DateFrom' => '1980-01-01', 'IncludeTranslations' => true)
-                  # xml.Facilities('DateFrom' => '1980-01-01')
+                  xml.Facilities('DateFrom' => '1980-01-01')
                   xml.AdditionalProducts do
                     xml.Details('DateFrom' => '1980-01-01')
                     # xml.Documents('DateFrom' => '1980-01-01')
@@ -966,7 +1020,7 @@ module DataCycleCore
           # end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.Packages('Status' => 'All', 'From' => '1980-01-01', 'To' => '2080-01-01')
                 xml.Languages do
                   Array(lang).each do |l|
@@ -1001,7 +1055,7 @@ module DataCycleCore
           # end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
-              xml.Filters do
+              xml.Filters('ShowCreativeCommons' => true) do
                 xml.PackageContainer('From' => '1980-01-01', 'To' => '2080-01-01')
                 xml.Languages do
                   Array(lang).each do |l|

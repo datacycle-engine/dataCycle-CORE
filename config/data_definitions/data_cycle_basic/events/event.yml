@@ -113,6 +113,45 @@
                 - Ort
         :api:
           :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
       :event_schedule:
         :label: Termine
         :type: schedule
@@ -120,6 +159,8 @@
           :disabled: true
           :v4:
             :disabled: false
+        :validations:
+          valid_dates: true
       :sub_event:
         :label: Veranstaltungsdaten
         :type: embedded

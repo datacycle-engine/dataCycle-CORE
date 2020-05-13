@@ -26,11 +26,7 @@ class NewContentDialog {
     }
   }
   initEventHandlers() {
-    if (this.form.find('fieldset.active').length == 0)
-      this.form
-        .find('fieldset')
-        .first()
-        .addClass('active');
+    if (this.form.find('fieldset.active').length == 0) this.form.find('fieldset').first().addClass('active');
     this.nextButton.on('click', this.next.bind(this));
     this.prevButton.on('click', this.prev.bind(this));
     this.form.on('click', '.form-crumb-link', this.goTo.bind(this));
@@ -87,9 +83,7 @@ class NewContentDialog {
     event.preventDefault();
     event.stopImmediatePropagation();
 
-    let formElementKey = $(event.currentTarget)
-      .next('.form-element')
-      .data('key');
+    let formElementKey = $(event.currentTarget).next('.form-element').data('key');
     let target = $(event.currentTarget);
     QuillHelpers.updateEditors(this.form);
     let formData = this.form.serializeArray();
@@ -128,8 +122,8 @@ class NewContentDialog {
     let notice = $('<span class="copy-attribute-notice">' + text + '</span>');
     $(notice).appendTo(target);
     setTimeout(
-      function() {
-        notice.fadeOut('fast', function() {
+      function () {
+        notice.fadeOut('fast', function () {
           notice.remove();
         });
       }.bind(this),
@@ -137,12 +131,10 @@ class NewContentDialog {
     );
   }
   addCopyAttributeButtons(container) {
-    let formFields = $(container)
-      .find('> fieldset > .form-element, > .form-element')
-      .addBack('.form-element');
+    let formFields = $(container).find('> fieldset > .form-element, > .form-element').addBack('.form-element');
 
     let button = $(
-      '<button class="copy-attribute-to-all button-prime small" title="für alle Bilder übernehmen"><i class="copy-icon fa fa-arrow-right" aria-hidden="true"></i><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
+      '<button class="copy-attribute-to-all button-prime small" title="dieses Attribut für alle Bilder übernehmen"><span class="copy-icon fa-stack"><i class="fa fa-clone"></i><i class="fa fa-arrow-right fa-stack-1x"></i></span><i class="fa loading-icon fa-circle-o-notch fa-spin"></i></button>'
     );
 
     button.insertBefore(formFields);
@@ -150,10 +142,7 @@ class NewContentDialog {
   triggerSyncWithContentUploader(event = null) {
     let key;
 
-    if (event)
-      key = $(event.currentTarget)
-        .find('> .form-element')
-        .data('key');
+    if (event) key = $(event.currentTarget).find('> .form-element').data('key');
 
     this.referencedAssetField.trigger('dc:upload:syncWithForm', { key: key, locale: event ? this.activeLocale : null });
   }
@@ -197,10 +186,7 @@ class NewContentDialog {
     return groupedValues;
   }
   setReferencedAssetField() {
-    const id = this.form
-      .closest('.reveal.new-content-reveal')
-      .find('.file-for-upload')
-      .data('id');
+    const id = this.form.closest('.reveal.new-content-reveal').find('.file-for-upload').data('id');
     const referenceField = $('.content-upload-form > .file-for-upload[data-id="' + id + '"]');
     if (referenceField.length) this.referencedAssetField = referenceField;
   }
@@ -264,10 +250,7 @@ class NewContentDialog {
   }
   changeTranslation(target) {
     this.activeLocale = $(target).data('locale');
-    $(target)
-      .closest('.translated-attribute-locales')
-      .find('.translated-attribute-locale')
-      .removeClass('active');
+    $(target).closest('.translated-attribute-locales').find('.translated-attribute-locale').removeClass('active');
     $(target).addClass('active');
     this.form.find('.translated-attribute.active').removeClass('active');
     this.form
@@ -283,24 +266,14 @@ class NewContentDialog {
         successCallback: () => {
           this.goTo(
             undefined,
-            this.form.find('fieldset').index(
-              this.form
-                .find('fieldset.active')
-                .nextAll('fieldset')
-                .first()
-            )
+            this.form.find('fieldset').index(this.form.find('fieldset.active').nextAll('fieldset').first())
           );
         }
       });
     } else {
       this.goTo(
         undefined,
-        this.form.find('fieldset').index(
-          this.form
-            .find('fieldset.active')
-            .nextAll('fieldset')
-            .first()
-        )
+        this.form.find('fieldset').index(this.form.find('fieldset.active').nextAll('fieldset').first())
       );
     }
   }
@@ -308,12 +281,7 @@ class NewContentDialog {
     event.preventDefault();
     this.goTo(
       undefined,
-      this.form.find('fieldset').index(
-        this.form
-          .find('fieldset.active')
-          .prevAll('fieldset')
-          .first()
-      )
+      this.form.find('fieldset').index(this.form.find('fieldset.active').prevAll('fieldset').first())
     );
   }
   goTo(event, data) {
@@ -337,15 +305,8 @@ class NewContentDialog {
   }
   updateWarningLevel() {
     if (this.form.find('fieldset.active').hasClass('template'))
-      this.form
-        .find('> .search-warning')
-        .removeClass('alert')
-        .addClass('warning');
-    else
-      this.form
-        .find('> .search-warning')
-        .removeClass('warning')
-        .addClass('alert');
+      this.form.find('> .search-warning').removeClass('alert').addClass('warning');
+    else this.form.find('> .search-warning').removeClass('warning').addClass('alert');
   }
   updateCrumbs() {
     this.crumbs.html(
@@ -355,15 +316,7 @@ class NewContentDialog {
         .get()
         .reverse()
         .map((elem, i) => {
-          return (
-            '<a class="form-crumb-link" data-index="' +
-            i +
-            '">' +
-            $(elem)
-              .find('legend')
-              .html() +
-            '</a>'
-          );
+          return '<a class="form-crumb-link" data-index="' + i + '">' + $(elem).find('legend').html() + '</a>';
         })
         .concat([this.form.find('fieldset.active legend').html()])
         .join(' <i class="fa fa-angle-right" aria-hidden="true"></i> ')
@@ -371,10 +324,7 @@ class NewContentDialog {
   }
   renderContentForm() {
     this.form.find('.search-warning').hide();
-    this.form
-      .find('fieldset:not(.template)')
-      .trigger('dc:html:remove')
-      .remove();
+    this.form.find('fieldset:not(.template)').trigger('dc:html:remove').remove();
     this.form.find('.translated-attribute-locales, .form-thumbnail').remove();
     this.form
       .find('.buttons')
@@ -413,10 +363,7 @@ class NewContentDialog {
     $(container)
       .find('.object-browser')
       .each((i, elem) => {
-        if ($(elem).data('locale') != this.locale)
-          $(elem)
-            .data('locale', this.locale)
-            .trigger('dc:locale:changed');
+        if ($(elem).data('locale') != this.locale) $(elem).data('locale', this.locale).trigger('dc:locale:changed');
       });
     $(container)
       .find('.remote-render')

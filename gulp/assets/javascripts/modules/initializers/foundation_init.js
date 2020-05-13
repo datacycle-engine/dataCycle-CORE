@@ -1,7 +1,7 @@
 // Initialize Foundation for all elements
 var foundation = require('foundation-sites');
 
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   Foundation.Tooltip.defaults.clickOpen = false;
   Foundation.Reveal.defaults.closeOnClick = false;
   Foundation.Reveal.defaults.multipleOpened = true;
@@ -15,18 +15,12 @@ module.exports.initialize = function() {
   $(document).on('open.zf.reveal', '.reveal', event => {
     event.stopPropagation();
     $('.reveal:visible, .reveal-overlay:visible').css('z-index', '');
-    $(event.target)
-      .add($(event.target).parent('.reveal-overlay'))
-      .css('z-index', 1007);
+    $(event.target).add($(event.target).parent('.reveal-overlay')).css('z-index', 1007);
   });
 
   $(document).on('closed.zf.reveal', '.reveal', event => {
     event.stopPropagation();
-    if ($(event.target).find('video').length)
-      $(event.target)
-        .find('video')
-        .get(0)
-        .pause();
+    if ($(event.target).find('video').length) $(event.target).find('video').get(0).pause();
   });
 
   $(document).on('remove', '*', event => {

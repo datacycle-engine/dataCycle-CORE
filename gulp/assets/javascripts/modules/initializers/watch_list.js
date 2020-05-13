@@ -1,4 +1,4 @@
-module.exports.initialize = function() {
+module.exports.initialize = function ($) {
   let input_timeout = null;
   $('input.watch-list-filter-param').on('input', event => {
     event.preventDefault();
@@ -20,9 +20,7 @@ module.exports.initialize = function() {
     event.preventDefault();
 
     let watchList = $(event.currentTarget).closest('.dropdown-pane.watch-lists');
-    $(event.currentTarget)
-      .siblings('.watch-list-filter-param')
-      .val(null);
+    $(event.currentTarget).siblings('.watch-list-filter-param').val(null);
 
     let query = filterWatchList(watchList);
     $('.dropdown-pane.watch-lists')
@@ -31,20 +29,14 @@ module.exports.initialize = function() {
   });
 
   $(document).on('dc:html:changed', '*', event => {
+    event.stopPropagation();
     filterWatchList($(event.target).closest('.dropdown-pane.watch-lists'));
   });
 
   $(document).on('dc:watchlist:calculate_even', '*', event => {
     event.stopImmediatePropagation();
 
-    if (
-      $(event.target)
-        .siblings('.visible')
-        .addBack()
-        .index($(event.target)) %
-        2 ==
-      0
-    )
+    if ($(event.target).siblings('.visible').addBack().index($(event.target)) % 2 == 0)
       $(event.currentTarget).addClass('even');
   });
 
@@ -53,13 +45,9 @@ module.exports.initialize = function() {
     let q;
     if (query !== null && query !== undefined) {
       q = query;
-      $(watchList)
-        .find('input.watch-list-filter-param')
-        .val(q);
+      $(watchList).find('input.watch-list-filter-param').val(q);
     } else {
-      q = $(watchList)
-        .find('input.watch-list-filter-param')
-        .val();
+      q = $(watchList).find('input.watch-list-filter-param').val();
     }
 
     let value = (q || '').trim().toLowerCase();
@@ -72,20 +60,11 @@ module.exports.initialize = function() {
         .addClass('visible')
         .filter(':even')
         .addClass('even');
-      $(watchList)
-        .find('.reset-watch-list-filter:hidden')
-        .fadeIn(100);
+      $(watchList).find('.reset-watch-list-filter:hidden').fadeIn(100);
       $.rails.enableFormElement($(watchList).find('.reset-watch-list-filter'));
     } else {
-      $(watchList)
-        .find('> .list-items > li')
-        .removeClass('even')
-        .addClass('visible')
-        .filter(':even')
-        .addClass('even');
-      $(watchList)
-        .find('.reset-watch-list-filter:visible')
-        .fadeOut(100);
+      $(watchList).find('> .list-items > li').removeClass('even').addClass('visible').filter(':even').addClass('even');
+      $(watchList).find('.reset-watch-list-filter:visible').fadeOut(100);
       $.rails.enableFormElement($(watchList).find('.reset-watch-list-filter'));
     }
 

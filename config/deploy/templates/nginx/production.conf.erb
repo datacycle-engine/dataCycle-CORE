@@ -4,9 +4,23 @@ upstream puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
   server unix:<%= File.join(fetch(:deploy_to), 'shared/tmp/sockets/puma.sock') %> fail_timeout=0;
 }
 
+# enable for https
+#server {
+#  listen 80;
+#  listen [::]:80;
+#  server_name <%= fetch(:server_name) %>;
+#  return 301 https://$host$request_uri;
+#}
+
 server {
+  # change to 443 to use https
   listen 80;
   listen [::]:80;
+  #listen 443 ssl; # managed by Certbot
+  #listen [::]:443 ssl;
+  #ssl_certificate /etc/letsencrypt/live/<%= fetch(:server_name) %>/fullchain.pem; # managed by Certbot
+  #ssl_certificate_key /etc/letsencrypt/live/<%= fetch(:server_name) %>/privkey.pem; # managed by Certbot
+
   server_name <%= fetch(:server_name) %>;
   root <%= File.join(fetch(:deploy_to), 'current/public') %>;
   try_files $uri/index.html $uri @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;
@@ -17,11 +31,17 @@ server {
   error_page 500 502 504 /500.html;
   error_page 503 @503;
 
+  location ^~ /.well-known {
+    root /var/www/<%= fetch(:application) %>/production/shared/public;
+  }
+
   location @puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %> {
     proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
     proxy_set_header Host $http_host;
-    # required for https
+
+    # enable for https
     # proxy_set_header X-Forwarded-Proto https;
+
     proxy_redirect off;
     proxy_read_timeout 300;
     proxy_pass http://puma_<%= fetch(:application) %>_<%= fetch(:rails_env) %>;

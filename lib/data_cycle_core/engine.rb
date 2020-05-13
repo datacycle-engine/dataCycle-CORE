@@ -14,6 +14,8 @@ require 'mongoid'
 
 # event scheduling
 require 'ice_cube'
+# fix for ice_cube interfering with global i18n hash
+require 'ice_cube/railtie'
 
 # authentication
 require 'devise'

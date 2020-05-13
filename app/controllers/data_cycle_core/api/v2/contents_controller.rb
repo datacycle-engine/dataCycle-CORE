@@ -66,7 +66,7 @@ module DataCycleCore
         private
 
         def apply_ordering(query)
-          if permitted_params[:q].present? || @stored_filter.nil?
+          if permitted_params[:q].present? || @stored_filter.nil? || content_schema_type == 'Event'
             query = query.except(:order)
             query = query.sort_by_proximity if content_schema_type.present? && content_schema_type == 'Event'
             query.order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:q].presence))

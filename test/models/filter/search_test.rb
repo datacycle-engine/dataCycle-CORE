@@ -149,7 +149,7 @@ module DataCycleCore
     end
 
     test 'test query for inactive items' do
-      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: Date.current.end_of_day })
+      items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: DateTime.current.end_of_day })
       assert_equal(2, items.count)
 
       items = DataCycleCore::Filter::Search.new(:de).inactive_things({ from: nil, until: (Date.current + 3.weeks).end_of_day })

@@ -622,7 +622,9 @@ CREATE TABLE public.external_system_syncs (
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
     status character varying,
-    syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying
+    syncable_type character varying DEFAULT 'DataCycleCore::Thing'::character varying,
+    last_push_at timestamp without time zone,
+    last_successful_push_at timestamp without time zone
 );
 
 
@@ -2267,6 +2269,8 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200219111406'),
 ('20200221115053'),
 ('20200224143507'),
-('20200226121349');
+('20200226121349'),
+('20200410064408'),
+('20200420130554');
 
 

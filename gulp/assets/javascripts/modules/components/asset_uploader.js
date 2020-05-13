@@ -45,8 +45,12 @@ class AssetUploader {
       if ($('.file-for-upload.uploading').length) return 'Es gibt noch laufende Uploads!';
     });
     this.reveal.on('dc:upload:setIds', this.importAssetIds.bind(this));
-    this.reveal.on('click', '.file-for-upload .cancel-upload-button', this.removeFileHandler.bind(this));
-    this.reveal.on('click', '.file-for-upload .retry-upload-button', this.retryUpload.bind(this));
+    this.reveal.on(
+      'click',
+      '.file-for-upload:not(.uploading) .cancel-upload-button',
+      this.removeFileHandler.bind(this)
+    );
+    this.reveal.on('click', '.file-for-upload:not(.uploading) .retry-upload-button', this.retryUpload.bind(this));
 
     if (this.contentUploader) {
       this.reveal.on('dc:upload:setFormFields', '.file-for-upload', this.setFormFieldValues.bind(this));
@@ -58,9 +62,8 @@ class AssetUploader {
   removeFileHandler(event) {
     event.preventDefault();
     event.stopPropagation();
-    let target = $(event.currentTarget)
-      .closest('.file-for-upload')
-      .remove();
+
+    let target = $(event.currentTarget).closest('.file-for-upload').remove();
 
     this.files = this.files.filter(f => f.id != target.data('id'));
     this.updateCreateButton();
@@ -140,7 +143,14 @@ class AssetUploader {
                 .trigger('dc:form:setContentIds', { contentIds: data.content_ids.map(i => i.id) });
               this.reveal.foundation('close');
             } else if (!this.files.length && data.redirect_path) {
-              window.location.href = data.redirect_path;
+              let redirect_path = data.redirect_path;
+              if (data && data.flash) {
+                Object.keys(data.flash).forEach((item, index) => {
+                  redirect_path += index == 0 ? '?' : '&';
+                  redirect_path += 'flash[' + item + ']=' + encodeURI(data.flash[item]);
+                });
+              }
+              window.location.href = redirect_path;
             }
           }
         }
@@ -159,6 +169,8 @@ class AssetUploader {
       formData.push({ name: 'template', value: this.templateName });
 
     this.files.forEach((file, i) => {
+      file.fileField.addClass('creating');
+
       let attributeValues = ObjectHelpers.deepCopy(file.attributeFieldValues) || [];
       attributeValues.push({ name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id });
       attributeValues.push({ name: 'thing[uploader_field_id]', value: file.id });
@@ -178,11 +190,17 @@ class AssetUploader {
     });
   }
   validateAttributes(file) {
+    if (this.showNewForm && (!file.attributeFieldValues || !file.attributeFieldValues.length)) {
+      this.updateFileValidated(file, { error: 'Fehlende Metadaten!' });
+      return;
+    }
+
     let formData = [
       { name: 'template', value: this.templateName },
       { name: 'strict', value: '1' },
       { name: 'thing[datahash][' + this.assetKey + ']', value: file.asset && file.asset.id }
     ];
+
     formData = formData.concat(file.attributeFieldValues || []);
 
     $.ajax({
@@ -200,10 +218,7 @@ class AssetUploader {
       file.attributeFieldsValidated = false;
     } else {
       file.attributeFieldsValidated = true;
-      file.fileField
-        .add(file.fileFormField)
-        .addClass('validated')
-        .removeAttr('title');
+      file.fileField.add(file.fileFormField).addClass('validated').removeAttr('title');
     }
     this.updateCreateButton();
   }
@@ -277,28 +292,32 @@ class AssetUploader {
           f.name.includes(key) &&
           (!f.name.includes('[translations]') || f.name.includes('[translations][' + this.locale + ']'))
       );
+      let attribute = file.attributeValues[key];
 
-      if (file.attributeValues[key].type == 'boolean') {
+      if (attribute.type == 'boolean') {
         let value = values && values.length && values.filter(v => v.value.includes('true')).length ? 'ja' : 'nein';
-        Object.assign(file.attributeValues[key], {
+        if (attribute.ui && attribute.ui.create && attribute.ui.create.transform_value == 'invert')
+          value = value == 'ja' ? 'nein' : 'ja';
+
+        Object.assign(attribute, {
           name: key,
-          value: this.renderAttributeHtml(file.attributeValues[key], value)
+          value: this.renderAttributeHtml(attribute, value)
         });
       } else if (values && values.length) {
-        Object.assign(file.attributeValues[key], {
+        Object.assign(attribute, {
           name: key,
           value: this.renderAttributeHtml(
-            file.attributeValues[key],
+            attribute,
             values
               .map(v => v.text || v.value)
               .filter(Boolean)
               .join(', ')
           )
         });
-      } else if (!file.attributeValues[key].value) {
-        Object.assign(file.attributeValues[key], {
+      } else if (!attribute.value) {
+        Object.assign(attribute, {
           name: key,
-          value: this.renderAttributeHtml(file.attributeValues[key])
+          value: this.renderAttributeHtml(attribute)
         });
       }
     });
@@ -309,11 +328,14 @@ class AssetUploader {
       value = new Date(value).toLocaleDateString();
     }
 
+    let label = attribute.label;
+    if (attribute.ui && attribute.ui.create && attribute.ui.create.label) label = attribute.ui.create.label;
+
     return (
       '<span class="file-label" title="' +
-      attribute.label +
+      label +
       '">' +
-      attribute.label +
+      label +
       '</span><span class="file-attribute-value" title="' +
       $('<span>' + value + '</span>').text() +
       '">' +
@@ -334,12 +356,7 @@ class AssetUploader {
     return '<div class="asset-attribute ' + field.type + '" data-name="' + field.name + '">' + field.value + '</div>';
   }
   prepareFileForUpload(file) {
-    file.fileField
-      .add(file.fileFormField)
-      .removeClass('error finished')
-      .addClass('uploading')
-      .find('.error')
-      .remove();
+    file.fileField.add(file.fileFormField).removeClass('error finished').addClass('uploading').find('.error').remove();
   }
   uploadFile(file) {
     if (file.uploaded) {
@@ -367,12 +384,12 @@ class AssetUploader {
         processData: false,
         contentType: false,
         cache: false,
-        xhr: function() {
+        xhr: function () {
           var myXhr = $.ajaxSettings.xhr();
           if (myXhr.upload) {
             myXhr.upload.addEventListener(
               'progress',
-              function(e) {
+              function (e) {
                 if (e.lengthComputable) {
                   var elapsedtime = (new Date().getTime() - startTime) / 1000;
                   var eta = Math.round((e.total / e.loaded) * elapsedtime - elapsedtime);
@@ -390,10 +407,7 @@ class AssetUploader {
                         '</span>'
                     );
                   if (e.loaded == e.total) {
-                    file.fileField
-                      .add(file.fileFormField)
-                      .find('.upload-number')
-                      .html('wird verarbeitet...');
+                    file.fileField.add(file.fileFormField).find('.upload-number').html('wird verarbeitet...');
                   }
                 }
               },
@@ -421,10 +435,7 @@ class AssetUploader {
     file.retryUpload = false;
     let error = null;
 
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-progress-bar')
-      .css('width', '100%');
+    file.fileField.add(file.fileFormField).find('.upload-progress-bar').css('width', '100%');
 
     if (data.error) {
       this.resetFileField(file);
@@ -446,6 +457,7 @@ class AssetUploader {
         .html('hochgeladen, OK');
       file.asset = Object.assign({}, file.asset, data);
       if (!this.showNewForm) this.updateFileValidated(file, {});
+      else this.validateAttributes(file);
     }
     this.updateCreateButton(error);
   }
@@ -482,11 +494,7 @@ class AssetUploader {
     else fileInfoFields.append('<span class="' + cssClass + '">' + message + '</span>');
   }
   renderError(file, error) {
-    file.fileField
-      .add(file.fileFormField)
-      .addClass('error')
-      .find('.upload-number')
-      .html('Uploadfehler');
+    file.fileField.add(file.fileFormField).addClass('error').find('.upload-number').html('Uploadfehler');
 
     this.renderErrorHtml(file, 'error', error);
     this.updateOverlayButtons(file);
@@ -598,7 +606,7 @@ class AssetUploader {
         '"><i class="fa fa-picture-o" aria-hidden="true"></i></object>'
     );
     var theImage = new Image();
-    theImage.onload = function() {
+    theImage.onload = function () {
       fileOptions.mediaHtml = that.fileMediaHTML(
         fileOptions,
         ', ' + theImage.naturalWidth + 'x' + theImage.naturalHeight + 'px'
@@ -609,7 +617,7 @@ class AssetUploader {
       };
       that.validateAndRender(fileOptions);
     };
-    theImage.onerror = function() {
+    theImage.onerror = function () {
       that.validateAndRender(fileOptions);
     };
     theImage.src = fileOptions.fileUrl;
@@ -618,7 +626,7 @@ class AssetUploader {
     var that = this;
     fileOptions.prependHtml = this.fileThumbHtml('<i class="fa fa-video-camera" aria-hidden="true"></i>');
     var theVideo = document.createElement('video');
-    theVideo.onloadedmetadata = function() {
+    theVideo.onloadedmetadata = function () {
       window.URL.revokeObjectURL(this.src);
       fileOptions.mediaHtml = that.fileMediaHTML(
         fileOptions,
@@ -635,7 +643,7 @@ class AssetUploader {
       };
       that.validateAndRender(fileOptions);
     };
-    theVideo.onerror = function() {
+    theVideo.onerror = function () {
       that.validateAndRender(fileOptions);
     };
     theVideo.setAttribute('src', fileOptions.fileUrl);
@@ -706,9 +714,7 @@ class AssetUploader {
         '_new_form" data-remote-path="data_cycle_core/contents/new/shared/new_form"></div></div>'
     );
 
-    $(html)
-      .find('.new-content-form')
-      .attr('data-remote-options', JSON.stringify(this.remoteOptions));
+    $(html).find('.new-content-form').attr('data-remote-options', JSON.stringify(this.remoteOptions));
 
     fileOptions.fileFormField = $(fileOptions.fileField.clone().removeAttr('data-open')).prependTo(html);
     fileOptions.fileField.find('.file-buttons .edit-upload-button').attr('data-open', fileOptions.id + '_edit_overlay');
@@ -737,14 +743,8 @@ class AssetUploader {
   }
   resetFileField(file) {
     file.fileField.add(file.fileFormField).removeClass('uploading error');
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-number')
-      .html('');
-    file.fileField
-      .add(file.fileFormField)
-      .find('.upload-progress-bar')
-      .css('width', '0');
+    file.fileField.add(file.fileFormField).find('.upload-number').html('');
+    file.fileField.add(file.fileFormField).find('.upload-progress-bar').css('width', '0');
   }
 }
 

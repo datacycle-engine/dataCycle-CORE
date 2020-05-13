@@ -94,6 +94,7 @@
 #      :type: date
 #    :mandatory_license:
 #      :type: boolean
+#  :related_to: true
 
 :geocode:
   :enabled: false

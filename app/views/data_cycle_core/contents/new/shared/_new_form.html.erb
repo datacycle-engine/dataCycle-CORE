@@ -45,9 +45,11 @@
   <% end %>
 
   <div class="buttons">
-    <button class="button reset" data-disable type="reset">
-      <%= t('actions.reset', count: 1, locale: DataCycleCore.ui_language) %>
-    </button>
+    <% unless local_assigns[:content_uploader] %>
+      <button class="button reset" data-disable type="reset">
+        <%= t('actions.reset', count: 1, locale: DataCycleCore.ui_language) %>
+      </button>
+    <% end %>
     <button class="button prev" type="button">
       <%= t('actions.back', locale: DataCycleCore.ui_language) %>
     </button>
@@ -55,14 +57,17 @@
       <%= t('actions.next', locale: DataCycleCore.ui_language) %>
     </button>
     <% if local_assigns[:content_uploader] %>
-      <button class="button submit set-all-attributes" data-disable type="button">
+      <button class="button submit set-all-attributes" data-disable type="button" title="<%= t('upload.copy_all_title', single: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 1, locale: DataCycleCore.ui_language), multiple: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language), locale: DataCycleCore.ui_language) %>">
         <%= t('actions.set_all_attributes', data: local_assigns[:asset_class]&.constantize&.model_name&.human(count: 2, locale: DataCycleCore.ui_language) , locale: DataCycleCore.ui_language) %>
-        <i class="fa fa-arrow-right" aria-hidden="true"></i>
+        <span class="copy-icon fa-stack">
+          <i class="fa fa-clone"></i>
+          <i class="fa fa-arrow-right fa-stack-1x"></i>
+        </span>
       </button>
     <% end %>
     <%= button_tag t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language),
       type: :submit,
-      class: "button submit",
+      class: "button success submit",
       disabled: local_assigns[:search_required] && local_assigns[:search_param].blank? && cannot?(:create_without_search, local_assigns[:template] || DataCycleCore::Thing),
       data: {
         disable_with: "#{t("actions.#{local_assigns[:content_uploader] ? 'set_and_next' : 'save'}", locale: DataCycleCore.ui_language)} <i class='fa fa-circle-o-notch fa-spin fa-fw'></i>"

@@ -21,7 +21,7 @@ module DataCycleCore
       before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks
+      after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
       after_created_data_hash :execute_create_webhooks

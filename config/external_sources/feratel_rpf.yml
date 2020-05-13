@@ -76,44 +76,50 @@ config:
       source_type: classifications
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadCategories
+    creative_commons:
+      sorting: 11
+      endpoint: DataCycleCore::Generic::Feratel::Endpoint
+      source_type: creative_commons
+      read_type: locations
+      download_strategy: DataCycleCore::Generic::Feratel::DownloadCategories
     rating_questions:
-      sorting: 12
+      sorting: 23
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: rating_questions
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadTranslatedCategories
     additional_service_providers:
-      sorting: 13
+      sorting: 25
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: additional_service_providers
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     packages:
-      sorting: 14
+      sorting: 30
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: packages
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
     package_containers:
-      sorting: 15
+      sorting: 40
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: package_containers
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadPackages
     infrastructure_items:
-      sorting: 16
+      sorting: 50
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: infrastructure_items
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     events:
-      sorting: 17
+      sorting: 60
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: events
       read_type: locations
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     accommodations:
-      sorting: 18
+      sorting: 70
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: accommodations
       read_type: locations
@@ -250,6 +256,15 @@ config:
       import_strategy: DataCycleCore::Generic::Common::ImportTags
       tag_id_path: 'Id'
       tag_name_path: 'Name.Translation.text'
+      external_id_prefix: ''
+    creative_commons:
+      sorting: 30
+      source_type: creative_commons
+      tree_label: Feratel - CreativeCommons
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'Id'
+      tag_name_path: 'Name'
+      tag_uri_path: 'URL'
       external_id_prefix: ''
     infrastructure_items:
       sorting: 50

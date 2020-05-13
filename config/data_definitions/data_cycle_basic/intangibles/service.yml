@@ -156,8 +156,8 @@
                 - Organisation
       :offers:
         :label: Angebote
-        :type: linked
-        :template_name: Offer
+        :type: embedded
+        :template_name: Angebot
       # :potentialAction:
       #   :label: Buchungs-Url
       #   :type: object
@@ -173,6 +173,9 @@
       #       :label: URL
       #       :type: string
       #       :storage_location: translated_value
+      :feratel_service_classifications:
+        :type: mixin
+        :name: feratel_service_classifications
       :data_type:
         :label: Inhaltstype
         :type: classification
