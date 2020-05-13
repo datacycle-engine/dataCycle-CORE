@@ -30,6 +30,16 @@ module DataCycleCore
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end
 
+      def assert_attributes(required_attributes, attributes)
+        yield
+        attributes.each { |a| required_attributes.delete(a) }
+      end
+
+      def required_validation_attributes(thing)
+        excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing)
+        thing.property_names - excluded_keys
+      end
+
       def excluded_properties_for(content)
         content.name_property_selector { |definition| definition['type'] == 'classification' && api_enabled?(definition) == false }
       end

@@ -47,7 +47,7 @@
         :external: true
         :api:
           :v4:
-            :name: 'cc:use_guidlines'
+            :name: 'cc:useGuidlines'
       :license_classification:
         :label: Lizenzen
         :type: classification

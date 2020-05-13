@@ -29,6 +29,7 @@ module DataCycleCore
       include DataCycleCore::Content::DataHashUtility
       include DataCycleCore::Content::Extensions::Content
       include DataCycleCore::Content::Extensions::ContentWarnings
+      include DataCycleCore::Content::Extensions::Api
 
       after_save :reload_memoized
 
@@ -48,15 +49,6 @@ module DataCycleCore
         else
           super
         end
-      end
-
-      def to_api_list
-        {
-          '@id' => id,
-          '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
-          'dct:modified' => updated_at,
-          'dct:created' => created_at
-        }
       end
 
       def respond_to?(method_name, include_all = false)
