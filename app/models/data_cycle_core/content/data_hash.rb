@@ -5,7 +5,7 @@ module DataCycleCore
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
       define_model_callbacks :save_data_hash, only: :before
-      define_model_callbacks :saved_data_hash, only: :after
+      define_model_callbacks :saved_data_hash, only: [:before, :after]
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
