@@ -82,6 +82,12 @@ module DataCycleCore
 
       private
 
+      def classification_template_translator(classification)
+        {
+          'Organisation' => 'Organization'
+        }[classification]
+      end
+
       def resolve_data_type(definition)
         if definition.dig('api', 'type')
           "//schema.org/#{definition.dig('api', 'type')}"
@@ -98,8 +104,10 @@ module DataCycleCore
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
               .map { |i|
-                if DataCycleCore::Thing.find_by(template_name: i, template: true).present?
-                  "/schema/#{i}"
+                template_name = i
+                template_name = 'Organization' if i == 'Organisation' # no direct relation between Classification and Template!
+                if DataCycleCore::Thing.find_by(template_name: template_name, template: true).present?
+                  "/schema/#{template_name}"
                 else
                   Array.wrap(@schema.template_by_template_name(i)&.schema_name)
                     .compact
