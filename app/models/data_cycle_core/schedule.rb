@@ -39,6 +39,13 @@ module DataCycleCore
       }[day]
     end
 
+    def to_api_default_values
+      {
+        '@id' => id,
+        '@type' => 'Schedule'
+      }
+    end
+
     def to_schedule_schema_org
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
       end_time = dtend&.to_s(:only_time)

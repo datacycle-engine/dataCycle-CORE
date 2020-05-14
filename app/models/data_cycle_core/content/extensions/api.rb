@@ -22,6 +22,10 @@ module DataCycleCore
             'name' => title
           }
         end
+
+        def api_type
+          schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize
+        end
       end
     end
   end

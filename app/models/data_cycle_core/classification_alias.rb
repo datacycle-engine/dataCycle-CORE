@@ -201,6 +201,13 @@ module DataCycleCore
       classifications.pluck(:external_key)&.join(', ')
     end
 
+    def to_api_default_values
+      {
+        '@id' => id,
+        '@type' => 'skos:Concept'
+      }
+    end
+
     private
 
     def set_internal_data

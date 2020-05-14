@@ -4,6 +4,7 @@ require 'test_helper'
 require 'json'
 require 'v4/helpers/dummy_data_helper'
 require 'v4/helpers/api_helper'
+require 'v4/validation/context'
 
 module DataCycleCore
   module Api
@@ -20,8 +21,7 @@ module DataCycleCore
           sign_in(User.find_by(email: 'tester@datacycle.at'))
         end
 
-        # test context
-
+        # test default event
         test 'api_v4_thing_path validate full event' do
           assert_full_thing_datahash(@event)
           params = {
@@ -31,8 +31,11 @@ module DataCycleCore
           json_data = JSON.parse response.body
 
           # validate context
-          context = json_data.delete('@context')
-          # TODO: add test
+          json_context = json_data.delete('@context')
+          assert_equal(2, json_context.size)
+          assert_equal('http://schema.org', json_context.first)
+          validator = DataCycleCore::V4::Validation::Context.context
+          assert_equal({}, validator.call(json_context.second).errors.to_h)
 
           # test full event data
           required_attributes = required_validation_attributes(@event)
@@ -61,7 +64,7 @@ module DataCycleCore
             assert_equal(@event.end_date.as_json, json_data.delete('endDate'))
           end
 
-          # computed attributes
+          # disabled attributes
           assert_attributes(required_attributes, ['validity_period']) do
             assert_nil(json_data.dig('validity_period'))
           end
@@ -117,7 +120,38 @@ module DataCycleCore
             json_data.delete('additionalProperty') if additional_property.reject(&:blank?).blank?
           end
 
-          # binding.pry
+          # embedded default: event_status, event_attendance_mode
+          assert_attributes(required_attributes, ['event_status', 'event_attendance_mode']) do
+            assert_equal(@event.event_status.first.classification_aliases.first.uri, json_data.delete('eventStatus'))
+            assert_equal(@event.event_attendance_mode.first.classification_aliases.first.uri, json_data.delete('eventAttendanceMode'))
+          end
+
+          # embedded default: event_schedule
+          assert_attributes(required_attributes, ['event_schedule']) do
+            assert_equal(@event.event_schedule.size, 1)
+            assert_equal(json_data.dig('eventSchedule').size, 1)
+            assert_equal(@event.event_schedule.first.to_api_default_values, json_data.dig('eventSchedule').first)
+            json_data.delete('eventSchedule')
+          end
+
+          # locations content_location, virtual_location
+          assert_attributes(required_attributes, ['content_location', 'virtual_location']) do
+            locations = json_data.dig('location')
+            assert_equal(2, locations.size)
+            content_location = locations.detect { |v| v.dig('@type') == 'TouristAttraction' }
+            assert_equal(@event.content_location.first.to_api_default_values, content_location)
+
+            virtual_location = locations.detect { |v| v.dig('@type') == 'VirtualLocation' }
+            assert_equal(@event.virtual_location.first.to_api_default_values, virtual_location)
+            json_data.delete('location')
+          end
+
+          # validate classifications
+          event_classifications = @event.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values).sort_by { |c| c['@id'] }
+          json_classificatons = json_data.dig('dc:classification').sort_by { |c| c['@id'] }
+          assert_equal(event_classifications, json_classificatons)
+          json_data.delete('dc:classification')
+
           assert_equal([], required_attributes)
           assert_equal({}, json_data)
         end
