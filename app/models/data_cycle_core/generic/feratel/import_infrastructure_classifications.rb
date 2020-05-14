@@ -132,3 +132,38 @@ module DataCycleCore
     end
   end
 end
+
+# mongo query:
+#
+# db.getCollection('infrastructure_topics').aggregate([
+#     {$match: {'dump.de.Active': 'true'}},
+#     {$lookup: {from: 'infrastructure_types', localField: 'dump.de.Type', foreignField: 'dump.de.Type', as: 'dump.de.Group'}},
+#     {$unwind: {path: '$dump.de.Group'}},
+#     {$group: {
+#         _id: "$dump.de.Group.dump.de.Type",
+#         'dump': { '$first': '$dump.de.Group.dump'},
+#         'Rubrik1': {
+#             '$push': {
+#                 $cond: [ { $eq: [ '$dump.de.SubType', '1'] }, '$$ROOT', null ]
+#             }
+#         },
+#         'Rubrik2': {
+#             '$push': {
+#                 $cond: [ { $eq: [ '$dump.de.SubType', '2'] }, '$$ROOT', null ]
+#             }
+#         }
+#     }},
+#     {
+#       '$project': {
+#          "dump.de._Type": true,
+#          "dump.de.Id": true,
+#          "dump.de.Type": true,
+#          "dump.de.Active": true,
+#          "dump.de.ChangeDate": true,
+#          "dump.de.Global": true,
+#          "dump.de.Name": true,
+#          "dump.de.Rubrik1": '$Rubrik1',
+#          "dump.de.Rubrik2": '$Rubrik2'
+#    }
+# }
+# ])
