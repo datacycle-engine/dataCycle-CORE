@@ -137,7 +137,6 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_full/:id', to: 'dash_board#import_full', as: 'admin_import_full'
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
-  get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
   get  '/admin/activities', to: 'dash_board#activities'

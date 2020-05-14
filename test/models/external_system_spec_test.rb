@@ -13,7 +13,7 @@ describe DataCycleCore::ExternalSystem do
         key: 'testkey'
       },
       config: {
-        push_config: {
+        export_config: {
         },
         refresh_config: {
         }
@@ -21,13 +21,13 @@ describe DataCycleCore::ExternalSystem do
     )
   end
 
-  it 'produces a push_config' do
-    assert(subject.push_config, subject.config['push_config'].symbolize_keys)
+  it 'produces a export_config' do
+    assert(subject.export_config, subject.config['export_config'].symbolize_keys)
   end
 
-  it 'returns nil if no push_config is defined' do
+  it 'returns nil if no export_config is defined' do
     subject.config = nil
-    assert_nil(subject.push_config)
+    assert_nil(subject.export_config)
   end
 
   it 'produces a refresh_config' do

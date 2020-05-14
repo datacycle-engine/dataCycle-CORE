@@ -4,9 +4,9 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::ImportExternalSources do
+describe DataCycleCore::MasterData::ImportExternalSystems do
   subject do
-    DataCycleCore::MasterData::ImportExternalSources
+    DataCycleCore::MasterData::ImportExternalSystems
   end
 
   describe 'loaded external_sources_config' do

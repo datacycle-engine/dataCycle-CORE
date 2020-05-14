@@ -94,7 +94,7 @@ module DataCycleCore
           ).where('created_at > ?', duplicated_relation.oldest_creation_date).destroy_all
         end
 
-        contents.each { |c| c.webhook_source = @external_source&.credentials&.dig('external_system') }
+        contents.each { |c| c.webhook_source = @external_source&.name }
         contents.map(&:destroy_content).first
       end
     end

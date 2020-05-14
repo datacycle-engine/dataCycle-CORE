@@ -81,20 +81,6 @@ module DataCycleCore
       redirect_to admin_path
     end
 
-    def import_config
-      @errors = nil
-      errors = MasterData::ImportExternalSources.import_all
-      if errors.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import configs', locale: DataCycleCore.ui_language
-      else
-        @errors = errors
-        puts 'errors:'
-        ap errors
-        flash[:error] = 'errors were encountered'
-      end
-      redirect_to admin_path
-    end
-
     def import_external_systems
       @errors = nil
       errors = MasterData::ImportExternalSystems.import_all
