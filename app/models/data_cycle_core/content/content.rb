@@ -226,7 +226,7 @@ module DataCycleCore
       end
 
       def schema_sorted
-        sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort { |i1, i2| i1.values.first.dig('sorting') <=> i2.values.first.dig('sorting') }.inject(&:merge)
+        sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
         schema.deep_dup.merge({ 'properties' => sorted_properties })
       end
 
