@@ -12,7 +12,8 @@ module DataCycleCore
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           end
 
-          # TDOD: add tests to combine created / modified
+          # TODO: add context test
+          # add tests to combine created / modified
 
           test 'api/v4/concept_schemes parameter filter[:createdAt]' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')

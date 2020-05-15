@@ -22,6 +22,8 @@ module DataCycleCore
             @classification_tag.save
           end
 
+          # TODO: add context test
+
           test 'api/v4/concept_schemes exists in language: de' do
             params = {
               language: 'de'

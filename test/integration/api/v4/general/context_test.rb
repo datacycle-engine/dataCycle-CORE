@@ -1,23 +1,14 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
-require 'v4/validation/context'
-require 'v4/helpers/api_helper'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
       module General
-        class ContextTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-          include DataCycleCore::V4::ApiHelper
-
+        class ContextTest < DataCycleCore::V4::Base
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
-            @routes = Engine.routes
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
           test 'api/v4/concept_schemes' do

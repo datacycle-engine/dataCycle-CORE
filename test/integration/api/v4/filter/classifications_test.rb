@@ -1,27 +1,18 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
-require 'v4/helpers/dummy_data_helper'
-require 'v4/helpers/api_helper'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
       module Filter
-        class ClassificationsTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-          include DataCycleCore::V4::ApiHelper
-          include DataCycleCore::V4::DummyDataHelper
-
+        class ClassificationsTest < DataCycleCore::V4::Base
           # setup description
           # 2 poi's: licenses: (CC BY 4.0, CC BY-SA 4.0) | CC BY (only for without subTree test)
           # 2 food_establishment CC BY 4.0 | CC BY-SA 4.0
           # 4 images CC0 | CC0 | CC0 | CC0
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
-            @routes = Engine.routes
 
             @cc_by40 = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY 4.0').first
             @cc_by = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name('CC BY').first
@@ -47,8 +38,6 @@ module DataCycleCore
             license_classification = @food_establishment_b.get_data_hash
             license_classification['license_classification'] = [@cc_by_sa40.primary_classification.id]
             @food_establishment_b.set_data_hash(prevent_history: true, data_hash: license_classification)
-
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
           test 'api/v4/things with filter[classifications][in]' do

@@ -1,20 +1,12 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
-require 'v4/helpers/dummy_data_helper'
-require 'v4/helpers/api_helper'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
       module Sort
-        class TimestampsTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-          include DataCycleCore::V4::ApiHelper
-          include DataCycleCore::V4::DummyDataHelper
-
+        class TimestampsTest < DataCycleCore::V4::Base
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
             @routes = Engine.routes

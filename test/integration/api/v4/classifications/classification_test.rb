@@ -12,6 +12,8 @@ module DataCycleCore
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           end
 
+          # TODO: add context test
+
           test 'api/v4/concept_schemes' do
             post api_v4_concept_schemes_path
 
@@ -24,7 +26,6 @@ module DataCycleCore
             end
           end
 
-          # test with fields / linked not working for concept_schemes
           test 'api/v4/concept_schemes with fields=dct:modified' do
             post api_v4_concept_schemes_path(fields: 'dc:entityUrl')
 
@@ -61,9 +62,6 @@ module DataCycleCore
               fields: 'dc:entityUrl,dc:hasConcept'
             }
             post api_v4_concept_scheme_path(post_params)
-
-            assert_response :success
-            assert_equal(response.content_type, 'application/json')
 
             json_data = JSON.parse(response.body)
 
@@ -133,9 +131,6 @@ module DataCycleCore
             }
             post classifications_api_v4_concept_scheme_path(params)
 
-            assert_response :success
-            assert_equal(response.content_type, 'application/json')
-
             json_data = JSON.parse(response.body)
 
             fields = Dry::Schema.JSON do
@@ -156,7 +151,6 @@ module DataCycleCore
             update_tag.primary_classification.update_column(:external_key, nil) # rubocop:disable Rails/SkipsModelValidations
           end
 
-          # TODO: fields for relation without relation attirbute name MUST return minimal header
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -178,7 +172,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme,skos:inScheme.skos:prefLabel' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -206,7 +199,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:inScheme.skos:prefLabel' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -234,7 +226,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: nested fields for relation with relation attribute name MUST return DEFAULT_HEADER + Attribute for main + nested
           test 'api/v4/concept_schemes/(:id)/concepts fields skos:broader.skos:inScheme.skos:prefLabel' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -269,7 +260,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -295,7 +285,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: nested include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES for entry + nested
           test 'api/v4/concept_schemes/(:id)/concepts include skos:broader.skos:inScheme' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -329,7 +318,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: include for relation  MUST return DEFAULT_HEADER + DEFAULT_ATTRIBUTES
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -357,7 +345,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: include MUST NOT return anything if fields are use
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors fields skos:prefLabel' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count
@@ -381,7 +368,6 @@ module DataCycleCore
             end
           end
 
-          # TODO: include MUST NOT return anything if fields are use
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme fields skos:inScheme.skos:prefLabel' do
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
             classifications = DataCycleCore::ClassificationAlias.for_tree('Tags').count

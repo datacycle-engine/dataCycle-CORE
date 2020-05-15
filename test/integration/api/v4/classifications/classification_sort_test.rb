@@ -12,7 +12,7 @@ module DataCycleCore
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
           end
 
-          # order by created_at
+          # TODO: add context test
           test 'api/v4/concept_schemes parameter sort: created' do
             tree_tags = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags')
             orig_ts = tree_tags.created_at
