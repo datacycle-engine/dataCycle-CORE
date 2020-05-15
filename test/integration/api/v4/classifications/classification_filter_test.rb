@@ -1,24 +1,15 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
-require 'v4/validation/concept'
-require 'v4/helpers/api_helper'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
       module Classifications
-        class ClassificationFilterTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-          include DataCycleCore::V4::ApiHelper
-
+        class ClassificationFilterTest < DataCycleCore::V4::Base
           setup do
             DataCycleCore::Thing.where(template: false).delete_all
-            @routes = Engine.routes
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
 
           # TDOD: add tests to combine created / modified

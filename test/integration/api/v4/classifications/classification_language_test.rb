@@ -1,21 +1,13 @@
 # frozen_string_literal: true
 
-require 'test_helper'
-require 'json'
-require 'v4/validation/concept'
-require 'v4/helpers/api_helper'
+require 'v4/base'
 
 module DataCycleCore
   module Api
     module V4
       module Classifications
-        class ClassificationLanguageTest < ActionDispatch::IntegrationTest
-          include Devise::Test::IntegrationHelpers
-          include Engine.routes.url_helpers
-          include DataCycleCore::V4::ApiHelper
-
+        class ClassificationLanguageTest < DataCycleCore::V4::Base
           setup do
-            @routes = Engine.routes
             @tree = DataCycleCore::ClassificationTreeLabel.where(name: 'Tags').visible('api').first
             @trees = DataCycleCore::ClassificationTreeLabel.where(internal: false).visible('api').count
 
@@ -28,19 +20,7 @@ module DataCycleCore
               }
             end
             @classification_tag.save
-            sign_in(User.find_by(email: 'tester@datacycle.at'))
           end
-
-          # teardown do
-          #   I18n.with_locale(:en) do
-          #     @classificaton_tag.attributes = {
-          #       name: nil,
-          #       description: nil
-          #     }
-          #   end
-          #   @classificaton_tag.save
-          #   binding.pry
-          # end
 
           test 'api/v4/concept_schemes exists in language: de' do
             params = {

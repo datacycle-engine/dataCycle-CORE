@@ -35,6 +35,13 @@ module DataCycleCore
         attributes.each { |a| required_attributes.delete(a) }
       end
 
+      def assert_json_attributes(json_validate)
+        compare_json = yield
+        json = json_validate.dup.slice(*compare_json.keys)
+        assert_equal(compare_json, json)
+        compare_json.each_key { |a| json_validate.delete(a) }
+      end
+
       def required_validation_attributes(thing)
         excluded_keys = EXCLUDED_PROPERTIES + DataCycleCore.internal_data_attributes + excluded_properties_for(thing)
         thing.property_names - excluded_keys
@@ -45,7 +52,7 @@ module DataCycleCore
       end
 
       def api_enabled?(definition)
-        return true if definition.dig('api', 'v4', 'disabled') == false &&  definition.dig('api', 'v4')&.key?('disabled')
+        return true if definition.dig('api', 'v4', 'disabled') == false && definition.dig('api', 'v4')&.key?('disabled')
         return true if definition.dig('api', 'disabled') == false && definition.dig('api')&.key?('disabled')
         false
       end

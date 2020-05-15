@@ -109,6 +109,13 @@ module DataCycleCore
       :de
     end
 
+    def to_api_default_values
+      {
+        '@id' => id,
+        '@type' => 'skos:ConceptScheme'
+      }
+    end
+
     private
 
     def invalidate_things_cache
