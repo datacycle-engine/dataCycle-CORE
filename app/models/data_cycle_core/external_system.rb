@@ -9,18 +9,20 @@ module DataCycleCore
     has_many :users, through: :external_system_syncs, source: :syncable, source_type: 'DataCycleCore::User'
 
     # relations as external_source
-    has_many :classifications, foreign_key: :external_source_id
-    has_many :classification_alias, foreign_key: :external_source_id
+    # rubocop:disable Rails/HasManyOrHasOneDependent, Rails/InverseOf
+    has_many :classifications, foreign_key: :external_source_id, inverse_of: :external_source
+    has_many :classification_alias, foreign_key: :external_source_id, inverse_of: :external_source
     has_many :classification_contents, foreign_key: :external_source_id
     has_many :classification_content_histories, foreign_key: :external_source_id
-    has_many :classification_groups, foreign_key: :external_source_id
-    has_many :classification_tree_labels, foreign_key: :external_source_id
-    has_many :classification_trees, foreign_key: :external_source_id
+    has_many :classification_groups, foreign_key: :external_source_id, inverse_of: :external_source
+    has_many :classification_tree_labels, foreign_key: :external_source_id, inverse_of: :external_source
+    has_many :classification_trees, foreign_key: :external_source_id, inverse_of: :external_source
     has_many :content_contents, foreign_key: :external_source_id
     has_many :content_content_histories, foreign_key: :external_source_id
     has_many :imported_things, foreign_key: :external_source_id, class_name: 'DataCycleCore::Thing', inverse_of: :external_source
     has_many :thing_histories, foreign_key: :external_source_id, class_name: 'DataCycleCore::Thing::History', inverse_of: :external_source
-    has_many :schedules, foreign_key: :external_source_id
+    has_many :schedules, foreign_key: :external_source_id, inverse_of: :external_source
+    # rubocop:enable Rails/HasManyOrHasOneDependent, Rails/InverseOf
 
     def export_config
       return @export_config if defined? @export_config
@@ -39,12 +41,12 @@ module DataCycleCore
 
     def download_list
       return @download_list if defined? @download_list
-      @download_list = download_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+      @download_list = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def download_list_ranked
       return @download_list_ranked if defined? @download_list_ranked
-      @download_list_ranked = download_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @download_list_ranked = download_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def import_config
@@ -54,12 +56,12 @@ module DataCycleCore
 
     def import_list
       return @import_list if defined? @import_list
-      @import_list = import_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, _| k.to_sym }
+      @import_list = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, _| k.to_sym }
     end
 
     def import_list_ranked
       return @import_list_ranked if defined? @import_list_ranked
-      @import_list_ranked = import_config&.sort { |d1, d2| d1.second['sorting'] <=> d2.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
+      @import_list_ranked = import_config&.sort_by { |v| v.second['sorting'] }&.map { |k, v| [v.dig('sorting'), k.to_sym] }
     end
 
     def credentials(type = 'import')
@@ -90,8 +92,8 @@ module DataCycleCore
       raise 'First parameter has to be an options hash!' unless options.is_a?(::Hash)
       success = true
       ts_start = Time.zone.now
-      download_config.sort { |d1, d2|
-        d1.second['sorting'] <=> d2.second['sorting']
+      download_config.sort_by { |v|
+        v.second['sorting']
       }.each do |(name, _)|
         success &&= download_single(name, options, &block)
       end
@@ -109,8 +111,8 @@ module DataCycleCore
       max = options.dig(:max) || max_sorting + 1
       download_config.select { |_key, hash|
         hash.dig('sorting').in?((min..max))
-      }.sort { |d1, d2|
-        d1.second['sorting'] <=> d2.second['sorting']
+      }.sort_by { |v|
+        v.second['sorting']
       }.each do |(name, _data)|
         success &&= download_single(name, options, &block)
       end
@@ -141,8 +143,8 @@ module DataCycleCore
       ts_start = Time.zone.now
       self.last_import = ts_start
       save
-      import_config.sort { |d1, d2|
-        d1.second['sorting'] <=> d2.second['sorting']
+      import_config.sort_by { |v|
+        v.second['sorting']
       }.each do |(name, _)|
         import_single(name, options, &block)
       end
@@ -157,8 +159,8 @@ module DataCycleCore
       max = options.dig(:max) || max_sorting + 1
       import_config.select { |_key, hash|
         hash.dig('sorting').in?((min..max))
-      }.sort { |d1, d2|
-        d1.second['sorting'] <=> d2.second['sorting']
+      }.sort_by { |v|
+        v.second['sorting']
       }.each do |(name, _)|
         import_single(name, options, &block)
       end
