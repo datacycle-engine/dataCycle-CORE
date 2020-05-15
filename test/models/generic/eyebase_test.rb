@@ -44,7 +44,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Eyebase')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Eyebase')
         download_from_local_json(external_source)
         external_source.import(options)
 

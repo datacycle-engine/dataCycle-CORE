@@ -15,7 +15,7 @@ module DataCycleCore
 
         if DataCycleCore::Feature::Normalize.enabled?
           normalize_logger = DataCycleCore::Generic::Logger::LogFile.new('normalize')
-          external_source = DataCycleCore::ExternalSource.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))
+          external_source = DataCycleCore::ExternalSystem.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))
           @normalizer = DataCycleCore::MasterData::NormalizeData.new(logger: normalize_logger, host: external_source.credentials.dig('host'), end_point: external_source.credentials.dig('end_point'))
         end
         @source_object = DataCycleCore::Generic::Collection

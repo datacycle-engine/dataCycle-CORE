@@ -66,7 +66,7 @@ module DataCycleCore
     end
 
     def self.load_external_systems(paths)
-      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: paths)
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths: paths)
 
       if errors.present?
         puts 'the following errors were encountered during import:'

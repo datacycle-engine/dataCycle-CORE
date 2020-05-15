@@ -89,4 +89,4 @@ config:
     #   transformations:
     #     document
     #       template: Document
-  api_strategy: DataCycleCore::Api::MediaArchiveExternalSource
+  api_strategy: DataCycleCore::Api::MediaArchiveExternalSystem

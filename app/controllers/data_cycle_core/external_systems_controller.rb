@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ExternalSourcesController < ApplicationController
+  class ExternalSystemsController < ApplicationController
     def authorize
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
 
       endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
 
@@ -22,7 +22,7 @@ module DataCycleCore
     end
 
     def callback
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
 
       endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
 

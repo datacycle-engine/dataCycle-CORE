@@ -11,7 +11,8 @@ class ChangeExternalSourcesToExternalSystems < ActiveRecord::Migration[5.2]
       INSERT INTO external_systems(id, name, config, credentials, default_options, last_download, last_successful_download, last_import, last_successful_import, identifier, created_at, updated_at)
       SELECT id, name, config, credentials, default_options, last_download, last_successful_download, last_import, last_successful_import, identifier, NOW(), NOW() FROM external_sources
       ON CONFLICT (id)
-      DO NOTHING;
+      DO UPDATE
+      SET name = EXCLUDED.name;
     SQL
 
     execute <<~SQL
@@ -27,10 +28,21 @@ class ChangeExternalSourcesToExternalSystems < ActiveRecord::Migration[5.2]
           external_systems
           INNER JOIN external_systems s ON s.name = external_systems.name
             AND NOT s.config ? 'push_config'
+            AND external_systems.id != s.id
         WHERE
           external_systems.config ? 'push_config') AS new_system
       WHERE
         external_system_syncs.external_system_id = new_system.old_id
+    SQL
+
+    execute <<-SQL
+      DELETE FROM external_systems
+      WHERE NOT external_systems.config ? 'import_config'
+      AND EXISTS (
+        SELECT FROM external_systems s
+        WHERE external_systems.name = s.name
+        AND external_systems.id != s.id
+      )
     SQL
 
     drop_table :external_sources

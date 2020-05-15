@@ -117,6 +117,10 @@ module DataCycleCore
               optional(:endpoint) { class? }
               required(:strategy) { module? }
             end
+
+            rule(has_one_config: [:download_config, :import_config, :export_config]) do |download_config, import_config, export_config|
+              (download_config.filled? & import_config.filled?) | export_config.filled?
+            end
           end
         end
       end

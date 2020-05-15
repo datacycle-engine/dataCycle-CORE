@@ -13,7 +13,7 @@ module DataCycleCore
     end
 
     def download
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def import
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def import_full
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     def download_import
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else

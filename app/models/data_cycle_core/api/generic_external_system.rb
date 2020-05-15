@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Api
-    class GenericExternalSource < DataCycleCore::Api::ExternalSource
+    class GenericExternalSystem < DataCycleCore::Api::ExternalSystem
       def update(_data)
         raise NotImplemented
       end

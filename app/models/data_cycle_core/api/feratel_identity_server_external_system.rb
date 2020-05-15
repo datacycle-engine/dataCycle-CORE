@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Api
-    class FeratelIdentityServerExternalSource < DataCycleCore::Api::GenericExternalSource
+    class FeratelIdentityServerExternalSystem < DataCycleCore::Api::GenericExternalSystem
       def update(data)
         download_config = external_source.config&.dig('download_config')&.symbolize_keys
         import_config = external_source.config&.dig('import_config')&.symbolize_keys

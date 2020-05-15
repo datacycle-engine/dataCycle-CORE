@@ -2,11 +2,10 @@
 
 module DataCycleCore
   module Api
-    module V1
-      class ExternalSourcesController < Api::V1::ApiBaseController
+    module V3
+      class ExternalSystemsController < ApiBaseController
         def show
           @content = DataCycleCore::Thing.find_by!(external_source_id: permitted_params[:external_source_id], external_key: permitted_params[:external_key])
-
           redirect_to thing_path(@content)
         end
 
@@ -51,7 +50,7 @@ module DataCycleCore
         end
 
         def api_strategy
-          external_source = DataCycleCore::ExternalSource.find(permitted_params[:external_source_id])
+          external_source = DataCycleCore::ExternalSystem.find(permitted_params[:external_source_id])
           api_strategy = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
 
           api_strategy&.constantize&.new(external_source, permitted_params[:type], permitted_params[:external_key], permitted_params[:token])
