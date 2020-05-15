@@ -14,7 +14,55 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(source_filter.with_evaluated_values))
+          aggregation_array = [
+            {
+              '$match': {
+                "dump.#{locale}": { '$exists': 'true' }
+              }.merge(source_filter.with_evaluated_values)
+            },
+            { '$unwind': { 'path': "$dump.#{locale}.Facilities.Facility" } },
+            { '$lookup': {
+              'from': 'facilities',
+              'localField': "dump.#{locale}.Facilities.Facility.Id",
+              'foreignField': "dump.#{locale}.Id",
+              'as': "dump.#{locale}.JoinFacility"
+            } },
+            { '$unwind': { 'path': "$dump.#{locale}.JoinFacility" } },
+            { '$lookup': {
+              'from': 'facility_groups',
+              'localField': "dump.#{locale}.JoinFacility.dump.#{locale}.GroupID",
+              'foreignField': "dump.#{locale}.Id",
+              'as': "dump.#{locale}.JoinFacilityGroup"
+            } },
+            { '$unwind': { 'path': "$dump.#{locale}.JoinFacilityGroup" } },
+            { '$addFields': {
+              "dump.#{locale}.Facilities.Facility.Name": "$dump.#{locale}.JoinFacility.dump.#{locale}.Name.Translation.text",
+              "dump.#{locale}.Facilities.Facility.GroupID": "$dump.#{locale}.JoinFacility.dump.#{locale}.GroupID",
+              "dump.#{locale}.Facilities.Facility.ValueType": "$dump.#{locale}.JoinFacility.dump.#{locale}.ValueType",
+              "dump.#{locale}.Facilities.Facility.GroupName": "$dump.#{locale}.JoinFacilityGroup.dump.#{locale}.Name.Translation.text"
+            } },
+            { '$group': {
+              '_id': "$dump.#{locale}.Id",
+              "dump": { '$first': '$dump.de' },
+              "facilities": { '$push': "$dump.#{locale}.Facilities.Facility" }
+            } },
+            # TODO: Better than project? $mergeObjects?
+            { '$project': {
+              "external_id": '$_id',
+              "dump.#{locale}._Type": '$dump._Type',
+              "dump.#{locale}.Id": '$dump.Id',
+              "dump.#{locale}.ChangeDate": '$dump.ChangeDate',
+              "dump.#{locale}.Details": '$dump.Details',
+              "dump.#{locale}.Descriptions": '$dump.Descriptions',
+              "dump.#{locale}.Links": '$dump.Links',
+              "dump.#{locale}.Facilities.Facility": '$facilities',
+              "dump.#{locale}.Facilities.ChangeDate": '$dump.Facilities.ChangeDate',
+              "dump.#{locale}.Addresses": '$dump.Addresses',
+              "dump.#{locale}.QualityDetails": '$dump.QualityDetails'
+            } }
+          ]
+          # binding.pry
+          mongo_item.collection.aggregate(aggregation_array, allow_disk_use: true)
         end
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
@@ -62,3 +110,29 @@ module DataCycleCore
     end
   end
 end
+
+# mongo query:
+# db.getCollection("accommodations").aggregate([
+#     {$unwind: {path: "$dump.#{locale}.Facilities.Facility"}},
+#     {$lookup: {from: "facilities", localField: "dump.#{locale}.Facilities.Facility.Id", foreignField: "dump.#{locale}.Id", as: "dump.#{locale}.JoinFacility"}},
+#     {$unwind: {path: "$dump.#{locale}.JoinFacility"}},
+#     {$lookup: {from: "facility_groups", localField: "dump.#{locale}.JoinFacility.dump.#{locale}.GroupID", foreignField: "dump.#{locale}.Id", as: "dump.#{locale}.JoinFacilityGroup"}},
+#     {$unwind: {path: "$dump.#{locale}.JoinFacilityGroup"}},
+#     { $addFields: {
+#       "dump.#{locale}.Facilities.Facility.Name": "$dump.#{locale}.JoinFacility.dump.#{locale}.Name.Translation.text",
+#       "dump.#{locale}.Facilities.Facility.GroupID": "$dump.#{locale}.JoinFacility.dump.#{locale}.GroupID",
+#       "dump.#{locale}.Facilities.Facility.ValueType": "$dump.#{locale}.JoinFacility.dump.#{locale}.ValueType",
+#       "dump.#{locale}.Facilities.Facility.GroupName": "$dump.#{locale}.JoinFacilityGroup.dump.#{locale}.Name.Translation.text",
+#     }},
+#     { $group: {
+#       _id: "$dump.#{locale}.Id",
+#       "dump": { $first: "$dump.de" },
+#       "facilities": {$push: "$dump.#{locale}.Facilities.Facility"}
+#     }},
+#     //TODO: Better than project? $mergeObjects?
+#     {$project: {"external_id": "$_id", "dump.#{locale}._Type": "$dump._Type", "dump.#{locale}.Id": "$dump.Id", "dump.#{locale}.ChangeDate": "$dump.ChangeDate", "dump.#{locale}.Details": "$dump.Details", "dump.#{locale}.Descriptions": "$dump.Descriptions", "dump.#{locale}.Links": "$dump.Links", "dump.#{locale}.Facilities.Facility": "$facilities", "dump.#{locale}.Facilities.ChangeDate": "$dump.Facilities.ChangeDate", "dump.#{locale}.Addresses": "$dump.Addresses", "dump.#{locale}.QualityDetails": "$dump.QualityDetails"}}
+#   ],
+#   {
+#     allowDiskUse: true
+#   }
+# )

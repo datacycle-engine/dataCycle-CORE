@@ -54,6 +54,17 @@
       :postal_address:
         :type: mixin
         :name: postal_address
+      :amenity_feature:
+        :label: Super Features
+        :type: embedded
+        :template_name: AmenityFeature
+        # :api:
+        #   :disabled: true
+        #   :v4:
+        #     :disabled: false
+        #     :transformation:
+        #       :method: append
+        #       :name: location
       :geo:
         :type: mixin
         :name: geo

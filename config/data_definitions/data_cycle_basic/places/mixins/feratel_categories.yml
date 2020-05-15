@@ -35,6 +35,14 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_facilities_numerical:
+        :label: Feratel - Numerische Merkmale
+        :type: classification
+        :tree_label: Feratel - Numerische Merkmale
+        :external: true
+        :ui:
+          :show:
+            :content_area: header
       :feratel_facilities_accommodations:
         :label: Feratel - Merkmale - Unterkünfte
         :type: classification

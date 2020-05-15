@@ -1,0 +1,29 @@
+- :data:
+    :name: AmenityFeature
+    :type: object
+    :schema_type: Intangible
+    :content_type: embedded
+    :api:
+      :type: PropertyValue
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      # :identifier:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        # :search: true
+      :value:
+        :label: value
+        :type: string
+        :storage_location: translated_value
+        # :validations:
+        #   :format: url
+      # :subject_of:
+      #   :label: Thema von
+      #   :type: linked
+      #   :inverse_of: about
+      #   :link_direction: inverse
+      #   :global: true
