@@ -86,14 +86,14 @@ module DataCycleCore
 
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { credentials? }
+          optional(:credentials) { credentials? }
           optional(:api_strategy) { str? & class? }
           optional(:default_options).schema do
             optional(:locales).each { str? }
           end
           optional(:config).schema do
-            required(:download_config) { hash? }
-            required(:import_config) { hash? }
+            optional(:download_config) { hash? }
+            optional(:import_config) { hash? }
           end
         end
       end
