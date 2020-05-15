@@ -101,6 +101,14 @@ module DataCycleCore
           data.merge({ attribute_name => description })
         end
 
+        def self.ensure_classification_tree(data, attribute_name, classification_tree)
+          data.merge({
+            attribute_name => DataCycleCore::Classification.for_tree(classification_tree)
+                                                           .where(id: data[attribute_name])
+                                                           .pluck(:id)
+          })
+        end
+
         def self.unwrap_address(data, address_type)
           raise ArgumentError unless data.is_a?(Array) || data.is_a?(Hash)
 
