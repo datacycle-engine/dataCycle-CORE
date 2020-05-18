@@ -21,8 +21,10 @@ module DataCycleCore
         end
 
         def self.load_root_classifications(mongo_item, locale, options)
+          source_filter = options.dig(:import, :source_filter) || {}
+
           attribute_name = ['dump', locale, options.dig(:import, :tag_id_path)].join('.')
-          aggregation = mongo_item.where(attribute_name => { '$ne' => nil })
+          aggregation = mongo_item.where({ attribute_name => { '$ne' => nil } }.merge(source_filter.with_evaluated_values))
             .unwind(
               ['dump', locale.to_s, parse_common_tag_path(options)].flatten.join('.')
             )

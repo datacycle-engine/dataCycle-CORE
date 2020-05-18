@@ -18,6 +18,17 @@ module DataCycleCore
     has_one :primary_classification_group, class_name: 'DataCycleCore::ClassificationGroup::PrimaryClassificationGroup'
     has_one :primary_classification_alias, through: :primary_classification_group, source: :classification_alias
 
+    def self.for_tree(tree_name)
+      joins(primary_classification_alias: { classification_tree: :classification_tree_label })
+        .where('classification_aliases' => {
+          'classification_trees' => {
+            'classification_tree_labels' => {
+              'name' => tree_name
+            }
+          }
+        })
+    end
+
     def ancestors
       Rails.cache.fetch("#{cache_key}/ancestors", expires_in: 5.days + Random.rand(2.5.days)) do
         [primary_classification_alias] + primary_classification_alias.ancestors
