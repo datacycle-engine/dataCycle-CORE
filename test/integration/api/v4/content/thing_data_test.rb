@@ -5,13 +5,12 @@ require 'v4/base'
 module DataCycleCore
   module Api
     module V4
-      class Thing < DataCycleCore::V4::Base
+      class ThingData < DataCycleCore::V4::Base
         setup do
           @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
         end
 
-        # TODO: refactor with new compare method
-        test 'api_v4_thing_path validate full event' do
+        test 'api_v4_thing_path validate full event with default params' do
           assert_full_thing_datahash(@event)
           params = {
             id: @event.id

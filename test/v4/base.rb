@@ -6,6 +6,7 @@ require 'v4/helpers/dummy_data_helper'
 require 'v4/helpers/api_helper'
 require 'v4/validation/context'
 require 'v4/validation/concept'
+require 'v4/validation/thing'
 
 module DataCycleCore
   module V4
@@ -18,6 +19,7 @@ module DataCycleCore
       setup do
         @routes = Engine.routes
         sign_in(User.find_by(email: 'tester@datacycle.at'))
+        DataCycleCore::Thing.where(template: false).delete_all
       end
     end
   end
