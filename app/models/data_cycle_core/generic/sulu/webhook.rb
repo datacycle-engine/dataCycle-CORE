@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Sulu
-      class Webhook < DataCycleCore::Generic::WebhookBase
+      class Webhook < DataCycleCore::Generic::Common::Webhook
         def update(raw_data)
           errors = data_validator.call(raw_data.deep_symbolize_keys).errors || {}
           return { error: errors } if errors.present?

@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module FeratelIdentityServer
-      class Webhook < DataCycleCore::Generic::WebhookBase
+      class Webhook < DataCycleCore::Generic::Common::Webhook
         def update(data)
           download_config = external_source.config&.dig('download_config')&.symbolize_keys
           import_config = external_source.config&.dig('import_config')&.symbolize_keys
