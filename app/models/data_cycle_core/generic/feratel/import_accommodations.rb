@@ -113,24 +113,24 @@ end
 
 # mongo query:
 # db.getCollection("accommodations").aggregate([
-#     {$unwind: {path: "$dump.#{locale}.Facilities.Facility"}},
-#     {$lookup: {from: "facilities", localField: "dump.#{locale}.Facilities.Facility.Id", foreignField: "dump.#{locale}.Id", as: "dump.#{locale}.JoinFacility"}},
-#     {$unwind: {path: "$dump.#{locale}.JoinFacility"}},
-#     {$lookup: {from: "facility_groups", localField: "dump.#{locale}.JoinFacility.dump.#{locale}.GroupID", foreignField: "dump.#{locale}.Id", as: "dump.#{locale}.JoinFacilityGroup"}},
-#     {$unwind: {path: "$dump.#{locale}.JoinFacilityGroup"}},
+#     {$unwind: {path: "$dump.de.Facilities.Facility"}},
+#     {$lookup: {from: "facilities", localField: "dump.de.Facilities.Facility.Id", foreignField: "dump.de.Id", as: "dump.de.JoinFacility"}},
+#     {$unwind: {path: "$dump.de.JoinFacility"}},
+#     {$lookup: {from: "facility_groups", localField: "dump.de.JoinFacility.dump.de.GroupID", foreignField: "dump.de.Id", as: "dump.de.JoinFacilityGroup"}},
+#     {$unwind: {path: "$dump.de.JoinFacilityGroup"}},
 #     { $addFields: {
-#       "dump.#{locale}.Facilities.Facility.Name": "$dump.#{locale}.JoinFacility.dump.#{locale}.Name.Translation.text",
-#       "dump.#{locale}.Facilities.Facility.GroupID": "$dump.#{locale}.JoinFacility.dump.#{locale}.GroupID",
-#       "dump.#{locale}.Facilities.Facility.ValueType": "$dump.#{locale}.JoinFacility.dump.#{locale}.ValueType",
-#       "dump.#{locale}.Facilities.Facility.GroupName": "$dump.#{locale}.JoinFacilityGroup.dump.#{locale}.Name.Translation.text",
+#       "dump.de.Facilities.Facility.Name": "$dump.de.JoinFacility.dump.de.Name.Translation.text",
+#       "dump.de.Facilities.Facility.GroupID": "$dump.de.JoinFacility.dump.de.GroupID",
+#       "dump.de.Facilities.Facility.ValueType": "$dump.de.JoinFacility.dump.de.ValueType",
+#       "dump.de.Facilities.Facility.GroupName": "$dump.de.JoinFacilityGroup.dump.de.Name.Translation.text",
 #     }},
 #     { $group: {
-#       _id: "$dump.#{locale}.Id",
+#       _id: "$dump.de.Id",
 #       "dump": { $first: "$dump.de" },
-#       "facilities": {$push: "$dump.#{locale}.Facilities.Facility"}
+#       "facilities": {$push: "$dump.de.Facilities.Facility"}
 #     }},
 #     //TODO: Better than project? $mergeObjects?
-#     {$project: {"external_id": "$_id", "dump.#{locale}._Type": "$dump._Type", "dump.#{locale}.Id": "$dump.Id", "dump.#{locale}.ChangeDate": "$dump.ChangeDate", "dump.#{locale}.Details": "$dump.Details", "dump.#{locale}.Descriptions": "$dump.Descriptions", "dump.#{locale}.Links": "$dump.Links", "dump.#{locale}.Facilities.Facility": "$facilities", "dump.#{locale}.Facilities.ChangeDate": "$dump.Facilities.ChangeDate", "dump.#{locale}.Addresses": "$dump.Addresses", "dump.#{locale}.QualityDetails": "$dump.QualityDetails"}}
+#     {$project: {"external_id": "$_id", "dump.de._Type": "$dump._Type", "dump.de.Id": "$dump.Id", "dump.de.ChangeDate": "$dump.ChangeDate", "dump.de.Details": "$dump.Details", "dump.de.Descriptions": "$dump.Descriptions", "dump.de.Links": "$dump.Links", "dump.de.Facilities.Facility": "$facilities", "dump.de.Facilities.ChangeDate": "$dump.Facilities.ChangeDate", "dump.de.Addresses": "$dump.Addresses", "dump.de.QualityDetails": "$dump.QualityDetails"}}
 #   ],
 #   {
 #     allowDiskUse: true
