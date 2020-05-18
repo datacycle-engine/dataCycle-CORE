@@ -97,7 +97,7 @@ module DataCycleCore
         end
 
         def self.outdoor_active_categories(data, external_system, tree_label)
-          external_source_id = DataCycleCore::ExternalSystem.find_by(name: external_system.credentials(:export).dig('external_source'))&.id
+          external_source_id = external_system&.id
 
           data.classifications.includes(:classification_aliases)
             .map(&:classification_aliases).flatten.uniq
