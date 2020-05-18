@@ -2,7 +2,7 @@
 
 module DataCycleCore
   module Api
-    class SuluExternalSource < DataCycleCore::Api::GenericExternalSource
+    class SuluExternalSystem < DataCycleCore::Api::GenericExternalSystem
       def update(raw_data)
         errors = data_validator.call(raw_data.deep_symbolize_keys).errors || {}
         return { error: errors } if errors.present?
@@ -35,7 +35,7 @@ module DataCycleCore
       end
 
       def init_logging
-        logging = DataCycleCore::Generic::GenericObject.new.init_logging(:sulu_external_source)
+        logging = DataCycleCore::Generic::GenericObject.new.init_logging(:sulu_external_system)
         yield(logging)
       ensure
         logging.close if logging.respond_to?(:close)

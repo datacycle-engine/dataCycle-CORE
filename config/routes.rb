@@ -275,9 +275,9 @@ DataCycleCore::Engine.routes.draw do
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
 
               scope 'external_sources/:external_source_id' do
-                match '', via: [:post], to: 'external_sources#create'
-                match '(/:external_key)', via: [:put, :patch], to: 'external_sources#update'
-                match '(/:external_key)', via: [:delete], to: 'external_sources#destroy'
+                match '', via: [:post], to: 'external_systems#create'
+                match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update'
+                match '(/:external_key)', via: [:delete], to: 'external_systems#destroy'
               end
             end
           end

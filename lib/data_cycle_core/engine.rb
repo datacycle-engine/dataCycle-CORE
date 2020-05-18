@@ -86,10 +86,10 @@ module DataCycleCore
 
     mattr_accessor :allowed_api_strategies
     self.allowed_api_strategies = [
-      'DataCycleCore::Api::MediaArchiveExternalSource',
-      'DataCycleCore::Api::GenericExternalSource',
-      'DataCycleCore::Api::FeratelIdentityServerExternalSource',
-      'DataCycleCore::Api::SuluExternalSource'
+      'DataCycleCore::Api::MediaArchiveExternalSystem',
+      'DataCycleCore::Api::GenericExternalSystem',
+      'DataCycleCore::Api::FeratelIdentityServerExternalSystem',
+      'DataCycleCore::Api::SuluExternalSystem'
     ]
 
     mattr_accessor :excluded_filter_classifications
