@@ -42,17 +42,20 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       assert(subject.validate(external_source_config.except('name')), { name: ['is missing'] })
     end
 
-    it 'fails if no credentials are given' do
-      assert(subject.validate(external_source_config.except('credentials')).present?)
+    it 'fails if credentials are not an Array or Hash' do
+      config = external_source_config
+      config['credentials'] = 'test'
+      assert(subject.validate(config).present?)
     end
 
     it 'produces an appropriate error message if no credentials are given' do
       assert(subject.validate(external_source_config.except('credentials')), { credentials: ['is missing'] })
     end
 
-    it 'fails if no download_config is given' do
+    it 'fails if download_config is not a Hash' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('download_config')
+      test_hash['config']['download_config'] = 'test'
       assert(subject.validate(test_hash).present?)
     end
 
@@ -62,9 +65,10 @@ describe DataCycleCore::MasterData::ImportExternalSystems do
       assert(subject.validate(test_hash), { config: { download_config: ['is missing'] } })
     end
 
-    it 'fails if no import_config is given' do
+    it 'fails if import_config is not a Hash' do
       test_hash = external_source_config.deep_dup
       test_hash['config'] = test_hash['config'].except('import_config')
+      test_hash['config']['import_config'] = 'test'
       assert(subject.validate(test_hash).present?)
     end
 

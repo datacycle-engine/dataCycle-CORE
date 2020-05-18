@@ -84,6 +84,9 @@
       :hrs:
         :type: mixin
         :name: hrs
+      :sulu:
+        :type: mixin
+        :name: sulu
       :data_type:
         :label: Inhaltstyp
         :type: classification
