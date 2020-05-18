@@ -9,7 +9,7 @@ module DataCycleCore
             utility_object: utility_object,
             iterator: method(:load_contents).to_proc,
             data_processor: method(:process_content).to_proc,
-            options: options
+            options: options.merge({ iterator_type: :aggregate })
           )
         end
 
@@ -61,7 +61,7 @@ module DataCycleCore
               "dump.#{locale}.QualityDetails": '$dump.QualityDetails'
             } }
           ]
-          # binding.pry
+
           mongo_item.collection.aggregate(aggregation_array, allow_disk_use: true)
         end
 

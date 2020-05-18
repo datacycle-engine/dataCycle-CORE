@@ -18,7 +18,7 @@
       :value:
         :label: value
         :type: string
-        :storage_location: translated_value
+        :storage_location: value
         # :validations:
         #   :format: url
       # :subject_of:
