@@ -30,8 +30,10 @@ module DataCycleCore
         assert_equal([], thing.property_names - filled_keys - excluded_keys)
       end
 
-      def assert_attributes(required_attributes, attributes)
-        yield
+      def assert_attributes(json_validate, required_attributes, attributes)
+        assert_json_attributes(json_validate) do
+          yield
+        end
         attributes.each { |a| required_attributes.delete(a) }
       end
 
@@ -40,6 +42,12 @@ module DataCycleCore
         json = json_validate.dup.slice(*compare_json.keys)
         assert_equal(compare_json, json)
         compare_json.each_key { |a| json_validate.delete(a) }
+      end
+
+      def assert_classifications(json_validate, classifications)
+        json_classifications = json_validate.dig('dc:classification').sort_by { |c| c['@id'] }
+        assert_equal(json_classifications, classifications.sort_by { |c| c['@id'] })
+        json_validate.delete('dc:classification')
       end
 
       def required_validation_attributes(thing)
