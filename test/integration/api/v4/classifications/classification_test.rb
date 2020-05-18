@@ -109,10 +109,14 @@ module DataCycleCore
               required(:'dct:modified').value(:date_time)
             end
 
+            concept_with_description = false
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has dct:description attribute
+              concept_with_description = true if item.dig('dct:description').present?
             end
+            assert(concept_with_description)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts/(:classification_id) fields identifier for external concepts' do
@@ -132,12 +136,11 @@ module DataCycleCore
             post classifications_api_v4_concept_scheme_path(params)
 
             json_data = JSON.parse(response.body)
-
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
-              optional(:'dct:description').value(:string)
+              required(:'dct:description').value(:string)
               required(:'dct:modified').value(:date_time)
-              required(:identifier).value(:array).each do
+              required(:identifier).value(:array, min_size?: 1).each do
                 hash(DataCycleCore::V4::Validation::Concept::IDENTIFIER_ATTRIBUTES)
               end
             end
@@ -254,10 +257,14 @@ module DataCycleCore
               )
             end
 
+            concept_with_broader = false
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has skos:broader attribute
+              concept_with_broader = true if item.dig('skos:broader', 'skos:inScheme').present?
             end
+            assert(concept_with_broader)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme' do
@@ -312,10 +319,15 @@ module DataCycleCore
                 )
               )
             end
+
+            concept_with_broader = false
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { include: include })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has skos:broader attribute
+              concept_with_broader = true if item.dig('skos:broader', 'skos:inScheme').present?
             end
+            assert(concept_with_broader)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors' do
@@ -331,7 +343,7 @@ module DataCycleCore
             json_data = JSON.parse(response.body)
 
             include = Dry::Schema.JSON do
-              optional(:'skos:ancestors').value(:array).each do
+              optional(:'skos:ancestors').value(:array, min_size?: 1).each do
                 hash(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                     DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_ATTRIBUTES
@@ -340,9 +352,13 @@ module DataCycleCore
               end
             end
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { include: include })
+            concept_with_ancestor = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has skos:ancestors attribute
+              concept_with_ancestor = true if item.dig('skos:ancestors').present?
             end
+            assert(concept_with_ancestor)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:ancestors fields skos:prefLabel' do

@@ -52,7 +52,7 @@ module DataCycleCore
             assert_equal('en', json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
@@ -98,7 +98,7 @@ module DataCycleCore
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
@@ -174,13 +174,13 @@ module DataCycleCore
             end
 
             fields_fallback = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
                 end
               end
-              optional(:'dct:description').value(:array).each do
+              optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
@@ -190,14 +190,17 @@ module DataCycleCore
 
             validator_translated = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields_translated })
             validator_fallback = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields_fallback })
-
+            concept_with_description = false
             json_data['@graph'].each do |item|
               if @classification_tag.id == item.dig('@id')
                 assert_equal({}, validator_translated.call(item).errors.to_h)
               else
                 assert_equal({}, validator_fallback.call(item).errors.to_h)
               end
+              # additional check to make sure at least one item has dct:description attribute
+              concept_with_description = true if item.dig('dct:description').present?
             end
+            assert(concept_with_description)
           end
 
           test 'api/v4/concept_schemes/:id/concepts -> selects en,it -> returns en with de fallback' do
@@ -218,13 +221,13 @@ module DataCycleCore
             end
 
             fields_fallback = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
                 end
               end
-              optional(:'dct:description').value(:array).each do
+              optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language').value(eql?: 'de')
                   required(:'@value').value(:string)
@@ -235,13 +238,17 @@ module DataCycleCore
             validator_translated = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields_translated })
             validator_fallback = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields_fallback })
 
+            concept_with_description = false
             json_data['@graph'].each do |item|
               if @classification_tag.id == item.dig('@id')
                 assert_equal({}, validator_translated.call(item).errors.to_h)
               else
                 assert_equal({}, validator_fallback.call(item).errors.to_h)
               end
+              # additional check to make sure at least one item has dct:description attribute
+              concept_with_description = true if item.dig('dct:description').present?
             end
+            assert(concept_with_description)
           end
 
           test 'api/v4/concept_schemes/:id/concepts -> selects en,de -> returns en and de' do
@@ -257,13 +264,13 @@ module DataCycleCore
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language') { eql?('de') | eql?('en') }
                   required(:'@value').value(:string)
                 end
               end
-              optional(:'dct:description').value(:array).each do
+              optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language') { eql?('de') | eql?('en') }
                   required(:'@value').value(:string)
@@ -272,10 +279,13 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
-
+            concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has dct:description attribute
+              concept_with_description = true if item.dig('dct:description').present?
             end
+            assert(concept_with_description)
           end
 
           test 'api/v4/concept_schemes/:id/concepts -> selects en,it, de with nontranslatable attribute -> returns en and de' do
@@ -291,13 +301,13 @@ module DataCycleCore
             assert_nil(json_data.dig('@context', 1, '@language'))
 
             fields = Dry::Schema.JSON do
-              required(:'skos:prefLabel').value(:array).each do
+              required(:'skos:prefLabel').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language') { eql?('de') | eql?('en') }
                   required(:'@value').value(:string)
                 end
               end
-              optional(:'dct:description').value(:array).each do
+              optional(:'dct:description').value(:array, min_size?: 1).each do
                 hash do
                   required(:'@language') { eql?('de') | eql?('en') }
                   required(:'@value').value(:string)
@@ -308,10 +318,13 @@ module DataCycleCore
             end
 
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
-
+            concept_with_description = false
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              # additional check to make sure at least one item has dct:description attribute
+              concept_with_description = true if item.dig('dct:description').present?
             end
+            assert(concept_with_description)
           end
         end
       end

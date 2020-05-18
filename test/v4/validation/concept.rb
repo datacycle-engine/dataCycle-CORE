@@ -35,10 +35,10 @@ module DataCycleCore
           optional(:'skos:inScheme').hash(DEFAULT_HEADER)
           optional(:'skos:topConceptOf').hash(DEFAULT_HEADER)
           optional(:'skos:broader').hash(DEFAULT_HEADER)
-          optional(:'skos:ancestors').value(:array).each do
+          optional(:'skos:ancestors').value(:array, min_size?: 1).each do
             hash(DEFAULT_HEADER)
           end
-          optional(:identifier).value(:array).each do
+          optional(:identifier).value(:array, min_size?: 1).each do
             hash(IDENTIFIER_ATTRIBUTES)
           end
         end
