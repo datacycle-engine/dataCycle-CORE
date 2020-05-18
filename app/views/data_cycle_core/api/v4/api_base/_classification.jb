@@ -56,7 +56,8 @@ def render_description(content, languages, one)
         value_container << { '@language' => language, '@value' => content.description }
       end
     end
-    return_data = value_container
+    # return_data = value_container
+    return_data = value_container.presence || (content.description.present? ? [{ '@language' => I18n.default_locale, '@value' => content.description }] : nil)
   end
   return_data.presence
 end
