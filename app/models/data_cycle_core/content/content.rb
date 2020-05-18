@@ -225,6 +225,11 @@ module DataCycleCore
         name_property_selector { |definition| definition['search'] == true }
       end
 
+      def schema_sorted
+        sorted_properties = schema.dig('properties').map { |key, value| { key => value } }.sort_by { |i| i.values.first.dig('sorting') }.inject(&:merge)
+        schema.deep_dup.merge({ 'properties' => sorted_properties })
+      end
+
       def to_h(timestamp = Time.zone.now)
         property_names.map { |property_name|
           property_value = attribute_to_h(property_name, timestamp)

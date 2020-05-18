@@ -36,21 +36,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
-      :additional_information:
-        :label: Ergänzende Information
-        :type: embedded
-        :template_name: Ergänzende Information
-        :translated: true
-        :api:
-          :name: subject_of
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -77,35 +65,12 @@
       :linked_data:
         :type: mixin
         :name: linked_data
-      :contains_place:
-        :label: Services
-        :type: linked
-        :template_name: Zimmer
-        :translated: true
-      :makes_offer:
-        :label: Angebote
-        :type: embedded
-        :template_name: Angebot
-        :translated: true
-      # move to dataCycleProperty
-      :price_range:
-        :label: Preis-Info
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
-      :aggregate_rating:
-        :label: Durchschittswertung
-        :type: embedded
-        :template_name: Durchschittswertung
-        :translated: true
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :additional_lodging_business_properties:
+        :type: mixin
+        :name: additional_lodging_business_properties
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -130,6 +95,9 @@
       :hrs:
         :type: mixin
         :name: hrs
+      :sulu:
+        :type: mixin
+        :name: sulu
       :data_type:
         :label: Inhaltstyp
         :type: classification

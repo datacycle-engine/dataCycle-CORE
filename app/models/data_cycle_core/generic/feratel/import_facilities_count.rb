@@ -57,12 +57,6 @@ module DataCycleCore
               { '$group': { _id: '$_id.facility_id', values: { '$addToSet': '$_id.value' } } }
             ]
           )
-          # db.accommodations.aggregate([
-          #     { $unwind: '$dump.de.Facilities.Facility' },
-          #     { $addFields: { 'facility_id': '$dump.de.Facilities.Facility.Id', 'value': '$dump.de.Facilities.Facility.Value' } },
-          #     { $group: { _id: { facility_id: '$facility_id', value: '$value' } } },
-          #     { $group: { _id: '$_id.facility_id', values: { $addToSet: '$_id.value' } } }
-          # ])
         end
 
         def self.load_parent_classification_alias(external_key, external_source_id)

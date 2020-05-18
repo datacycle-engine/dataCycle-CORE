@@ -101,6 +101,13 @@ module DataCycleCore
         .first
     end
 
+    def self.classifications_for_tree_with_name(tree_name, *names)
+      for_tree(tree_name)
+        .with_internal_name(names)
+        .map(&:classifications)
+        .flatten
+    end
+
     def self.classifications
       DataCycleCore::Classification.includes(:classification_aliases).where(classification_aliases: { id: all&.pluck(:id) })
     end
