@@ -71,7 +71,7 @@ module DataCycleCore
             # license is overwritten by license_classification
             {
               'cc:license' => @event.license_classification.first.classification_aliases.first.uri,
-              'cc:useGuidlines' => @event.use_guidelines,
+              'cc:useGuidelines' => @event.use_guidelines,
               'cc:attributionUrl' => @event.attribution_url,
               'cc:attributionName' => @event.attribution_name,
               'cc:morePermissions' => @event.more_permissions

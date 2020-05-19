@@ -61,7 +61,7 @@ module DataCycleCore
           optional(:'cc:morePermissions').value(:string)
           optional(:'cc:attributionName').value(:string)
           optional(:'cc:attributionUrl').value(:string)
-          optional(:'cc:useGuidlines').value(:string)
+          optional(:'cc:useGuidelines').value(:string)
         end
 
         def self.build_thing_validation(fields, include)
