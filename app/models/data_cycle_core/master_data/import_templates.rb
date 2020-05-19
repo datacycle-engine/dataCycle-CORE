@@ -301,9 +301,11 @@ module DataCycleCore
           optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
           optional(:not_translated) { bool? } # true -> classification only exists in german
           optional(:external) { bool? } # true -> only imported can not be manually edited
+          optional(:universal) { bool? } # true -> only for universal_classifications... does not need a tree_label
           optional(:global) { bool? } # true -> edit is allowed for imported data
-          rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
-            type.eql?('classification') > tree_label.filled?
+          rule(classification_relation: [:type, :universal, :tree_label]) do |type, universal, tree_label|
+            (type.eql?('classification') > tree_label.filled?) |
+              (type.eql?('classification') > universal.eql?(true))
           end
 
           # for type asset
