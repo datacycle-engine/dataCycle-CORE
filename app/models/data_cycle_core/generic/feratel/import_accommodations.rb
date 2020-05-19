@@ -43,23 +43,16 @@ module DataCycleCore
             } },
             { '$group': {
               '_id': "$dump.#{locale}.Id",
-              "dump": { '$first': '$dump.de' },
+              "dump": { '$first': '$dump' },
               "facilities": { '$push': "$dump.#{locale}.Facilities.Facility" }
             } },
-            # TODO: Better than project? $mergeObjects?
             { '$project': {
-              "external_id": '$_id',
-              "dump.#{locale}._Type": '$dump._Type',
-              "dump.#{locale}.Id": '$dump.Id',
-              "dump.#{locale}.ChangeDate": '$dump.ChangeDate',
-              "dump.#{locale}.Details": '$dump.Details',
-              "dump.#{locale}.Descriptions": '$dump.Descriptions',
-              "dump.#{locale}.Links": '$dump.Links',
-              "dump.#{locale}.Facilities.Facility": '$facilities',
-              "dump.#{locale}.Facilities.ChangeDate": '$dump.Facilities.ChangeDate',
-              "dump.#{locale}.Addresses": '$dump.Addresses',
-              "dump.#{locale}.QualityDetails": '$dump.QualityDetails'
-            } }
+              "dump.#{locale}.Facilities": 0,
+              "dump.#{locale}.JoinFacility": 0,
+              "dump.#{locale}.JoinFacilityGroup": 0
+            } },
+            { '$addFields': { "dump.#{locale}.Facilities.Facility": '$facilities' } },
+            { '$project': { "facilities": 0 } }
           ]
 
           mongo_item.collection.aggregate(aggregation_array, allow_disk_use: true)
@@ -126,11 +119,12 @@ end
 #     }},
 #     { $group: {
 #       _id: "$dump.de.Id",
-#       "dump": { $first: "$dump.de" },
+#       "dump": { $first: "$dump" },
 #       "facilities": {$push: "$dump.de.Facilities.Facility"}
 #     }},
-#     //TODO: Better than project? $mergeObjects?
-#     {$project: {"external_id": "$_id", "dump.de._Type": "$dump._Type", "dump.de.Id": "$dump.Id", "dump.de.ChangeDate": "$dump.ChangeDate", "dump.de.Details": "$dump.Details", "dump.de.Descriptions": "$dump.Descriptions", "dump.de.Links": "$dump.Links", "dump.de.Facilities.Facility": "$facilities", "dump.de.Facilities.ChangeDate": "$dump.Facilities.ChangeDate", "dump.de.Addresses": "$dump.Addresses", "dump.de.QualityDetails": "$dump.QualityDetails"}}
+#     {$project: {"dump.de.Facilities": 0, "dump.de.JoinFacility": 0, "dump.de.JoinFacilityGroup": 0}},
+#     {$addFields: { "dump.de.Facilities.Facility": "$facilities" } },
+#     {$project: {"facilities": 0}}
 #   ],
 #   {
 #     allowDiskUse: true
