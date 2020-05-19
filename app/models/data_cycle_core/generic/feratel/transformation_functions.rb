@@ -97,7 +97,7 @@ module DataCycleCore
             amenity_features.push(
               {
                 name: facility['GroupName'] + ' |> ' + facility['Name'],
-                value: facility['Value']
+                value: facility['Value'].to_i
               }
             )
           end
