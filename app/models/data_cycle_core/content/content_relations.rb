@@ -38,7 +38,7 @@ module DataCycleCore
           has_many :content_b_embedded, -> { where(content_type: 'embedded') }, through: :content_content_a, source: :content_b
           has_many :content_content_a_history, class_name: 'DataCycleCore::ContentContent::History', foreign_key: 'content_a_history_id', dependent: :destroy, inverse_of: :content_a_history
 
-          belongs_to :external_source
+          belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
           belongs_to :created_by_user, foreign_key: :created_by, class_name: 'DataCycleCore::User'
           belongs_to :updated_by_user, foreign_key: :updated_by, class_name: 'DataCycleCore::User'
           belongs_to :deleted_by_user, foreign_key: :deleted_by, class_name: 'DataCycleCore::User'

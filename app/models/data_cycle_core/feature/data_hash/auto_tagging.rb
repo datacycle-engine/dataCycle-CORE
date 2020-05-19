@@ -16,7 +16,7 @@ module DataCycleCore
           require 'google/cloud/vision'
           require 'google/cloud/translate'
 
-          external_source = DataCycleCore::ExternalSource.find_by(name: external_source_name)
+          external_source = DataCycleCore::ExternalSystem.find_by(name: external_source_name)
           image_annotator = Google::Cloud::Vision::ImageAnnotator.new(credentials: external_source.credentials)
           translation_service = Google::Cloud::Translate.new(version: :v2, credentials: external_source.credentials)
 

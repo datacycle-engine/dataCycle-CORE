@@ -45,7 +45,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Feratel Identity Server')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Feratel Identity Server')
         download_from_local_json(external_source)
         external_source.import(options)
 

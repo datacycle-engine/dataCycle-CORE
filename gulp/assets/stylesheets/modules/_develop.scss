@@ -2737,3 +2737,7 @@ button.button-prime.small.bulk-delete-button {
     }
   }
 }
+
+[type='checkbox'] + label.flex-field {
+  display: flex;
+}

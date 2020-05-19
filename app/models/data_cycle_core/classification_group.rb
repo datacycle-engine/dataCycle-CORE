@@ -8,7 +8,7 @@ module DataCycleCore
 
       acts_as_paranoid
 
-      belongs_to :external_source
+      belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
       belongs_to :classification
       belongs_to :classification_alias
 
@@ -21,7 +21,7 @@ module DataCycleCore
 
     acts_as_paranoid
 
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
     belongs_to :classification
     belongs_to :classification_alias
   end

@@ -11,7 +11,7 @@ module DataCycleCore
     after_enqueue do |_|
       job_record = Delayed::Job.find(@provider_job_id)
       job_record.delayed_reference_id = @arguments.first
-      store_job_id_to_external_source = ExternalSource.find(job_record.delayed_reference_id)
+      store_job_id_to_external_source = ExternalSystem.find(job_record.delayed_reference_id)
       if store_job_id_to_external_source.config.nil?
         store_job_id_to_external_source.config = { 'last_import_full_job_id' => @provider_job_id, 'last_import_failed' => false }
       else
@@ -24,15 +24,15 @@ module DataCycleCore
     end
 
     before_perform do |job|
-      external_source = ExternalSource.find(job.arguments.first)
+      external_source = ExternalSystem.find(job.arguments.first)
       external_source.config['last_import_full_failed'] = false
       external_source.save!
     end
 
     def perform(uuid)
-      external_source = ExternalSource.find(uuid)
+      external_source = ExternalSystem.find(uuid)
       pid = Process.fork do
-        external_source = ExternalSource.find(uuid)
+        external_source = ExternalSystem.find(uuid)
         external_source.import({ mode: 'full' })
       rescue StandardError => exception
         Appsignal.send_error(exception, nil, "import full job failed - #{external_source.id}")

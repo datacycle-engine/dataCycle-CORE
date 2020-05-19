@@ -15,7 +15,7 @@ module DataCycleCore
 
       validity_period = { valid_from: DateTime.current.beginning_of_day.to_s, valid_until: DateTime.current.end_of_day.to_s }
       multiling = create_content('Artikel', { name: 'XYZ de', validity_period: validity_period })
-      multiling.external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
+      multiling.external_source_id = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive').id
       multiling.created_by = DataCycleCore::User.find_by(email: 'admin@datacycle.at').id
       multiling.save!
       I18n.with_locale(:en) do
@@ -108,7 +108,7 @@ module DataCycleCore
     # end
 
     test 'test query for external_source' do
-      external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
+      external_source_id = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive').id
       items = DataCycleCore::Filter::Search.new(:de).external_source(external_source_id)
       assert_equal(1, items.count)
 

@@ -1,5 +1,0 @@
----
-name: Econob Normalize
-credentials:
-  host: https://datacycle-di.econob.com
-  end_point: /normalizeEntryDetails
