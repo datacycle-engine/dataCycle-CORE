@@ -16,7 +16,7 @@ if content.synch?
     json['identifier'] << {
       '@type' => 'PropertyValue',
       'propertyID' => system_data.external_system.identifier,
-      'value' => system_data.data&.dig(system_data.external_system.default_options&.dig('external_key_param'))
+      'value' => system_data.external_key
     }
   end
 end

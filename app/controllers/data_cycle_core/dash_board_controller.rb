@@ -13,7 +13,7 @@ module DataCycleCore
     end
 
     def download
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -24,7 +24,7 @@ module DataCycleCore
     end
 
     def import
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -35,7 +35,7 @@ module DataCycleCore
     end
 
     def import_full
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -46,7 +46,7 @@ module DataCycleCore
     end
 
     def download_import
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
       if Delayed::Job.exists?(queue: 'importers', delayed_reference_type: 'download_import', delayed_reference_id: @external_source.id, locked_at: nil, failed_at: nil)
         flash[:notice] = I18n.t :running, scope: [:controllers, :job], locale: DataCycleCore.ui_language
       else
@@ -78,20 +78,6 @@ module DataCycleCore
     def import_classifications
       MasterData::ImportClassifications.import_all
       flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'basic classification trees', locale: DataCycleCore.ui_language
-      redirect_to admin_path
-    end
-
-    def import_config
-      @errors = nil
-      errors = MasterData::ImportExternalSources.import_all
-      if errors.blank?
-        flash[:notice] = I18n.t :imported, scope: [:controllers, :job], data: 'import configs', locale: DataCycleCore.ui_language
-      else
-        @errors = errors
-        puts 'errors:'
-        ap errors
-        flash[:error] = 'errors were encountered'
-      end
       redirect_to admin_path
     end
 

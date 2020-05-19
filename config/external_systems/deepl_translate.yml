@@ -1,0 +1,6 @@
+---
+name: DeeplTranslate
+credentials:  # !!!! dataCycle intern !!!
+  host: https://api.deepl.com/
+  end_point: v2/translate
+  key: 3cd16839-fefd-4754-7464-45cb66acb3fd

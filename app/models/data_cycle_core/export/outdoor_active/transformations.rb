@@ -5,8 +5,8 @@ module DataCycleCore
     module OutdoorActive
       module Transformations
         def self.to_xml(external_system, contents, deleted_content_ids = [])
-          @source = external_system.credentials.dig('xml', 'source')
-          @owner =  external_system.credentials.dig('xml', 'owner')
+          @source = external_system.credentials(:export).dig('xml', 'source')
+          @owner =  external_system.credentials(:export).dig('xml', 'owner')
 
           builder = Nokogiri::XML::Builder.new(encoding: 'UTF-8') do |xml|
             xml.pois('xmlns' => 'http://www.outdooractive.com/api/schema/alp.interface', 'xmlns:xsi' => 'http://www.w3.org/2001/XMLSchema-instance', 'xsi:schemaLocation' => 'http://www.outdooractive.com/api/schema/alp.interface alp.interface.pois.xsd') do

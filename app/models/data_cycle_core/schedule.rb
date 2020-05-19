@@ -234,7 +234,7 @@ module DataCycleCore
     class History < ApplicationRecord
       include ScheduleHandler
       belongs_to :thing_history, class_name: 'DataCycleCore::Thing::History'
-      belongs_to :external_source
+      belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
       after_find :load_schedule_object
       before_save :serialize_schedule_object
 
@@ -258,7 +258,7 @@ module DataCycleCore
 
     include ScheduleHandler
     belongs_to :thing
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
     after_find :load_schedule_object
     before_save :serialize_schedule_object
 

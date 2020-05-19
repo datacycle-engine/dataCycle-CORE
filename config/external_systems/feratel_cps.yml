@@ -1,0 +1,86 @@
+---
+name: Feratel CPS
+credentials:
+  host: 'http://cps.light.feratel.com'
+  end_point: '/cpsnet/internet'
+  id: 'LI045,1,100'
+default_options:
+  locales: [de]
+config:
+  download_config:
+    infrastructure:
+      sorting: 1
+      endpoint: DataCycleCore::Generic::FeratelCps::Endpoint
+      source_type: infrastructure
+      download_strategy: DataCycleCore::Generic::FeratelCps::Download
+    slopes:
+      sorting: 2
+      endpoint: DataCycleCore::Generic::FeratelCps::Endpoint
+      source_type: slopes
+      download_strategy: DataCycleCore::Generic::FeratelCps::Download
+    lifts:
+      sorting: 3
+      endpoint: DataCycleCore::Generic::FeratelCps::Endpoint
+      source_type: lifts
+      download_strategy: DataCycleCore::Generic::FeratelCps::Download
+  import_config:
+    status_infra:
+      sorting: 1
+      source_type: infrastructure
+      tree_label: Feratel CPS - Stati
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'STATUSWERT.text'
+      tag_name_path: 'STATUS.text'
+      external_id_prefix: 'Feratel CPS - Stati - '
+    status_slope:
+      sorting: 2
+      source_type: slopes
+      tree_label: Feratel CPS - Stati
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'STATUSWERT.text'
+      tag_name_path: 'STATUS.text'
+      external_id_prefix: 'Feratel CPS - Stati - '
+    status_lift:
+      sorting: 3
+      source_type: lifts
+      tree_label: Feratel CPS - Stati
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'STATUSWERT.text'
+      tag_name_path: 'STATUS.text'
+      external_id_prefix: 'Feratel CPS - Stati - '
+    type_infra:
+      sorting: 4
+      source_type: infrastructure
+      tree_label: Feratel CPS - Typen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'TYP.text'
+      tag_name_path: 'TYPNAME.text'
+      external_id_prefix: 'Feratel CPS - Typen - '
+    type_slope:
+      sorting: 5
+      source_type: slopes
+      tree_label: Feratel CPS - Typen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'TYP.text'
+      tag_name_path: 'TYPNAME.text'
+      external_id_prefix: 'Feratel CPS - Typen - '
+    type_lift:
+      sorting: 6
+      source_type: lifts
+      tree_label: Feratel CPS - Typen
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tag_id_path: 'TYP.text'
+      tag_name_path: 'TYPNAME.text'
+      external_id_prefix: 'Feratel CPS - Typen - '
+    infrastructure:
+      sorting: 7
+      source_type: infrastructure
+      import_strategy: DataCycleCore::Generic::FeratelCps::ImportInfrastructure
+    slope:
+      sorting: 8
+      source_type: slopes
+      import_strategy: DataCycleCore::Generic::FeratelCps::ImportSlope
+    lift:
+      sorting: 9
+      source_type: lifts
+      import_strategy: DataCycleCore::Generic::FeratelCps::ImportLift

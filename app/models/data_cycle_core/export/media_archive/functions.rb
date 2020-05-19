@@ -10,11 +10,11 @@ module DataCycleCore
 
         def self.update_person(utility_object:, data:, type:)
           external_system = utility_object.external_system
-          webhook = (external_system.config.dig('push_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
+          webhook = (external_system.config.dig('export_config', 'webhook').presence&.safe_constantize || DataCycleCore::Export::Generic::Webhook).new(
             data: OpenStruct.new(id: data.id, template_name: data.template_name),
             type: "update_#{type}",
-            method: (external_system.config.dig('push_config', 'update', 'method') || external_system.config.dig('push_config', 'method') || :put).to_sym,
-            transformation: external_system.config.dig('push_config', 'update', 'transformation') || external_system.config.dig('push_config', 'transformation') || :json_partial,
+            method: (external_system.config.dig('export_config', 'update', 'method') || external_system.config.dig('export_config', 'method') || :put).to_sym,
+            transformation: external_system.config.dig('export_config', 'update', 'transformation') || external_system.config.dig('export_config', 'transformation') || :json_partial,
             path: "/api/v1/#{type}",
             utility_object: utility_object,
             locale: I18n.locale
