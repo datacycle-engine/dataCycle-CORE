@@ -49,8 +49,14 @@ Lint/RaiseException:
 Lint/StructNewOverride:
   Enabled: true
 
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: false
+
 #######################################################
 ########## Style
+
+Style/SlicingWithRange:
+  Enabled: false
 
 Style/AsciiComments:
   Enabled: false

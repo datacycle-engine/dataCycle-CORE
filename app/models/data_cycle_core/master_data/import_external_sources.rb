@@ -47,16 +47,24 @@ module DataCycleCore
 
         validate_import = ExternalSourceImportContract.new
         import_config = validation_hash.dig(:config, :import_config) || {}
-        import_config.each do |key, value|
-          error = validate_import.call(value).errors.to_h
-          errors[:import_config][key] = error if error.present?
+        if import_config.is_a?(Hash)
+          import_config.each do |key, value|
+            error = validate_import.call(value).errors.to_h
+            errors[:import_config][key] = error if error.present?
+          end
+        else
+          errors[:import_config][:general] = 'Import config must be a Hash'
         end
 
         validate_download = ExternalSourceDownloadContract.new
         download_config = validation_hash.dig(:config, :download_config) || {}
-        download_config.each do |key, value|
-          error = validate_download.call(value).errors.to_h
-          errors[:download_config][key] = error if error.present?
+        if download_config.is_a?(Hash)
+          download_config.each do |key, value|
+            error = validate_download.call(value).errors.to_h
+            errors[:download_config][key] = error if error.present?
+          end
+        else
+          errors[:download_config][:general] = 'Download config must be a Hash'
         end
 
         errors.reject { |_, v| v.blank? }
@@ -66,18 +74,19 @@ module DataCycleCore
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { array? | hash? }
+          optional(:credentials)
           optional(:default_options).hash do
             optional(:locales).each { str? }
           end
           optional(:config).hash do
-            required(:download_config) { hash? }
-            required(:import_config) { hash? }
+            optional(:download_config) { hash? }
+            optional(:import_config) { hash? }
             optional(:api_strategy) { str? }
           end
         end
 
         rule(config: :api_strategy).validate(:dc_class)
+        rule(:credentials).validate(:dc_array_or_hash)
       end
 
       class ExternalSourceDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract

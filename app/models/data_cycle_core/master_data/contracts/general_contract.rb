@@ -10,6 +10,11 @@ module DataCycleCore
         register_macro(:dc_class) do
           key.failure('the string given does not specify a valid ruby class.') if value&.safe_constantize&.class != Class && key?
         end
+
+        register_macro(:dc_array_or_hash) do
+          key.failure('the value must be of type Array or Hash') if !value&.is_a?(Hash) && !value&.is_a?(Array)
+        end
+
         register_macro(:dc_module) do
           key.failure('the string given does not specify a valid ruby module.') if value&.safe_constantize&.class != Module && key?
         end
