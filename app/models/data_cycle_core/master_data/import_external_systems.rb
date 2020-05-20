@@ -8,7 +8,7 @@ module DataCycleCore
         DataCycleCore::ExternalSystem.update_all(credentials: nil) # rubocop:disable Rails/SkipsModelValidations
 
         errors = {}
-        paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path].compact
+        (paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path])&.compact!
         file_paths = Dir.glob(Array.wrap(paths&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
 
         if file_paths.blank?
