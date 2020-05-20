@@ -39,12 +39,24 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
       end
 
+      def image_with_author
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('media_objects', 'v4_image')
+        data_hash['name'] = "image_#{SecureRandom.uuid}"
+        data_hash['author'] = [person.id]
+        # TODO: make this more generic for all kind of classifications
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
+      end
+
       def event
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event')
         data_hash['event_schedule'] = [schedule]
         data_hash['validity_period'] = validity_period
         data_hash['offers'] = [offer]
-        data_hash['image'] = [image.id]
+        data_hash['image'] = [image_with_author.id]
         data_hash['organizer'] = [person.id]
         data_hash['performer'] = [organization.id]
         data_hash['content_location'] = [poi.id]

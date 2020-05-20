@@ -32,7 +32,7 @@ module DataCycleCore
           optional(:'dct:deleted').value(:date_time)
           optional(:'dct:description').value(:string)
           optional(:url).value(:string)
-          optional(:'skos:inScheme').hash(DEFAULT_HEADER)
+          required(:'skos:inScheme').hash(DEFAULT_HEADER)
           optional(:'skos:topConceptOf').hash(DEFAULT_HEADER)
           optional(:'skos:broader').hash(DEFAULT_HEADER)
           optional(:'skos:ancestors').value(:array, min_size?: 1).each do

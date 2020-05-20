@@ -17,7 +17,7 @@ module DataCycleCore
         end
 
         # Test with Event
-        DEFAULT_THING_ATTRIBUTES = Dry::Schema.JSON do
+        DEFAULT_EVENT_ATTRIBUTES = Dry::Schema.JSON do
           optional(:"dc:classification").value(:array).each do
             hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
           end
@@ -64,16 +64,58 @@ module DataCycleCore
           optional(:'cc:useGuidelines').value(:string)
         end
 
+        # Test with Author
+        DEFAULT_PERSON_ATTRIBUTES = Dry::Schema.JSON do
+          optional(:"dc:classification").value(:array).each do
+            hash(DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER)
+          end
+          required(:givenName).value(:string)
+          required(:familyName).value(:string)
+          required(:honorificPrefix).value(:string)
+          required(:honorificSuffix).value(:string)
+          required(:jobTitle).value(:string)
+          required(:description).value(:string)
+          required(:address).hash do
+            required(:'@type').value(:string)
+            required(:streetAddress).value(:string)
+            required(:postalCode).value(:string)
+            required(:addressLocality).value(:string)
+            required(:addressCountry).value(:string)
+            required(:name).value(:string)
+            required(:telephone).value(:string)
+            required(:faxNumber).value(:string)
+            required(:email).value(:string)
+            required(:url).value(:string)
+          end
+        end
+
         def self.build_thing_validation(fields, include)
           return fields if fields.present?
           return DEFAULT_THING_ATTRIBUTES.merge(include) if include.present?
           DEFAULT_THING_ATTRIBUTES
         end
 
+        def self.build_event_validation(fields, include)
+          return fields if fields.present?
+          return DEFAULT_EVENT_ATTRIBUTES.merge(include) if include.present?
+          DEFAULT_EVENT_ATTRIBUTES
+        end
+
         def self.thing(params: {})
           fields = params.dig(:fields)
           include = params.dig(:include)
           attributes = build_thing_validation(fields, include)
+          validator = Dry::Validation.Contract do
+            config.validate_keys = true
+            json(DEFAULT_HEADER, attributes)
+          end
+          validator
+        end
+
+        def self.event(params: {})
+          fields = params.dig(:fields)
+          include = params.dig(:include)
+          attributes = build_event_validation(fields, include)
           validator = Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)

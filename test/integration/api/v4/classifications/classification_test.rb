@@ -245,7 +245,7 @@ module DataCycleCore
               optional(:'skos:broader').hash(
                 DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                   Dry::Schema.JSON do
-                    optional(:'skos:inScheme').hash(
+                    required(:'skos:inScheme').hash(
                       DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                         Dry::Schema.JSON do
                           required(:'skos:prefLabel').value(:string)
@@ -309,7 +309,7 @@ module DataCycleCore
                 DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                   DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_ATTRIBUTES.merge(
                     Dry::Schema.JSON do
-                      optional(:'skos:inScheme').hash(
+                      required(:'skos:inScheme').hash(
                         DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
                           DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_SCHEME_ATTRIBUTES
                         )
@@ -376,12 +376,22 @@ module DataCycleCore
 
             fields = Dry::Schema.JSON do
               required(:'skos:prefLabel').value(:string)
+              optional(:'skos:ancestors').value(:array, min_size?: 1).each do
+                hash(
+                  DataCycleCore::V4::Validation::Concept::DEFAULT_HEADER.merge(
+                    DataCycleCore::V4::Validation::Concept::DEFAULT_CONCEPT_ATTRIBUTES
+                  )
+                )
+              end
             end
 
+            concept_with_ancestor = false
             validator = DataCycleCore::V4::Validation::Concept.concept(params: { fields: fields })
             json_data['@graph'].each do |item|
               assert_equal({}, validator.call(item).errors.to_h)
+              concept_with_ancestor = true if item.dig('skos:ancestors').present?
             end
+            assert(concept_with_ancestor)
           end
 
           test 'api/v4/concept_schemes/(:id)/concepts include skos:inScheme fields skos:inScheme.skos:prefLabel' do
