@@ -26,9 +26,8 @@ else
     '@type' => 'skos:ConceptScheme'
   }.compact)
 end
-
-if options[:fields].blank? && options[:field_filter] == false
-  json
-else
+if options[:field_filter] && options[:fields].present?
   json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
+else
+  json
 end
