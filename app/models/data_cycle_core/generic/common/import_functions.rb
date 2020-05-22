@@ -158,6 +158,38 @@ module DataCycleCore
           end
         end
 
+        def self.aggregate_to_collection(utility_object:, iterator:, options:)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+
+              item_count = 0
+              begin
+                logging.phase_started("#{importer_name}(#{phase_name})")
+
+                GC.start
+
+                # each_locale and then merge?? mongo 4.2!
+                # TODO: $out collection as parameter from options?
+
+                utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                  mongo_item.with_session do |_session|
+                    # TODO: variable necessary?, error raising if??
+                    iterate = iterator.call(mongo_item, utility_object.locales).to_a
+                    item_count += 1
+                    
+                    logging.info("Aggregate collection created  #{iterate}")
+                  end
+                end
+              ensure
+                logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
+              end
+            end
+          end
+        end
+
         def self.init_mongo_db(utility_object)
           Mongoid.override_database("#{utility_object.source_type.database_name}_#{utility_object.external_source.id}")
           yield
