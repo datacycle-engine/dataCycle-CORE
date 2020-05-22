@@ -92,8 +92,9 @@ module DataCycleCore
 
         def self.add_amenity_features(data, _external_source_id)
           amenity_features = []
-          data.dig('Facilities', 'Facility').each do |facility|
+          data.dig('Facilities', 'Facility')&.each do |facility|
             next unless facility['ValueType'] == 'IntDigit'
+
             amenity_features.push(
               {
                 name: facility['GroupName'] + ' |> ' + facility['Name'],
