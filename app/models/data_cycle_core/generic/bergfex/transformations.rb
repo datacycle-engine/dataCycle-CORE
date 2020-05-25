@@ -10,9 +10,9 @@ module DataCycleCore
 
         def self.bergfex_to_see
           t(:stringify_keys)
-          .>> t(:reject_keys, ['region'])
+          .>> t(:add_field, 'external_key', ->(s) { "Bergfex - See - #{s.dig('id')}" })
+          .>> t(:reject_keys, ['id', 'region'])
           .>> t(:rename_keys, {
-            'id' => 'external_key',
             'name' => 'name_old',
             'area' => 'area_old',
             'depth' => 'depth_old',
@@ -45,6 +45,8 @@ module DataCycleCore
 
         def self.bergfex_to_ski_resort(external_source_id)
           t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { "Bergfex - Skigebiet - #{s.dig('id')}" })
+          .>> t(:reject_keys, ['id'])
           .>> t(:rename_keys, {
             'id' => 'external_key',
             'name' => 'name_old',

@@ -36,6 +36,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :vtg_bodensee:
+        :type: mixin
+        :name: vtg_bodensee
       :content_classifications:
         :type: mixin
         :name: content_classifications
