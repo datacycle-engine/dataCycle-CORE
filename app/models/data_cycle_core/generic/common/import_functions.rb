@@ -162,6 +162,7 @@ module DataCycleCore
               importer_name = options.dig(:import, :name)
               phase_name = utility_object.source_type.collection_name
               logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+              output_collection = options.dig(:import, :output_collection)
 
               item_count = 0
               begin
@@ -169,16 +170,12 @@ module DataCycleCore
 
                 GC.start
 
-                # each_locale and then merge?? mongo 4.2!
-                # TODO: $out collection as parameter from options?
-
                 utility_object.source_object.with(utility_object.source_type) do |mongo_item|
                   mongo_item.with_session do |_session|
-                    # TODO: variable necessary?, error raising if??
-                    iterate = iterator.call(mongo_item, utility_object.locales).to_a
+                    iterate = iterator.call(mongo_item, utility_object.locales, output_collection).to_a
                     item_count += 1
-                    
-                    logging.info("Aggregate collection created  #{iterate}")
+
+                    logging.info("Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}, #{iterate}")
                   end
                 end
               ensure

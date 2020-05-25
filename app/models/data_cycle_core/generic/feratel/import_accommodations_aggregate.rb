@@ -12,14 +12,14 @@ module DataCycleCore
           )
         end
 
-        def self.load_contents(mongo_item, locales)
+        def self.load_contents(mongo_item, locales, output_collection)
           aggregation_array = []
 
           locales.each do |locale|
             aggregation_array.push(*get_aggregate(locale.to_s))
           end
 
-          aggregation_array.push({ "$out": 'accommodations_aggregate' })
+          aggregation_array.push({ "$out": output_collection })
 
           mongo_item.collection.aggregate(aggregation_array, allow_disk_use: true)
         end
