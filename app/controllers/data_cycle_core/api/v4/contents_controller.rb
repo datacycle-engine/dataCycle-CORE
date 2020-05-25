@@ -12,7 +12,7 @@ module DataCycleCore
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
         ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
-        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt].freeze
+        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :schedule].freeze
 
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
@@ -64,8 +64,6 @@ module DataCycleCore
                 :search,
                 :box,
                 :deletedSince,
-                :from,
-                :to,
                 {
                   classifications: {
                     in: {
@@ -80,8 +78,9 @@ module DataCycleCore
                 },
                 {
                   attribute: {
+                    createdAt: attribute_filter_operations,
                     modifiedAt: attribute_filter_operations,
-                    createdAt: attribute_filter_operations
+                    schedule: attribute_filter_operations
                   }
                 }
               ]
@@ -96,8 +95,10 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          if permitted_params[:search].present?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence))
+          elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, true))
           else
             order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
               if sort.starts_with?('-')
@@ -140,7 +141,7 @@ module DataCycleCore
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
-          query = apply_event_query_filters(query)
+          # query = apply_event_query_filters(query)
           query = apply_place_query_filters(query)
 
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)

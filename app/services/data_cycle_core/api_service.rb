@@ -38,7 +38,6 @@ module DataCycleCore
     def apply_attribute_filters(query)
       return query if permitted_params&.dig(:filter, :attribute).blank?
       attribute_filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys
-
       attribute_filter.each do |attribute_key, operator|
         attribute_path = attribute_path_mapping(attribute_key)
         query_method = query_method_mapping(attribute_key)
@@ -54,6 +53,7 @@ module DataCycleCore
     def query_method_mapping(key)
       date_range = [:modifiedAt, :createdAt]
       return 'date_range' if date_range.include?(key)
+      return 'in_schedule' if key == :schedule
       key.to_s
     end
 
@@ -63,6 +63,9 @@ module DataCycleCore
         'updated_at'
       when :createdAt
         'created_at'
+      when :schedule
+        # currently a hack
+        'absolute'
       else
         attribute_key.to_s
       end
