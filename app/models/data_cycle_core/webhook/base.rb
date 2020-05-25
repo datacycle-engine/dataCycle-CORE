@@ -27,11 +27,11 @@ module DataCycleCore
       end
 
       def self.validate_webhook(external_system, action, data)
-        webhook = external_system.push_config.dig(action.to_sym)&.symbolize_keys
+        webhook = external_system.export_config.dig(action.to_sym)&.symbolize_keys
         return unless webhook&.dig(:strategy)
 
         export_class = webhook.dig(:strategy).constantize
-        return [external_system, export_class] if data&.model_name&.in?(Array(external_system.push_config.dig(:allowed_models) || 'DataCycleCore::Thing')) && export_class.filter(data, external_system)
+        return [external_system, export_class] if data&.model_name&.in?(Array(external_system.export_config.dig(:allowed_models) || 'DataCycleCore::Thing')) && export_class.filter(data, external_system)
         nil
       end
 

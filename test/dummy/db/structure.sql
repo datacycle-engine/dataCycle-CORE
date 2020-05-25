@@ -593,24 +593,6 @@ UNION
 
 
 --
--- Name: external_sources; Type: TABLE; Schema: public; Owner: -
---
-
-CREATE TABLE public.external_sources (
-    id uuid DEFAULT public.gen_random_uuid() NOT NULL,
-    name character varying,
-    credentials jsonb,
-    config jsonb,
-    last_download timestamp without time zone,
-    last_import timestamp without time zone,
-    default_options jsonb,
-    last_successful_download timestamp without time zone,
-    last_successful_import timestamp without time zone,
-    identifier character varying
-);
-
-
---
 -- Name: external_system_syncs; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -641,7 +623,11 @@ CREATE TABLE public.external_systems (
     data jsonb,
     created_at timestamp without time zone NOT NULL,
     updated_at timestamp without time zone NOT NULL,
-    identifier character varying
+    identifier character varying,
+    last_download timestamp without time zone,
+    last_successful_download timestamp without time zone,
+    last_import timestamp without time zone,
+    last_successful_import timestamp without time zone
 );
 
 
@@ -1098,14 +1084,6 @@ ALTER TABLE ONLY public.delayed_jobs
 
 ALTER TABLE ONLY public.data_links
     ADD CONSTRAINT edit_links_pkey PRIMARY KEY (id);
-
-
---
--- Name: external_sources external_sources_pkey; Type: CONSTRAINT; Schema: public; Owner: -
---
-
-ALTER TABLE ONLY public.external_sources
-    ADD CONSTRAINT external_sources_pkey PRIMARY KEY (id);
 
 
 --
@@ -1630,13 +1608,6 @@ CREATE INDEX index_data_links_on_item_id ON public.data_links USING btree (item_
 --
 
 CREATE INDEX index_data_links_on_item_type ON public.data_links USING btree (item_type);
-
-
---
--- Name: index_external_sources_on_id; Type: INDEX; Schema: public; Owner: -
---
-
-CREATE UNIQUE INDEX index_external_sources_on_id ON public.external_sources USING btree (id);
 
 
 --
@@ -2271,6 +2242,7 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200224143507'),
 ('20200226121349'),
 ('20200410064408'),
-('20200420130554');
+('20200420130554'),
+('20200514064724');
 
 

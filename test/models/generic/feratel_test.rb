@@ -40,7 +40,7 @@ module DataCycleCore
           max_count: 1,
           mode: 'full'
         }
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Feratel VCloud')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Feratel VCloud')
         download_from_local_json(external_source)
         external_source.import(options)
 

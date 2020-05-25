@@ -30,7 +30,7 @@ module DataCycleCore
         end
 
         def path_transformation(data, external_system, path_type)
-          format(external_system.config.dig('push_config', path_type.to_s, 'path') || external_system.config.dig('push_config', 'path') || path_type.to_s, id: data&.id)
+          format(external_system.config.dig('export_config', path_type.to_s, 'path') || external_system.config.dig('export_config', 'path') || path_type.to_s, id: data&.id)
         end
       end
     end

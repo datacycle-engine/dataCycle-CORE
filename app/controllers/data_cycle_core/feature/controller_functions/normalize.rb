@@ -15,7 +15,7 @@ module DataCycleCore
 
         def normalize
           @content = DataCycleCore::Thing.find_by(id: params[:id])
-          external_source = DataCycleCore::ExternalSource.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))
+          external_source = DataCycleCore::ExternalSystem.find_by(name: DataCycleCore.features.dig(:normalize, :external_source))
 
           render(plain: { error: I18n.t(:no_data, scope: [:validation, :warnings], data: 'Normalisierung', locale: DataCycleCore.ui_language) }.to_json, content_type: 'application/json') && return if external_source.blank? || @content.blank?
 

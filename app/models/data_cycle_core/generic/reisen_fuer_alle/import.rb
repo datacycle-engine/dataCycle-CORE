@@ -7,8 +7,8 @@ module DataCycleCore
         def self.import_data(utility_object:, options:)
           feratel_name = utility_object.external_source.credentials['external_source_feratel'] || 'Feratel'
           outdoor_active_name = utility_object.external_source.credentials['external_source_outdoor_active'] || 'OutdoorActive'
-          @feratel = DataCycleCore::ExternalSource.find_by(name: feratel_name)
-          @outdoor_active = DataCycleCore::ExternalSource.find_by(name: outdoor_active_name)
+          @feratel = DataCycleCore::ExternalSystem.find_by(name: feratel_name)
+          @outdoor_active = DataCycleCore::ExternalSystem.find_by(name: outdoor_active_name)
           DataCycleCore::Generic::Common::ImportFunctions.import_contents(
             utility_object: utility_object,
             iterator: method(:load_contents).to_proc,

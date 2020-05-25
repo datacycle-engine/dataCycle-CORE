@@ -120,7 +120,7 @@ DataCycleCore::Engine.routes.draw do
   end
 
   scope :admin do
-    resources :external_sources, only: [] do
+    resources :external_systems, only: [] do
       get :authorize, on: :member
       get :callback, on: :member
     end
@@ -137,7 +137,6 @@ DataCycleCore::Engine.routes.draw do
   get  '/admin/import_full/:id', to: 'dash_board#import_full', as: 'admin_import_full'
   get  '/admin/import_templates', to: 'dash_board#import_templates'
   get  '/admin/import_classifications', to: 'dash_board#import_classifications'
-  get  '/admin/import_config', to: 'dash_board#import_config'
   get  '/admin/import_external_systems', to: 'dash_board#import_external_systems'
   get  '/admin/classifications', to: 'dash_board#classifications'
   get  '/admin/activities', to: 'dash_board#activities'
@@ -169,7 +168,7 @@ DataCycleCore::Engine.routes.draw do
             get 'contents/deleted', to: 'contents#deleted'
 
             scope 'external_sources/:external_source_id' do
-              resource :things, only: [:show, :create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+              resource :things, only: [:show, :create, :update, :destroy], controller: :external_systems, path: ':type/:external_key', constraints: { type: /creative_work/ }
             end
           end
         end
@@ -193,7 +192,7 @@ DataCycleCore::Engine.routes.draw do
               resources :collections, only: [:index, :show], controller: :watch_lists
 
               scope 'external_sources/:external_source_id' do
-                resource :things, only: [:create, :update, :destroy], controller: :external_sources, path: ':type/:external_key', constraints: { type: /creative_work/ }
+                resource :things, only: [:create, :update, :destroy], controller: :external_systems, path: ':type/:external_key', constraints: { type: /creative_work/ }
               end
 
               resources :external_systems, only: [:show], controller: :external_systems
@@ -232,7 +231,7 @@ DataCycleCore::Engine.routes.draw do
               match 'users', to: 'users#index', as: 'users', via: [:get, :post]
 
               scope 'external_sources/:external_source_id' do
-                resources :things, only: [:create, :update, :destroy], controller: :external_sources, path: '', param: :external_key
+                resources :things, only: [:create, :update, :destroy], controller: :external_systems, path: '', param: :external_key
               end
             end
           end
@@ -276,9 +275,9 @@ DataCycleCore::Engine.routes.draw do
               match 'users/:id', to: 'users#show', as: 'user', via: [:get, :post]
 
               scope 'external_sources/:external_source_id' do
-                match '', via: [:post], to: 'external_sources#create'
-                match '(/:external_key)', via: [:put, :patch], to: 'external_sources#update'
-                match '(/:external_key)', via: [:delete], to: 'external_sources#destroy'
+                match '', via: [:post], to: 'external_systems#create'
+                match '(/:external_key)', via: [:put, :patch], to: 'external_systems#update'
+                match '(/:external_key)', via: [:delete], to: 'external_systems#destroy'
               end
             end
           end

@@ -2,19 +2,6 @@
 
 namespace :data_cycle_core do
   namespace :update do
-    desc 'import all external_source configs'
-    task import_external_source_configs: [:environment] do
-      puts 'importing new external_source configs'
-      errors = DataCycleCore::MasterData::ImportExternalSources.import_all
-      if errors.blank?
-        puts '[done] ... looks good'
-      else
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
-      puts "\n"
-    end
-
     desc 'import all external_system configs'
     task import_external_system_configs: [:environment] do
       puts 'importing new external_system configs'
@@ -260,7 +247,6 @@ namespace :dc do
       desc 'import and update all classifications, external_sources, external_systems and templates'
       task :all, [:history] => :environment do |_, args|
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_classifications"].invoke
-        Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_source_configs"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_external_system_configs"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:import_templates"].invoke
         Rake::Task["#{ENV['CORE_RAKE_PREFIX']}data_cycle_core:update:update_all_templates_sql"].invoke(args.fetch(:history, false))

@@ -10,8 +10,6 @@ DataCycleCore.setup do |config|
   Rails.application.config.active_record.belongs_to_required_by_default = true
   Rails.application.config.session_store :cookie_store, key: '_dummy_session', same_site: :lax
 
-  # config.template_path = Rails.root.join('config', 'data_definitions').freeze
-
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
 
