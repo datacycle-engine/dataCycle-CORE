@@ -555,7 +555,6 @@ class ObjectBrowser {
     if (!this.chosen.length) return;
 
     let toRemove = this.chosen.diff(this.filteredIds());
-    console.log(toRemove);
     if (toRemove.length) {
       toRemove.forEach(item => {
         this.removeThumbObject(

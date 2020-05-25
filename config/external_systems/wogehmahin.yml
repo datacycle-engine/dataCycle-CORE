@@ -1,0 +1,43 @@
+---
+name: wogehmahin.at
+credentials:
+  end_point: 2Datacycle/index.php
+  host: https://www.wogehmahin.at
+  key: HEFz2DXMjTkuqB # key for KW
+default_options:
+  locales: [de]
+config:
+  download_config:
+    food_establishments:
+      sorting: 1
+      source_type: food_establishments
+      endpoint: DataCycleCore::Generic::Wogehmahin::Endpoint
+      download_strategy: DataCycleCore::Generic::Wogehmahin::Download
+  import_config:
+    types:
+      sorting: 1
+      source_type: food_establishments
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Wogehmahin - Types
+      tag_path: 'types'
+      tag_id_path: 'types.name'
+      tag_name_path: 'types.name'
+      external_id_prefix: 'Wogehmahin - Type - '
+    topics:
+      sorting: 2
+      source_type: food_establishments
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Wogehmahin - Topics
+      tag_path: 'topics'
+      tag_id_path: 'topics.name'
+      tag_name_path: 'topics.name'
+      external_id_prefix: 'Wogehmahin - Topic - '
+    food_establishments:
+      sorting: 10
+      source_type: food_establishments
+      import_strategy: DataCycleCore::Generic::Wogehmahin::ImportFoodEstablishments
+      transformations:
+        image:
+          template: Bild
+        food_establishment:
+          template: 'Gastronomischer Betrieb'

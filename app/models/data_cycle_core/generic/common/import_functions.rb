@@ -35,9 +35,7 @@ module DataCycleCore
           content.schema = template.schema
           content.template_name = template.template_name
           content.created_by = data['created_by']
-
-          credentials = utility_object&.external_source&.credentials&.is_a?(Hash) ? utility_object.external_source.credentials : utility_object.external_source.credentials&.first
-          content.webhook_source = credentials&.dig('external_system') || utility_object&.external_source&.name
+          content.webhook_source = utility_object&.external_source&.name
           content.save!
 
           global_attributes = {}

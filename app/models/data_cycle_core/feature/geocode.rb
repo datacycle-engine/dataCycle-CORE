@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def external_source
-          @external_source ||= DataCycleCore::ExternalSource.find_by(name: configuration.dig(:external_source))
+          @external_source ||= DataCycleCore::ExternalSystem.find_by(name: configuration.dig(:external_source))
         end
 
         def endpoint

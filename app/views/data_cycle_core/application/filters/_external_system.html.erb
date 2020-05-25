@@ -14,7 +14,7 @@
 
   <div class="advanced-filter-selector">
     <%= select_tag("f[#{index}][v]",
-      options_for_select(DataCycleCore::ExternalSystem.select(:id, :name).map { |e| [e.name, e.id] }, value),
+      options_for_select(DataCycleCore::ExternalSystem.select(:id, :name).where('external_systems.config ? :key', key: 'export_config').map { |e| [e.name, e.id] }, value),
       {
         multiple: true,
         class: 'multi-select',

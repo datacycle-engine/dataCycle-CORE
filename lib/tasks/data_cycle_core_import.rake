@@ -6,7 +6,7 @@ namespace :data_cycle_core do
   namespace :import do
     desc 'List available endpoints for import'
     task list: :environment do
-      DataCycleCore::ExternalSource.all.each do |external_source|
+      DataCycleCore::ExternalSystem.where('external_systems.config ? :key', key: 'import_config').each do |external_source|
         puts "#{external_source.id} - #{external_source.name}"
       end
     end
@@ -21,7 +21,7 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.download(options)
       external_source.import(options)
     end
@@ -36,7 +36,7 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.download(options)
     end
 
@@ -50,14 +50,14 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       external_source.import(options)
     end
 
     desc 'Import a specific data_set from a given source'
     task :import_one, [:external_source_id, :stage, :external_key] => [:environment] do |_, args|
       options = args.to_h.symbolize_keys
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       puts "importing from #{external_source.name} (#{external_source.id}) with external_key: #{options[:external_key]}"
       # puts 'Be aware that the data_set might not be updated if the data_hash detects that the old and the new data are the same!'
       external_source.import_one(options[:stage].to_sym, options[:external_key])
@@ -73,7 +73,7 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:download_names].presence.split(',').each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
@@ -92,7 +92,7 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:download_names].presence.split(',').each do |download_name|
         external_source.download_single(download_name.squish.to_sym, options)
       end
@@ -108,7 +108,7 @@ namespace :data_cycle_core do
         end
       end]
 
-      external_source = DataCycleCore::ExternalSource.find(options[:external_source_id])
+      external_source = DataCycleCore::ExternalSystem.find(options[:external_source_id])
       options[:import_names].presence.split(',').each do |import_name|
         external_source.import_single(import_name.squish.to_sym, options)
       end

@@ -31,7 +31,7 @@ module DataCycleCore
 
     acts_as_paranoid
 
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
 
     belongs_to :classification_alias_path, class_name: 'Path', primary_key: 'id', foreign_key: 'id'
 

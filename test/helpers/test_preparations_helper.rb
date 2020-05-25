@@ -65,22 +65,13 @@ module DataCycleCore
       ap errors
     end
 
-    def self.load_external_sources(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
-    end
-
     def self.load_external_systems(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths: paths)
+
+      return if errors.blank?
+
+      puts 'the following errors were encountered during import:'
+      ap errors
     end
 
     def self.load_dummy_data(paths)
