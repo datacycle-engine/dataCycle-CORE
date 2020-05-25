@@ -9,5 +9,8 @@
     "email": "rainer@datacycle.at",
     "telephone": "+43 676 123 456",
     "fax_number": "+43 676 123 456 01"
-  }
+  },
+  "latitude": 1,
+  "longitude": 10,
+  "elevation": 11.7
 }

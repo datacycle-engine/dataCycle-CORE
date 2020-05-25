@@ -153,7 +153,6 @@ module DataCycleCore
 
             json_data = JSON.parse(response.body)
             assert_equal(@event_a.id, json_data.dig('@graph').first.dig('@id'))
-            # binding.pry
           end
         end
       end

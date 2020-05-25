@@ -82,6 +82,16 @@ module DataCycleCore
                     modifiedAt: attribute_filter_operations,
                     schedule: attribute_filter_operations
                   }
+                },
+                {
+                  geo: {
+                    in: {
+                      box: []
+                    },
+                    notIn: {
+                      box: []
+                    }
+                  }
                 }
               ]
           }
@@ -142,7 +152,7 @@ module DataCycleCore
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
           # query = apply_event_query_filters(query)
-          query = apply_place_query_filters(query)
+          # query = apply_place_query_filters(query)
 
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
@@ -150,6 +160,7 @@ module DataCycleCore
 
           query = apply_classification_filters(query)
           query = apply_attribute_filters(query)
+          query = apply_geo_filters(query)
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id

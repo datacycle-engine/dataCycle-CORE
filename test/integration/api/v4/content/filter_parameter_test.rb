@@ -37,14 +37,17 @@ module DataCycleCore
         end
 
         test 'parameter filter[:box] for geo-queries' do
-          get api_v4_things_path(filter: { box: '0,0,10,10' })
-          assert_response :success
-
-          assert_equal(response.content_type, 'application/json')
-          json_data = JSON.parse(response.body)
-          assert_equal(1, json_data['@graph'].size)
-          assert_equal(1, json_data['meta']['total'].to_i)
-          assert_equal(true, json_data.key?('links'))
+          params = {
+            filter: {
+              geo: {
+                in: {
+                  box: ['0', '0', '10', '10']
+                }
+              }
+            }
+          }
+          post api_v4_things_path(params)
+          assert_api_count_result(1)
         end
 
         test 'parameter filter[:from, :to] for event queries' do

@@ -35,6 +35,21 @@ module DataCycleCore
       query
     end
 
+    def apply_geo_filters(query)
+      return query if permitted_params&.dig(:filter, :geo).blank?
+      geo_filter = permitted_params[:filter][:geo].to_h.deep_symbolize_keys
+
+      geo_filter.each do |operator, filter|
+        filter_prefix = operator == :notIn ? 'not_' : ''
+        filter&.each do |k, v|
+          query_method = filter_prefix + query_method_mapping(k)
+          next unless query.respond_to?(query_method)
+          query = query.send(query_method, *v)
+        end
+      end
+      query
+    end
+
     def apply_attribute_filters(query)
       return query if permitted_params&.dig(:filter, :attribute).blank?
       attribute_filter = permitted_params[:filter][:attribute].to_h.deep_symbolize_keys
@@ -54,6 +69,7 @@ module DataCycleCore
       date_range = [:modifiedAt, :createdAt]
       return 'date_range' if date_range.include?(key)
       return 'in_schedule' if key == :schedule
+      return 'within_box' if key == :box
       key.to_s
     end
 
