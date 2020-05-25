@@ -101,3 +101,11 @@
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :amenity_feature:
+        :label: Zusätzliches Merkmal
+        :type: embedded
+        :template_name: AmenityFeature
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
