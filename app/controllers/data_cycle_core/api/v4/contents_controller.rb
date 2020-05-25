@@ -62,7 +62,6 @@ module DataCycleCore
             filter:
               [
                 :search,
-                :box,
                 :deletedSince,
                 {
                   classifications: {
