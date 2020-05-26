@@ -4,7 +4,7 @@ namespace :datacycle do
   namespace :default_configs do
     desc 'load default configurations from core'
     task :load do
-      set :rvm_ruby_version, '2.6.3'
+      set :rvm_ruby_version, '2.7.1'
       set :whenever_identifier, -> { "#{fetch(:application)}_#{fetch(:stage)}" }
       set :deploy_user, 'pixelpoint'
 

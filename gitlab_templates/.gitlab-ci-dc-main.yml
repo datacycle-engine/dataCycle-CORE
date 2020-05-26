@@ -1,4 +1,4 @@
-image: patrickrainer/data_cycle_base:2.6.3
+image: patrickrainer/data_cycle_base:2.7.1
 
 variables:
   POSTGRES_USER: postgres
