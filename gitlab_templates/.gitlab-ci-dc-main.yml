@@ -36,6 +36,7 @@ before_script:
 
   - dpkg-reconfigure -f noninteractive tzdata
   - ln -snf /usr/share/zoneinfo/$TZ /etc/localtime && echo $TZ > /etc/timezone
+  - export RUBYOPT="-W:no-deprecated -W:no-experimental"
 
 cache:
   key: application-cache
