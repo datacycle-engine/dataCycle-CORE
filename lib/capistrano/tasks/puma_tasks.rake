@@ -41,6 +41,12 @@ namespace :datacycle do
         invoke! 'puma:restart'
       end
     end
+
+    def puma_plugins
+      Array(fetch(:puma_plugins)).collect { |bind|
+        "plugin '#{bind}'"
+      }.join("\n")
+    end
   end
 end
 
