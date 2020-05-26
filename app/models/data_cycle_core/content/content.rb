@@ -34,17 +34,17 @@ module DataCycleCore
       after_save :reload_memoized
 
       def method_missing(name, *args, &block)
-        property_definition = property_definitions.try(:[], name.to_s.gsub(/=$/, ''))
+        property_definition = property_definitions.try(:[], name.to_s.delete_suffix('='))
         if property_definition && name.to_s.ends_with?('=')
           raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" unless args.size == 1
-          set_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
+          set_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
         elsif property_definition
           if name.to_s.in?(embedded_property_names + linked_property_names)
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 1)" if args.size > 1
-            get_property_value(name.to_s.gsub(/=$/, ''), property_definition, args.first)
+            get_property_value(name.to_s.delete_suffix('='), property_definition, args.first)
           else
             raise ArgumentError, "wrong number of arguments (given #{args.size}, expected 0)" if args.size.positive?
-            get_property_value(name.to_s.gsub(/=$/, ''), property_definition)
+            get_property_value(name.to_s.delete_suffix('='), property_definition)
           end
         else
           super

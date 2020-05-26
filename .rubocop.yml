@@ -28,9 +28,6 @@ Bundler/OrderedGems:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-#Lint/SplatKeywordArguments:
-#  Enabled: false
-
 Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
@@ -43,14 +40,23 @@ Layout/LineLength:
 Layout/SpaceAroundMethodCallOperator:
   Enabled: true
 
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: false
+
+#######################################################
+########## Lint
+
+#Lint/SplatKeywordArguments:
+#  Enabled: false
+
 Lint/RaiseException:
   Enabled: true
 
 Lint/StructNewOverride:
   Enabled: true
 
-Layout/EmptyLinesAroundAttributeAccessor:
-  Enabled: false
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
 
 #######################################################
 ########## Style

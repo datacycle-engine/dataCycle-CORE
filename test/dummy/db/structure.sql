@@ -914,11 +914,11 @@ CREATE TABLE public.users (
     uid character varying,
     jti character varying,
     creator_id uuid,
+    additional_attributes jsonb,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying,
-    additional_attributes jsonb
+    unconfirmed_email character varying
 );
 
 
