@@ -266,10 +266,6 @@ module DataCycleCore
           optional(:external) { bool? } # true -> only imported can not be manually edited
           optional(:universal) { bool? } # true -> only for universal_classifications... does not need a tree_label
           optional(:global) { bool? } # true -> edit is allowed for imported data
-          rule(classification_relation: [:type, :universal, :tree_label]) do |type, universal, tree_label|
-            (type.eql?('classification') > tree_label.filled?) |
-              (type.eql?('classification') > universal.eql?(true))
-          end
 
           # for type asset
           optional(:asset_type) do
@@ -302,7 +298,7 @@ module DataCycleCore
           when 'linked'
             key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
           when 'classification'
-            key.failure(:invalid_classification) if values.dig(:tree_label).blank?
+            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
           when 'asset'
             key.failure(:invalid_asset) if values.dig(:asset_type).blank?
           when 'computed'
