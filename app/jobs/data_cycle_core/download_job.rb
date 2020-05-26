@@ -33,8 +33,8 @@ module DataCycleCore
       external_source = ExternalSystem.find(uuid)
       pid = Process.fork do
         ExternalSystem.find(uuid).download
-      rescue StandardError => exception
-        Appsignal.send_error(exception, nil, "download job failed - #{external_source.id}")
+      rescue StandardError => e
+        Appsignal.send_error(e, nil, "download job failed - #{external_source.id}")
         external_source.config['last_download_failed'] = true
         external_source.config['last_download_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!

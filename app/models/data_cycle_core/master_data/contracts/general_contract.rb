@@ -12,7 +12,7 @@ module DataCycleCore
         end
 
         register_macro(:dc_array_or_hash) do
-          key.failure('the value must be of type Array or Hash') if !value&.is_a?(Hash) && !value&.is_a?(Array)
+          key.failure('the value must be of type Array or Hash') if !value&.is_a?(Hash) && !value&.is_a?(Array) && key?
         end
 
         register_macro(:dc_module) do

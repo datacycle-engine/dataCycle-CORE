@@ -98,7 +98,6 @@ module DataCycleCore
           end
         end
 
-
         rule(:credentials).validate(:dc_array_or_hash)
         rule(config: :api_strategy).validate(:dc_class)
 
@@ -143,7 +142,6 @@ module DataCycleCore
         rule(:import_strategy).validate(:dc_module)
         rule(:logging_strategy).validate(:dc_logging_strategy)
       end
-
     end
   end
 end
