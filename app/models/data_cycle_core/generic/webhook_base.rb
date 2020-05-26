@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  module Api
-    class ExternalSource
+  module Generic
+    class WebhookBase
       attr_reader :external_source, :target_type, :external_key, :access_token
 
       def initialize(external_source, _type, external_key, access_token)

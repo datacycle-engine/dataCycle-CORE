@@ -24,7 +24,7 @@ module DataCycleCore
           return self if definition.blank?
           raise StandardError, 'Missing data definition: names' if definition.dig('names').blank?
 
-          ids = DataCycleCore::ExternalSource.where(name: definition.dig('names').flatten)&.map(&:id)
+          ids = DataCycleCore::ExternalSystem.where(name: definition.dig('names').flatten)&.map(&:id)
 
           external_source(ids)
         end

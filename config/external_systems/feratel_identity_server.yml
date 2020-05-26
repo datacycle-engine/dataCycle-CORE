@@ -56,4 +56,4 @@ config:
       transformations:
         user:
           template: Organization
-  api_strategy: DataCycleCore::Api::FeratelIdentityServerExternalSource
+  api_strategy: DataCycleCore::Generic::FeratelIdentityServer::Webhook

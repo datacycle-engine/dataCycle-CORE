@@ -4,7 +4,7 @@
     <%= t("filter.#{key}", default: title, locale: DataCycleCore.ui_language) %>:
   </span>
 
-  <% external_sources = DataCycleCore::ExternalSource.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
+  <% external_sources = DataCycleCore::ExternalSystem.select(:id, :name).where(id: value).map { |c| [c.id, c.name] }.to_h %>
 
   <span class="tags-container">
     <% value.each do |external_source_id| %>

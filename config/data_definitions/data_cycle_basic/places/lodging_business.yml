@@ -36,6 +36,9 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :vtg_bodensee:
+        :type: mixin
+        :name: vtg_bodensee
       :content_classifications:
         :type: mixin
         :name: content_classifications
@@ -72,9 +75,9 @@
       :feratel_categories:
         :type: mixin
         :name: feratel_categories
-      :external_source_attribtues:
+      :external_source_attributes:
         :type: mixin
-        :name: external_source_attribtues
+        :name: external_source_attributes
       :xamoom:
         :type: mixin
         :name: xamoom
@@ -91,10 +94,18 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Unterkunft"
+        :default_value: 'Unterkunft'
       :meta_data:
         :type: mixin
         :name: meta_data
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :amenity_feature:
+        :label: Zusätzliches Merkmal
+        :type: embedded
+        :template_name: AmenityFeature
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false

@@ -1,6 +1,6 @@
 ---
 - :data:
-    :name: external_source_attribtues
+    :name: external_source_attributes
     :type: mixin
     :properties:
       :feratel_content_score:

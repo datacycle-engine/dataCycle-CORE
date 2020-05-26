@@ -35,9 +35,7 @@ module DataCycleCore
           content.schema = template.schema
           content.template_name = template.template_name
           content.created_by = data['created_by']
-
-          credentials = utility_object&.external_source&.credentials&.is_a?(Hash) ? utility_object.external_source.credentials : utility_object.external_source.credentials&.first
-          content.webhook_source = credentials&.dig('external_system') || utility_object&.external_source&.name
+          content.webhook_source = utility_object&.external_source&.name
           content.save!
 
           global_attributes = {}
@@ -153,6 +151,35 @@ module DataCycleCore
                 ensure
                   logging.phase_finished("#{importer_name}(#{phase_name}) #{locale}", item_count)
                 end
+              end
+            end
+          end
+        end
+
+        def self.aggregate_to_collection(utility_object:, iterator:, options:)
+          init_logging(utility_object) do |logging|
+            init_mongo_db(utility_object) do
+              importer_name = options.dig(:import, :name)
+              phase_name = utility_object.source_type.collection_name
+              logging.preparing_phase("#{utility_object.external_source.name} #{importer_name}")
+              output_collection = options.dig(:import, :output_collection)
+
+              item_count = 0
+              begin
+                logging.phase_started("#{importer_name}(#{phase_name})")
+
+                GC.start
+
+                utility_object.source_object.with(utility_object.source_type) do |mongo_item|
+                  mongo_item.with_session do |_session|
+                    iterate = iterator.call(mongo_item, utility_object.locales, output_collection).to_a
+                    item_count += 1
+
+                    logging.info("Aggregate collection \"#{output_collection}\" created for languages #{utility_object.locales}, #{iterate}")
+                  end
+                end
+              ensure
+                logging.phase_finished("#{importer_name}(#{phase_name})", item_count)
               end
             end
           end

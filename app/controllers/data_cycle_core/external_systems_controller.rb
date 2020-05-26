@@ -1,9 +1,9 @@
 # frozen_string_literal: true
 
 module DataCycleCore
-  class ExternalSourcesController < ApplicationController
+  class ExternalSystemsController < ApplicationController
     def authorize
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
 
       endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
 
@@ -15,14 +15,14 @@ module DataCycleCore
         include_granted_scopes: true,
         redirect_uri: callback_external_source_url(@external_source),
         response_type: 'code',
-        client_id: @external_source['credentials']['client_id']
+        client_id: @external_source.credentials&.dig('client_id')
       )
 
       redirect_to "https://accounts.google.com/o/oauth2/v2/auth?#{params}"
     end
 
     def callback
-      @external_source = ExternalSource.find(params[:id])
+      @external_source = ExternalSystem.find(params[:id])
 
       endpoints = @external_source.config['download_config'].values.map { |v| v['endpoint'] }
 
@@ -30,8 +30,8 @@ module DataCycleCore
 
       response = Faraday.new(url: 'https://www.googleapis.com/oauth2/v3/token').post do |req|
         req.params['code'] = params['code']
-        req.params['client_id'] = @external_source['credentials']['client_id']
-        req.params['client_secret'] = @external_source['credentials']['client_secret']
+        req.params['client_id'] = @external_source.credentials&.dig('client_id')
+        req.params['client_secret'] = @external_source.credentials&.dig('client_secret')
         req.params['redirect_uri'] = callback_external_source_url(@external_source)
         req.params['grant_type'] = 'authorization_code'
       end

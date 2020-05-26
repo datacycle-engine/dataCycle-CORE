@@ -90,6 +90,21 @@ module DataCycleCore
           data
         end
 
+        def self.add_amenity_features(data, _external_source_id)
+          amenity_features = []
+          data.dig('Facilities', 'Facility')&.each do |facility|
+            next unless facility['ValueType'] == 'IntDigit'
+
+            amenity_features.push(
+              {
+                name: facility['GroupName'] + ' |> ' + facility['Name'],
+                value: facility['Value'].to_i
+              }
+            )
+          end
+          data.merge({ 'amenity_feature' => amenity_features })
+        end
+
         def self.add_service_description(data, attribute_name, description_name)
           raise ArgumentError unless data.is_a?(Hash)
 

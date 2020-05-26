@@ -4,14 +4,14 @@ require 'test_helper'
 require 'minitest/spec'
 require 'minitest/autorun'
 
-describe DataCycleCore::MasterData::ImportExternalSources do
+describe DataCycleCore::MasterData::ImportExternalSystems do
   subject do
-    DataCycleCore::MasterData::ImportExternalSources
+    DataCycleCore::MasterData::ImportExternalSystems
   end
 
   describe 'loaded external_sources_config' do
     let(:import_path) do
-      Rails.root.join('..', '..', 'config', 'external_sources')
+      Rails.root.join('..', '..', 'config', 'external_systems')
     end
 
     let(:external_source) do
@@ -31,11 +31,11 @@ describe DataCycleCore::MasterData::ImportExternalSources do
     end
 
     it 'has a config path defined' do
-      assert(!DataCycleCore.external_sources_path.empty?)
+      assert(DataCycleCore.external_systems_path.present?)
     end
 
     it 'has yml-files in the config path' do
-      assert(Dir[DataCycleCore.external_sources_path + '*.yml'].count.positive?)
+      assert(Dir[DataCycleCore.external_systems_path + '*.yml'].count.positive?)
     end
 
     it 'successfully validates the test config' do

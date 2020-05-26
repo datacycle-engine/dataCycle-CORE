@@ -47,7 +47,7 @@ module DataCycleCore
     def load_mongo_data(_user_id)
       mongo_dbs = Generic::Collection.mongo_client.list_databases
 
-      DataCycleCore::ExternalSource.find_each do |external_source|
+      DataCycleCore::ExternalSystem.where('external_systems.config ? :key', key: 'import_config').find_each do |external_source|
         import_name = external_source.name
         next if external_source.config.blank?
 

@@ -18,7 +18,7 @@ module DataCycleCore
 
     acts_as_paranoid
 
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
 
     has_many :classification_trees, dependent: :destroy
     has_many :classification_aliases, through: :classification_trees, source: :sub_classification_alias do

@@ -59,14 +59,9 @@ else
     ]
   )
 
-  DataCycleCore::TestPreparations.load_external_sources(
-    [
-      Rails.root.join('..', '..', 'config', 'external_sources')
-    ]
-  )
-
   DataCycleCore::TestPreparations.load_external_systems(
     [
+      Rails.root.join('..', '..', 'config', 'external_sources'),
       Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )

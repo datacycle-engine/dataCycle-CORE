@@ -160,7 +160,7 @@ module DataCycleCore
         external_source_name = DataCycleCore.features.dig(:auto_tagging, :external_source) || 'Google Cloud Vision'
         return if tree_label.blank? || external_source_name.blank?
 
-        external_source_id = DataCycleCore::ExternalSource.find_by(name: external_source_name)&.id
+        external_source_id = DataCycleCore::ExternalSystem.find_by(name: external_source_name)&.id
         return if external_source_id.blank?
 
         tree_label.external_source_id = external_source_id

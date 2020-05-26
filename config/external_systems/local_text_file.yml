@@ -3,7 +3,7 @@ name: Local-Text-File
 credentials:
   log_file: filename_goes_here
 config:
-  push_config:
+  export_config:
     endpoint: DataCycleCore::Export::TextFile::Endpoint
     create:
       strategy: DataCycleCore::Export::TextFile::Create

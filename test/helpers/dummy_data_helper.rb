@@ -37,7 +37,7 @@ module DataCycleCore
       content.template = false
       content.created_by = @user&.id
       content.external_key = 'test1'
-      content.external_source_id = DataCycleCore::ExternalSource.find_by(name: 'OutdoorActive').id
+      content.external_source_id = DataCycleCore::ExternalSystem.find_by(name: 'OutdoorActive').id
 
       content.save!
       I18n.with_locale(:de) do

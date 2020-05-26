@@ -6,7 +6,9 @@ module DataCycleCore
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification'],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id',
+                 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
+                 'universal_classifications'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic', 'video'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status',
                 'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type',
@@ -66,22 +68,13 @@ module DataCycleCore
       ap errors
     end
 
-    def self.load_external_sources(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
-    end
-
     def self.load_external_systems(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths: paths)
+
+      return if errors.blank?
+
+      puts 'the following errors were encountered during import:'
+      ap errors
     end
 
     def self.load_dummy_data(paths)
