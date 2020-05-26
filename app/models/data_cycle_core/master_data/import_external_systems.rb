@@ -16,11 +16,7 @@ module DataCycleCore
           return
         end
 
-        default_file_names = Dir[external_system_path + '*.yml']&.index_by { |f| File.basename(f) } || {}
-        specific_file_names = Dir[external_system_path + Rails.env + '*.yml']&.index_by { |f| File.basename(f) } || {}
-
-        file_names = default_file_names.merge(specific_file_names).values
-        file_names.each do |file_name|
+        file_paths.each do |file_name|
           data = YAML.safe_load(File.open(file_name), [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
@@ -40,8 +36,34 @@ module DataCycleCore
       end
 
       def self.validate(data_hash)
+        validation_hash = data_hash.deep_symbolize_keys
         validate_header = ExternalSystemHeaderContract.new
-        errors = validate_header.call(data_hash.deep_symbolize_keys).errors.to_h || {}
+        errors = validate_header.call(validation_hash).errors.to_h || {}
+        errors[:import_config] = {}
+        errors[:download_config] = {}
+
+        validate_import = ExternalSystemImportContract.new
+        import_config = validation_hash.dig(:config, :import_config) || {}
+        if import_config.is_a?(Hash)
+          import_config.each do |key, value|
+            error = validate_import.call(value).errors.to_h
+            errors[:import_config][key] = error if error.present?
+          end
+        else
+          errors[:import_config][:general] = 'Import config must be a Hash'
+        end
+
+        validate_download = ExternalSystemDownloadContract.new
+        download_config = validation_hash.dig(:config, :download_config) || {}
+        if download_config.is_a?(Hash)
+          download_config.each do |key, value|
+            error = validate_download.call(value).errors.to_h
+            errors[:download_config][key] = error if error.present?
+          end
+        else
+          errors[:download_config][:general] = 'Download config must be a Hash'
+        end
+
         errors.reject { |_, v| v.blank? }
       end
 
@@ -49,11 +71,12 @@ module DataCycleCore
         schema do
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { array? | hash? }
+          optional(:credentials)
           optional(:default_options).hash do
             optional(:locales).each { str? }
           end
-          required(:config).hash do
+          optional(:config).hash do
+            optional(:api_strategy) { str? }
             optional(:push_config).hash do
               optional(:endpoint) { str? }
               optional(:create).hash do
@@ -70,8 +93,14 @@ module DataCycleCore
               optional(:endpoint) { str? }
               required(:strategy) { str? }
             end
+            optional(:download_config) { hash? }
+            optional(:import_config) { hash? }
           end
         end
+
+
+        rule(:credentials).validate(:dc_array_or_hash)
+        rule(config: :api_strategy).validate(:dc_class)
 
         rule('config.push_config.endpoint').validate(:dc_class)
         rule('config.refresh_config.endpoint').validate(:dc_class)
@@ -83,92 +112,38 @@ module DataCycleCore
         rule('config.refresh_config.strategy').validate(:dc_module)
       end
 
-      def self.validate_download_item
-        Dry::Validation.Schema do
-          configure do
-            def module?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
-            end
-
-            def class?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
-            end
-
-            def logger?(value)
-              temp = begin
-                       Class.new.instance_eval(value)
-                     rescue StandardError
-                       false
-                     end
-              temp == false ? temp : true
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    module?: 'the string given does not specify a valid ruby module.',
-                    class?: 'the string given does not specify a valid ruby class.',
-                    logger?: 'the string given can not be evaluated.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSystemDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
-          required(:endpoint) { str? & class? }
-          required(:download_strategy) { str? & module? }
-          optional(:logging_strategy) { str? & logger? }
+          required(:endpoint) { str? }
+          required(:download_strategy) { str? }
+          optional(:logging_strategy) { str? }
         end
+
+        rule(:endpoint).validate(:dc_class)
+        rule(:download_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
       end
 
-      def self.validate_import_item
-        Dry::Validation.Schema do
-          configure do
-            def module?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Module
-            end
-
-            def class?(value)
-              value.safe_constantize.nil? ? false : value.safe_constantize.class == Class
-            end
-
-            def logger?(value)
-              temp = begin
-                       Class.new.instance_eval(value)
-                     rescue StandardError
-                       false
-                     end
-              temp == false ? temp : true
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    module?: 'the string given does not specify a valid ruby module.',
-                    class?: 'the string given does not specify a valid ruby class.',
-                    logger?: 'the string given can not be evaluated.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSystemImportContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           optional(:sorting) { int? & gt?(0) }
           required(:source_type) { str? }
           optional(:read_type) { str? }
-          required(:import_strategy) { str? & module? }
+          required(:import_strategy) { str? }
           optional(:tree_label) { str? }
           optional(:tag_id_path) { str? }
           optional(:tag_name_path) { str? }
           optional(:external_id_prefix) { str? }
-          optional(:logging_strategy) { str? & logger? }
+          optional(:logging_strategy) { str? }
           optional(:transformations) { hash? }
         end
+
+        rule(:import_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
       end
+
     end
   end
 end
