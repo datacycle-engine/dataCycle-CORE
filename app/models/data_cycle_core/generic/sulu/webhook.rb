@@ -9,6 +9,7 @@ module DataCycleCore
           errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h || {}
           return { error: errors } if errors.present?
           data = DataCycleCore::Generic::DataCycleApiV4::Transformations.transformation.call(raw_data)
+
           init_logging do |logging|
             errors = update_content(data: data)
             errors = nil if errors.dig('error').blank?

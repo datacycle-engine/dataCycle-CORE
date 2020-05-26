@@ -14,6 +14,7 @@ PATH
       daemons
       delayed_job_active_record
       devise
+      dry-transformer
       dry-validation
       faraday
       faraday_middleware
@@ -228,6 +229,7 @@ GEM
       dry-initializer (~> 3.0)
       dry-logic (~> 1.0)
       dry-types (~> 1.4)
+    dry-transformer (0.1.1)
     dry-types (1.4.0)
       concurrent-ruby (~> 1.0)
       dry-container (~> 0.3)
