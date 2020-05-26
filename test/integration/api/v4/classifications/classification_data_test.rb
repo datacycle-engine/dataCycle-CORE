@@ -180,7 +180,7 @@ module DataCycleCore
             tree_id = tree.id
 
             update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
-            external_source = DataCycleCore::ExternalSource.first
+            external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
             update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
             update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
@@ -291,7 +291,7 @@ module DataCycleCore
             tree_id = tree.id
 
             update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
-            external_source = DataCycleCore::ExternalSource.first
+            external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
             update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
             update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
@@ -431,7 +431,7 @@ module DataCycleCore
             tree_id = tree.id
 
             update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Nested Tag 2').first
-            external_source = DataCycleCore::ExternalSource.first
+            external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
             update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
             update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
@@ -597,7 +597,7 @@ module DataCycleCore
             tree_id = DataCycleCore::ClassificationTreeLabel.find_by(name: 'Tags').id
 
             update_tag = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name('Tag 3').first
-            external_source = DataCycleCore::ExternalSource.first
+            external_source = DataCycleCore::ExternalSystem.first
             external_source_id = external_source.id
             update_tag.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
             update_tag.primary_classification.update_column(:external_source_id, external_source_id) # rubocop:disable Rails/SkipsModelValidations
