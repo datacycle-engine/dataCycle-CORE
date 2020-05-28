@@ -87,10 +87,6 @@ namespace :datacycle do
 
         print_message 'deploy new project'
         invoke 'deploy:initial'
-        invoke 'puma:restart'
-
-        print_message 'init configs'
-        invoke 'datacycle:dev:init_configs'
       end
     end
 
