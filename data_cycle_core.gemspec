@@ -54,7 +54,8 @@ Gem::Specification.new do |s|
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
-  s.add_dependency 'awesome_print'
+  # s.add_dependency 'awesome_print'
+  s.add_dependency 'amazing_print'
   # validator for json data
   s.add_dependency 'json-schema'
   # background-jobs
