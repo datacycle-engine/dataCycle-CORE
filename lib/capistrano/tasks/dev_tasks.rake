@@ -75,17 +75,22 @@ namespace :datacycle do
     desc 'initialize new project'
     task :init_project do
       on roles(:all) do
-        print_message 'deploy check'
-        invoke 'deploy:check'
+        print_message 'deploy:check directories'
+        invoke 'deploy:check:directories'
+        invoke 'deploy:check:linked_dirs'
 
         print_message 'init .env'
-        invoke 'datacycle:init_env'
+        invoke 'datacycle:dev:init_env'
 
-        print_message 'init configs'
-        invoke 'datacycle:init_configs'
+        print_message 'deploy:check'
+        invoke 'deploy:check'
 
         print_message 'deploy new project'
         invoke 'deploy:initial'
+        invoke 'puma:restart'
+
+        print_message 'init configs'
+        invoke 'datacycle:dev:init_configs'
       end
     end
 
