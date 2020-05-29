@@ -65,5 +65,25 @@ module DataCycleCore
       assert_equal(DataCycleCore::ExternalSystem.count, (@external_system_count - 1))
       assert_equal(@data_set.external_system_syncs.count, 0)
     end
+
+    test 'external source to external systems sync' do
+      external_source_id = SecureRandom.uuid
+
+      data_set2 = DataCycleCore::TestPreparations.data_set_object('Artikel')
+      data_set2.external_key = '1234'
+      data_set2.external_source_id = external_source_id
+      data_set2.save
+
+      expected_data = { 'external_key' => '1234' }
+
+      data_set2.external_source_to_external_system_syncs
+
+      assert_equal(DataCycleCore::ExternalSystem.count, @external_system_count)
+      assert_equal(data_set2.external_system_syncs.count, 1)
+      assert_nil(data_set2.external_key)
+      assert_nil(data_set2.external_source_id)
+      assert_equal(data_set2.external_system_syncs.first.external_system_id, external_source_id)
+      assert_equal(data_set2.external_system_syncs.first.data, expected_data)
+    end
   end
 end
