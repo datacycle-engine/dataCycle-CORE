@@ -37,16 +37,20 @@ module DataCycleCore
 
         def self.process_content(utility_object:, raw_data:, locale:, options:)
           I18n.with_locale(locale) do
-            # DataCycleCore::Generic::Feratel::Processing.process_image(
-            #   utility_object,
-            #   raw_data,
-            #   options.dig(:import, :transformations, :image)
-            # )
-            # DataCycleCore::Generic::Feratel::Processing.process_event_location(
-            #   utility_object,
-            #   raw_data,
-            #   options.dig(:import, :transformations, :place)
-            # )
+            if raw_data.dig('EventManager').present?
+              DataCycleCore::Generic::JetTicket::Processing.process_event_manager(
+                utility_object,
+                raw_data.dig('EventManager'),
+                options.dig(:import, :transformations, :organizer)
+              )
+            end
+            if raw_data.dig('Venue').present?
+              DataCycleCore::Generic::JetTicket::Processing.process_venue(
+                utility_object,
+                raw_data.dig('Venue'),
+                options.dig(:import, :transformations, :place)
+              )
+            end
             DataCycleCore::Generic::JetTicket::Processing.process_event(
               utility_object,
               raw_data,
