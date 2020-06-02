@@ -20,6 +20,18 @@ module DataCycleCore
       def external_system_data(external_system)
         external_system_syncs.find_by(external_system_id: external_system.id)&.data
       end
+
+      def external_source_to_external_system_syncs
+        return if external_source_id.nil?
+
+        external_sync = external_system_syncs.where(external_system_id: external_source_id).first_or_initialize
+
+        external_sync.data ||= {}
+        external_sync.data = external_sync.data.merge({ 'external_key' => external_key })
+        external_sync.save
+
+        update_columns(external_key: nil, external_source_id: nil) # rubocop:disable Rails/SkipsModelValidations
+      end
     end
   end
 end

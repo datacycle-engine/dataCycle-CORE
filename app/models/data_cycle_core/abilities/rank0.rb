@@ -23,7 +23,7 @@ module DataCycleCore
             )
           else
             (
-              attribute.content.try(:external_key).blank? ||
+              attribute.content.try(:external_source_id).blank? ||
               (
                 DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
                 DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
@@ -39,13 +39,13 @@ module DataCycleCore
               !DataCycleCore::Feature::Overlay.allowed?(attribute.content) &&
               DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)
             ) ||
-            (attribute.content.try(:external_key).blank? && DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)) ||
+            (attribute.content.try(:external_source_id).blank? && DataCycleCore::Feature::Overlay.includes_attribute_key(attribute.content, attribute.key)) ||
             (
               attribute.definition.dig('tree_label').present? &&
               DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition.dig('tree_label'))&.external_source_id.present? &&
-              (DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition.dig('tree_label'))&.external_source_id != attribute.content.try(:external_source_id) && !attribute.definition.dig('global'))
+              (DataCycleCore::ClassificationTreeLabel.find_by(name: attribute.definition.dig('tree_label'))&.external_source_id != attribute.content.try(:external_source_id) && !attribute.definition.dig('global') && attribute.scope.to_s == 'edit')
             ) ||
-            (attribute.definition.dig('external') && attribute.content.try(:external_key).blank?) ||
+            (attribute.definition.dig('external') && attribute.content.try(:external_source_id).blank? && attribute.scope.to_s == 'edit') ||
             (DataCycleCore::Feature::Releasable.attribute_keys(attribute.content).include?(attribute.key.attribute_name_from_key) && attribute.scope.to_s == 'show')
         end
 
