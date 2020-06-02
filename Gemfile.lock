@@ -555,7 +555,7 @@ DEPENDENCIES
   pry
   pry-byebug
   rb-readline
-  rubocop
+  rubocop (~> 0.84.0)
   rubocop-performance
   rubocop-rails
   simplecov
