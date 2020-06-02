@@ -19,6 +19,11 @@ module DataCycleCore
         def self.content_url(**args)
           args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key)) || DataCycleCore::Asset.find_by(id: args.dig(:computed_parameters)&.first)&.try(:file)&.try(:url)
         end
+
+        def self.asset_url_with_transformation(**args)
+          asset = DataCycleCore::Asset.find_by(id: args.dig(:computed_parameters)&.first)
+          args.dig(:data_hash, args.dig(:key)) || args.dig(:content).try(args.dig(:key)) || asset.try(args.dig(:computed_definition, 'compute', 'version') || 'original')&.url(args.dig(:computed_definition, 'compute', 'transformation'))
+        end
       end
     end
   end
