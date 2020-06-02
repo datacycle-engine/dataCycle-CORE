@@ -1,7 +1,7 @@
 # Monit configuration for Delayed::Job
 # Service name: delayed_job_<%= fetch(:application) %>
 #
-<% 6.times do |num| %>
+<% 7.times do |num| %>
 check file delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
   with path "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
   if size = 0 then
@@ -9,6 +9,6 @@ check file delayed_job_<%= fetch(:application) %>_<%= num %>_pidfile
 
 check process delayed_job_<%= fetch(:application) %>_<%= num %>
   with pidfile "<%= File.join(fetch(:deploy_to), 'shared/tmp/pids', "delayed_job.#{num}.pid") %>"
-  start program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=importers:1 --pool=cache_invalidation,search_update:1 --pool=carrierwave:1 --pool=mailers:1 --pool=webhooks:1 --pool=default:1 start'"
-  stop program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=importers:1 --pool=cache_invalidation,search_update:1 --pool=carrierwave:1 --pool=mailers:1 --pool=webhooks:1 --pool=default:1 stop'"
+  start program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=importers:1 --pool=cache_invalidation:3 --pool=search_update:3 --pool=carrierwave:1 --pool=mailers:1 --pool=webhooks:1 --pool=default:1 start'"
+  stop program = "/usr/bin/sudo -iu <%= fetch(:deploy_user) %> /bin/bash -c 'cd <%= File.join(fetch(:deploy_to), 'current') %> && RAILS_ENV=<%= fetch(:rails_env) %> /home/<%= fetch(:deploy_user) %>/.rvm/bin/rvm <%= fetch(:rvm_ruby_version) %> do bundle exec bin/delayed_job -n 1 --pool=importers:1 --pool=cache_invalidation:3 --pool=search_update:3 --pool=carrierwave:1 --pool=mailers:1 --pool=webhooks:1 --pool=default:1 stop'"
 <% end %>
