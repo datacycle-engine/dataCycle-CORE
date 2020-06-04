@@ -32,6 +32,9 @@ module.exports.initialize = function ($) {
       { title: 'Action', data: 'request_action' },
       { title: 'Type', data: 'request_type' },
       { title: 'Include', data: 'request_include' },
+      { title: 'Fields', data: 'request_fields' },
+      { title: 'Filter', data: 'request_filter' },
+      { title: 'Page', data: 'request_page' },
       { title: 'Mode', data: 'request_mode' },
       { title: 'Id', data: 'request_id' },
       { title: 'Count', data: 'data_count' }
