@@ -2649,16 +2649,6 @@ button.button-prime.small.bulk-delete-button {
   }
 }
 .embedded-object {
-  counter-reset: embedded;
-
-  .content-object-item:not(:only-of-type) {
-    counter-increment: embedded;
-
-    > .embedded-header::after {
-      content: counter(embedded);
-    }
-  }
-
   .swap-button {
     position: relative;
     float: left;
@@ -2740,4 +2730,8 @@ button.button-prime.small.bulk-delete-button {
 
 [type='checkbox'] + label.flex-field {
   display: flex;
+}
+
+.remote-rendering .loading .fa {
+  color: $light-gray;
 }

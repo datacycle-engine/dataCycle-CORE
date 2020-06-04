@@ -1,3 +1,11 @@
+.detail-content .type.properties .detail-type.publication_schedule {
+  .detail-label {
+    position: relative;
+    display: block;
+    padding-bottom: 0.2rem;
+  }
+}
+
 .form-element.publication_schedule {
   padding-top: 3rem;
   text-align: left;
@@ -366,17 +374,18 @@
     .publication-row {
       display: flex;
       position: relative;
-      padding: 0.5rem;
       margin: 0;
-      border-bottom: 1px solid $medium-gray;
       box-shadow: none;
+      &:not(:last-of-type) {
+        border-bottom: 1px solid $medium-gray;
+      }
       .publication-attribute {
         flex: 1;
+        padding: 0.3rem 0.5rem;
       }
 
       &.title-row {
         font-size: 1rem;
-        font-weight: 600;
 
         .fa {
           font-size: 1rem;

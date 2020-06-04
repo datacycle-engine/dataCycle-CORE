@@ -7,7 +7,9 @@ module.exports.initialize = function ($) {
   Foundation.Reveal.defaults.multipleOpened = true;
   $(document).foundation();
 
-  $(document).on('dc:html:changed', '*', event => {
+  $(document).on('dc:html:changed dc:contents:added', '*', event => {
+    if ($(event.target).hasClass('accordion-item')) Foundation.reInit($(event.target).closest('[data-accordion]'));
+
     event.stopPropagation();
     $(event.target).foundation();
   });

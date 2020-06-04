@@ -27,9 +27,9 @@ var load_more_button = $('#load_more_<%= @content.id %>_<%= sanitize_to_id(@para
       } if @linked_objects.try(:total_pages)&.positive? && !@linked_objects&.last_page? %>
     </span>
   <% end %>
-  $('<%= j yield :rendered_items %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'object_browser', single: true }).foundation();
+  $('<%= j yield :rendered_items %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'object_browser', single: true });
 <% else %>
   <% I18n.with_locale(@params[:locale] || I18n.locale) do %>
-    $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), page: params.fetch(:page, 1).to_i, parent: @object, no_wrapper: true, }, content: @content %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false }).foundation();
+    $('<%= j render_attribute_viewer key: @params[:complete_key], definition: @params[:definition], value: @linked_objects, parameters: { options: (@params[:options].presence || {}), page: params.fetch(:page, 1).to_i, parent: @object, no_wrapper: true, }, content: @content %>').replaceAll(load_more_button).trigger('dc:contents:added', { editor: 'embedded_object', single: false });
   <% end %>
 <% end %>

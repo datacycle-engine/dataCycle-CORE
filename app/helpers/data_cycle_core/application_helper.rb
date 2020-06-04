@@ -421,6 +421,14 @@ module DataCycleCore
       end
     end
 
+    def conditional_tag(name, condition, options = nil, &block)
+      if condition
+        content_tag name, capture(&block), options
+      else
+        capture(&block)
+      end
+     end
+
     private
 
     def render_first_existing_partial(partials, parameters)

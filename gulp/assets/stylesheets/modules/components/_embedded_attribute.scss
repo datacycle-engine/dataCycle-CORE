@@ -1,0 +1,43 @@
+.embedded-viewer {
+  &:not(:last-child) {
+    margin-bottom: 1rem;
+  }
+  counter-reset: embedded;
+
+  .accordion-title {
+    background: transparent;
+    color: $dark-gray;
+    font-weight: normal;
+    font-size: 1rem;
+    border: none !important;
+    padding: 0.6rem 0.7rem;
+  }
+
+  .accordion-content {
+    border: none !important;
+    padding-top: 0.4rem;
+  }
+
+  .detail-type.embedded:not(:only-of-type) {
+    counter-increment: embedded;
+    > .accordion-title > .title::after {
+      content: counter(embedded);
+      margin-left: 0.3rem;
+    }
+  }
+}
+
+.detail-content .type.properties .detail-type.embedded {
+  padding: 0 !important;
+}
+.embedded-object {
+  counter-reset: embedded;
+
+  .content-object-item:not(:only-of-type) {
+    counter-increment: embedded;
+
+    > .embedded-header::after {
+      content: counter(embedded);
+    }
+  }
+}
