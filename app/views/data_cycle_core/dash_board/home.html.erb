@@ -70,9 +70,9 @@
   </div>
   <div class="grid-external-modules">
     <% external_systems = DataCycleCore::ExternalSystem.all %>
-    <% grid_class = external_systems.size < 3 ? 'grid-parent-few' : 'grid-parent' %>
+    <% grid_class = external_systems.where("config -> 'export_config' IS NOT NULL").size < 3 ? 'grid-parent-few' : 'grid-parent' %>
     <div class="<%=grid_class%>">
-      <%= render partial: 'export_modules', collection: external_systems, as: 'external_system' %>
+      <%= render partial: 'export_modules', collection: external_systems.where("config -> 'export_config' IS NOT NULL"), as: 'external_system' %>
     </div>
   </div>
 

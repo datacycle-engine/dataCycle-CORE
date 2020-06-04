@@ -5,7 +5,8 @@ module DataCycleCore
     module Feratel
       class Endpoint
         include EndpointLoadRanges
-        include EndpointXmlGenerators
+        include EndpointDownloadXml
+        include EndpointUpdateXml
         include EndpointGlobalDownloader
 
         def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, sales_channel_id: nil, **options)
@@ -144,19 +145,19 @@ module DataCycleCore
 
         # two stage download, first generate an index and then page the index to download full data
         def infrastructure_items(lang: :de)
-          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', lang: lang)
+          enumerate_two_stages(:infrastructure_items, '//Infrastructure/InfrastructureItem', '//ChangedInfrastructures/Infrastructure', lang: lang)
         end
 
         def additional_service_providers(lang: :de)
-          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', lang: lang)
+          enumerate_two_stages(:additional_service_providers, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang)
         end
 
         def events(lang: :de)
-          enumerate_two_stages(:events, '//Events/Event', lang: lang)
+          enumerate_two_stages(:events, '//Events/Event', '//ChangedEvents/Event', lang: lang)
         end
 
         def accommodations(lang: :de)
-          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', lang: lang)
+          enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang)
         end
 
         def enumerate_items(type, xpath, lang: :de)
@@ -208,15 +209,22 @@ module DataCycleCore
           end
         end
 
-        def enumerate_two_stages(type, xpath, lang: :de)
+        def enumerate_two_stages(type, xpath, changed_xpath, lang: :de)
           # load all relevant item_ids
           item_hash = {}
           min_index = @params[:min_count] || 0
           max_index = @params[:max_count] || (2**(0.size * 8 - 2) - 1)
-          external_keys = @params[:external_keys] || nil
+          external_keys = @params[:external_keys]
+          changed_from = @params[:changed_from]
           load_range_ids_new.map { |range_code, range_id|
-            load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true).xpath(xpath).map { |xml_raw_data|
-              next unless external_keys.present? && xml_raw_data['Id'].in?(external_keys)
+            data_loaded =
+              if changed_from.present?
+                load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_id, changed_from: changed_from).xpath(changed_xpath)
+              else
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, index: true).xpath(xpath)
+              end
+            data_loaded.map { |xml_raw_data|
+              next if external_keys.present? && !xml_raw_data['Id'].in?(external_keys)
               [xml_raw_data['Id'], range_code, range_id]
             }.compact
           }.inject(:+)[min_index...max_index]&.each { |i| item_hash[i[1..2]] = (item_hash[i[1..2]] || []).push(i[0]) }
@@ -368,6 +376,41 @@ module DataCycleCore
             raise data.xpath('//@Message').first.value if data.xpath('//@Status').first.value != '0'
           end
           data_array.compact
+        end
+
+        def load_changed_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, changed_from:, retry_count: 0)
+          url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+          request_parameters = send("updated_#{type}_request_xml", lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from)
+
+          # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          response = Faraday.new.post do |req|
+            req.url url
+            req.options.timeout = 1200
+            req.body = { 'xmlString' => request_parameters }
+          end
+
+          envelop = Nokogiri::XML(response.body)
+          data = Nokogiri::XML(envelop.children.first.content)
+          data.remove_namespaces!
+
+          # puts Nokogiri::XML(response.body, &:noblanks).to_xml(indent: 2)
+          # puts
+          # puts
+
+          if data.xpath('//@Status').first.value != '0'
+            raise data.xpath('//@Message').first.value if retry_count > 5
+            sleep(3)
+            load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from, retry_count: retry_count + 1)
+          else
+            data
+          end
+        rescue StandardError
+          raise if retry_count > 5
+          sleep(3)
+          load_changed_data(type, lang: lang, range_code: range_code, range_ids: range_ids, changed_from: changed_from, retry_count: retry_count + 1)
         end
       end
     end

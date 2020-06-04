@@ -3,7 +3,7 @@
 module DataCycleCore
   module Generic
     module Feratel
-      module EndpointXmlGenerators
+      module EndpointDownloadXml
         def create_marketing_groups_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id])
           create_key_value_request_xml(lang: lang, range_code: range_code, range_ids: range_ids) do |xml|
             xml.MarketingGroups('Show' => true)
@@ -309,6 +309,34 @@ module DataCycleCore
           end
         end
 
+        def updated_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], changed_from:)
+          create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
+            xml.BasicData do
+              xml.Filters('DateTimeFrom' => changed_from.to_s(:long_datetime),
+                          'Start' => (Time.zone.today - 1.year).strftime('%Y-%m-%d'),
+                          'End' => (Time.zone.today + 10.years).strftime('%Y-%m-%d')) do
+                xml.ChangedEvents('Status' => 'All')
+                xml.Languages do
+                  Array(lang).each do |l|
+                    xml.Language('Value' => l.to_s)
+                  end
+                end
+              end
+
+              xml.ChangedEvents do
+                xml.Details
+                xml.Documents
+                xml.Descriptions
+                xml.Links
+                xml.Facilities
+                xml.Addresses
+                xml.CustomAttributes
+                xml.HandicapFacilities
+              end
+            end
+          end
+        end
+
         def create_events_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
@@ -363,8 +391,6 @@ module DataCycleCore
         end
 
         def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
-          start_date = Time.zone.now.to_s[0..9]
-          end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters('ShowCreativeCommons' => true) do
