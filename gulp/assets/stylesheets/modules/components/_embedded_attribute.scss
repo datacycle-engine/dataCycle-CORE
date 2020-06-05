@@ -11,11 +11,31 @@
     font-size: 1rem;
     border: none !important;
     padding: 0.6rem 0.7rem;
+    transition: all 0.2s ease-in-out;
+    &:hover {
+      color: $black;
+    }
+
+    &::before {
+      content: '\f107';
+      font-family: FontAwesome;
+      font-style: normal;
+      font-weight: normal;
+      text-decoration: inherit;
+    }
+
+    .icon .fa {
+      font-size: 1rem;
+    }
   }
 
   .accordion-content {
     border: none !important;
     padding-top: 0.4rem;
+  }
+
+  [data-accordion-item].is-active > .accordion-title::before {
+    content: '\f106';
   }
 
   .detail-type.embedded:not(:only-of-type) {
@@ -27,8 +47,19 @@
   }
 }
 
-.detail-content .type.properties .detail-type.embedded {
-  padding: 0 !important;
+.detail-content .type.properties {
+  .detail-type {
+    &[data-editor='text_editor'] {
+      .detail-content {
+        display: block;
+        padding-left: 1rem;
+      }
+    }
+
+    &.embedded {
+      padding: 0 !important;
+    }
+  }
 }
 .embedded-object {
   counter-reset: embedded;

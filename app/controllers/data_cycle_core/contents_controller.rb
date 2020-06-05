@@ -262,23 +262,28 @@ module DataCycleCore
       end
     end
 
-    def new_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: params[:id]) || DataCycleCore::Thing.new { |t| t.id = params[:id] || SecureRandom.uuid }
+    # def new_embedded_object
+    #   @content = DataCycleCore::Thing.find_by(id: params[:id]) || DataCycleCore::Thing.new { |t| t.id = params[:id] || SecureRandom.uuid }
 
-      return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
+    #   return unless can?(:edit, DataCycleCore::Thing) || can?(:edit, @content)
 
-      I18n.with_locale(params[:locale] || I18n.locale) do
-        respond_to(:js)
-        render && return
-      end
-    end
+    #   I18n.with_locale(params[:locale] || I18n.locale) do
+    #     respond_to(:js)
+    #     render && return
+    #   end
+    # end
 
     def render_embedded_object
-      authorize! :edit, DataCycleCore::Thing
+      @content = DataCycleCore::Thing.find_by(id: params[:id])
+
+      if @content.template
+        authorize! :edit, @content
+      else
+        authorize! :edit, DataCycleCore::Thing
+      end
 
       I18n.with_locale(params[:locale] || I18n.locale) do
-        @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations)
-        @content = DataCycleCore::Thing.find(params[:id])
+        @objects = DataCycleCore::Thing.where(id: params[:object_ids]).includes(:translations) if params[:object_ids].present?
 
         respond_to(:js)
         render && return

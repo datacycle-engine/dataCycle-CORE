@@ -44,7 +44,7 @@ class EmbeddedObject {
 
     this.element.off('dc:import:data').on(
       'dc:import:data',
-      function(event, data) {
+      function (event, data) {
         let page = data.page || 1;
         let new_items = data.value.diff(
           this.element
@@ -66,23 +66,12 @@ class EmbeddedObject {
     this.addEventHandlers();
   }
   setSwapClasses(object) {
-    if ($(object).index() == 0)
-      $(object)
-        .find('> .embedded-header > .swap-button.swap-prev')
-        .addClass('disabled');
-    else
-      $(object)
-        .find('> .embedded-header > .swap-button.swap-prev')
-        .removeClass('disabled');
+    if ($(object).index() == 0) $(object).find('> .embedded-header > .swap-button.swap-prev').addClass('disabled');
+    else $(object).find('> .embedded-header > .swap-button.swap-prev').removeClass('disabled');
 
     if ($(object).index() >= this.element.children('.content-object-item').length - 1)
-      $(object)
-        .find('> .embedded-header > .swap-button.swap-next')
-        .addClass('disabled');
-    else
-      $(object)
-        .find('> .embedded-header > .swap-button.swap-next')
-        .removeClass('disabled');
+      $(object).find('> .embedded-header > .swap-button.swap-next').addClass('disabled');
+    else $(object).find('> .embedded-header > .swap-button.swap-next').removeClass('disabled');
   }
   setupSwappableButtons() {
     this.element.on(
@@ -118,13 +107,9 @@ class EmbeddedObject {
     if (type == 'render') this.index += ids.diff(this.ids).length;
     else if (type == 'new') this.index++;
 
-    this.element
-      .find('> .buttons > button')
-      .prop('disabled', true)
-      .find('.fa')
-      .css('display', 'inline-block');
+    this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
     $.ajax({
-      url: this.url + '/' + type + '_embedded_object',
+      url: this.url + '/render_embedded_object',
       method: 'GET',
       dataType: 'script',
       contentType: 'application/json',
@@ -154,10 +139,7 @@ class EmbeddedObject {
         this.renderEmbeddedObjects('new');
       });
     this.element.children('.content-object-item').each((index, element) => {
-      $(element)
-        .children('.removeContentObject')
-        .off('click')
-        .on('click', this.handleRemoveEvent.bind(this));
+      $(element).children('.removeContentObject').off('click').on('click', this.handleRemoveEvent.bind(this));
     });
   }
   handleRemoveEvent(event) {
@@ -191,15 +173,9 @@ class EmbeddedObject {
       this.element.find('> .buttons > #add_' + this.id).show();
     }
     if (this.min != 0 && this.element.children('.content-object-item').length <= this.min) {
-      this.element
-        .children('.content-object-item')
-        .children('.removeContentObject')
-        .hide();
+      this.element.children('.content-object-item').children('.removeContentObject').hide();
     } else if (this.write) {
-      this.element
-        .children('.content-object-item')
-        .children('.removeContentObject')
-        .show();
+      this.element.children('.content-object-item').children('.removeContentObject').show();
     }
     if (this.element.children('.content-object-item').length == 0) {
       this.element.append('<input type="hidden" value="" id="' + this.id + '_default" name="' + this.key + '[]">');

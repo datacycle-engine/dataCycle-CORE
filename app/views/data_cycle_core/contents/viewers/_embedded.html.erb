@@ -18,6 +18,7 @@
         content: content do %>
 
         <a href="#" class="accordion-title">
+          <%= render 'data_cycle_core/shared/icon', icon_type: object.template_name.downcase %>
           <span class="title"><%= definition['label'].titleize %></span>
         </a>
 

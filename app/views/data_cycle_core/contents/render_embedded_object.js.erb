@@ -1,18 +1,31 @@
 <% content_for :rendered_items do %>
-  <% @objects.presence&.each_with_index do |object, index| %>
+  <% if @objects.nil? %>
     <%= render_embedded_object_partial(
-      key: params[:key],
-      definition: params[:definition],
-      parameters: {
-        index: params[:index].presence&.to_i + index,
-        options: params[:options],
-        object: object,
-        new_content: true,
-        locale: params[:locale],
-        attribute_locale: params[:attribute_locale]
-      },
-      content: @content
-    ) %>
+          key: params[:key],
+          definition: params[:definition],
+          parameters: {
+            index: params[:index],
+            options: params[:options],
+            locale: params[:locale]
+          },
+          content: @content
+        ) %>
+  <% else %>
+    <% @objects.presence&.each_with_index do |object, index| %>
+      <%= render_embedded_object_partial(
+            key: params[:key],
+            definition: params[:definition],
+            parameters: {
+              index: params[:index].presence&.to_i + index,
+              options: params[:options],
+              object: object,
+              new_content: true,
+              locale: params[:locale],
+              attribute_locale: params[:attribute_locale]
+            },
+            content: @content
+      ) %>
+    <% end %>
   <% end %>
 <% end %>
 
@@ -27,5 +40,4 @@ if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered
 else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
 
 $('<%= j content_for :forms %>').appendTo('body').foundation();
-
 $('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized');

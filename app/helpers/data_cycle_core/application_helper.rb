@@ -391,12 +391,12 @@ module DataCycleCore
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
 
-    def render_embedded_object_partial(partial: 'detail', key:, definition:, parameters: {}, content: nil)
+    def render_embedded_object_partial(key:, definition:, parameters: {}, content: nil)
       partials = [
         "#{definition['type'].underscore_blanks}_#{key.attribute_name_from_key}",
         definition['type'].underscore_blanks.to_s,
         'default'
-      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}_#{partial}" }
+      ].compact.map { |p| "data_cycle_core/contents/editors/embedded/#{p}" }
 
       render_first_existing_partial(partials, parameters.merge({ key: key, definition: definition, content: content }))
     end
