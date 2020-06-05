@@ -391,6 +391,8 @@ module DataCycleCore
         end
 
         def create_accommodations_request_xml(lang: :de, range_code: 'RG', range_ids: [@primary_range_id], item_ids: nil)
+          start_date = Time.zone.now.to_s[0..9]
+          end_date = (Time.zone.now + 2.years).to_s[0..9]
           create_request_xml(range_code: range_code, range_ids: range_ids) do |xml|
             xml.BasicData do
               xml.Filters('ShowCreativeCommons' => true) do
