@@ -34,7 +34,7 @@ module DataCycleCore
         end
 
         def permitted_parameter_keys
-          [:api_subversion, :token, :include, :fields, :content_id, :mode, { page: [:size, :number, :offset, :limit] }]
+          [:api_subversion, :token, :include, :fields, :content_id, :mode, :sort, { page: [:size, :number, :offset, :limit] }]
         end
 
         def page_parameters

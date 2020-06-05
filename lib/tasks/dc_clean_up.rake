@@ -156,7 +156,7 @@ namespace :dc do
         'Xamoom' => ['Örtlichkeit']
       }.dig(external_source)
       return if core_data_templates.blank?
-      core_data_templates&.map do |template|
+      core_data_templates&.map { |template|
         thing_template = DataCycleCore::Thing.find_by(template_name: template, template: true)
         thing_template.linked_property_names.map do |linked_item|
           properties = thing_template.properties_for(linked_item)
@@ -168,7 +168,7 @@ namespace :dc do
             end
           end
         end
-      end&.flatten&.uniq
+      }&.flatten&.uniq
     end
 
     desc 'Check all embedded for orphaned data (does not modify the data)'

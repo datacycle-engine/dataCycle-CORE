@@ -588,9 +588,9 @@ module DataCycleCore
             if available_start_times.present?
               available_start_times.each do |time_items|
                 start_time = time_items['Time'].to_datetime
-                active_days = time_items.except('Time').select { |_day, val| val == 'true' }.map do |key, _val|
+                active_days = time_items.except('Time').select { |_day, val| val == 'true' }.map { |key, _val|
                   load_day_of_week_id(key)
-                end&.reject(&:blank?)
+                }&.reject(&:blank?)
                 end_time = duration ? (start_time + duration.minutes).strftime('%H:%M') : nil
 
                 time_res = {

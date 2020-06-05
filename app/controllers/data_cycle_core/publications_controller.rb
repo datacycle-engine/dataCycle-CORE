@@ -39,8 +39,7 @@ module DataCycleCore
       @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
       @selected_classification_aliases = DataCycleCore::ClassificationAlias
         .where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq)
-        .map { |c| [c.id, c] }
-        .to_h
+        .index_by(&:id)
 
       query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
 

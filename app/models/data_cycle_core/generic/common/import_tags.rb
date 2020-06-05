@@ -137,7 +137,7 @@ module DataCycleCore
             default_values = [{ 'id' => raw_data.dig(*(id_path.presence || [nil])), 'tag' => raw_data.dig(*(name_path.presence || [nil])) }]
             default_values[0]['desc'] = raw_data.dig(*desc_path) if desc_path.present?
             default_values[0]['uri'] = raw_data.dig(*uri_path) if uri_path.present?
-            return default_values
+            default_values
           end
         end
       end

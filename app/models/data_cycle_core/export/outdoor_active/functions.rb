@@ -101,9 +101,9 @@ module DataCycleCore
 
           data.classifications.includes(:classification_aliases)
             .map(&:classification_aliases).flatten.uniq
-            &.select do |c|
+            &.select { |c|
             c.external_source_id == external_source_id && c.classification_tree.classification_tree_label.name == tree_label
-          end&.map(&:primary_classification)
+          }&.map(&:primary_classification)
         end
 
         def self.init_logging

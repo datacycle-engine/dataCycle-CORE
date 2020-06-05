@@ -153,9 +153,11 @@ module DataCycleCore
       end
 
       def self.validate(template)
+        validate_header = TemplateHeaderContract.new
         result_header = validate_header.call(template)
         errors = {}
-        error = result_header.errors
+        error = result_header.errors.to_h
+
         errors[:head] = error if error.present?
         error = validate_properties(template[:data])
         errors[:properties] = error if error.present?
@@ -163,74 +165,36 @@ module DataCycleCore
       end
 
       def self.validate_properties(template)
+        validate_property = TemplatePropertyContract.new
         errors = {}
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
-          error = result_property.errors(full: true)
+          error = result_property.errors.to_h
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
           errors[property_name] = error if error.present?
         end
         errors
       end
 
-      def self.validate_header
-        Dry::Validation.Schema do
-          required(:data).schema do
+      class TemplateHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
+          required(:data).hash do
             required(:name) { str? }
             required(:type) { str? & eql?('object') }
             required(:schema_type) { str? }
             required(:content_type) { str? & included_in?(['embedded', 'entity', 'container']) }
             optional(:boost) { float? }
             optional(:features) { hash? }
-            required(:properties)
+            required(:properties) { hash? }
+            optional(:api).hash do
+              optional(:type) { str? | array? }
+            end
           end
         end
       end
 
-      def self.validate_property
-        Dry::Validation.Schema do
-          configure do
-            def valid_linked_language?(value)
-              value.in?(['all', 'same'])
-            end
-
-            def validate_link_direction?(value)
-              value.in?(['inverse'])
-            end
-
-            def valid_compute_config?(value)
-              return false unless value.is_a?(Hash)
-              module_name = valid_computed_module?(value.dig(:module))
-              !module_name.nil? && module_name.respond_to?(value.dig(:method))
-            end
-
-            def valid_computed_module?(value)
-              ('DataCycleCore::' + value.classify).safe_constantize
-            end
-
-            def instantiable?(value)
-              clazz = ('DataCycleCore::' + value.classify).safe_constantize
-              !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    included_object: "type must be 'object' and must have properties defined. storage_location must be a jsonb field (translated_value for translated fields, value for not translatable data).",
-                    embedded_object: "type must be 'embedded'. either define a stored_filter, or a template_name",
-                    linked_object: "type must be 'linked'. either define a stored_filter, or a template_name",
-                    asset_relation: "type must be 'asset' and asset_type must be one of: 'asset', 'image', 'video', 'data_cycle_file', 'pdf', 'audio'",
-                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
-                    valid_compute_config?: 'module and method combination not found.',
-                    valid_linked_language?: 'must be all or same.',
-                    validate_link_direction?: 'must be inverse if present.'
-                  }
-                }
-              )
-            end
-          end
-
+      class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           required(:label) { str? }
           required(:type) do
             str? & included_in?(
@@ -243,6 +207,7 @@ module DataCycleCore
           optional(:storage_location) do
             str? & included_in?(['column', 'value', 'translated_value'])
           end
+          optional(:template_name) { str? }
           optional(:validations) { hash? }
           optional(:default_value) { str? } # the default_value is set if no value is given. for classifications. for plain values supports also evaluated code in double curly braces {{...}}
           optional(:ui) { hash? }
@@ -250,7 +215,7 @@ module DataCycleCore
           optional(:xml) { hash? }
           optional(:search) { bool? }
           optional(:advanced_search) { bool? }
-          optional(:normalize).schema do
+          optional(:normalize).hash do
             required(:id) do
               str? & included_in?(
                 ['sex', 'degree', 'forename', 'surname', 'birthdate',
@@ -273,38 +238,34 @@ module DataCycleCore
 
           # for type object
           optional(:properties) { hash? }
-          rule(included_object: [:type, :storage_location, :properties]) do |type, storage_location, properties|
-            (type.eql?('object') > (properties.filled? & storage_location.included_in?(['value', 'translated_value']))) &
-              (properties.filled? > (type.eql?('object') & storage_location.included_in?(['value', 'translated_value'])))
-          end
-
           # for type embedded and linked
           optional(:stored_filter) { array? }
-
           # for type embedded
           optional(:translated) { bool? }
-          rule(embedded_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
-            (type.eql?('embedded') > template_name.filled?) |
-              (type.eql?('embedded') > stored_filter.filled?)
-          end
 
           # for type linked
-          optional(:linked_language) { str? & valid_linked_language? }
+          # valid_linked_language?
+          optional(:linked_language) do
+            str? & included_in?(
+              ['all', 'same']
+            )
+          end
           optional(:inverse_of) { str? } # for bidirectional links
-          optional(:link_direction) { str? & validate_link_direction? } # make sure if link_direction = inverse set api: disabled: true
-          rule(linked_object: [:type, :template_name, :stored_filter]) do |type, template_name, stored_filter|
-            (type.eql?('linked') > template_name.filled?) |
-              (type.eql?('linked') > stored_filter.filled?)
+
+          # make sure if link_direction = inverse set api: disabled: true
+          # validate_link_direction?
+          optional(:link_direction) do
+            str? & included_in?(
+              ['inverse']
+            )
           end
 
           # for type classification
           optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
           optional(:not_translated) { bool? } # true -> classification only exists in german
           optional(:external) { bool? } # true -> only imported can not be manually edited
+          optional(:universal) { bool? } # true -> only for universal_classifications... does not need a tree_label
           optional(:global) { bool? } # true -> edit is allowed for imported data
-          rule(classification_relation: [:type, :tree_label]) do |type, tree_label|
-            type.eql?('classification') > tree_label.filled?
-          end
 
           # for type asset
           optional(:asset_type) do
@@ -312,12 +273,9 @@ module DataCycleCore
               ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file']
             )
           end
-          rule(asset_relation: [:type, :asset_type]) do |type, asset_type|
-            type.eql?('asset') > asset_type.filled?
-          end
 
           # for type compute
-          optional(:compute).schema do
+          optional(:compute).hash do
             required(:module) { str? }
             required(:method) { str? }
             required(:parameters) { hash? }
@@ -329,9 +287,33 @@ module DataCycleCore
               )
             end
           end
-          rule(computed_method: [:type, :compute]) do |type, compute|
-            type.eql?('computed') > (compute.hash? & compute.valid_compute_config?)
+        end
+
+        rule(:type) do
+          case value
+          when 'object'
+            key.failure(:invalid_object) unless values.dig(:properties).present? && ['value', 'translated_value'].include?(values.dig(:storage_location))
+          when 'embedded'
+            key.failure(:invalid_embedded) unless values.dig(:template_name).present? || values.dig(:stored_filter).present?
+          when 'linked'
+            key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
+          when 'classification'
+            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
+          when 'asset'
+            key.failure(:invalid_asset) if values.dig(:asset_type).blank?
+          when 'computed'
+            temp = begin
+              module_name = ('DataCycleCore::' + values.dig(:compute, :module).classify).safe_constantize
+              module_name.respond_to?(values.dig(:compute, :method))
+                   rescue StandardError
+                     false
+            end
+            key.failure(:invalid_computed) if temp == false
           end
+        end
+
+        rule(:properties) do
+          key.failure(:invalid_object) if key? && !(values.dig(:type) == 'object' && ['value', 'translated_value'].include?(values.dig(:storage_location)))
         end
       end
 

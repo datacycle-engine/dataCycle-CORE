@@ -110,9 +110,9 @@ module DataCycleCore
         end
 
         def date_range(d = nil, attribute_path = nil)
-          return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+          from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -121,9 +121,9 @@ module DataCycleCore
         end
 
         def not_date_range(d = nil, attribute_path = nil)
-          return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+          from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -160,13 +160,15 @@ module DataCycleCore
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
           value.stringify_keys!
+          min = value.dig('from') || value.dig('min')
+          max = value.dig('until') || value.dig('max')
 
           if mode == 'absolute'
-            from_date = date_from_single_value(value.dig('from'))
-            to_date = date_from_single_value(value.dig('until'))
+            from_date = date_from_single_value(min)
+            to_date = date_from_single_value(max)
           else
-            from_date = relative_to_absolute_date(value.dig('from'))
-            to_date = relative_to_absolute_date(value.dig('until'))
+            from_date = relative_to_absolute_date(min)
+            to_date = relative_to_absolute_date(max)
           end
 
           return from_date, to_date

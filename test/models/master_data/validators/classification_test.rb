@@ -44,6 +44,14 @@ describe DataCycleCore::MasterData::Validators::Classification do
       }
     end
 
+    let(:template_hash_universal_classification) do
+      {
+        'label' => 'Klassifizierungen',
+        'type' => 'classification',
+        'universal' => true
+      }
+    end
+
     let(:no_error_hash) do
       { error: {}, warning: {} }
     end
@@ -68,6 +76,17 @@ describe DataCycleCore::MasterData::Validators::Classification do
     it 'successfully validates with required given' do
       uuids = [DataCycleCore::Classification.find_by(name: 'Bild').id]
       validator = subject.new(uuids, template_hash_required)
+      assert_equal(no_error_hash, validator.error)
+    end
+
+    it 'successfully validates a universal classification' do
+      uuids = [
+        DataCycleCore::Classification.find_by(name: 'Bild').id,
+        DataCycleCore::Classification.find_by(name: 'Video').id,
+        DataCycleCore::Classification.find_by(name: 'Audio').id,
+        DataCycleCore::Classification.find_by(name: 'Angebot').id
+      ]
+      validator = subject.new(uuids, template_hash_universal_classification)
       assert_equal(no_error_hash, validator.error)
     end
 
@@ -113,6 +132,13 @@ describe DataCycleCore::MasterData::Validators::Classification do
       new_template['tree_label'] = 'foo'
       uuid = DataCycleCore::Classification.find_by(name: 'Bild').id
       validator = subject.new(uuid, new_template)
+      assert_equal(1, validator.error[:error].size)
+      assert_equal(0, validator.error[:warning].size)
+    end
+
+    it 'errors out if universal classification receives an invalid uuid' do
+      uuid = SecureRandom.uuid
+      validator = subject.new([uuid], template_hash_universal_classification)
       assert_equal(1, validator.error[:error].size)
       assert_equal(0, validator.error[:warning].size)
     end

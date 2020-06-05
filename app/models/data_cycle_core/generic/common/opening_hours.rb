@@ -64,7 +64,7 @@ module DataCycleCore
 
         def empty?
           return true if @data.empty?
-          @data.select { |_day, ranges| ranges.present? }.size.zero?
+          @data.count { |_day, ranges| ranges.present? }.zero?
         end
 
         private

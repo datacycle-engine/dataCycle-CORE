@@ -34,10 +34,10 @@ module DataCycleCore
       pid = Process.fork do
         external_source = ExternalSystem.find(uuid)
         external_source.import
-      rescue StandardError => exception
-        Appsignal.send_error(exception, nil, "import job failed - #{external_source.id}")
+      rescue StandardError => e
+        Appsignal.send_error(e, nil, "import job failed - #{external_source.id}")
         external_source.config['last_import_failed'] = true
-        external_source.config['last_import_exception'] = "#{exception} (#{Time.zone.now})"
+        external_source.config['last_import_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!
       end
       Process.waitpid(pid)

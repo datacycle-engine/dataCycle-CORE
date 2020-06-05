@@ -19,7 +19,7 @@ module Translations
         orm_backend = "translations/backends/active_record/#{backend}"
         require orm_backend
       rescue LoadError => e
-        raise unless e.message =~ /#{orm_backend}/
+        raise unless /#{orm_backend}/.match?(e.message)
       end
     end
   end

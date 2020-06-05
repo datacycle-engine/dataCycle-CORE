@@ -75,7 +75,7 @@ module SchemaStatementsWithInterval
     end
   end
 end
-ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements.send(:prepend, SchemaStatementsWithInterval)
+ActiveRecord::ConnectionAdapters::PostgreSQL::SchemaStatements.prepend SchemaStatementsWithInterval
 
 # activerecord/lib/active_record/connection_adapters/postgresql_adapter.rb
 require 'active_record/connection_adapters/postgresql_adapter'

@@ -5,7 +5,7 @@ module DataCycleCore
     module DataCycleApiV4
       module Transformations
         def self.t(*args)
-          DataCycleCore::Generic::Common::Functions[*args]
+          DataCycleCore::Generic::DataCycleApiV4::Functions[*args]
         end
 
         def self.transformation
