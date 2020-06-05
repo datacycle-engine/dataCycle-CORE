@@ -100,21 +100,18 @@ config:
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: additional_service_providers
       read_type: locations
-      incremental_update: true      
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     infrastructure_items:
       sorting: 14
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: infrastructure_items
       read_type: locations
-      incremental_update: true
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
     events:
       sorting: 15
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: events
       read_type: locations
-      incremental_update: true
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
       locales: ['de', 'en']
     packages:
@@ -136,7 +133,6 @@ config:
       endpoint: DataCycleCore::Generic::Feratel::Endpoint
       source_type: accommodations
       read_type: locations
-      incremental_update: true
       download_strategy: DataCycleCore::Generic::Feratel::DownloadContents
       locales: ['de', 'en']
     hot_spots:

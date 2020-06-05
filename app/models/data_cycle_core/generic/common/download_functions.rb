@@ -6,13 +6,13 @@ module DataCycleCore
       module DownloadFunctions
         require 'hashdiff'
 
-        def self.download_data(download_object:, data_id:, data_name:, options:)
+        def self.download_data(download_object:, data_id:, data_name:, modified: nil, options:)
           iteration_strategy = options.dig(:iteration_strategy) || :download_sequential
           raise "Unknown :iteration_strategy given: #{iteration_strategy}" unless [:download_sequential, :download_parallel].include?(iteration_strategy)
-          send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, options: options)
+          send(iteration_strategy, download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, options: options)
         end
 
-        def self.download_single(download_object:, data_id:, data_name:, raw_data:, options:)
+        def self.download_single(download_object:, data_id:, data_name:, modified:, raw_data:, options:)
           init_mongo_db(download_object) do
             init_logging(download_object) do |logging|
               locales = (options.dig(:locales) || options.dig(:download, :locales) || I18n.available_locales).map(&:to_sym)
@@ -26,8 +26,10 @@ module DataCycleCore
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
                     item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
+                    data_hash = data_hash.merge(modified: modified.call(data_hash)) if modified.present?
                     item.dump[language] = data_hash
                   end
+                  item.updated_at = modified.call(raw_data.first[1]) if modified.present?
                   item.save!
                   GC.start
                   logging.info("Single download item: #{item_name}", item_id)
@@ -40,13 +42,13 @@ module DataCycleCore
           end
         end
 
-        def self.download_sequential(download_object:, data_id:, data_name:, options:)
+        def self.download_sequential(download_object:, data_id:, data_name:, modified:, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= download_sequential(download_object: download_object, data_id: data_id, data_name: data_name, modified: modified, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             init_mongo_db(download_object) do
@@ -81,6 +83,7 @@ module DataCycleCore
                         item.dump ||= {}
                         item.data_has_changed = true if options.dig(:download, :skip_diff) == true
                         item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base))
+                        item_data = item_data.merge(updated_at: modified.call(item_data)) if modified.present?
                         item.dump[locale] = item_data
                         item.save!
                         logging.item_processed(item_name, item_id, item_count, max_string)
@@ -112,7 +115,7 @@ module DataCycleCore
           success
         end
 
-        def self.download_parallel(download_object:, data_id:, data_name:, options:)
+        def self.download_parallel(download_object:, data_id:, data_name:, modified:, options:)
           success = true
           delta = 100
 
@@ -149,6 +152,7 @@ module DataCycleCore
                       item_data.each do |language, data_hash|
                         next unless locales.include?(language.to_sym)
                         item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
+                        data_hash = data_hash.merge(modified: modified.call(data_hash)) if modified.present?
                         item.dump[language] = data_hash
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       end
