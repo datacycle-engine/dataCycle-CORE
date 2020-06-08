@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIndexesToTranslations < ActiveRecord::Migration[5.0]
   def change
     ['creative_work', 'person', 'event', 'place'].each do |item|

@@ -1,38 +1,17 @@
-<% historyObject ||= nil %>
 <div id="show-history-link" data-toggle="show-history" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
-    <% unless historyObject.nil? %>
-        erstellt am <%= Time.zone.at(I18n.with_locale(historyObject.first_available_locale){historyObject.history_valid.last}).to_s(:german_datetime_format) %>
+  <%= t("history.#{dataCycleObject.histories.exists? ? 'updated_at' : 'created_at'}", locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(dataCycleObject.updated_at)), locale: DataCycleCore.ui_language) if dataCycleObject.updated_at.present? %>
+  <% person = dataCycleObject.histories.present? ? dataCycleObject.try(:updated_by_user) : dataCycleObject.try(:created_by_user) %>
 
-        <% if historyObject.metadata.try(:[], 'last_updated_by') %>
-            <% person = get_user_for_id(historyObject.metadata['last_updated_by']) %>
-        <% end %>
+  <% if person.is_a?(Object) && !person.nil? %>
+    <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
+    <span><strong><%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %></strong></span>
+  <% else %>
+    <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
+    <span><strong>System</strong></span>
+  <% end %>
 
-    <% else %>
-        bearbeitet am <%= Time.zone.at(dataCycleObject.updated_at).to_s(:german_datetime_format) %>
-
-        <% if !dataCycleObject.metadata.nil? && !dataCycleObject.creator.blank? %>
-            <% person = dataCycleObject.creator.first %>
-        <% end %>
-
-    <% end %>
-
-    <% if person.kind_of?(Object) && person.nil? == false %>
-        <span> von </span>
-        <span><strong><a class="email-link" href="mailto:<%= "#{person.email}" %>"><%= "#{person.name}" %></a></strong></span>
-    <% else %>
-        <span> von </span>
-        <span><strong>Unbekannt</strong></span>
-    <% end %>
-
-    <% if history ||= false %>
-      <span class="history-metadata">
-        <%= link_to polymorphic_url([:history_detail, dataCycleObject], history_id: historyObject.id, watch_list_id: @watch_list) do  %>
-          <i class="fa fa-eye" aria-hidden="true"></i>
-        <% end %>
-      </span>
-    <% end %>
 </div>
 
-<% if dataCycleObject.histories.size > 0 %>
+<% if dataCycleObject.histories.exists? %>
   <%= render 'histories', content: dataCycleObject %>
 <% end %>

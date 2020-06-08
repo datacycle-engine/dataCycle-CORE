@@ -1,62 +1,58 @@
 # DataCycleCore
+
 DataCycleCore provides the main funcionality for the DataCycle project. It includes
 the description for the core PostgreSQL database with all data- and table-definitions.
 
-
 ## Setup
-To setup a new DataCycle project, download and include the DataCycleCore engine.
 
-At the moment DataCycleCore is no packaged gem-file. Therefore it has to be installed separately on your local disc and included in your Gemfile.
+To setup a new DataCycle project, follow the instructions from the base project:
+http://git.pixelpoint.biz/data-cycle/data-cycle-base
 
-```ruby
-gem 'data_cycle_core', path: 'your_local_path to data_cycle_core'
-```
+## Dummy App
 
-Additionally you also have to include the globalize gem to your local Gemfile because it cannot be added as a dependecy to the gemspec file since the required version is only available via git.
+### Requirements
 
-```ruby
-gem 'globalize', github: 'globalize/globalize'
-```
+See base project.
 
-Database config files for the PostgreSQL (/config/database.yml) and MongoDB
-(/config/mongoid.yml)
+#### Docker
 
-## Usage
-### Routing:
-mount the Engine to an endpoint of you liking.
-
-```ruby
-Rails.application.routes.draw do
-  mount DataCycleCore::Engine => "/dcc"
-end
-```
-
-Additionally you also have to include the globalize gem to your local Gemfile because it cannot be added as a dependecy to the gemspec file since the required version is only available via git.
-
-```ruby
-gem 'globalize', github: 'globalize/globalize'
-```
-
-This line will mount the engine at "/dcc" in the application. Making it accessible at http://localhost:3000/dcc when the application runs with rails server.
-
-Replace "/dcc" with the route you desire.
-
-### Database Migrations:
-Execute as usual:
 ```bash
-$ rails db:migrate
+$ alias dc='docker-compose'
 ```
 
-This will execute all local and engine migrations.
-
-### Database Seeding:
-In order to use the default Rails seed-task add the following line of code to your
-"/db/seeds.rb" file:
-
-```ruby
-  DataCycleCore::Engine.load_seed
+```bash
+$ dc build
+$ dc stop && dc up -d && docker attach datacycle[LOCAL_DIR]_web_1
+$ dc exec web bash
 ```
 
+### Initial rake tasks
+
+```bash
+$ rake app:db:create
+$ rake app:db:migrate
+$ rake app:db:seed
+$ rake app:data_cycle_core:update:import_classifications
+$ rake app:data_cycle_core:update:import_templates
+```
+
+#### assets
+
+```bash
+yarn && gulp
+```
+
+## Testing
+
+```bash
+$ bundle-audit update
+$ bundle audit check
+$ brakeman
+$ gemsurance
+$ rubocop --format fuubar#
+$ RAILS_ENV=test bundle exec rake app:db:drop app:db:create app:db:structure:load app:db:migrate app:db:seed && bundle exec rails test
+```
 
 ## License
-Copyright 2017 Pixelpoint.at
+
+Copyright 2017-2020 Pixelpoint.at

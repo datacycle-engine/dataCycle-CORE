@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddExternalKeyColumnForHistoryTables < ActiveRecord::Migration[5.0]
   def up
     add_column :creative_work_histories, :external_key, :string

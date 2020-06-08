@@ -1,11 +1,18 @@
-<% content_for(:title, "Backend") %>
+<% breadcrumb :root %>
+
+<% content_for(:title, "Dashboard") %>
 
 <% content_for :new_button do %>
-  <%= render 'new_content_links' if user_signed_in? && can?(:create, DataCycleCore::CreativeWork) %>
+  <%= render 'new_content_button',
+    query_methods: DataCycleCore::Feature::Container.index_query_methods,
+    button_class: 'new-object-circle',
+    search_required: true,
+    scope: 'backend',
+    search_param: @filters.presence&.find { |f| f['t'] == 'fulltext_search' }&.dig('v') if user_signed_in? && new_content_select_options(query_methods: DataCycleCore::Feature::Container.index_query_methods, scope: 'backend').present? %>
 <% end %>
 
 <% content_for :top_content do %>
-  <%= render 'filter' if user_signed_in? %>
+  <%= render 'filter', filter: { search: true, language: true, store: true, add_items_to_watch_list: true, advanced: DataCycleCore::Feature::AdvancedFilter.enabled? ? DataCycleCore::Feature::AdvancedFilter.available_filters.select { |k, v| can?(:advanced_filter, :backend, k, v) } : false } if user_signed_in? %>
 <% end %>
 
-<%= render 'results', contents: @contents %>
+<%= render 'data_cycle_core/application/results', contents: @contents, modes: DataCycleCore::Feature::ViewMode.allowed_modes(current_user) %>

@@ -1,0 +1,66 @@
+---
+name: Veranstaltungsdatenbank
+credentials:
+  action: /endpoints/557ea81f6d6564769e010000
+  end_point: /api/v2
+  host: https://veranstaltungen.kaernten.at
+default_options:
+  locales: [de]  
+config:
+  download_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
+      download_strategy: DataCycleCore::Generic::EventDatabase::DownloadCategories
+    events:
+      sorting: 2
+      source_type: events
+      endpoint: DataCycleCore::Generic::EventDatabase::Endpoint
+      download_strategy: DataCycleCore::Generic::EventDatabase::Download
+  import_config:
+    categories:
+      sorting: 1
+      source_type: categories
+      import_strategy: DataCycleCore::Generic::EventDatabase::ImportCategories
+      transformations:
+        category:
+          tree_label: Veranstaltungsdatenbank - Kategorien
+    keywords:
+      sorting: 2
+      source_type: events
+      import_strategy: DataCycleCore::Generic::Common::ImportTags
+      tree_label: Veranstaltungsdatenbank - Tag
+      tag_id_path: 'tags'
+      tag_name_path: 'tags'
+      external_id_prefix: 'Veranstaltungsdatenbank - tags - '
+    events:
+      sorting: 3
+      source_type: events
+      import_strategy: DataCycleCore::Generic::EventDatabase::ImportEvents
+      transformations:
+        image:
+          template: Bild
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Bild
+        place:
+          template: Örtlichkeit
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Örtlichkeit
+        event:
+          template: Event
+          embedded:
+            sub_event:
+              template: SubEvent
+              default_values:
+                data_type:
+                  tree_label: Inhaltstypen
+                  value: Veranstaltungstermin
+          default_values:
+            data_type:
+              tree_label: Inhaltstypen
+              value: Veranstaltung

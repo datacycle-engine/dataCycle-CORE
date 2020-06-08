@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'data_cycle_core/engine'
 
 module DataCycleCore

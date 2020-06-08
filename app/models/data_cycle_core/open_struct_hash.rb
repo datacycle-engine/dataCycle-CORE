@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class OpenStructHash < OpenStruct
     def to_h
@@ -9,6 +11,10 @@ module DataCycleCore
         struct_keys.each { |key| as_hash[key] = as_hash[key].to_h.compact }
       end
       as_hash.compact
+    end
+
+    def blank?
+      to_h.values.all?(&:blank?)
     end
   end
 end

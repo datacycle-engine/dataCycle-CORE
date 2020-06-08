@@ -1,0 +1,20 @@
+# frozen_string_literal: true
+
+json = {
+  data: @watch_lists.map do |item|
+    {
+      id: item.id,
+      name: item.name,
+      url: api_v3_collection_url(@api_subversion, id: item.id),
+      item_count: item.watch_list_data_hashes.count
+    }
+  end
+}
+
+json.merge! render 'pagination_links',
+                   objects: @watch_lists,
+                   object_url: (lambda do |params|
+                     File.join(request.protocol + request.host + ':' + request.port.to_s, request.path) + '?' + params.to_query
+                   end)
+
+json

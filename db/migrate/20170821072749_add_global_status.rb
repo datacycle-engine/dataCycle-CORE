@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddGlobalStatus < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|

@@ -1,0 +1,9 @@
+# frozen_string_literal: true
+
+json = {
+  data: @classification_tree_label.as_json(
+    only: [:id, :name]
+  ).merge('classifications' => classifications_api_v3_classification_tree_url(@api_subversion, id: @classification_tree_label, language: @language))
+}
+
+json

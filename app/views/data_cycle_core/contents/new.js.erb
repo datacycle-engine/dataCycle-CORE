@@ -1,0 +1,16 @@
+var html = $('<%= j render_new_form(template: @template, parameters: @resolved_params) %>');
+html.filter('fieldset').first().addClass('active');
+$('#<%= @resolved_params[:key] %> form.multi-step fieldset.content-fields').replaceWith(html);
+html.trigger('dc:html:changed').trigger('dc:html:initialized');
+$.rails.enableFormElements($('#<%= @resolved_params[:key] %> form.multi-step'));
+
+<% if @resolved_params[:search_required] && @resolved_params[:search_param].blank? && cannot?(:create_without_search, @template) %>
+  $('#<%= @resolved_params[:key] %> form.multi-step').addClass('disabled');
+  $.rails.disableFormElements($('#<%= @resolved_params[:key] %> form.multi-step'));
+  $('#<%= @resolved_params[:key] %> form.multi-step .search-warning').show();
+<% else %>
+  html.filter('fieldset').addClass('no-search-warning');
+  $('#<%= @resolved_params[:key] %> form.multi-step').removeClass('disabled');
+  $.rails.enableFormElements($('#<%= @resolved_params[:key] %> form.multi-step'));
+  $('#<%= @resolved_params[:key] %> form.multi-step .search-warning').hide();
+<% end %>

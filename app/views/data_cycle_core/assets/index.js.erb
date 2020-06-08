@@ -1,0 +1,8 @@
+$('#<%= @html_target %>').find('.loading').remove();
+<% if @assets.present? %>
+  var html = $('<%= j render 'data_cycle_core/assets/asset_list', assets: @assets, class: 'selectable', selected: @selected, last_asset_type: @last_asset_type %>').find('>li, >h4.list-title');
+  $('#<%= @html_target %>').append(html).trigger('dc:asset_list:changed', { assets: <%= (@asset_details || []).to_json.html_safe %>, selected: <%= (@selected || []).to_json.html_safe %>, last_asset_type: '<%= @assets.last&.type&.to_s %>', page: <%= @page %>, total: <%= @total %>, append: <%= @append %> });
+  html.trigger('dc:html:changed').trigger('dc:html:initialized');
+<% else %>
+  $('#<%= @html_target %>').html('<%= t('common.contents', count: 0, locale: DataCycleCore.ui_language) %>').trigger('dc:asset_list:changed', { selected: <%= (@selected || []).to_json.html_safe %>, last_asset_type: '', page: 1, total: 0, append: <%= @append %> });
+<% end %>

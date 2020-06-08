@@ -1,5 +1,0 @@
-<%= render 'data_cycle_core/contents/viewers/attribute_viewer', key: key, definition: definition, value: value, options: options.merge({:hide_label => true}) do %>
-
-    <span class="detail-content"><img src="<%= value.html_safe unless value.nil? %>" /></span>
-
-<% end %>

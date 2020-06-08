@@ -1,0 +1,25 @@
+---
+- :data:
+    :name: title
+    :type: mixin
+    :properties:
+      :name:
+        :label: Titel
+        :type: string
+        :storage_location: column
+        :search: true
+        :validations:
+          :required: true
+        :ui:
+          :show:
+            :content_area: none
+        :api:
+          :minimal: true
+          :name: headline
+      :internal_name:
+        :label: Arbeitstitel
+        :type: string
+        :storage_location: column
+        :search: true
+        :api:
+          :disabled: true

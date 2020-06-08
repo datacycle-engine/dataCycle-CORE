@@ -20,12 +20,15 @@
 # available at http://guides.rubyonrails.org/i18n.html.
 
 en:
-  hello: "Hello world"
+  hello: "Hello!"
   order:
     header: "Order"
     title: "Title"
     updated: "Updated"
   submit: "Submit"
+
+  common:
+    creator: creator
 
   validation:
     errors:
@@ -42,6 +45,11 @@ en:
       url: "%{data} is no valid Url."
       string: "%{template} is not a string, but %{label}."
       geo: "Wrong data-type for %{template} (%{data}). Expected Geometric/Geographical type."
+      schedule:
+        general: "Wrong data-type for %{template} (%{data}). Expected DataCycleCore::Schedule, or a valid Hash."
+        time: "Wrong DateTime format for %{template} (%{data}), expected a Hash with { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
+        date_time_array: "Wrong DateTimeArray format for %{template} (%{data}), expected an Array of ActiveSupport::TimeWithZone"
+        rrule: "Wrong RRULE format for %{template} (%{data})."
       number: "%{template} is not nummerical, but %{class} (Wert: %{data})."
       no_data: "No data given."
       no_validation: "No validation data given."
@@ -56,7 +64,7 @@ en:
       float: "%{data} is not of type float."
       object_type: "Wrong data-type for %{data}. Type %{type} not defined."
       wrong_object_type: "Object-type %{data} is no embedded data-type and has no 'properties'."
-      no_template: "No matching data-type template found for %{name}|%{desc}."
+      no_template: "No matching data-type template found for %{name}."
       no_fields: "No fields for 'from-date' and/or 'to-date' given."
       convert_date: "Could not validate daterange, date_time not valid."
       daterange: "Invalid Daterange, 'from' (%{from}) is after 'to' (%{to})."
@@ -78,7 +86,7 @@ en:
       ready_to_send: "%{data} has been created successfully and can be sent."
       updated: "%{data} updated."
       destroyed: "%{data} deleted."
-      addedTo: "Added to Watchlist: %{data}."
+      added_to: "Added to Watchlist: %{data}."
       removedFrom: "Removed from Watchlist: %{data}."
       sent: "Email sent successfully."
       invalid_mail: "Invalid Email."
@@ -87,13 +95,14 @@ en:
     job:
       added: "%{data}/%{uuid} added to Job-Queue."
       imported: "'%{data}' imported from YAML file."
+      running: "Job is already queued."
   activerecord:
     errors:
       models:
         data_cycle_core/watch_list:
           attributes:
-            headline:
-              blank: "Headline: Should be atleast 1 long."
+            name:
+              blank: "Name: Should be atleast 1 long."
     attributes:
       data_cycle_core/place:
         name: Name
@@ -102,3 +111,53 @@ en:
         address: Address
         longitude: Longitude
         latitude: Latitude
+      data_cycle_core/watch_list:
+        name: Name
+        user_group_ids: Usergroups
+      data_cycle_core/data_link:
+        comment: Comment
+        permissions: Permissions
+        validity_period: Validity Period (from - until)
+        valid_from: valid from
+        valid_until: until
+        permissions_download: download
+        permissions_read: read
+        permissions_write: edit
+        text_file: "Additional Information (PDF)"
+        locale: "Email-Language"
+
+  date:
+    formats:
+      default: "%Y-%m-%d"
+
+  external_sources:
+    bergfex:
+      snow_report:
+        type:
+          village: Snow depth Location
+          base: Valley (Piste)
+          top: Mountain (Piste)
+
+  data_link_mailer:
+    content_download: Download Content
+    content_read: Read Content
+    content_write: Edit Content
+    watch_list:
+      default: the content collection
+    thing:
+      default: the content
+    send_subject: Shared content link
+    update_subject: updated shared content collection
+    notice: Notice
+
+  terms:
+    valid: valid
+    from: from
+    until: until
+
+  data_cycle_core:
+    data_links:
+      write_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you and asks for your additions and feedback.<br><br>Please make any changes to text, images and videos directly in the form.</span>"
+      read_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you and asks for your additions and feedback.</span>"
+      download_link_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\"><strong>%{user}</strong> shared %{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” with you.<br><br>%{n_type} is ready for download.</span>"
+      updated_watchlist_html: "<span style=\"font-size:12pt; font-family: 'Lato', 'Lucida Grande', 'Segoe', Arial, sans-serif;color:#333333\">%{a_type} “<a href=\"%{url}\" target=\"_blank\"><span style=\"color:#333333;text-decoration:underline;text-underline:underline; font-weight: bold;font-style: italic\">%{title}</span></a>” was updated and contents were added or removed.</span>"

@@ -1,38 +1,28 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class BackendController < ApplicationController
     include DataCycleCore::Filter
     before_action :authenticate_user! # from devise (authenticate)
     authorize_resource class: false # from cancancan (authorize)
+    before_action :load_last_filter, only: :index, if: proc {
+      DataCycleCore::Feature::MainFilter.autoload_last_filter? &&
+        params.slice(:stored_filter, :f, :reset).blank? &&
+        current_user.stored_filters.exists?
+    }
+    before_action :load_stored_filter, only: :index, if: -> { params[:stored_filter].present? }
 
     def index
-      if DataCycleCore.autoload_last_filter && params[:stored_filter].blank? && !params[:utf8] && current_user.stored_filters.size.positive?
-        filter_id = current_user.stored_filters.order(created_at: :desc)&.first&.id
-        @paginateObject = apply_filter(filter_id: filter_id).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-        @contents = @paginateObject.map(&:content_data)
-      elsif params[:stored_filter].blank?
-        @contents = get_filtered_results
-        @stored_filter = save_filter
-      else
-        @paginateObject = apply_filter(filter_id: params[:stored_filter]).includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-        @contents = @paginateObject.map(&:content_data)
-      end
+      set_instance_variables_by_view_mode(query: @query)
+      save_filter unless @stored_filter.persisted? || request.xhr?
 
-      @creativeWork = CreativeWork.new
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def settings
-    end
-
-    private
-
-    def parse_classifications(class_array)
-      grouping_class = {}
-      class_array.each do |class_id|
-        name = DataCycleCore::ClassificationAlias.find(class_id).classification_tree_label.name
-        grouping_class[name] ||= []
-        grouping_class[name].push(class_id)
-      end
-      grouping_class
     end
   end
 end

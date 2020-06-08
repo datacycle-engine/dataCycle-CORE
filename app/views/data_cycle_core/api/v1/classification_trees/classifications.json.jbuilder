@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.partial! 'classifications', classification_aliases: @classification_aliases
 
 json.partial! 'pagination_links',

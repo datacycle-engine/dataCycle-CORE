@@ -1,26 +1,45 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Webhook
     class Base
-      def self.log(webhook, message)
-        # logger = Logger.new('webhook')
-        Rails.logger.info("#{webhook}: #{message}")
+      def self.execute_all(data, action)
+        get_webhooks_for(action, data).each do |external_system, webhook|
+          execute(external_system, webhook, data, action)
+        rescue SystemStackError => e
+          Appsignal.set_error(e)
+        end
+      end
+
+      def self.execute(external_system, webhook, data, action)
+        utility_object = DataCycleCore::Export::PushObject.new(external_system: external_system)
+        init_logging(utility_object) do |logging|
+          logging.info("Webhook: #{action} | #{external_system.name} | #{webhook}", data.id)
+          webhook.process(utility_object: utility_object, data: data)
+        end
       end
 
       def self.get_webhooks_for(action, data)
-        webhooks = DataCycleCore.webhooks.try(:[], action.try(:to_sym))
-
-        webhooks.blank? ? [] : webhooks.collect { |webhook| validate_webhook(webhook, data) }.reject(&:blank?)
+        DataCycleCore::ExternalSystem
+          .where(name: DataCycleCore.webhooks)
+          .where.not(name: data.try(:webhook_source))
+          .collect { |external_system| validate_webhook(external_system, action, data) }.compact
       end
 
-      def self.validate_webhook(webhook, data)
-        return webhook if webhook.is_a?(Class)
+      def self.validate_webhook(external_system, action, data)
+        webhook = external_system.export_config.dig(action.to_sym)&.symbolize_keys
+        return unless webhook&.dig(:strategy)
 
-        if webhook.is_a?(Hash)
-          webhook_class = webhook.keys.first
-          filter = webhook[webhook_class].fetch(:filter) { raise KeyError, 'Filter must be supplied for webhook' }
+        export_class = webhook.dig(:strategy).constantize
+        return [external_system, export_class] if data&.model_name&.in?(Array(external_system.export_config.dig(:allowed_models) || 'DataCycleCore::Thing')) && export_class.filter(data, external_system)
+        nil
+      end
 
-          return webhook_class if filter.call(data)
-        end
+      def self.init_logging(utility_object)
+        logging = utility_object.init_logging(:export)
+        yield(logging)
+      ensure
+        logging.close if logging.respond_to?(:close)
       end
     end
   end

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class ChangeToRailsStandard < ActiveRecord::Migration[5.0]
   def change
     rename_table :overlays_places_tags, :overlay_place_tags

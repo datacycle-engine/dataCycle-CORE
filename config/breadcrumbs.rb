@@ -1,124 +1,126 @@
+# frozen_string_literal: true
+
 # Root crumb
 crumb :root do
-  link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i>#{DataCycleCore.breadcrumb_root_name}"), root_path
+  link to_html_string("<i class='fa fa-folder-open-o' aria-hidden='true'></i> #{DataCycleCore.breadcrumb_root_name}"), root_path, authorized: can?(:index, :backend)
 end
 
+# Settings
 crumb :settings do
-  link to_html_string(t('data_cycle_core.settings', locale: DataCycleCore.ui_language)), settings_path
+  link to_html_string(t('data_cycle_core.settings', locale: DataCycleCore.ui_language)), settings_path, authorized: can?(:settings, :backend)
 end
 
+# Administration
 crumb :admin do
-  link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), '#'
-end
-
-crumb :assets do
-  link to_html_string(t('data_cycle_core.assets', locale: DataCycleCore.ui_language)), '#'
+  link to_html_string(t('data_cycle_core.administration', locale: DataCycleCore.ui_language)), admin_path, authorized: can?(:manage, :dash_board)
 end
 
 crumb :classifications do
-  link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), '#'
-  parent :admin
+  link to_html_string(t('data_cycle_core.classifications', locale: DataCycleCore.ui_language)), classifications_path, authorized: can?(:manage, DataCycleCore::Classification)
+  parent :admin if can?(:manage, :dash_board)
 end
 
-# User
-crumb :'data_cycle_core/users' do
-  link to_html_string(DataCycleCore::User.model_name.human(count: 2, locale: DataCycleCore.ui_language)), users_path
+crumb :classification_tree_label do |label|
+  link to_html_string(t("tree_view.#{label.name}")), nil, authorized: can?(:manage, DataCycleCore::Classification)
+  parent :admin if can?(:manage, :dash_board)
 end
 
-crumb :edit_user do |user|
-  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user.email), edit_user_path(user)
-  parent :'data_cycle_core/users' if can? :crud, DataCycleCore::User
+# Default Index Crumb
+crumb :index do |type_name|
+  link to_html_string("DataCycleCore::#{type_name.classify}".constantize.model_name.human(count: 2, locale: DataCycleCore.ui_language)), url_for(action: :index, controller: type_name), authorized: can?(:index, "DataCycleCore::#{type_name.classify}".constantize)
 end
 
-crumb :'data_cycle_core/user_groups' do
-  link to_html_string(DataCycleCore::UserGroup.model_name.human(count: 2, locale: DataCycleCore.ui_language)), user_groups_path
+# Default Show Crumb
+crumb :show do |item, title_method, watch_list|
+  link to_html_string(item.model_name.human(locale: DataCycleCore.ui_language), item.try(title_method)), polymorphic_path(item), authorized: can?(:show, item)
+  parent :show, watch_list, :name if watch_list.present?
 end
 
-crumb :edit_user_group do |user_group|
-  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten", user_group.name), edit_user_group_path(user_group)
-  parent :'data_cycle_core/user_groups' if can? :crud, DataCycleCore::UserGroup
+# Default Edit Crumbs
+crumb :edit do |item, title_method, watch_list|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.edit', locale: DataCycleCore.ui_language).capitalize}"), edit_thing_path(item), authorized: can?(:edit, item)
+  parent :show, item, title_method, watch_list
 end
 
-crumb :edit_resource do |resource, watch_list|
-  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>Bearbeiten"), edit_polymorphic_path(resource)
-  parent resource, watch_list
+crumb :edit_from_index do |item, title_method|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.edit', locale: DataCycleCore.ui_language).capitalize}", item.try(title_method)), edit_thing_path(item), authorized: can?(:edit, item)
+  parent :index, item.class.table_name
 end
 
-crumb :show_history do |resource, watch_list|
-  link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>Ansehen"), edit_polymorphic_path(resource)
-  parent resource, watch_list
+crumb :bulk_edit do |item|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.bulk_edit', locale: DataCycleCore.ui_language).capitalize}"), edit_thing_path(item), authorized: can?(:edit, item)
+  parent :show, item, :name
 end
 
-crumb :show_compare do |resource, watch_list|
-  link to_html_string("<i aria-hidden='true' class='fa fa-columns'></i>Vergleichen"), edit_polymorphic_path(resource)
-  parent resource, watch_list
-end
-
-# Creative Work
-crumb :'data_cycle_core/creative_work' do |creative_work, watch_list|
-  I18n.with_locale(creative_work.first_available_locale) do
-    link to_html_string(creative_work.content_type, creative_work.title), polymorphic_path(creative_work, watch_list_id: watch_list)
+# Content Crumbs
+crumb :content do |content, watch_list|
+  I18n.with_locale(content.first_available_locale) do
+    link to_html_string(t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language), content.title), thing_path(content, watch_list_id: watch_list), authorized: can?(:show, content)
   end
 
   if watch_list
-    if creative_work&.parent && creative_work.parent.watch_lists.include?(watch_list)
-      parent creative_work.parent, watch_list
+    if content.try(:parent).present? && content.parent.try(:watch_lists)&.include?(watch_list)
+      parent :content, content.parent, watch_list
     else
-      parent watch_list
+      parent :show, watch_list, :name
     end
-  elsif creative_work.parent
-    parent creative_work.parent, watch_list
+  elsif content.try(:parent)
+    parent :content, content.parent, watch_list
   else
     parent :root
   end
 end
 
-# Place
-crumb :'data_cycle_core/places' do
-  link to_html_string('Orte'), places_path
+crumb :edit_content do |item, watch_list|
+  link to_html_string("<i aria-hidden='true' class='fa fa-pencil'></i>#{t('actions.edit', locale: DataCycleCore.ui_language).capitalize}"), edit_thing_path(item), authorized: can?(:edit, item)
+  parent :content, item, watch_list
 end
 
-crumb :'data_cycle_core/place' do |place, watch_list|
-  link to_html_string(place.metadata['validation']['name'], place.name), place_path(place, watch_list_id: watch_list)
-
-  parent watch_list if watch_list
-  # parent :'data_cycle_core/places'
+# Duplicate Merge Crumbs
+crumb :merge_content do |item, duplicate, watch_list|
+  link to_html_string("<i class='fa fa-code-fork' aria-hidden='true'></i>#{t('duplicate.merge_content', locale: DataCycleCore.ui_language).capitalize}"), merge_with_duplicate_thing_path(id: item.id, duplicate_id: duplicate.id), authorized: can?(:merge_duplicates, item)
+  parent :content, item, watch_list
 end
 
-# Person
-crumb :'data_cycle_core/persons' do
-  link to_html_string('Personen'), persons_path
+# History Crumbs
+crumb :show_history do |item, watch_list|
+  link to_html_string("<i aria-hidden='true' class='fa fa-history'></i>#{t('actions.show', locale: DataCycleCore.ui_language).capitalize}"), thing_path(item), authorized: can?(:history, item)
+  parent :content, item, watch_list
 end
 
-crumb :'data_cycle_core/person' do |person, watch_list|
-  link to_html_string('Person', person.given_name + ' ' + person.family_name), person_path(person, watch_list_id: watch_list)
-
-  parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
+crumb :show_compare do |item, watch_list|
+  link to_html_string("<i aria-hidden='true' class='fa fa-columns'></i>#{t('common.compare', locale: DataCycleCore.ui_language).capitalize}"), thing_path(item), authorized: can?(:show, item)
+  parent :content, item, watch_list
 end
 
-# Event
-crumb :'data_cycle_core/events' do
-  link to_html_string('Events'), events_path
+# Publicationcalendar Crumb
+crumb :'data_cycle_core/publications' do
+  link to_html_string("<i class='fa fa-calendar' aria-hidden='true'></i>#{t('data_cycle_core.publications_calendar', locale: DataCycleCore.ui_language)}"), publications_path, authorized: can?(:index, :publication)
 end
 
-crumb :'data_cycle_core/event' do |event, watch_list|
-  link to_html_string('Event', event.headline), events_path(event, watch_list_id: watch_list)
-
-  parent watch_list if watch_list
-  # parent :'data_cycle_core/persons'
+# Stored Filters Crumb
+crumb :'data_cycle_core/stored_filters' do
+  link to_html_string("<i aria-hidden='true' class='fa fa-search'></i> #{t('data_cycle_core.stored_searches.my_searches', locale: DataCycleCore.ui_language)}"), stored_filters_path, authorized: can?(:index, DataCycleCore::StoredFilter)
 end
 
-# Merkliste
-crumb :'data_cycle_core/watch_lists' do
-  link to_html_string('Merklisten'), watch_lists_path
+# Documentation
+crumb :documentation do
+  link t('data_cycle_core.documentation.root', locale: DataCycleCore.ui_language), '/docs', authorized: true
+
+  path_segments = (params['path'] || '').split('/')
+
+  (0..path_segments.length - 1).each do |i|
+    translation_key = (['data_cycle_core', 'documentation'] + path_segments[0..i]).join('.')
+
+    translation_key += '.root' if t(translation_key, locale: DataCycleCore.ui_language).is_a? Hash
+
+    link t(translation_key, locale: DataCycleCore.ui_language), '/' + (['docs'] + path_segments[0..i]).join('/'), authorized: true
+  end
 end
 
-crumb :'data_cycle_core/watch_list' do |watch_list|
-  link to_html_string('Merkliste', watch_list.headline), watch_list_path(watch_list)
+# Schema
+crumb :schema do
+  link t('data_cycle_core.schema.root', locale: DataCycleCore.ui_language), schema_path, authorized: params[:id].present?
 
-  # parent :'data_cycle_core/watch_lists'
-end
-crumb :'data_cycle_core/subscriptions' do
-  link to_html_string('Abos'), subscriptions_path
+  link params[:id], '#', authorized: false if params[:id].present?
 end

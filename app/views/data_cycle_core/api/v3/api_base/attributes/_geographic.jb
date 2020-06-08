@@ -1,0 +1,7 @@
+# frozen_string_literal: true
+
+key_new = definition.dig('api', 'name') || key
+
+generator = RGeo::WKRep::WKTGenerator.new({ tag_format: :wkt11 })
+
+{ key_new.camelize(:lower) => generator.generate(value) }

@@ -1,0 +1,22 @@
+{
+  "name": "Headline",
+  "alternative_headline": "Alternative Headline",
+  "description": "Description",
+  "link_name": "LinkName",
+  "text": "Text",
+  "url": "http://www.myurl.com",
+  "recipe_instructions": [
+    {
+      "name": "Recipe Instruction - Name",
+      "recipe_instructions": "Recipe Instruction - Recipe Instruction",
+      "recipe_ingredient": [
+        {
+          "name": "Recipe Ingredient - Name"
+        }
+      ]
+    }
+  ],
+  "recipe_yield": "Recipe Yield",
+  "recipe_ingredient": "<p>Recipe Ingredient",
+  "total_time": 30
+}

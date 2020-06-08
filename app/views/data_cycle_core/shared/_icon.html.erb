@@ -1,21 +1,21 @@
 <% case icon_type %>
-<% when "thema" %>
+<% when "thema", 'aktuelle_inhalte' %>
     <span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
-<% when "thema_archiv" %>
+<% when "thema_archiv", 'archiv' %>
     <span class="icon"><i class="fa fa-archive" aria-hidden="true"></i></span>
 <% when "recherche", "thema_recherche" %>
     <span class="icon"><i class="fa fa-lightbulb-o" aria-hidden="true"></i></span>
-<% when "thema_vorschlag" %>
+<% when "thema_vorschlage", 'vorschlage' %>
     <span class="icon"><i class="fa fa-sticky-note" aria-hidden="true"></i></span>
 <% when "artikel", "standard-artikel" %>
     <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
 <% when "angebot" %>
     <span class="icon"><i class="fa fa-align-left" aria-hidden="true"></i></span>
-<% when "bild" %>
+<% when "bild", "foto-serie", "datacycle_-_bild" %>
     <span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
-<% when "bundesländer" %>
+<% when "bundesländer", 'bundeslander' %>
     <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-<% when "märkte" %>
+<% when "märkte", "zielmärkte", 'markte' %>
     <span class="icon"><i class="fa fa-dot-circle-o" aria-hidden="true"></i></span>
 <% when "sprache" %>
     <span class="icon"><i class="fa fa-comment" aria-hidden="true"></i></span>
@@ -47,26 +47,72 @@
     <span class="icon"><i class="fa fa-question" aria-hidden="true"></i></span>
 <% when "antwort" %>
     <span class="icon"><i class="fa fa-reply" aria-hidden="true"></i></span>
-<% when "person" %>
+<% when "person", "user" %>
     <span class="icon"><i class="fa fa-user" aria-hidden="true"></i></span>
+<% when "organization", "user_organization" %>
+    <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
 <% when "contentlocation" %>
     <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+<% when "ortlichkeit", "örtlichkeit" %>
+    <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+<% when "poi" %>
+    <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+<% when "unterkunft" %>
+    <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
+<% when "tour", "route", "donau - tour", "donau_tour", "etappe" %>
+    <span class="icon"><i class="fa fa-map" aria-hidden="true"></i></span>
+<% when "zertifizierung" %>
+    <span class="icon"><i class="fa fa-certificate" aria-hidden="true"></i></span>
 <% when "merkliste" %>
     <span class="icon"><i class="fa fa-list-ul" aria-hidden="true"></i></span>
 <% when "inhaltstypen" %>
     <span class="icon"><i class="fa fa-file-text" aria-hidden="true"></i></span>
-<% when "inhaltsarten" %>
+<% when "inhaltsarten", 'data_cycle_file' %>
     <span class="icon"><i class="fa fa-file" aria-hidden="true"></i></span>
 <% when "jahreszeiten" %>
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+<% when "ausgabekanäle" %>
+    <span class="icon"><i class="fa fa-tag" aria-hidden="true"></i></span>
 <% when "gruppe" %>
     <span class="icon"><i class="fa fa-users" aria-hidden="true"></i></span>
 <% when "anonym" %>
     <span class="icon"><i class="fa fa-user-secret" aria-hidden="true"></i></span>
-<% when "video", "video-serie", "youtube-video" %>
+<% when "video", "video-serie", "youtube-video", "datacycle_-_video" %>
     <span class="icon"><i class="fa fa-video-camera" aria-hidden="true"></i></span>
+<% when "image" %>
+    <span class="icon"><i class="fa fa-picture-o" aria-hidden="true"></i></span>
 <% when "event", "subevent" %>
     <span class="icon"><i class="fa fa-calendar-o" aria-hidden="true"></i></span>
+<% when "prospekt" %>
+    <span class="icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>
+<% when "pdf", "datacycle_-_pdf" %>
+    <span class="icon"><i class="fa fa-file-pdf-o" aria-hidden="true"></i></span>
+<% when "datacycle_-_audio" %>
+    <span class="icon"><i class="fa fa-file-audio-o" aria-hidden="true"></i></span>
+<% when "text_file" %>
+    <span class="icon"><i class="fa fa-file-text-o" aria-hidden="true"></i></span>
+<% when "produkt" %>
+    <span class="icon"><i class="fa fa-suitcase" aria-hidden="true"></i></span>
+<% when 'job_posting', 'jobposting' %>
+  <span class="icon"><i class="fa fa-briefcase" aria-hidden="true"></i></span>
+<% when "classification_tree_ids" %>
+    <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
+<% when "termine", 'wintours - termin' %>
+    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+<% when 'vkzeit' %>
+    <span class="icon"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
+<% when "geo_radius", "geo_within_classification", "administrative_einheiten" %>
+    <span class="icon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+<% when "hotel", "wintours - hotel", "wintours_-_hotel", "hotel - zimmer", "hotel_-_zimmer", "win_tours_hotel" %>
+    <span class="icon"><i class="fa fa-bed " aria-hidden="true"></i></span>
+<% when "fahrrad", "fahrradangebot"%>
+    <span class="icon"><i class="fa fa-bicycle" aria-hidden="true"></i></span>
+<% when "schiff"%>
+    <span class="icon"><i class="fa fa-ship" aria-hidden="true"></i></span>
+<% when "reise", "reisedetails", "wintours - reise", "win_tours_reise"%>
+    <span class="icon"><i class="fa fa-suitcase" aria-hidden="true"></i></span>
+<% when "wintours - rabatt", "win_tours_rabatt"%>
+    <span class="icon"><i class="fa fa-euro" aria-hidden="true"></i></span>
 <% else %>
-    <span class="icon"><i class="fa fa-folder-open" aria-hidden="true"></i></span>
+    <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
 <% end %>

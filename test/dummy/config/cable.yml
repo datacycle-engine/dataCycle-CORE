@@ -4,6 +4,12 @@ development:
 test:
   adapter: async
 
+staging:
+  adapter: redis
+  url: redis://<%= ENV['REDIS_SERVER'] %>:<%= ENV['REDIS_PORT'] %>/<%= ENV['REDIS_CABLE_DATABASE'] %>
+  channel_prefix: <%= ENV["REDIS_CACHE_NAMESPACE"] %>
+
 production:
   adapter: redis
-  url: redis://localhost:6379/1
+  url: redis://<%= ENV['REDIS_SERVER'] %>:<%= ENV['REDIS_PORT'] %>/<%= ENV['REDIS_CABLE_DATABASE'] %>
+  channel_prefix: <%= ENV["REDIS_CACHE_NAMESPACE"] %>

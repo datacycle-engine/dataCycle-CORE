@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddValidyFulltext < ActiveRecord::Migration[5.0]
   def up
     add_column :searches, :validity_period, :tstzrange

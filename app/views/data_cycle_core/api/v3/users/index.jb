@@ -1,0 +1,11 @@
+# frozen_string_literal: true
+
+json = {
+  data: {
+    watchLists: @watch_lists.as_json(only: [:id, :name]),
+    storedFilters: @stored_filter.as_json(only: [:id, :name]),
+    userData: @user_data.as_json(only: [:email])
+  }
+}
+
+json

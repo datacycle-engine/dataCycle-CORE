@@ -1,0 +1,9 @@
+{
+  "name": "Headline",
+  "text": "Text",
+  "embedded_data": [{
+    "name": "name",
+    "add1": "additional property 1",
+    "add2": "additional property 2"
+  }]
+}

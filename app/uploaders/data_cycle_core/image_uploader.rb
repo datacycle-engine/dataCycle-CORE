@@ -1,80 +1,116 @@
+# frozen_string_literal: true
 
+require 'phash/image'
 
 module DataCycleCore
-  class ImageUploader < CarrierWave::Uploader::Base
-    # Include RMagick or MiniMagick support:
-    # include CarrierWave::RMagick
+  class ImageUploader < CommonUploader
     include CarrierWave::MiniMagick
-    include ::CarrierWave::Backgrounder::Delay
 
-    # Choose what kind of storage to use for this uploader:
-    storage :file
-    # storage :fog
+    WEB_SAVE_MIME_TYPES = [
+      'image/gif',
+      'image/png',
+      'image/jpeg'
+    ].freeze
 
-    # Override the directory where uploaded files will be stored.
-    # This is a sensible default for uploaders that are meant to be mounted:
-    def store_dir
-      "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
-    end
+    DEFAULT_MIME_TYPE = 'image/jpeg'
 
-    # Provide a default URL as a default if there hasn't been a file uploaded:
-    # def default_url(*args)
-    #   # For Rails 3.1+ asset pipeline compatibility:
-    #   # ActionController::Base.helpers.asset_path("fallback/" + [version_name, "default.png"].compact.join('_'))
-    #
-    #   "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-    # end
-
-    # Process files as they are uploaded:
-    # process scale: [200, 300]
-    #
-    # def scale(width, height)
-    #   # do something
-    # end
-
-    # Create different versions of your uploaded files:
-    # version :thumb do
-    #   process resize_to_fit: [50, 50]
-    # end
-
-    # Add a white list of extensions which are allowed to be uploaded.
-    # For images you might use something like this:
-    # def extension_whitelist
-    #   %w(jpg jpeg gif png)
-    # end
-
-    # Override the filename of the uploaded files:
-    # Avoid using model.id or version_name here, see uploader/store.rb for details.
-    # def filename
-    #   "something.jpg" if original_filename
-    # end
+    process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
     version :thumb_preview do
+      process :remove_animation
       process convert: 'jpg'
-      # process :colorspace => 'rgb'
       process resize_to_fit: [300, 300]
+      process colorspace: 'sRGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+      process :set_phash
 
       def full_filename(for_file)
         basename = File.basename(for_file, File.extname(for_file))
         "#{version_name}_#{basename}.jpg"
       end
-
-      # process :optimize
     end
 
-    def filename
-      if original_filename
-        if model && model&.read_attribute(mounted_as).present?
-          model.read_attribute(mounted_as)
-        else
-          "#{secure_token}.#{file.extension}"
-        end
+    version :web do
+      process :remove_animation
+      process resize_to_limit: [2048, 2048]
+      process :convert_for_web
+      process colorspace: 'sRGB'
+      process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
+      process content_type: true
+
+      def full_filename(for_file)
+        basename = File.basename(for_file, File.extname(for_file))
+        file_ext = MIME::Types.type_for(for_file).first.preferred_extension
+        file_ext = MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension if WEB_SAVE_MIME_TYPES.exclude?(MIME::Types.type_for(for_file).first.to_s)
+
+        "#{version_name}_#{basename}.#{file_ext}"
       end
     end
 
-    def secure_token
-      var = :"@#{mounted_as}_secure_token"
-      model.instance_variable_get(var) || model.instance_variable_set(var, SecureRandom.uuid)
+    def url(transformation = {})
+      content = model&.thing
+
+      return super if content.nil?
+
+      copyright_holder = content.try(:copyright_holder)&.first
+      copyright_year = content.try(:copyright_year)&.to_i
+      author = content.try(:author)&.first
+
+      I18n.with_locale(content.first_available_locale) do
+        file_name = [
+          (content.title.presence || File.basename(model.name.to_s, '.*')),
+          (copyright_holder.nil? ? nil : I18n.with_locale(copyright_holder.first_available_locale) { copyright_holder.title }),
+          copyright_year,
+          (author.nil? ? nil : I18n.with_locale(author.first_available_locale) { author.title })
+        ].compact.join('_').underscore_blanks
+
+        local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{file_name}.#{file&.extension || File.extname(model.name.to_s).delete('.')}", transformation: transformation)
+      end
+    end
+
+    def extension_white_list
+      DataCycleCore.uploader_validations.dig(self.class.name.demodulize.underscore.remove('_uploader').to_sym, :format).presence || ['jpg', 'jpeg', 'gif', 'png', 'bmp', 'tif', 'tiff']
+    end
+
+    def metadata
+      image = ::MiniMagick::Image.new(current_path)
+      image.data
+    end
+
+    def set_phash
+      return if model.duplicate_check&.dig('phash').present? && model.duplicate_check&.dig('phash')&.positive?
+
+      model.update_column(:duplicate_check, { phash: Phash::Image.new(file.file).try(:compute_phash).try(:data) }) # rubocop:disable Rails/SkipsModelValidations
+    end
+
+    def remove_animation
+      manipulate! do |img, index|
+        img if index.to_i.zero?
+      end
+    end
+
+    def content_type(websave = false)
+      mime_type = MIME::Types.type_for(current_path).first
+      mime_type = MIME::Types[DEFAULT_MIME_TYPE].first if websave && WEB_SAVE_MIME_TYPES.exclude?(mime_type.to_s)
+      file.instance_variable_set(:@content_type, mime_type.to_s)
+    end
+
+    def colorspace(cs)
+      manipulate! do |img|
+        img.format(img.type.to_s.downcase) do |c|
+          c.colorspace cs.to_s
+        end
+        img = yield(img) if block_given?
+        img
+      end
+    end
+
+    def convert_for_web
+      manipulate! do |img|
+        img.format(MIME::Types[DEFAULT_MIME_TYPE].first.preferred_extension) unless WEB_SAVE_MIME_TYPES.include?(file.content_type)
+        img.density 96
+        img
+      end
     end
   end
 end

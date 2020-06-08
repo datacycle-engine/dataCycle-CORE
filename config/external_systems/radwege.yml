@@ -1,0 +1,21 @@
+---
+name: Radwege
+credentials:
+  file: 'config/external_sources/radwege_epsg_4326.geojson'
+default_options:
+  locales: [de]
+config:
+  download_config:
+    tours:
+      sorting: 1
+      source_type: tours
+      endpoint: DataCycleCore::Generic::GeoImport::Endpoint
+      download_strategy: DataCycleCore::Generic::GeoImport::Download
+  import_config:
+    tours:
+      sorting: 1
+      source_type: tours
+      import_strategy: DataCycleCore::Generic::GeoImport::Import
+      transformations:
+        tour:
+          template: Tour

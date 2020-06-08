@@ -1,0 +1,7 @@
+<% if local_assigns[:no_wrapper] %>
+  <%= render 'data_cycle_core/contents/viewers/embedded/default', local_assigns %>
+<% else %>
+  <div class="embedded-viewer">
+    <%= render 'data_cycle_core/contents/viewers/embedded/default', local_assigns %>
+  </div>
+<% end %>

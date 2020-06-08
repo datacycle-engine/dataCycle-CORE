@@ -1,0 +1,13 @@
+<% if content.try(:external_source).present? %>
+  <span class="external-source-icon fa-stack has-tip" title="<%= content.external_source.name %>">
+    <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
+    <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
+  </span>
+<% end %>
+
+<% if content.try(:external_systems)&.any? %>
+  <span class="external-system-icon fa-stack has-tip <%= content.external_system_syncs.map(&:status).compact.join(' ') %>" title="<%= content.external_systems.map(&:name).join(', ') %>">
+    <i class="fa fa-file-o fa-stack-2x" aria_hidden="true"></i>
+    <i class="fa fa-long-arrow-right fa-stack-1x" aria_hidden="true"></i>
+  </span>
+<% end %>

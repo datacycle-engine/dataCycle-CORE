@@ -1,12 +1,39 @@
-<li class="has-dropdown right">
-  <a data-toggle="language-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
-  <div class="dropdown-pane no-bullet bottom" id="language-menu" data-dropdown data-hover="true" data-hover-pane="true">
+<li class="has-dropdown">
+  <a data-toggle="<%= local_assigns[:prefix] %>locales-menu"><i class="fa fa-language" aria-hidden="true"></i></a>
+  <div class="dropdown-pane align-right no-bullet bottom" id="<%= local_assigns[:prefix] %>locales-menu" data-dropdown data-hover="true" data-hover-pane="true">
     <h5><%= t('common.choose_language', locale: DataCycleCore.ui_language) %></h5>
     <ul class="list-items">
-      <% locales.each do |locale| %>
-        <li class="<%= "active" if locale.first == I18n.locale %>">
-          <%= link_to_unless locale.first == I18n.locale, locale.last, edit_polymorphic_path(content, watch_list_id: @watch_list, locale: locale.first) %>
-          <%== '<span class="buttons"><i class="fa fa-language" aria-hidden="true"></i></span>' if content.translated_locales.include?(locale.first) %>
+      <% locales.each do |l| %>
+        <li class="<%= "active" if l.first == I18n.locale %>">
+          <%= link_to_unless l.first == I18n.locale, l.last,
+            polymorphic_path([@split_source.present? ? local_assigns[:link_action] : :edit, content],
+              watch_list_id: @watch_list,
+              locale: l.first,
+              source_id: @split_source&.id,
+              source_locale: local_assigns[:source_locale]
+            ),
+            data: {
+              locale: l.first
+            } %>
+
+          <%= tag.span(
+            (@split_source.blank? && l.first != I18n.locale ?
+              link_to(tag.i(class: 'fa fa-columns', aria_hidden: true),
+                polymorphic_path([local_assigns[:link_action], content],
+                  watch_list_id: @watch_list,
+                  locale: I18n.locale,
+                  source_id: content.id,
+                  source_locale: l.first
+                ),
+                data: {
+                  locale: l.first,
+                  tooltip: true
+                },
+                title: t('actions.open_as_source', locale: DataCycleCore.ui_language)
+              ) : ''.html_safe
+            ) + tag.i(class: 'fa fa-language', aria_hidden: true),
+            class: 'buttons'
+          ) if content.translated_locales.include?(l.first) %>
         </li>
       <% end %>
     </ul>

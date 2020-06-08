@@ -1,7 +1,7 @@
 <% if content.subscriptions.by_user(current_user).size > 0 %>
-    Bereits abonniert.<br />
-    <%= link_to "Abonnement löschen", subscription_path(content.subscriptions.by_user(current_user).first), remote: true, method: :delete, class: 'button' %>
+    <%= t('common.unsubscribe_text', locale: DataCycleCore.ui_language) %><br />
+    <%= link_to t('actions.unsubscribe', locale: DataCycleCore.ui_language), subscription_path(content.subscriptions.by_user(current_user).first), remote: true, method: :delete, class: 'button', data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.unsubscribe', locale: DataCycleCore.ui_language) } %>
 <% else %>
-    Klicken Sie hier um regelmäßig über Änderungen informiert zu werden.<br />
-    <%= link_to "Abonnieren", subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.name), remote: true, method: :post, class: 'button' %>
+    <%= t('common.subscribe_text', locale: DataCycleCore.ui_language) %><br />
+    <%= link_to t('actions.subscribe', locale: DataCycleCore.ui_language).capitalize, subscriptions_path(subscribable_id: content.id, subscribable_type: content.class.name), remote: true, method: :post, class: 'button', data: { disable_with: '<i class="fa fa-circle-o-notch fa-spin fa-fw"></i> ' + t('actions.subscribe', locale: DataCycleCore.ui_language).capitalize } %>
 <% end %>

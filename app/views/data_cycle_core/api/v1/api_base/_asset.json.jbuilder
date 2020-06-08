@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.set! 'id', asset.id
 json.set! 'fileFormat', asset.content_type
 json.set! 'contentSize', asset.file_size

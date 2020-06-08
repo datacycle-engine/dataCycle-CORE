@@ -1,0 +1,3 @@
+DataCycleKaernten;git@git.pixelpoint.biz:data-cycle/data-cycle-kw.git
+DataCycleRegionVillach;git@git.pixelpoint.biz:data-cycle/data-cycle-region-villach.git
+DataCycleVTG;git@git.pixelpoint.biz:data-cycle/data-cycle-vtg.git

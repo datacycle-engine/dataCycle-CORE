@@ -1,0 +1,13 @@
+<% if value.is_a?(ActiveRecord::Base) %>
+  <%= hidden_field_tag key, value.try(:id), multiple: true, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+<% elsif value.is_a?(ActiveRecord::Relation) %>
+  <% value.each do |v| %>
+    <%= hidden_field_tag key + '[]', v.try(:id), multiple: true, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+  <% end %>
+<% elsif value.is_a?(OpenStruct) %>
+  <% value.each_pair do |k, v| %>
+    <%= hidden_field_tag "#{key}[#{k.to_s.underscore_blanks}]", v, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}_#{sanitize_to_id(k)}" %>
+  <% end %>
+<% elsif !value.nil? %>
+  <%= hidden_field_tag key, value, id: "#{local_assigns.dig(:options, :prefix)}#{sanitize_to_id(key)}" %>
+<% end %>

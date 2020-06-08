@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Rails.application.configure do
   # Settings specified here will take precedence over those in config/application.rb.
 
@@ -7,9 +9,13 @@ Rails.application.configure do
   config.cache_classes = true
 
   # Do not eager load code on boot.
-  config.eager_load = false
+  config.eager_load = true
 
   config.consider_all_requests_local = true
+
+  # Enable locale fallbacks for I18n (makes lookups for any locale fall back to
+  # the I18n.default_locale when a translation cannot be found).
+  config.i18n.fallbacks = false
 
   # Enable/disable caching. By default caching is disabled.
   if Rails.root.join('tmp', 'caching-dev.txt').exist?
@@ -24,6 +30,9 @@ Rails.application.configure do
 
     config.cache_store = :null_store
   end
+
+  # Store uploaded files on the local file system in a temporary directory
+  # config.active_storage.service = :test
 
   # Show full error reports.
   config.action_controller.perform_caching = false
@@ -61,4 +70,7 @@ Rails.application.configure do
   # config.action_view.raise_on_missing_translations = true
 
   config.action_mailer.default_url_options = { host: 'localhost:3000', protocol: 'http' }
+  config.asset_host = config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')
+  config.action_cable.url = '/cable'
+  config.action_cable.allowed_request_origins = [config.action_mailer.default_url_options&.slice(:protocol, :host)&.values&.join('://')]
 end

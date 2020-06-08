@@ -1,66 +1,76 @@
-class DataCycleCore::Generic::Eyebase::Endpoint
-  def initialize(host: nil, end_point: nil, token: nil)
-    @host = host
-    @end_point = end_point
-    @token = token
-  end
+# frozen_string_literal: true
 
-  def media_assets(lang: :de)
-    Enumerator.new do |yielder|
-      load_folders.xpath('//folder/id').map(&:text).map(&:to_i).sort.reverse.each do |folder_id|
-        doc = load_assets(folder_id)
+module DataCycleCore
+  module Generic
+    module Eyebase
+      class Endpoint
+        def initialize(host: nil, end_point: nil, token: nil, **options)
+          @host = host
+          @end_point = end_point
+          @token = token
+          @retry_options = {
+            max: 5,
+            interval: 1,
+            interval_randomness: 0.5,
+            backoff_factor: 2,
+            exceptions: [Errno::ETIMEDOUT, Timeout::Error, Faraday::TimeoutError, Faraday::ConnectionFailed, Net::OpenTimeout]
+          }
+        end
 
-        doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
-          next if raw_asset_data['mediaassettype'] != '501'
+        def media_assets(lang: :de)
+          Enumerator.new do |yielder|
+            load(qt: 'ftree').xpath('//folder').map { |folder|
+              {
+                folder.search('./id/text()').text.to_i =>
+                ([folder] + folder.ancestors('folder')).map { |n| n.search('./name/text()').text }.reverse
+              }
+            }.reduce({}, :merge).each do |folder_id, path|
+              doc = load_assets(folder_id)
+              doc.xpath('//mediaasset').map(&:to_hash).each do |raw_asset_data|
+                next if raw_asset_data.dig('mediaassettype', 'text') != '501'
+                next if raw_asset_data.dig('main_permalink', '#cdata-section').blank?
+                next if raw_asset_data.dig('quality_512', 'permalink', '#cdata-section').blank?
 
-          raise 'Missing image file' if raw_asset_data['quality_1'].nil?
-          full_image_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_1']['filename'])
-          FileUtils.mkdir_p(File.dirname(full_image_path))
-          File.open(full_image_path, 'wb') do |local_file|
-            open(raw_asset_data['quality_1']['url'], 'rb') do |remote_file|
-              local_file.write(remote_file.read)
+                raw_asset_data['full_path'] = path
+
+                path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder.present? }.compact
+                path_nodes = path_nodes.zip(0..path.size).map { |data, i| data.merge({ path: path[0..i].join(', '), parent_path: path[0...i].join(', ').presence }) }
+                raw_asset_data['folder'] = path_nodes
+
+                yielder << raw_asset_data
+              end
             end
           end
+        end
 
-          raise 'Missing thumbnail file' if raw_asset_data['quality_512'].nil?
-          thumbnail_path = File.join(Rails.public_path, 'eyebase', 'media_assets', 'files', raw_asset_data['quality_512']['filename'])
-          FileUtils.mkdir_p(File.dirname(thumbnail_path))
-          File.open(thumbnail_path, 'wb') do |local_file|
-            open(raw_asset_data['quality_512']['url'], 'rb') do |remote_file|
-              local_file.write(remote_file.read)
-            end
+        protected
+
+        def load_folders
+          load(qt: 'ftree')
+        end
+
+        def load_assets(folder_id)
+          load(qt: 'r', keyfolder: folder_id)
+        end
+
+        def load(**parameters)
+          conn = Faraday::Connection.new(File.join([@host, @end_point])) do |f|
+            f.request :retry, @retry_options
+            f.response :logger
+            f.adapter Faraday.default_adapter
           end
 
-          yielder << raw_asset_data
+          response = conn.get do |req|
+            req.params['fx'] = 'api'
+            req.params['token'] = @token
+            req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
+            req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
+          end
+
+          raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
+          Nokogiri::XML(response.body)
         end
       end
     end
-  end
-
-  protected
-
-  def load_folders
-    load(qt: 'ftree')
-  end
-
-  def load_languages
-    load(qt: 'lang')
-  end
-
-  def load_asset_types
-    load(qt: 'mat')
-  end
-
-  def load_assets(folder_id)
-    load(qt: 'r', keyfolder: folder_id)
-  end
-
-  def load(**parameters)
-    default_parameters = {
-      fx: 'api',
-      token: @token
-    }
-
-    Nokogiri::XML(open("#{File.join(@host, @end_point)}?#{default_parameters.merge(parameters).to_query}"))
   end
 end

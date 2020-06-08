@@ -1,28 +1,46 @@
+# frozen_string_literal: true
+
 DataCycleCore.setup do |config|
-  config.default_image_type = 'Bild'
-  config.default_place_type = 'Ort'
+  # general settings
+  I18n.available_locales = [:de, :en].freeze
 
-  config.special_data_attributes = ['id', 'validity_period', 'creator']
+  # Configure sensitive parameters which will be filtered from the log file.
+  Rails.application.config.filter_parameters += [:password]
+  # Require `belongs_to` associations by default. Previous versions had false.
+  Rails.application.config.active_record.belongs_to_required_by_default = true
+  Rails.application.config.session_store :cookie_store, key: '_dummy_session', same_site: :lax
 
-  config.internal_data_attributes = ['creator', 'data_type', 'data_pool', 'is_part_of']
+  config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
+  config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
 
-  config.ui_language = :de
+  if Rails.env.test?
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content_v2'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server')
+    ].freeze
+  else
+    config.default_template_paths = [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content_v2'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_reisen_fuer_alle')
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      # Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection')
+    ].freeze
+  end
 
-  config.webhooks = {
-    create: [],
-    delete: [],
-    update: []
-  }
-
-  config.excluded_filter_classifications = ['Angebotszeitraum', 'Website', 'Zitat', 'DataCycle - File', 'DataCycle - Image']
-
-  config.allowed_content_api_classifications = ['Angebot', 'Artikel', 'Bild', 'Social', 'Media', 'Posting']
-
-  config.access_tokens = [
-    'd48a84faseei512hjkl159ggg9a72adf'
-  ]
-  config.release_codes = {
-    partner: 1,
-    review: 3
-  }
+  config.webhooks = ENV['WEBHOOKS']&.split(',')&.map(&:squish)
 end

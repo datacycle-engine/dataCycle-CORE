@@ -1,0 +1,29 @@
+<%= File.join(fetch(:deploy_to), '/shared/log/puma*.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/production.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/*_download.log') %>
+<%= File.join(fetch(:deploy_to), '/shared/log/*_import.log') %>
+{
+        su <%= fetch(:deploy_user) %> <%= fetch(:deploy_user) %>
+        weekly
+        missingok
+        rotate 12
+        copytruncate
+}
+
+<%= File.join(fetch(:deploy_to), '/shared/log/nginx*.log') %>
+{
+        su root root
+        weekly
+        missingok
+        rotate 12
+        create 0644 root www-data
+        sharedscripts
+        prerotate
+                if [ -d /etc/logrotate.d/httpd-prerotate ]; then \
+                        run-parts /etc/logrotate.d/httpd-prerotate; \
+                fi \
+        endscript
+        postrotate
+                invoke-rc.d nginx rotate >/dev/null 2>&1
+        endscript
+}

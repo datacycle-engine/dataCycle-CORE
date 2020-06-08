@@ -1,0 +1,81 @@
+<section class="edit-header">
+  <div class="row expanded">
+    <div class="column edit-header-functions">
+      <div class="edit-name">
+        <i class="fa fa-pencil" aria-hidden="true"></i> <%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) + ' ' + t('actions.bulk_edit', locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+      </div>
+      <ul>
+        <%= render 'agbs' if current_user.is_rank?(0) && lookup_context.exists?('agbs', lookup_context.prefixes, true) %>
+
+        <%= render 'edit_locale_links', locales: available_locales_with_names.except(:all), content: watch_list %>
+
+        <li class="buttons">
+          <%= link_to tag.button(
+            tag.i(class: 'fa fa-times', aria_hidden: true),
+            class: 'button discard top',
+            type: :button,
+            title: t('actions.discard_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true
+            }), previous_authorized_crumb.url if previous_authorized_crumb.present? %>
+
+          <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? watch_list.things.includes(:translations, :lock).map(&:lock).compact.sort_by(&:updated_at).reverse! : nil %>
+
+          <%= button_tag safe_join([DataCycleCore::Feature::ContentLock.enabled? ? tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') : nil, tag.i(class: 'fa fa-check', aria_hidden: true)]),
+            class: "button-prime submit submit-edit-form #{'content-lock editable-lock' if DataCycleCore::Feature::ContentLock.enabled?}",
+            title: t('actions.save_changes', locale: DataCycleCore.ui_language),
+            data: {
+              tooltip: true,
+              disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                tag.span(class: 'progress-value') +
+                tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+            }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+              lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+              lock_renew_before: DataCycleCore::Feature::ContentLock.lock_renew_before,
+              lock_content_id: watch_list&.id
+            } : {}).merge(content_locks.present? ? {
+              locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+              lock_token: @lock_token,
+              lock_path: content_locks_path,
+            } : {}) %>
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<%= form_with url: bulk_update_watch_list_path(watch_list), method: :patch, class: 'validation-form edit-content-form bulk-edit-form' do |f| %>
+  <%= hidden_field_tag :uuid, watch_list.id %>
+  <%= hidden_field_tag :table, watch_list.class.table_name %>
+  <%= hidden_field_tag :locale, @locale %>
+
+  <div>
+    <div class="row">
+      <div class="column">
+        <div class="detail-header editor">
+          <% schema = { name: 'Generic', type: 'object', schema_type: 'Generic', content_type: 'entity', features: @shared_template_features, properties: @shared_properties }.stringify_keys %>
+          <%= tag.span(t('controllers.error.no_shared_attributes', locale: DataCycleCore.ui_language), class: 'bulk-no-attributes') if @shared_properties.blank? %>
+          <% @shared_properties.presence&.each do |key, prop| %>
+            <div class="bulk-update-check" data-attribute-key="<%= "#{key_prefix}[#{key}]" %>">
+              <%= check_box_tag "bulk_update[#{key}]" %>
+              <%= label_tag "bulk_update[#{key}]", t('common.bulk_update_check_box_label', locale: DataCycleCore.ui_language, data: prop['label']) %>
+            </div>
+
+            <%= render_attribute_editor key: "#{key_prefix}[#{key}]",
+              definition: prop,
+              value: nil,
+              parameters: {
+                options: {}
+              },
+              content: DataCycleCore::Thing.new { |t|
+                t.id = SecureRandom.uuid
+                t.schema = schema
+              } %>
+          <% end %>
+        </div>
+      </div>
+    </div>
+  </div>
+<% end %>
+
+<%= content_for :forms %>

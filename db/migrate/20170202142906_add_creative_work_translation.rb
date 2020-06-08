@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddCreativeWorkTranslation < ActiveRecord::Migration[5.0]
   def up
     create_table :creative_work_translations do |t|

@@ -1,6 +1,0 @@
-<%= render 'data_cycle_core/contents/editors/attribute_editor', key: key, definition: definition, value: value, options: options do %>
-
-  <%= label_tag(key, definition['label']) %>
-  <%= number_field_tag key, value, options.merge({ step: :any }) %>
-
-<% end %>

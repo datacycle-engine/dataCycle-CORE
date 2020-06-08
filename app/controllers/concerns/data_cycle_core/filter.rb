@@ -1,103 +1,183 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     extend ActiveSupport::Concern
 
-    def parse_classifications(class_array)
-      grouping_class = {}
-      class_array.each do |class_id|
-        name = DataCycleCore::ClassificationAlias.find(class_id).classification_tree_label.name
-        grouping_class[name] ||= []
-        grouping_class[name].push(class_id)
-      end
-      grouping_class
-    end
+    def get_filtered_results(query: nil, user_filter: { scope: 'backend' })
+      @stored_filter ||= DataCycleCore::StoredFilter.new
+      @filters = pre_filters.dup
+      @stored_filter.parameters ||= @filters
+      query = query&.dup
+      @language ||= Array(params.fetch(:language) { @stored_filter.language || [current_user.default_locale] })
+      @stored_filter.language = @language
 
-    def get_filtered_results(method_name: nil, parameters: nil)
-      @classification_array ||= []
+      @order_string ||= DataCycleCore::Filter::Search.get_order_by_query_string(@stored_filter.parameters.find { |f| f['t'] == 'fulltext_search' }&.dig('v'), @stored_filter.parameters.find { |f| f['t'] == 'in_schedule' }.present?)
 
-      unless params[:classification].blank?
-        params[:classification].each do |item|
-          @classification_array.push(item['selected'])
-        end
-      end
-      @language = params[:language]
-      @language ||= 'de' # default-language
-
-      if params[:search].blank?
-        # @order_by = !params[:order].nil? && params[:order].split('_').first == 'udpated' ? 'updated_at' : 'updated_at'
-        @order_by = 'updated_at'
-        @order = !params[:order].nil? && params[:order].split('_').last == 'asc' ? 'ASC' : 'DESC'
-        @order_string = 'boost DESC, ' + @order_by + ' ' + @order
-      else
-        # order by ranking
-        @order_string = DataCycleCore::Filter::Search.get_order_by_query_string(params[:search])
+      if @stored_filter.parameters.none? { |f| f['t'] == 'order' }
+        @stored_filter.parameters.push(
+          {
+            't' => 'order',
+            'v' => @order_string
+          }
+        )
       end
 
-      query = DataCycleCore::Filter::Search.new(@language).in_validity_period
+      @stored_filter.parameters = current_user.default_filter(@stored_filter.parameters, user_filter) if user_filter.present?
+      query = @stored_filter.apply(experimental: can?(:experimental_features, :dash_board), query: query)
+      @filters = @stored_filter.parameters
+      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
+      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
+      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias
+        .where(
+          id: @filters
+            .select { |f| f['t'].in?(['classification_alias_ids', 'geo_within_classification']) }
+            .map { |f| f['v'] }
+            .flatten
+            .compact
+            .uniq
+        )
+        .index_by(&:id)
 
-      # optional querymethods
-      query = query.send(method_name, parameters) unless method_name.blank?
-
-      query = query.order(@order_string)
-      query = query.fulltext_search(params[:search]) unless params[:search].blank?
-
-      unless @classification_array.blank?
-        @with_classification_alias_ids = parse_classifications(@classification_array)
-        @with_classification_alias_ids.each_value do |class_array|
-          query = query.with_classification_alias_ids(class_array)
-        end
-      end
-
-      @total = query.count(:id)
-
-      @paginateObject = query.includes(content_data: [:display_classification_aliases, :translations, :watch_lists, :external_source]).page(params[:page])
-
-      @paginateObject.map(&:content_data)
-    end
-
-    def apply_filter(filter_id:, api_only: false)
-      filter = DataCycleCore::StoredFilter.find(filter_id)
-      raise ActiveRecord::RecordNotFound if api_only && !filter.api
-
-      filter.update(updated_at: Time.zone.now)
-
-      params[:language] = filter.language
-      @language = filter.language
-
-      unless filter.parameters['fulltext_search'].blank?
-        params[:search] = filter.parameters['fulltext_search']
-      end
-
-      unless filter.parameters['with_classification_alias_ids'].blank?
-        @classification_array = filter.parameters['with_classification_alias_ids'].map { |_, value| value }.flatten
-      end
-
-      query = filter.apply
-      @total = query.count(:id)
       query
     end
 
-    def save_filter(method_name: nil, parameters: nil)
-      new_filter = DataCycleCore::StoredFilter.new
+    def apply_filter(filter_id:, api_only: false)
+      @stored_filter = DataCycleCore::StoredFilter.find(filter_id)
+      raise ActiveRecord::RecordNotFound if api_only && !@stored_filter.api
+
+      @stored_filter.update_column(:updated_at, Time.zone.now) # rubocop:disable Rails/SkipsModelValidations
+    end
+
+    def save_filter(new_filter: nil)
+      new_filter ||= @stored_filter
       new_filter.user_id = current_user.id
-      new_filter.language = @language
-      new_filter.name = filter_params[:stored_filter_name] unless filter_params[:stored_filter_name].blank?
-      new_filter.system = filter_params[:stored_filter_system]
-      new_filter.api = filter_params[:stored_filter_api]
-      new_filter.parameters = {}
-      new_filter.parameters[:in_validity_period] = Time.zone.now
-      new_filter.parameters[:order] = @order_string unless @order_string.blank?
-      new_filter.parameters[:fulltext_search] = params[:search] unless params[:search].blank?
-      new_filter.parameters[:with_classification_alias_ids] = @with_classification_alias_ids unless @with_classification_alias_ids.blank?
-      new_filter.parameters[method_name.to_sym] = parameters unless parameters.blank?
+      new_filter.name = filter_params[:name] if params[:stored_filter].present? && filter_params[:name].present? && !new_filter.persisted?
+      new_filter.system = filter_params[:system] if params[:stored_filter].present? && filter_params[:system].present?
+      new_filter.parameters = @stored_filter.parameters
       new_filter.save
       new_filter
     end
 
+    def pre_filters
+      @pre_filters ||= params[:f].presence&.values&.reject { |f| f['v'].is_a?(Hash) ? f['v'].all? { |_, v| v.blank? } : f['v'].blank? } || []
+    end
+
+    def set_instance_variables_by_view_mode(query: nil, user_filter: { scope: 'backend' })
+      set_view_mode
+
+      return @total_count = total_count(query: query, user_filter: user_filter) if count_only_params[:count_only].present?
+
+      case @mode
+      when 'tree'
+        @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
+
+        if mode_params[:con_id].present? && request.xhr?
+          @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
+          @container = DataCycleCore::Thing.find(mode_params[:con_id])
+          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          @contents = get_filtered_results(query: query, user_filter: user_filter)
+            .part_of(@container.id)
+          tmp_count = @contents.count_distinct
+          @contents = @contents.distinct_by_content_id(@order_string)
+            .content_includes
+            .page(params[:page])
+
+          @page = @contents.current_page
+          @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
+          @total_pages = @contents.total_pages
+        elsif mode_params[:ct_id].present?
+          @classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id])
+          @classification_trees = @classification_tree.sub_classification_alias.sub_classification_trees
+          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
+          @classification_trees = @classification_trees
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
+            .order('classification_aliases.internal_name')
+            .page(params[:tree_page])
+
+          @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'
+          @contents = get_filtered_results(query: query, user_filter: user_filter)
+            .with_classification_alias_ids_without_recursion(@classification_tree.sub_classification_alias.id)
+          tmp_count = @contents.count_distinct
+          @contents = @contents.distinct_by_content_id(@order_string)
+            .content_includes
+            .page(params[:page])
+
+          @page = @contents.current_page
+          @total_count = @contents.instance_variable_set(:@total_count, tmp_count)
+          @total_pages = @contents.total_pages
+        else
+          @classification_trees = @classification_tree_label.classification_trees
+            .where(parent_classification_alias: nil)
+            .joins(:sub_classification_alias)
+          @classification_trees = @classification_trees.where.not(classification_aliases: { internal_name: DataCycleCore.excluded_filter_classifications }) if @classification_tree_label.name == 'Inhaltstypen'
+          @classification_trees = @classification_trees
+            .includes(sub_classification_alias: [:sub_classification_trees, :classifications, :external_source])
+            .order('classification_aliases.internal_name')
+            .page(params[:tree_page])
+          get_filtered_results(query: query, user_filter: user_filter) # set default parameters for filters
+        end
+
+        @tree_page = @classification_trees&.current_page
+        @tree_total_pages = @classification_trees&.total_pages
+      else
+        @contents = get_filtered_results(query: query, user_filter: user_filter)
+        @contents = @contents.distinct_by_content_id(@order_string).content_includes.page(params[:page]).without_count
+      end
+    end
+
     private
 
+    def set_view_mode
+      if mode_params[:mode].in?(['list', 'tree'])
+        @mode = mode_params[:mode].to_s
+      else
+        @mode = 'grid'
+      end
+    end
+
+    def total_count(query: nil, user_filter: { scope: 'backend' })
+      @count_only = true
+      @target = count_only_params[:target]
+      classification_tree = DataCycleCore::ClassificationTree.find(mode_params[:ct_id]) if mode_params[:ct_id].present?
+      total_count = get_filtered_results(query: query, user_filter: user_filter)
+      @count_mode = count_only_params[:count_mode]
+      @content_class = count_only_params[:content_class]
+
+      case @count_mode
+      when 'container'
+        total_count = total_count.part_of(mode_params[:con_id])
+      when 'classification_alias'
+        total_count = total_count.with_classification_alias_ids_without_recursion(classification_tree.sub_classification_alias.id)
+      when 'ca_recursive'
+        total_count = total_count.classification_alias_ids(classification_tree.sub_classification_alias.id)
+      when 'classification_tree_label'
+        ca_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
+        total_count = total_count.classification_tree_ids(ca_label.id)
+      end
+
+      total_count.count_distinct
+    end
+
+    def load_stored_filter
+      apply_filter(filter_id: params[:stored_filter])
+    end
+
+    def load_last_filter
+      apply_filter(filter_id: current_user.stored_filters.order(updated_at: :desc)&.first&.id)
+    end
+
     def filter_params
-      params.permit(:stored_filter_name, :stored_filter_system, :stored_filter_api)
+      params.require(:stored_filter).permit(:id, :name, :system)
+    end
+
+    def mode_params
+      params.permit(:mode, :ct_id, :con_id, :ctl_id, :cpt_id)
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

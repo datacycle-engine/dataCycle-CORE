@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 json.set! 'message', 'Jbuilder bug, check Api::V1::WatchListsController'
 
 # json.watch_lists @watch_lists do |item|

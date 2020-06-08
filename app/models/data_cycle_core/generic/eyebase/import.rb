@@ -1,35 +1,44 @@
-module DataCycleCore::Generic::Eyebase::Import
-  def import_data(**options)
-    @eyebase_transformation = DataCycleCore::Generic::Transformations::Transformations.eyebase_to_bild
-    @eyebase_get_keywords = DataCycleCore::Generic::Transformations::Transformations.eyebase_get_keywords
+# frozen_string_literal: true
 
-    import_contents(@source_type, @target_type, method(:load_contents).to_proc, method(:process_content).to_proc, **options)
-  end
+module DataCycleCore
+  module Generic
+    module Eyebase
+      module Import
+        def self.import_data(utility_object:, options:)
+          DataCycleCore::Generic::Common::ImportFunctions.import_contents(
+            utility_object: utility_object,
+            iterator: method(:load_contents).to_proc,
+            data_processor: method(:process_content).to_proc,
+            options: options
+          )
+        end
 
-  protected
+        def self.load_contents(mongo_item, locale, source_filter)
+          mongo_item.where(
+            source_filter.with_evaluated_values.merge(
+              "dump.#{locale}.mediaassettype.text": '501',
+              "dump.#{locale}.color.#cdata-section": { '$ne': 'rot' }
+            )
+          )
+        end
 
-  def load_contents(mongo_item, locale)
-    mongo_item.where("dump.#{locale.to_s}.mediaassettype": '501')
-  end
+        def self.process_content(utility_object:, raw_data:, locale:, options:)
+          I18n.with_locale(locale) do
+            DataCycleCore::Generic::Eyebase::ImportKeywords.process_content(
+              utility_object: utility_object,
+              raw_data: raw_data,
+              locale: locale,
+              options: utility_object.external_source.config.dig('import_config', 'keywords')
+            )
 
-  def process_content(raw_data, template, locale = 'de')
-    I18n.with_locale(locale) do
-      keywords = extract_keywords(raw_data)
-      keywords.each { |item| import_classification({ name: item, external_id: nil, tree_name: 'Tags' }) }
-
-      create_or_update_content(
-        @target_type,
-        load_template(@target_type, @data_template),
-        extract_image_data(raw_data).with_indifferent_access
-      )
+            DataCycleCore::Generic::Eyebase::Processing.process_media_asset(
+              utility_object,
+              raw_data,
+              options.dig(:import, :transformations, :media_asset)
+            )
+          end
+        end
+      end
     end
-  end
-
-  def extract_image_data(raw_data)
-    raw_data.nil? ? {} : @eyebase_transformation.call(raw_data)
-  end
-
-  def extract_keywords(raw_data)
-    @eyebase_get_keywords.call(raw_data)['keywords']
   end
 end

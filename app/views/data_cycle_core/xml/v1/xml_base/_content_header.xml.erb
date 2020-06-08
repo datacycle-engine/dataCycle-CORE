@@ -1,0 +1,14 @@
+<%
+  default_options = {
+    header_type: :full
+  }
+
+options = default_options.merge(defined?(options) ? options || {} : {})
+%>
+
+<thing>
+
+  <%= render *content_partial('context', content: content) %>
+  <id><%=xml_v1_thing_url(id: content)%></id>
+  <identifier><%=content.id%></identifier>
+  <url><%=send("#{content.class.class_name.tableize.singularize}_url", content, @language != I18n.available_locales.first.to_s ? { locale: @language } : {})%></url>

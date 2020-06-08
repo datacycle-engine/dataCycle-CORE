@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 Warden::Strategies.add(:guest_user) do
   def valid?
     session[:guest_user_id].present?

@@ -1,6 +1,6 @@
 // Select2 Helpermethods
 module.exports = {
-  markMatch: function (text, term) {
+  markMatch: function(text, term) {
     // Find where the match is
     var match = text.toUpperCase().lastIndexOf(term.toUpperCase());
 
@@ -26,13 +26,23 @@ module.exports = {
 
     return $result;
   },
-  decorateResult: function (result) {
-    $(result).html(function (index, value) {
+  decorateResult: function(result) {
+    $(result).html(function(index, value) {
       if (value != undefined) {
         var text = value.split(' &gt; ');
         text[text.length - 1] = '<span class="select2-option-title">' + text[text.length - 1] + '</span>';
         return text.join(' > ');
       }
     });
+  },
+  removeTreeLabel: function(result, treelabel) {
+    $(result).html((index, value) => {
+      if (value != undefined) {
+        return value.replace(treelabel + ' &gt; ', '');
+      }
+    });
+  },
+  removeTreeLabelFromSelection: function(text, treelabel) {
+    return text.replace(treelabel + ' > ', '');
   }
 };

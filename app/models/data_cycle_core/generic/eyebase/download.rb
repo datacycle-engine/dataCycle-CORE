@@ -1,11 +1,26 @@
-module DataCycleCore::Generic::Eyebase::Download
-  def download_content(**options)
-    download_data(@source_type, ->(data) { data['item_id'] }, ->(data) { data['titel'] }, options)
-  end
+# frozen_string_literal: true
 
-  protected
+module DataCycleCore
+  module Generic
+    module Eyebase
+      module Download
+        def self.download_content(utility_object:, options:)
+          DataCycleCore::Generic::Common::DownloadFunctions.download_data(
+            download_object: utility_object,
+            data_id: method(:data_id).to_proc,
+            data_name: method(:data_name).to_proc,
+            options: options
+          )
+        end
 
-  def endpoint
-    @end_point_object.new(credentials.symbolize_keys)
+        def self.data_id(data)
+          data.dig('item_id', 'text')
+        end
+
+        def self.data_name(data)
+          data.dig('titel', '#cdata-section')
+        end
+      end
+    end
   end
 end

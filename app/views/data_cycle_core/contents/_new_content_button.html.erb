@@ -1,0 +1,5 @@
+<a data-toggle="new_<%= local_assigns.fetch(:key, 'default') %>" class="button-prime <%= local_assigns[:button_class] %>" title="<%= local_assigns.fetch(:button_title, t('common.create_new_content', locale: DataCycleCore.ui_language)) %>" data-tooltip>
+  <i class="fa fa-plus" aria-hidden="true"></i>
+</a>
+
+<%= render 'data_cycle_core/application/new_contents/new_content_form', local_assigns %>

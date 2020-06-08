@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddClassificationsIndexesToSearch < ActiveRecord::Migration[5.0]
   def up
     add_column :searches, :classification_string, :string

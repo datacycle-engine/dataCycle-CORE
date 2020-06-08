@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+property_header = render "data_cycle_core/api/v#{@api_version}/api_base/headers/property_value", key: key, definition: definition
+
+if content.translations.size > 1 && content.translatable_property_names.include?(key) && @include_parameters.include?('translations')
+  translated_properties = {}
+  ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+    o_key_name = o_definition.dig('api', 'name') || o_key
+    translated_properties[o_key_name.camelize(:lower)] = []
+    content.translations.each do |translation|
+      I18n.with_locale(translation.locale) do
+        translated_properties[o_key_name.camelize(:lower)].push({ translation.locale => content.try(key)&.try(o_key) })
+      end
+    end
+  end
+else
+  non_translated_properties = {}
+
+  ordered_validation_properties(validation: definition).each do |o_key, o_definition|
+    partial_params = render_api_attribute key: o_key, definition: o_definition, value: value.try(o_key), parameters: { options: options }, content: content
+    non_translated_properties.merge!(render(*partial_params)) unless partial_params.nil?
+  end
+end
+
+json = (translated_properties || non_translated_properties).merge(property_header)
+
+json

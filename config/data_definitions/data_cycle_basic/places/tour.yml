@@ -1,0 +1,198 @@
+---
+- :data:
+    :name: Tour
+    :type: object
+    :schema_type: Place
+    :content_type: entity
+    :boost: 100.0
+    :features:
+      :translatable:
+        :allowed: true
+      :download:
+        :allowed: true
+      :serialize:
+        :allowed: true
+        :serializers:
+          :xml: true
+          :json: true
+          :gpx: true
+          :indesign: true
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :title:
+        :type: mixin
+        :name: title
+      :overlay:
+        :label: Overlay
+        :type: embedded
+        :template_name: TourOverlay
+        :validations:
+          :max: 1
+      :content_classifications:
+        :type: mixin
+        :name: content_classifications
+      :description:
+        :label: Kurzbeschreibung
+        :type: string
+        :storage_location: column
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :text:
+        :label: Beschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :ui:
+          :edit:
+            :type: text_editor
+            :options:
+              :data-size: basic
+      :primary_image:
+        :label: Hauptbild
+        :type: linked
+        :template_name: Bild
+        :validations:
+          :max: 1
+        :api:
+          :minimal: true
+          :v4:
+            :name: photo
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :logo:
+        :label: Logo
+        :type: linked
+        :template_name: Bild
+        :api:
+          :minimal: true
+      :schedule:
+        :label: Season
+        :type: embedded
+        :template_name: Schedule
+        :translated: true
+      :outdoor_active:
+        :type: mixin
+        :name: outdoor_active
+      :outdoor_active_categories:
+        :type: mixin
+        :name: outdoor_active_categories
+      :location:
+        :label: GPS-Startkoordinaten
+        :type: geographic
+        :storage_location: value
+        :ui:
+          :edit:
+            :disabled: true
+        :api:
+          :minimal: true
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
+      :poi:
+        :label: POIS
+        :type: linked
+        :template_name: POI
+        :inverse_of: tour
+      :directions_public_transport:
+        :label: Anfahrt mit öffentlichen Verkehrsmitteln
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :instructions:
+        :label: Wegbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :safety_instructions:
+        :label: Sicherheitshinweis
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :equipment:
+        :label: Ausrüstung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :suggestion:
+        :label: Tipps
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :additional_information:
+        :label: Zusatzinformation
+        :type: string
+        :storage_location: translated_value
+        :search: true
+      :ascent:
+        :label: Aufstieg (m)
+        :type: number
+        :storage_location: value
+      :descent:
+        :label: Abstieg (m)
+        :type: number
+        :storage_location: value
+      :min_altitude:
+        :label: Minimale Seehöhe (m)
+        :type: number
+        :storage_location: value
+      :max_altitude:
+        :label: Maximale Seehöhe (m)
+        :type: number
+        :storage_location: value
+      :length:
+        :label: Länge (m)
+        :type: number
+        :storage_location: value
+      :duration:
+        :label: Dauer (min)
+        :type: number
+        :storage_location: value
+      :condition_rating:
+        :label: Bewertung - Kondition
+        :type: number
+        :storage_location: value
+      :difficulty_rating:
+        :label: Bewertung - Schwierigkeit
+        :type: number
+        :storage_location: value
+      :experience_rating:
+        :label: Bewertung - Erlebnis
+        :type: number
+        :storage_location: value
+      :landscape_rating:
+        :label: Bewertung - Landschaft
+        :type: number
+        :storage_location: value
+      :potential_actions:
+        :type: mixin
+        :name: potential_actions
+      :linked_data:
+        :type: mixin
+        :name: linked_data
+      :subject_of:
+        :label: Thema von
+        :type: linked
+        :inverse_of: about
+        :link_direction: inverse
+        :global: true
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Tour"
+      :meta_data:
+        :type: mixin
+        :name: meta_data
+      :additional_properties:
+        :type: mixin
+        :name: additional_properties

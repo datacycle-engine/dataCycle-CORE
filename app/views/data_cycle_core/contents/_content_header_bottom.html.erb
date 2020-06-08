@@ -1,45 +1,86 @@
-<% if content.external_source %>
-  <%= render 'external_source', local_assigns %>
-<% end %>
-
 <div class="edit">
   <%= yield :buttons %>
 
-  <% if content.metadata&.dig('validation', 'content_type') == 'variant' && can?(:create, content.class) && !content.try(:parent).nil? %>
-      <%= link_to "#", class:'button-prime small', data: { tooltip: '', open: 'newContent' }, title: 'Inhalt anhand dieser Vorlage erstellen', 'aria-haspopup': true do %>
-          <i class="fa fa-plus" aria-hidden="true"></i>
-      <% end %>
-      <%= render 'newContentFromTemplate', content: content %>
+  <%= link_to create_duplication_thing_path(content),
+                method: :get,
+                class: 'button-prime small',
+                data: {
+                    tooltip: true,
+                    confirm: "#{content.template_name} #{t('actions.duplicate_content', locale: DataCycleCore.ui_language)}?"
+                },
+                title: t('common.duplicate_content', locale: DataCycleCore.ui_language),
+                'aria-haspopup': true do %>
+    <i class="fa fa-clone" aria-hidden="true"></i>
+  <% end if DataCycleCore::Feature::DuplicateContent.enabled? && can?(:create, content, 'duplicate') && content.content_type?('entity') %>
+
+  <%= render 'new_content_button',
+      content: content,
+      source: content,
+      parent: content.try(:parent),
+      parents: @parents,
+      button_class: 'small',
+      scope: 'duplicate',
+      template: content,
+      button_title: t('actions.create_from_existing', locale: DataCycleCore.ui_language) if can?(:create, content, 'duplicate') && content.content_type?('entity') %>
+
+  <% if can?(:move_content, content) && @parents.present? && content.schema_type == 'CreativeWork' %>
+    <%= link_to "#", class:'button-prime small', data: { tooltip: true, open: 'move-to-container-overlay', click_open: false }, title: t('actions.move_to_container', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
+      <i class="fa fa-folder" aria-hidden="true"></i>
+    <% end %>
+    <%= render 'move_to_container_overlay', content: content %>
   <% end %>
 
-  <%= link_to contents_gpx_path(id: content.id, type: content.class.table_name), class: 'button-prime small gpx-content-link', data: { tooltip: '' }, title: t('common.download_gpx', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
-    <i class="fa fa-location-arrow" aria-hidden="true"></i>
-  <% end if content.respond_to?(:create_gpx) && content.geo_properties.present? %>
+  <%= render 'data_cycle_core/application/downloads/download_indesign', content: content if can?(:download_indesign, content) %>
 
-  <%= link_to edit_polymorphic_path(content, watch_list_id: @watch_list), class:'button-prime small edit-content-link', data: {tooltip: ""}, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
-    <i class="fa fa-pencil" aria-hidden="true"></i>
-  <% end if can? :edit, content %>
+  <%= render 'data_cycle_core/application/downloads/download_zip', content: content if can?(:download_zip, content) %>
 
-  <%= link_to polymorphic_path(content, watch_list_id: @watch_list), :method => :delete, class:'button-prime small delete-content-link', data: { tooltip: "", confirm: "#{content.metadata['validation']['name']} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize, 'aria-haspopup': true do %>
+  <%= render 'data_cycle_core/application/downloads/download', content: content if can?(:download, content) %>
+
+  <% if can? :edit, content %>
+    <%= link_to remove_locks_thing_path(content, watch_list_id: @watch_list),
+                method: :delete,
+                class:"button-prime small delete-content-locks #{'show' if content.locked?}",
+                title: t('actions.remove_locks', locale: DataCycleCore.ui_language) do %>
+      <i class="fa fa-unlock" aria-hidden="true"></i>
+    <% end if DataCycleCore::Feature::ContentLock.enabled? && can?(:remove_lock, content) %>
+
+    <% content_locked = DataCycleCore::Feature::ContentLock.enabled? && content.try(:lock).present? %>
+    <span title="<%= t('actions.edit', locale: DataCycleCore.ui_language) + (content_locked ? "<span class='content-locked-text' id='content-lock-#{content.lock.id}'><br><br><i>#{t('common.content_locked_html', user: content.lock.user&.full_name, data: distance_of_time_in_words(content.lock.locked_for), locale: DataCycleCore.ui_language)}</i></span>" : '') %>" data-tooltip data-allow-html="true">
+      <%= button_to edit_thing_path(content, watch_list_id: @watch_list),
+          params: { locale: I18n.locale },
+          disabled: content_locked,
+          method: :get,
+          class: "button-prime small edit-content-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locked}",
+          data: {
+            disable: true
+          }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+            lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+            lock_content_id: content&.id,
+            lock_user_id: current_user.id,
+            lock_check_path: check_lock_thing_path(content)
+          } : {}).merge(content_locked ? {
+            locks: { content.lock.id => content&.locked_until&.to_i }
+          } : {}) do %>
+        <% if DataCycleCore::Feature::ContentLock.enabled? %>
+          <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+        <% end %>
+        <i class="fa fa-pencil" aria-hidden="true"></i>
+      <% end %>
+    </span>
+  <% end %>
+
+  <%= link_to thing_path(content, watch_list_id: @watch_list),
+              method: :delete,
+              class:'button-prime small delete-content-link',
+              data: {
+                  tooltip: true,
+                  confirm: "#{content.template_name} #{t('actions.delete', locale: DataCycleCore.ui_language)}? #{(content.try(:children)&.any? || content.try(:is_related?))? t('common.children_present_html', locale: DataCycleCore.ui_language) : '' }"
+              },
+              title: t('actions.delete', locale: DataCycleCore.ui_language), 'aria-haspopup': true do %>
     <i class="fa fa-trash-o" aria-hidden="true"></i>
   <% end if can? :destroy, content %>
 </div>
 
-<div class="tags">
-    <% content.classification_tree_definitions.each do |definition| %>
-        <% if content.send(definition[:key]).size.positive? %>
-            <div class="tag-group-wrapper">
-                <span class="icon <%= definition['label'] %>"><i class="fa" aria-hidden="true"></i></span>
-                <span class="tag-group-header"><%= definition['label'] %>: </span>
+<%= render 'release_status', content: content if DataCycleCore::Feature::Releasable.allowed?(content) && content.try(:release_status_id).present? %>
 
-                <% content.send(definition[:key]).each do |classification| %>
-                    <span class="tag"><%= classification.name %></span>
-                <% end %>
-            </div>
-        <% end %>
-    <% end %>
-</div>
-
-<%= render 'validity_period', dataCycleObject: content %>
-
-<%= render 'release_status', dataCycleObject: content, status: @release_status %>
+<%= render 'data_cycle_core/contents/external_connections', content: content if content.try(:external_source) || content.try(:external_systems).present? %>

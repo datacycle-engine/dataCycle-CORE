@@ -1,5 +1,7 @@
+# frozen_string_literal: true
+
 default_options = {
-  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key']
+  hidden_attributes: DataCycleCore.special_data_attributes + ['external_source_id', 'external_key'] + DataCycleCore::Feature::OverlayAttributeService.call(content)
 }
 
 options = default_options.merge(defined?(options) ? options || {} : {})
@@ -11,9 +13,9 @@ options[:hidden_attributes] += [
   'address_locality', 'street_address', 'postal_code', 'address_country'
 ]
 
-json.partial! 'untranslated_properties', content: content, locale: content.translations.first.locale, options: options
+json.partial! 'untranslated_properties', content: content, locale: content.translations&.first&.locale || I18n.locale, options: options
 
-unless ['address_locality', 'street_address', 'postal_code', 'address_country'].map { |k| content.send(k) }.join.blank?
+if ['address_locality', 'street_address', 'postal_code', 'address_country'].map { |k| content.send(k) }.join.present?
   json.set! 'address' do
     json.partial! 'address', addressData: content
   end
@@ -38,6 +40,10 @@ else
   end
 end
 
+json.partial! 'included_properties', content: content, options: options
+
 json.partial! 'linked_properties', content: content, options: options
 
 json.partial! 'embedded_properties', content: content, options: options
+
+json.partial! 'overlay_properties', content: content, options: options

@@ -1,4 +1,8 @@
+# frozen_string_literal: true
+
 source 'https://rubygems.org'
+
+ruby '~> 2.7.1'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
@@ -9,25 +13,53 @@ end
 # Bundler will treat runtime dependencies like base dependencies, and
 # development dependencies will be added by default to the :development group.
 gemspec
-gem 'globalize', github: 'globalize/globalize'
 
-# gem 'rails_db'
-# Declare any dependencies that are still in development here instead of in
-# your gemspec. These might include edge Rails or gems from your path or
-# Git. Remember to move these dependencies to your gemspec before releasing
-# your gem to rubygems.org.
+gem 'translations', path: 'vendor/gems/translations'
 
-# To use a debugger
-gem 'byebug', group: [:development, :test]
+gem 'appsignal'
+
+# NOTE: Axlsx has been pending release for a long time. You must specify the master on github to support Rubyzip 1.2.1.
+# gem 'rubyzip', '>= 1.2.1'
+gem 'caxlsx' # , git: 'https://github.com/randym/caxlsx.git', ref: 'c8ac844'
+gem 'caxlsx_rails'
 
 # Windows does not include zoneinfo files, so bundle the tzinfo-data gem
 # gem 'tzinfo-data', platforms: [:mingw, :mswin, :x64_mingw, :jruby]
 
-group :development, :test do
-  gem 'dotenv-rails'
+gem 'dotenv-rails'
+
+gem 'jb'
+
+group :development, :test, :review do
+  gem 'listen'
+  gem 'spring'
+  gem 'spring-watcher-listen'
+
+  # gem 'byebug'
+  gem 'pry'
+  gem 'pry-byebug'
+  gem 'rb-readline'
 
   gem 'capistrano-rails'
   gem 'capistrano-rvm'
   gem 'capistrano3-delayed-job'
   gem 'capistrano3-puma'
+
+  gem 'simplecov', require: false
+
+  # gem 'jb'
+
+  # activate for performance profiling
+  # performance profiling
+  # gem 'rack-mini-profiler'
+  # For memory profiling
+  # gem 'memory_profiler'
+  # For call-stack profiling flamegraphs
+  # gem 'flamegraph'
+  # gem 'stackprof'
+  #
+  # for API benchmark testing
+  # gem 'rails_api_benchmark'
+  # gem 'pronto', '~> 0.9.5'
+  # gem 'pronto-rubocop', '~> 0.9.1', require: false
 end

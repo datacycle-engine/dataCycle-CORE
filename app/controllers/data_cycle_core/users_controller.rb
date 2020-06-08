@@ -1,21 +1,53 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class UsersController < ApplicationController
-    before_action :authenticate_user!   # from devise (authenticate)
-    load_and_authorize_resource         # from cancancan (authorize)
+    before_action :authenticate_user! # from devise (authenticate)
+    load_and_authorize_resource except: :search # from cancancan (authorize)
     before_action :set_user, only: [:edit, :update, :destroy, :unlock]
 
+    BLOCKED_COLUMNS ||= ['encrypted_password', 'reset_password_token', 'current_sign_in_ip', 'last_sign_in_ip', 'provider', 'default_locale', 'type'].freeze
+
     def index
-      authorize! :crud, DataCycleCore::User
-      if current_user.role && current_user.role.rank == 10
-        @paginateObject = DataCycleCore::User.includes(:role).page(params[:page])
-      else
-        @paginateObject = DataCycleCore::User.where(locked_at: nil).includes(:role).page(params[:page])
+      @search_param = search_params[:q]
+      @roles = DataCycleCore::Role.where(id: search_params[:roles]) if search_params[:roles].present?
+      @user_groups = DataCycleCore::UserGroup.where(id: search_params[:user_groups]) if search_params[:user_groups].present?
+
+      search_columns = DataCycleCore::User.columns
+        .select { |c| c.type == :string && BLOCKED_COLUMNS.exclude?(c.name) }
+        .map { |c| "users.#{c.name}" }
+
+      query = DataCycleCore::User.accessible_by(current_ability).except(:left_outer_joins).includes(:represented_by, :external_systems)
+
+      query = query.where(locked_at: nil) unless current_user.has_rank?(10)
+
+      if @search_param.present?
+        search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
+        query = query.where(search_term)
+      end
+
+      query = query.where(role: @roles.ids) if @roles.present?
+      query = query.where(user_groups: { id: @user_groups.ids }) if @user_groups.present?
+
+      @contents = query.includes(:role, :user_groups).order(:email).page(params[:page])
+
+      if count_only_params[:count_only].present?
+        @count_only = true
+        @target = count_only_params[:target]
+        @total_count = @contents.total_count
+        @count_mode = count_only_params[:count_mode]
+        @content_class = count_only_params[:content_class]
+      end
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
       end
     end
 
     def create_user
-      @user = DataCycleCore::User.new(user_params)
-      @user.external = false
+      @user = ('DataCycleCore::' + controller_name.singularize.classify).constantize.new(permitted_params.merge(creator: current_user))
+      @user.raw_password = permitted_params[:password] if permitted_params[:password].present?
 
       if @user.save
         flash[:success] = I18n.t :created, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
@@ -29,20 +61,28 @@ module DataCycleCore
     end
 
     def update
-      authorize! :set_role, @user if user_params[:role_id]
+      @permitted_params = permitted_params
+      authorize! :set_role, @user if @permitted_params[:role_id].present?
+      authorize! :generate_access_token, @user if params.dig(:user, :access_token).present?
 
-      method = current_user == @user && !user_params[:password].nil? ? 'update_with_password' : 'update'
+      method = current_user == @user && @permitted_params[:password].present? ? 'update_with_password' : 'update'
 
-      if @user.send(method, user_params)
+      if params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '1' && @user.access_token.blank?
+        @permitted_params[:access_token] = SecureRandom.hex
+      elsif params.dig(controller_name.singularize.to_sym, :access_token).present? && params.dig(controller_name.singularize.to_sym, :access_token) == '0'
+        @permitted_params[:access_token] = nil
+      end
+
+      if @user.send(method, @permitted_params)
         flash[:success] = I18n.t :updated, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
 
-        bypass_sign_in(@user) if current_user == @user && !user_params[:password].nil?
+        bypass_sign_in(@user) if current_user == @user && !@permitted_params[:password].nil?
 
         if params[:user_settings]
           redirect_to(settings_path, notice: I18n.t(:updated_multiple, scope: [:controllers, :success], data: 'Benutzereinstellungen', locale: DataCycleCore.ui_language))
         elsif Rails.env.development?
           redirect_to edit_user_path(@user)
-        elsif can? :crud, DataCycleCore::User
+        elsif can? :index, DataCycleCore::User
           redirect_to users_path
         else
           redirect_to root_path
@@ -56,33 +96,49 @@ module DataCycleCore
     def destroy
       @user.lock_access!
 
-      flash[:success] = I18n.t :destroyed, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
-      redirect_to users_path
+      redirect_to users_path, notice: I18n.t(:locked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
     end
 
     def unlock
       @user.unlock_access!
 
-      flash[:success] = I18n.t :unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language
-      redirect_to users_path
+      redirect_to users_path, notice: I18n.t(:unlocked, scope: [:controllers, :success], data: 'Benutzer', locale: DataCycleCore.ui_language)
     end
 
     def search
+      authorize! :show, DataCycleCore::User
       users = DataCycleCore::User.where('email ILIKE :q', q: "%#{params[:q]}%").limit(20)
 
       render json: users
     end
 
+    def become
+      @user = User.find(params[:user_id])
+      bypass_sign_in(@user)
+
+      flash[:success] = I18n.t :become_user, scope: [:controllers, :success], data: @user.email, locale: DataCycleCore.ui_language
+
+      redirect_to authorized_root_path(@user)
+    end
+
     private
 
-    def user_params
-      allowed_params = [:email, :family_name, :given_name, :role_id, :notification_frequency, user_group_ids: []]
-      allowed_params.push(:password, :password_confirmation, :current_password) unless params[:user].blank? || params[:user][:password].blank? || params[:user][:password_confirmation].blank?
-      params.require(:user).permit(allowed_params)
+    def search_params
+      params.permit(:q, roles: [], user_groups: [])
+    end
+
+    def permitted_params
+      allowed_params = [:email, :family_name, :given_name, :name, :role_id, :notification_frequency, :default_locale, :type, :external, user_group_ids: []]
+      allowed_params.push(:password, :password_confirmation, :current_password) if params.dig(controller_name.singularize.to_sym, :password).present? && params.dig(controller_name.singularize.to_sym, :password_confirmation).present?
+      params.require(controller_name.singularize.to_sym).permit(allowed_params)
     end
 
     def set_user
       @user = DataCycleCore::User.find(params[:id])
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

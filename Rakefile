@@ -1,3 +1,6 @@
+# frozen_string_literal: true
+
+Warning[:deprecated] = false
 begin
   require 'bundler/setup'
 rescue LoadError
@@ -5,6 +8,9 @@ rescue LoadError
 end
 
 require 'rdoc/task'
+
+# api benchmark testing
+# require 'rails_api_benchmark/benchmark_tasks'
 
 RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
@@ -14,7 +20,7 @@ RDoc::Task.new(:rdoc) do |rdoc|
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
 
-APP_RAKEFILE = File.expand_path('../test/dummy/Rakefile', __FILE__)
+APP_RAKEFILE = File.expand_path('test/dummy/Rakefile', __dir__)
 load 'rails/tasks/engine.rake'
 
 load 'rails/tasks/statistics.rake'

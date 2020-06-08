@@ -1,64 +1,166 @@
-<% breadcrumb @watch_list %>
+<% breadcrumb :show, @watch_list, :name %>
 
 <% content_for :top_content do %>
 
-    <div class="column detail-header-wrapper">
+  <div class="column detail-header-wrapper">
 
-            <div class="detail-header">
+    <div class="detail-header">
 
-                <div class="detail-header-functions">
-                    <ul class="no-bullet">
-                        <% if can? :manage, @data_link %>
-                            <li><%= render 'data_links', content: @watch_list %></li>
-                        <% end %>
-                        <li class="buttons"><a href="<%= breadcrumbs[-2].url %>" class="hascontent close-show-button"><i aria-hidden="true" class="fa fa-times"></i></a></li>
-                    </ul>
-                </div>
-
-            <div class="detail-header-info">
-                <div class="type watchlist">
-                    <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
-                    <span class="title">Merkliste</span>
-                </div>
+      <div class="detail-header-functions">
+        <ul class="no-bullet">
+          <li>
+            <div id="show-history-link" class="link"><i class="fa fa-clock-o" aria-hidden="true"></i>
+              <%= t('history.created_at', locale: DataCycleCore.ui_language) %> <%= l(Time.zone.at(Time.zone.at(@watch_list&.created_at)), locale: DataCycleCore.ui_language) %>
+              <span> <%= t('terms.from', locale: DataCycleCore.ui_language) %> </span>
+              <span><strong><a class="email-link" title="<%= @watch_list&.user&.full_name %>" href="mailto:<%= "#{@watch_list&.user&.email}" %>"><%= @watch_list&.user&.full_name %></a></strong></span>
             </div>
+          </li>
 
-            <div class="title">
-
-                <% if !@watch_list.nil? && !@watch_list.headline.nil? %>
-                    <%= @watch_list.headline %>
+          <li>
+            <%= tag.span tag.i(class: 'fa fa-language', aria_hidden: true),
+                                     class: 'link',
+                                     data: {
+                                         tooltip: @watch_list.things.exists? ? true : nil,
+                                         allow_html: true
+                                     },
+                                     title: @watch_list
+                                         .things.translated_locales
+                                         .map { |t| t("locales.#{t}", locale: DataCycleCore.ui_language) }
+                                         .join('<br />') %>
+          </li>
+          <% if can?(:copy_api_link, DataCycleCore::WatchList) %>
+            <li>
+              <span class="link" aria_hidden="true">
+                <%= link_to send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_path", api_subversion: nil, id: @watch_list),
+                                            class: 'copy-to-clipboard',
+                                            data: {
+                                                tooltip: true,
+                                                value: send("api_#{DataCycleCore.main_config.dig(:api, :default)}_collection_url", api_subversion: nil, id: @watch_list)
+                                            },
+                                            title: t('actions.copy_to_clipboard',
+                                                    locale: DataCycleCore.ui_language) do %>
+                  <i class="fa fa-clipboard" aria-hidden="true"></i>
                 <% end %>
+              </span>
+            </li>
+            <% if DataCycleCore::Feature::Preview.enabled? %>
+              <li>
+                <%= render 'data_cycle_core/application/preview/widget', content: @watch_list %>
+              </li>
+            <% end %>
+          <% end %>
 
-            </div>
+          <%= tag.li render('data_links', content: @watch_list) if can?(:index, DataCycleCore::DataLink) %>
+          <li class="buttons">
+            <%= link_to previous_authorized_crumb.url, class: 'hascontent close-show-button' do %>
+              <i aria-hidden="true" class="fa fa-times"></i>
+            <% end if previous_authorized_crumb.present? %>
+          </li>
+        </ul>
+      </div>
 
-            <div class="edit">
-                <% if can? :edit, @watch_list %>
-                    <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: "" }, title: t('actions.edit', locale: DataCycleCore.ui_language).capitalize do %>
-                        <i class="fa fa-pencil" aria-hidden="true"></i>
-                    <% end %>
-              <% end %>
-               <% if can? :destroy, @watch_list %>
-                    <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { tooltip: "", confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language).capitalize do %>
-                        <i class="fa fa-trash-o" aria-hidden="true"></i>
-                    <% end %>
-                <% end %>
-            </div>
-
+      <div class="detail-header-info">
+        <div class="type watchlist">
+          <%= render 'data_cycle_core/shared/icon', icon_type: 'merkliste' %>
+          <span class="title"><%= DataCycleCore::WatchList.model_name.human(count: 1, locale: DataCycleCore.ui_language) %></span>
+          <% if can?(:edit, @watch_list) && !can?(:remove_item, @watch_list) %>
+            <i class="fa fa-exclamation-circle" data-tooltip title="<%= t('data_cycle_core.watch_list.locked_by_data_link', locale: DataCycleCore.ui_language) %>" aria-hidden="true"></i>
+          <% end %>
         </div>
+      </div>
+
+      <div class="title">
+        <%= @watch_list&.name %>
+      </div>
+
+      <% if @watch_list.users.any? %>
+        <div class="description watchlist">
+          <i class="fa fa-user"></i>
+          <%= safe_join(@watch_list.users.map{ |u| tag.span(u.full_name, title: u.email) }, ', ') %>
+        </div>
+      <% end %>
+
+      <% if @watch_list.user_groups.any? %>
+        <div class="description watchlist">
+          <i class="fa fa-users"></i>
+          <%= @watch_list.user_groups.map(&:name).join(', ') %>
+        </div>
+      <% end %>
+
+      <div class="edit">
+        <%= render 'data_cycle_core/application/downloads/download_indesign', content: @watch_list if can?(:download_indesign, @watch_list) %>
+
+        <%= render 'data_cycle_core/application/downloads/download_zip', content: @watch_list if can?(:download_zip, @watch_list) %>
+
+        <%= render 'data_cycle_core/application/downloads/download', content: @watch_list if can?(:download, @watch_list) %>
+
+        <%= link_to edit_watch_list_path(@watch_list), class:'button-prime small edit-content-link', data: { tooltip: true }, title: t('actions.edit', locale: DataCycleCore.ui_language) do %>
+          <i class="fa fa-pencil" aria-hidden="true"></i>
+        <% end if can?(:edit, @watch_list) %>
+
+        <% if can?(:bulk_edit, @watch_list) %>
+          <% content_locks = DataCycleCore::Feature::ContentLock.enabled? ? @watch_list.things.locks.includes(:user, activitiable: [:translations]) : nil %>
+
+          <span title="<%= t('actions.bulk_edit', locale: DataCycleCore.ui_language) + (content_locks.present? ? tag.span(tag.br + tag.br + t('common.multiple_content_locks_html', data: content_locks.size, locale: DataCycleCore.ui_language), id: 'content-lock-multiple', class: "content-locked-text #{'hidden' if content_locks.size < 50}") + safe_join(content_locks.map { |cl| tag.span(tag.br + tag.br + tag.i(t('common.content_locked_with_name_html', user: cl.user&.full_name, data: distance_of_time_in_words(cl.locked_for), name: I18n.with_locale(cl.activitiable&.first_available_locale){ cl.activitiable.try(:title) }, locale: DataCycleCore.ui_language)), id: "content-lock-#{cl.id}", class: "content-locked-text #{'hidden' if content_locks.size >= 50}") }) : '') %>" data-tooltip data-allow-html="true">
+            <%= button_to bulk_edit_watch_list_path(@watch_list),
+                  method: :get,
+                  disabled: content_locks.present?,
+                  class: "button-prime small bulk-edit-link #{'content-lock' if DataCycleCore::Feature::ContentLock.enabled?} #{'content-locked show-pie-text' if content_locks.present?}",
+                  data: {
+                    disable: true
+                  }.merge(DataCycleCore::Feature::ContentLock.enabled? ? {
+                    lock_length: DataCycleCore::Feature::ContentLock.lock_length,
+                    lock_content_id: @watch_list&.id,
+                    lock_user_id: current_user.id,
+                    lock_check_path: check_lock_watch_list_path(@watch_list)
+                  } : {}).merge(content_locks.present? ? {
+                    locks: content_locks.map { |l| [l.id, l.locked_until&.to_i] }.to_h,
+                  } : {}) do %>
+              <% if DataCycleCore::Feature::ContentLock.enabled? %>
+                <%= tag.span(class: 'pie-text') + tag.span(tag.span(class: 'pie-filler'), class: 'pie-timer') %>
+              <% end %>
+              <i class="fa fa-pencil-square-o" aria-hidden="true"></i>
+            <% end %>
+          </span>
+        <% end %>
+
+        <%= link_to @watch_list, method: :delete, class:'button-prime small alert', data: { tooltip: true, confirm: "#{@watch_list.model_name.human(locale: DataCycleCore.ui_language)} #{t('actions.delete', locale: DataCycleCore.ui_language)}?" }, title: t('actions.delete', locale: DataCycleCore.ui_language) do %>
+          <i class="fa fa-trash-o" aria-hidden="true"></i>
+        <% end if can? :destroy, @watch_list %>
+
+        <% if can?(:bulk_delete, @watch_list) %>
+          <span title="<%= t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language) %>" data-tooltip="true" data-allow-html="true">
+            <%= button_to bulk_delete_watch_list_path(@watch_list),
+                    method: :delete,
+                    remote: true,
+                    class: 'button-prime small alert bulk-delete-button',
+                    data: {
+                      confirm: "#{t('actions.delete_items_in_watch_list', locale: DataCycleCore.ui_language)}?",
+                      id: @watch_list.id,
+                      disable_with: tag.span(tag.span(class: 'progress-filled'), class: 'progress-bar') +
+                        tag.span(class: 'progress-value') +
+                        tag.i(class: 'fa fa-circle-o-notch fa-spin fa-fw', aria_hidden: true)
+                    } do %>
+              <i class="fa fa-trash" aria_hidden="true"></i>
+            <% end %>
+          </span>
+        <% end %>
+
+      </div>
 
     </div>
 
-    <%= render 'filter_minimal' if user_signed_in? %>
-
-    <%#= render 'data_cycle_core/backend/views' if user_signed_in? %>
+  </div>
 
 <% end %>
 
 <div class="detail-content watchlist">
 
-    <div class="row">
+  <div class="row">
+    <%= render 'filter', filter: { classification_trees: ['Inhaltstypen'], search: true, language: true, collapse: true } %>
 
-        <%= render 'results', contents: @contents unless @contents.nil? %>
+    <%= render 'results', contents: @contents, modes: DataCycleCore::Feature::ViewMode.allowed_modes(current_user) %>
 
-    </div>
+  </div>
 
 </div>

@@ -1,19 +1,19 @@
 var EmbeddedObject = require('./../components/embedded_object');
 
 // Word Counter
-module.exports.initialize = function () {
-
+module.exports.initialize = function ($) {
   var embedded_objects = [];
 
-  $('.edit-content-form .embedded-object').each(function () {
-    embedded_objects.push(new EmbeddedObject($(this)));
+  $('.edit-content-form .embedded-object').each((index, element) => {
+    embedded_objects.push(new EmbeddedObject($(element)));
   });
 
-  $(document).on('clone-added', '.content-object-item', function (event) {
-    event.preventDefault();
+  $(document).on('dc:html:changed', '*', event => {
     event.stopPropagation();
-    $(this).find('.embedded-object').each(function () {
-      embedded_objects.push(new EmbeddedObject($(this)));
-    });
+    $(event.target)
+      .find('.embedded-object')
+      .each((i, elem) => {
+        embedded_objects.push(new EmbeddedObject($(elem)));
+      });
   });
 };

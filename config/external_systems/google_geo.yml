@@ -1,0 +1,6 @@
+---
+name: GoogleGeocoding
+credentials:  # !!!! von VTG
+  host: https://maps.googleapis.com/
+  end_point: maps/api/
+  key: 'AIzaSyDSMOSTmPxjG7WJ9fKYPgIBOlW7PGZuIGE'

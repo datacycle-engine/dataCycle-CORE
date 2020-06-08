@@ -1,8 +1,10 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class ClassificationTree < ApplicationRecord
     acts_as_paranoid
 
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
     belongs_to :classification_tree_label
     belongs_to :classification_tree_label_with_deleted, -> { with_deleted }, class_name: 'ClassificationTreeLabel', foreign_key: 'classification_tree_label_id'
 

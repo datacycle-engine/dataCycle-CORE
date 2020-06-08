@@ -1,0 +1,12 @@
+{
+  "name": "Firmenname",
+  "description": "Short test description for company object.",
+  "address":
+  {
+    "name": "Ansprechpartner",
+    "address_locality": "Test - Ort",
+    "street_address": "Test - Strasse",
+    "postal_code": "1234",
+    "address_country": "Austria"
+  }
+}

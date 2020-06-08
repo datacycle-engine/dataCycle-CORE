@@ -1,11 +1,32 @@
+# frozen_string_literal: true
+
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
+Warning[:deprecated] = false
+
+unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
+  require 'simplecov'
+  SimpleCov.start 'rails' do
+    # exclude cache folder for gitlab-ci
+    add_filter '/cache/'
+    add_filter 'vendor'
+  end
+  SimpleCov.at_exit do
+    puts "\n"
+
+    SimpleCov.result.format!
+
+    puts "\nCOVERAGE: " \
+      "#{(100 * SimpleCov.result.covered_lines.to_f / SimpleCov.result.total_lines.to_f).round(2)}% " \
+      "(#{SimpleCov.result.covered_lines} / #{SimpleCov.result.total_lines} LOC)"
+  end
+end
 
 Bundler.require(*Rails.groups)
 
 Dotenv::Railtie.load
 
-require File.expand_path('../../test/dummy/config/environment.rb', __FILE__)
+require File.expand_path('../test/dummy/config/environment.rb', __dir__)
 # ActiveRecord::Migrator.migrations_paths = [File.expand_path("../../test/dummy/db/migrate", __FILE__)]
 # ActiveRecord::Migrator.migrations_paths << File.expand_path('../../db/migrate', __FILE__)
 # ActiveRecord::Migration.maintain_test_schema!
@@ -23,77 +44,52 @@ Minitest.backtrace_filter = Minitest::BacktraceFilter.new
 #   ActiveSupport::TestCase.fixtures :all
 # end
 
-# load template, classifications for all tests
-cw_path = Rails.root.join('..', 'data_types', 'creative_works', '*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(cw_path, DataCycleCore::CreativeWork, false)
-place_path = Rails.root.join('..', 'data_types', 'places', '*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(place_path, DataCycleCore::Place, false)
-person_path = Rails.root.join('..', 'data_types', 'persons', '*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(person_path, DataCycleCore::Person, false)
-event_path = Rails.root.join('..', 'data_types', 'events', '*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(event_path, DataCycleCore::Event, false)
+require 'helpers/test_preparations_helper'
+require 'helpers/dummy_data_helper'
+require 'helpers/data_helper'
+require 'helpers/mongo_helper'
+require 'helpers/api_v4_helper'
 
-cwc_path = Rails.root.join('..', 'data_types', 'creative_works_custom', '*.yml')
-DataCycleCore::MasterData::ImportTemplates.new.import(cwc_path, DataCycleCore::CreativeWork, false)
+if DataCycleCore::TestPreparations.cli_options.dig(:ignore_preparations)
+  Rails.backtrace_cleaner.remove_silencers!
+else
+  DataCycleCore::TestPreparations.load_classifications(
+    [
+      Rails.root.join('..', 'dummy', 'config', 'data_definitions')
+    ]
+  )
 
-classification_yaml = Rails.root.join('..', 'data_types', 'classifications.yml')
-DataCycleCore::MasterData::ImportClassifications.new.import(classification_yaml)
-
-# seed release table
-if DataCycleCore::Release.count.zero?
-  DataCycleCore::Release.create!(
-    release_code: 0,
-    release_text: 'freigegeben'
+  DataCycleCore::TestPreparations.load_external_systems(
+    [
+      Rails.root.join('..', '..', 'config', 'external_sources'),
+      Rails.root.join('..', '..', 'config', 'external_systems')
+    ]
   )
-  DataCycleCore::Release.create!(
-    release_code: 1,
-    release_text: 'beim Partner'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 2,
-    release_text: 'in Bearbeitung'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 3,
-    release_text: 'in Review'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 4,
-    release_text: 'Draft'
-  )
-  DataCycleCore::Release.create!(
-    release_code: 10,
-    release_text: 'gesperrt'
+  DataCycleCore::TestPreparations.load_templates(
+    [
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_basic'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_google_places'),
+      Rails.root.join('..', 'data_types', 'attributes'),
+      Rails.root.join('..', 'data_types', 'models')
+    ]
   )
 end
 
-if DataCycleCore::Role.count.zero?
-  DataCycleCore::Role.create!(
-    rank: 0,
-    name: 'guest'
-  )
-  DataCycleCore::Role.create!(
-    rank: 1,
-    name: 'external_partner'
-  )
-  DataCycleCore::Role.create!(
-    rank: 2,
-    name: 'standard'
-  )
-  DataCycleCore::Role.create!(
-    rank: 3,
-    name: 'editor_market_office'
-  )
-  DataCycleCore::Role.create!(
-    rank: 4,
-    name: 'basic_editor'
-  )
-  DataCycleCore::Role.create!(
-    rank: 5,
-    name: 'super_editor'
-  )
-  DataCycleCore::Role.create!(
-    rank: 10,
-    name: 'admin'
-  )
-end
+DataCycleCore::TestPreparations.load_dummy_data(
+  [
+    Rails.root.join('..', 'dummy_data'),
+    Rails.root.join('..', 'v4', 'dummy_data')
+  ]
+)
+
+DataCycleCore::TestPreparations.load_user_roles
+DataCycleCore::TestPreparations.create_users
+DataCycleCore::TestPreparations.create_user_group

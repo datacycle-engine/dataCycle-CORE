@@ -1,25 +1,30 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
     module Validators
       class String < BasicValidator
-        @@string_keywords = ['minLength', 'maxLength', 'format', 'pattern']
-        @@string_formats = ['date_time', 'date', 'uuid', 'boolean', 'url']
+        def string_keywords
+          ['min', 'max', 'format', 'pattern', 'required']
+        end
 
-        def validate(data, template)
-          if data.is_a?(::String)
+        def string_formats
+          ['uuid', 'url', 'email']
+        end
+
+        def validate(data, template, _strict = false)
+          if data.blank? || data.is_a?(::String)
             if template.key?('validations')
               template['validations'].each_key do |key|
-                if @@string_keywords.include?(key)
-                  method(key).call(data, template['validations'][key])
+                if string_keywords.include?(key)
+                  method(key).call(data.to_s, template['validations'][key])
                 else
-                  @error[:warning].push I18n.t :string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language unless key == 'type'
+                  (@error[:warning][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :warnings], data: data, key: key, template: template, locale: DataCycleCore.ui_language) unless key == 'type'
                 end
               end
             end
-          elsif data.blank?
-            @error[:warning].push I18n.t :no_data, scope: [:validation, :warnings], data: template['label'], locale: DataCycleCore.ui_language
           else
-            @error[:error].push I18n.t :string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language
+            (@error[:error][@template_key] ||= []) << I18n.t(:string, scope: [:validation, :errors], template: data.class, label: template['label'], locale: DataCycleCore.ui_language)
           end
           @error
         end
@@ -28,62 +33,62 @@ module DataCycleCore
 
         # given string validations
 
-        def minLength(data, value)
-          @error[:error].push I18n.t :min, scope: [:validation, :errors], data: data, min: value.to_i, length: data.length, locale: DataCycleCore.ui_language if data.length < value.to_i
+        def min(data, value)
+          text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:min, scope: [:validation, :errors], data: nil, min: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length < value.to_i
         end
 
-        def maxLength(data, value)
-          @error[:error].push I18n.t :max, scope: [:validation, :errors], data: data, max: value.to_i, length: data.length, locale: DataCycleCore.ui_language if data.length > value.to_i
+        def max(data, value)
+          text_length = ActionView::Base.full_sanitizer.sanitize(data).presence&.length.to_i
+          (@error[:error][@template_key] ||= []) << I18n.t(:max, scope: [:validation, :errors], data: nil, max: value.to_i, length: text_length, locale: DataCycleCore.ui_language) if data.present? && text_length.to_i > value.to_i
         end
 
         def pattern(data, expression)
           regex = /#{expression[1..expression.length - 2]}/
           matched = data.match(regex)
-          @error[:error].push I18n.t :match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_language if matched.nil? || matched.offset(0) != [0, data.size]
+          (@error[:error][@template_key] ||= []) << I18n.t(:match, scope: [:validation, :errors], data: data, expression: expression, locale: DataCycleCore.ui_language) if matched.nil? || matched.offset(0) != [0, data.size]
         end
 
         def format(data, format_string)
-          if @@string_formats.include?(format_string)
+          if string_formats.include?(format_string)
             method(format_string).call(data)
           else
-            @error[:error].push I18n.t :format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language
+            (@error[:error][@template_key] ||= []) << I18n.t(:format, scope: [:validation, :errors], data: data, format_string: format_string, locale: DataCycleCore.ui_language)
           end
-        end
-
-        # check string for given format
-
-        def uuid(data)
-          data.downcase!
-          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
-          check_uuid = data.length == 36 && !(data =~ uuid).nil?
-          @error[:error].push I18n.t :uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless check_uuid
-        end
-
-        def date_time(data)
-          data.to_datetime
-        rescue StandardError
-          @error[:error].push I18n.t :date_time, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-        end
-
-        def date(data)
-          data.to_date
-        rescue StandardError
-          @error[:error].push I18n.t :date, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-        end
-
-        def boolean(data)
-          @error[:error].push I18n.t :boolean, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless data.squish == 'true' || data.squish == 'false'
         end
 
         def url(data)
-          unless data.blank?
-            begin
-              uri = URI.parse data
-              @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language unless uri.is_a? URI::HTTP
-            rescue URI::InvalidURIError
-              @error[:error].push I18n.t :url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language
-            end
+          return if data.blank?
+          schemes = ['http', 'https']
+
+          begin
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless schemes.include?(Addressable::URI.parse(data)&.scheme)
+          rescue Addressable::URI::InvalidURIError
+            (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
           end
+        end
+
+        def required(data, value)
+          (@error[:error][@template_key] ||= []) << I18n.t(:required, scope: [:validation, :errors], locale: DataCycleCore.ui_language) if value && data.blank?
+        end
+
+        # def email(data)
+        #   unless data.blank?
+        #     begin
+        #       uri = URI.parse data
+        #       URI::MailTo
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless uri.is_a? URI::HTTP
+        #     rescue URI::InvalidURIError
+        #       (@error[:error][@template_key] ||= []) << I18n.t(:url, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language)
+        #     end
+        #   end
+        # end
+
+        def uuid(data)
+          data_uuid = data.downcase
+          uuid = /[0-9a-f]{8}-([0-9a-f]{4}-){3}[0-9a-f]{12}/
+          check_uuid = data.length == 36 && !(data_uuid =~ uuid).nil?
+          (@error[:error][@template_key] ||= []) << I18n.t(:uuid, scope: [:validation, :errors], data: data, locale: DataCycleCore.ui_language) unless check_uuid
         end
       end
     end

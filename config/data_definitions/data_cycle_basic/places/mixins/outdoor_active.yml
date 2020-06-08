@@ -1,0 +1,62 @@
+---
+- :data:
+    :name: outdoor_active
+    :type: mixin
+    :properties:
+      :author:
+        :label: Autor
+        :type: string
+        :storage_location: translated_value
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :price:
+        :label: Preis
+        :type: string
+        :storage_location: translated_value
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :directions:
+        :label: Anfahrtsbeschreibung
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :parking:
+        :label: Parkmöglichkeit
+        :type: string
+        :storage_location: translated_value
+        :search: true
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty
+      :hours_available:
+        :label: Service-Zeiten
+        :type: string
+        :storage_location: translated_value
+        :external: true
+        :api:
+          :partial: property_value
+          :type: PropertyValue
+          :transformation:
+            :method: combine
+            :name: additionalProperty

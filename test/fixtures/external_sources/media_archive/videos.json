@@ -1,0 +1,71 @@
+[
+  {
+    "_id": {
+      "$oid": "5be5651132c88f006c9d1fde"
+    },
+    "external_id": "https://media.kaernten.at/api/v1/media/1703",
+    "dump": {
+      "de": {
+        "@context": "http://www.schema.org/VideoObject",
+        "contentType": "Video",
+        "url": "https://media.kaernten.at/api/v1/media/1703",
+        "contentUrl": "https://media.kaernten.at/api/v1/media/1703/file",
+        "image": "https://media.kaernten.at/api/v1/media/1703/thumbnail",
+        "headline": "Kärnten neu entdecken: Husky Safari",
+        "caption": "Kärnten neu entdecken: Husky Safari",
+        "license": "Kärnten Werbung",
+        "contentSize": 143657092,
+        "fileFormat": "video/mp4",
+        "keywords": [
+          "Bad Kleinkirchheim",
+          "Husky Safari",
+          "Winter"
+        ],
+        "contributor": {
+          "given_name": "Given Name",
+          "family_name": "Family Name"
+        },
+        "director": {
+          "given_name": "Given Name",
+          "family_name": "Family Name"
+        },
+        "dateCreated": "2014-02-03T14:06:20.000Z",
+        "dateModified": "2014-02-12T14:38:21.000Z",
+        "visibility": [
+          "public"
+        ]
+      },
+      "en": {
+        "@context": "http://www.schema.org/VideoObject",
+        "contentType": "Video",
+        "url": "https://media.kaernten.at/api/v1/media/1703",
+        "contentUrl": "https://media.kaernten.at/api/v1/media/1703/file",
+        "image": "https://media.kaernten.at/api/v1/media/1703/thumbnail",
+        "headline": "Getting to know Carinthia: Husky Safari",
+        "caption": "Getting to know Carinthia: Husky Safari",
+        "license": "Kärnten Werbung",
+        "contentSize": 143657092,
+        "fileFormat": "video/mp4",
+        "keywords": [
+          "Bad Kleinkirchheim",
+          "Husky Safari",
+          "Winter"
+        ],
+        "dateCreated": "2014-02-03T14:06:20.000Z",
+        "dateModified": "2014-02-12T14:38:21.000Z",
+        "visibility": [
+          "public"
+        ]
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-09T10:44:33.716Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-09T10:44:33.716Z"
+    },
+    "created_at": {
+      "$date": "2018-11-09T10:44:33.716Z"
+    }
+  }
+]

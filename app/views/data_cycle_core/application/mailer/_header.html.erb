@@ -1,0 +1,60 @@
+<% content_for :head do %>
+  <style>
+    .header table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .header td {
+      padding: 0;
+    }
+
+    .header .header_top td {
+      height: 5px;
+      background: <%= DataCycleCore.logo.dig('customercolor') || '#009fe3' %>;
+    }
+
+    .header .header_main td {
+      background: #333333;
+      text-align: center;
+    }
+    .header .header_main td:not(:first-child):not(:last-child) {
+      width: 34%;
+    }
+    .header .header_main img {
+      display: block;
+      height: 65px;
+      margin: 0 auto;
+    }
+
+    .show-for-print {
+      display: none;
+    }
+
+    .header .header_bottom td {
+      background: #d6d6d6;
+      text-align: center;
+    }
+    .header .header_bottom img {
+      display: block;
+      height: 8px;
+      width: 102px;
+      margin: 0 auto;
+    }
+  </style>
+<% end %>
+
+ <tr class="header">
+  <td>
+    <table border="0" cellspacing="0" cellpadding="0" width="100%">
+      <tr class="header_top">
+        <td colspan="3"></td>
+      </tr>
+
+      <tr class="header_main">
+        <td colspan="3" width="100%" align="center">
+          <%= email_image_tag DataCycleCore.logo['email'], style: DataCycleCore.logo.dig('mail_dimensions').map{ |k, v| "#{k.dasherize}: #{v};" }.join(' ') %>
+        </td>
+      </tr>
+    </table>
+  </td>
+</tr>

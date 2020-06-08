@@ -1,0 +1,189 @@
+:publication_schedule:
+  :enabled: false
+
+:download:
+  :enabled: true
+  :collections:
+    :content:
+      :enabled: false
+    :watch_list:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
+        :indesign: false
+    :stored_filter:
+      :enabled: false
+      :serializers:
+        :asset: false
+        :json: false
+        :xml: false
+        :indesign: false
+  :dependencies:
+    - serialize
+
+:serialize:
+  :enabled: true
+  :serializers:
+    :asset: false
+    :json: false
+    :gpx: true
+    :xml: false
+
+:overlay:
+  :enabled: false
+  :attribute_keys:
+    - overlay
+
+:releasable:
+  :enabled: false
+  :attribute_keys:
+    - release_status_id
+    - release_status_comment
+  :classification_names:
+    :valid: freigegeben
+    :partner: beim Partner
+    :review: in Review
+    :archive: archiviert
+
+:life_cycle:
+  :enabled: false
+
+:idea_collection:
+  :enabled: false
+
+:container:
+  :enabled: false
+
+:main_filter:
+  :enabled: true
+  :classification_alias_ids:
+    - Inhaltstypen
+  :autoload_last_filter: true
+
+:advanced_filter:
+  :enabled: true
+  :classification_alias_ids: all
+  :external_source: true
+  :external_system: false
+  :creator: true
+  :classification_tree_ids: true
+  :date_range: all
+  :validity_period:
+    :absolute: true
+    :relative: true
+  :inactive_things:
+    :absolute: true
+    :relative: true
+  :in_schedule:
+    :absolute: true
+    :relative: true
+  :geo_filter:
+    :geo_radius: false
+    :geo_within_classification: false
+      # - Administrative Einheiten
+  # :relation_filter:
+  #   :event_location: content_location
+#  :advanced_attributes:
+#    :width:
+#      :type: numeric
+#    :contact_info.email:
+#      :type: string
+#    :upload_date:
+#      :type: date
+#    :mandatory_license:
+#      :type: boolean
+#  :related_to: true
+
+:geocode:
+  :enabled: false
+  :attribute_keys:
+
+:translate:
+  :enabled: false
+
+:external_media_archive:
+  :enabled: false
+  :template_mapping:
+    :bild: image
+    :video: video
+
+:normalize:
+  :enabled: false
+
+:duplicate_content:
+  :enabled: false
+
+:image_optimizer:
+  :enabled: true
+  :config:
+    :pngout: false
+    :svgo: false
+    :advpng: false
+    :gifsicle:
+      :careful: true
+    :optipng:
+      :strip: false
+      :level: 1
+    :jpegtran:
+      :copy_chunks: true
+    :jpegoptim:
+      :strip: :comments
+    :pngquant:
+      :speed: 10
+
+:duplicate_candidate:
+  :enabled: false
+
+:content_lock:
+  :enabled: false
+  :lock_length: <%= 30.minutes %>
+  :lock_renew_before: <%= 5.minutes %>
+
+:user_api:
+  :enabled: false
+  :only_config: true
+  :expiration_time: <%= 24.hours %>
+  :default_rank: 0
+  :allowed_ranks:
+    - 0
+  :user_params:
+    :email:
+    :given_name:
+    :family_name:
+    :default_locale:
+    :password:
+    :password_confirmation:
+    :confirmed_at:
+  :issuer: datacycle.at
+
+:copy_embedded_locale:
+  :enabled: false
+  :only_config: true
+
+:view_mode:
+  :enabled: true
+  :allowed:
+    - grid
+    - list
+    - tree
+
+:translated_data_link_mails:
+  :enabled: false
+  :only_config: true
+
+:translatable:
+  :enabled: true
+  :only_config: true
+
+:user_registration:
+  :enabled: false
+  :terms_condition_url:
+  :privacy_policy_url:
+
+:preview:
+  :enabled: false
+  :widgets:
+    :list:
+    :map:

@@ -1,222 +1,387 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module MasterData
-    class ImportTemplates
-      def import(files, object, validation = true)
+    module ImportTemplates
+      CONTENT_SETS = ['creative_works', 'events', 'media_objects', 'organizations', 'persons', 'places', 'products', 'things', 'intangibles'].freeze
+
+      def self.import_all(validation: true, template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        import_hash, duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
+        mixin_list, mixin_duplicates = DataCycleCore::MasterData::ImportMixins.import_all_mixins(template_paths: template_paths, content_sets: CONTENT_SETS)
+        errors = import_all_templates(template_hash: import_hash, validation: validation, mixins: mixin_list)
+        format_errors = errors.reject { |_, value| value.blank? }.map { |key, value| { key => value.deep_dup } }.inject(&:merge) || {}
+        # TODO: add notice + warning
+        return format_errors, reformat_duplicates(duplicates), reformat_duplicates(mixin_duplicates)
+      end
+
+      def self.reformat_duplicates(hash)
+        hash&.map { |directory, templates| { directory => templates.map { |template, file_list| { template => file_list.map { |item| item.dig(:file) } } } } } || {}
+      end
+
+      def self.import_template_list(template_paths: nil)
+        template_paths ||= [DataCycleCore.default_template_paths, DataCycleCore.template_path].flatten.uniq.compact
+        import_hash, _duplicates = check_for_duplicates(template_paths, CONTENT_SETS)
+        import_hash.map { |_key, value| value }.reduce([], :+).map { |item| item[:name] }.uniq.sort
+      end
+
+      def self.check_for_duplicates(template_paths, content_sets)
+        import_list = {}
+        collisions = {}
+        content_sets.each do |content_set_name|
+          import_list[content_set_name.to_sym] = []
+          collisions[content_set_name.to_sym] = {}
+        end
+
+        template_paths.each do |core_template_path|
+          content_sets.each do |content_set_name|
+            files = core_template_path + content_set_name + '*.yml'
+            file_names = Dir[files]
+            file_names.each do |file_name|
+              data_templates = YAML.safe_load(File.open(file_name.to_s), [Symbol])
+              data_templates.each_index do |index|
+                already_exist_index = import_list[content_set_name.to_sym].index { |item| item[:name] == data_templates[index][:data][:name] }
+                new_template_data = { name: data_templates[index][:data][:name], file: file_name, position: index }
+                if already_exist_index.nil?
+                  import_list[content_set_name.to_sym] += [new_template_data]
+                else
+                  collisions[content_set_name.to_sym] = collisions[content_set_name.to_sym].merge({ new_template_data[:name] => [import_list[content_set_name.to_sym][already_exist_index].except(:name, :position)] }) if collisions[content_set_name.to_sym][new_template_data[:name]].blank?
+                  collisions[content_set_name.to_sym][new_template_data[:name]] += [{ file: file_name }]
+                  import_list[content_set_name.to_sym][already_exist_index] = new_template_data
+                end
+              end
+            end
+          end
+        end
+        return import_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
+      end
+
+      def self.import_all_templates(template_hash:, validation: true, mixins:)
         errors = {}
-        file_names = Dir[files]
-        file_names.each do |filename|
-          data_templates = YAML.load(File.open(filename.to_s))
-          error = iterate_templates(data_templates, object, validation)
-          errors[filename] = error unless error.blank?
+        template_hash.each do |content_set, template_list|
+          errors = errors.merge({ content_set => import_content_templates(template_list: template_list, content_set: content_set, validation: validation, mixins: mixins) })
+        end
+        errors
+      end
+
+      def self.import_content_templates(template_list:, content_set:, validation: true, mixins:)
+        errors = {}
+        template_list.each do |template_location|
+          template = YAML.safe_load(File.open(template_location[:file]), [Symbol])[template_location[:position]]
+          template[:data] = transform_schema(schema: template[:data].dup, content_set: content_set, mixins: mixins)
+          error = {}
+          error = validate(template) if validation
+          if error.blank?
+            # puts "write data_set (#{content_set}): #{template[:data][:name]}"
+            data_set = DataCycleCore::Thing
+              .find_or_initialize_by(
+                template_name: template[:data][:name],
+                template: true
+              )
+            data_set.template_updated_at = Time.zone.now
+            data_set.schema = template[:data]
+            data_set.save
+          elsif error.present?
+            errors[template[:data][:name]] = error
+          end
         end
         errors
       rescue StandardError => e
-        puts "could not access a YML File in directory #{files}"
+        puts "could not access a YML File: #{template_list}"
         puts e.message
         puts e.backtrace
       end
 
-      def iterate_templates(data_templates, object, validation)
-        errors = {}
-        data_templates.each do |template|
-          error = {}
-          error = validate(template) if validation
-          if error.blank?
-            data_set = object
-              .find_or_initialize_by(
-                headline: template[:data][:name],
-                description: template[:data][:description],
-                template: true
-              )
-            data_set.seen_at = Time.zone.now
-            if data_set.metadata.blank?
-              data_set.metadata = { validation: template[:data] }
-            else
-              data_set.metadata[:validation] = template[:data]
-            end
-            data_set.save
+      def self.transform_schema(content_set: nil, schema: {}, mixins:)
+        schema[:boost] = schema[:boost] || 1.0
+        schema[:features] = transform_features(schema: schema, content_set: content_set)
+        schema[:properties] = transform_properties(schema: schema, content_set: content_set, mixins: mixins)
+        schema
+      end
+
+      def self.transform_features(schema: {}, content_set: nil)
+        return schema[:features].deep_merge(DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features)&.deep_symbolize_keys) if DataCycleCore.main_config.dig(:templates, content_set.to_sym, schema.dig(:name).to_sym, :features).present?
+        schema.dig(:features) || {}
+      end
+
+      def self.transform_properties(schema: {}, content_set: nil, mixins: nil)
+        new_properties = {}.with_indifferent_access
+        sorting = 1
+
+        schema[:properties].each do |property_name, property_value|
+          # TODO: refactor: add errors + warnings
+          if property_value[:type] == 'mixin'
+            mixin_properties, sorting = add_mixin_properties(content_set, property_value[:name].to_sym, sorting, mixins)
+            new_properties.merge!(mixin_properties)
           else
-            errors[template[:data][:name]] = error unless error.blank?
+            new_properties[property_name.to_sym], sorting = add_sorting(property_value, sorting)
           end
         end
-        errors
+
+        new_properties.deep_merge(DataCycleCore.main_config.dig(:templates, content_set, schema.dig(:name), :properties) || {})
       end
 
-      def validate(template)
+      # add mixins recursively
+      def self.add_mixin_properties(content_set, property_name, sorting, mixins)
+        mixin_properties = {}
+        if !content_set.nil? && mixins.dig(content_set.to_sym, property_name).present?
+          mixin_set = content_set.to_sym
+        elsif mixins.dig(:default, property_name).present?
+          mixin_set = :default
+        else
+          raise "mixin for #{property_name} not found".inspect
+        end
+
+        return {}, sorting if mixins.dig(mixin_set, property_name, :properties).blank?
+
+        mixins.dig(mixin_set, property_name, :properties).each do |key, prop|
+          if prop[:type] == 'mixin'
+            further_mixin_properties, sorting = add_mixin_properties(content_set, prop[:name].to_sym, sorting, mixins)
+            mixin_properties.merge!(further_mixin_properties)
+          else
+            mixin_properties[key.to_sym], sorting = add_sorting(prop, sorting)
+          end
+        end
+
+        return mixin_properties, sorting
+      end
+
+      def self.add_sorting(hash, sorting)
+        hash[:properties] = transform_properties(schema: hash) if hash[:type] == 'object' && hash.key?(:properties).present?
+        hash[:sorting] = sorting
+        return hash, sorting + 1
+      end
+
+      def self.validate(template)
+        validate_header = TemplateHeaderContract.new
         result_header = validate_header.call(template)
         errors = {}
-        error = result_header.errors
-        errors[:head] = error unless error.blank?
+        error = result_header.errors.to_h
+
+        errors[:head] = error if error.present?
         error = validate_properties(template[:data])
-        errors[:properties] = error unless error.blank?
+        errors[:properties] = error if error.present?
         errors
       end
 
-      def validate_properties(template)
+      def self.validate_properties(template)
+        validate_property = TemplatePropertyContract.new
         errors = {}
         template[:properties].each do |property_name, property_definition|
           result_property = validate_property.call(property_definition)
-          error = result_property.errors(full: true)
+          error = result_property.errors.to_h
           error.merge!(validate_properties(property_definition)) if property_definition.key?(:properties)
-          # ap property_definition if !result_property.success?
-          errors[property_name] = error unless error.blank?
+          errors[property_name] = error if error.present?
         end
         errors
       end
 
-      def validate_header
-        Dry::Validation.Schema do
-          required(:data).schema do
+      class TemplateHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
+          required(:data).hash do
             required(:name) { str? }
-            required(:description) { str? & included_in?(DataCycleCore.content_tables.map(&:classify) + ['ImageObject', 'VideoObject']) }
             required(:type) { str? & eql?('object') }
-            optional(:content_type) { str? & included_in?(['variant', 'embedded', 'entity']) }
-            optional(:releasable) { bool? }
-            optional(:permissions).schema do
-              required(:read_write) { bool? }
-            end
+            required(:schema_type) { str? }
+            required(:content_type) { str? & included_in?(['embedded', 'entity', 'container']) }
             optional(:boost) { float? }
-            required(:properties)
+            optional(:features) { hash? }
+            required(:properties) { hash? }
+            optional(:api).hash do
+              optional(:type) { str? | array? }
+            end
           end
         end
       end
 
-      def validate_property
-        Dry::Validation.Schema do
-          configure do
-            def valid_classification?(value)
-              # TODO: check if required ? (external categories can not be found before import)
-              # ! DataCycleCore::ClassificationAlias.find_by(name: value).nil?
-              true
-            end
-
-            def instantiable?(value)
-              clazz = ('DataCycleCore::' + value.classify).safe_constantize
-              !clazz.nil? && clazz.new.is_a?(ActiveRecord::Base)
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    key_attribute: 'keys are UUIDs in DataCycleCore, therefore :type and :storage_type must be defined as strings',
-                    embeddedLinkArray: 'type_name must be a table_name (plural), storage_type = array, storage_location = jsonb field(metadata, content)',
-                    embeddedLink: 'type_name must be a table_name (plural), storage_location = jsonb field(metadata, content)',
-                    classification_relation: "type must be 'classificationTreeLabel' and type_name must be a name of a ClassificationTreeLabel record: #{DataCycleCore::ClassificationTreeLabel.pluck(:name)}",
-                    embedded_object: 'type must be object, description must be a content_table class_name',
-                    included_object: 'storage_location must be a jsonb field, type must be object and must have properties',
-                    valid_classification?: 'specified default_value could not be found in classification_aliases',
-                    instantiable?: 'must be a string_name (plural) of a database table and the corresponding model must be a child of ActiveRecord::Base.',
-                    asset_relation: "type must be 'asset' and type_name must be a name of a AssetType"
-                  }
-                }
-              )
-            end
-          end
-
+      class TemplatePropertyContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           required(:label) { str? }
           required(:type) do
-            str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'object',
-                             'embeddedLinkArray',
-                             'embeddedLink',
-                             'classificationTreeLabel',
-                             'asset'
-                           ])
+            str? & included_in?(
+              ['key', 'string', 'text', 'number', 'boolean',
+               'datetime', 'geographic',
+               'object', 'embedded', 'linked', 'classification',
+               'asset', 'computed', 'schedule']
+            )
           end
-          required(:storage_location) do
-            str? &
-              included_in?(
-                [
-                  'key',
-                  'column',
-                  'metadata',
-                  'content',
-                  'properties',
-                  'classification_relation',
-                  'asset_relation'
-                ] + DataCycleCore.content_tables
-              )
+          optional(:storage_location) do
+            str? & included_in?(['column', 'value', 'translated_value'])
           end
-          # TODO: add type_name validation after polymorphic relation tables
-          # optional(:type_name) {
-          #   str? &
-          #   included_in?(
-          #     DataCycleCore.content_tables+['users','Rechte']+
-          #     DataCycleCore::ClassificationTreeLabel.pluck(:name)
-          #   )
-          # }
-          optional(:storage_type) do
-            str? &
-              included_in?([
-                             'string',
-                             'text',
-                             'number',
-                             'geographic',
-                             'array'
-                           ])
-          end
-          optional(:name) { str? }
-          optional(:description) { str? }
-          optional(:delete) { bool? }
-          optional(:search) { bool? }
-          optional(:editor) { hash? }
+          optional(:template_name) { str? }
           optional(:validations) { hash? }
+          optional(:default_value) { str? } # the default_value is set if no value is given. for classifications. for plain values supports also evaluated code in double curly braces {{...}}
+          optional(:ui) { hash? }
+          optional(:api) { hash? }
+          optional(:xml) { hash? }
+          optional(:search) { bool? }
+          optional(:advanced_search) { bool? }
+          optional(:normalize).hash do
+            required(:id) do
+              str? & included_in?(
+                ['sex', 'degree', 'forename', 'surname', 'birthdate',
+                 'company', 'email',
+                 'street', 'streetnr', 'city', 'zip', 'country',
+                 'eventname', 'eventstart', 'eventend',
+                 'eventplace', 'longitude', 'latitude']
+              )
+            end
+            required(:type) do
+              str? & included_in?(
+                ['sex', 'degree', 'forename', 'surname', 'birthdate',
+                 'company', 'email',
+                 'street', 'streetnr', 'city', 'zip', 'country',
+                 'eventname', 'datetime',
+                 'eventplace', 'longitude', 'latitude']
+              )
+            end
+          end
+
+          # for type object
           optional(:properties) { hash? }
-          optional(:default_value) { str? & valid_classification? }
+          # for type embedded and linked
+          optional(:stored_filter) { array? }
+          # for type embedded
+          optional(:translated) { bool? }
 
-          rule(key_attribute: [:storage_location, :type, :storage_type]) do |storage_location, type, storage_type|
-            storage_location.eql?('key') > (storage_type.eql?('string') & type.eql?('string'))
+          # for type linked
+          # valid_linked_language?
+          optional(:linked_language) do
+            str? & included_in?(
+              ['all', 'same']
+            )
           end
+          optional(:inverse_of) { str? } # for bidirectional links
 
-          rule(embeddedLinkArray: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, storage_type, storage_location|
-            type.eql?('embeddedLinkArray') > (
-            type_name.instantiable? &
-              storage_type.eql?('array') &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
+          # make sure if link_direction = inverse set api: disabled: true
+          # validate_link_direction?
+          optional(:link_direction) do
+            str? & included_in?(
+              ['inverse']
             )
           end
 
-          rule(embeddedLink: [:type, :type_name, :storage_type, :storage_location]) do |type, type_name, _storage_type, storage_location|
-            type.eql?('embeddedLink') > (
-            type_name.instantiable? &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
+          # for type classification
+          optional(:tree_label) { str? } # only members of the specified classification_tree are valid values
+          optional(:not_translated) { bool? } # true -> classification only exists in german
+          optional(:external) { bool? } # true -> only imported can not be manually edited
+          optional(:universal) { bool? } # true -> only for universal_classifications... does not need a tree_label
+          optional(:global) { bool? } # true -> edit is allowed for imported data
+
+          # for type asset
+          optional(:asset_type) do
+            str? & included_in?(
+              ['asset', 'audio', 'image', 'video', 'pdf', 'data_cycle_file']
             )
           end
 
-          rule(classification_relation: [:storage_location, :type, :type_name, :default_value]) do |storage_location, type, type_name, _default_value|
-            (storage_location.eql?('classification_relation') > (
-            type.eql?('classificationTreeLabel') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
-            )) & (type.eql?('classificationTreeLabel') > (
-            storage_location.eql?('classification_relation') &
-              type_name.included_in?(DataCycleCore::ClassificationTreeLabel.pluck(:name) + ['Rechte'])
-            ))
-          end
-
-          rule(embedded_object: [:storage_location, :type, :name, :description]) do |storage_location, type, name, description|
-            (storage_location.included_in?(DataCycleCore.content_tables) > (
-            type.eql?('object') &
-              description.included_in?(DataCycleCore.content_tables.map(&:classify)) &
-              name.filled?
-            )) & (
-              (type.eql?('object') & name.filled? & description.filled?) >
-              storage_location.included_in?(DataCycleCore.content_tables)
-            )
-          end
-
-          rule(included_object: [:storage_location, :type, :properties]) do |storage_location, type, properties|
-            properties.filled? > (
-            type.eql?('object') &
-              storage_location.included_in?(['metadata', 'content', 'properties'])
-            )
+          # for type compute
+          optional(:compute).hash do
+            required(:module) { str? }
+            required(:method) { str? }
+            required(:parameters) { hash? }
+            required(:type) do
+              str? & included_in?(
+                ['string', 'text', 'number', 'boolean',
+                 'datetime', 'geographic',
+                 'object', 'classification', 'asset', 'schedule']
+              )
+            end
           end
         end
+
+        rule(:type) do
+          case value
+          when 'object'
+            key.failure(:invalid_object) unless values.dig(:properties).present? && ['value', 'translated_value'].include?(values.dig(:storage_location))
+          when 'embedded'
+            key.failure(:invalid_embedded) unless values.dig(:template_name).present? || values.dig(:stored_filter).present?
+          when 'linked'
+            key.failure(:invalid_linked) unless values.dig(:template_name).present? || values.dig(:stored_filter).present? || values.dig(:inverse_of).present?
+          when 'classification'
+            key.failure(:invalid_classification) if values.dig(:tree_label).blank? && values.dig(:universal) == false
+          when 'asset'
+            key.failure(:invalid_asset) if values.dig(:asset_type).blank?
+          when 'computed'
+            temp = begin
+              module_name = ('DataCycleCore::' + values.dig(:compute, :module).classify).safe_constantize
+              module_name.respond_to?(values.dig(:compute, :method))
+                   rescue StandardError
+                     false
+            end
+            key.failure(:invalid_computed) if temp == false
+          end
+        end
+
+        rule(:properties) do
+          key.failure(:invalid_object) if key? && !(values.dig(:type) == 'object' && ['value', 'translated_value'].include?(values.dig(:storage_location)))
+        end
+      end
+
+      def self.updated_template_statistics(timestamp = Time.zone.now)
+        templates = {}
+        DataCycleCore::Thing.where('template_updated_at < ?', timestamp.utc.to_s(:long_usec))
+          .where(template: true).find_each do |template|
+            templates[template.template_name] = {
+              template_updated_at: template.template_updated_at,
+              count: DataCycleCore::Thing.where(template: false, template_name: template.template_name).count,
+              count_history: DataCycleCore::Thing::History.where(template: false, template_name: template.template_name).count
+            }
+          end
+        templates
+          .to_a
+          .sort_by { |item| item[1][:template_updated_at] }
+          .reduce({}) { |aggregate, item| aggregate.merge({ item[0] => item[1] }) }
+      end
+
+      def self.template_statistics
+        templates = {}
+        history = {}
+        DataCycleCore::Thing.where(template: true).pluck(:template_name)&.sort&.each do |template|
+          templates[template] = DataCycleCore::Thing.where(template_name: template, template: false).count
+          history[template] = DataCycleCore::Thing::History.where(template_name: template).count
+        end
+        return templates, history
+      end
+
+      def self.find_not_translatable_embedded
+        not_translatable_list = check_not_translatable
+        return [] if not_translatable_list.blank?
+
+        not_translated_occurances = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          template.embedded_property_names.map { |item|
+            { item => template.properties_for(item) }
+          }.each do |properties|
+            key = properties.keys.first
+            next unless properties.dig(key, 'template_name').in?(not_translatable_list)
+            next if properties.dig(key, 'translated') == true
+            not_translated_occurances.push({ template.template_name => key })
+          end
+        end
+        not_translated_occurances
+      end
+
+      def self.check_not_translatable
+        templates = []
+        DataCycleCore::Thing.where(template: true).find_each do |template|
+          properties = template.schema['properties'].with_indifferent_access
+          not_trans = DataCycleCore::MasterData::ImportTemplates.not_translatable?(properties)
+          templates.push(template.template_name) if not_trans
+        end
+        templates
+      end
+
+      def self.not_translatable?(properties)
+        translated_columns = DataCycleCore::Thing.new.translated_attributes
+        result = true
+        properties.each do |name, property|
+          next if property.dig(:type).in? [:key, :classification, :asset, :linked, :embedded]
+          return false if property[:storage_location] == 'translated_value'
+          return false if property[:storage_location] == 'column' && name.in?(translated_columns)
+          result = not_translatable?(property.dig(:properties)) if property.dig(:type) == :object
+          return false if result == false
+        end
+        true
       end
     end
   end

@@ -1,13 +1,12 @@
 // Add Timeout to slideup Flash Messages
-module.exports.initialize = function () {
-
+module.exports.initialize = function ($) {
   //schickt flash callout success nach oben
   if ($('div.flash.callout').length) {
-    $("div.flash.callout").parent('div').removeAttr('style');
-    $('body').prepend($("body").find("div.flash.callout"));
-    $("div.flash.callout").show();
+    $('div.flash.callout').parent('div').removeAttr('style');
+    $('body').prepend($('body').find('div.flash.callout'));
+    $('div.flash.callout').show();
     setTimeout(function () {
-      $("div.flash.callout.success").slideUp("slow");
+      $('div.flash.callout.success').slideUp('slow');
     }, 4000);
   }
 
@@ -15,5 +14,4 @@ module.exports.initialize = function () {
     ev.preventDefault();
     $(this).closest('.subscribe-parent').hide();
   });
-
 };

@@ -1,0 +1,16 @@
+<% target = (params['n'].presence&.parameterize(separator: '_') || '') + (params['index'].present? ? "_#{params['index']}" : '') %>
+
+var new_html = '<%= j render_first_existing_partial(["data_cycle_core/application/filters/tag_groups/#{params['t']}", "data_cycle_core/application/filters/tag_groups/default"], {
+  title: params['n'],
+  key: params['n'].presence&.parameterize(separator: '_'),
+  target: target,
+  value: params['v'] || [],
+  filter_method: params['m'] || 'i',
+  container_classes: 'advanced-tags',
+  buttons: 'a' }) %>';
+
+if($('.filters .tag-group[data-id="<%= target %>"]').length){
+  $('.filters .tag-group[data-id="<%= target %>"]').replaceWith(new_html);
+} else {
+  $('.filters .filtertags .filter-groups').append(new_html);
+}

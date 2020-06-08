@@ -1,30 +1,41 @@
-version: '2'
+version: '3.1'
 services:
   postgres:
-    image: 'mdillon/postgis:9.6'
+    image: 'patrickrainer/data_cycle_postgis:latest'
     environment:
     - ALLOW_IP_RANGE=0.0.0.0/0
     ports:
     - '5446:5432'
   mongodb:
-    image: 'mvertes/alpine-mongo:3.4.10-0'
+    image: 'mvertes/alpine-mongo:4.0.6-1'
     ports:
     - '27026:27017'
   web:
     build: .
     environment:
+#    - RAILS_ENV=production
     - POSTGRES_USER=postgres
     - POSTGRES_PASSWORD=
     - POSTGRES_HOST=postgres
     - POSTGRES_PORT=5432
+#    - POSTGRES_VERSION=11
     - MONGODB_HOST=mongodb
     - ALLOW_IP_RANGE=172.18.0.0/12
     - TZ=Europe/Vienna
+    - APP_HOST=localhost:3010
+    - APP_PROTOCOL=http
+    - MAILHOG_HOST=mailhog
+    - SSH_AUTH_SOCK=/ssh-agent
+    # - SSH_AUTH_SOCK=/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
+#    - WEBHOOKS=Local-Text-File
+    - "CORE_RAKE_PREFIX=app:"
     command:
     - ./docker/setup.sh
     volumes:
     - 'gems:/gems'
     - '.:/var/www/app'
+    - $SSH_AUTH_SOCK:/ssh-agent
+    # - /run/host-services/ssh-auth.sock:/run/host-services/ssh-auth.sock  # SSH-forwarding for Mac
     user: root
     ports:
     - '3010:3000'
@@ -33,5 +44,37 @@ services:
     - mongodb
     stdin_open: true
     tty: true
+#    depends_on:
+#      - chrome
+  mailhog:
+    image: yappabe/mailhog
+    environment:
+      DNSDOCK_ALIAS: localhost
+    ports:
+      - '1035:8025'
+  redis:
+    image: 'redis:latest'
+    command: redis-server
+    volumes:
+      - 'redis:/data'
+    ports:
+    - '6380:6379'
+#  redis-commander:
+#    image: rediscommander/redis-commander:latest
+#    build: .
+#    restart: always
+#    environment:
+#    - REDIS_HOSTS=local:redis:6379
+#    ports:
+#    - 8087:8081
+#  chrome:
+#    image: selenium/standalone-chrome-debug
+#    volumes:
+#      - /dev/shm:/dev/shm
+#  firefox:
+#    image: selenium/standalone-firefox-debug
+#    volumes:
+#      - /dev/shm:/dev/shm
 volumes:
   gems:
+  redis:

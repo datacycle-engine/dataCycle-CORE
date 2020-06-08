@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   module Filter
     class QueryBuilder
@@ -6,15 +8,10 @@ module DataCycleCore
       include DataCycleCore::Common::ArelBuilder
 
       attr_reader :query
-      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map
+      def_delegators :@query, :to_a, :to_sql, :each, :page, :includes, :all, :select, :map, :except
       TERMINAL_METHODS = [:count, :pluck,
-                          :first, :second, :third, :fourth, :fifth, :forty_two, :last]
+                          :first, :second, :third, :fourth, :fifth, :forty_two, :last].freeze
       def_delegators :@query, *TERMINAL_METHODS
-
-      def initialize(locale = 'de', query = nil)
-        @locale = locale
-        @query = query
-      end
 
       # helper for paging
       def limit(number)
@@ -42,62 +39,8 @@ module DataCycleCore
         reflect(@query.order(*params))
       end
 
-      def group(*params)
-        reflect(@query.group(*params))
-      end
-
-      def having(*params)
-        reflect(@query.having(*params))
-      end
-
-      # different filters
-      def with_classification_alias(name)
-        unless @classification_alias # see if joins are necessary
-          @query = join_classification_alias
-          @classification_alias = true
-        end
-        reflect(
-          @query.where(
-            tsmatch(to_tsvector(classification_alias[:name]), tsquery(quoted(name)))
-          )
-        )
-      end
-
-      def with_classification_aliases(tree_name, *aliases)
-        reflect
-        @query.where(search[:content_data_id].in(
-                       create_classification_alias_recursion(
-                         DataCycleCore::ClassificationAlias.for_tree(tree_name).with_name(aliases).pluck(:id)
-                       )
-        ))
-      end
-
       private
 
-      def create_classification_alias_recursion(ids)
-        children = Arel::Table.new(:children)
-        recursive_term = Arel::SelectManager.new
-          .from(classification_tree)
-          .project(Arel.star)
-          .where(classification_tree[:parent_classification_alias_id].in(ids))
-        non_recursive_term = Arel::SelectManager.new
-          .project(classification_tree[Arel.star])
-          .from(classification_tree).join(children)
-          .on(classification_tree[:parent_classification_alias_id].eq(children[:classification_alias_id]))
-        union = recursive_term.union(:all, non_recursive_term)
-        cte_as_statement = Arel::Nodes::As.new(children, union)
-        select_manager = Arel::SelectManager.new(ActiveRecord::Base).freeze
-        manager = select_manager
-          .with(:recursive, cte_as_statement)
-          .from(children)
-          .project(children[:classification_alias_id])
-
-        query2 = join_classification_alias2
-        manager2 = query2.where(classification_alias[:id].in(manager)
-                                  .or(classification_alias[:id].in(ids)))
-      end
-
-      # custom function helper
       def get_point(longitude, latitude)
         Arel::Nodes::NamedFunction.new('ST_GeomFromEWKT', ["SRID=4326;POINT (#{longitude} #{latitude})"])
       end
@@ -106,52 +49,71 @@ module DataCycleCore
         Arel::Nodes::NamedFunction.new('ST_MakeBox2D', [point1, point2])
       end
 
-      def st_distance(point1, point2)
-        Arel::Nodes::NamedFunction.new('ST_Distance', [point1, point2])
+      def st_dwithin(geom1, geom2, distance)
+        Arel::Nodes::NamedFunction.new('ST_DWithin', [geom1, geom2, distance])
       end
 
-      def current_date
-        Arel::Nodes::NamedFunction.new('CURRENT_DATE', [])
+      def st_transform(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_Transform', [geom, srid])
+      end
+
+      def st_setsrid(geom, srid)
+        Arel::Nodes::NamedFunction.new('ST_SetSRID', [geom, srid])
+      end
+
+      def st_makepoint(x, y)
+        Arel::Nodes::NamedFunction.new('ST_MakePoint', [Arel::Nodes::SqlLiteral.new(x), Arel::Nodes::SqlLiteral.new(y)])
+      end
+
+      def st_contains(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Contains', [geom1, geom2])
+      end
+
+      def st_disjoint(geom1, geom2)
+        Arel::Nodes::NamedFunction.new('ST_Disjoint', [geom1, geom2])
       end
 
       def contains(geo1, geo2)
         Arel::Nodes::InfixOperation.new('@', geo1, geo2)
       end
 
-      def to_tsvector(field)
-        Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
-      end
-
-      def coalesce(field1, field2)
-        Arel::Nodes::NamedFunction.new('coalesce', [field1, field2])
-      end
-
       def in_range(range, date)
         Arel::Nodes::InfixOperation.new('@>', range, date)
       end
 
-      def trgm_match(text1, text2)
-        Arel::Nodes::InfixOperation.new('%', text1, text2)
+      def overlap(range_l, range_r)
+        Arel::Nodes::InfixOperation.new('&&', range_l, range_r)
       end
 
-      def concatinate(string1, string2)
-        Arel::Nodes::InfixOperation.new('||', string1, string2)
+      def in_json(json, key)
+        Arel::Nodes::InfixOperation.new('->>', json, quoted(key))
       end
 
-      def similar_to(field, string)
-        Arel::Nodes::InfixOperation.new('SIMILAR TO', field, quoted(string))
+      def any(set)
+        Arel::Nodes::UnaryOperation.new('ANY', Arel::Nodes::Grouping.new(set))
       end
 
-      def json_element(field, element)
-        Arel::Nodes::InfixOperation.new('->>', field, element)
+      # def trgm_match(text1, text2)
+      #   Arel::Nodes::InfixOperation.new('%', text1, text2)
+      # end
+
+      # def to_tsvector(field)
+      #   Arel::Nodes::NamedFunction.new('to_tsvector', [field]) # [quoted('german'), field])
+      # end
+
+      def tstzrange(ts_l, ts_h, border = '[]')
+        Arel::Nodes::NamedFunction.new('tstzrange', [ts_l, ts_h, quoted(border)])
       end
 
-      def json_path(field, path)
-        Arel::Nodes::InfixOperation.new('#>>', field, path)
-      end
-
-      def sql_date(field)
-        Arel::Nodes::NamedFunction.new('date', [field])
+      def cast_rrule(rrule_string)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(rrule_string),
+              Arel::Nodes::SqlLiteral.new('rrule')
+            )
+          ]
+        )
       end
 
       def cast_tstz(date)
@@ -165,9 +127,112 @@ module DataCycleCore
         )
       end
 
-      # define Arel-tables
+      def cast_date(date)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(date),
+              Arel::Nodes::SqlLiteral.new('date')
+            )
+          ]
+        )
+      end
+
+      def cast_geography(geom)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              geom,
+              Arel::Nodes::SqlLiteral.new('geography')
+            )
+          ]
+        )
+      end
+
+      def join_classification_alias
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees
+        Arel::SelectManager.new
+          .project(thing[:id])
+          .from(thing)
+          .join(classification_content)
+          .on(thing[:id].eq(classification_content[:content_data_id]))
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_trees_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .join(classification_tree)
+          .on(classification_alias[:id].eq(classification_tree[:classification_alias_id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def join_classification_alias_on_classification_content
+        Arel::SelectManager.new
+          .from(classification_content)
+          .join(classification)
+          .on(classification_content[:classification_id].eq(classification[:id]))
+          .join(classification_group)
+          .on(classification[:id].eq(classification_group[:classification_id]))
+          .join(classification_alias)
+          .on(classification_group[:classification_alias_id].eq(classification_alias[:id]))
+          .where(
+            classification[:deleted_at].eq(nil)
+              .and(classification_group[:deleted_at].eq(nil))
+              .and(classification_alias[:deleted_at].eq(nil))
+          )
+      end
+
+      def classification_content
+        DataCycleCore::ClassificationContent.arel_table
+      end
+
       def classification
         Classification.arel_table
+      end
+
+      def classification_tree
+        ClassificationTree.arel_table
       end
 
       def classification_group
@@ -178,13 +243,45 @@ module DataCycleCore
         ClassificationAlias.arel_table
       end
 
-      def classification_tree
-        ClassificationTree.arel_table
+      def watch_list_data_hash
+        DataCycleCore::WatchListDataHash.arel_table
+      end
+
+      def content_content
+        DataCycleCore::ContentContent.arel_table
+      end
+
+      def search
+        DataCycleCore::Search.arel_table
+      end
+
+      def schedule
+        DataCycleCore::Schedule.arel_table
+      end
+
+      def thing
+        DataCycleCore::Thing.arel_table
+      end
+
+      def classification_polygon
+        DataCycleCore::ClassificationPolygon.arel_table
+      end
+
+      def duplicate_candidate
+        DataCycleCore::Thing::DuplicateCandidate.arel_table
+      end
+
+      def external_system_sync
+        DataCycleCore::ExternalSystemSync.arel_table
+      end
+
+      def subscription
+        DataCycleCore::Subscription.arel_table
       end
 
       # chain method for Builder pattern
       def reflect(query)
-        self.class.new(@locale, query)
+        self.class.new(@locale, query, @joined_search, @joined_schedule)
       end
     end
   end

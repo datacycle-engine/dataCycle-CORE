@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddIndexSearch < ActiveRecord::Migration[5.0]
   def up
     enable_extension 'pg_trgm' unless extension_enabled?('pg_trgm')

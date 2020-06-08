@@ -1,0 +1,24 @@
+---
+- :data:
+    :name: external_source_attributes
+    :type: mixin
+    :properties:
+      :feratel_content_score:
+        :label: ContentScore
+        :type: number
+        :storage_location: translated_value
+        :external: true
+        :validations:
+          :format: float
+        :advanced_search: true
+      :external_status:
+        :label: Externer Status
+        :type: classification
+        :tree_label: Externer Status
+        :global: true
+        :not_translated: true
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :disabled: true

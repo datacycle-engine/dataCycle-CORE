@@ -1,0 +1,35 @@
+---
+- :data:
+    :name: BodyOfWaterOverlay
+    :type: object
+    :schema_type: Place
+    :content_type: embedded
+    :properties:
+      :id:
+        :label: id
+        :type: key
+      :name:
+        :label: Name
+        :type: string
+        :storage_location: column
+        :search: true
+      :link_url:
+        :label: Link
+        :type: string
+        :storage_location: translated_value
+      :image:
+        :label: Bilder
+        :type: linked
+        :template_name: Bild
+      :tourism_region:
+        :label: Tourismus-Region
+        :type: classification
+        :tree_label: Tourismus-Regionen
+        :ui:
+          :show:
+            :content_area: header
+      :data_type:
+        :label: Inhaltstyp
+        :type: classification
+        :tree_label: Inhaltstypen
+        :default_value: "Overlay"

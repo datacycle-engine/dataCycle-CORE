@@ -1,9 +1,60 @@
 require('select2');
 require('select2/i18n/de');
-$.fn.select2.defaults.set('language', $.fn.select2.amd.require("select2/i18n/de"));
+$.fn.select2.defaults.set('language', $.fn.select2.amd.require('select2/i18n/de'));
 var select2_helpers = require('./../helpers/select2_helpers');
+var quill_helpers = require('./../helpers/quill_helpers');
 
-module.exports.initialize = function () {
+module.exports.initialize = function ($) {
+  let load_sub_classifications = function (location_array, index) {
+    if (location_array != undefined && index < location_array.length) {
+      let id = location_array[index];
+      let link = $('#' + id + ' > .inner-item > .tree-link');
+
+      if (!link.length) {
+        let prev_id = '';
+        if (index == 0) {
+          prev_id = $('ul.backend-treeview-list > li').first().prop('id');
+        } else {
+          prev_id = location_array[index - 1];
+        }
+
+        let more_link = $('#' + prev_id + ' > .children > .load-more-link > .inner-item > a').last();
+
+        more_link.on('ajax:complete', (event, xhr, options) => {
+          more_link.off('ajax:complete');
+          if ($('#' + id + ' > .inner-item > .tree-link').length) {
+            document.getElementById(id).scrollIntoView({
+              behavior: 'smooth'
+            });
+          } else {
+            $('#' + prev_id + ' > .children > li')
+              .last()
+              .get(0)
+              .scrollIntoView({
+                behavior: 'smooth'
+              });
+          }
+          load_sub_classifications(location_array, index);
+        });
+
+        more_link.click();
+      } else {
+        link.on('ajax:complete', (event, xhr, options) => {
+          link.off('ajax:complete');
+          document.getElementById(id).scrollIntoView({
+            behavior: 'smooth'
+          });
+
+          if (location_array != undefined && index < location_array.length) {
+            load_sub_classifications(location_array, index + 1);
+          }
+        });
+
+        link.click();
+      }
+    }
+  };
+
   if ($('#classification-administration').length) {
     $('#classification-administration').on('ajax:beforeSend', 'a:not(.destroy)', function (event, xhr, options) {
       var childrenContainer = $(event.target).closest('li').children('ul:not(.classifications)');
@@ -14,6 +65,14 @@ module.exports.initialize = function () {
         return false;
       }
     });
+
+    $('#classification-administration').on(
+      'ajax:before',
+      '.edit_classification_alias, .new_classification_alias',
+      (event, xhr, options) => {
+        quill_helpers.updateEditors(event.target);
+      }
+    );
 
     $('#classification-administration').on('click', 'a.create, a.edit', function (event) {
       $('#classification-administration li.active').removeClass('active');
@@ -26,6 +85,12 @@ module.exports.initialize = function () {
 
       var query = {};
 
+      var default_classification_id = $(event.target)
+        .closest('li')
+        .find('.default_classification_mapping')
+        .first()
+        .val();
+
       select.select2({
         tags: true,
         minimumInputLength: 1,
@@ -34,22 +99,22 @@ module.exports.initialize = function () {
         },
         templateResult: function (data) {
           if (data.loading) {
-            return data.path;
+            return data.title;
           }
 
           var term = query.term || '';
 
-          var result = data.path ? select2_helpers.markMatch(data.path, term) : null;
+          var result = data.title ? select2_helpers.markMatch(data.title, term) : null;
 
           select2_helpers.decorateResult(result);
 
           return result;
         },
-        templateSelection: function (data) {
+        templateSelection: function (data, container) {
           return data.name || data.text;
         },
         ajax: {
-          url: '/classifications/search',
+          url: window.DATA_CYCLE_ENGINE_PATH + '/classifications/search',
           delay: 250,
           data: function (params) {
             select.data('select2').$container.addClass('select2-loading');
@@ -60,8 +125,14 @@ module.exports.initialize = function () {
           },
           processResults: function (data) {
             select.data('select2').$container.removeClass('select2-loading');
+
             return {
               results: data
+                .map(value => {
+                  if (value.classification_id != undefined) value.id = value.classification_id;
+                  return value;
+                })
+                .filter(ca => ca.id != default_classification_id)
             };
           }
         }
@@ -69,11 +140,49 @@ module.exports.initialize = function () {
 
       return false;
     });
-    $('#classification-administration').on('click', 'a.discard', function (event) {
-      $(this).parent('li').removeClass('active');
+    $('#classification-administration').on('click', '.discard', function (event) {
+      $(this).parents('form').get(0).reset();
+      $(this).closest('li.active').removeClass('active');
       return false;
     });
+    $('#classification-administration').on('click', '.ca-translation-link', event => {
+      event.preventDefault();
 
+      let locale = $(event.target).data('locale');
+      let caContainer = $(event.target).closest('form');
+
+      caContainer.find('.list-items a.active').removeClass('active');
+      caContainer.find('.list-items [data-locale="' + locale + '"]').addClass('active');
+      caContainer.find('.ca-input > .active').removeClass('active');
+      caContainer
+        .find('.ca-input > .' + locale)
+        .addClass('active')
+        .trigger('dc:remote:render');
+    });
   }
 
-}
+  // Themenbaum
+
+  if ($('#classification-tree-label-list, #search-results > .tree').length) {
+    $('#classification-tree-label-list, #search-results').on('ajax:beforeSend', 'a', function (event, xhr, options) {
+      var childrenContainer = $(event.target).closest('li').children('ul.children, ul.contents');
+
+      childrenContainer.siblings('.inner-item').toggleClass('open');
+
+      if (childrenContainer.hasClass('loaded') && options.type != 'POST') {
+        childrenContainer.toggle();
+
+        return false;
+      }
+    });
+
+    let location_array = location.hash.substr(1).split('+').filter(Boolean);
+    load_sub_classifications(location_array, 0);
+  }
+
+  $(document).on('click', '.toggle-details', event => {
+    event.preventDefault();
+
+    $(event.currentTarget).closest('.inner-item').toggleClass('open').trigger('dc:remote:render');
+  });
+};

@@ -1,34 +1,36 @@
-<section class="search-results">
+<section class="search-results" id="search-results">
+  <% @mode ||= 'grid' %>
 
-    <% if contents&.size.nil? || contents&.size.zero? %>
+  <div class="mode-container">
+    <span class="result-count">
+      <span class="count-full remote-render"
+        id="count-full-results"
+        data-remote-render-params="<%= to_query_params(request.params.slice(:language, :f, :stored_filter, :watch_list_id, :id, :q, :roles, :user_groups).merge({ action: controller.action_name, controller: controller.controller_name, mode: @mode, count_only: true, ctl_id: @classification_tree_label&.id, content_class: local_assigns[:content_class] || 'things', count_mode: @classification_tree_label.nil? ? nil : 'classification_tree_label' })).to_json %>"
+        >-</span>
+    </span>
 
-        <div class="row">
-            <div class="small-12">
-                <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
-            </div>
-        </div>
-
-    <% else %>
-
-        <div class="row">
-            <div class="small-12">
-                <%= paginate @paginateObject %>
-            </div>
-        </div>
-
-        <%# if @mode == 'list' %>
-            <%#= render 'data_cycle_core/backend/partials/list', dataCycleObjects: contents %>
-        <%# else %>
-        <%# end %>
-
-        <%= render 'data_cycle_core/application/presentation/grid', contents: contents %>
-
-        <div class="row">
-            <div class="small-12">
-                <%= paginate @paginateObject %>
-            </div>
-        </div>
-
+    <% if DataCycleCore::Feature::ViewMode.enabled? %>
+      <div class="mode-switcher">
+        <% Array(local_assigns[:modes] || 'grid').each do |mode| %>
+          <%= mode_link(mode, @mode == mode, request.params) %>
+        <% end %>
+      </div>
     <% end %>
+  </div>
 
+  <% if @mode == 'tree' || contents.present? %>
+
+    <ul class="no-bullet no-format <%= @mode %>">
+      <%= render "data_cycle_core/application/presentation/#{valid_mode(@mode)}", contents: contents %>
+    </ul>
+
+  <% else %>
+
+    <div class="row">
+      <div class="small-12">
+        <span class="no-results"><%= t('common.no_results', locale: DataCycleCore.ui_language) %></span>
+      </div>
+    </div>
+
+  <% end %>
 </section>

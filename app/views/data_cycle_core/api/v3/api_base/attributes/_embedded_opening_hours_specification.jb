@@ -1,0 +1,27 @@
+# frozen_string_literal: true
+
+key_new = definition.dig('api', 'name') || key.camelize(:lower)
+
+opening_hours = value.presence&.includes(:translations, :classifications)&.map { |specification|
+  specification.time.map do |time|
+    [specification, time]
+  end
+}&.reduce(&:+)&.map do |specification_with_time|
+  I18n.with_locale(specification_with_time.first.first_available_locale) do
+    if specification_with_time.first.schema.present?
+      item_res = {}
+      item_res.merge! render 'content_context', content: specification_with_time.first
+
+      item_res.merge! render 'content_properties',
+                             content: specification_with_time.first,
+                             options: options.merge(
+                               hidden_attributes: (options[:hidden_attributes] || []) + ['time', 'opens', 'closes']
+                             )
+
+      item_res.merge! render 'content_properties', content: specification_with_time.second, options: options
+    end
+  end
+end
+
+json = { key_new => opening_hours }
+json

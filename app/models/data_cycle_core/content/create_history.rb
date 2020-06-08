@@ -1,0 +1,82 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  module Content
+    module CreateHistory
+      def to_history(save_time:, delete: false)
+        origin_table = self.class.to_s.split('::')[1].tableize
+        data_set_history = (self.class.to_s + '::History').safe_constantize.new
+
+        # cc self to history
+        data_set_history.send(origin_table.singularize.foreign_key + '=', id)
+        attributes.except('id', 'created_at', 'updated_at').each do |key, value|
+          data_set_history.send("#{key}=", value)
+        end
+
+        lower_bound = histories.includes(:translations).find_by(thing_history_translations: { locale: I18n.locale })&.history_valid&.last || created_at
+        data_set_history.history_valid = (lower_bound...save_time)
+        data_set_history.deleted_at = save_time if delete
+        data_set_history.created_at = save_time
+        data_set_history.updated_at = save_time
+        data_set_history.save(touch: false)
+
+        classification_content.all.find_each do |item|
+          classification_history = DataCycleCore::ClassificationContent::History.new
+          classification_history.content_data_history_id = data_set_history.id
+          item.attributes.except('id', 'content_data_id', 'content_data_type').each do |key, value|
+            classification_history.send("#{key}=", value)
+          end
+          classification_history.classification_id = item.classification_id
+          classification_history.save
+        end
+
+        embedded_property_names.each do |content_name|
+          load_embedded_objects(content_name, nil, false).each_with_index do |content_item, index|
+            new_content_history = content_item.to_history(save_time: save_time)
+            from = [new_content_history.updated_at, save_time].min
+            DataCycleCore::ContentContent::History.create!({
+              content_a_history_id: data_set_history.id,
+              relation_a: content_name,
+              order_a: index,
+              content_b_history_id: new_content_history.id,
+              content_b_history_type: 'DataCycleCore::Thing::History',
+              history_valid: (from...save_time)
+            })
+          end
+        end
+
+        linked_property_names.each do |content_name|
+          properties = properties_for(content_name)
+          next if properties.dig('link_direction') == 'inverse'
+          load_linked_objects(content_name).each_with_index do |content_item, index|
+            from = [content_item.updated_at, save_time].min
+            DataCycleCore::ContentContent::History.create!({
+              content_a_history_id: data_set_history.id,
+              relation_a: content_name,
+              order_a: index,
+              relation_b: properties.dig('inverse_of'),
+              content_b_history_id: content_item.id,
+              content_b_history_type: 'DataCycleCore::Thing',
+              history_valid: (from...save_time)
+            })
+          end
+        end
+
+        schedule_property_names.each do |content_name|
+          schedules = load_schedule(content_name)
+          next if schedules.blank?
+          schedules.each do |schedule_data|
+            schedule_history = DataCycleCore::Schedule::History.new
+            schedule_data.attributes.except('id', 'thing_id').each do |key, value|
+              schedule_history.send("#{key}=", value)
+            end
+            schedule_history.thing_history_id = data_set_history.id
+            schedule_history.save
+          end
+        end
+
+        data_set_history
+      end
+    end
+  end
+end

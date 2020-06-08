@@ -1,0 +1,26 @@
+# frozen_string_literal: true
+
+classifications = classification_aliases&.map do |item|
+  {
+    id: item.id,
+    name: item.name(locale: @language) || item.internal_name,
+    description: item.description(locale: @language),
+    uri: item.uri,
+    createdAt: item.created_at,
+    updatedAt: item.updated_at,
+    deletedAt: item.deleted_at,
+    ancestors: item.ancestors.map do |ancestor|
+      {
+        id: ancestor.id,
+        name: ancestor.is_a?(DataCycleCore::ClassificationTreeLabel) ? ancestor.name : ancestor.name(locale: @language) || ancestor.try(:internal_name),
+        createdAt: ancestor.created_at,
+        updatedAt: ancestor.updated_at,
+        deletedAt: ancestor.deleted_at
+      }.compact
+    end
+  }.compact
+end
+
+{
+  key.to_sym => classifications
+}

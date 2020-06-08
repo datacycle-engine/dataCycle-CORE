@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class UserGroupsController < ApplicationController
     before_action :authenticate_user!   # from devise (authenticate)
@@ -5,8 +7,33 @@ module DataCycleCore
     before_action :set_user_group, only: [:edit, :update, :destroy]
 
     def index
-      authorize! :crud, DataCycleCore::UserGroup
-      @paginateObject = DataCycleCore::UserGroup.all.page(params[:page])
+      @search_param = search_params[:q]
+
+      query = DataCycleCore::UserGroup.all
+
+      search_columns = DataCycleCore::UserGroup.columns
+        .select { |c| c.type == :string }
+        .map(&:name)
+
+      if @search_param.present?
+        search_term = @search_param.split(' ').map { |item| "concat_ws(' ', #{search_columns.join(', ')}) ILIKE '%#{item.strip}%'" }.join(' AND ')
+        query = query.where(search_term)
+      end
+
+      @contents = query.includes(:users).order(:name).page(params[:page])
+
+      if count_only_params[:count_only].present?
+        @count_only = true
+        @target = count_only_params[:target]
+        @total_count = @contents.total_count
+        @count_mode = count_only_params[:count_mode]
+        @content_class = count_only_params[:content_class]
+      end
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create
@@ -49,12 +76,20 @@ module DataCycleCore
 
     private
 
+    def search_params
+      params.permit(:q)
+    end
+
     def user_group_params
       params.require(:user_group).permit(:name, user_ids: [], classification_ids: [])
     end
 
     def set_user_group
       @user_group = DataCycleCore::UserGroup.find(params[:id])
+    end
+
+    def count_only_params
+      params.permit(:target, :count_only, :count_mode, :content_class)
     end
   end
 end

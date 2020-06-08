@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddReleaseToEventsPlaces < ActiveRecord::Migration[5.0]
   def change
     reversible do |dir|

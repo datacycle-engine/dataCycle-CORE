@@ -1,17 +1,86 @@
-<h2>Sign up</h2>
+<div class="glass home-container reset-password">
+  <div class="home-container-content">
+    <!--[if lt IE 9]>
+    <div class="legacy-ie-fix"></div>
+    <![endif]-->
+    <div class="columns">
+      <%= render 'logo' %>
+    </div>
 
-<%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
-  <%= f.error_notification %>
+    <main class="columns">
+      <h1><%= t('devise.registrations.new.sign_up', locale: DataCycleCore.ui_language) %></h1>
 
-  <div class="form-inputs">
-    <%= f.input :email, required: true, autofocus: true %>
-    <%= f.input :password, required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length) %>
-    <%= f.input :password_confirmation, required: true %>
+      <%= simple_form_for(resource, as: resource_name, url: registration_path(resource_name)) do |f| %>
+        <% if resource.errors.any? %>
+          <ul class="errors">
+            <% resource.errors.full_messages.each do |message| %>
+              <li><%= message %></li>
+            <% end %>
+          </ul>
+        <% end %>
+
+        <div class="row">
+          <div class="small-3 columns">
+            <label for="user_email" class="text-right middle">E-Mail:</label>
+          </div>
+          <div class="small-8 columns end">
+            <%= f.input :email, required: true, autofocus: true, label: false %>
+          </div>
+        </div>
+
+        <div class="row password-field">
+          <div class="small-3 columns">
+            <label for="user_password" class="text-right middle">Passwort:</label>
+          </div>
+          <div class="small-8 columns end">
+            <%= f.input :password, required: true, label: false %>
+            <span class="password-visibility-toggle">
+                          <i class="fa fa-eye toggle-show"></i>
+                          <i class="fa fa-eye-slash toggle-hide hide"></i>
+                      </span>
+          </div>
+        </div>
+
+        <% t('user_registration.consents', locale: DataCycleCore.ui_language).each do |consent_key, consent_value| %>
+          <div class="row login-checkboxes">
+            <div class="small-4 columns text-right">
+              <%= check_box_tag "additional_attributes[#{consent_key}]", 1, false, { class: '', required: true, id: "additional_attributes_#{consent_key}" } %>
+            </div>
+            <div class="small-7 columns end">
+              <label><%= consent_value.html_safe %></label>
+            </div>
+          </div>
+        <% end %>
+
+        <div class="row">
+          <div class="small-12">&nbsp;</div>
+        </div>
+
+        <div class="row">
+          <div class="small-4 columns">&nbsp;
+          </div>
+          <div class="small-7 columns end">
+            <%- if devise_mapping.confirmable? && controller_name != 'confirmations' %>
+              <%= link_to t('devise.shared.links.didn_t_receive_confirmation_instructions'),
+                          new_confirmation_path(resource_name),
+                          class: 'forgotten_password_link' %>
+            <% end -%>
+          </div>
+        </div>
+        <div class="row">
+          <div class="small-12">&nbsp;</div>
+        </div>
+
+        <div class="row">
+          <div class="small-8 small-offset-3 columns end">
+            <div class="form-actions">
+              <%= f.button :button, class: 'button', type: 'submit' do %>
+                <%= t('devise.registrations.new.sign_up', locale: DataCycleCore.ui_language) %>
+              <% end %>
+            </div>
+          </div>
+        </div>
+      <% end %>
+    </main>
   </div>
-
-  <div class="form-actions">
-    <%= f.button :submit, "Sign up" %>
-  </div>
-<% end %>
-
-<%= render "devise/shared/links" %>
+</div>

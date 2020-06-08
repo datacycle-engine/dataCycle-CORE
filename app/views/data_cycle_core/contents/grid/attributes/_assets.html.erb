@@ -1,0 +1,5 @@
+<% if item.asset.first.thumbnail_url? %>
+    <div class="image-thumbnail">
+        <img data-src="<%= item.asset.first.thumbnail_url %>" alt="<%= item.name %>" class="lazyload grid-item-thumbnail" />
+    </div>
+<% end %>

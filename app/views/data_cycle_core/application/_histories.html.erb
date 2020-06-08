@@ -1,36 +1,35 @@
-<div class="dropdown-pane no-bullet bottom" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
+<div class="dropdown-pane no-bullet bottom <%= additional_classes if local_assigns[:additional_classes].present? %>" id="show-history" data-dropdown data-hover="true" data-hover-pane="true">
   <h5><%= t('history.latest_edits', locale: DataCycleCore.ui_language) %>:</h5>
   <ul class="list-items">
-    <% content.histories.each do |item|%>
-        <li class="<%= item == @historySource ? 'active' : '' %>">
-            <% if item.metadata.try(:[], 'last_updated_by') %>
-                <% person = get_user_for_id(item.metadata['last_updated_by']) %>
-                <%= "<a class='email-link' href='mailto:#{person.email}'>#{person.name}</a>".html_safe %>
-            <% else %>
-                <%= "Unbekannt".html_safe %>
+    <% content.histories.includes(:translations).each do |item|%>
+      <li class="<%= item == @diff_source ? 'active' : '' %>">
+        <% if item.try(:updated_by_user).present? %>
+          <% person = item.updated_by_user %>
+          <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
+        <% elsif item == content.histories.last && item.try(:created_by_user).present? %>
+          <% person = item.created_by_user %>
+          <%= tag.a(person.full_name, class: 'email-link', href: "mailto:#{person.email}", title: person.full_name) %>
+        <% else %>
+          <span class="email-link">System</span>
+        <% end %>
+
+        <% I18n.with_locale(item.first_available_locale) do %>
+          <% if item.history_valid&.first.present? %>
+            <span class="history-time" title="<%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language) %>">
+              <%= l(Time.zone.at(item.history_valid&.first), locale: DataCycleCore.ui_language, format: :history) %>
+            </span>
+          <% end %>
+        <% end %>
+
+        <span class="history-link">
+          <% if can?(:history, content) && item != @diff_source %>
+            <%= link_to history_thing_path(content, history_id: item.id, watch_list_id: @watch_list) do %>
+              <i class="fa fa-history" aria-hidden="true"></i>
             <% end %>
+          <% end %>
+        </span>
 
-            <i><%= Time.zone.at(I18n.with_locale(item.first_available_locale){item.history_valid.last}).to_s(:german_datetime_format) %></i>
-
-            <% if can?(:history, content) && item != @historySource %>
-                <span class="history-link">
-                  <i>
-                      <% if item.class.class_name == 'CreativeWorkHistory' %>
-                          <% if action_name == 'history_detail' %>
-                              <%= link_to polymorphic_url([:history_detail, content], history_id: item.id, watch_list_id: @watch_list) do %>
-                                  <i class="fa fa-history" aria-hidden="true"></i>
-                              <% end %>
-                          <% else %>
-                              <%= link_to polymorphic_url([:history, content], history_id: item.id, watch_list_id: @watch_list) do %>
-                                  <i class="fa fa-history" aria-hidden="true"></i>
-                              <% end %>
-                          <% end %>
-                      <% end %>
-                  </i>
-                </span>
-            <% end %>
-
-        </li>
+      </li>
     <% end %>
   </ul>
 </div>

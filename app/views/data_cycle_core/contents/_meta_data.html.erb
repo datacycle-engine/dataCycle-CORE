@@ -1,16 +1,17 @@
 <div class="metadata">
-  <span class="type <%= content.content_type.downcase %>">
-    <%= render_content_partial 'icon', content: content %>
-    <%= content.content_type %> (<%= I18n.locale %>)
-  </span>
 
-  <span class="created-at">
-    <%= t('history.created_at', locale: DataCycleCore.ui_language) %>
-    <strong><%= Time.at(content.created_at).to_s(:german_datetime_format) %></strong>
-    <% if !content.metadata.nil? && !content.creator.blank? %>
-      <% creator = content.creator.first %>
-      <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.name}" %></a></strong>
-    <% end %>
-  </span>
+    <span class="type <%= content.template_name.downcase %>">
+        <%= render 'data_cycle_core/shared/icon', icon_type: content.template_name.downcase %>
+        <%= t("content_type.#{content.template_name.underscore_blanks}", default: content.template_name.titleize, locale: DataCycleCore.ui_language) %> (<%= I18n.locale %>)
+    </span>
+
+    <span class="created-at">
+        <%= t('history.created_at', locale: DataCycleCore.ui_language) %>
+        <strong><%= l(Time.at(content.created_at), locale: DataCycleCore.ui_language) if content.created_at.present? %></strong>
+        <% if content.created_by.present? %>
+            <% creator = content.created_by_user %>
+            <%= t('terms.from', locale: DataCycleCore.ui_language) %> <strong><a href="mailto:<%= "#{creator.email}" %>"><%= "#{creator.full_name}" %></a></strong>
+        <% end %>
+    </span>
 
 </div>

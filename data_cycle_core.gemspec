@@ -1,7 +1,8 @@
+# frozen_string_literal: true
 
 require 'date'
 
-$LOAD_PATH.push File.expand_path('../lib', __FILE__)
+$LOAD_PATH.push File.expand_path('lib', __dir__)
 
 # allows bundler to use the gemspec for dependencies
 # lib = File.expand_path('../lib', __FILE__)
@@ -18,56 +19,46 @@ Gem::Specification.new do |s|
   s.email       = ['office@datacycle.at']
   s.homepage    = 'http://git.pixelpoint.biz/data-cycle/data-cycle-core'
   s.summary     = 'dataCycle-Core. Rails engine for dataCycle'
-  s.license     = "Copyright 2016-#{DateTime.now.year} datacycle.at. All rights reserved."
+  s.license     = "Copyright 2016-#{Time.now.year} datacycle.at. All rights reserved."
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.4.3'
+  s.required_ruby_version = '~> 2.7.1'
 
   # rails
-  s.add_dependency 'jquery-rails'
-  s.add_dependency 'rails', '~> 5.0.0', '>= 5.0.0.1'
-  s.add_dependency 'rake', '~> 12.1.0'
-  s.add_dependency 'sass-rails', '~> 5.0'
-  # Turbolinks makes navigating your web application faster. Read more: https://github.com/turbolinks/turbolinks
-  s.add_dependency 'turbolinks', '~> 5'
+  s.add_dependency 'rails', '~> 5.2.4'
+  s.add_dependency 'rake'
+  s.add_dependency 'sprockets', '4.0.0'
   # database
   s.add_dependency 'activerecord-postgis-adapter'
   s.add_dependency 'acts_as_tree'
   s.add_dependency 'pg', '~> 0.21'
   s.add_dependency 'rgeo'
+  s.add_dependency 'rgeo-geojson'
+  s.add_dependency 'rgeo-shapefile'
   # mongoDB driver
-  s.add_dependency 'mongoid'
-  # s.add_dependency 'arel-helpers'
+  s.add_dependency 'mongoid', '~> 7.0.6'
   # REST Client
   s.add_dependency 'faraday'
+  s.add_dependency 'faraday_middleware'
   # JSON Parser
   s.add_dependency 'multi_json'
-  # SOAP Client
-  # s.add_dependency 'savon', '~> 2.0'
   # XML Parser
-  s.add_dependency 'nokogiri', '~> 1.8.2'
+  s.add_dependency 'nokogiri', '~> 1.10.3'
   # s.add_dependency 'activemodel-serializers-xml'
   # authentication
   s.add_dependency 'devise'
+  s.add_dependency 'jwt'
   # authorization
   s.add_dependency 'cancancan'
-  # foundation helper
-  s.add_dependency 'devise-foundation-views'
-  s.add_dependency 'foundation-rails', '~> 6.2.4' # 23.2.17 -> bug in  6.3.0 (prevents precompile the SCSS asset)
-  s.add_dependency 'foundation_rails_helper', '>= 3.0.0.rc2', '< 4.0'
-  # google material icons wrapper
-  s.add_dependency 'material_icons'
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
-  s.add_dependency 'awesome_print'
+  # s.add_dependency 'awesome_print'
+  s.add_dependency 'amazing_print'
   # validator for json data
   s.add_dependency 'json-schema'
-  # simple logger for import/load
-  s.add_dependency 'logging'
   # background-jobs
-  s.add_dependency 'delayed_job'
   s.add_dependency 'delayed_job_active_record'
   # deamon for delayed_job
   s.add_dependency 'daemons'
@@ -78,32 +69,92 @@ Gem::Specification.new do |s|
 
   s.add_dependency 'jbuilder'
 
-  s.add_dependency 'acts_as_paranoid', '~> 0.5.0'
-  s.add_dependency 'dry-validation', '~> 0.11'
-  s.add_dependency 'hashdiff'
+  s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
+  s.add_dependency 'dry-transformer'
+  s.add_dependency 'dry-validation'
+  # s.add_dependency 'dry-validation', '~> 0.11'
+  s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
+
+  # gems for event-schedules
+  s.add_dependency 'ice_cube'
 
   # File Upload
   s.add_dependency 'carrierwave', '~> 0.5'
   s.add_dependency 'carrierwave_backgrounder', '~> 0.4.2'
   s.add_dependency 'mini_magick'
+  s.add_dependency 'pdf-reader'
+  s.add_dependency 'streamio-ffmpeg'
+  s.add_dependency 'taglib-ruby', '~> 1.0.0'
 
+  # Image Optimization
+  s.add_dependency 'image_optim'
+  s.add_dependency 'image_optim_pack'
+
+  # s.add_dependency 'translate', path: 'vendor/gems/translate'
+
+  s.add_dependency 'rails-html-sanitizer', '>= 1.0.4'
   # cron jobs gem
   s.add_dependency 'whenever'
+  # redis
+  s.add_dependency 'hiredis'
+  s.add_dependency 'redis'
 
-  # development tools
+  # redcarpet (for rendering markdown)
+  s.add_dependency 'redcarpet'
+
+  # phash
+  s.add_dependency 'pHash'
+
+  # progress bar
+  s.add_dependency 'ruby-progressbar'
+
+  # URI (https://tools.ietf.org/html/rfc3986) and IRI (https://tools.ietf.org/html/rfc3987) Parser
+  s.add_dependency 'addressable'
+
+  # jb gem for APIv3
+  # s.add_dependency 'jb'
+
+  # development gems
   s.add_development_dependency 'better_errors'
   s.add_development_dependency 'binding_of_caller'
-  s.add_development_dependency 'listen', '~> 3.0.5'
-  s.add_development_dependency 'rubocop', '~> 0.52.1'
-  s.add_development_dependency 'spring'
-  s.add_development_dependency 'spring-watcher-listen', '~> 2.0.0'
+  # s.add_development_dependency 'listen'
+  # s.add_development_dependency 'spring'
   s.add_development_dependency 'web-console'
 
-  s.add_dependency 'dotenv-rails'
-  s.add_dependency 'puma', '~> 3.10.0'
+  # s.add_dependency 'dotenv-rails'
+  s.add_dependency 'puma' # , '~> 3.12.1'
+  s.add_dependency 'puma-status'
+  s.add_dependency 'puma_worker_killer'
 
-  s.add_development_dependency 'brakeman'
+  # Excel Generator
+  # s.add_dependency 'rubyzip', '>= 1.2.1'
+  # s.add_dependency 'caxlsx'
+  s.add_dependency 'caxlsx_rails'
+
+  # Google Cloud Services
+  s.add_dependency 'google-cloud-translate'
+  s.add_dependency 'google-cloud-vision'
+
+  # premailer
+  s.add_dependency 'premailer'
+
+  # validation gems
+  s.add_development_dependency 'brakeman', '>= 4.5.1'
   s.add_development_dependency 'bundler-audit'
-  s.add_development_dependency 'gemsurance'
+  s.add_development_dependency 'faker'
+  s.add_development_dependency 'fasterer'
+  # s.add_development_dependency 'gemsurance'
+  # s.add_development_dependency 'rubocop', '~> 0.63.1'
+  s.add_development_dependency 'rubocop', '~> 0.84.0'
+  s.add_development_dependency 'rubocop-performance'
+  s.add_development_dependency 'rubocop-rails'
+  # s.add_development_dependency 'capybara'
+  # s.add_development_dependency 'selenium-webdriver'
+  # s.add_development_dependency 'chromedriver-helper'
+
+  # only activate if required for local testing
+  # s.add_development_dependency 'bullet'
+  # # rails panel (test)
+  # s.add_development_dependency 'meta_request'
 end

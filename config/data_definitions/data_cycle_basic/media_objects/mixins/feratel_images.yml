@@ -1,0 +1,13 @@
+---
+- :data:
+    :name: feratel_images
+    :type: mixin
+    :properties:
+      :feratel_creative_commons:
+        :label: Feratel - CreativeCommons
+        :type: classification
+        :tree_label: Feratel - CreativeCommons
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

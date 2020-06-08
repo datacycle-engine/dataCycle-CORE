@@ -1,0 +1,85 @@
+[
+  {
+    "_id": {
+      "$oid": "5bed505efe4ae900a47b542f"
+    },
+    "external_id": "324",
+    "dump": {
+      "de": {
+        "id": "324",
+        "name": {
+          "text": "Wörthersee"
+        },
+        "lat": {
+          "text": "46.630873"
+        },
+        "lng": {
+          "text": "14.126787"
+        },
+        "region": {
+          "id": "2",
+          "text": "Kärnten"
+        },
+        "link": {
+          "text": "https://www.bergfex.at/sommer/klagenfurt/seen/woerthersee/"
+        },
+        "temperature": {
+          "t": "2018-11-15 08:16:37",
+          "text": "13"
+        },
+        "quality": {
+          "id": "1",
+          "text": "sehr gut"
+        },
+        "area": {
+          "text": "19.39"
+        },
+        "depth": {
+          "text": "85.2"
+        }
+      },
+      "en": {
+        "id": "324",
+        "name": {
+          "text": "Wörthersee"
+        },
+        "lat": {
+          "text": "46.630873"
+        },
+        "lng": {
+          "text": "14.126787"
+        },
+        "region": {
+          "id": "2",
+          "text": "Kärnten"
+        },
+        "link": {
+          "text": "https://www.bergfex.at/sommer/klagenfurt/seen/woerthersee/"
+        },
+        "temperature": {
+          "t": "2018-11-15 08:16:37",
+          "text": "13"
+        },
+        "quality": {
+          "id": "1",
+          "text": "sehr gut"
+        },
+        "area": {
+          "text": "19.39"
+        },
+        "depth": {
+          "text": "85.2"
+        }
+      }
+    },
+    "seen_at": {
+      "$date": "2018-11-15T10:54:22.723Z"
+    },
+    "updated_at": {
+      "$date": "2018-11-15T10:54:22.723Z"
+    },
+    "created_at": {
+      "$date": "2018-11-15T10:54:22.441Z"
+    }
+  }
+]

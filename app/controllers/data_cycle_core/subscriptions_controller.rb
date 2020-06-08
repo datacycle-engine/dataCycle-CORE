@@ -1,14 +1,30 @@
+# frozen_string_literal: true
+
 module DataCycleCore
   class SubscriptionsController < ApplicationController
     before_action :authenticate_user! # from devise (authenticate)
+    include DataCycleCore::Filter
 
     def index
-      @paginateObject = current_user.subscriptions.includes(:subscribable).order(updated_at: :desc).page(params[:page])
+      authorize! :index, DataCycleCore::Subscription
+      pre_filters
+      @pre_filters.push(
+        {
+          't' => 'subscribed_user_id',
+          'v' => current_user.id
+        }
+      )
+
+      set_instance_variables_by_view_mode(query: @query, user_filter: { scope: 'subscriptions' })
+
+      respond_to do |format|
+        format.html
+        format.js { render 'data_cycle_core/application/more_results' }
+      end
     end
 
     def create
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == subscription_params['subscribable_type'].classify }
-      authorize! :subscribe, object_type.constantize
+      authorize! :subscribe, DataCycleCore::Thing
       @subscription = current_user.subscriptions.build(subscription_params)
 
       respond_to do |format|
@@ -23,9 +39,8 @@ module DataCycleCore
 
     def destroy
       @subscription = DataCycleCore::Subscription.find(params[:id])
-      object_type = DataCycleCore.content_tables.map { |object| ('DataCycleCore::' + object.singularize.classify) }.find { |object| object == @subscription.subscribable_type.classify }
 
-      authorize! :subscribe, object_type.constantize
+      authorize! :subscribe, DataCycleCore::Thing
       @subscription.destroy
 
       respond_to do |format|

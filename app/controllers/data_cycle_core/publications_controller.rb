@@ -1,0 +1,81 @@
+# frozen_string_literal: true
+
+module DataCycleCore
+  class PublicationsController < ApplicationController
+    include DataCycleCore::Filter
+    before_action :authenticate_user! # from devise (authenticate)
+    authorize_resource class: false # from cancancan (authorize)
+
+    def index
+      @publication_classifications = DataCycleCore::Thing
+        .find_by(template: true, template_name: 'Publikations-Plan')
+        &.schema
+        &.dig('properties')
+        &.select { |_, v| v['type'] == 'classification' && (Array(DataCycleCore::ClassificationTreeLabel.find_by(name: v['tree_label'])&.visibility) & ['show', 'show_more']).size.positive? }
+        &.map { |k, v| [k, v['tree_label']] }
+        &.to_h || {}
+
+      @filters = pre_filters.dup
+      @filters.push(
+        {
+          't' => 'relation',
+          'v' => 'publication_schedule'
+        }
+      )
+
+      @language ||= params.fetch(:language) { [current_user.default_locale] }
+
+      query_params = @language.include?('all') ? [nil, DataCycleCore::Thing] : [@language]
+      query ||= DataCycleCore::Filter::Search.new(*query_params).exclude_templates_embedded
+
+      @filters.presence&.each do |filter|
+        query = query.send(filter['t'], filter['v']) if query.respond_to?(filter['t'])
+      end
+
+      query = query.distinct_by_content_id(@order_string)
+
+      @default_filters = @filters.select { |f| f['c'] == 'd' && f['t'] == 'classification_alias_ids' }
+      @advanced_filters = @filters.select { |f| f['c'] == 'a' }
+      @selected_classifications = @default_filters.map { |c| c['v'] }.flatten.compact.uniq
+      @selected_classification_aliases = DataCycleCore::ClassificationAlias
+        .where(id: @filters.select { |f| f['t'] == 'classification_alias_ids' }.map { |f| f['v'] }.flatten.compact.uniq)
+        .index_by(&:id)
+
+      query2 = DataCycleCore::Thing.joins(:content_content_b).where(template: false, template_name: 'Publikations-Plan', content_contents: { content_a_id: query.pluck(:id) })
+
+      # TODO: move to value after final refactor_data_definition migration
+      value_storage_location = 'metadata'
+
+      if params[:publications_from].present?
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", params[:publications_from])
+      else
+        query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz >= ?", Date.current)
+      end
+
+      query2 = query2.where("(#{value_storage_location} ->> 'publish_at')::timestamptz <= ?", params[:publications_until]) if params[:publications_until].present?
+
+      @publication_classification_alias_ids = @default_filters.select { |f| @publication_classifications.values&.include?(f['n']) }
+
+      if @publication_classification_alias_ids.present?
+        content_ids = []
+        @publication_classification_alias_ids.each_with_index do |alias_ids, index|
+          if index.zero?
+            content_ids = query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
+          else
+            content_ids &= query2.with_classification_alias_ids(alias_ids['v']).pluck(:id)
+          end
+        end
+
+        query2 = query2.where(id: content_ids)
+      end
+
+      @contents = query2.order(Arel.sql("(#{value_storage_location} ->> 'publish_at')::timestamptz ASC")).page(params[:page]).per(10).includes(:classifications, content_content_b: [content_a: :translations])
+
+      @total = @contents.map(&:content_content_b).map { |c| c.first.content_a_id }.uniq.size
+
+      @pages = @contents.total_pages
+
+      respond_to(:html, :js)
+    end
+  end
+end

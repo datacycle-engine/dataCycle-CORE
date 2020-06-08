@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 class AddExternalKeyColumnForContents < ActiveRecord::Migration[5.0]
   def up
     add_column :creative_works, :external_key, :string
