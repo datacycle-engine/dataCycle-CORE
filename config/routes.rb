@@ -132,6 +132,7 @@ DataCycleCore::Engine.routes.draw do
 
   get  '/admin', to: 'dash_board#home'
   get  '/admin/download/:id', to: 'dash_board#download', as: 'admin_download'
+  get  '/admin/download_full/:id', to: 'dash_board#download_full', as: 'admin_download_full'
   get  '/admin/download_import/:id', to: 'dash_board#download_import', as: 'admin_download_import'
   get  '/admin/import/:id', to: 'dash_board#import', as: 'admin_import'
   get  '/admin/import_full/:id', to: 'dash_board#import_full', as: 'admin_import_full'

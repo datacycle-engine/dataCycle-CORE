@@ -25,10 +25,13 @@ module DataCycleCore
         def self.modified(data)
           [
             data,
+            data.dig('Facilities'),
             data.dig('Addresses', 'Address'),
             data.dig('Documents', 'Document'),
             data.dig('Descriptions', 'Description'),
             data.dig('Links', 'Link'),
+            data.dig('Products', 'Product'),
+            data.dig('Products', 'Product', 'Descriptions', 'Description'),
             data.dig('CustomAttributes'),
             data.dig('Services', 'Service'),
             data.dig('Services', 'Service', 'Facility'),
