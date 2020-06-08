@@ -3,6 +3,15 @@
     :name: meta_data
     :type: mixin
     :properties:
+      :universal_classifications:
+        :label: Classifications
+        :type: classification
+        :external: true
+        :universal: true
+        :ui:
+          :show:
+            :content_area: header
+            :partial: universal_classifications
       :cc_rel:
         :type: mixin
         :name: cc_rel

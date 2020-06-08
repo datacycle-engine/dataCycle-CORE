@@ -1,0 +1,68 @@
+---
+name: JetTicket
+credentials:
+  host: https://webshop.events-vorarlberg.at/
+  end_point: GatewayWebService/Gatewaywebservice.asmx
+default_options:
+  locales: [de]
+config:
+  download_config:
+    articles:
+      sorting: 1
+      source_type: articles
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadArticles
+    countries:
+      sorting: 2
+      source_type: countries
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadCountries
+    customer_types:
+      sorting: 3
+      source_type: customer_types
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadCustomerTypes
+    event_managers:
+      sorting: 4
+      source_type: event_managers
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadEventManagers
+    event_types:
+      sorting: 5
+      source_type: event_types
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadEventTypes
+    regions:
+      sorting: 6
+      source_type: regions
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadRegion
+    seasons:
+      sorting: 7
+      source_type: seasons
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadSeasons
+    venues:
+      sorting: 30
+      source_type: venues
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadVenues
+    event_series:
+      sorting: 40
+      source_type: event_series
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadEventSeries
+    events:
+      sorting: 50
+      source_type: events
+      read_type: seasons
+      endpoint: DataCycleCore::Generic::JetTicket::Endpoint
+      download_strategy: DataCycleCore::Generic::JetTicket::DownloadEvents
+  import_config:
+    events:
+      sorting: 50
+      source_type: events
+      import_strategy: DataCycleCore::Generic::JetTicket::ImportEvents
+      transformations:
+        media_asset:
+          template: Event

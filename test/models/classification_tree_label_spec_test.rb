@@ -14,7 +14,7 @@ describe DataCycleCore::ClassificationTreeLabel do
   end
 
   def external_source
-    @external_source ||= DataCycleCore::ExternalSource.create!(name: 'DUMMY SOURCE')
+    @external_source ||= DataCycleCore::ExternalSystem.create!(name: 'DUMMY SOURCE')
   end
 
   after do

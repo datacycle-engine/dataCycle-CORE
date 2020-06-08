@@ -1,9 +1,13 @@
 # author: rainer@pixelpoint.at
 inherit_from: .rubocop_todo.yml
 
+require:
+  - rubocop-performance
+  - rubocop-rails
+
 AllCops:
-  TargetRubyVersion: 2.6.3
-  TargetRailsVersion: 5.2.3
+  TargetRubyVersion: 2.7.1
+#  TargetRailsVersion: 5.2.3
   DisplayCopNames: true
   Exclude:
     - 'node_modules/**/*'
@@ -11,8 +15,8 @@ AllCops:
     - 'cache/**/*'
     - 'bash/**/*'
 
-Rails:
-  Enabled: true
+#Rails:
+#  Enabled: true
 
 #######################################################
 ########## Bundler
@@ -24,26 +28,47 @@ Bundler/OrderedGems:
 Layout/MultilineMethodCallIndentation:
   EnforcedStyle: indented
 
-#Lint/SplatKeywordArguments:
-#  Enabled: false
-
-Layout/IndentHash:
+Layout/FirstHashElementIndentation:
   EnforcedStyle: consistent
 
 Layout/EmptyLineAfterGuardClause:
   Enabled: false
 
+Layout/LineLength:
+  Enabled: false
+
+Layout/SpaceAroundMethodCallOperator:
+  Enabled: true
+
+Layout/EmptyLinesAroundAttributeAccessor:
+  Enabled: false
+
+#######################################################
+########## Lint
+
+#Lint/SplatKeywordArguments:
+#  Enabled: false
+
+Lint/RaiseException:
+  Enabled: true
+
+Lint/StructNewOverride:
+  Enabled: true
+
+Lint/DeprecatedOpenSSLConstant:
+  Enabled: true
+
 #######################################################
 ########## Style
+
+Style/SlicingWithRange:
+  Enabled: false
 
 Style/AsciiComments:
   Enabled: false
 
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
-
-Style/BracesAroundHashParameters:
-  Enabled: false
 
 Style/ConditionalAssignment:
   Enabled: false
@@ -80,6 +105,20 @@ Style/SymbolArray:
 Style/WordArray:
   EnforcedStyle: brackets
 
+Style/ExponentialNotation:
+  Enabled: true
+
+Style/HashEachMethods:
+  Enabled: true
+
+# test
+Style/HashTransformKeys:
+  Enabled: false
+
+# test
+Style/HashTransformValues:
+  Enabled: false
+
 #######################################################
 ########## Metrics
 Metrics/AbcSize:
@@ -95,9 +134,6 @@ Metrics/ClassLength:
   Enabled: false
 
 Metrics/CyclomaticComplexity:
-  Enabled: false
-
-Metrics/LineLength:
   Enabled: false
 
 Metrics/MethodLength:
@@ -118,13 +154,29 @@ Metrics/PerceivedComplexity:
 Naming/HeredocDelimiterNaming:
   Enabled: false
 
-Naming/UncommunicativeMethodParamName:
+Naming/MethodParameterName:
   MinNameLength: 1
 
 #######################################################
 ########## Rails
 
 Rails/CreateTableWithTimestamps:
+  Enabled: false
+
+Rails/FilePath:
+  EnforcedStyle: arguments
+
+Rails/HelperInstanceVariable:
+  Enabled: false
+
+Rails/ReflectionClassName:
+  Enabled: false
+
+Rails/ApplicationController:
+  Exclude:
+    - 'app/controllers/data_cycle_core/missing_asset_controller.rb'
+
+Rails/RakeEnvironment:
   Enabled: false
 
 #######################################################

@@ -36,14 +36,12 @@
         :template_name: PlaceOverlay
         :validations:
           :max: 1
+      :vtg_bodensee:
+        :type: mixin
+        :name: vtg_bodensee
       :content_classifications:
         :type: mixin
         :name: content_classifications
-      :opening_hours_specification:
-        :label: Öffnungszeit
-        :type: embedded
-        :template_name: Öffnungszeit
-        :translated: true
       :postal_address:
         :type: mixin
         :name: postal_address
@@ -59,30 +57,12 @@
       :linked_data:
         :type: mixin
         :name: linked_data
-      :contains_place:
-        :label: Services
-        :type: linked
-        :template_name: Zimmer
-        :translated: true
-      :makes_offer:
-        :label: Angebote
-        :type: embedded
-        :template_name: Angebot
-        :translated: true
-      # move to dataCycleProperty
-      :price_range:
-        :label: Preis-Info
-        :type: string
-        :storage_location: translated_value
-        :search: true
-        :ui:
-          :edit:
-            :type: text_editor
-            :options:
-              :data-size: basic
       :potential_actions:
         :type: mixin
         :name: potential_actions
+      :additional_lodging_business_properties:
+        :type: mixin
+        :name: additional_lodging_business_properties
       :outdoor_active:
         :type: mixin
         :name: outdoor_active
@@ -95,9 +75,9 @@
       :feratel_categories:
         :type: mixin
         :name: feratel_categories
-      :external_source_attribtues:
+      :external_source_attributes:
         :type: mixin
-        :name: external_source_attribtues
+        :name: external_source_attributes
       :xamoom:
         :type: mixin
         :name: xamoom
@@ -107,14 +87,25 @@
       :hrs:
         :type: mixin
         :name: hrs
+      :sulu:
+        :type: mixin
+        :name: sulu
       :data_type:
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Unterkunft"
+        :default_value: 'Unterkunft'
       :meta_data:
         :type: mixin
         :name: meta_data
       :additional_properties:
         :type: mixin
         :name: additional_properties
+      :amenity_feature:
+        :label: Zusätzliches Merkmal
+        :type: embedded
+        :template_name: AmenityFeature
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false

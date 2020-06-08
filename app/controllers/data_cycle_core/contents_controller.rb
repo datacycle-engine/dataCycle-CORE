@@ -238,18 +238,15 @@ module DataCycleCore
 
       redirect_back(fallback_location: root_path) && return if @diff_source.nil? || @content.nil?
 
-      I18n.with_locale(@content.first_available_locale) do
-        @data_schema = @content.get_data_hash
-      end
-
       I18n.with_locale(@diff_source.first_available_locale) do
+        @data_schema = @content.get_data_hash
         @diff_schema = @diff_source.diff(@data_schema)
       end
     end
 
     def import
       content = params[:data].as_json
-      external_source = DataCycleCore::ExternalSource.find(content['source_key'])
+      external_source = DataCycleCore::ExternalSystem.find(content['source_key'])
       api_strategy_class = DataCycleCore.allowed_api_strategies.find { |object| object == external_source.config['api_strategy'] }
       api_strategy = api_strategy_class&.constantize&.new(external_source, 'thing', content.values.first['url'].split('/').last, nil)
       @content = api_strategy.create(content.except('source_key'))

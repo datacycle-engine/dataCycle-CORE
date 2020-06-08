@@ -3,32 +3,27 @@
 module DataCycleCore
   module MasterData
     module ImportExternalSystems
-      def self.import_all(validation: true, external_system_path: nil)
-        # update all existing Systems with not responding host
-        ActiveRecord::Base.connection.execute("UPDATE external_systems SET credentials = jsonb_set(credentials, '{host}', '\"http://localhost\"'::jsonb, false)")
+      def self.import_all(validation: true, paths: nil)
+        # remove credentials for safety, when running imported live database
+        DataCycleCore::ExternalSystem.update_all(credentials: nil) # rubocop:disable Rails/SkipsModelValidations
 
         errors = {}
-        external_system_path ||= DataCycleCore.external_systems_path
-        if external_system_path.blank?
+        (paths ||= [DataCycleCore.external_sources_path, DataCycleCore.external_systems_path])&.compact!
+        file_paths = Dir.glob(Array.wrap(paths&.map { |p| p + Rails.env + '*.yml' })).concat(Dir.glob(Array.wrap(paths&.map { |p| p + '*.yml' }))).uniq { |p| File.basename(p) }
+
+        if file_paths.blank?
           puts 'INFO: no external systems found'
           return
         end
 
-        default_file_names = Dir[external_system_path + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
-        specific_file_names = Dir[external_system_path + Rails.env + '*.yml']&.map { |f| [File.basename(f), f] }.to_h || {}
-
-        file_names = default_file_names.merge(specific_file_names).values
-        file_names.each do |file_name|
+        file_paths.each do |file_name|
           data = YAML.safe_load(File.open(file_name), [Symbol])
           error = validation ? validate(data.deep_symbolize_keys) : nil
           if error.blank?
             external_system = DataCycleCore::ExternalSystem.find_or_initialize_by(name: data['name'])
-            external_system.identifier = data['identifier'] || data['name']
-            external_system.credentials = data['credentials']
-            external_system.config = data['config']
-            external_system.default_options = data['default_options']
+            data['identifier'] ||= data['name']
+            external_system.attributes = data.slice('name', 'identifier', 'credentials', 'config', 'default_options')
             external_system.save
-
           else
             errors[data['name']] = error
           end
@@ -41,66 +36,111 @@ module DataCycleCore
       end
 
       def self.validate(data_hash)
-        errors = validate_header.call(data_hash.deep_symbolize_keys).errors || {}
+        validation_hash = data_hash.deep_symbolize_keys
+        validate_header = ExternalSystemHeaderContract.new
+        errors = validate_header.call(validation_hash).errors.to_h || {}
+        errors[:import_config] = {}
+        errors[:download_config] = {}
+
+        validate_import = ExternalSystemImportContract.new
+        import_config = validation_hash.dig(:config, :import_config) || {}
+        if import_config.is_a?(Hash)
+          import_config.each do |key, value|
+            error = validate_import.call(value).errors.to_h
+            errors[:import_config][key] = error if error.present?
+          end
+        else
+          errors[:import_config][:general] = 'Import config must be a Hash'
+        end
+
+        validate_download = ExternalSystemDownloadContract.new
+        download_config = validation_hash.dig(:config, :download_config) || {}
+        if download_config.is_a?(Hash)
+          download_config.each do |key, value|
+            error = validate_download.call(value).errors.to_h
+            errors[:download_config][key] = error if error.present?
+          end
+        else
+          errors[:download_config][:general] = 'Download config must be a Hash'
+        end
+
         errors.reject { |_, v| v.blank? }
       end
 
-      def self.validate_header
-        Dry::Validation.Schema do
-          configure do
-            def class?(value)
-              if value.safe_constantize.nil?
-                false
-              else
-                value.safe_constantize.class == Class
-              end
-            end
-
-            def module?(value)
-              if value.safe_constantize.nil?
-                false
-              else
-                value.safe_constantize.class == Module
-              end
-            end
-
-            def self.messages
-              super.merge(
-                en: {
-                  errors: {
-                    class?: 'the string given does not specify a valid ruby class.',
-                    module?: 'the string given does not specify a valid ruby module.'
-                  }
-                }
-              )
-            end
-          end
-
+      class ExternalSystemHeaderContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
           required(:name) { str? }
           optional(:identifier) { str? }
-          required(:credentials) { hash? }
-          optional(:default_options).schema do
+          optional(:credentials)
+          optional(:default_options).hash do
             optional(:locales).each { str? }
           end
-          required(:config).schema do
-            optional(:push_config).schema do
-              optional(:endpoint) { class? }
-              optional(:create).schema do
-                required(:strategy) { module? }
+          optional(:config).hash do
+            optional(:api_strategy) { str? }
+            optional(:push_config).hash do
+              optional(:endpoint) { str? }
+              optional(:create).hash do
+                required(:strategy) { str? }
               end
-              optional(:update).schema do
-                required(:strategy) { module? }
+              optional(:update).hash do
+                required(:strategy) { str? }
               end
-              optional(:delete).schema do
-                required(:strategy) { module? }
+              optional(:delete).hash do
+                required(:strategy) { str? }
               end
             end
-            optional(:refresh_config).schema do
-              optional(:endpoint) { class? }
-              required(:strategy) { module? }
+            optional(:refresh_config).hash do
+              optional(:endpoint) { str? }
+              required(:strategy) { str? }
             end
+            optional(:download_config) { hash? }
+            optional(:import_config) { hash? }
           end
         end
+
+        rule(:credentials).validate(:dc_array_or_hash)
+        rule(config: :api_strategy).validate(:dc_class)
+
+        rule('config.push_config.endpoint').validate(:dc_class)
+        rule('config.refresh_config.endpoint').validate(:dc_class)
+
+        rule('config.push_config.create.strategy').validate(:dc_module)
+        rule('config.push_config.update.strategy').validate(:dc_module)
+        rule('config.push_config.delete.strategy').validate(:dc_module)
+
+        rule('config.refresh_config.strategy').validate(:dc_module)
+      end
+
+      class ExternalSystemDownloadContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
+          optional(:sorting) { int? & gt?(0) }
+          required(:source_type) { str? }
+          required(:endpoint) { str? }
+          required(:download_strategy) { str? }
+          optional(:logging_strategy) { str? }
+        end
+
+        rule(:endpoint).validate(:dc_class)
+        rule(:download_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
+      end
+
+      class ExternalSystemImportContract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
+          optional(:sorting) { int? & gt?(0) }
+          required(:source_type) { str? }
+          optional(:read_type) { str? }
+          required(:import_strategy) { str? }
+          optional(:tree_label) { str? }
+          optional(:tag_id_path) { str? }
+          optional(:tag_name_path) { str? }
+          optional(:external_id_prefix) { str? }
+          optional(:logging_strategy) { str? }
+          optional(:transformations) { hash? }
+        end
+
+        rule(:import_strategy).validate(:dc_module)
+        rule(:logging_strategy).validate(:dc_logging_strategy)
       end
     end
   end

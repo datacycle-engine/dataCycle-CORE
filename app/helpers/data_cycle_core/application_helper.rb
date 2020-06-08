@@ -182,7 +182,7 @@ module DataCycleCore
     end
 
     def new_attribute_labels(template)
-      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label')] }.to_h : { k => v.slice('type', 'label') } }&.reduce({}, :merge)
+      template&.schema&.dig('properties')&.slice(*new_dialog_config(template, nil, '**list').values.flatten)&.map { |k, v| v['type'] == 'object' ? v['properties']&.map { |o_k, o_v| [o_k, o_v.slice('type', 'label', 'ui')] }.to_h : { k => v.slice('type', 'label', 'ui') } }&.reduce({}, :merge)
     end
 
     def uploader_validation_to_text(value, parents = ['uploader', 'validation'])
@@ -276,7 +276,7 @@ module DataCycleCore
     def render_attribute_viewer(key:, definition:, value:, parameters: {}, content: nil, scope: :show)
       return unless can?(:show, DataCycleCore::DataAttribute.new(key, definition, parameters[:options], content, scope)) && content&.allowed_feature_attribute?(key.attribute_name_from_key)
 
-      return if definition['type'] == 'classification' && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
+      return if definition['type'] == 'classification' && !definition['universal'] && !DataCycleCore::ClassificationService.visible_classification_tree?(definition['tree_label'], parameters.dig(:options, :force_render) ? DataCycleCore.classification_visibilities.select { |c| c.start_with?(scope.to_s) } : scope.to_s)
 
       partials = [
         definition&.dig('ui', 'show', 'partial').presence,

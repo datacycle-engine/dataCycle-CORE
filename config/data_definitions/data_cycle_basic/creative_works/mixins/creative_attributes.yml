@@ -29,6 +29,7 @@
                 - Ort
                 - Veranstaltung
                 - Veranstaltungsserie
+                - Unterkunft
       :description:
         :label: Teasertext
         :type: string

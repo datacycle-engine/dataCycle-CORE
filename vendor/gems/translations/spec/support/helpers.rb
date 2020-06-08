@@ -30,7 +30,7 @@ module Helpers
         candidate = this_metadata[:description_args].first
         begin
           return candidate.constantize if String === candidate # rubocop:disable Style/CaseEquality
-        rescue NameError, NoMethodError # rubocop:disable Lint/HandleExceptions, Lint/ShadowedException
+        rescue NameError, NoMethodError # rubocop:disable Lint/HandleExceptions, Lint/ShadowedException, Lint/SuppressedException
         end
         this_metadata = this_metadata[:parent_example_group]
       end

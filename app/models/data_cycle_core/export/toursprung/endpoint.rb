@@ -3,7 +3,7 @@
 module DataCycleCore
   module Export
     module Toursprung
-      class Endpoint
+      class Endpoint < DataCycleCore::Export::Generic::Endpoint
         def transformations
           DataCycleCore::Export::Toursprung::Transformations
         end

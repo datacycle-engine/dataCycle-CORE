@@ -32,7 +32,7 @@ namespace :datacycle do
     task :validate_config do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
-          ['delayed_job.conf', 'puma.conf']. each do |template_name|
+          ['delayed_job.conf', 'puma.conf'].each do |template_name|
             target_file_name = "/etc/monit/conf.d/#{fetch(:application)}-#{template_name}"
             remote_config_file_exists(target_file_name, 'monit')
           end

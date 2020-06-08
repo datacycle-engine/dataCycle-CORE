@@ -23,7 +23,7 @@ Gem::Specification.new do |s|
 
   s.files = Dir['{app,config,db,lib}/**/*', 'LICENSE', 'Rakefile', 'README.md']
 
-  s.required_ruby_version = '~> 2.6.3'
+  s.required_ruby_version = '~> 2.7.1'
 
   # rails
   s.add_dependency 'rails', '~> 5.2.4'
@@ -54,7 +54,8 @@ Gem::Specification.new do |s|
   # pagination
   s.add_dependency 'kaminari'
   # print formatting for e.g. hashes
-  s.add_dependency 'awesome_print'
+  # s.add_dependency 'awesome_print'
+  s.add_dependency 'amazing_print'
   # validator for json data
   s.add_dependency 'json-schema'
   # background-jobs
@@ -69,7 +70,9 @@ Gem::Specification.new do |s|
   s.add_dependency 'jbuilder'
 
   s.add_dependency 'acts_as_paranoid', '~> 0.6.0'
-  s.add_dependency 'dry-validation', '~> 0.11'
+  s.add_dependency 'dry-transformer'
+  s.add_dependency 'dry-validation'
+  # s.add_dependency 'dry-validation', '~> 0.11'
   s.add_dependency 'hashdiff', '>= 0.4.0'
   s.add_dependency 'transproc', '~> 1.0'
 
@@ -142,7 +145,10 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'faker'
   s.add_development_dependency 'fasterer'
   # s.add_development_dependency 'gemsurance'
-  s.add_development_dependency 'rubocop', '~> 0.63.1'
+  # s.add_development_dependency 'rubocop', '~> 0.63.1'
+  s.add_development_dependency 'rubocop', '~> 0.84.0'
+  s.add_development_dependency 'rubocop-performance'
+  s.add_development_dependency 'rubocop-rails'
   # s.add_development_dependency 'capybara'
   # s.add_development_dependency 'selenium-webdriver'
   # s.add_development_dependency 'chromedriver-helper'

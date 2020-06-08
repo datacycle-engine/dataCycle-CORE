@@ -33,7 +33,7 @@ module DataCycleCore
       assert_response :success
       assert_equal response.content_type, 'application/json'
       json_data = JSON.parse response.body
-      assert_equal 1, json_data.dig('collections').select { |w| w['name'] == name }.size
+      assert_equal 1, json_data.dig('collections').count { |w| w['name'] == name }
     end
 
     test 'update Watchlist' do

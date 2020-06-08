@@ -2,11 +2,13 @@
 
 module DataCycleCore
   module TestPreparations
-    CONTENT_TABLES = [:creative_works, :events, :organizations, :persons, :places, :products, :intangibles, :things, :users].freeze
+    CONTENT_TABLES = [:creative_works, :events, :intangibles, :media_objects, :organizations, :persons, :places, :products, :things, :users].freeze
     ASSETS_PATH = Rails.root.join('..', 'fixtures', 'files').freeze
     EXCEPTED_ATTRIBUTES =
       {
-        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id', 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification'],
+        common: ['id', 'data_pool', 'data_type', 'publication_schedule', 'date_created', 'date_modified', 'date_deleted', 'release_status_id',
+                 'release_status_comment', 'subject_of', 'is_linked_to', 'linked_thing', 'externalIdentifier', 'license_classification',
+                 'universal_classifications'],
         creative_work: ['image', 'quotation', 'content_location', 'tags', 'textblock', 'output_channel', 'author', 'about', 'keywords', 'topic', 'video'],
         event: ['event_category', 'event_tag', 'v_ticket_categories', 'v_ticket_tags', 'feratel_owners', 'feratel_locations', 'feratel_status',
                 'hrs_dd_categories', 'feratel_facilities', 'schedule', 'puglia_ticket_type', 'marche_classifications', 'puglia_category', 'puglia_type',
@@ -16,7 +18,8 @@ module DataCycleCore
                 'fontend_type', 'feratel_owners', 'feratel_topics', 'holiday_themes', 'poi_categories', 'tour_categories',
                 'outdoor_active_tags', 'feratel_classifications', 'accommodation_categories', 'frontend_type', 'logo', 'country_code',
                 'google_business_primary_category', 'google_business_additional_categories', 'feratel_status', 'topic',
-                'feratel_content_score', 'feratel_facilities', 'piemonte_venue_category', 'wikidata_classification'],
+                'feratel_content_score', 'feratel_facilities', 'piemonte_venue_category', 'wikidata_classification',
+                'feratel_creative_commons'],
         person: [],
         products: []
       }.freeze
@@ -26,6 +29,7 @@ module DataCycleCore
         creative_works: {},
         events: {},
         intangibles: {},
+        media_objects: {},
         organizations: {},
         places: {},
         persons: {},
@@ -64,22 +68,13 @@ module DataCycleCore
       ap errors
     end
 
-    def self.load_external_sources(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSources.import_all(validation: true, external_source_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
-    end
-
     def self.load_external_systems(paths)
-      paths.map do |path|
-        errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, external_system_path: path)
-        next if errors.blank?
-        puts 'the following errors were encountered during import:'
-        ap errors
-      end
+      errors = DataCycleCore::MasterData::ImportExternalSystems.import_all(validation: true, paths: paths)
+
+      return if errors.blank?
+
+      puts 'the following errors were encountered during import:'
+      ap errors
     end
 
     def self.load_dummy_data(paths)

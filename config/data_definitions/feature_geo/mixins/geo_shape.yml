@@ -1,0 +1,23 @@
+---
+- :data:
+    :name: geo_shape
+    :type: mixin
+    :properties:
+      :tour:
+        :label: Route
+        :type: geographic
+        :storage_location: value
+        # :storage_location: column
+        :ui:
+          :edit:
+            :type: LineString
+            :options:
+              :data_upload: true
+        :api:
+          :disabled: false
+          :v4:
+            :name: line
+            :transformation:
+              :method: nest
+              :name: geo
+              :type: GeoShape

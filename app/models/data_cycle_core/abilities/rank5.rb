@@ -10,7 +10,7 @@ module DataCycleCore
         can [:create, :update, :destroy], DataCycleCore::Asset, creator_id: user&.id
 
         can [:read, :update, :import, :set_life_cycle, :move_content], DataCycleCore::Thing do |content|
-          content.try(:external_key).blank? ||
+          content.try(:external_source_id).blank? ||
             DataCycleCore::Feature::Overlay.allowed?(content) ||
             content.global_property_names.present?
         end

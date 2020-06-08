@@ -8,7 +8,6 @@
     :features:
       :container:
         :allowed_templates:
-          - Angebot
           - Artikel
           - Biografie
           - Interview

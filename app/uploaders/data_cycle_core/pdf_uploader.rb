@@ -9,6 +9,7 @@ module DataCycleCore
     # Create different versions of your uploaded files:
     version :thumb_preview do
       process convert_to_type: 'jpg'
+      process resize_to_fit: [300, 300]
       process :optimize if DataCycleCore::Feature::ImageOptimizer.enabled?
 
       def full_filename(for_file)
@@ -22,21 +23,22 @@ module DataCycleCore
     end
 
     def convert_to_type(type)
+      type = MIME::Types.type_for(type).first.preferred_extension
       dirname = File.dirname(current_path)
-      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.#{MIME::Types.type_for(type).first.preferred_extension}"
+      thumb_path = "#{File.join(dirname, File.basename(path, File.extname(path)))}.#{type}"
+      current_extension = File.extname(current_path).delete('.')
 
       MiniMagick::Tool::Convert.new do |convert|
         convert.density(288)
         convert.colorspace('sRGB')
         convert << "#{current_path}[0]"
-        convert.resize('25%')
-        convert.resize('1400x1400>')
         convert.trim
         convert.flatten
         convert.quality(100)
         convert << thumb_path
       end
-      File.rename thumb_path, current_path
+
+      file.file[-current_extension.size..-1] = type.to_s
     end
 
     def convert_format(new_format)
@@ -67,7 +69,7 @@ module DataCycleCore
 
     def convert_info(info_hash)
       info_hash
-        &.map do |key, value|
+        &.map { |key, value|
           {
             key =>
               if value.is_a?(::String)
@@ -78,7 +80,7 @@ module DataCycleCore
                 value
               end
           }
-        end
+        }
         &.reduce({}) { |aggregate, item| aggregate.merge(item) }
     end
   end

@@ -11,6 +11,9 @@ module DataCycleCore
         before_action :prepare_url_parameters
         rescue_from DataCycleCore::Error::Api::TimeOutError, with: :too_many_requests
 
+        ALLOWED_SORT_ATTRIBUTES = { created: 'created_at', modified: 'updated_at' }.freeze
+        ALLOWED_FILTER_ATTRIBUTES = [:modifiedAt, :createdAt, :schedule].freeze
+
         def index
           puma_max_timeout = (ENV['PUMA_MAX_TIMEOUT']&.to_i || PUMA_MAX_TIMEOUT) - 1
           Timeout.timeout(puma_max_timeout, DataCycleCore::Error::Api::TimeOutError, "Timeout Error for API Request: #{@_request.fullpath}") do
@@ -51,10 +54,46 @@ module DataCycleCore
 
         def permitted_parameter_keys
           # json-api: sort
-          super + [
-            :id, :language, :include, :fields, :format,
-            { filter: [:search, :box, :modifiedSince, :createdSince, :deletedSince, :from, :to, { 'classifications.with_subtree': [], 'classifications.without_subtree': [] }] }
-          ]
+          super + [:id, :language, :include, :fields, :format] + [permitted_filter_parameters]
+        end
+
+        def permitted_filter_parameters
+          {
+            filter:
+              [
+                :search,
+                :deletedSince,
+                {
+                  classifications: {
+                    in: {
+                      withSubtree: [],
+                      withoutSubtree: []
+                    },
+                    notIn: {
+                      withSubtree: [],
+                      withoutSubtree: []
+                    }
+                  }
+                },
+                {
+                  attribute: {
+                    createdAt: attribute_filter_operations,
+                    modifiedAt: attribute_filter_operations,
+                    schedule: attribute_filter_operations
+                  }
+                },
+                {
+                  geo: {
+                    in: {
+                      box: []
+                    },
+                    notIn: {
+                      box: []
+                    }
+                  }
+                }
+              ]
+          }
         end
 
         private
@@ -65,11 +104,28 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          if permitted_params[:search].present? || permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present? || @stored_filter.nil?
-            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, permitted_params&.dig(:filter, :from).present? || permitted_params&.dig(:filter, :to).present?))
+          if permitted_params[:search].present?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence))
+          elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
+            query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, true))
           else
-            query
+            order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
+              if sort.starts_with?('-')
+                transform_sort_param(sort[1..-1], 'DESC')
+              elsif sort.starts_with?('+')
+                transform_sort_param(sort[1..-1], 'ASC')
+              else
+                transform_sort_param(sort, 'ASC')
+              end
+            }&.reject(&:blank?)
+            order_query = ['updated_at ASC'] if order_query.blank?
+            query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
           end
+        end
+
+        def transform_sort_param(key, order)
+          return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
+          "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
         end
 
         def build_search_query
@@ -94,43 +150,19 @@ module DataCycleCore
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
-          query = apply_event_query_filters(query)
-          query = apply_place_query_filters(query)
+          # query = apply_event_query_filters(query)
+          # query = apply_place_query_filters(query)
 
-          query = query.modifiedSince(permitted_params.dig(:filter, :modifiedSince)) if permitted_params.dig(:filter, :modifiedSince)
-          query = query.createdSince(permitted_params.dig(:filter, :createdSince)) if permitted_params.dig(:filter, :createdSince)
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 
           query = query.in_validity_period
 
           query = apply_classification_filters(query)
+          query = apply_attribute_filters(query)
+          query = apply_geo_filters(query)
 
           query = query.with_content_ids(permitted_params&.dig(:content_id)) if permitted_params&.dig(:content_id)
           query = query.distinct_by_content_id
-          query
-        end
-
-        def apply_classification_filters(query)
-          return query if permitted_params&.dig(:filter, 'classifications.with_subtree').blank? && permitted_params&.dig(:filter, 'classifications.without_subtree').blank?
-          with_subtree = permitted_params&.dig(:filter, 'classifications.with_subtree')
-          without_subtree = permitted_params&.dig(:filter, 'classifications.without_subtree')
-
-          if with_subtree.present?
-            with_subtree.map { |classifications|
-              classifications.split(',').map(&:strip).reject(&:blank?)
-            }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids_with_subtree(classifications)
-            end
-          end
-
-          if without_subtree.present?
-            without_subtree.map { |classifications|
-              classifications.split(',').map(&:strip).reject(&:blank?)
-            }.reject(&:empty?).each do |classifications|
-              query = query.classification_alias_ids_without_subtree(classifications)
-            end
-          end
-
           query
         end
 

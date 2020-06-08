@@ -13,7 +13,6 @@
     - $$Gastronomischer Betrieb
   - $$Text:
     - $$Artikel
-    - $$Angebot
     - $$Beschreibungstext
   - $$Organisation
   - $$Person
@@ -101,10 +100,6 @@
 - Feratel - Preis - Typ | all:
   - $$Preis pro Person
   - $$Preis pro Package
-
-- Lizenzen | all:
-  - Open Data
-  - Sonstiges
 
 - Ländercodes | show, edit, api, xml:
   - AF | Afghanistan
@@ -349,6 +344,9 @@
   - BY | Weißrußland (Belarus)
   - CF | Zentralafrikanische Republik
   - CY | Zypern
+
+- Preis-Währung | all:
+  - EUR | Euro
 
 - Lizenzen | show, edit, api, xml:
   - Open Data:

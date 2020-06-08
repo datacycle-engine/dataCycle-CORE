@@ -231,6 +231,9 @@
       :media_archive:
         :type: mixin
         :name: media_archive
+      :feratel:
+        :type: mixin
+        :name: feratel_images
       :wikidata:
         :type: mixin
         :name: wikidata

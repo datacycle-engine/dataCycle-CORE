@@ -20,7 +20,9 @@ json.merge! render 'content_classifications', content: content, options: options
 
 json.merge! render 'content_properties', content: content, options: options
 json.merge! render 'combined_properties', content: content, options: options if options[:field_filter] == false || (included_attribute?('additionalProperty', options[:include]) || included_attribute?('additionalProperty', options[:fields]))
-json.merge! render 'overlay_properties', content: content, options: options if content.content_type?('entity')
+
+overlay_data = render 'overlay_properties', content: content, options: options if content.content_type?('entity')
+json.merge! merge_overlay(json, overlay_data) if overlay_data.present?
 
 json.merge! render 'container_parent_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.try(:parent).present?
 json.merge! render 'container_children_properties', content: content, options: options if DataCycleCore::Feature::Container.enabled? && content.content_type?('container')

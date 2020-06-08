@@ -57,8 +57,8 @@ module DataCycleCore
 
       def property_definitions
         @template_schema['properties']
-          .reject { |_, definition| definition['type'] == 'key' } # definition['type'] == 'classification' ||
-          .reject { |_, definition| definition.dig('api', 'disabled') }
+          .reject { |_, definition| definition['type'] == 'key' }
+          .reject { |_, definition| definition.dig('api', 'v4', 'disabled').nil? ? definition.dig('api', 'disabled') : definition.dig('api', 'v4', 'disabled') }
           .map { |key, definition|
             if definition['type'] == 'object'
               Template.new(definition).property_definitions.map { |d| d.merge({ template_type: schema_name }) }
@@ -68,7 +68,9 @@ module DataCycleCore
                 label: key.camelize(:lower),
                 data_type: resolve_data_type(definition),
                 comment: definition['type'] == 'classification' ? definition['tree_label'] : nil,
-                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false
+                comment_link: definition['tree_label'].present? ? DataCycleCore::ClassificationTreeLabel.find_by(name: definition['tree_label'])&.id : nil,
+                translated: definition['storage_location'] == 'translated_value' || (definition['storage_location'] == 'column' && key == 'name') ? true : false,
+                embedded: definition['type'] == 'embedded'
               }
             end
           }.flatten.sort_by { |definition| Array.wrap(definition[:template_type]) + [definition[:label]] }
@@ -79,6 +81,12 @@ module DataCycleCore
       attr_writer :schema
 
       private
+
+      def classification_template_translator(classification)
+        {
+          'Organisation' => 'Organization'
+        }[classification]
+      end
 
       def resolve_data_type(definition)
         if definition.dig('api', 'type')
@@ -96,8 +104,10 @@ module DataCycleCore
             raise 'Cannot resolve linked templates without schema' if @schema.nil?
             @schema.template_by_classification(definition.dig('stored_filter', 0, 'with_classification_aliases_and_treename', 'aliases'))
               .map { |i|
-                if DataCycleCore::Thing.find_by(template_name: i, template: true).present?
-                  "/schema/#{i}"
+                template_name = i
+                template_name = 'Organization' if i == 'Organisation' # no direct relation between Classification and Template!
+                if DataCycleCore::Thing.find_by(template_name: template_name, template: true).present?
+                  "/schema/#{template_name}"
                 else
                   Array.wrap(@schema.template_by_template_name(i)&.schema_name)
                     .compact
@@ -118,6 +128,8 @@ module DataCycleCore
             '//schema.org/DateTime'
           when 'number'
             '//schema.org/Number'
+          when 'schedule'
+            '//schema.org/Schedule'
           else
             definition['type']
           end

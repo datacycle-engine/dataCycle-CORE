@@ -8,9 +8,7 @@ DataCycleCore.setup do |config|
   Rails.application.config.filter_parameters += [:password]
   # Require `belongs_to` associations by default. Previous versions had false.
   Rails.application.config.active_record.belongs_to_required_by_default = true
-  Rails.application.config.session_store :cookie_store, key: '_dummy_session'
-
-  # config.template_path = Rails.root.join('config', 'data_definitions').freeze
+  Rails.application.config.session_store :cookie_store, key: '_dummy_session', same_site: :lax
 
   config.external_sources_path = Rails.root.join('..', '..', 'config', 'external_sources').freeze
   config.external_systems_path = Rails.root.join('..', '..', 'config', 'external_systems').freeze
@@ -23,6 +21,7 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server')
@@ -33,6 +32,7 @@ DataCycleCore.setup do |config|
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_creative_content_v2'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'data_cycle_media'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_feratel_identity_server'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),

@@ -16,10 +16,10 @@
             <div id="map_<%= SecureRandom.hex(16) %>" class="geographic-map point <%= changes_mode(options.dig(:item_diff)) %>"
               data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
               data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="[<%= [options.dig(:item_diff, 1)&.x, options.dig(:item_diff, 1)&.y].compact.presence if options.dig(:item_diff, 0) == '~' %>]"
-              data-after-position="[<%= options.dig(:item_diff, 0) == '~' ? [options.dig(:item_diff, 2)&.x, options.dig(:item_diff, 2)&.y].compact.presence : [options.dig(:item_diff, 1)&.x, options.dig(:item_diff, 1)&.y].compact.presence %>]"
+              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
+              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
               data-type="<%= value.geometry_type.to_s %>"
-              data-value="[<%= "[#{value.x}, #{value.y}]" %>]">
+              data-value="<%= value.presence&.to_s %>">
             </div>
         </div>
     <% elsif value.try(:geometry_type) == RGeo::Feature::LineString %> <%# only show points for now, not the lines %>
@@ -28,10 +28,10 @@
               class="geographic-map linestring"
               data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
               data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="[<%= options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") if options.dig(:item_diff, 0) == '~' %>]"
-              data-after-position="[<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") : options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") %>]"
+              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
+              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
               data-type="<%= value.geometry_type.to_s %>"
-              data-value="[<%= value.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",") %>]"
+              data-value="<%= value.presence&.to_s %>"
               data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
             </div>
         </div>
@@ -41,10 +41,10 @@
               class="geographic-map linestring"
               data-map-options="<%= DataCycleCore.default_map_position.presence&.to_json %>"
               data-icon-paths="<%= { default: image_path('location.svg'), before: image_path('location_before.svg'), after: image_path('location_after.svg') }.to_json %>"
-              data-before-position="[<%= options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") if options.dig(:item_diff, 0) == '~' %>]"
-              data-after-position="[<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") : options.dig(:item_diff, 1)&.points&.map { |p| "[#{p.x}, #{p.y}]" }&.join(",") %>]"
+              data-before-position="<%= options.dig(:item_diff, 1).presence&.to_s if options.dig(:item_diff, 0) == '~' %>"
+              data-after-position="<%= options.dig(:item_diff, 0) == '~' ? options.dig(:item_diff, 2).presence&.to_s : options.dig(:item_diff, 1).presence&.to_s %>"
               data-type="MultiLineString"
-              data-value="[<%= value.map { |line| line.points.map { |p| "[#{p.x}, #{p.y}]" }.join(",")} %>]"
+              data-value="<%= value.presence&.to_s %>"
               data-marker-path="<%= definition&.dig('ui', 'edit', 'options', 'marker_path')&.to_json || [].to_json %>">
             </div>
         </div>

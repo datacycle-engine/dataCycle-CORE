@@ -778,7 +778,7 @@ select {
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
-      padding-right: 1rem;
+      padding-right: 5rem;
     }
     .grid-thumbnails {
       height: 3rem;
@@ -1016,35 +1016,51 @@ a.link {
 }
 
 #show-history {
-  min-width: 300px;
-  width: auto;
+  min-width: 350px;
+  max-width: 90vw;
+  width: auto !important;
 
   li {
     position: relative;
     text-align: left;
     font-size: 0.8rem;
     line-height: 1.2rem;
-    padding-right: 2rem;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
+    display: flex;
+    flex-flow: row nowrap;
+
+    .history-time {
+      flex: auto;
+      text-align: right;
+      color: $dark-gray;
+    }
 
     &.active {
-      i:not(.fa) {
-        color: $light-gray;
+      .email-link {
+        color: $black;
+        font-weight: bold;
+      }
+      .history-time {
+        color: $black;
+        font-weight: bold;
       }
 
-      color: $light-gray;
-
-      a {
-        color: $dark-gray;
-      }
+      color: $medium-gray;
+    }
+    .email-link {
+      max-width: 15rem;
+      margin-right: 0.5rem;
     }
 
     .history-link {
-      position: absolute;
-      right: 0.2rem;
-      top: 0.2rem;
+      flex: 0;
+      margin-left: 0.5rem;
+      min-width: 1rem;
+      .fa {
+        line-height: 1.2rem;
+      }
     }
   }
 }
@@ -1055,6 +1071,7 @@ a.email-link {
   overflow: hidden;
   white-space: nowrap;
   text-overflow: ellipsis;
+  max-width: 15rem;
 }
 
 .row {
@@ -1504,8 +1521,28 @@ select:-moz-focusring {
   }
 }
 
+label[for='user_access_token'] {
+  display: flex;
+  flex-flow: row nowrap;
+  align-items: center;
+}
+
 .copy-to-clipboard {
   cursor: pointer;
+  display: flex;
+  flex-flow: row nowrap;
+  overflow: hidden;
+  align-items: center;
+
+  .fa-key {
+    margin-right: 0.1rem;
+  }
+  .external-source-icon {
+    margin-right: 0.2rem;
+  }
+  .external-system-icon {
+    margin-right: 0.4rem;
+  }
 }
 
 // textblocks
@@ -1709,6 +1746,20 @@ select {
         font-size: 1rem;
       }
     }
+  }
+  .map-edit {
+    position: absolute;
+    z-index: 999;
+    top: 6rem;
+    left: 1.2rem;
+    margin: 0;
+    padding: 0;
+    border: none;
+    pointer-events: all;
+    background: transparent;
+    display: flex;
+    flex-flow: row;
+    justify-content: center;
   }
 }
 
@@ -2274,22 +2325,20 @@ section.duplicate-candidates {
 //.object-browser-overlay
 .object-thumbs,
 .object_browser.media.linked {
+  .external-sources-tiles {
+    display: flex;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
+  }
   .external-source-icon {
-    line-height: 1.5;
-    height: 1.5rem;
     position: relative;
     &.default-view {
       display: block;
-      float: right;
     }
   }
   .external-source-title {
     display: none;
-  }
-}
-.object_browser.media.linked {
-  .external-source-icon {
-    float: right;
   }
 }
 .object-browser-overlay {
@@ -2301,8 +2350,6 @@ section.duplicate-candidates {
     padding-bottom: 1rem;
   }
   .external-source-icon {
-    line-height: 1.5;
-    height: 1.5rem;
     position: relative;
     float: right;
   }
@@ -2319,8 +2366,11 @@ section.duplicate-candidates {
     position: absolute;
     bottom: 0;
     width: 100%;
-    display: block;
+    display: flex;
     padding-right: 1rem;
+    flex-flow: row nowrap;
+    align-items: center;
+    justify-content: flex-end;
     .external-source-icon {
       position: relative;
       color: $dark-gray;
@@ -2568,6 +2618,8 @@ button.button-prime.small.bulk-delete-button {
 .stored-searches-list ul li.content-item span.buttons {
   max-width: inherit;
   text-align: right;
+  display: flex;
+  flex-flow: row nowrap;
 }
 
 .download-content-reveal {
@@ -2670,4 +2722,22 @@ button.button-prime.small.bulk-delete-button {
 .activities-wrapper {
   border: 1px solid $light-gray;
   margin-bottom: 2rem;
+}
+
+.flatpickr-wrapper {
+  .flatpickr-current-month {
+    padding: 0;
+
+    input.cur-year {
+      box-shadow: none !important;
+      border: 0 !important;
+      display: inline-block;
+      margin-right: 0 !important;
+      height: auto !important;
+    }
+  }
+}
+
+[type='checkbox'] + label.flex-field {
+  display: flex;
 }

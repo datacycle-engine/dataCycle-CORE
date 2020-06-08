@@ -39,6 +39,13 @@ module DataCycleCore
       }[day]
     end
 
+    def to_api_default_values
+      {
+        '@id' => id,
+        '@type' => 'Schedule'
+      }
+    end
+
     def to_schedule_schema_org
       # supports only select features of the rrule spec https://github.com/schemaorg/schemaorg/issues/1457
       end_time = dtend&.to_s(:only_time)
@@ -80,6 +87,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v3
+      return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -117,10 +125,12 @@ module DataCycleCore
         'byMonth' => by_month&.map(&:to_i),
         'byMonthDay' => by_month_day&.map(&:to_i)
       }.compact
+
       schedule_hash.merge({ 'identifier' => generate_uuid(schedule_hash) })
     end
 
     def to_schedule_schema_org_api_v2
+      return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
       repeat_count = nil
@@ -231,7 +241,7 @@ module DataCycleCore
     class History < ApplicationRecord
       include ScheduleHandler
       belongs_to :thing_history, class_name: 'DataCycleCore::Thing::History'
-      belongs_to :external_source
+      belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
       after_find :load_schedule_object
       before_save :serialize_schedule_object
 
@@ -255,7 +265,7 @@ module DataCycleCore
 
     include ScheduleHandler
     belongs_to :thing
-    belongs_to :external_source
+    belongs_to :external_source, class_name: 'DataCycleCore::ExternalSystem'
     after_find :load_schedule_object
     before_save :serialize_schedule_object
 

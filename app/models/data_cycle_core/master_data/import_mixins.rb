@@ -43,44 +43,7 @@ module DataCycleCore
           end
         end
 
-        return resolve(mixin_list), collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
-      end
-
-      # allow for mixins in mixins
-      def self.resolve(mixin_list)
-        new_mixin_list = {}.with_indifferent_access
-        mixin_list.each do |content_set, mixin_sublist|
-          new_mixin_list[content_set] = {}
-          mixin_sublist.map do |mixin_name, mixin_schema|
-            new_mixin_list[content_set][mixin_name] = mixin_schema.except(:properties)
-            new_properties = transform_properties(mixin_schema.dig(:properties), content_set, mixin_list)
-            new_mixin_list[content_set][mixin_name][:properties] = new_properties || {}
-          end
-          new_mixin_list[content_set].compact!
-        end
-        new_mixin_list
-      end
-
-      def self.transform_properties(mixin_schema, content_set, mixin_list)
-        return if mixin_schema.blank?
-        mixin_schema.map do |property_name, property_definitions|
-          if property_definitions.dig(:type) == 'mixin'
-            transform_properties(get_mixin(property_definitions[:name], content_set, mixin_list), content_set, mixin_list)
-          else
-            { property_name => property_definitions }
-          end
-        end&.inject(&:merge!)
-      end
-
-      def self.get_mixin(name, set, list)
-        if list.dig(set.to_sym, name.to_sym).present?
-          mixin_set = set.to_sym
-        elsif list.dig(:default, name.to_sym).present?
-          mixin_set = :default
-        else
-          raise "mixin for #{name} not found".inspect
-        end
-        list.dig(mixin_set, name.to_sym, :properties).presence
+        return mixin_list, collisions.reject { |_, value| value.blank? }.map { |key, value| { key => value.dup } }.inject(&:merge)
       end
     end
   end

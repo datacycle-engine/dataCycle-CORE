@@ -18,7 +18,10 @@ module DataCycleCore
         'image' => [],
         'overlay' => [],
         'primary_image' => [],
-        'output_channel' => []
+        'output_channel' => [],
+        'marketing_groups' => [],
+        'feratel_facilities_accommodations' => [],
+        'feratel_facilities_additional_services' => []
       }
       data_set_place1.set_data_hash(data_hash: place_hash1)
       data_set_place1.save

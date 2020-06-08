@@ -3,8 +3,9 @@
 namespace :dc do
   namespace :update_data do
     desc 'update all computed attributes'
-    task :computed_attributes, [:template_name, :dry_run] => [:environment] do |_, args|
+    task :computed_attributes, [:template_name, :webhooks, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
+      webhooks = args.fetch(:webhooks, 'true')
       template_name = args.fetch(:template_name, false)
 
       if template_name.present?
@@ -16,17 +17,26 @@ namespace :dc do
       selected_things.find_each.select { |template| template.computed_property_names.present? }.each do |template|
         items = DataCycleCore::Thing.where(template: false, template_name: template.template_name)
         items_to_update = items.size
+        translated_computed = (template.computed_property_names & template.translatable_property_names).present?
 
         puts "Computed attributes found in:  #{template.template_name}"
-        puts "Updating #{items_to_update.to_s.rjust(6)} #{' ' * 88} 0% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
-        index = 0
-        items.each do |item|
-          progress_bar(items_to_update, index)
-          index += 1
-          next if dry_run
-          item.set_data_hash(data_hash: item.get_data_hash)
+
+        progressbar = ProgressBar.create(total: items_to_update, format: '%t |%w>%i| %a - %c/%C', title: template.template_name)
+        items.find_each do |item|
+          next progressbar.increment if dry_run
+
+          item.prevent_webhooks = true if webhooks == 'false'
+
+          if translated_computed
+            item.available_locales.each do |locale|
+              I18n.with_locale(locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+            end
+          else
+            I18n.with_locale(item.first_available_locale) { item.set_data_hash(data_hash: item.get_data_hash) }
+          end
+
+          progressbar.increment
         end
-        progress_bar(items_to_update, items_to_update)
       end
 
       if dry_run
@@ -35,18 +45,6 @@ namespace :dc do
       end
     end
   end
-end
-
-def progress_bar(total_items, index, interval = nil)
-  if index >= total_items
-    print "[#{'*' * 100}] 100% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\n"
-    return
-  end
-  interval ||= [total_items / 100.0, 1.0].max.round(0)
-  return unless (index % interval).zero?
-  fraction = (((index * 1.0) / total_items) * 100.0).round(0)
-  fraction = 100 if fraction > 100
-  print "[#{'*' * fraction}#{' ' * (100 - fraction)}] #{fraction.to_s.rjust(3)}% (#{Time.zone.now.strftime('%H:%M:%S.%3N')})\r"
 end
 
 def zsh?
