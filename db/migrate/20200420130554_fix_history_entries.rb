@@ -8,7 +8,7 @@ class FixHistoryEntries < ActiveRecord::Migration[5.2]
           v_table_name.new_lower,
           upper(history_valid),
           concat(
-              CASE WHEN lower_inc(history_valid) THEN '[' ELSE '(' END,
+              '[',
               CASE WHEN upper_inc(history_valid) THEN ']' ELSE ')' END
           )
       )

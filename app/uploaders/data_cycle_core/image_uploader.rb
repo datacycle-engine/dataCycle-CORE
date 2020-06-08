@@ -47,7 +47,7 @@ module DataCycleCore
       end
     end
 
-    def url
+    def url(transformation = {})
       content = model&.thing
 
       return super if content.nil?
@@ -64,7 +64,7 @@ module DataCycleCore
           (author.nil? ? nil : I18n.with_locale(author.first_available_locale) { author.title })
         ].compact.join('_').underscore_blanks
 
-        local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{file_name}.#{file&.extension || File.extname(model.name.to_s).delete('.')}")
+        local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{file_name}.#{file&.extension || File.extname(model.name.to_s).delete('.')}", transformation: transformation)
       end
     end
 

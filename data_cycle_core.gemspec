@@ -146,7 +146,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency 'fasterer'
   # s.add_development_dependency 'gemsurance'
   # s.add_development_dependency 'rubocop', '~> 0.63.1'
-  s.add_development_dependency 'rubocop'
+  s.add_development_dependency 'rubocop', '~> 0.84.0'
   s.add_development_dependency 'rubocop-performance'
   s.add_development_dependency 'rubocop-rails'
   # s.add_development_dependency 'capybara'

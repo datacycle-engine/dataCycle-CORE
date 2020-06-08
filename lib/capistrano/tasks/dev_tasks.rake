@@ -72,6 +72,24 @@ namespace :datacycle do
       end
     end
 
+    desc 'initialize new project'
+    task :init_project do
+      on roles(:all) do
+        print_message 'deploy:check directories'
+        invoke 'deploy:check:directories'
+        invoke 'deploy:check:linked_dirs'
+
+        print_message 'init .env'
+        invoke 'datacycle:dev:init_env'
+
+        print_message 'deploy:check'
+        invoke 'deploy:check'
+
+        print_message 'deploy new project'
+        invoke 'deploy:initial'
+      end
+    end
+
     desc 'initialize configs'
     task :init_configs do
       on roles(:all) do
@@ -90,6 +108,27 @@ namespace :datacycle do
         invoke('datacycle:nginx:deploy_config', 'production.conf')
         invoke 'datacycle:nginx:reload'
         invoke 'datacycle:duplicity:deploy_config'
+      end
+    end
+
+    desc 'init env'
+    task :init_env do
+      on roles(:all) do
+        within shared_path do
+          with rails_env: fetch(:rails_env) do
+            test_path = shared_path.join('.env')
+            print_message "test_path: #{test_path}"
+            unless test("[ -f #{test_path} ]")
+              print_message 'Enter db password'
+              run_locally do
+                command = "#{fetch(:cmd_prefix, '')}dc:local_dev:init_env[#{fetch(:application)}, #{fetch(:server_name)}]"
+                `bundle exec rake "#{command}"`
+              end
+              upload! "#{fetch(:application_root_path, '')}tmp/.env", "#{fetch(:application_root_path, '')}.env"
+              print_message 'env file create and uploaded'
+            end
+          end
+        end
       end
     end
 
