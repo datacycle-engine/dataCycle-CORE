@@ -41,7 +41,6 @@ module DataCycleCore
         end
 
         def self.event_status(status_string)
-          byebug
           return if status_string.blank?
           bits = status_string.to_i
           return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('JetTicket - Eventstatus', 'nur Veranstaltungskalender') if bits.zero?
