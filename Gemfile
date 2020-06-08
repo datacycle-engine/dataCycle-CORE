@@ -2,7 +2,7 @@
 
 source 'https://rubygems.org'
 
-ruby '~> 2.6.3'
+ruby '~> 2.7.1'
 
 git_source(:github) do |repo_name|
   repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?('/')
@@ -35,7 +35,7 @@ group :development, :test, :review do
   gem 'spring'
   gem 'spring-watcher-listen'
 
-  gem 'byebug'
+  # gem 'byebug'
   gem 'pry'
   gem 'pry-byebug'
   gem 'rb-readline'

@@ -27,6 +27,17 @@ Lint/UnusedMethodArgument:
     - 'app/models/data_cycle_core/generic/xamoom/import_spots.rb'
     - 'app/models/data_cycle_core/generic/bergfex/endpoint.rb'
 
+Lint/NonDeterministicRequireOrder:
+  Exclude:
+    - 'vendor/gems/translations/spec/spec_helper.rb'
+
+Lint/AmbiguousBlockAssociation:
+  Exclude:
+    - 'test/integration/watch_lists_test.rb'
+
+Lint/RedundantCopDisableDirective:
+  Enabled: false
+
 #######################################################
 ########## Naming
 
@@ -118,3 +129,18 @@ Style/MissingRespondToMissing:
   Exclude:
     - 'app/models/data_cycle_core/callbacks.rb'
     - 'app/models/data_cycle_core/content/content.rb'
+
+Style/GuardClause:
+  Exclude:
+    - 'app/controllers/data_cycle_core/contents_controller.rb'
+    - 'app/controllers/data_cycle_core/feature/controller_functions/content_lock.rb'
+
+################################################################
+############# Performance
+
+Performance/Count:
+  Exclude:
+    - 'app/views/data_cycle_core/api/v1/api_base/_container_children_properties.json.jbuilder'
+    - 'app/views/data_cycle_core/api/v1/api_base/_container_parent_properties.json.jbuilder'
+    - 'app/views/data_cycle_core/api/v1/api_base/_content_details.json.jbuilder'
+    - 'app/views/data_cycle_core/api/v1/api_base/_content_overlay.json.jbuilder'

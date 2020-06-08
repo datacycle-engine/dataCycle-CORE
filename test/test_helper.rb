@@ -2,6 +2,7 @@
 
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
+Warning[:deprecated] = false
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'
@@ -84,7 +85,8 @@ end
 
 DataCycleCore::TestPreparations.load_dummy_data(
   [
-    Rails.root.join('..', 'dummy_data')
+    Rails.root.join('..', 'dummy_data'),
+    Rails.root.join('..', 'v4', 'dummy_data')
   ]
 )
 

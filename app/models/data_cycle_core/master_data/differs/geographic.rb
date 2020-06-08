@@ -21,7 +21,7 @@ module DataCycleCore
              b.respond_to?(:geometry_type) &&
              a.geometry_type == RGeo::Feature::Point &&
              b.geometry_type == RGeo::Feature::Point
-            return ((a.x - b.x).abs < epsilon) && ((a.y - b.y).abs < epsilon)
+            ((a.x - b.x).abs < epsilon) && ((a.y - b.y).abs < epsilon)
           end
         end
       end

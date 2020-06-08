@@ -144,11 +144,11 @@
             :label: URL
             :type: string
             :storage_location: translated_value
-      :data_type:
-        :label: Inhaltstype
-        :type: classification
-        :tree_label: Inhaltstypen
-        :default_value: "Angebot"
+#      :data_type:
+#        :label: Inhaltstype
+#        :type: classification
+#        :tree_label: Inhaltstypen
+#        :default_value: "Angebot"
       :external_key:
         :label: external_key
         :type: string

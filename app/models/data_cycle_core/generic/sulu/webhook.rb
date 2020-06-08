@@ -5,9 +5,11 @@ module DataCycleCore
     module Sulu
       class Webhook < DataCycleCore::Generic::Common::Webhook
         def update(raw_data)
-          errors = data_validator.call(raw_data.deep_symbolize_keys).errors || {}
+          validator = Contract.new
+          errors = validator.call(raw_data.deep_symbolize_keys).errors.to_h || {}
           return { error: errors } if errors.present?
           data = DataCycleCore::Generic::DataCycleApiV4::Transformations.transformation.call(raw_data)
+
           init_logging do |logging|
             errors = update_content(data: data)
             errors = nil if errors.dig('error').blank?
@@ -27,19 +29,18 @@ module DataCycleCore
           thing.set_data_hash(data_hash: data, partial_update: true, prevent_history: false)
         end
 
-        def data_validator
-          Dry::Validation.Schema do
-            required(:@id) { str? }
-            required(:@type) { str? }
-            required(:url) { str? }
-          end
-        end
-
         def init_logging
           logging = DataCycleCore::Generic::GenericObject.new.init_logging(:sulu_external_system)
           yield(logging)
         ensure
           logging.close if logging.respond_to?(:close)
+        end
+      end
+      class Contract < DataCycleCore::MasterData::Contracts::GeneralContract
+        schema do
+          required(:@id) { str? }
+          required(:@type) { str? }
+          required(:url) { str? }
         end
       end
     end

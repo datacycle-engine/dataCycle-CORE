@@ -914,11 +914,11 @@ CREATE TABLE public.users (
     uid character varying,
     jti character varying,
     creator_id uuid,
-    additional_attributes jsonb,
     confirmation_token character varying,
     confirmed_at timestamp without time zone,
     confirmation_sent_at timestamp without time zone,
-    unconfirmed_email character varying
+    unconfirmed_email character varying,
+    additional_attributes jsonb
 );
 
 
@@ -2243,6 +2243,9 @@ INSERT INTO "schema_migrations" (version) VALUES
 ('20200226121349'),
 ('20200410064408'),
 ('20200420130554'),
-('20200514064724');
+('20200514064724'),
+('20200525104244'),
+('20200529140637'),
+('20200602070145');
 
 
