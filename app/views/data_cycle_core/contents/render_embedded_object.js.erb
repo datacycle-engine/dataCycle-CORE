@@ -40,4 +40,4 @@ if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered
 else $('#<%= sanitize_to_id(params[:key]) %> > .buttons').before('<%= j yield :rendered_items %>');
 
 $('<%= j content_for :forms %>').appendTo('body').foundation();
-$('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects.size)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized');
+$('<%= (params[:index].presence&.to_i..(params[:index].presence&.to_i + @objects&.size.to_i)).map { |i| "##{sanitize_to_id(params[:key])}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed', { newContent: <%= @objects.nil? %> }).trigger('dc:html:initialized');

@@ -19,10 +19,11 @@
         content_type: content.class.table_name,
         url: thing_path(content),
         write: can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, content, :edit)),
+      }.merge(local_assigns[:no_accordion] ? {} : {
         accordion: true,
         allow_all_closed: true,
         multi_expand: true
-      } do %>
+      }) do %>
     <% if objects.present? %>
       <% objects.each_with_index do |object, index| %>
         <%= render_embedded_object_partial(key: key, definition: definition, parameters: { object: object, index: index, options: options, new_content: new_content ||= false, attribute_locale: local_assigns[:attribute_locale] }, content: content) %>

@@ -10,8 +10,12 @@
     font-weight: normal;
     font-size: 1rem;
     border: none !important;
-    padding: 0.6rem 0.7rem;
+    padding: 0.8rem 1rem;
     transition: all 0.2s ease-in-out;
+    display: flex;
+    flex-flow: row nowrap;
+    align-content: center;
+
     &:hover {
       color: $black;
     }
@@ -24,8 +28,11 @@
       text-decoration: inherit;
     }
 
-    .icon .fa {
-      font-size: 1rem;
+    .icon {
+      margin-right: 0.3rem;
+      .fa {
+        font-size: 1rem;
+      }
     }
   }
 
@@ -46,8 +53,7 @@
     }
   }
 }
-
-.detail-content .type.properties {
+.detail-content .type.properties .embedded-viewer {
   .detail-type {
     &[data-editor='text_editor'] {
       .detail-content {
@@ -61,14 +67,16 @@
     }
   }
 }
+
 .embedded-object {
   counter-reset: embedded;
 
   .content-object-item:not(:only-of-type) {
     counter-increment: embedded;
 
-    > .embedded-header::after {
+    > .accordion-title > .embedded-label::after {
       content: counter(embedded);
+      margin-left: 0.3rem;
     }
   }
 }
