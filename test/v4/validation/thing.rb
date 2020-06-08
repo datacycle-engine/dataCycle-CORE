@@ -10,6 +10,11 @@ module DataCycleCore
           required(:name).value(:string)
         end
 
+        DEFAULT_DELETED_HEADER = Dry::Schema.JSON do
+          required(:@id).value(:uuid_v4?)
+          required(:'dct:deleted').value(:date_time)
+        end
+
         IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
           required(:'@type').value(:string)
           required(:propertyID).value(:string)
@@ -108,6 +113,14 @@ module DataCycleCore
           validator = Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
+          end
+          validator
+        end
+
+        def self.deleted_thing
+          validator = Dry::Validation.Contract do
+            config.validate_keys = true
+            json(DEFAULT_DELETED_HEADER)
           end
           validator
         end

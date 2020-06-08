@@ -272,6 +272,120 @@ module DataCycleCore
 
             @food_establishment_a.update_column(:updated_at, orig_ts) # rubocop:disable Rails/SkipsModelValidations
           end
+
+          test 'api/v4/things/deleted endpoint' do
+            params = {}
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(0)
+
+            food_establishment_a_id = @food_establishment_a.id
+            food_establishment_b_id = @food_establishment_b.id
+
+            @food_establishment_a.destroy_content
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(1)
+
+            @food_establishment_b.destroy_content
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: Time.zone.now.to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(2)
+
+            # make sure only id and deleted_at timestamp is present
+            json_data = JSON.parse(response.body)
+            validator = DataCycleCore::V4::Validation::Thing.deleted_thing
+            json_data['@graph'].each do |item|
+              assert_equal({}, validator.call(item).errors.to_h)
+            end
+
+            # make sure items ordered by deleted_at DESC
+            assert_equal(food_establishment_b_id, json_data['@graph'].first.dig('@id'))
+            assert_equal(food_establishment_a_id, json_data['@graph'].second.dig('@id'))
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(2)
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(2)
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(0)
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: (Time.zone.now - 5.days).to_s(:iso8601),
+                      max: (Time.zone.now + 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(2)
+
+            params = {
+              filter: {
+                attribute: {
+                  deletedAt: {
+                    in: {
+                      min: (Time.zone.now - 5.days).to_s(:iso8601)
+                    },
+                    notIn: {
+                      max: (Time.zone.now - 5.days).to_s(:iso8601)
+                    }
+                  }
+                }
+              }
+            }
+            post api_v4_contents_deleted_path(params)
+            assert_api_count_result(2)
+          end
         end
       end
     end

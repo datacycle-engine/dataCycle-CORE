@@ -93,7 +93,7 @@ module DataCycleCore
                                next
                              end
             operator.each do |k, v|
-              query_string = apply_query_string(v, "#{query.table.name}.#{attribute_path}")
+              query_string = apply_timestamp_query_string(v, "#{query.table.name}.#{attribute_path}")
               if k == :in
                 query = query.where(query_string)
               elsif k == :notIn
@@ -105,33 +105,12 @@ module DataCycleCore
         end
 
         def apply_ordering(query)
-          order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
-            if sort.starts_with?('-')
-              transform_sort_param(sort[1..-1], 'DESC')
-            elsif sort.starts_with?('+')
-              transform_sort_param(sort[1..-1], 'ASC')
-            else
-              transform_sort_param(sort, 'ASC')
-            end
-          }&.reject(&:blank?)
-          order_query = ['updated_at ASC'] if order_query.blank?
-          query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+          apply_order_query(query, permitted_params.dig(:sort))
         end
 
         def transform_sort_param(key, order)
           return unless ALLOWED_SORT_ATTRIBUTES.key?(key.to_sym)
           "#{ALLOWED_SORT_ATTRIBUTES.dig(key.to_sym)} #{order}"
-        end
-
-        def apply_query_string(values, attribute_path)
-          date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
-          ClassificationTreeLabel.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
-        end
-
-        def date_from_single_value(value)
-          return if value.blank?
-          return value if value.is_a?(::Date)
-          DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
         end
       end
     end
