@@ -59,7 +59,7 @@
     <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
 <% when "unterkunft" %>
     <span class="icon"><i class="fa fa-map-marker" aria-hidden="true"></i></span>
-<% when "tour", "route" %>
+<% when "tour", "route", "donau - tour", "donau_tour", "etappe" %>
     <span class="icon"><i class="fa fa-map" aria-hidden="true"></i></span>
 <% when "zertifizierung" %>
     <span class="icon"><i class="fa fa-certificate" aria-hidden="true"></i></span>
@@ -97,10 +97,22 @@
   <span class="icon"><i class="fa fa-briefcase" aria-hidden="true"></i></span>
 <% when "classification_tree_ids" %>
     <span class="icon"><i class="fa fa-sitemap" aria-hidden="true"></i></span>
-<% when "termine" %>
+<% when "termine", 'wintours - termin' %>
     <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+<% when 'vkzeit' %>
+    <span class="icon"><i class="fa fa-calendar-check-o" aria-hidden="true"></i></span>
 <% when "geo_radius", "geo_within_classification", "administrative_einheiten" %>
-    <span class="icon"><i class="fa fa-globe " aria-hidden="true"></i></span>
+    <span class="icon"><i class="fa fa-globe" aria-hidden="true"></i></span>
+<% when "hotel", "wintours - hotel", "wintours_-_hotel", "hotel - zimmer", "hotel_-_zimmer", "win_tours_hotel" %>
+    <span class="icon"><i class="fa fa-bed " aria-hidden="true"></i></span>
+<% when "fahrrad", "fahrradangebot"%>
+    <span class="icon"><i class="fa fa-bicycle" aria-hidden="true"></i></span>
+<% when "schiff"%>
+    <span class="icon"><i class="fa fa-ship" aria-hidden="true"></i></span>
+<% when "reise", "reisedetails", "wintours - reise", "win_tours_reise"%>
+    <span class="icon"><i class="fa fa-suitcase" aria-hidden="true"></i></span>
+<% when "wintours - rabatt", "win_tours_rabatt"%>
+    <span class="icon"><i class="fa fa-euro" aria-hidden="true"></i></span>
 <% else %>
     <span class="icon"><i class="fa fa-tags" aria-hidden="true"></i></span>
 <% end %>

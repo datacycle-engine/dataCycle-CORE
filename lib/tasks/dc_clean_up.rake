@@ -5,10 +5,10 @@ namespace :dc do
     desc 'Remove all data from external_source'
     task :external_source_data, [:external_source_id, :dry_run] => [:environment] do |_, args|
       dry_run = args.fetch(:dry_run, false)
-      external_source = DataCycleCore::ExternalSource.find(args.fetch(:external_source_id))
+      external_source = DataCycleCore::ExternalSystem.find(args.fetch(:external_source_id))
 
       if external_source.nil?
-        puts 'Error: No ExternalSource found!'
+        puts 'Error: No ExternalSystem found!'
         exit(-1)
       end
 
@@ -62,8 +62,8 @@ namespace :dc do
 
     desc 'Check all external_sources for orphaned data (does not modify the data)'
     task external_data_check: :environment do
-      puts "checking ExternalSources (#{DataCycleCore::ExternalSource.count}) dependencies:"
-      linked_data = DataCycleCore::ExternalSource.all.map { |item|
+      puts "checking ExternalSystems (#{DataCycleCore::ExternalSystem.count}) dependencies:"
+      linked_data = DataCycleCore::ExternalSystem.all.map { |item|
         name = identify_external_source(item)
         next if name.blank?
         linked = linked(name)
@@ -115,8 +115,8 @@ namespace :dc do
       template = DataCycleCore::Thing.find_by(template: false, template_name: args.fetch(:template))
       error('Error: No template found!') if template.blank?
 
-      external_source = DataCycleCore::ExternalSource.find_by(id: args.fetch(:external_source_id))
-      error('Error: No ExternalSource found!') if external_source.blank?
+      external_source = DataCycleCore::ExternalSystem.find_by(id: args.fetch(:external_source_id))
+      error('Error: No ExternalSystem found!') if external_source.blank?
 
       orphans = DataCycleCore::Thing.left_outer_joins(:content_content_b).where(
         things: {
@@ -156,7 +156,7 @@ namespace :dc do
         'Xamoom' => ['Örtlichkeit']
       }.dig(external_source)
       return if core_data_templates.blank?
-      core_data_templates&.map do |template|
+      core_data_templates&.map { |template|
         thing_template = DataCycleCore::Thing.find_by(template_name: template, template: true)
         thing_template.linked_property_names.map do |linked_item|
           properties = thing_template.properties_for(linked_item)
@@ -168,7 +168,7 @@ namespace :dc do
             end
           end
         end
-      end&.flatten&.uniq
+      }&.flatten&.uniq
     end
 
     desc 'Check all embedded for orphaned data (does not modify the data)'

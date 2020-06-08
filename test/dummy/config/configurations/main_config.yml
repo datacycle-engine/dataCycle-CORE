@@ -4,12 +4,20 @@
       :features:
         :creatable:
           :allowed: true
+    :Tour:
+      :features:
+        :creatable:
+          :allowed: true
     :Gastronomischer Betrieb:
       :features:
         :creatable:
           :allowed: true
   :intangibles:
     :Pauschalangebot:
+      :features:
+        :creatable:
+          :allowed: true
+    :Service:
       :features:
         :creatable:
           :allowed: true

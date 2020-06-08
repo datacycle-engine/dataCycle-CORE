@@ -12,6 +12,8 @@ stdout_redirect '<%= fetch(:puma_access_log) %>', '<%= fetch(:puma_error_log) %>
 
 threads 1,<%= Integer(fetch(:puma_max_threads, 5)) %>
 
+<%= puma_plugins %>
+
 <%= puma_bind %>
 <% if fetch(:puma_control_app) %>
 activate_control_app "<%= fetch(:puma_default_control_app) %>"
@@ -33,7 +35,7 @@ before_fork do
 
   PumaWorkerKiller.config do |config|
     config.ram = <%= Integer(fetch(:puma_max_memory, 4096)) %> # mb
-    config.frequency = 3600 # seconds
+    config.frequency = <%= Integer(fetch(:puma_worker_frequency, 3600)) %> # seconds
     config.percent_usage = 0.9
     config.rolling_restart_frequency = <%= fetch(:puma_rolling_restart_frequency, false) %>
   end

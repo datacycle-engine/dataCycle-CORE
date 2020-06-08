@@ -12,9 +12,9 @@
           :show:
             :content_area: header
       :booking_hotel_facility_types:
-        :label: Booking.com - HotelFacilityTypes
+        :label: Booking.com - FacilityTypes
         :type: classification
-        :tree_label: Booking.com - HotelFacilityTypes
+        :tree_label: Booking.com - FacilityTypes
         :external: true
         :ui:
           :show:
@@ -28,7 +28,7 @@
           :format: url
         :api:
           :partial: property_value
-          :type: PropertyValue
+          :type: OrderAction
           :transformation:
             :method: combine
-            :name: additionalProperty
+            :name: potentialAction

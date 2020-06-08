@@ -614,6 +614,14 @@ ul.asset-list {
     }
   }
 
+  &.creating {
+    .file-buttons .button {
+      pointer-events: none;
+      opacity: 0.25;
+      cursor: not-allowed;
+    }
+  }
+
   &.retry:not(.uploading) {
     .file-buttons .button.retry-upload-button {
       display: block;

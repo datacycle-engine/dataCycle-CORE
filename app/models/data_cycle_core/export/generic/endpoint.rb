@@ -14,7 +14,6 @@ module DataCycleCore
         end
 
         def content_request(method: :post, path:, transformation:, utility_object:, data:)
-          @response = Faraday.run_request(method, File.join(@host, path), transformations.try(transformation, utility_object, data), { 'Content-Type' => 'application/json' })
           @output_file = DataCycleCore::Generic::Logger::LogFile.new("#{utility_object.external_system.name.underscore_blanks}_webhook")
 
           begin
@@ -28,6 +27,10 @@ module DataCycleCore
           end
 
           @response
+        end
+
+        def path_transformation(data, external_system, path_type)
+          format(external_system.config.dig('export_config', path_type.to_s, 'path') || external_system.config.dig('export_config', 'path') || path_type.to_s, id: data&.id)
         end
       end
     end

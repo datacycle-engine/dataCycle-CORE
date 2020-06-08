@@ -1,3 +1,3 @@
 ---
 :skip_files:
-# - config/initializers/monkey/patch_jbuilder_template.rb
+  - app/models/data_cycle_core/generic/common/import_tags.rb

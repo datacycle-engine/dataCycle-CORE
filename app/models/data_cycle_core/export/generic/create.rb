@@ -3,7 +3,7 @@
 module DataCycleCore
   module Export
     module Generic
-      module Delete
+      module Create
         include Functions
 
         def self.process(utility_object:, data:)
@@ -13,7 +13,7 @@ module DataCycleCore
         end
 
         def self.filter(data, external_system)
-          data.template_name.in?(Array.wrap(external_system.config.dig('push_config', name.demodulize.underscore, 'template_names') || external_system.config.dig('push_config', 'template_names')))
+          Functions.filter(data: data, external_system: external_system, method_name: name.demodulize.underscore)
         end
       end
     end

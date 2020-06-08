@@ -10,7 +10,7 @@ module DataCycleCore
           @transformation = transformation
           @utility_object = utility_object
           @path = path
-          @type = type
+          @type = type.to_s
           @locale = locale || I18n.locale
         end
 
@@ -26,8 +26,10 @@ module DataCycleCore
 
         def perform
           data = DataCycleCore::Thing.find_by(id: @data.id)
+          system_sync = data.try(:external_system_sync_by_system, @utility_object.external_system)
+          system_sync&.update(last_push_at: Time.zone.now)
 
-          if data || @type.to_s == 'delete'
+          if data || @type == 'delete'
             @response = @utility_object.endpoint.content_request(
               transformation: @transformation,
               method: @method,
@@ -38,6 +40,7 @@ module DataCycleCore
           end
 
           data&.add_external_system_data(@utility_object.external_system, nil, 'success')
+          system_sync&.update(last_successful_push_at: system_sync.last_push_at)
         end
 
         def reference_type

@@ -1,0 +1,7 @@
+---
+name: Sulu
+default_options:
+  history: true
+  partial_update: true
+config:
+  api_strategy: DataCycleCore::Generic::Sulu::Webhook

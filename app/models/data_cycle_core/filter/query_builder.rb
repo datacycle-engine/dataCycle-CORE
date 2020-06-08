@@ -1,4 +1,4 @@
-# frozen_string_literal: trueA
+# frozen_string_literal: true
 
 module DataCycleCore
   module Filter
@@ -122,6 +122,17 @@ module DataCycleCore
             Arel::Nodes::As.new(
               quoted(date),
               Arel::Nodes::SqlLiteral.new('timestamp with time zone')
+            )
+          ]
+        )
+      end
+
+      def cast_date(date)
+        Arel::Nodes::NamedFunction.new(
+          'CAST', [
+            Arel::Nodes::As.new(
+              quoted(date),
+              Arel::Nodes::SqlLiteral.new('date')
             )
           ]
         )

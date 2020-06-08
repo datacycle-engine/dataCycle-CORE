@@ -2,6 +2,7 @@
 
 # Configure Rails Environment
 ENV['RAILS_ENV'] = 'test'
+Warning[:deprecated] = false
 
 unless (ENV['TEST_COVERAGE'] || '1').to_i.zero?
   require 'simplecov'
@@ -58,14 +59,9 @@ else
     ]
   )
 
-  DataCycleCore::TestPreparations.load_external_sources(
-    [
-      Rails.root.join('..', '..', 'config', 'external_sources')
-    ]
-  )
-
   DataCycleCore::TestPreparations.load_external_systems(
     [
+      Rails.root.join('..', '..', 'config', 'external_sources'),
       Rails.root.join('..', '..', 'config', 'external_systems')
     ]
   )
@@ -77,6 +73,7 @@ else
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_idea_collection'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_releasable'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_life_cycle'),
+      Rails.root.join('..', '..', 'config', 'data_definitions', 'feature_geo'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_bergfex'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_karriere_at'),
       Rails.root.join('..', '..', 'config', 'data_definitions', 'external_source_google_places'),
@@ -88,7 +85,8 @@ end
 
 DataCycleCore::TestPreparations.load_dummy_data(
   [
-    Rails.root.join('..', 'dummy_data')
+    Rails.root.join('..', 'dummy_data'),
+    Rails.root.join('..', 'v4', 'dummy_data')
   ]
 )
 

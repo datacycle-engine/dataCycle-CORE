@@ -15,9 +15,7 @@ module DataCycleCore
               template: DataCycleCore::Generic::Common::ImportFunctions.load_template(template),
               data: DataCycleCore::Generic::Common::ImportFunctions.merge_default_values(
                 config,
-                DataCycleCore::Generic::Feratel::Transformations
-                .feratel_to_image
-                .call(image_hash)
+                DataCycleCore::Generic::Feratel::Transformations.feratel_to_image(utility_object.external_source.id).call(image_hash)
               ).with_indifferent_access
             )
           end
@@ -28,9 +26,9 @@ module DataCycleCore
           template = config&.dig(:template) || 'Örtlichkeit'
           place_hash = {}
 
-          address = raw_data.dig('Addresses', 'Address')&.select do |d|
+          address = raw_data.dig('Addresses', 'Address')&.select { |d|
             d['Type'] == 'Venue'
-          end&.first
+          }&.first
 
           return if address.blank? && (!raw_data.dig('Details', 'Position', 'Latitude').to_f.positive? || !raw_data.dig('Details', 'Position', 'Longitude').to_f.positive?)
 

@@ -6,7 +6,7 @@ namespace :datacycle do
     task :deploy_config do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
-          ['backup.sh', 'filelist.txt']. each do |template_name|
+          ['backup.sh', 'filelist.txt'].each do |template_name|
             core_file_path = Dir.pwd + "/vendor/gems/data-cycle-core/config/deploy/templates/duplicity/#{template_name}.erb"
             file_path = Dir.pwd + "/config/deploy/templates/duplicity/#{template_name}.erb"
             if File.exist?(file_path)
@@ -28,7 +28,7 @@ namespace :datacycle do
     task :validate_config do
       on roles(:all) do
         with rails_env: fetch(:rails_env) do
-          ['backup.sh', 'filelist.txt']. each do |template_name|
+          ['backup.sh', 'filelist.txt'].each do |template_name|
             target_file_name = "/home/#{fetch(:deploy_user)}/scripts/#{fetch(:application)}-#{template_name}"
             remote_config_file_exists(target_file_name, 'duplicity')
           end

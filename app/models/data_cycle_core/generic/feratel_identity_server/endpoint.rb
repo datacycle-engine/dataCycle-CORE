@@ -27,7 +27,7 @@ module DataCycleCore
             next_page = 1
 
             loop do
-              data = load_data(File.join(@host, '/Users'), next_page: next_page, lang: lang)
+              data = load_data(File.join(@host, '/Users'), next_page: next_page, lang: lang, additional_params: { userType: 3 })
 
               (data || []).each do |data_hash|
                 full_data_hash = load_single_data(File.join(@host, '/Users', data_hash['id']))
@@ -81,11 +81,12 @@ module DataCycleCore
 
         private
 
-        def load_data(url, next_page:, lang:) # rubocop:disable Lint/UnusedMethodArgument
+        def load_data(url, next_page:, lang:, additional_params: {}) # rubocop:disable Lint/UnusedMethodArgument
           response = Faraday.new(url: url).get do |req|
             req.headers['Authorization'] = [access_token.type, access_token.token].join(' ')
             req.params['page'] = next_page
             req.params['pageSize'] = 100
+            req.params.merge!(additional_params || {})
           end
 
           raise "Error connecting to '#{response.env.url.host}'" unless response.success?

@@ -61,12 +61,15 @@ module DataCycleCore
         'activities.data->>\'controller\' as request_controller',
         'activities.data->>\'type\' as request_type',
         'activities.data->>\'include\' as request_include',
+        'activities.data->>\'fields\' as request_fields',
         'activities.data->>\'mode\' as request_mode',
+        'activities.data->>\'filter\' as request_filter',
+        'activities.data->>\'page\' as request_page',
         'activities.data->>\'id\' as request_id'
       )
         .where({ created_at: from..to })
         .joins(:user)
-        .group('request_controller', 'request_action', 'request_type', 'request_include', 'request_mode', 'request_id', :user_id, :email, :activity_type)
+        .group('request_controller', 'request_action', 'request_type', 'request_include', 'request_fields', 'request_filter', 'request_page', 'request_mode', 'request_id', :user_id, :email, :activity_type)
         .order('data_count DESC')
     end
   end

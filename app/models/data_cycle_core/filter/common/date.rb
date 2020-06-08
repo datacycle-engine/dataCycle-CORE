@@ -7,15 +7,18 @@ module DataCycleCore
         def in_schedule(value = nil, mode = nil)
           return if value.blank?
           from_date, to_date = date_from_filter_object(value, mode)
-          schedule_search(from_date&.beginning_of_day, to_date&.end_of_day, 'event_schedule')
+          schedule_search(from_date, to_date, 'event_schedule')
         end
 
         def schedule_search(from, to, relation = nil)
           return self if from.blank? && to.blank?
           @joined_schedule = true
 
-          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from)
-          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to)
+          from_node = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(from&.beginning_of_day)
+          to_node = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_tstz(to&.end_of_day)
+          occurrence_from = from.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(from&.to_date)
+          occurrence_to = to.blank? ? Arel::Nodes::SqlLiteral.new('NULL') : cast_date(to&.to_date)
+
           sub_select = Arel::SelectManager.new(schedule).where(
             (relation.present? ? schedule[:relation].eq(Arel::Nodes.build_quoted(relation)) : Arel::Nodes::True.new)
             .and(
@@ -49,7 +52,7 @@ module DataCycleCore
                         sub_select.dup.where(
                           in_range(
                             tstzrange(from_node, to_node),
-                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : from_node.to_sql}, #{to.blank? ? 'schedules.dtend' : to_node.to_sql})"))
+                            any(Arel::Nodes::SqlLiteral.new("get_occurrences(schedules.rrule::rrule, #{from.blank? ? 'schedules.dtstart' : occurrence_from.to_sql}, #{to.blank? ? 'schedules.dtend' : occurrence_to.to_sql})"))
                           )
                         )
                       ),
@@ -88,7 +91,8 @@ module DataCycleCore
           from_date, to_date = date_from_filter_object(value, mode)
 
           date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
-          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND upper(things.validity_range) <@ ?::tstzrange', date_range])
+          # "interval 1 second" is required because upper(RANGE) 01-01-2000 23:59:59 in Ruby is 02-01-2000 00:00:00 in Postgresql
+          query_string = Thing.send(:sanitize_sql_for_conditions, ['upper(things.validity_range) <> \'infinity\' AND (upper(things.validity_range) - interval \'1 second\') <@ ?::tstzrange', date_range])
 
           reflect(
             @query.where(query_string)
@@ -106,9 +110,9 @@ module DataCycleCore
         end
 
         def date_range(d = nil, attribute_path = nil)
-          return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+          from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -117,9 +121,9 @@ module DataCycleCore
         end
 
         def not_date_range(d = nil, attribute_path = nil)
-          return self unless d.is_a?(Hash) && d.stringify_keys!.any? { |_, v| v.present? } && attribute_path.present?
+          from_date, to_date = date_from_filter_object(d, nil)
 
-          date_range = "[#{d&.dig('from')&.to_s},#{d&.dig('until')&.to_s}]"
+          date_range = "[#{from_date&.beginning_of_day},#{to_date&.end_of_day}]"
           query_string = Thing.send(:sanitize_sql_for_conditions, ["?::daterange @> (things.#{attribute_path})::date", date_range])
 
           reflect(
@@ -156,13 +160,15 @@ module DataCycleCore
         def date_from_filter_object(value, mode)
           mode ||= 'absolute'
           value.stringify_keys!
+          min = value.dig('from') || value.dig('min')
+          max = value.dig('until') || value.dig('max')
 
           if mode == 'absolute'
-            from_date = date_from_single_value(value.dig('from'))
-            to_date = date_from_single_value(value.dig('until'))
+            from_date = date_from_single_value(min)
+            to_date = date_from_single_value(max)
           else
-            from_date = relative_to_absolute_date(value.dig('from'))
-            to_date = relative_to_absolute_date(value.dig('until'))
+            from_date = relative_to_absolute_date(min)
+            to_date = relative_to_absolute_date(max)
           end
 
           return from_date, to_date

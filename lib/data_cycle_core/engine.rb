@@ -14,6 +14,8 @@ require 'mongoid'
 
 # event scheduling
 require 'ice_cube'
+# fix for ice_cube interfering with global i18n hash
+require 'ice_cube/railtie'
 
 # authentication
 require 'devise'
@@ -24,7 +26,8 @@ require 'cancancan'
 # pagination
 require 'kaminari'
 # print formatting for e.g. hashes
-require 'awesome_print'
+# require 'awesome_print'
+require 'amazing_print'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
@@ -83,7 +86,12 @@ module DataCycleCore
     # self.content_tables = ['things']
 
     mattr_accessor :allowed_api_strategies
-    self.allowed_api_strategies = ['DataCycleCore::Api::MediaArchiveExternalSource', 'DataCycleCore::Api::GenericExternalSource', 'DataCycleCore::Api::FeratelIdentityServerExternalSource']
+    self.allowed_api_strategies = [
+      'DataCycleCore::Generic::MediaArchive::Webhook',
+      'DataCycleCore::Generic::Common::Webhook',
+      'DataCycleCore::Generic::FeratelIdentityServer::Webhook',
+      'DataCycleCore::Generic::Sulu::Webhook'
+    ]
 
     mattr_accessor :excluded_filter_classifications
     self.excluded_filter_classifications = ['Angebotszeitraum', 'Antwort', 'Datei', 'Frage', 'Veranstaltungstermin', 'Website', 'Zeitleiste-Eintrag', 'Zitat', 'Öffnungszeit', 'Öffnungszeit - Zeitspanne', 'Öffnungszeit - Simple', 'Overlay', 'Publikations-Plan', 'Textblock', 'EventSchedule', 'Skigebiet - Addon', 'Schneehöhe - Messpunkt', 'Event-Ticket-Angebot', 'Zimmer', 'Zutatengruppe', 'Zutat', 'Rezeptkomponente', 'Angebot', 'Inhaltsblock']

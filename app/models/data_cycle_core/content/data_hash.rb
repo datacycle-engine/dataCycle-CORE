@@ -5,7 +5,7 @@ module DataCycleCore
     class DataHash < DataCycleCore::Content::Content
       self.abstract_class = true
       define_model_callbacks :save_data_hash, only: :before
-      define_model_callbacks :saved_data_hash, only: :after
+      define_model_callbacks :saved_data_hash, only: [:before, :after]
       define_model_callbacks :created_data_hash, only: :after
       define_model_callbacks :destroyed_data_hash, only: :after
 
@@ -21,7 +21,7 @@ module DataCycleCore
       before_save :set_internal_data
       before_save_data_hash :set_computed_values, if: -> { computed_property_names.present? }
       before_save_data_hash :inherit_source_attributes, if: -> { @new_content && @source.present? }
-      after_saved_data_hash :execute_update_webhooks
+      after_saved_data_hash :execute_update_webhooks, unless: -> { prevent_webhooks }
       after_saved_data_hash :notify_subscribers, if: -> { @current_user.present? }
       after_saved_data_hash :invalidate_content_a_cache, if: :is_related?
       after_created_data_hash :execute_create_webhooks
@@ -146,7 +146,7 @@ module DataCycleCore
         when 'string', 'number', 'datetime', 'boolean', 'geographic', 'object'
           save_values(key, value, properties)
         when 'classification'
-          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'])
+          set_classification_relation_ids(value, key, properties['tree_label'], properties['default_value'], properties['not_translated'], properties['universal'])
         when 'asset'
           set_asset_id(value, key, properties['asset_type'])
         when 'schedule'
@@ -308,11 +308,11 @@ module DataCycleCore
         upsert_item
       end
 
-      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated)
+      def set_classification_relation_ids(ids, relation_name, tree_label, default_value, not_translated, universal)
         return if not_translated && I18n.available_locales.first != I18n.locale && default_value.blank?
         present_relation_ids = send(relation_name).pluck(:classification_id) || []
         ids ||= []
-        if is_blank?(ids)
+        if is_blank?(ids) && !universal
           if default_value.present?
             classification_id = load_default_classification(tree_label, default_value)
             ids = [classification_id] # the convention is: don't delete the default_value

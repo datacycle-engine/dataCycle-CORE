@@ -15,17 +15,19 @@ if options[:full]
     '@type' => 'skos:ConceptScheme',
     'dc:entityUrl' => uri,
     'skos:prefLabel' => value_data,
-    'dc:hasConcept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language))
-  }).compact
+    'dc:hasConcept' => classifications_api_v4_concept_scheme_url(api_subversion: @api_subversion, id: content.id, language: serialize_language(@language)),
+    'dct:created' => content.created_at,
+    'dct:modified' => content.updated_at,
+    'dct:deleted' => content.deleted_at
+  }.compact)
 else
   json.merge!({
     '@id' => content.id,
     '@type' => 'skos:ConceptScheme'
-  }).compact
+  }.compact)
 end
-
-if options[:fields].blank?
-  json
-else
+if options[:field_filter] && options[:fields].present?
   json.select { |key, _value| api_default_attributes.include?(key) || select_attributes(options[:fields]).include?(key) }
+else
+  json
 end

@@ -45,7 +45,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Booking')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Booking')
         download_from_local_json(external_source)
         external_source.import(options)
 

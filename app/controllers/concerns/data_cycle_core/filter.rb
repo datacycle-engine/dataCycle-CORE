@@ -38,7 +38,7 @@ module DataCycleCore
             .compact
             .uniq
         )
-        .map { |c| [c.id, c] }.to_h
+        .index_by(&:id)
 
       query
     end
@@ -73,7 +73,7 @@ module DataCycleCore
       when 'tree'
         @classification_tree_label = DataCycleCore::ClassificationTreeLabel.find(mode_params[:ctl_id])
 
-        if mode_params[:con_id].present?
+        if mode_params[:con_id].present? && request.xhr?
           @classification_parent_tree = DataCycleCore::ClassificationTree.find(mode_params[:cpt_id])
           @container = DataCycleCore::Thing.find(mode_params[:con_id])
           @order_string = 'things.boost DESC, things.template_name ASC, things.updated_at DESC'

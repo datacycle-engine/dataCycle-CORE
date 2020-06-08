@@ -13,7 +13,10 @@ describe DataCycleCore::MasterData::Validators::Schedule do
     let(:template_hash) do
       {
         'label' => 'Test',
-        'type' => 'schedule'
+        'type' => 'schedule',
+        'validations' => {
+          'valid_dates' => true
+        }
       }
     end
 
@@ -43,6 +46,28 @@ describe DataCycleCore::MasterData::Validators::Schedule do
         assert_equal(1, validator.error[:error].size)
         assert_equal(0, validator.error[:warning].size)
       end
+    end
+
+    it 'properly validates a schedule object without valid dates' do
+      timestamp = Time.zone.now.change(hour: 9, minute: 0)
+      schedule_object = IceCube::Schedule.new(timestamp) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).day((timestamp - 1.day).wday).until(timestamp.end_of_day))
+      end
+      schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
+      schedule.schedule_object = schedule_object
+
+      assert(subject.new([schedule.to_h], template_hash).error.dig(:error).present?)
+    end
+
+    it 'properly validates a schedule object with valid dates' do
+      timestamp = Time.zone.now.change(hour: 9, minute: 0)
+      schedule_object = IceCube::Schedule.new(timestamp) do |s|
+        s.add_recurrence_rule(IceCube::Rule.daily.hour_of_day(9).day(timestamp.wday).until(timestamp.end_of_day))
+      end
+      schedule = DataCycleCore::Schedule.new(thing_id: SecureRandom.uuid, relation: 'event_schedule')
+      schedule.schedule_object = schedule_object
+
+      assert(subject.new([schedule.to_h], template_hash).error.dig(:error).blank?)
     end
   end
 end

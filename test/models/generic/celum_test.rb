@@ -44,7 +44,7 @@ module DataCycleCore
           mode: 'full'
         }
 
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'Celum')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'Celum')
         download_from_local_json(external_source)
         # patch external_source import_config because we do not want to download files
         external_source.config['import_config']['images']['transformations']['asset'] = external_source.config['import_config']['images']['transformations']['asset'].except('asset_type')

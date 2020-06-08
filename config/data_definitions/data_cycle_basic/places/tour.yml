@@ -95,15 +95,9 @@
             :disabled: true
         :api:
           :minimal: true
-      :tour:
-        :label: Route
-        :type: geographic
-        :storage_location: value
-        :ui:
-          :edit:
-            :disabled: true
-        :api:
-          :minimal: true
+      :geo_shape:
+        :type: mixin
+        :name: geo_shape
       :poi:
         :label: POIS
         :type: linked

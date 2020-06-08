@@ -30,3 +30,11 @@
         :ui:
           :show:
             :content_area: header
+      :feratel_facilities_additional_services:
+        :label: Feratel - Merkmale - Services
+        :type: classification
+        :tree_label: Feratel - Merkmale - Services
+        :external: true
+        :ui:
+          :show:
+            :content_area: header

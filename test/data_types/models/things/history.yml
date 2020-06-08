@@ -126,3 +126,4 @@
       :linked:
         :label: Verlinkt
         :type: linked
+        :template_name: testPlace

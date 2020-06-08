@@ -10,7 +10,7 @@ module DataCycleCore
       end
 
       test 'import dummy assets' do
-        external_source = DataCycleCore::ExternalSource.find_by(name: 'DataCycle - Media')
+        external_source = DataCycleCore::ExternalSystem.find_by(name: 'DataCycle - Media')
         external_source.import
 
         assert_equal(8, DataCycleCore::Asset.count)
