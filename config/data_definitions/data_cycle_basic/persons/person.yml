@@ -25,6 +25,11 @@
       :title:
         :type: mixin
         :name: title
+      :job_title:
+        :label: Position / Berufsbezeichnung
+        :type: string
+        :storage_location: translated_value
+        :search: true
       :overlay:
         :label: Overlay
         :type: embedded
@@ -35,14 +40,14 @@
         :type: mixin
         :name: content_classifications
       :honorific_prefix:
-        :label: "Anrede / Titel"
+        :label: 'Anrede / Titel'
         :type: string
         :storage_location: translated_value
         :normalize:
           :id: degree
           :type: degree
       :honorific_suffix:
-        :label: "Titel nachgestellt"
+        :label: 'Titel nachgestellt'
         :type: string
         :storage_location: translated_value
       :postal_address:
@@ -51,11 +56,6 @@
       :contact_info:
         :type: mixin
         :name: contact_info
-      :job_title:
-        :label: Position
-        :type: string
-        :storage_location: translated_value
-        :search: true
       :description:
         :label: Text
         :type: string
@@ -116,7 +116,7 @@
         :label: Inhaltstyp
         :type: classification
         :tree_label: Inhaltstypen
-        :default_value: "Person"
+        :default_value: 'Person'
       :meta_data:
         :type: mixin
         :name: meta_data

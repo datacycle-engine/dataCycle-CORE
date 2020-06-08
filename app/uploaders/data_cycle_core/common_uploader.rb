@@ -17,8 +17,8 @@ module DataCycleCore
       "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
     end
 
-    def url
-      local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}")
+    def url(transformation = {})
+      local_asset_url(host: asset_host, klass: model.class.to_s.demodulize.underscore, id: model.id, version: (version_name || 'original'), file: "#{File.basename(model.name.to_s, '.*').underscore_blanks}.#{file&.extension || File.extname(model.name.to_s).delete('.')}", transformation: transformation)
     end
 
     def file_name
@@ -53,8 +53,8 @@ module DataCycleCore
       config = {}
       config[:from_version] = from_version.to_sym if from_version.present?
       version name.to_sym, config do
-        process resize_to_limit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
         process convert_format: options['format'] if options['format'].present?
+        process resize_to_fit: [options['width'], options['height']] if options.key?('width') || options.key?('height')
         process :content_type
 
         define_method :full_filename do |for_file|
@@ -69,12 +69,15 @@ module DataCycleCore
     def dynamic_version(name:, options: nil, process: false)
       return if options&.values.blank?
 
-      options.delete('format') unless options&.key?('format') &&
-                                      (
-                                        extension_white_list.include?(options['format']) ||
-                                        DataCycleCore::Feature::Serialize.asset_versions(model.thing).dig(name)&.include?(options['format'])
-                                      ) &&
-                                      MIME::Types.type_for(current_path).first != MIME::Types.type_for(options['format']).first
+      new_format = MIME::Types.type_for(options['format']).first
+      if new_format.present? && (
+        extension_white_list.include?(new_format.preferred_extension) ||
+        DataCycleCore::Feature::Serialize.asset_versions(model.thing).dig(name)&.include?(new_format.preferred_extension)
+      ) && MIME::Types.type_for(current_path).first != new_format
+        options['format'] = new_format.preferred_extension
+      else
+        options.delete('format')
+      end
 
       version_name = "#{name}_#{options.slice('format', 'width', 'height').to_h.flatten.join('_')}".to_sym
       version_uploader = self.class.dynamic_version(version_name, options, (name.to_sym == :original ? nil : name))

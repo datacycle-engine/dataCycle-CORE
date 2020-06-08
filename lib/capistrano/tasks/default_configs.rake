@@ -12,7 +12,8 @@ namespace :datacycle do
         'mailers' => 1,
         'importers' => 1,
         'carrierwave' => 1,
-        'cache_invalidation,search_update' => 1,
+        'cache_invalidation' => 3,
+        'search_update' => 3,
         'webhooks' => 1,
         'default' => 1
       }

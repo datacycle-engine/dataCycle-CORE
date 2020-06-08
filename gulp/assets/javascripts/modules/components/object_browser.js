@@ -171,7 +171,7 @@ class ObjectBrowser {
       this.limitedBy = filterItem;
 
       this.limitedBy.on('change', this.removeDeletedItem.bind(this));
-      this.removeDeletedItem();
+      if (!this.element.closest('.split-content.edit-content').length) this.removeDeletedItem();
     } else this.limitedBy = undefined;
   }
   updateLocale(e) {
