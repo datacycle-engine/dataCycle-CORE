@@ -26,7 +26,8 @@ require 'cancancan'
 # pagination
 require 'kaminari'
 # print formatting for e.g. hashes
-require 'awesome_print'
+# require 'awesome_print'
+require 'amazing_print'
 # validator for json data
 require 'json-schema'
 # backgound-jobs
