@@ -43,13 +43,13 @@ module DataCycleCore
         end
 
         def self.extract_child_data(_options, raw_data)
-          raw_data.dig('event', 'classification', 'categories')&.map do |item|
+          raw_data.dig('event', 'classification', 'categories')&.map { |item|
             next if item.dig('name').upcase == item.dig('name')
             {
               external_key: "HRS DD - Classification: #{raw_data.dig('event', 'classification', 'id')}_#{item.dig('id')}",
               name: item.dig('name')
             }
-          end&.compact
+          }&.compact
         end
       end
     end

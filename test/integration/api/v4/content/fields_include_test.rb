@@ -63,25 +63,29 @@ module DataCycleCore
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(add_default([]), json_data.keys.sort)
+          assert_equal(add_default(['image', 'location']), json_data.keys.sort)
         end
 
         test 'testing EventOverlay with fields and include parameter (one included data)' do
           fields = ['image.name']
+          # includes now possible in addition to fields
           includes = ['image', 'location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(add_default(['image']), json_data.keys.sort)
+          assert_equal(add_default(['image', 'location']), json_data.keys.sort)
           assert_equal(add_header(['name']), json_data.dig('image', 0).keys.sort)
           assert_equal(@overlay_image.name, json_data.dig('image', 0, 'name'))
         end
 
-        test 'testing EventOverlay with fields and include parameter (field not in includes --> no data)' do
+        # TODO: subEvent does not exists anymore in APIv4 (legacy property)
+        test 'testing EventOverlay with fields and include parameter fields rendered with default header + property' do
+          # image.name is valid. Is equal to fields=image
           fields = ['image.name', 'name']
+          # subEvent does not exists anymore in APIv4 (legacy property)
           includes = ['location', 'subEvent']
           json_data = load_api_data(fields, includes)
 
-          assert_equal(add_default([]), json_data.keys.sort)
+          assert_equal(add_default(['image', 'location']), json_data.keys.sort)
         end
       end
     end

@@ -180,7 +180,7 @@ module DataCycleCore
       if template.blank? && ancestors&.first.is_a?(DataCycleCore::ClassificationAlias)
         ancestors.first.find_content_template(templates)
       elsif template.blank?
-        return nil
+        nil
       else
         template.first
       end
@@ -199,6 +199,13 @@ module DataCycleCore
 
     def external_keys
       classifications.pluck(:external_key)&.join(', ')
+    end
+
+    def to_api_default_values
+      {
+        '@id' => id,
+        '@type' => 'skos:Concept'
+      }
     end
 
     private

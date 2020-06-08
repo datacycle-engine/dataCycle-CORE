@@ -33,7 +33,7 @@ module DataCycleCore
 
                 raw_asset_data['full_path'] = path
 
-                path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder. present? }.compact
+                path_nodes = ([nil] + path).zip(path).map { |parent, folder| { parent: parent, folder: folder } if folder.present? }.compact
                 path_nodes = path_nodes.zip(0..path.size).map { |data, i| data.merge({ path: path[0..i].join(', '), parent_path: path[0...i].join(', ').presence }) }
                 raw_asset_data['folder'] = path_nodes
 

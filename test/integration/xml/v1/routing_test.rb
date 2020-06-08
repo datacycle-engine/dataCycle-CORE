@@ -22,7 +22,7 @@ module DataCycleCore
           assert_response(:success)
           assert_equal(response.content_type, 'application/xml')
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/contents/search with available API params' do
@@ -35,7 +35,7 @@ module DataCycleCore
             assert_response(:success)
             assert_equal(response.content_type, 'application/xml')
             xml_data = Nokogiri::XML(response.body)
-            assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+            assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
           end
 
           mode_params = DataCycleCore::Xml::V1::ContentsController::ALLOWED_MODE_PARAMETERS
@@ -44,7 +44,7 @@ module DataCycleCore
             assert_response(:success)
             assert_equal(response.content_type, 'application/xml')
             xml_data = Nokogiri::XML(response.body)
-            assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+            assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
           end
         end
 
@@ -55,7 +55,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/places' do
@@ -65,7 +65,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/events' do
@@ -75,7 +75,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/persons' do
@@ -85,7 +85,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/organizations' do
@@ -95,7 +95,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'thing' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'thing' })
         end
 
         test '/xml/v1/thing Xml for article' do
@@ -130,7 +130,7 @@ module DataCycleCore
           assert_response :success
           assert_equal response.content_type, 'application/xml'
           xml_data = Nokogiri::XML(response.body)
-          assert_equal(count, xml_data.children.first.children.map(&:name).select { |item| item == 'classificationTree' }.size)
+          assert_equal(count, xml_data.children.first.children.map(&:name).count { |item| item == 'classificationTree' })
 
           hash = Hash.from_xml(xml_data.to_xml)
           test_classification = hash.dig('RDF', 'classificationTree').detect { |item| item['name'] == 'Tags' }.dig('id')

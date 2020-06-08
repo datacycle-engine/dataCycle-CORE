@@ -24,7 +24,7 @@ module Translations
 
     def singularize(str)
       call_or_yield str do
-        str.to_s.gsub(/s$/, '')
+        str.to_s.delete_suffix('s')
       end
     end
 

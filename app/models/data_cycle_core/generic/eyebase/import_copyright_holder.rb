@@ -16,7 +16,7 @@ module DataCycleCore
         def self.load_contents(mongo_item, locale, source_filter)
           aggregation = mongo_item.where(
             source_filter.with_evaluated_values.merge({
-              "dump.#{locale.to_s}.mediaassettype.text": '501',
+              "dump.#{locale}.mediaassettype.text": '501',
               "dump.#{locale}.copyright.#cdata-section": { '$exists': true }
             })
           )

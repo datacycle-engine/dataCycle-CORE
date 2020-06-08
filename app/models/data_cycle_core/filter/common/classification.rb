@@ -43,6 +43,14 @@ module DataCycleCore
           )
         end
 
+        def with_classification_aliases_and_treename(definition)
+          return self if definition.blank?
+          raise StandardError, 'Missing data definition: treeLabel' if definition.dig('treeLabel').blank?
+          raise StandardError, 'Missing data definition: aliases' if definition.dig('aliases').blank?
+
+          with_classification_aliases(definition.dig('treeLabel'), definition.dig('aliases'))
+        end
+
         def classification_alias_ids_with_subtree(ids = nil)
           return self if ids.blank?
           query_string = Thing.send(:sanitize_sql_for_conditions, ['classification_aliases_mapping && ARRAY[?]::uuid[] OR classification_ancestors_mapping && ARRAY[?]::uuid[]', ids, ids])

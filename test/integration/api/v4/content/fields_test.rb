@@ -96,11 +96,11 @@ module DataCycleCore
           assert_equal('PropertyValue', json_data.dig('additionalProperty', 0, '@type'))
         end
 
-        test 'testing EventOverlay with fields parameter (filtering linked/embedded data --> no data linked/embedded are no fields)' do
+        # TODO: subEvent does not exists anymore in APIv4 (legacy property)
+        test 'testing EventOverlay with fields parameter (filtering linked/embedded data --> linked rendered with default header)' do
           fields = ['image', 'subEvent']
           json_data = load_api_data(fields)
-
-          assert_equal(default_fields.sort, json_data.keys.sort)
+          assert_equal((default_fields + ['image']).sort, json_data.keys.sort)
         end
       end
     end
