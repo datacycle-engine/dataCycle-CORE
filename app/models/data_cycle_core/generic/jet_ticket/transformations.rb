@@ -13,15 +13,52 @@ module DataCycleCore
           .>> t(:add_field, 'name', ->(s) { s.dig('Name1') })
           .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - EventSeriesID: ' + s.dig('EventSetID') })
           .>> t(:add_field, 'event_schedule', ->(s) { Array.wrap(event_schedule(s)) })
-          .>> t(:add_field, 'universal_classifications', ->(s) { event_status(s.dig('Status')) })
+          .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('EventManager', 'EventManagerID'))&.map { |i| "JetTicket - EventManagerID: #{i}" } })
+          .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { Array.wrap(s&.dig('Venue', 'VenueID'))&.map { |i| "JetTicket - VenueID: #{i}" } })
+          .>> t(:universal_classifications, ->(s) { event_status(s.dig('Status')) })
+          .>> t(:universal_classifications, ->(s) { event_flags(s.dig('EventFlags')) })
+          .>> t(:universal_classifications, ->(s) { [s.dig('EventType', 'EventTypeID')].compact.map { |i| 'JetTicket - EventTyp - ' + i.to_s }.map { |i| DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: i)&.id }.compact })
+          .>> t(:universal_classifications, ->(s) { [s.dig('EventType2', 'EventTypeID')].compact.map { |i| 'JetTicket - EventGattung - ' + i.to_s }.map { |i| DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: i)&.id }.compact })
           .>> t(:strip_all)
         end
-        # .>> t(:add_links, 'hrs_dd_categories', DataCycleCore::Classification, external_source_id, ->(s) { [s&.dig('event', 'category', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Classification: #{s.dig('event', 'classification', 'id')}_#{item}" }&.flatten || [] })
-        # .>> t(:add_field, 'event_period', ->(s) { parse_event_period(s.dig('dates'), s.dig('event')) })
-        # .>> t(:add_links, 'organizer', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'contact', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Organizer: #{item}" } })
-        # .>> t(:add_links, 'content_location', DataCycleCore::Thing, external_source_id, ->(s) { [s&.dig('event', 'venue', 'id')]&.compact&.flatten&.map { |item| "HRS DD - Venue: #{item}" } })
-        # .>> t(:add_field, 'sub_event', ->(s) { parse_sub_event(s.dig('dates'), s.dig('event')) })
-        # .>> t(:event_schedule, ->(s) { s.dig('sub_event') })
+
+        def self.to_organizer(external_source_id)
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - EventManagerID: ' + s.dig('EventManagerID') })
+          .>> t(:add_field, 'street_address', ->(s) { s.dig('Address', 'Street') })
+          .>> t(:add_field, 'postal_code', ->(s) { s.dig('Address', 'Postal') })
+          .>> t(:add_field, 'address_locality', ->(s) { s.dig('Address', 'City') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('Address', 'CountryCode') })
+          .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_locality', 'address_country'])
+          .>> t(:add_field, 'country_code', ->(s) { convert_country_code(s.dig('Address', 'CountryCode'), external_source_id) })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Address', 'Name2') unless s.dig('Address', 'Name1') == s.dig('Address', 'Name2') })
+          .>> t(:add_field, 'telephone', ->(s) { s.dig('Address', 'Mobile') || s.dig('Address', 'Phone') })
+          .>> t(:add_field, 'fax_number', ->(s) { s.dig('Address', 'Fax') })
+          .>> t(:add_field, 'email', ->(s) { s.dig('Address', 'EMail') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('Address', 'URL') })
+          .>> t(:nest, 'contact_info', ['name', 'telephone', 'fax_number', 'email', 'url'])
+          .>> t(:add_field, 'name', ->(s) { s.dig('Address', 'Name1') })
+          .>> t(:strip_all)
+        end
+
+        def self.to_place(external_source_id)
+          t(:stringify_keys)
+          .>> t(:add_field, 'external_key', ->(s) { 'JetTicket - VenueID: ' + s.dig('VenueID') })
+          .>> t(:add_field, 'street_address', ->(s) { s.dig('Address', 'Street') })
+          .>> t(:add_field, 'postal_code', ->(s) { s.dig('Address', 'Postal') })
+          .>> t(:add_field, 'address_locality', ->(s) { s.dig('Address', 'City') })
+          .>> t(:add_field, 'address_country', ->(s) { s.dig('Address', 'CountryCode') })
+          .>> t(:nest, 'address', ['street_address', 'postal_code', 'address_locality', 'address_country'])
+          .>> t(:add_field, 'country_code', ->(s) { convert_country_code(s.dig('Address', 'CountryCode'), external_source_id) })
+          .>> t(:add_field, 'name', ->(s) { s.dig('Address', 'Name2') unless s.dig('Address', 'Name1') == s.dig('Address', 'Name2') })
+          .>> t(:add_field, 'telephone', ->(s) { s.dig('Address', 'Mobile') || s.dig('Address', 'Phone') })
+          .>> t(:add_field, 'fax_number', ->(s) { s.dig('Address', 'Fax') })
+          .>> t(:add_field, 'email', ->(s) { s.dig('Address', 'EMail') })
+          .>> t(:add_field, 'url', ->(s) { s.dig('Address', 'URL') })
+          .>> t(:nest, 'contact_info', ['name', 'telephone', 'fax_number', 'email', 'url'])
+          .>> t(:add_field, 'name', ->(s) { s.dig('Address', 'Name1') })
+          .>> t(:strip_all)
+        end
 
         def self.event_schedule(data_hash)
           schedule_hash = {}
@@ -40,23 +77,50 @@ module DataCycleCore
           schedule_hash.merge(schedule_object.to_hash)
         end
 
-        def self.event_status(status_string)
-          return if status_string.blank?
-          bits = status_string.to_i
-          return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name('JetTicket - Eventstatus', 'nur Veranstaltungskalender') if bits.zero?
+        def self.event_status(string)
+          return [] if string.blank?
+          bits = string.to_i
           bit_values = {
+            0 => 'nur Veranstaltungskalender',
             1 => 'im Verkauf',
             2 => 'online',
             4 => 'vorübergehend gestoppt',
             8 => 'ausverkauft',
             16 => 'Event wurde abgesagt'
           }
+          evaluate_bitmap(bits, bit_values, 'JetTicket - Eventstatus')
+        end
+
+        def self.event_flags(string)
+          return [] if string.blank?
+          bits = string.to_i
+          bit_values = {
+            1 => 'Vorstellungsvariante vorhanden',
+            2 => 'Preisübersteuerung/Preistabelle vorhanden',
+            4 => 'vorübergehend gestoppt',
+            8 => 'Personalisierung vorhanden',
+            16 => 'Packetverwendung erforderlich'
+          }
+          evaluate_bitmap(bits, bit_values, 'JetTicket - EventFlags')
+        end
+
+        def self.evaluate_bitmap(bits, bit_values, tree_label)
+          return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree_label, bit_value['default']) if bits.zero? && bit_value[0].present?
           bit_values
+            .except(0)
             .keys
             .select { |v| (bits & v) == v }
             .map { |v| bit_values[v] }
-            .map { |v| DataCycleCore::ClassificationAlias.classification_for_tree_with_name('JetTicket - Eventstatus', v)&.id }
+            .map { |v| DataCycleCore::ClassificationAlias.classification_for_tree_with_name(tree_label, v) }
             .compact
+        end
+
+        def self.convert_country_code(jt_cc, external_source_id)
+          return if jt_cc.blank?
+          classification = DataCycleCore::Classification.find_by(external_source_id: external_source_id, external_key: "JetTicket - CountryCode - #{jt_cc}")
+          class_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').find_by(description: classification.name)
+          return if class_alias.blank?
+          Array.wrap(class_alias.primary_classification.id)
         end
       end
     end

@@ -178,6 +178,12 @@ module DataCycleCore
         def self.add_field(data_hash, name, function)
           data_hash.merge({ name => function.call(data_hash) })
         end
+
+        def self.universal_classifications(data_hash, function)
+          data_hash['universal_classifications'] ||= []
+          data_hash['universal_classifications'] += (function.call(data_hash) || [])
+          data_hash
+        end
       end
     end
   end
