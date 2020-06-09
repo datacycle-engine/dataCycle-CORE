@@ -29,7 +29,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(8)
+            assert_api_count_result(11)
 
             params = {
               filter: {
@@ -37,7 +37,7 @@ module DataCycleCore
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(2)
+            assert_api_count_result(3)
           end
         end
       end

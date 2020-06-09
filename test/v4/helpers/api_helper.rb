@@ -9,7 +9,6 @@ module DataCycleCore
           'schedule', # legacy property for events
           'sub_event', # legacy property for events
           'subject_of', # TODO: check if should be tested with full thing
-          'super_event', # TODO: check if should be tested with full thing
           'is_linked_to', # TODO: check if should be tested with full thing
           'linked_thing', # TODO: check if should be tested with full thing
           'external_key' # only used for embedded during import

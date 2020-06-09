@@ -60,6 +60,7 @@ module DataCycleCore
         data_hash['organizer'] = [person.id]
         data_hash['performer'] = [organization.id]
         data_hash['content_location'] = [poi.id]
+        data_hash['super_event'] = [event_series.id]
         # TODO: add more generic way
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
@@ -74,6 +75,12 @@ module DataCycleCore
           data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
+      end
+
+      def event_series
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_series')
+        data_hash['image'] = [image.id]
+        DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash: data_hash, user: @user)
       end
 
       def minimal_event
@@ -99,7 +106,15 @@ module DataCycleCore
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_offer')
         data_hash['offer_period'] = offer_period
         data_hash['price_specification'] = [price_specification]
+        data_hash['offered_by'] = [person.id]
+        data_hash['item_offered'] = [service.id]
         data_hash
+      end
+
+      def service
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_service')
+        data_hash['hours_available'] = [schedule]
+        DataCycleCore::TestPreparations.create_content(template_name: 'Service', data_hash: data_hash, user: @user)
       end
 
       def price_specification
