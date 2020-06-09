@@ -6,7 +6,7 @@ PATH
       acts_as_paranoid (~> 0.6.0)
       acts_as_tree
       addressable
-      awesome_print
+      amazing_print
       cancancan
       carrierwave (~> 0.5)
       carrierwave_backgrounder (~> 0.4.2)
@@ -122,11 +122,11 @@ GEM
     afm (0.2.2)
     airbrussh (1.4.0)
       sshkit (>= 1.6.1, != 1.7.0)
+    amazing_print (1.1.0)
     appsignal (2.10.7)
       rack
     arel (9.0.0)
     ast (2.4.0)
-    awesome_print (1.8.0)
     bcrypt (3.1.13)
     better_errors (2.7.1)
       coderay (>= 1.0.0)
@@ -283,7 +283,7 @@ GEM
       googleauth (~> 0.9)
       grpc (~> 1.24)
       rly (~> 0.2.3)
-    google-protobuf (3.12.1)
+    google-protobuf (3.12.2)
     googleapis-common-protos (1.3.10)
       google-protobuf (~> 3.11)
       googleapis-common-protos-types (>= 1.0.5, < 2.0)
@@ -402,7 +402,7 @@ GEM
     public_suffix (4.0.5)
     puma (4.3.5)
       nio4r (~> 2.0)
-    puma-status (1.0)
+    puma-status (1.1)
       colorize (~> 0.8)
       net_http_unix (~> 0.2)
       parallel (~> 1)
@@ -527,7 +527,7 @@ GEM
       railties (>= 5.0)
     websocket-driver (0.7.2)
       websocket-extensions (>= 0.1.0)
-    websocket-extensions (0.1.4)
+    websocket-extensions (0.1.5)
     whenever (1.0.0)
       chronic (>= 0.6.3)
 

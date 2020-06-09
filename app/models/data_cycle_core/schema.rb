@@ -57,8 +57,8 @@ module DataCycleCore
 
       def property_definitions
         @template_schema['properties']
-          .reject { |_, definition| definition['type'] == 'key' } # definition['type'] == 'classification' ||
-          .reject { |_, definition| definition.dig('api', 'disabled') }
+          .reject { |_, definition| definition['type'] == 'key' }
+          .reject { |_, definition| definition.dig('api', 'v4', 'disabled').nil? ? definition.dig('api', 'disabled') : definition.dig('api', 'v4', 'disabled') }
           .map { |key, definition|
             if definition['type'] == 'object'
               Template.new(definition).property_definitions.map { |d| d.merge({ template_type: schema_name }) }
@@ -128,6 +128,8 @@ module DataCycleCore
             '//schema.org/DateTime'
           when 'number'
             '//schema.org/Number'
+          when 'schedule'
+            '//schema.org/Schedule'
           else
             definition['type']
           end

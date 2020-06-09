@@ -20,6 +20,23 @@ module DataCycleCore
       list_hash
     end
 
+    def list_api_deleted_request(contents)
+      json_context = api_plain_context(@language)
+      json_contents = contents.map do |item|
+        Rails.cache.fetch("api_v4_#{api_cache_key(item, @language, @include_parameters, @fields_parameters, @api_subversion)}", expires_in: 1.year + Random.rand(7.days)) do
+          item.to_api_deleted_list
+        end
+      end
+      json_links = api_plain_links(contents)
+      list_hash = {
+        '@context' => json_context,
+        '@graph' => json_contents,
+        'links' => json_links
+      }
+      list_hash['meta'] = api_plain_meta(contents.total_count, contents.total_pages) unless @mode_parameters == 'strict'
+      list_hash
+    end
+
     def apply_classification_filters(query)
       return query if permitted_params&.dig(:filter, :classifications).blank?
       classification_params = permitted_params[:filter][:classifications].to_h.deep_symbolize_keys
@@ -106,7 +123,32 @@ module DataCycleCore
       }
     end
 
+    def apply_timestamp_query_string(values, attribute_path)
+      date_range = "[#{date_from_single_value(values.dig(:min))&.beginning_of_day},#{date_from_single_value(values.dig(:max))&.end_of_day}]"
+      ActiveRecord::Base.send(:sanitize_sql_for_conditions, ["?::daterange @> #{attribute_path}::date", date_range])
+    end
+
+    def apply_order_query(query, order_params)
+      order_query = order_params&.split(',')&.map { |sort|
+        if sort.starts_with?('-')
+          transform_sort_param(sort[1..-1], 'DESC')
+        elsif sort.starts_with?('+')
+          transform_sort_param(sort[1..-1], 'ASC')
+        else
+          transform_sort_param(sort, 'ASC')
+        end
+      }&.reject(&:blank?)
+      order_query = ['updated_at ASC'] if order_query.blank?
+      query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+    end
+
     private
+
+    def date_from_single_value(value)
+      return if value.blank?
+      return value if value.is_a?(::Date)
+      DataCycleCore::MasterData::DataConverter.string_to_datetime(value)
+    end
 
     # TODO: add error handling
     # https://jsonapi.org/format/#errors
