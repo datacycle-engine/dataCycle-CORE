@@ -57,7 +57,7 @@ class EmbeddedObject {
           (this.max == 0 || this.element.children('.content-object-item').length < this.max) &&
           new_items.length > 0
         ) {
-          this.renderEmbeddedObjects('render', new_items, data.locale);
+          this.renderEmbeddedObjects('split_view', new_items, data.locale);
         } else if (this.write && this.max != 0 && ids.length + new_items.length > this.max) {
           var confirmationModal = new ConfirmationModal({ text: 'Maximalanzahl: ' + this.max });
         }
@@ -104,7 +104,7 @@ class EmbeddedObject {
   }
   renderEmbeddedObjects(type, ids = [], locale = null) {
     let index = this.index;
-    if (type == 'render') this.index += ids.diff(this.ids).length;
+    if (type == 'split_view') this.index += ids.diff(this.ids).length;
     else if (type == 'new') this.index++;
 
     this.element.find('> .buttons > button').prop('disabled', true).find('.fa').css('display', 'inline-block');
@@ -122,7 +122,8 @@ class EmbeddedObject {
         options: this.options,
         content_id: this.content_id,
         content_type: this.content_type,
-        object_ids: ids
+        object_ids: ids,
+        duplicated_content: type == 'split_view'
       }
     }).done(data => {
       if (ids.length > 0) this.ids = this.ids.concat(ids.diff(this.ids));

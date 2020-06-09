@@ -2,8 +2,13 @@
   <% object = DataCycleCore::DataHashService.get_internal_template(definition['template_name']) if local_assigns[:object].blank? %>
   <% validation_properties = ordered_validation_properties(validation: object.schema) %>
 
-  <div class="content-object-item textblock draggable_<%= sanitize_to_id(key) %>" id="<%= sanitize_to_id(key) %>_item_<%= index %>" data-id="<%= object.id %>" data-index="<%= index %>">
-    <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template %>
+  <%= tag.div class: "content-object-item textblock draggable_#{sanitize_to_id(key)}",
+    id: "#{sanitize_to_id(key)}_item_#{index}",
+    data: {
+      id: object.template || local_assigns[:duplicated_content] ? nil : object.id,
+      index: index
+    } do %>
+    <%= hidden_field_tag("#{key}[#{index}][id]", object.id) unless object.template || local_assigns[:duplicated_content] %>
 
     <span class="embedded-header form-element validation-container">
       <% if can?(:edit, DataCycleCore::DataAttribute.new(key, definition, options, object, :edit)) %>
@@ -27,6 +32,6 @@
       <button type="button" class="button removeContentObject"><i class="fa fa-times"></i></button>
     <% end %>
 
-    <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:text) } , parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), new_content: local_assigns[:new_content], parent: object }, content: content %>
-  </div>
+    <%= render_attribute_editor key: "#{key}[#{index}][text]", definition: validation_properties['text'], value: I18n.with_locale(local_assigns[:attribute_locale]){ object.try(:text) } , parameters: { options: (validation_properties['text'].presence&.dig('editor', 'options') || {}).merge(prefix: local_assigns.dig(:options, :prefix)), parent: object }, content: content %>
+  <% end %>
 <% end %>

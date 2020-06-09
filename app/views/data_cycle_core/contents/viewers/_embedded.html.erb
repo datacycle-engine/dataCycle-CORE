@@ -31,7 +31,7 @@
 
     <% if value.try(:total_pages)&.positive? && !value&.last_page? %>
       <span class="clear-both">
-        <%= link_to t('common.load_more', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
+        <%= link_to t('common.load_all', locale: DataCycleCore.ui_language), load_more_linked_objects_thing_path(
             local_assigns[:parent] || content,
             key: key.attribute_name_from_key,
             complete_key: key,

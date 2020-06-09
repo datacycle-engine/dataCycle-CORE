@@ -989,10 +989,13 @@ span.single_error.object-browser-error {
       background-color: white;
       border-radius: 3px;
       box-shadow: 0 0 3px #9d9d9d inset;
-      display: flex;
       padding: 1rem;
-      flex-flow: row wrap;
-      align-items: center;
+
+      &.accordion-item {
+        display: flex;
+        flex-flow: row wrap;
+        align-items: center;
+      }
 
       &.is-active > .accordion-title::before {
         content: '\f106';
@@ -1021,6 +1024,8 @@ span.single_error.object-browser-error {
           font-style: normal;
           font-weight: normal;
           text-decoration: inherit;
+          font-size: 1.5rem;
+          line-height: 1rem;
         }
       }
 

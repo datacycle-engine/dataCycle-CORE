@@ -47,7 +47,7 @@ class Validator {
     this.agbsCheck.on('change', this.validateSingle.bind(this));
     this.form.on('dc:form:disable', this.disable.bind(this));
     this.form.on('dc:form:enable', this.enable.bind(this));
-    this.form.on('dc:html:changed', '*', this.updateInitialFormData.bind(this));
+    this.form.on('dc:html:initialized', '*', this.updateInitialFormData.bind(this));
 
     if (this.form.hasClass('bulk-edit-form') && window.actionCable !== undefined) {
       this.initActionCable();
@@ -90,9 +90,6 @@ class Validator {
       QuillHelpers.updateEditors(this.form);
       this.submitFormData = this.form.serializeArray();
 
-      console.log(this.initialFormData);
-      console.log(this.submitFormData);
-
       if (this.initialFormData.length !== 0 && !this.initialFormData.equal_to(this.submitFormData))
         return 'Wollen Sie die Seite wirklich verlassen ohne zu speichern?';
     });
@@ -119,8 +116,6 @@ class Validator {
   }
   updateInitialFormData(event, data = {}) {
     event.preventDefault();
-
-    console.log(data);
 
     if (!data || !data.newContent)
       this.initialFormData = this.initialFormData.mergeUniqueFormValues(

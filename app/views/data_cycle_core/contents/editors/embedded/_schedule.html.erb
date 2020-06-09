@@ -1,7 +1,10 @@
-<div class="content-object-item draggable_<%= sanitize_to_id(key) %>"
-  id="<%= sanitize_to_id(key) %>_item_<%= index %>"
-  data-id="<%= local_assigns[:object]&.id %>"
-  data-index="<%= index %>">
+<%= tag.div class: "content-object-item draggable_#{sanitize_to_id(key)} accordion-item#{' is-active' if local_assigns[:object].nil?}",
+  id: "#{sanitize_to_id(key)}_item_#{index}",
+  data: {
+    id: local_assigns[:object]&.id,
+    index: index,
+    accordion_item: true
+  } do %>
 
   <% readonly = options['readonly'].to_s == 'true' %>
 
@@ -15,10 +18,13 @@
         title="<%= t('common.embedded_move_down', locale: DataCycleCore.ui_language) %>" data-tooltip><i
           class="fa fa-arrow-down" aria-hidden="true"></i></span>
     <% end %>
-    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
-    <%= definition['label'] %>
-    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
   </span>
+
+  <a href="#" class="accordion-title">
+    <span class="icon"><i class="fa fa-calendar" aria-hidden="true"></i></span>
+    <span class="embedded-label"><%= definition['label'] %></span>
+    <%= render 'data_cycle_core/contents/helper_text', local_assigns %>
+  </a>
 
   <% unless readonly %>
     <%= button_tag tag.i(class: 'fa fa-times'), type: :button, class: 'button removeContentObject', data: {
@@ -26,11 +32,11 @@
         } %>
   <% end %>
 
-  <%= hidden_field_tag("#{key}[#{index}][id]", local_assigns[:object].id) unless local_assigns[:new_content] || local_assigns[:object].try(:id).blank? %>
+  <%= hidden_field_tag("#{key}[#{index}][id]", local_assigns[:object].id) unless local_assigns[:duplicated_content] || local_assigns[:object].nil? %>
 
   <% value = local_assigns[:object]&.to_h || {} %>
 
-  <div class="schedule-editor">
+  <div class="schedule-editor embedded-properties accordion-content" data-tab-content>
     <div class="daterange schedule-range">
       <div class="form-element start">
         <% full_day = value&.dig(:duration).to_i.positive? && value&.dig(:duration) % 1.day == 0 %>
@@ -187,4 +193,4 @@
     </div>
 
   </div>
-</div>
+<% end %>

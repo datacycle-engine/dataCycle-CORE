@@ -115,7 +115,7 @@ class QuillContentlinkModule extends QuillModule {
   constructor(quill, options) {
     super(quill.container, options);
     this.quill = quill;
-    this.tooltip = new ContentLinkTooltip(this.quill, options.bounds);
+    this.tooltip = new ContentLinkTooltip(this.quill, quill.options.bounds);
     this.quill.getModule('toolbar').addHandler('contentlink', this.contentlinkHandler.bind(this));
   }
   contentlinkHandler(value) {
