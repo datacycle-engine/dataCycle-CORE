@@ -65,6 +65,7 @@ de:
     import: Import
     download: Download
     download_import: Download&Import
+    delete: delete
 
   notification:
     frequency:

@@ -9,6 +9,7 @@ module DataCycleCore
             download_object: utility_object,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
+            modified: method(:modified).to_proc,
             options: options
           )
         end
@@ -19,6 +20,10 @@ module DataCycleCore
 
         def self.data_name(data)
           data.dig('Name')
+        end
+
+        def self.modified(data)
+          data.dig('Modified')&.in_time_zone
         end
       end
     end

@@ -19,7 +19,7 @@ module DataCycleCore
         store_job_id_to_external_source.config['last_download_failed'] = false
       end
       store_job_id_to_external_source.save
-      job_record.delayed_reference_type = 'download'
+      job_record.delayed_reference_type = 'download_full'
       job_record.save!
     end
 
@@ -33,10 +33,10 @@ module DataCycleCore
       external_source = ExternalSystem.find(uuid)
       pid = Process.fork do
         ExternalSystem.find(uuid).download({ mode: 'full' })
-      rescue StandardError => exception
-        Appsignal.send_error(exception, nil, "download job failed - #{external_source.id}")
+      rescue StandardError => e
+        Appsignal.send_error(e, nil, "download job failed - #{external_source.id}")
         external_source.config['last_download_failed'] = true
-        external_source.config['last_download_exception'] = "#{exception} (#{Time.zone.now})"
+        external_source.config['last_download_exception'] = "#{e} (#{Time.zone.now})"
         external_source.save!
       end
       Process.waitpid(pid)

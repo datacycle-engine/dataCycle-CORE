@@ -11,6 +11,7 @@ module DataCycleCore
         if job.locked_at.nil? && job.locked_by.nil?
           @job_list.push(
             {
+              'id' => job.id,
               'status' => "<span class='label secondary'>queued</span>",
               'job' => job.delayed_reference_type,
               'ref_id' => job.delayed_reference_id,
@@ -20,6 +21,7 @@ module DataCycleCore
         else
           @job_list.push(
             {
+              'id' => job.id,
               'status' => "<span class='label success'>running</span>",
               'job' => job.delayed_reference_type,
               'ref_id' => job.delayed_reference_id,

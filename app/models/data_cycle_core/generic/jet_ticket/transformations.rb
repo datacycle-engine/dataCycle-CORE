@@ -105,7 +105,7 @@ module DataCycleCore
         end
 
         def self.evaluate_bitmap(bits, bit_values, tree_label)
-          return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree_label, bit_value['default']) if bits.zero? && bit_value[0].present?
+          return DataCycleCore::ClassificationAlias.classifications_for_tree_with_name(tree_label, bit_values[0]) if bits.zero? && bit_values[0].present?
           bit_values
             .except(0)
             .keys

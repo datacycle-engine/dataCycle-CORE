@@ -26,7 +26,7 @@ module DataCycleCore
                   raw_data.each do |language, data_hash|
                     next unless locales.include?(language.to_sym)
                     item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
-                    data_hash = data_hash.merge(modified: modified.call(data_hash)) if modified.present?
+                    data_hash = data_hash.merge(updated_at: modified.call(data_hash)) if modified.present?
                     item.dump[language] = data_hash
                   end
                   item.updated_at = modified.call(raw_data.first[1]) if modified.present?
@@ -81,9 +81,10 @@ module DataCycleCore
 
                         item = mongo_item.find_or_initialize_by('external_id': item_id)
                         item.dump ||= {}
-                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
-                        item.data_has_changed ||= diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base))
                         item_data = item_data.merge(updated_at: modified.call(item_data)) if modified.present?
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
+                        item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
+                        item.data_has_changed = diff?(bson_to_hash(item.dump[locale]), item_data, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[locale] = item_data
                         item.save!
                         logging.item_processed(item_name, item_id, item_count, max_string)
@@ -151,8 +152,10 @@ module DataCycleCore
 
                       item_data.each do |language, data_hash|
                         next unless locales.include?(language.to_sym)
-                        item.data_has_changed ||= diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base))
-                        data_hash = data_hash.merge(modified: modified.call(data_hash)) if modified.present?
+                        data_hash = data_hash.merge(updated_at: modified.call(data_hash)) if modified.present?
+                        item.data_has_changed = true if options.dig(:download, :skip_diff) == true
+                        item.data_has_changed = false if modified.present? && modified.call(item_data) < download_object.external_source.last_successful_download
+                        item.data_has_changed = diff?(bson_to_hash(item.dump[language]), data_hash, diff_base: options.dig(:download, :diff_base)) if item.data_has_changed.nil?
                         item.dump[language] = data_hash
                         logging.item_processed(item_name, item_id, item_count, max_string)
                       end
