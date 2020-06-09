@@ -272,7 +272,7 @@ module DataCycleCore
       @attribute_locale = render_embedded_object_params[:attribute_locale]
       @duplicated_content = render_embedded_object_params[:duplicated_content]
 
-      if @content.template
+      if @content&.template
         authorize! :edit, @content
       else
         authorize! :edit, DataCycleCore::Thing
