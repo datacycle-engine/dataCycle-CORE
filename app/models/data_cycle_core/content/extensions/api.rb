@@ -15,6 +15,13 @@ module DataCycleCore
           }
         end
 
+        def to_api_deleted_list
+          {
+            '@id' => thing_id,
+            'dct:deleted' => deleted_at
+          }
+        end
+
         def to_api_default_values
           {
             '@id' => id,
