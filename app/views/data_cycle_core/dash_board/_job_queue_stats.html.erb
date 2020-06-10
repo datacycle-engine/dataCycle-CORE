@@ -25,7 +25,7 @@
                     <li>
                       <%= job['status'].html_safe %>
                       <b><i> <%= link_to(t('dash_board.delete', locale: DataCycleCore.ui_language), admin_delete_queue_path(id: job['id']))%> </i></b><br/>
-                      <b><%= DataCycleCore::ExternalSystem.find(job['ref_id']).name.html_safe %></b>
+                      <b><%= DataCycleCore::ExternalSystem.find(job['ref_id']).name %></b>
                       <i>(<%= job['job'].html_safe %>)</i> <br/>
                       <%= job['created_at'].to_s.html_safe %>
                     </li>
