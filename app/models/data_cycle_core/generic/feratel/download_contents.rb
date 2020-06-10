@@ -31,18 +31,18 @@ module DataCycleCore
             data.dig('Descriptions', 'Description'),
             data.dig('Links', 'Link'),
             data.dig('Products', 'Product'),
-            data.dig('Products', 'Product', 'Descriptions', 'Description'),
+            Array.wrap(data.dig('Products', 'Product'))&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
             data.dig('CustomAttributes'),
             data.dig('Services', 'Service'),
-            data.dig('Services', 'Service', 'Facility'),
-            data.dig('Services', 'Service', 'Descriptions', 'Description'),
-            data.dig('Services', 'Service', 'Products', 'Product'),
-            data.dig('Services', 'Service', 'Products', 'Product', 'Descriptions', 'Description'),
+            Array.wrap(data.dig('Services', 'Service'))&.map { |i| Array.wrap(i.dig('Facility')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('Services', 'Service'))&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('Services', 'Service'))&.map { |i| Array.wrap(i.dig('Products', 'Product')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('Services', 'Service'))&.map { |i| Array.wrap(i.dig('Products', 'Product')).presence }&.compact&.flatten&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
             data.dig('AdditionalServices', 'AdditionalService'),
-            data.dig('AdditionalServices', 'AdditionalService', 'Facilities'),
-            data.dig('AdditionalServices', 'AdditionalService', 'Descriptions', 'Description'),
-            data.dig('AdditionalServices', 'AdditionalService', 'Products', 'Product'),
-            data.dig('AdditionalServices', 'AdditionalService', 'Products', 'Product', 'Descriptions', 'Description')
+            Array.wrap(data.dig('AdditionalServices', 'AdditionalService'))&.map { |i| Array.wrap(i.dig('Facilities')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('AdditionalServices', 'AdditionalService'))&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('AdditionalServices', 'AdditionalService'))&.map { |i| Array.wrap(i.dig('Products', 'Product')).presence }&.compact&.flatten,
+            Array.wrap(data.dig('AdditionalServices', 'AdditionalService'))&.map { |i| Array.wrap(i.dig('Products', 'Product')).presence }&.compact&.flatten&.map { |i| Array.wrap(i.dig('Descriptions', 'Description')).presence }&.compact&.flatten
           ].compact
             .map { |i| Array.wrap(i) }
             .inject(&:+)

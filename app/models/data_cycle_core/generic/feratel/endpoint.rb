@@ -7,6 +7,7 @@ module DataCycleCore
         include EndpointLoadRanges
         include EndpointDownloadXml
         include EndpointUpdateXml
+        include EndpointDeletedXml
         include EndpointGlobalDownloader
 
         def initialize(pos_code: nil, company_code: nil, range_code: nil, range_id: nil, sales_channel_id: nil, **options)
@@ -160,12 +161,24 @@ module DataCycleCore
           enumerate_two_stages(:accommodations, '//ServiceProviders/ServiceProvider', '//ChangedServiceProviders/ServiceProvider', lang: lang)
         end
 
-        def enumerate_items(type, xpath, lang: :de)
+        def mark_deleted_accommodations(lang: :de, deleted_from:)
+          enumerate_items(:mark_deleted_accommodations, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
+        end
+
+        def mark_deleted_events(lang: :de, deleted_from:)
+          enumerate_items(:mark_deleted_events, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
+        end
+
+        def mark_deleted_infrastructure_items(lang: :de, deleted_from:)
+          enumerate_items(:mark_deleted_infrastructure_items, '//DeletedItems/Item', lang: lang, deleted_from: deleted_from)
+        end
+
+        def enumerate_items(type, xpath, lang: :de, deleted_from: nil)
           Enumerator.new do |yielder|
             item_ids = []
             ['RG', 'DI', 'TO'].each do |range_code|
               load_range_ids(range_code).each do |range_id|
-                load_data(type, lang: lang, range_code: range_code, range_ids: range_id).xpath(xpath).each do |xml_data|
+                load_data(type, lang: lang, range_code: range_code, range_ids: range_id, deleted_from: deleted_from).xpath(xpath).each do |xml_data|
                   item = { '_Type' => xml_data.parent.name.singularize }.merge(xml_data.to_hash)
                   unless item_ids.include?(item['Id'] || item['Order'])
                     item_ids << item['Id'] || item['Order']
@@ -262,15 +275,19 @@ module DataCycleCore
           end
         end
 
-        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false, retry_count: 0)
+        def load_data(type, lang: :de, range_code: 'RG', range_ids: @primary_range_id, index: false, retry_count: 0, deleted_from: nil)
+          method_name = index ? "create_#{type}_index_request_xml" : "create_#{type}_request_xml"
+
           if [:additional_service_providers, :events, :infrastructure_items, :accommodations, :packages, :package_containers].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+            request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
+          elsif [:mark_deleted_events, :mark_deleted_accommodations, :mark_deleted_infrastructure_items].include?(type)
+            url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
+            request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
           else
             url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
+            request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
           end
-
-          method_name = index ? "create_#{type}_index_request_xml" : "create_#{type}_request_xml"
-          request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
 
           # puts Nokogiri::XML(request_parameters, &:noblanks).to_xml(indent: 2)
           # puts
