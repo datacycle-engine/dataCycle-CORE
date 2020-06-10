@@ -172,7 +172,7 @@ module DataCycleCore
             assert_full_thing_datahash(@event)
             params = {
               id: @event.id,
-              include: 'offers,offers.priceSpecification,offers.itemOffered,eventSchedule,location,superEvent'
+              include: 'offers,offers.priceSpecification,offers.itemOffered,eventSchedule,location'
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
@@ -470,24 +470,10 @@ module DataCycleCore
             end
 
             # testing super_events
-            super_event_object = @event.super_event.first
-            json_validate['superEvent'].first.delete('dc:classification')
-            super_event_api_data = {
-              '@id' => super_event_object.id,
-              '@type' => 'EventSeries',
-              'name' => super_event_object.title,
-              'description' => super_event_object.description,
-              'image' => [
-                super_event_object.image.first.to_api_default_values
-              ],
-              'subEvent' => [
-                super_event_object.sub_event.first.to_api_default_values
-              ]
-            }
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
-                  super_event_api_data
+                @event.super_event.first.to_api_default_values
                 ]
               }
             end

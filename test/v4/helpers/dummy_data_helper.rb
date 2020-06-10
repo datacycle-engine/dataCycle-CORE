@@ -92,6 +92,11 @@ module DataCycleCore
       def event_series
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_series')
         data_hash['image'] = [image.id]
+        data_hash['validity_period'] = validity_period
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
         DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash: data_hash, user: @user)
       end
 
