@@ -57,6 +57,12 @@
   }
 }
 .detail-content .type.properties .embedded-viewer {
+  .event_period {
+    padding: 0.4rem 1rem;
+  }
+}
+
+.detail-content .type.properties .detail-type {
   .detail-type {
     &[data-editor='text_editor'] {
       .detail-content {
@@ -64,13 +70,9 @@
         padding-left: 1rem;
       }
     }
-
-    &.embedded {
-      padding: 0 !important;
-    }
   }
-  .event_period {
-    padding: 0.4rem 1rem;
+  &.embedded {
+    padding: 0 !important;
   }
 }
 
