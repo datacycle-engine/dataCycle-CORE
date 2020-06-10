@@ -473,7 +473,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
-                @event.super_event.first.to_api_default_values
+                  @event.super_event.first.to_api_default_values
                 ]
               }
             end
