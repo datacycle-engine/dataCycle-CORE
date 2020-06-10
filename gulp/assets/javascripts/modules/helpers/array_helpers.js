@@ -47,3 +47,8 @@ Array.prototype.lastIndexOfFieldName = function (name) {
   }
   return this.lastIndexOfFieldName(name.substring(0, name.lastIndexOf('[')));
 };
+Array.prototype.uniqFieldValues = function () {
+  return this.filter((obj, pos, arr) => {
+    return arr.map(mapObj => JSON.stringify(mapObj)).indexOf(JSON.stringify(obj)) === pos;
+  });
+};

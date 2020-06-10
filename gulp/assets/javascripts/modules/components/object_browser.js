@@ -124,7 +124,7 @@ class ObjectBrowser {
         if ($(this).prop('id').indexOf('overlay_') == -1) $(this).prop('id', 'overlay_' + $(this).prop('id'));
       });
       this.element.find('.object-thumbs li.item .reveal.media-preview').each((index, element) => {
-        $(element).foundation();
+        $(element).foundation().addClass('dc-fd-initialized');
       });
     });
     this.element.on('dc:import:data', (event, data) => {
@@ -308,7 +308,7 @@ class ObjectBrowser {
         .each(function () {
           if ($(this).prop('id').indexOf('overlay_') != -1)
             $(this).prop('id', $(this).prop('id').replace('overlay_', ''));
-          $(this).foundation();
+          $(this).foundation().addClass('dc-fd-initialized');
         });
       this.element
         .children('.media-thumbs')
@@ -316,7 +316,7 @@ class ObjectBrowser {
         .children('li.item')
         .find('[data-tooltip]')
         .each(function () {
-          $(this).attr('title', $(this).data('title')).foundation();
+          $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
         });
     }
   }
@@ -327,7 +327,7 @@ class ObjectBrowser {
       $(element)
         .find('[data-tooltip]')
         .each(function () {
-          $(this).attr('title', $(this).data('title')).foundation();
+          $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
         });
       this.overlay
         .children('.items')
@@ -419,7 +419,7 @@ class ObjectBrowser {
       .html(this.element.find('> .media-thumbs > .object-thumbs > li.item').clone())
       .find('[data-tooltip]')
       .each(function () {
-        $(this).attr('title', $(this).data('title')).foundation();
+        $(this).attr('title', $(this).data('title')).foundation().addClass('dc-fd-initialized');
       });
     this.chosen = $.map(this.element.find('> .media-thumbs > .object-thumbs > li.item'), (val, i) => $(val).data('id'));
   }

@@ -41,4 +41,4 @@ if (followingEmbedded.length) $(followingEmbedded).before('<%= j yield :rendered
 else $('#<%= sanitize_to_id(@key) %> > .buttons').before('<%= j yield :rendered_items %>');
 
 $('<%= j content_for :forms %>').appendTo('body').foundation();
-$('<%= (@index.presence&.to_i..(@index.presence&.to_i + @objects&.size.to_i)).map { |i| "##{sanitize_to_id(@key)}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? %> });
+$('<%= (@index.presence&.to_i..(@index.presence&.to_i + @objects&.size.to_i)).map { |i| "##{sanitize_to_id(@key)}_item_#{i}" }.join(', ') %>').trigger('dc:html:changed').trigger('dc:html:initialized', { newContent: <%= @objects.nil? || @duplicated_content.to_s == 'true' %> });

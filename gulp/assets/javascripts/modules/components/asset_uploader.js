@@ -735,7 +735,7 @@ class AssetUploader {
     fileOptions.fileField.html(fileOptions.html);
 
     if (this.contentUploader && this.showNewForm)
-      fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation();
+      fileOptions.fileField.append(this.renderEditOverlay(fileOptions)).foundation().addClass('dc-fd-initialized');
     if (fileOptions.errors) {
       this.renderError(fileOptions, fileOptions.errors);
       fileOptions.fileField.find('.file-buttons .edit-upload-button').hide();

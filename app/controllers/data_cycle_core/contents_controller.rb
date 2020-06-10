@@ -263,7 +263,7 @@ module DataCycleCore
     end
 
     def render_embedded_object
-      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id])
+      @content = DataCycleCore::Thing.find_by(id: render_embedded_object_params[:id]) || DataCycleCore::Thing.new { |t| t.id = render_embedded_object_params[:id] || SecureRandom.uuid } # new Thing required for bulk_edit
       @key = render_embedded_object_params[:key]
       @definition = render_embedded_object_params[:definition]
       @index = render_embedded_object_params[:index]

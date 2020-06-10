@@ -5,13 +5,13 @@ module.exports.initialize = function ($) {
   Foundation.Tooltip.defaults.clickOpen = false;
   Foundation.Reveal.defaults.closeOnClick = false;
   Foundation.Reveal.defaults.multipleOpened = true;
-  $(document).foundation();
+  $('body').foundation().addClass('dc-fd-initialized');
 
-  $(document).on('dc:html:changed dc:contents:added', '*', event => {
+  $(document).on('dc:html:changed dc:contents:added', '*:not(.dc-fd-initialized)', event => {
     event.stopPropagation();
 
     if ($(event.target).hasClass('accordion-item')) Foundation.reInit($(event.target).closest('[data-accordion]'));
-    $(event.target).foundation();
+    $(event.target).foundation().addClass('dc-fd-initialized');
   });
 
   $(document).on('open.zf.reveal', '.reveal', event => {

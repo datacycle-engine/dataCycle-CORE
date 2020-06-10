@@ -7,10 +7,7 @@ class SplitView {
     this.embedLocale = this.container.closest('.split-content').data('embed-locale');
     this.leftLocale = this.container.closest('.split-content').data('locale');
     this.enableTranslateButtons = this.container.closest('.split-content').data('enable-translate-buttons');
-    this.rightLocale = this.container
-      .closest('form')
-      .find('input#locale:hidden')
-      .val();
+    this.rightLocale = this.container.closest('form').find('input#locale:hidden').val();
     this.setup();
   }
   setup() {
@@ -32,28 +29,19 @@ class SplitView {
     this.container
       .closest('.split-content')
       .on('click', '.copy-all, .translate-all', this.triggerAllButtons.bind(this));
-    this.container.on('dc:contents:added', this.setupAdditionalButtons.bind(this));
+    this.container.on('dc:contents:added', '[data-id]:not(.dc-sw-initialized)', this.setupAdditionalButtons.bind(this));
     this.container
       .closest('.split-content')
       .find('.close-subscribe-notice')
       .on('click', this.dismissSubscribeNotice.bind(this));
   }
   setupAdditionalButtons(event, data) {
-    event.stopImmediatePropagation();
-    if (data.editor !== undefined && $(event.target).data('id') !== undefined) {
-      let key =
-        $(event.target).data('key') ||
-        $(event.target)
-          .parents('div[data-editor=' + data.editor + ']')
-          .data('key');
+    let item = $(event.target);
 
-      this.addButtons(
-        event.target,
-        key,
-        $(event.target).data('id'),
-        data.single ? 'single-data-id' : 'data-id',
-        data.single
-      );
+    if (data.editor !== undefined && item.data('id') !== undefined) {
+      let key = item.data('key') || item.parents('div[data-editor=' + data.editor + ']').data('key');
+
+      this.addButtons(event.target, key, item.data('id'), data.single ? 'single-data-id' : 'data-id', data.single);
     }
   }
   dismissSubscribeNotice(_event) {
@@ -78,15 +66,7 @@ class SplitView {
   }
   setupTextFieldButtons() {
     this.availableEditors(['string', 'text_editor']).each((_, elem) => {
-      this.addButtons(
-        elem,
-        $(elem).data('key'),
-        $(elem)
-          .find('.detail-content')
-          .html()
-          .trim() || '',
-        'html'
-      );
+      this.addButtons(elem, $(elem).data('key'), $(elem).find('.detail-content').html().trim() || '', 'html');
     });
   }
   setupClassificationButtons() {
@@ -116,14 +96,7 @@ class SplitView {
   }
   setupUrlButtons() {
     this.availableEditors(['url']).each((_, elem) => {
-      this.addButtons(
-        elem,
-        $(elem).data('key'),
-        $(elem)
-          .find('.detail-content > a')
-          .attr('href'),
-        'href'
-      );
+      this.addButtons(elem, $(elem).data('key'), $(elem).find('.detail-content > a').attr('href'), 'href');
     });
   }
   setupCopyAllButtons(elements) {
@@ -151,6 +124,7 @@ class SplitView {
       if (single && !$(element).hasClass('copy-single')) element = $(element).find('.copy-single');
       this.renderButton(element, copy_attr, single);
     }
+    $(element).addClass('dc-sw-initialized');
   }
   valueNotEmpty(value) {
     if (value === undefined || value === null) return false;
@@ -194,36 +168,19 @@ class SplitView {
     let elem = $(event.currentTarget);
     switch (elem.data('copy-attribute')) {
       case 'single-data-id':
-        value = elem
-          .parents('.copy-single')
-          .first()
-          .data('id');
+        value = elem.parents('.copy-single').first().data('id');
         break;
       case 'data-id':
-        value = elem
-          .parents('[data-editor]')
-          .first()
-          .data('id');
+        value = elem.parents('[data-editor]').first().data('id');
         break;
       case 'data-value':
-        value = elem
-          .parents('[data-editor]')
-          .first()
-          .data('value');
+        value = elem.parents('[data-editor]').first().data('value');
         break;
       case 'html':
-        value = elem
-          .parents('[data-editor]')
-          .first()
-          .find('.detail-content')
-          .html();
+        value = elem.parents('[data-editor]').first().find('.detail-content').html();
         break;
       case 'href':
-        value = elem
-          .parents('[data-editor]')
-          .first()
-          .find('.detail-content > a')
-          .attr('href');
+        value = elem.parents('[data-editor]').first().find('.detail-content > a').attr('href');
         break;
     }
 
@@ -243,10 +200,7 @@ class SplitView {
       ? 'a.translate'
       : 'a.copy:not(.copy-single-button)';
 
-    $(event.currentTarget)
-      .parent('.split-content, [data-editor="included-object"]')
-      .find(selector)
-      .trigger('click');
+    $(event.currentTarget).parent('.split-content, [data-editor="included-object"]').find(selector).trigger('click');
   }
   copyContents(value, label, key) {
     if ($('.edit-header .submit-edit-form').prop('disabled')) return;
