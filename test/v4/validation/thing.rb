@@ -95,6 +95,17 @@ module DataCycleCore
             required(:email).value(:string)
             required(:url).value(:string)
           end
+          optional(:image).value(:array).each do
+            hash(DEFAULT_HEADER)
+          end
+          optional(:memberOf).value(:array).each do
+            hash(DEFAULT_HEADER)
+          end
+          optional(:'cc:license').value(:string)
+          optional(:'cc:morePermissions').value(:string)
+          optional(:'cc:attributionName').value(:string)
+          optional(:'cc:attributionUrl').value(:string)
+          optional(:'cc:useGuidelines').value(:string)
         end
 
         def self.build_thing_validation(fields, include)

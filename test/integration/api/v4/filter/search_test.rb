@@ -18,18 +18,25 @@ module DataCycleCore
           end
 
           test 'api/v4/things parameter filter search' do
-            params = {}
+            params = {
+              page: {
+                size: 100
+              }
+            }
             post api_v4_things_path(params)
             assert_api_count_result(@thing_count)
 
             # find all events
             params = {
+              page: {
+                size: 100
+              },
               filter: {
                 search: ''
               }
             }
             post api_v4_things_path(params)
-            assert_api_count_result(11)
+            assert_api_count_result(@thing_count)
 
             params = {
               filter: {
