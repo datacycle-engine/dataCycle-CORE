@@ -42,9 +42,10 @@ module DataCycleCore
                 end
 
                 # plain attributes without transformation
-                assert_attributes(json_validate, required_attributes, ['description']) do
+                assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
                   {
-                    'description' => @content.description
+                    'description' => @content.description,
+                    'potentialAction' => @content.potential_action
                   }
                 end
 
@@ -70,6 +71,24 @@ module DataCycleCore
                   {
                     'image' => [
                       @content.image.first.to_api_default_values
+                    ]
+                  }
+                end
+
+                # transformed classifications: event_status, event_attendance_mode
+                assert_attributes(json_validate, required_attributes, ['event_status', 'event_attendance_mode']) do
+                  {
+                    'eventStatus' => @content.event_status.first.classification_aliases.first.uri,
+                    'eventAttendanceMode' => @content.event_attendance_mode.first.classification_aliases.first.uri
+                  }
+                end
+
+                # locations content_location, virtual_location
+                assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
+                  {
+                    'location' => [
+                      @content.content_location.first.to_api_default_values,
+                      @content.virtual_location.first.to_api_default_values
                     ]
                   }
                 end
