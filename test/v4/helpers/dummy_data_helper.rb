@@ -93,9 +93,18 @@ module DataCycleCore
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_series')
         data_hash['image'] = [image.id]
         data_hash['validity_period'] = validity_period
+        data_hash['content_location'] = [poi.id]
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_attendance_mode').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
+          data_hash['event_attendance_mode'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_status').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
+          data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
         DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash: data_hash, user: @user)
       end
