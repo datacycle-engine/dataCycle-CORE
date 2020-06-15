@@ -22,9 +22,28 @@ function init_git_repo {
     fi
     cd $dir_name
     git clone $2 .
-    git checkout develop
+    git checkout $BRANCH_NAME
     git submodule sync --recursive
     git submodule update --init --recursive --force
+}
+
+function add_core_git_tag {
+    print_body_message "Add tag to core"
+    dir_name='core'
+    git_repo='git@git.pixelpoint.biz:data-cycle/data-cycle-core.git'
+    if [ -d "$dir_name" ]; then
+        echo "$dir_name allready exists"
+    else
+        echo "creating directory: $dir_name"
+        mkdir $dir_name
+    fi
+    cd $dir_name
+    git clone $git_repo .
+    git checkout $BRANCH_NAME
+    git tag -a "$TAG_NAME" -m "core $BRANCH_NAME"
+    git push origin "$TAG_NAME"
+    cd ".."
+    rm -Rf "$dir_name"
 }
 
 function update_core_submodule {
@@ -34,15 +53,11 @@ function update_core_submodule {
     git pull origin $BRANCH_NAME
 }
 
-BRANCH_NAME=$1
+BRANCH_NAME='develop'
 dir=$(pwd)
 PROJECTS=()
-UPDATE_GEM=$2
-
-if [[ $# -eq 0 ]] ; then
-    echo 'No arguments supplied'
-    exit 1
-fi
+UPDATE_GEM=$1
+TAG_NAME="core.$BRANCH_NAME.$(date +%Y%m%d)"
 
 print_header_message "Init data-cycle git script for branch: $BRANCH_NAME"
 
@@ -73,7 +88,11 @@ for project in "${PROJECTS[@]}"
     git status
     ts=$(date +%s)
     git commit -a -m "$ts: updated datacyclecore"
-    git push origin develop
+    git push origin $BRANCH_NAME
+    git tag -a "$TAG_NAME" -m "core $BRANCH_NAME"
+    git push origin "$TAG_NAME"
     cd "$dir"
     rm -Rf "$dir/$project_dir"
 done
+
+add_core_git_tag

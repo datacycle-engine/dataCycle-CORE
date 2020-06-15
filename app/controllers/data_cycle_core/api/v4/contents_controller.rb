@@ -43,13 +43,21 @@ module DataCycleCore
             DataCycleCore::Thing::History.arel_table[:deleted_at].not_eq(nil)
           )
 
-          if permitted_params.dig(:filter, :deletedSince)
-            deleted_contents = deleted_contents.where(
-              DataCycleCore::Thing::History.arel_table[:deleted_at].gteq(Time.zone.parse(permitted_params.dig(:filter, :deletedSince)))
-            )
+          if permitted_params&.dig(:filter, :attribute, :deletedAt).present?
+            filter = permitted_params[:filter][:attribute][:deletedAt].to_h.deep_symbolize_keys
+            filter.each do |operator, value|
+              query_string = apply_timestamp_query_string(value, "#{deleted_contents.table.name}.deleted_at")
+              if operator == :in
+                deleted_contents = deleted_contents.where(query_string)
+              elsif operator == :notIn
+                deleted_contents = deleted_contents.where.not(query_string)
+              end
+            end
           end
 
-          render plain: list_api_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
+          deleted_contents = deleted_contents.except(:order).order('deleted_at DESC')
+
+          render plain: list_api_deleted_request(apply_paging(deleted_contents)).to_json, content_type: 'application/json'
         end
 
         def permitted_parameter_keys
@@ -62,7 +70,6 @@ module DataCycleCore
             filter:
               [
                 :search,
-                :deletedSince,
                 {
                   classifications: {
                     in: {
@@ -78,6 +85,7 @@ module DataCycleCore
                 {
                   attribute: {
                     createdAt: attribute_filter_operations,
+                    deletedAt: attribute_filter_operations,
                     modifiedAt: attribute_filter_operations,
                     schedule: attribute_filter_operations
                   }
@@ -109,17 +117,7 @@ module DataCycleCore
           elsif permitted_params&.dig(:filter, :attribute, :schedule).present?
             query.except(:order).order(DataCycleCore::Filter::Search.get_order_by_query_string(permitted_params[:search].presence, true))
           else
-            order_query = permitted_params.dig(:sort)&.split(',')&.map { |sort|
-              if sort.starts_with?('-')
-                transform_sort_param(sort[1..-1], 'DESC')
-              elsif sort.starts_with?('+')
-                transform_sort_param(sort[1..-1], 'ASC')
-              else
-                transform_sort_param(sort, 'ASC')
-              end
-            }&.reject(&:blank?)
-            order_query = ['updated_at ASC'] if order_query.blank?
-            query.except(:order).order(ActiveRecord::Base.send(:sanitize_sql_for_order, Arel.sql(order_query.join(', '))))
+            apply_order_query(query, permitted_params.dig(:sort))
           end
         end
 
@@ -150,8 +148,6 @@ module DataCycleCore
           filter.parameters = current_user.default_filter(filter.parameters, { scope: 'api' })
           query = filter.apply(experimental: true)
           query = query.watch_list_id(endpoint_id) if filter_watch_list
-          # query = apply_event_query_filters(query)
-          # query = apply_place_query_filters(query)
 
           query = query.fulltext_search(permitted_params.dig(:filter, :search)) if permitted_params.dig(:filter, :search)
 

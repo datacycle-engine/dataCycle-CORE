@@ -10,6 +10,11 @@ module DataCycleCore
           required(:name).value(:string)
         end
 
+        DEFAULT_DELETED_HEADER = Dry::Schema.JSON do
+          required(:@id).value(:uuid_v4?)
+          required(:'dct:deleted').value(:date_time)
+        end
+
         IDENTIFIER_ATTRIBUTES = Dry::Schema.JSON do
           required(:'@type').value(:string)
           required(:propertyID).value(:string)
@@ -56,6 +61,9 @@ module DataCycleCore
           optional(:offers).value(:array).each do
             hash(DEFAULT_HEADER)
           end
+          optional(:superEvent).value(:array).each do
+            hash(DEFAULT_HEADER)
+          end
           optional(:potentialAction).value(:string)
           optional(:'cc:license').value(:string)
           optional(:'cc:morePermissions').value(:string)
@@ -87,6 +95,17 @@ module DataCycleCore
             required(:email).value(:string)
             required(:url).value(:string)
           end
+          optional(:image).value(:array).each do
+            hash(DEFAULT_HEADER)
+          end
+          optional(:memberOf).value(:array).each do
+            hash(DEFAULT_HEADER)
+          end
+          optional(:'cc:license').value(:string)
+          optional(:'cc:morePermissions').value(:string)
+          optional(:'cc:attributionName').value(:string)
+          optional(:'cc:attributionUrl').value(:string)
+          optional(:'cc:useGuidelines').value(:string)
         end
 
         def self.build_thing_validation(fields, include)
@@ -108,6 +127,14 @@ module DataCycleCore
           validator = Dry::Validation.Contract do
             config.validate_keys = true
             json(DEFAULT_HEADER, attributes)
+          end
+          validator
+        end
+
+        def self.deleted_thing
+          validator = Dry::Validation.Contract do
+            config.validate_keys = true
+            json(DEFAULT_DELETED_HEADER)
           end
           validator
         end

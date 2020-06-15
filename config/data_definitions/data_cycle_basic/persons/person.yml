@@ -79,7 +79,7 @@
             :content_area: header
         :api:
           :partial: enumeration
-          :type: Gender
+          :type: GenderType
       :gender_api:
         :label: Geschlecht
         :storage_location: value
