@@ -14,7 +14,6 @@ module DataCycleCore
         end
 
         def self.load_contents(mongo_item, locale, source_filter)
-          byebug
           mongo_item.where({ "dump.#{locale}": { '$exists': true } }.merge(source_filter.with_evaluated_values))
         end
 
