@@ -458,9 +458,8 @@ config:
       import_strategy: DataCycleCore::Generic::Common::UpdateAttributes
       source_type: infrastructure_items
       source_filter:
-        '$or':
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+        'seen_at':
+          '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'Id'
       attributes:
         - key: external_status
@@ -473,9 +472,8 @@ config:
       import_strategy: DataCycleCore::Generic::Common::UpdateAttributes
       source_type: accommodations
       source_filter:
-        '$or':
-          - 'seen_at':
-              '$lt': '{{ 3.days.ago.beginning_of_day }}'
+        'seen_at':
+          '$lt': '{{ 3.days.ago.beginning_of_day }}'
       external_key_path: 'Id'
       attributes:
         - key: external_status
