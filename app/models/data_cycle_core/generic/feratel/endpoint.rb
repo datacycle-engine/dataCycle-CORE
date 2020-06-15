@@ -283,7 +283,7 @@ module DataCycleCore
             request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
           elsif [:mark_deleted_events, :mark_deleted_accommodations, :mark_deleted_infrastructure_items].include?(type)
             url = 'http://interface.deskline.net/DSI/BasicData.asmx/GetData'
-            request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
+            request_parameters = send(method_name, range_code: range_code, range_ids: range_ids, deleted_from: deleted_from)
           else
             url = 'http://interface.deskline.net/DSI/KeyValue.asmx/GetKeyValues'
             request_parameters = send(method_name, lang: lang, range_code: range_code, range_ids: range_ids)
