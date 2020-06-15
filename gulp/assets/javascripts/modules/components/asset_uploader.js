@@ -5,6 +5,7 @@ let RandomNumber = require('./../helpers/random_number_helpers');
 let MimeTypes = require('mime-types');
 let ActionCable = require('actioncable');
 let AssetValidator = require('./asset_validator');
+const { forEach } = require('lodash');
 
 class AssetUploader {
   constructor(reveal) {
@@ -441,12 +442,13 @@ class AssetUploader {
       this.resetFileField(file);
       this.renderError(file, data.error);
       error = data.error;
-    } else if (!this.createDuplicates && data.duplicate) {
+    } else if (!this.createDuplicates && data.duplicateCandidates && data.duplicateCandidates.length) {
       this.resetFileField(file);
-      this.renderError(file, 'Duplikat gefunden!');
+      this.renderError(file, this.renderDuplicateHtml(data.duplicateCandidates));
       error = 'Duplikat gefunden!';
     } else {
-      if (data.duplicate) this.renderErrorHtml(file, 'notice', 'Duplikat gefunden!');
+      if (data.duplicateCandidates && data.duplicateCandidates.length)
+        this.renderErrorHtml(file, 'notice', this.renderDuplicateHtml(data.duplicateCandidates));
 
       file.uploaded = true;
       file.fileField
@@ -460,6 +462,33 @@ class AssetUploader {
       else this.validateAttributes(file);
     }
     this.updateCreateButton(error);
+  }
+  renderDuplicateHtml(duplicates) {
+    let id = RandomNumber.generateRandomId();
+
+    let duplicateHtml =
+      '<a class="possible-duplicates" data-toggle="' +
+      id +
+      '-duplicates-list" title="Duplikate vorhanden" aria-controls="' +
+      id +
+      '-duplicates-list" aria-haspopup="true"><i class="fa fa-exclamation" aria-hidden="true"></i> Duplikate vorhanden</a>';
+    duplicateHtml +=
+      '<div class="dropdown-pane no-bullet bottom" id="' +
+      id +
+      '-duplicates-list" data-dropdown data-hover="true" data-hover-pane="true" aria-hidden="true"><h5>mögliche Duplikate</h5><ul class="list-items duplicates-list no-bullet">';
+
+    duplicates.forEach(item => {
+      duplicateHtml +=
+        '<li><a target="_blank" class="duplicate-link" href="/things/' +
+        item.id +
+        '"><img class="lazyload" data-src="' +
+        item.thumbnail_url +
+        '"></li>';
+    });
+
+    duplicateHtml += '</ul></div>';
+
+    return duplicateHtml;
   }
   reset(ids = null) {
     if (ids) {
@@ -489,9 +518,24 @@ class AssetUploader {
     );
   }
   renderErrorHtml(file, cssClass, message) {
-    let fileInfoFields = file.fileField.add(file.fileFormField).find('.file-info');
-    if (fileInfoFields.find('.' + cssClass).length) fileInfoFields.find('.' + cssClass).text(message);
-    else fileInfoFields.append('<span class="' + cssClass + '">' + message + '</span>');
+    let fileInfoField = file.fileField.find('.file-info');
+    if (fileInfoField.find('.' + cssClass).length)
+      fileInfoField
+        .find('.' + cssClass)
+        .html(message)
+        .foundation();
+    else fileInfoField.append('<span class="' + cssClass + '">' + message + '</span>').foundation();
+
+    let fileFormInfoField = file.fileFormField.find('.file-info');
+    if (fileFormInfoField.length) {
+      if (!fileFormInfoField.find('.' + cssClass).length)
+        fileFormInfoField.append('<span class="' + cssClass + '"></span>');
+
+      fileFormInfoField
+        .find('.' + cssClass)
+        .html(this.updateIdsInClonedErros(message))
+        .foundation();
+    }
   }
   renderError(file, error) {
     file.fileField.add(file.fileFormField).addClass('error').find('.upload-number').html('Uploadfehler');
@@ -720,6 +764,11 @@ class AssetUploader {
     fileOptions.fileField.find('.file-buttons .edit-upload-button').attr('data-open', fileOptions.id + '_edit_overlay');
 
     return html;
+  }
+  updateIdsInClonedErros(errorText) {
+    let newId = RandomNumber.generateRandomId();
+    errorText = errorText.replaceAll(/(")([^"-]*)(-duplicates-list)/gi, '$1' + newId + '$3');
+    return errorText;
   }
   renderInitialFileField(fileOptions) {
     fileOptions.fileField = $(

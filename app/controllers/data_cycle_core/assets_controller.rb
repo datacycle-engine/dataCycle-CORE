@@ -36,7 +36,7 @@ module DataCycleCore
       @asset.creator_id = current_user.try(:id)
 
       if @asset.save
-        render json: @asset.attributes.merge(duplicate: @asset.try(:duplicate_candidates).present?)
+        render json: @asset.attributes.merge(duplicateCandidates: Array.wrap(@asset.try(:duplicate_candidates)&.as_json(only: [:id], methods: :thumbnail_url)))
       else
         render(json: { error: @asset.errors.full_messages.join(', ') })
       end
