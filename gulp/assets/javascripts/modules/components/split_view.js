@@ -66,7 +66,7 @@ class SplitView {
   }
   setupTextFieldButtons() {
     this.availableEditors(['string', 'text_editor']).each((_, elem) => {
-      this.addButtons(elem, $(elem).data('key'), $(elem).find('.detail-content').html().trim() || '', 'html');
+      this.addButtons(elem, $(elem).data('key'), $(elem).data('value') || '', 'data-value');
     });
   }
   setupClassificationButtons() {
