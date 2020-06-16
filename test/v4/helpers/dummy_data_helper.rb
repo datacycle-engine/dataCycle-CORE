@@ -5,6 +5,7 @@ module DataCycleCore
     module DummyDataHelper
       module_function
 
+      # TODO: add classifications more generic
       def create_data(type, user = nil)
         @user = user
         send(type)
@@ -36,18 +37,29 @@ module DataCycleCore
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+        if data_hash.dig('tags').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
       end
 
-      def image_with_author
+      def full_image
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('media_objects', 'v4_image')
         data_hash['name'] = "image_#{SecureRandom.uuid}"
         data_hash['author'] = [person.id]
+        data_hash['copyright_holder'] = [organization.id]
+        data_hash['content_location'] = [poi.id]
         # TODO: make this more generic for all kind of classifications
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
           data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
         end
+        if data_hash.dig('tags').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Tags').with_name(data_hash['tags'])
+          data_hash['tags'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        data_hash['validity_period'] = validity_period
         DataCycleCore::TestPreparations.create_content(template_name: 'Bild', data_hash: data_hash, user: @user)
       end
 
@@ -56,10 +68,11 @@ module DataCycleCore
         data_hash['event_schedule'] = [schedule]
         data_hash['validity_period'] = validity_period
         data_hash['offers'] = [offer]
-        data_hash['image'] = [image_with_author.id]
+        data_hash['image'] = [full_image.id]
         data_hash['organizer'] = [person.id]
         data_hash['performer'] = [organization.id]
         data_hash['content_location'] = [poi.id]
+        data_hash['super_event'] = [event_series.id]
         # TODO: add more generic way
         if data_hash.dig('license_classification').present?
           classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
@@ -76,6 +89,26 @@ module DataCycleCore
         DataCycleCore::TestPreparations.create_content(template_name: 'Event', data_hash: data_hash, user: @user)
       end
 
+      def event_series
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event_series')
+        data_hash['image'] = [image.id]
+        data_hash['validity_period'] = validity_period
+        data_hash['content_location'] = [poi.id]
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_attendance_mode').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsteilnahmemodus').with_name(data_hash['event_attendance_mode'])
+          data_hash['event_attendance_mode'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('event_status').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Veranstaltungsstatus').with_name(data_hash['event_status'])
+          data_hash['event_status'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        DataCycleCore::TestPreparations.create_content(template_name: 'Eventserie', data_hash: data_hash, user: @user)
+      end
+
       def minimal_event
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('events', 'v4_event')
         data_hash['name'] = "event_#{SecureRandom.uuid}"
@@ -87,11 +120,31 @@ module DataCycleCore
 
       def person
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('persons', 'v4_person')
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        data_hash['member_of'] = [organization.id]
+        data_hash['image'] = [image.id]
         DataCycleCore::TestPreparations.create_content(template_name: 'Person', data_hash: data_hash, user: @user)
       end
 
       def organization
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('organizations', 'v4_organization')
+        data_hash['image'] = [image.id]
+        data_hash['content_location'] = [poi.id]
+        if data_hash.dig('country_code').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Ländercodes').with_name(data_hash['country_code'])
+          data_hash['country_code'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
+        if data_hash.dig('license_classification').present?
+          classification_alias = DataCycleCore::ClassificationAlias.for_tree('Lizenzen').with_name(data_hash['license_classification'])
+          data_hash['license_classification'] = classification_alias.map { |c| c.primary_classification.id } if classification_alias.present?
+        end
         DataCycleCore::TestPreparations.create_content(template_name: 'Organization', data_hash: data_hash, user: @user)
       end
 
@@ -99,7 +152,15 @@ module DataCycleCore
         data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_offer')
         data_hash['offer_period'] = offer_period
         data_hash['price_specification'] = [price_specification]
+        data_hash['offered_by'] = [person.id]
+        data_hash['item_offered'] = [service.id]
         data_hash
+      end
+
+      def service
+        data_hash = DataCycleCore::TestPreparations.load_dummy_data_hash('intangibles', 'v4_service')
+        data_hash['hours_available'] = [schedule]
+        DataCycleCore::TestPreparations.create_content(template_name: 'Service', data_hash: data_hash, user: @user)
       end
 
       def price_specification

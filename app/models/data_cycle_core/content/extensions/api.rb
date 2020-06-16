@@ -26,7 +26,7 @@ module DataCycleCore
           {
             '@id' => id,
             '@type' => schema.dig('api', 'type') || try(:schema_type) || self.class.name.demodulize,
-            'name' => title
+            'name' => title || template_name
           }
         end
 

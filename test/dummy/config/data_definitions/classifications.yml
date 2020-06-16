@@ -8,6 +8,7 @@
         - $$PDF
     - $$Person
     - $$Veranstaltung
+    - $$Veranstaltungsserie
     - $$Ort:
         - $$Badeseen
         - $$Tour

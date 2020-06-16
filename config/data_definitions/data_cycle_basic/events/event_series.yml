@@ -59,6 +59,63 @@
         :template_name: Event
         :inverse_of: super_event
         :link_direction: inverse
+      :content_location:
+        :label: Veranstaltungsort
+        :type: linked
+        :stored_filter:
+          -
+            :with_classification_aliases_and_treename:
+              :treeLabel: Inhaltstypen
+              :aliases:
+                - Ort
+        :api:
+          :name: location
+      :virtual_location:
+        :label: Virtueller Veranstaltungsort
+        :type: embedded
+        :template_name: VirtualLocation
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :transformation:
+              :method: append
+              :name: location
+      :event_attendance_mode:
+        :label: Veranstaltungsteilnahmemodus
+        :type: classification
+        :tree_label: Veranstaltungsteilnahmemodus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :event_status:
+        :label: Veranstaltungsstatus
+        :type: classification
+        :tree_label: Veranstaltungsstatus
+        :ui:
+          :show:
+            :content_area: header
+          :edit:
+            :type: radio_button
+        :api:
+          :disabled: true
+          :v4:
+            :disabled: false
+            :partial: string
+      :potential_action:
+        :label: Link mit weiterführenden Infos
+        :type: string
+        :storage_location: translated_value
+        :api:
+          :partial: action
+          :type: ViewAction
       :data_type:
         :label: Inhaltstyp
         :type: classification

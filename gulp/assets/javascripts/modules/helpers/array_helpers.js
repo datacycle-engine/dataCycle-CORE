@@ -1,11 +1,11 @@
 // Array Helpermethods
 Array.prototype.diff = function (a) {
-  if (!Array.isArray(a)) return this;
+  if (!a || typeof a.indexOf !== 'function') return this;
   return this.filter(i => a.indexOf(i) === -1);
 };
 
 Array.prototype.intersect = function (a) {
-  if (!Array.isArray(a)) return [];
+  if (!a || typeof a.indexOf !== 'function') return [];
   return this.filter(i => a.indexOf(i) !== -1);
 };
 
