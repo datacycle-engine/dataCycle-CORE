@@ -53,7 +53,7 @@ module DataCycleCore
             req.params['pagesize'] = per
             req.params['filter'] = {
               'from' => Time.zone.today.at_beginning_of_month.to_s('%d.%m.%Y'),
-              'to' => Time.zone.today.at_end_of_month.next_year.to_s('%d.%m.%Y')
+              'to' => (Time.zone.today.at_end_of_month + 5.years).to_s('%d.%m.%Y')
             }
           end
 
