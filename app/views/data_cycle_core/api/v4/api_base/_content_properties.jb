@@ -62,9 +62,13 @@ unless content.schema.nil?
       end
     elsif api_property_definition.dig('transformation', 'method') == 'append'
       # TODO: add more types for append transformation
-      next unless ['embedded', 'linked'].include?(prop.dig('type'))
+      next unless ['embedded', 'linked', 'string'].include?(prop.dig('type'))
       json[property_name] ||= []
-      json[property_name] += (render(*partial_params)&.dig(property_name) || []) unless partial_params.nil?
+      if ['embedded', 'linked'].include?(prop.dig('type'))
+        json[property_name] += (render(*partial_params)&.dig(property_name) || []) unless partial_params.nil?
+      else
+        json[property_name] += ([render(*partial_params)] || []) unless partial_params.nil?
+      end
     else
       json.merge! render(*partial_params) unless partial_params.nil?
     end
