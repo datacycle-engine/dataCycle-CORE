@@ -48,7 +48,7 @@ module DataCycleCore
                     'description' => @content.description,
                     'potentialAction' => [
                       {
-                        '@type' => 'https://schema.org/ViewAction',
+                        '@type' => 'ViewAction',
                         'name' => 'potential_action',
                         'url' => @content.potential_action
                       }

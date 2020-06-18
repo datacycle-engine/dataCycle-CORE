@@ -52,7 +52,7 @@ module DataCycleCore
                 'description' => @content.description,
                 'potentialAction' => [
                   {
-                    '@type' => 'https://schema.org/ViewAction',
+                    '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => @content.potential_action
                   }
@@ -209,7 +209,7 @@ module DataCycleCore
                 'description' => @content.description,
                 'potentialAction' => [
                   {
-                    '@type' => 'https://schema.org/ViewAction',
+                    '@type' => 'ViewAction',
                     'name' => 'potential_action',
                     'url' => @content.potential_action
                   }
@@ -419,52 +419,10 @@ module DataCycleCore
             end
 
             # locations content_location, virtual_location
-
+            # only test virtual location, full content_location has been moved to poi_test
             json_validate['location'].each { |location| location.delete('dc:classification') }
-            content_location_object = @content.content_location.first
+            json_validate['location'] = [json_validate['location'].second]
             virtual_location_object = @content.virtual_location.first
-            content_location_api_values = {
-              '@id' => content_location_object.id,
-              '@type' => 'TouristAttraction',
-              'name' => content_location_object.title,
-              'geo' => {
-                'longitude' => content_location_object.longitude,
-                '@type' => 'GeoCoordinates',
-                'latitude' => content_location_object.latitude,
-                'elevation' => content_location_object.elevation
-              },
-              'address' => {
-                # "@type" => "PostalAddress",
-                # "streetAddress" => content_location_object.address.street_address,
-                # "postalCode" => content_location_object.address.postal_code,
-                # "addressLocality" => content_location_object.address.address_locality,
-                # "addressCountry" => content_location_object.address.address_country,
-                'name' => content_location_object.contact_info.name,
-                'telephone' => content_location_object.contact_info.telephone,
-                'faxNumber' => content_location_object.contact_info.fax_number,
-                'email' => content_location_object.contact_info.email,
-                'url' => content_location_object.contact_info.url
-              },
-              'description' => content_location_object.description,
-              'image' => [
-                content_location_object.image.first.to_api_default_values
-              ],
-              'additionalProperty' => [
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'text',
-                  'name' => 'Beschreibung',
-                  'value' => content_location_object.text
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'priceRange',
-                  'name' => 'Preis-Info',
-                  'value' => content_location_object.price_range
-                }
-              ]
-            }
-
             virtual_location_api_values = {
               '@id' => virtual_location_object.id,
               '@type' => 'VirtualLocation',
@@ -475,7 +433,6 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
               {
                 'location' => [
-                  content_location_api_values,
                   virtual_location_api_values
                 ]
               }

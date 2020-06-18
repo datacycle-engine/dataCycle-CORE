@@ -16,7 +16,8 @@ module DataCycleCore
           'external_key', # only used for embedded during import
           'country_code_api', # legacy property for API v2 + v3
           'gender_api', # legacy property for API v2 + v3
-          'asset' # disabled asset property for tests
+          'asset', # disabled asset property for tests,
+          'tour' # active after tour refactoring
         ].freeze
 
       def assert_api_count_result(count)

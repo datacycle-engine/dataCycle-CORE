@@ -6,7 +6,7 @@ key_new = attribute_key(key, definition)
 key_new = property_definition.dig('transformation', 'name') if property_definition.dig('transformation', 'method') == 'append'
 
 data = {
-  '@type' => "https://schema.org/#{property_definition.dig('type')}" || 'https://schema.org/ViewAction',
+  '@type' => property_definition.dig('type').to_s || 'ViewAction',
   'name' => property_definition.dig('action', 'platform') || key,
   'url' => load_value_object(content, key, value, options[:languages])
 }

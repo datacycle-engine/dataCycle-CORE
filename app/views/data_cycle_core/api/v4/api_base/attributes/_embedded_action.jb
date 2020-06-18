@@ -27,7 +27,7 @@ if data.present?
       end
     end
   end
-  json[key_new]&.map! { |h| h.except('@id', 'dc:classification') }
+  json[key_new]&.map! { |h| h.except('@id', 'dc:classification') }&.each { |h| h['@type'] = h['@type'].split('/').last }
   json.delete(key_new) if json[key_new].blank?
 end
 
