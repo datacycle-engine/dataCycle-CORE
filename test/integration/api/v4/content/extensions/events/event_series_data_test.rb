@@ -33,6 +33,7 @@ module DataCycleCore
                 # test full event data
                 required_attributes = required_validation_attributes(@content)
                 # test minimal
+
                 assert_attributes(json_validate, required_attributes, ['id', 'name']) do
                   {
                     '@id' => @content.id,
@@ -45,7 +46,13 @@ module DataCycleCore
                 assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
                   {
                     'description' => @content.description,
-                    'potentialAction' => @content.potential_action
+                    'potentialAction' => [
+                      {
+                        '@type' => 'https://schema.org/ViewAction',
+                        'name' => 'potential_action',
+                        'url' => @content.potential_action
+                      }
+                    ]
                   }
                 end
 

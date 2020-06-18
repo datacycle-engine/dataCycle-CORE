@@ -25,7 +25,7 @@ module DataCycleCore
         'feratel_facilities_accommodations' => [],
         'feratel_facilities_additional_services' => []
       }
-      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours'))
+      assert_equal(expected_hash, data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours', 'potential_action'))
       assert_nil(data_set.desc)
       assert_equal(['address', 'location'], data_set.object_browser_fields)
       assert_equal(data_set.cache_key.to_s, "data_cycle_core/things/#{data_set.id}-#{data_set.updated_at.utc.to_s(:usec)}/data_cycle_core/thing/translations/#{data_set.translations.first.id}-#{data_set.translations.first.updated_at.utc.to_s(:usec)}-de")
@@ -60,7 +60,7 @@ module DataCycleCore
       }
       resulted_hash = data_set.get_data_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place'))
       # location object deserializes with the RGeo::Geos::CAPIFactory != RGeo::Geographic.spherical_factory
-      assert_equal(expected_hash.except('location', 'opening_hours_specification', 'opening_hours'), resulted_hash.except('location', 'opening_hours_specification', 'opening_hours'))
+      assert_equal(expected_hash.except('location', 'opening_hours_specification', 'opening_hours'), resulted_hash.except('location', 'opening_hours_specification', 'opening_hours', 'potential_action'))
       assert_equal(true, expected_hash['location'].x == resulted_hash['location'].x)
       assert_equal(true, expected_hash['location'].y == resulted_hash['location'].y)
       assert_equal(true, expected_hash['location'].srid == resulted_hash['location'].srid)

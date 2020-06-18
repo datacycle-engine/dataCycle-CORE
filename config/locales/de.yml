@@ -516,6 +516,7 @@ de:
       url: "%{data} ist keine gültige Url (gültiges Beispiel: 'https://www.example.com')."
       string: '%{template} ist kein String, sondern %{label}.'
       geo: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte Geometric/Geographical Typ, oder einen WKT formatierten String.'
+      geo_invalid: 'Ungültiger Wert für den Typ %{geo_type}'
       schedule:
         general: 'Falschen Datentyp angegeben für %{template} (%{data}). Erwarte DataCycleCore::Schedule, oder einen gültigen Hash.'
         time: "DateTime Format falsch für %{template} (%{data}), erwarte einen Hash mit { time: 2019-11-20 08:00:00 UTC, zone: 'Vienna'}"
