@@ -87,6 +87,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v3
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
@@ -130,6 +131,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v2
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
