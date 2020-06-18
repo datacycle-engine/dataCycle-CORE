@@ -187,14 +187,14 @@ module DataCycleCore
           success
         end
 
-        def self.mark_deleted(download_object:, data_id:, data_name:, options:)
+        def self.mark_deleted(download_object:, data_id:, options:)
           success = true
           delta = 100
           options[:locales] ||= I18n.available_locales
           deleted_from = download_object.external_source.last_successful_download || Time.zone.local(2010)
           if options[:locales].size != 1
             options[:locales].each do |language|
-              success &&= mark_deleted(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+              success &&= mark_deleted(download_object: download_object, data_id: data_id, options: options.except(:locales).merge({ locales: [language] }))
             end
           else
             init_mongo_db(download_object) do
@@ -223,7 +223,6 @@ module DataCycleCore
 
                       begin
                         item_id = data_id.call(item_data)
-                        item_name = data_name.call(item_data)
 
                         begin
                           item = mongo_item.find_by('external_id': item_id)
@@ -231,12 +230,14 @@ module DataCycleCore
                           next
                         end
 
+                        next if item.dump[locale].nil?
+
                         item.dump[locale]['deleted_at'] ||= Time.zone.now
                         item.save!
-                        logging.item_processed(item_name, item_id, item_count, max_string)
+                        logging.item_processed('delete', item_id, item_count, max_string)
                       rescue StandardError => e
                         Appsignal.send_error(e, nil, 'background')
-                        logging.error(item_name, item_id, item_data, e)
+                        logging.error('delete', item_id, item_data, e)
                         success = false
                       end
 
