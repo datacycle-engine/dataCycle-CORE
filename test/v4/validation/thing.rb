@@ -64,7 +64,13 @@ module DataCycleCore
           optional(:superEvent).value(:array).each do
             hash(DEFAULT_HEADER)
           end
-          optional(:potentialAction).value(:string)
+          optional(:potentialAction).value(:array).each do
+            hash do
+              required(:@type).value(:string)
+              required(:name).value(:string)
+              required(:url).value(:string)
+            end
+          end
           optional(:'cc:license').value(:string)
           optional(:'cc:morePermissions').value(:string)
           optional(:'cc:attributionName').value(:string)

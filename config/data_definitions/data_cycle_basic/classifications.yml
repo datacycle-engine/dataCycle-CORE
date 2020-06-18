@@ -378,3 +378,7 @@
   - Veranstaltung auf unbekannten Zeitpunkt vertagt **https://schema.org/EventPostponed
   - Veranstaltung verschoben **https://schema.org/EventRescheduled
   - Veranstaltung geplant **https://schema.org/EventScheduled
+
+- ActionTypes | all:
+  - Download **https://schema.org/DownloadAction
+  - View **https://schema.org/ViewAction

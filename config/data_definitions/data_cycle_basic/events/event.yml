@@ -223,6 +223,9 @@
         :api:
           :partial: action
           :type: ViewAction
+          :transformation:
+            :method: append
+            :name: potentialAction
       :linked_data:
         :type: mixin
         :name: linked_data

@@ -55,6 +55,8 @@
         :tree_label: Wochentage
         :api:
           :partial: day_of_week
+          :v4:
+            :partial: array
       :time:
         :label: Zeit
         :type: embedded

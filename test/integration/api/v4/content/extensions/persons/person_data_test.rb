@@ -72,7 +72,6 @@ module DataCycleCore
 
                 # address
                 assert_attributes(json_validate, required_attributes, ['address', 'contact_info']) do
-                  # license is overwritten by license_classification
                   {
                     'address' => {
                       '@type' => 'PostalAddress',
