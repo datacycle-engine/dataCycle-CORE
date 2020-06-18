@@ -27,6 +27,7 @@ module DataCycleCore
           t(:stringify_keys)
           .>> t(:unwrap, 'attributes', ['name', 'image'])
           .>> t(:rename_keys, { 'image' => 'thumbnail_url' })
+          .>> t(:add_field, 'content_url', ->(s) { s['thumbnail_url'] })
           .>> t(:add_field, 'external_key', ->(s) { "Xamoom - #{s['id']} - image" })
           .>> t(:reject_keys, ['attributes', 'id'])
           .>> t(:strip_all)

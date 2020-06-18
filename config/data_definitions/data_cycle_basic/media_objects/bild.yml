@@ -15,7 +15,13 @@
       :serialize:
         :allowed: true
         :serializers:
-          :asset: true
+          :asset:
+            :original:
+              - png
+              - jpeg
+            :web:
+              - png
+              - jpeg
           :json: true
           :xml: true
     :api:
