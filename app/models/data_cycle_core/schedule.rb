@@ -82,7 +82,8 @@ module DataCycleCore
         'repeatFrequency' => repeat_frequency,
         'byDay' => by_day&.map { |day| dow(day) },
         'byMonth' => by_month&.map(&:to_i),
-        'byMonthDay' => by_month_day&.map(&:to_i)
+        'byMonthDay' => by_month_day&.map(&:to_i),
+        'scheduleTimezone' => dtstart.time_zone.name
       }.compact
     end
 
