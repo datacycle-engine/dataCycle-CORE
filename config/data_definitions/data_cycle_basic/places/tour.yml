@@ -10,6 +10,8 @@
         :allowed: true
       :download:
         :allowed: true
+      :overlay:
+        :allowed: true
       :serialize:
         :allowed: true
         :serializers:

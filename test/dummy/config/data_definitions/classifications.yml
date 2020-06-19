@@ -30,7 +30,7 @@
         - $$Rezept
     - $$Organisation
     - $$Zeitleiste
-    - $$Thema
+    - $$Container
     - $$Schneehöhe - Messpunkt
     - $$Skigebiet - Addon
     # embedded
