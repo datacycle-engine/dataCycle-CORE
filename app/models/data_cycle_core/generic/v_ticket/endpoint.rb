@@ -4,11 +4,12 @@ module DataCycleCore
   module Generic
     module VTicket
       class Endpoint
-        def initialize(host: nil, end_point: nil, action: nil, token: nil, **_options)
+        def initialize(host: nil, end_point: nil, action: nil, token: nil, filter_selection: nil, **_options)
           @host = host
           @end_point = end_point
           @action = action
           @token = token
+          @filter_selection = filter_selection
           @per = 30
           @max_retry = 5
           @conn = Faraday.new(@host)
@@ -56,6 +57,11 @@ module DataCycleCore
               'number' => page,
               'size' => per
             }
+            if @filter_selection.present?
+              req.params['filter'] = {
+                'selection' => @filter_selection
+              }
+            end
             if detail_id.present?
               req.params['filter'] = {
                 'id' => detail_id

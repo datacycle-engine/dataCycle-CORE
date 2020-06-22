@@ -262,6 +262,71 @@ module DataCycleCore
           success
         end
 
+        def self.mark_deleted_from_data(download_object:, iterator:, options:)
+          success = true
+          delta = 100
+          fixnum_max = (2**(0.size * 4 - 2) - 1)
+          options[:locales] ||= I18n.available_locales
+          if options[:locales].size != 1
+            options[:locales].each do |language|
+              success &&= mark_deleted(download_object: download_object, data_id: data_id, data_name: data_name, options: options.except(:locales).merge({ locales: [language] }))
+            end
+          else
+            init_mongo_db(download_object) do
+              init_logging(download_object) do |logging|
+                locale = options[:locales].first
+                logging.preparing_phase("#{download_object.external_source.name} #{download_object.source_type.collection_name} #{locale}")
+                item_count = 0
+
+                source_filter = options&.dig(:download, :source_filter) || {}
+                source_filter = source_filter.with_evaluated_values
+                source_filter = source_filter.merge({ "dump.#{locale}.deleted_at" => { '$exists' => false } })
+
+                GC.start
+                times = [Time.current]
+
+                begin
+                  download_object.source_object.with(download_object.source_type) do |mongo_item|
+                    mongo_item.with_session do |session|
+                      if options.dig(:iterator_type) == :aggregate || options.dig(:download, :iterator_type) == 'aggregate'
+                        iterate = iterator.call(mongo_item, locale, source_filter)
+                      else
+                        iterate = iterator.call(mongo_item, locale, source_filter).all.no_timeout.max_time_ms(fixnum_max)
+                      end
+                      iterate.each do |content|
+                        break if options[:max_count].present? && item_count >= options[:max_count]
+                        item_count += 1
+                        next if options[:min_count].present? && item_count < options[:min_count]
+
+                        session.client.command(refreshSessions: [session.session_id]) # keep the mongo_session alive
+
+                        # process data
+                        # content.dump[locale] = content.dump[locale].except('deleted_at')
+                        content.dump[locale]['deleted_at'] ||= Time.zone.now
+                        content.save!
+
+                        next unless (item_count % delta).zero?
+
+                        GC.start
+                        times << Time.current
+
+                        logging.info("Downloaded #{item_count.to_s.rjust(7)} items in #{GenericObject.format_float((times[-1] - times[0]), 6, 3)} seconds", "ðt: #{GenericObject.format_float((times[-1] - times[-2]), 6, 3)}")
+                      end
+                    end
+                  end
+                rescue StandardError => e
+                  Appsignal.send_error(e, nil, 'background')
+                  logging.error(nil, nil, nil, e)
+                  success = false
+                ensure
+                  logging.phase_finished("#{download_object.source_type.collection_name}_#{locale}", item_count)
+                end
+              end
+            end
+          end
+          success
+        end
+
         def self.init_logging(download_object)
           logging = download_object.init_logging(:download)
           yield(logging)

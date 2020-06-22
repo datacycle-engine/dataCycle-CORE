@@ -7,7 +7,7 @@ module DataCycleCore
 
       def initialize(**options)
         raise "Missing source_type for #{self.class}, options given: #{options}"       if options&.dig(:download, :source_type).blank?
-        raise "Missing endpoint for #{self.class}, options given: #{options}"          if options&.dig(:download, :endpoint).blank?
+        # raise "Missing endpoint for #{self.class}, options given: #{options}"          if options&.dig(:download, :endpoint).blank?
         raise "Missing external_source for #{self.class}, options given: #{options}"   if options&.dig(:external_source).blank?
 
         @options = options.with_indifferent_access
@@ -23,6 +23,8 @@ module DataCycleCore
         else
           read_type = {}
         end
+
+        return if options&.dig(:download, :endpoint).blank? # for mark_deleted_from_data tasks
         endpoint_options_params = options.except(:download, :credentials, :external_source).merge({ changed_from: changed_from })
         endpoint_params = @credentials.symbolize_keys
           .merge(read_type)

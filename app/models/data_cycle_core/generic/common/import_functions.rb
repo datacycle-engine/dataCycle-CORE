@@ -98,6 +98,7 @@ module DataCycleCore
 
         def self.import_sequential(utility_object:, iterator:, data_processor:, options:)
           delta = 100
+          fixnum_max = (2**(0.size * 4 - 2) - 1)
           init_logging(utility_object) do |logging|
             init_mongo_db(utility_object) do
               importer_name = options.dig(:import, :name)
@@ -106,7 +107,6 @@ module DataCycleCore
 
               each_locale(utility_object.locales) do |locale|
                 item_count = 0
-                fixnum_max = (2**(0.size * 4 - 2) - 1)
                 begin
                   logging.phase_started("#{importer_name}(#{phase_name}) #{locale}")
                   source_filter = options&.dig(:import, :source_filter) || {}

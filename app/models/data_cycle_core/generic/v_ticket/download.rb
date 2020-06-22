@@ -9,6 +9,7 @@ module DataCycleCore
             download_object: utility_object,
             data_id: method(:data_id).to_proc,
             data_name: method(:data_name).to_proc,
+            modified: method(:modified).to_proc,
             options: options
           )
         end
@@ -19,6 +20,19 @@ module DataCycleCore
 
         def self.data_name(data)
           data['title']
+        end
+
+        def self.modified(data)
+          [
+            data.dig('meta', 'updatedAt'),
+            data.dig('location', 'meta', 'updatedAt'),
+            data.dig('promoter', 'meta', 'updatedAt'),
+            Array.wrap(data.dig('subEvent'))&.map { |item| item.dig('meta', 'updatedAt').presence }&.compact&.flatten
+          ].compact
+            &.map { |i| Array.wrap(i) }
+            &.inject(:+)
+            &.map { |i| i.in_time_zone }
+            &.max
         end
       end
     end
