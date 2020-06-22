@@ -27,8 +27,8 @@ module DataCycleCore
 
         def self.vticket_to_image
           t(:stringify_keys)
-          .>> t(:rename_keys, { 'original' => 'content_url', 'thumbnail' => 'thumbnail_url' })
-          .>> t(:reject_keys, ['large', 'middle', 'small'])
+          .>> t(:rename_keys, { 'original' => 'content_url', 'middle' => 'thumbnail_url' })
+          .>> t(:reject_keys, ['large', 'thumbnail', 'small'])
           .>> t(:add_field, 'external_key', ->(s) { "V-Ticket Image: #{s.dig('content_url')&.split('/')&.fetch(-3)}" if s.dig('content_url')&.split('/')&.count == 7 })
           .>> t(:strip_all)
         end

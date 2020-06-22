@@ -17,9 +17,8 @@ combined.each do |combined_key, combined_value|
     end
   }&.compact&.presence
 
-  # filter out fields
   new_fields = subtree_for(combined_key, options[:fields])
-  next unless new_fields.present? || options[:field_filter]
+  next if new_fields.blank?
   new_include = subtree_for(combined_key, options[:include])
   json[combined_key] = json[combined_key]&.map { |array_item| array_item.select { |p_key, _value| api_default_attributes.include?(p_key) || select_attributes(new_fields).include?(p_key) || select_attributes(new_include).include?(p_key) } }
 end

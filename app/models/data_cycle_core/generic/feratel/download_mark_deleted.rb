@@ -8,17 +8,12 @@ module DataCycleCore
           DataCycleCore::Generic::Common::DownloadFunctions.mark_deleted(
             download_object: utility_object,
             data_id: method(:data_id).to_proc,
-            data_name: method(:data_name).to_proc,
             options: options
           )
         end
 
         def self.data_id(data)
           data['Id']
-        end
-
-        def self.data_name(data)
-          Array.wrap(data.dig('Details', 'Names', 'Translation')).first.try(:[], 'text')
         end
       end
     end

@@ -8,7 +8,7 @@ module DataCycleCore
       module Content
         class ThingDataTest < DataCycleCore::V4::Base
           setup do
-            @event = DataCycleCore::V4::DummyDataHelper.create_data('event')
+            @content = DataCycleCore::V4::DummyDataHelper.create_data('event')
           end
 
           # TODO: missing tests
@@ -18,10 +18,10 @@ module DataCycleCore
           # - subject_of
 
           test 'api_v4_thing_path validate full event with default params' do
-            assert_full_thing_datahash(@event)
+            assert_full_thing_datahash(@content)
 
             params = {
-              id: @event.id
+              id: @content.id
             }
             post api_v4_thing_path(params)
             json_data = JSON.parse response.body
@@ -35,37 +35,43 @@ module DataCycleCore
             assert_equal({}, validator.call(json_context.second).errors.to_h)
 
             # test full event data
-            required_attributes = required_validation_attributes(@event)
+            required_attributes = required_validation_attributes(@content)
 
             # test minimal
             assert_attributes(json_validate, required_attributes, ['id', 'name']) do
               {
-                '@id' => @event.id,
+                '@id' => @content.id,
                 '@type' => 'Event',
-                'name' => @event.name
+                'name' => @content.name
               }
             end
 
             # plain attributes without transformation
             assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
               {
-                'description' => @event.description,
-                'potentialAction' => @event.potential_action
+                'description' => @content.description,
+                'potentialAction' => [
+                  {
+                    '@type' => 'ViewAction',
+                    'name' => 'potential_action',
+                    'url' => @content.potential_action
+                  }
+                ]
               }
             end
 
             # plain external attributes without transformation
             assert_attributes(json_validate, required_attributes, ['url']) do
               {
-                'sameAs' => @event.url
+                'sameAs' => @content.url
               }
             end
 
             # computed attributes
             assert_attributes(json_validate, required_attributes, ['start_date', 'end_date']) do
               {
-                'startDate' => @event.start_date.as_json,
-                'endDate' => @event.end_date.as_json
+                'startDate' => @content.start_date.as_json,
+                'endDate' => @content.end_date.as_json
               }
             end
 
@@ -78,11 +84,11 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @event.license_classification.first.classification_aliases.first.uri,
-                'cc:useGuidelines' => @event.use_guidelines,
-                'cc:attributionUrl' => @event.attribution_url,
-                'cc:attributionName' => @event.attribution_name,
-                'cc:morePermissions' => @event.more_permissions
+                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:useGuidelines' => @content.use_guidelines,
+                'cc:attributionUrl' => @content.attribution_url,
+                'cc:attributionName' => @content.attribution_name,
+                'cc:morePermissions' => @content.more_permissions
               }
             end
 
@@ -90,13 +96,13 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['image', 'organizer', 'performer']) do
               {
                 'image' => [
-                  @event.image.first.to_api_default_values
+                  @content.image.first.to_api_default_values
                 ],
                 'organizer' => [
-                  @event.organizer.first.to_api_default_values
+                  @content.organizer.first.to_api_default_values
                 ],
                 'performer' => [
-                  @event.performer.first.to_api_default_values
+                  @content.performer.first.to_api_default_values
                 ]
               }
             end
@@ -105,19 +111,19 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['offers']) do
               {
                 'offers' => [
-                  @event.offers.first.to_api_default_values
+                  @content.offers.first.to_api_default_values
                 ]
               }
             end
 
-            # same_as => potentialAction
+            # same_as => additionalProperty
             assert_attributes(json_validate, required_attributes, ['same_as']) do
               {
                 'additionalProperty' => [
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
-                    'value' => @event.same_as,
+                    'value' => @content.same_as,
                     'name' => 'Link'
                   }
                 ]
@@ -127,8 +133,8 @@ module DataCycleCore
             # transformed classifications: event_status, event_attendance_mode
             assert_attributes(json_validate, required_attributes, ['event_status', 'event_attendance_mode']) do
               {
-                'eventStatus' => @event.event_status.first.classification_aliases.first.uri,
-                'eventAttendanceMode' => @event.event_attendance_mode.first.classification_aliases.first.uri
+                'eventStatus' => @content.event_status.first.classification_aliases.first.uri,
+                'eventAttendanceMode' => @content.event_attendance_mode.first.classification_aliases.first.uri
               }
             end
 
@@ -136,7 +142,7 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['event_schedule']) do
               {
                 'eventSchedule' => [
-                  @event.event_schedule.first.to_api_default_values
+                  @content.event_schedule.first.to_api_default_values
                 ]
               }
             end
@@ -145,8 +151,8 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
               {
                 'location' => [
-                  @event.content_location.first.to_api_default_values,
-                  @event.virtual_location.first.to_api_default_values
+                  @content.content_location.first.to_api_default_values,
+                  @content.virtual_location.first.to_api_default_values
                 ]
               }
             end
@@ -155,12 +161,12 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
-                  @event.super_event.first.to_api_default_values
+                  @content.super_event.first.to_api_default_values
                 ]
               }
             end
 
-            assert_classifications(json_validate, @event.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)
@@ -169,9 +175,9 @@ module DataCycleCore
           # in future test ignore linked data if a test already exists for the template
           # full test only must validate embedded and schedules
           test 'api_v4_thing_path validate full event with all linked/embedded/scheduled data' do
-            assert_full_thing_datahash(@event)
+            assert_full_thing_datahash(@content)
             params = {
-              id: @event.id,
+              id: @content.id,
               include: 'offers,offers.priceSpecification,offers.itemOffered,eventSchedule,location'
             }
             post api_v4_thing_path(params)
@@ -186,37 +192,43 @@ module DataCycleCore
             assert_equal({}, validator.call(json_context.second).errors.to_h)
 
             # test full event data
-            required_attributes = required_validation_attributes(@event)
+            required_attributes = required_validation_attributes(@content)
 
             # test minimal
             assert_attributes(json_validate, required_attributes, ['id', 'name']) do
               {
-                '@id' => @event.id,
+                '@id' => @content.id,
                 '@type' => 'Event',
-                'name' => @event.name
+                'name' => @content.name
               }
             end
 
             # plain attributes without transformation
             assert_attributes(json_validate, required_attributes, ['description', 'potential_action']) do
               {
-                'description' => @event.description,
-                'potentialAction' => @event.potential_action
+                'description' => @content.description,
+                'potentialAction' => [
+                  {
+                    '@type' => 'ViewAction',
+                    'name' => 'potential_action',
+                    'url' => @content.potential_action
+                  }
+                ]
               }
             end
 
             # plain external attributes without transformation
             assert_attributes(json_validate, required_attributes, ['url']) do
               {
-                'sameAs' => @event.url
+                'sameAs' => @content.url
               }
             end
 
             # computed attributes
             assert_attributes(json_validate, required_attributes, ['start_date', 'end_date']) do
               {
-                'startDate' => @event.start_date.as_json,
-                'endDate' => @event.end_date.as_json
+                'startDate' => @content.start_date.as_json,
+                'endDate' => @content.end_date.as_json
               }
             end
 
@@ -229,24 +241,24 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['license', 'use_guidelines', 'attribution_url', 'attribution_name', 'more_permissions', 'license_classification']) do
               # license is overwritten by license_classification
               {
-                'cc:license' => @event.license_classification.first.classification_aliases.first.uri,
-                'cc:useGuidelines' => @event.use_guidelines,
-                'cc:attributionUrl' => @event.attribution_url,
-                'cc:attributionName' => @event.attribution_name,
-                'cc:morePermissions' => @event.more_permissions
+                'cc:license' => @content.license_classification.first.classification_aliases.first.uri,
+                'cc:useGuidelines' => @content.use_guidelines,
+                'cc:attributionUrl' => @content.attribution_url,
+                'cc:attributionName' => @content.attribution_name,
+                'cc:morePermissions' => @content.more_permissions
               }
             end
 
             assert_attributes(json_validate, required_attributes, ['image', 'organizer', 'performer']) do
               {
                 'image' => [
-                  @event.image.first.to_api_default_values
+                  @content.image.first.to_api_default_values
                 ],
                 'organizer' => [
-                  @event.organizer.first.to_api_default_values
+                  @content.organizer.first.to_api_default_values
                 ],
                 'performer' => [
-                  @event.performer.first.to_api_default_values
+                  @content.performer.first.to_api_default_values
                 ]
               }
             end
@@ -255,7 +267,7 @@ module DataCycleCore
             # offers inside service (itemOffered) entity must be testet in a seperate service test
             # classifications must not be validated
             json_validate['offers'].first.delete('dc:classification')
-            offer_object = @event.offers.first
+            offer_object = @content.offers.first
             json_validate['offers'].first['priceSpecification'].first.delete('dc:classification')
             json_validate['offers'].first['itemOffered'].first.delete('dc:classification')
             price_specification_object = offer_object.price_specification.first
@@ -370,7 +382,7 @@ module DataCycleCore
                   {
                     '@type' => 'PropertyValue',
                     'identifier' => 'link',
-                    'value' => @event.same_as,
+                    'value' => @content.same_as,
                     'name' => 'Link'
                   }
                 ]
@@ -380,13 +392,13 @@ module DataCycleCore
             # transformed classifications: event_status, event_attendance_mode
             assert_attributes(json_validate, required_attributes, ['event_status', 'event_attendance_mode']) do
               {
-                'eventStatus' => @event.event_status.first.classification_aliases.first.uri,
-                'eventAttendanceMode' => @event.event_attendance_mode.first.classification_aliases.first.uri
+                'eventStatus' => @content.event_status.first.classification_aliases.first.uri,
+                'eventAttendanceMode' => @content.event_attendance_mode.first.classification_aliases.first.uri
               }
             end
 
             # schedule: event_schedule
-            event_schedule_object = @event.event_schedule.first.to_h
+            event_schedule_object = @content.event_schedule.first.to_h
             event_schedule_api_values = {
               '@id' => event_schedule_object.dig(:id),
               '@type' => 'Schedule',
@@ -407,52 +419,10 @@ module DataCycleCore
             end
 
             # locations content_location, virtual_location
-
+            # only test virtual location, full content_location has been moved to poi_test
             json_validate['location'].each { |location| location.delete('dc:classification') }
-            content_location_object = @event.content_location.first
-            virtual_location_object = @event.virtual_location.first
-            content_location_api_values = {
-              '@id' => content_location_object.id,
-              '@type' => 'TouristAttraction',
-              'name' => content_location_object.title,
-              'geo' => {
-                'longitude' => content_location_object.longitude,
-                '@type' => 'GeoCoordinates',
-                'latitude' => content_location_object.latitude,
-                'elevation' => content_location_object.elevation
-              },
-              'address' => {
-                # "@type" => "PostalAddress",
-                # "streetAddress" => content_location_object.address.street_address,
-                # "postalCode" => content_location_object.address.postal_code,
-                # "addressLocality" => content_location_object.address.address_locality,
-                # "addressCountry" => content_location_object.address.address_country,
-                'name' => content_location_object.contact_info.name,
-                'telephone' => content_location_object.contact_info.telephone,
-                'faxNumber' => content_location_object.contact_info.fax_number,
-                'email' => content_location_object.contact_info.email,
-                'url' => content_location_object.contact_info.url
-              },
-              'description' => content_location_object.description,
-              'image' => [
-                content_location_object.image.first.to_api_default_values
-              ],
-              'additionalProperty' => [
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'text',
-                  'name' => 'Beschreibung',
-                  'value' => content_location_object.text
-                },
-                {
-                  '@type' => 'PropertyValue',
-                  'identifier' => 'priceRange',
-                  'name' => 'Preis-Info',
-                  'value' => content_location_object.price_range
-                }
-              ]
-            }
-
+            json_validate['location'] = [json_validate['location'].second]
+            virtual_location_object = @content.virtual_location.first
             virtual_location_api_values = {
               '@id' => virtual_location_object.id,
               '@type' => 'VirtualLocation',
@@ -463,7 +433,6 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['content_location', 'virtual_location']) do
               {
                 'location' => [
-                  content_location_api_values,
                   virtual_location_api_values
                 ]
               }
@@ -473,12 +442,12 @@ module DataCycleCore
             assert_attributes(json_validate, required_attributes, ['super_event']) do
               {
                 'superEvent' => [
-                  @event.super_event.first.to_api_default_values
+                  @content.super_event.first.to_api_default_values
                 ]
               }
             end
 
-            assert_classifications(json_validate, @event.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+            assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
 
             assert_equal([], required_attributes)
             assert_equal({}, json_validate)

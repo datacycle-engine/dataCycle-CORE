@@ -116,6 +116,9 @@
         :api:
           :partial: action
           :type: ViewAction
+          :transformation:
+            :method: append
+            :name: potentialAction
       :data_type:
         :label: Inhaltstyp
         :type: classification

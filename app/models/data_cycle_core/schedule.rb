@@ -77,8 +77,8 @@ module DataCycleCore
         'endTime' => end_time,
         'duration' => duration&.iso8601,
         'repeatCount' => repeat_count,
-        'exceptDate' => exdate&.map(&:to_s)&.presence,
-        'additionalDate' => rdate&.map(&:to_s)&.presence,
+        'exceptDate' => exdate&.map(&:iso8601)&.presence,
+        'additionalDate' => rdate&.map(&:iso8601)&.presence,
         'repeatFrequency' => repeat_frequency,
         'byDay' => by_day&.map { |day| dow(day) },
         'byMonth' => by_month&.map(&:to_i),
@@ -87,6 +87,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v3
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?
@@ -130,6 +131,7 @@ module DataCycleCore
     end
 
     def to_schedule_schema_org_api_v2
+      return {} unless @schedule_object.terminating?
       return {} unless @schedule_object.all_occurrences.size.positive?
       end_time = dtend&.to_s(:only_time)
       end_time = (dtstart + duration)&.to_s(:only_time) if dtstart.present? && duration.present?

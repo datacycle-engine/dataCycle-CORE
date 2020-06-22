@@ -26,7 +26,7 @@ module DataCycleCore
       data_set_place1.set_data_hash(data_hash: place_hash1)
       data_set_place1.save
       expected_hash = data_set_place1.get_data_hash
-      assert_equal(place_hash1, expected_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours'))
+      assert_equal(place_hash1, expected_hash.compact.except(*DataCycleCore::TestPreparations.excepted_attributes('place')).except('opening_hours_specification', 'opening_hours', 'potential_action'))
     end
 
     # TODO: move to generic embedded test
