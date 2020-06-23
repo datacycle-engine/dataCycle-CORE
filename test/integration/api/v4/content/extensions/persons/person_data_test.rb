@@ -200,7 +200,7 @@ module DataCycleCore
                       'streetAddress' => content_overlay.address.street_address,
                       'postalCode' => content_overlay.address.postal_code,
                       'addressLocality' => content_overlay.address.address_locality,
-                      'addressCountry' => content_overlay.address.address_country,
+                      'addressCountry' => content_overlay.country_code.first.classification_aliases.first.name,
                       'name' => content_overlay.contact_info.name,
                       'telephone' => content_overlay.contact_info.telephone,
                       'faxNumber' => content_overlay.contact_info.fax_number,
@@ -210,7 +210,7 @@ module DataCycleCore
                   }
                 end
 
-                assert_classifications(json_validate, @content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values))
+                assert_classifications(json_validate, (@content.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values) + content_overlay.classification_aliases.to_a.select { |c| c.visible?('api') }.map(&:to_api_default_values)))
 
                 assert_equal([], required_attributes)
                 assert_equal({}, json_validate)

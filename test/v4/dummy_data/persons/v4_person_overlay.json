@@ -7,6 +7,7 @@
     "address_locality": "AddressLocality Overlay",
     "address_country": "AddressCountry Overlay"
   },
+  "country_code": "AT",
   "contact_info": {
     "name": "Ansprechpartner Overlay",
     "telephone": "Telephone Overlay",
