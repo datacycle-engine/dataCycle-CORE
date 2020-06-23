@@ -61,11 +61,20 @@ module DataCycleCore
           end
 
           response = conn.get do |req|
+            req.headers['cookie'] = @cookie_values.map { |k, v| "#{k}=#{v}" }.join('; ') if @cookie_values.present?
+
             req.params['fx'] = 'api'
             req.params['token'] = @token
             req.params['qt'] = parameters.dig(:qt) if parameters.dig(:qt).present?
             req.params['keyfolder'] = parameters.dig(:keyfolder) if parameters.dig(:keyfolder).present?
           end
+
+          @cookie_values = (@cookie_values || {}).merge(Hash[
+            response.headers['set-cookie']
+                    .split(/[;,]/)
+                    .map(&:strip)
+                    .map{ |c| c.split('=') }
+          ].select { |k, _| ['PHPSESSID', 'apiax', 'apism', 'apixi'].include?(k) })
 
           raise DataCycleCore::Generic::Common::Error::EndpointError.new("error loading data from url: #{File.join([@host, @end_point])}, params: token=#{@token}, qt=#{parameters.dig(:qt)}, keyfolder=#{parameters.dig(:keyfolder)}", response) unless response.success?
           Nokogiri::XML(response.body)
